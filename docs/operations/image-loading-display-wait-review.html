@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>이미지 로딩 표시 대기 제거 — 독립 적대적 릴리스 리뷰</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    padding: 32px 24px 72px;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    line-height: 1.72;
+    color: #1a1d23;
+    background: #fbfbfc;
+    font-size: 15px;
+  }
+  main { max-width: 1040px; margin: 0 auto; }
+  h1 { font-size: 26px; line-height: 1.35; margin: 0 0 8px; letter-spacing: -0.3px; }
+  h2 { font-size: 19px; margin: 44px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #e4e6ea; letter-spacing: -0.2px; }
+  h3 { font-size: 16px; margin: 28px 0 8px; letter-spacing: -0.2px; }
+  p { margin: 10px 0; }
+  .sub { color: #5d646e; font-size: 13.5px; margin: 0 0 24px; }
+  code, .mono {
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 12.8px;
+    background: #eef0f3;
+    padding: 1px 5px;
+    border-radius: 4px;
+    word-break: break-all;
+  }
+  pre {
+    background: #1f2329; color: #e6e9ef; padding: 14px 16px; border-radius: 8px;
+    overflow-x: auto; font-size: 12.6px; line-height: 1.6;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+  pre code { background: none; color: inherit; padding: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13.6px; }
+  th, td { border: 1px solid #dfe2e7; padding: 8px 11px; text-align: left; vertical-align: top; }
+  th { background: #f1f3f6; font-weight: 600; }
+  td.mono, th.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12.4px; }
+  .verdict {
+    border: 1px solid #cfd8e3; background: #f3f7fc; border-left: 5px solid #3b6fb5;
+    border-radius: 6px; padding: 16px 20px; margin: 20px 0 8px;
+  }
+  .verdict strong { font-size: 16px; }
+  .finding {
+    border: 1px solid #dfe2e7; border-radius: 8px; padding: 4px 20px 16px;
+    margin: 18px 0; background: #fff;
+  }
+  .finding.med { border-left: 5px solid #c98a1e; }
+  .finding.low { border-left: 5px solid #6b9a56; }
+  .finding.info { border-left: 5px solid #8a8f98; }
+  .badge {
+    display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.4px;
+    padding: 2px 9px; border-radius: 999px; vertical-align: middle; margin-left: 8px;
+  }
+  .b-med { background: #fdf1dc; color: #8c5c05; }
+  .b-low { background: #e8f2e2; color: #3f6b2c; }
+  .b-info { background: #eceef1; color: #4c525b; }
+  .b-pass { background: #e0f0e4; color: #1f6b33; }
+  .b-fail { background: #fae3e3; color: #97231f; }
+  dl { margin: 10px 0 0; }
+  dt { font-weight: 600; margin-top: 12px; color: #384049; font-size: 13.5px; }
+  dd { margin: 3px 0 0 0; }
+  ul, ol { margin: 8px 0; padding-left: 22px; }
+  li { margin: 4px 0; }
+  .note { background: #f6f7f9; border: 1px solid #e2e5ea; border-radius: 6px; padding: 12px 16px; margin: 14px 0; font-size: 14px; }
+  .path { font-family: ui-monospace, Menlo, monospace; font-size: 12.4px; color: #2c4f80; word-break: break-all; }
+  footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid #e4e6ea; color: #6b7280; font-size: 12.8px; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>이미지 로딩 표시 대기 제거 — 독립 적대적 릴리스 리뷰</h1>
+<p class="sub">
+  워크트리 <span class="path">/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화</span> ·
+  브랜치 <code>fix/image-loading</code> · 버전 <code>1.3.3+130305</code> · 작성일 2026-09-13 · <strong>개정 v2 (사실 정정 반영)</strong><br>
+  대상: <span class="path">/tmp/picnic-image-global-review.patch</span> (최신 미리뷰 델타) +
+  전체 작업 트리 diff 및 상호작용 파일 정독. 기획·구현 리포트는 읽지 않음(독립 검증).<br>
+  검증 대상 커밋: <code>161109c87 perf(images): eliminate display waits and reuse bounded image caches</code> —
+  리뷰 종료 시점에 작업 트리가 이 커밋과 정확히 일치함을 확인했다(<code>git status --untracked-files=no</code> 공백).
+  인용한 모든 행 번호는 이 커밋 기준이다.
+</p>
+
+<div class="verdict">
+  <strong>결론: 재현 가능한 블로커 없음 (0건). 남은 중대 이견 없음.</strong>
+  후속 과제 <strong>7건</strong>(Medium 1 / Low 4 / Info 2).<br>
+  델타의 기능적 정확성·회귀·API 호환성·캐시 소유권·전경/배경 스케줄링·팝업 캐시 프리뷰·페이드 제거·버전 규칙은
+  모두 코드 수준에서 확인했고 독립 테스트 재실행으로 뒷받침됨.
+  유일한 Medium(F1)도 측정된 회귀가 아니라 <em>정량 근거가 제한적인 아키텍처 후속 과제</em>이며,
+  본 리뷰어가 이미 논블로커로 분류한 항목이다. 따라서
+  <strong>본 리뷰는 릴리스 코드 변경이나 추가 릴리스 게이트를 요구하지 않는다.</strong>
+  루트가 소스 변경 없이 기존 프로파일을 계측한 뒤 태그를 판단하기로 한 처분에 이견 없음.
+</div>
+
+<div class="note" style="border-left:5px solid #8a8f98;">
+  <strong>개정 v2 (2026-09-13)</strong> — 초판의 사실오류 3건을 정정하고 루트 처분을 반영했다:
+  ① 후속 과제 개수 표기 6 → <strong>7</strong>(1+4+2);
+  ② 초판이 인용한 <strong>"4fps"는 앱 프레임레이트가 아니라 영상 샘플링 레이트</strong>여서
+  성능 근거로 쓸 수 없다 — 해당 주장 전면 삭제하고 그에 근거해 제안했던 태그 전 프로파일 캡처 <em>게이트</em>도 철회;
+  ③ 초판의 "100 issues 전부 변경 파일 외부"는 부정확 — 변경 파일 안에도 <strong>기존</strong> 진단이 있다(아래 표 정정).
+  또한 F6의 "디자인 승인 필요" 서술은 사용자 승인 범위를 넘은 요구였으므로 철회한다.
+  <strong>정정 결과가 결론을 바꾸지는 않는다</strong> — 초판도 블로커 0건이었고 지금도 0건이다.
+</div>
+
+<h2>1. 독립 검증한 항목과 결과</h2>
+
+<table>
+  <thead>
+    <tr><th style="width:23%">검토 항목</th><th style="width:11%">결과</th><th>근거</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>정적 분석</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td>
+        <strong>error 0건 · 이번 변경으로 새로 생긴 진단 0건.</strong><br>
+        본 리뷰어 실행분은 <em>디렉터리 범위</em>(<code>lib/presentation/common</code>, <code>widgets/vote</code>, <code>pages/vote</code>, 해당 test 디렉터리)라 100 issues를 반환했고 전부 warning/info였다.
+        <span style="background:#fdf1dc">[v2 정정]</span> 초판은 이를 "전부 변경 파일 외부"라고 썼으나 <strong>부정확</strong>하다. 루트의 정확한 46개 변경 파일 범위 로그(<span class="path">/tmp/picnic-image-global-analyze.log</span>) 기준으로 <strong>변경 파일 안에도 기존 진단이 있다</strong> —
+        변경된 <code>voting_complete</code>의 <code>invalid_use_of_visible_for_testing_member</code> warning 2건(<code>parseUpdatedAt</code> / <code>extractAddedVoteTotal</code>)과 JMA 파일의 info 1건. <strong>셋 다 이번 델타 이전부터 존재하던 것</strong>이며 이번 변경이 만든 것이 아니다.
+        정확한 표현: <em>신규 0건, 기존 진단 일부는 변경 파일 내부에 존재</em>.
+      </td>
+    </tr>
+    <tr>
+      <td>포커스 테스트 재실행</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>flutter test picnic_cached_network_image_visibility_test.dart voting_artist_image_loading_test.dart</code> → <strong>+21 All tests passed</strong> (visibility 10 + popup/completion 11). 보고된 수치와 일치. 광범위 스위트는 루트 소관이므로 중복 실행하지 않음.</td>
+    </tr>
+    <tr>
+      <td>0.1 가시성 임계값 유지</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>visibilityThreshold = 0.1</code> 기본값 유지 (<code>picnic_cached_network_image.dart:157</code>). 판정식 <code>info.visibleFraction &gt;= widget.visibilityThreshold</code> (<code>:356</code>) 변경 없음. 테스트가 100px 뷰포트에서 5px(0.05) 거부 / 11px(0.11) 수용을 <em>실제 요청 수</em>로 검증 — 구현 미러링 아님.</td>
+    </tr>
+    <tr>
+      <td>오프스크린 요청 상한</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td>디스플레이 경로와 완전히 분리된 <code>picnic_image_prefetch.dart</code> 유지: 스코프당 후보 1~3개(<code>_validateMaximumCandidates</code>, <code>:76-81</code>), 전역 동시 실행 2개(<code>_maximumActiveJobs</code>, <code>:88</code>). 델타는 이 경로를 건드리지 않음. <code>vote_list.dart:43-45</code>는 3후보, 캐러셀 <code>home_featured_vote_carousel.dart:73</code>은 기본 2후보.</td>
+    </tr>
+    <tr>
+      <td>빠른 스크롤 지연 · 타임아웃</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>_startAttemptWhenAllowed</code>(<code>:846-862</code>)가 캐시 미스 + <code>Scrollable.recommendDeferredLoadingForContext</code>일 때만 지연하고 <strong>타임아웃 타이머는 지연 해제 후에 시작</strong>. 프로덕션에서 사장된 코드가 아님 — Flutter SDK 기본 <code>ScrollPhysics.recommendDeferredLoading</code>은 <code>velocity.abs() &gt; View.of(context).physicalSize.longestSide</code>(scroll_physics.dart:266-272), 즉 실제 강한 플링에서 발동. 테스트가 <code>lastTimeoutLogTimesContainsForTest</code>로 "지연 중 타임아웃 미발화 → 해제 후 발화"를 관측값으로 검증.</td>
+    </tr>
+    <tr>
+      <td>전경 vs 배경 스케줄링</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td>프리페치 스케줄러 2슬롯이 포화된 상태에서 새로 보이게 된 전경 이미지가 <strong>큐에 갇히지 않음</strong>: 테스트가 <code>maximumActiveRequests == 3</code>(배경 2 + 전경 1)과 <code>requestsFor(queuedBackground) == 0</code>을 동시에 단언. 디스플레이 경로는 <code>_prefetchScheduler</code>를 전혀 경유하지 않으므로 구조적으로도 맞음.</td>
+    </tr>
+    <tr>
+      <td>다운로드 동시성 근거</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>_triggerLazyLoad</code> 주석이 인용한 "flutter_cache_manager가 이미 제어" 주장은 <strong>사실</strong>. provider가 <code>ResizeImage(CachedNetworkImageProvider(...))</code>(<code>picnic_image_request.dart:62-68</code>)이고, <code>flutter_cache_manager-3.4.1/web_helper.dart:54</code>의 <code>concurrentCalls &gt;= fileFetcher.concurrentFetches</code>(기본 10) 게이트가 실제로 적용됨. 앱 레벨 동시성 제거는 안전.</td>
+    </tr>
+    <tr>
+      <td>팝업/완료 캐시 프리뷰 소유권</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td>"절대 fetch하지 않는다"는 계약 성립: Flutter SDK <code>ImageCache.putIfAbsent</code>는 loader가 throw하면 <code>_trackLiveImage</code> 이전에 catch → <code>onError</code> → <code>null</code> 반환(미스 시 캐시 오염 없음). <code>status.pending || !status.keepAlive</code> 가드(<code>voting_dialog_widgets.dart:101</code>)로 pending/미완료 항목 거부. <code>ImageInfo</code> 수명 관리 정확 — <code>RawImage</code>가 <code>ui.Image</code>를 clone하므로 <code>_imageInfo.dispose()</code>가 렌더 중인 이미지를 무효화하지 않음. 부가 효과 1건은 F5 참조.</td>
+    </tr>
+    <tr>
+      <td>키보드/회전 시 프리뷰 깜빡임</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>didChangeDependencies</code>가 MediaQuery 변경마다 <code>_startLookup()</code>을 다시 돌리지만(JMA 투표 다이얼로그에서 키보드 등장 시 재현 경로 존재), <code>ResizeImage.obtainKey</code> / <code>CachedNetworkImageProvider.obtainKey</code>가 모두 <code>SynchronousFuture</code>라 재채택이 같은 프레임 안에서 동기적으로 끝난다. <code>_isStartingLookup</code> 가드가 그 동기 경로의 중복 <code>setState</code>만 억제. 빈 프레임 없음.</td>
+    </tr>
+    <tr>
+      <td>페이드 제거</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>video_list_item.dart:74-75</code>가 lib 내 유일하게 남은 원시 <code>CachedNetworkImage</code>(나머지 전 호출부는 <code>PicnicCachedNetworkImage</code> = 페이드 없는 <code>Image</code> 위젯). <code>octo_image-2.1.0/fade_widget.dart:69,92</code>가 <code>duration == Duration.zero</code>를 명시적으로 분기 처리하므로 0 지정은 지원되는 사용법이며 placeholder도 정상 동작.</td>
+    </tr>
+    <tr>
+      <td>API 호환성</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td>시그니처 변경 0건. <code>lazyLoadDelay</code>, <code>priority</code>, <code>deferDuringFastScroll</code>, <code>calculateLoadDelay</code>, <code>ImagePriority</code> 모두 보존. 수정되지 않은 <code>picnic_cached_network_image_test.dart:112-160</code>이 이 파라미터들을 계속 넘기지만 "예외 없이 렌더"만 단언하므로 깨지지 않음(재실행 스위트에서 확인). 시맨틱 무력화 문제는 F3/F4 참조.</td>
+    </tr>
+    <tr>
+      <td>제거된 코드의 회귀 여부</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>_cancelLoading()</code>은 <code>_lazyLoadTimer</code>만 취소했고 인플라이트 요청은 건드리지 않았다. 타이머 자체가 사라졌으므로 제거는 동작 중립. <code>dispose</code>/<code>didUpdateWidget</code>의 잔여 참조도 함께 정리되어 댕글링 없음.</td>
+    </tr>
+    <tr>
+      <td>버전 · 빌드 번호</td>
+      <td><span class="badge b-pass">PASS</span></td>
+      <td><code>1.3.3+130305</code> = MmPPBB(1|3|03|05). 기존 태그 <code>picnic-v1.3.3+130304-skip-tests</code>가 원격/로컬에 존재하므로 동일 표시 버전의 새 바이너리는 BB만 증가해야 하며 130305 &gt; 130304 규칙 충족. <code>codemagic.yaml:29-33</code> <code>tag_patterns: picnic-v*</code>와 일치.</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>2. 지적 사항</h2>
+
+<h3>블로커 (0건)</h3>
+<p>태그 푸시를 막아야 할 재현 가능한 기능 결함은 찾지 못했다. 아래는 전부 후속 과제다.</p>
+
+<h3>후속 과제 (7건: Medium 1 + Low 4 + Info 2)</h3>
+<p style="font-size:13.5px; color:#5d646e; margin-top:-2px;">
+  <span style="background:#fdf1dc">[v2 정정]</span> 초판 본문이 "6건"으로 표기했으나 실제 합계는 <strong>7건</strong>이다(F1~F7).
+  아래 7건 모두 <strong>이번 릴리스에서 코드를 고칠 필요가 없는</strong> 후속 과제이며, 본 리뷰는 릴리스 코드 변경을 요구하지 않는다.
+</p>
+
+<div class="finding med">
+  <h3>F1. 전역 <code>VisibilityDetectorController.updateInterval</code>을 리프 위젯 <code>initState</code>에서 덮어쓰고 복원하지 않는다 <span class="badge b-med">MEDIUM</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd><span class="path">picnic_lib/lib/presentation/common/picnic_cached_network_image.dart:312-314</span></dd>
+
+    <dt>구체적 발동 조건</dt>
+    <dd>
+      <ol>
+        <li><code>PicnicCachedNetworkImage</code> 인스턴스가 <strong>하나라도</strong> 마운트되면 프로세스 전역 싱글턴이 <code>Duration.zero</code>로 바뀌고 다시는 되돌아가지 않는다.</li>
+        <li>이 쓰기는 <code>LazyLoadingStrategy.none</code> 호출부에서도 실행된다 — 메인 배너(<code>common_banner.dart:335</code>), 홈 캐러셀(<code>home_featured_vote_card.dart:259,271</code>), 아티스트 팝업(<code>voting_dialog_widgets.dart:220,228</code>), 완료 팝업(<code>voting_complete.dart:455,462</code> / <code>494,501</code>). 이 경로들은 <code>build()</code>의 <code>if (lazyLoadingStrategy == none) return _buildForLayout(...)</code> 분기(<code>:499-501</code>) 때문에 <strong>VisibilityDetector를 애초에 생성하지 않는다</strong> — 즉 자기가 쓰지도 않는 전역을 매 생성마다 쓴다.</li>
+        <li>다른 컴포넌트나 테스트가 0이 아닌 interval을 설정해도 다음 이미지 마운트 한 번으로 경고·로그·assert 없이 무효화된다. 실제로 새 테스트 <code>_withImageHarness</code>가 500ms를 설정하지만 프로덕션 코드가 곧바로 덮어쓴다.</li>
+      </ol>
+    </dd>
+
+    <dt>영향</dt>
+    <dd>
+      패키지 문서가 <code>Duration.zero</code>를 <em>"This is useful for automated tests."</em>(<span class="path">visibility_detector-0.4.0+2/lib/src/visibility_detector_controller.dart</span>, <code>updateInterval</code> doc)로 규정한 모드를 프로덕션이 상시 채택하는 형태다. 이 모드에서
+      <code>RenderVisibilityDetectorBase._processCallbacks</code>는 초당 최대 2회가 아니라 <strong>매 프레임 post-frame 콜백</strong>으로 실행되고, 보이는 detector마다
+      <code>_determineVisibility</code>(<span class="path">render_visibility_detector.dart:167-224</span>)가 돈다 — 조상 RenderObject 체인을 루트까지 <code>paintsChild</code>로 순회 + 조상 Layer <code>List&lt;ContainerLayer&gt;</code>와 임시 <code>ContainerLayer()</code> 할당 + 레이어별 <code>describeClipBounds</code>/<code>transformRect</code>/<code>Rect.intersect</code>/<code>applyTransform</code>.
+      예정 투표 카드는 한 화면에 썸네일 12개(테스트가 <code>maximumActiveRequests == 12</code>로 고정)이므로 스크롤 중 프레임당 12회다.
+      개략 추정으로는 프레임당 수백 µs 수준이라 자체로 잰크를 만들 가능성은 낮다.
+      <br><br>
+      <span style="background:#fdf1dc"><strong>[v2 정정 — 초판의 성능 주장 철회]</strong></span>
+      초판은 "유일한 프레임레이트 관측치가 첫 탭 일시적 공백 4fps"라고 썼다. 이는 <strong>사실오류다</strong> —
+      그 <strong>4fps는 영상 캡처의 샘플링 레이트이지 측정된 앱 프레임레이트가 아니다</strong>. 잰크나 프레임 예산 근거로 인용할 수 없으므로 해당 주장을 전면 철회한다.
+      해당 관측의 실제 내용은 "일시적 공백 샘플 → 250ms 뒤 채워진 샘플"이며, 이는 성능 저하가 아니라 로딩 순서 관측이다.
+      기존 <code>gfxinfo</code> 수치(56 frames / 9 janky) 역시 <strong>리셋되지 않은 누적 집계</strong>라 이번 변경에 귀속시킬 수 없다.
+      <br><br>
+      따라서 F1에 대해 남는 정확한 진술은 하나다: <strong>측정된 회귀는 없고, 정량 근거는 제한적이다.</strong>
+      "회귀가 관측됐다"도 아니고 "근거가 0이라 위험하다"도 아니다 — 통제된 A/B가 없을 뿐이며,
+      루트가 소스 변경 없이 별도 현행 프로파일 타임라인 캡처를 의뢰해 둔 상태다.
+    </dd>
+
+    <dt>처분 — 아키텍처 후속 과제 (릴리스 코드 변경 아님)</dt>
+    <dd>
+      <span style="background:#fdf1dc">[v2 정정]</span> 초판은 (a) 일회성 초기화 승격, (c) 태그 전 프로파일 캡처를 <em>권장/게이트</em>로 제시했다.
+      (c)는 위에서 철회한 4fps 주장에 기대고 있었으므로 <strong>게이트 제안을 철회</strong>한다 —
+      본 리뷰어가 F1을 이미 논블로커로 분류한 이상, 재현 가능한 중대 결함이 아닌 항목에 새 릴리스 게이트를 다는 것은 일관되지 않는다.
+      <br><br>
+      (a)에 대한 루트의 반론도 기술적으로 타당하며 수용한다:
+      <ul>
+        <li>반복 대입은 <strong>부작용 없는 순수 필드 할당</strong>이다(패키지 setter가 로직을 갖지 않음 — 본 리뷰어도 초판에서 동일하게 확인했다). 즉 반복 실행 비용 자체는 무시 가능하다.</li>
+        <li>앱 전체에서 <strong>이 컨트롤러를 소비하는 코드가 이미지 경로뿐</strong>이므로 "다른 기능이 조용히 덮어써진다"는 현실 시나리오가 현재는 없다.</li>
+        <li><strong>일회성 플래그는 테스트의 명시적 리셋과 충돌할 수 있다</strong> — 테스트가 interval을 의도적으로 설정/복원하는 현재 방식과 어긋나 오히려 테스트 의미를 바꿀 수 있다. 이 반론은 초판이 고려하지 못한 지점이다.</li>
+      </ul>
+      결론: F1은 "리프 <code>initState</code>가 프로세스 전역을 소유·비복원 상태로 쓴다"는 <strong>설계 정리 대상</strong>으로 남기되,
+      <strong>이번 릴리스에서 고칠 필요는 없고 고쳐서도 안 된다</strong>(검증이 끝난 델타 표면을 다시 넓히게 됨).
+      현행 프로덕션 소스 동결 유지에 이견 없음.
+      향후 정리 시에만 (a) 일회성 초기화 + 테스트 리셋 경로 보존, 또는 (b) <code>Duration(milliseconds: 16)</code> 검토를 후보로 고려한다.
+    </dd>
+
+    <dt>확인된 비-문제</dt>
+    <dd>
+      다음은 의심했으나 <strong>결함이 아님</strong>을 확인했다: ① <code>updateInterval</code> setter는 부작용 없는 단순 필드라 <code>initState</code> 중 콜백 플러시(→ build 중 setState)가 발생하지 않는다. ② 앱 lib 전체에서 <code>VisibilityDetector</code> 사용처는 이 파일뿐이므로 다른 기능(분석 노출 집계 등)에 번지지 않고, 세션 첫 이미지가 500ms 잔여 타이머에 걸리는 경로도 없다. ③ 가시성 콜백 → <code>setState</code> → 다음 프레임 → <code>matchesVisibility</code> 조기 반환이라 무한 프레임 루프가 생기지 않는다.
+    </dd>
+  </dl>
+</div>
+
+<div class="finding low">
+  <h3>F2. 새 가시성 테스트의 <code>lessThan(100ms)</code> 단언 6건이 구조적으로 실패 불가능하다 <span class="badge b-low">LOW</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd><span class="path">picnic_lib/test/presentation/common/picnic_cached_network_image_visibility_test.dart</span> — 66, 119, 169, 234, 443, 608행</dd>
+
+    <dt>구체적 발동 조건</dt>
+    <dd>
+      <code>tester.binding.clock</code>은 <code>tester.pump(duration)</code>으로만 전진한다. 각 <code>startedAt</code>과 단언 사이에서 테스트가 진행시키는 가짜 시계는
+      <code>_pumpVisibleDeadline</code>(<code>:690-697</code>)의 3 × 16ms = <strong>48ms</strong>가 최대이고,
+      <code>_pumpUntil</code>/<code>_pumpUntilDecoded</code>(<code>:681-707</code>)는 인자 없는 <code>tester.pump()</code>라 <strong>0ms</strong>,
+      <code>tester.runAsync(Future.delayed(2ms))</code>는 실제 async 존이라 가짜 시계를 전진시키지 않는다.
+      따라서 측정값은 구현과 무관하게 항상 ≤ 48ms이며 100ms를 넘을 수 없다.
+    </dd>
+
+    <dt>영향</dt>
+    <dd>
+      테스트 이름(<em>"requests and paints before 100ms"</em>)과 단언이 레이턴시 보증처럼 읽히지만 레이턴시는 측정되지 않는다. 실제로 회귀를 잡아주는 것은 <strong>제한된 pump 예산(3프레임) 안에서의 <code>harness.requestsFor(url) == 1</code></strong>과 RGBA 픽셀 단언이며, 이 둘은 진짜 신호다. 즉 커버리지 구멍은 아니고 <em>오독 위험</em>이다.
+      <br><br>
+      <span style="background:#e8f2e2">[v2 — 루트 설명 반영]</span> 그 48ms pump 예산은 <strong>의도된 상한</strong>이다:
+      제거 대상이던 200ms 우선순위 지연과 500ms 기본 visibility interval을 둘 다 잡아내도록 고른 값이므로,
+      "실패 불가능한 시계 단언"과 별개로 <strong>pump 예산 자체는 회귀를 실제로 방어한다</strong>(200ms 지연이 남아 있었다면 요청 수 단언이 깨진다).
+      또 루트가 이 테스트로 네트워크 레이턴시 SLA를 주장하지 않음을 명시했으므로, 오독 위험도 실무상 해소된다.
+    </dd>
+
+    <dt>처분</dt>
+    <dd>
+      기능·커버리지 문제가 아니므로 <strong>릴리스 코드/테스트 변경 없음</strong>. 후속 정리 시 시계 단언 6줄을 삭제하거나
+      "정확히 N번 <code>pump()</code> 이후 요청 수 == 1"처럼 프레임 수 상한으로 바꿔 의도를 명시하고, 테스트 이름을 "before 100ms" → "within 3 frames"로 바꾸는 정도면 충분하다.
+    </dd>
+  </dl>
+</div>
+
+<div class="finding low">
+  <h3>F3. <code>calculateLoadDelay</code>가 두 인자를 모두 무시하는 죽은 API가 됐고, 그 사실을 그대로 단언하는 테스트만 남았다 <span class="badge b-low">LOW</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd>
+      <span class="path">picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart:91-95</span><br>
+      테스트: <span class="path">…/test/presentation/common/picnic_cached_network_image_helper_test.dart:221-263</span>,
+      <span class="path">…/picnic_cached_network_image_extended_test.dart:246-268</span>
+    </dd>
+
+    <dt>구체적 발동 조건</dt>
+    <dd>
+      <pre><code>static Duration calculateLoadDelay(
+  ImagePriority priority, {
+  Duration? baseDelay,
+}) =&gt; Duration.zero;</code></pre>
+      <code>picnic_lib/lib</code>·<code>picnic_app/lib</code> 전역 grep 결과 <strong>프로덕션 호출부 0건</strong>. 유일한 호출자가 테스트다. 이 테스트들은 "어떤 입력에도 <code>Duration.zero</code>를 반환한다"를 단언하므로 구현을 그대로 반사할 뿐 행위 커버리지를 추가하지 않는다. 분석기는 미사용 파라미터를 public API라 경고하지 않으므로 조용히 남는다.
+    </dd>
+
+    <dt>영향</dt>
+    <dd>죽은 코드 + 자기참조 테스트가 "우선순위 지연이 아직 살아 있다"는 오해를 유지시킨다. 실제 회귀 방어는 위젯 레벨 테스트 <em>'explicit viewport low priority ignores a 600ms initial delay'</em>(<code>visibility_test.dart:100-101</code>에서 <code>priority: low</code> + <code>lazyLoadDelay: 600ms</code>를 실제로 넘긴 뒤 3프레임 안의 요청을 단언)가 담당하며 이쪽은 관측 가능한 요청/픽셀로 검증하므로 유지해야 한다.</dd>
+
+    <dt>처분</dt>
+    <dd>
+      <span style="background:#e8f2e2">[v2]</span> 이 API를 남긴 것은 <strong>의도적인 소스 호환성 유지</strong>이며 사용자가 승인한 시맨틱이다 — 결함이 아니라 정리 대상이다.
+      <strong>릴리스 코드 변경 없음.</strong> 후속 정리 시 헬퍼와 해당 테스트 3~5건을 삭제하거나,
+      삭제가 부담되면 <code>@Deprecated('로드 시각에 영향 없음 — lazyLoadingStrategy를 사용')</code>을 붙이고 테스트를 1건으로 축소한다.
+    </dd>
+  </dl>
+</div>
+
+<div class="finding low">
+  <h3>F4. 무력화된 파라미터인데 델타가 새 호출부에 <code>priority: ImagePriority.high</code>를 추가한다 <span class="badge b-low">LOW</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd>
+      신규 추가: <span class="path">picnic_lib/lib/presentation/widgets/vote/voting/voting_complete.dart:463</span>, <span class="path">:502</span><br>
+      무력화 지점: <span class="path">picnic_lib/lib/presentation/common/picnic_cached_network_image.dart:389-392</span>
+    </dd>
+
+    <dt>구체적 발동 조건</dt>
+    <dd>
+      <code>_triggerLazyLoad()</code>가 이제 <code>if (_shouldLoadImage || !mounted) return; _startLoading();</code>뿐이라 <code>ImagePriority</code>는 스케줄에 아무 영향이 없다. 두 호출부에서 실제로 대기를 없애는 것은 같은 줄에 있는 <code>lazyLoadingStrategy: LazyLoadingStrategy.none</code>이다(= VisibilityDetector 자체를 만들지 않음). 같은 성격으로 <code>deferDuringFastScroll</code>은 <strong>프로덕션 호출부가 0건</strong>이고 실제 지연은 <code>_startAttemptWhenAllowed</code>(<code>:849-854</code>)와 Flutter <code>ScrollAwareImageProvider</code>가 플래그와 무관하게 수행한다 — 새 테스트가 <code>true</code>/<code>false</code> 양쪽에서 동작이 같음을 단언해 이를 사실상 문서화하고 있다.
+    </dd>
+
+    <dt>영향</dt>
+    <dd>다음 유지보수자가 <code>priority: high</code>를 보고 존재하지 않는 우선순위 큐를 가정하거나, "high인데 왜 늦지?"라는 없는 버그를 추적할 수 있다. 기능적 결함은 아니다.</dd>
+
+    <dt>처분</dt>
+    <dd>
+      <span style="background:#e8f2e2">[v2]</span> F3과 마찬가지로 <strong>의도적 API 호환성 유지 + 사용자 승인 시맨틱</strong>이다. <strong>릴리스 코드 변경 없음.</strong>
+      후속 정리 시 새 호출부 2곳에서 <code>priority:</code>를 빼거나, 필드에 <code>@Deprecated('스케줄에 영향 없음')</code>을 달아 호출부 전체에서 의도를 드러낸다.
+      <code>ImagePriority</code> enum의 값별 설명 주석이 이번에 한 줄로 축약되며 사라졌는데(<code>:33</code>), 어차피 무의미해졌으므로 삭제 자체는 타당하나 "무력화됨" 주석을 enum 위에 남기는 편이 낫다.
+    </dd>
+  </dl>
+</div>
+
+<div class="finding low">
+  <h3>F5. "절대 fetch하지 않는" 캐시 전용 프리뷰가 keepAlive 캐시를 변형·축출할 수 있다 <span class="badge b-low">LOW</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd><span class="path">picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart:89-101</span> (이번 델타에서 주석이 수정된 지점)</dd>
+
+    <dt>구체적 발동 조건</dt>
+    <dd>
+      키가 <code>_cache</code>(keepAlive)에는 없고 <code>_liveImages</code>에만 있는 상태에서 팝업이 열리면, <code>cache.putIfAbsent(key, () =&gt; throw ...)</code>가 Flutter SDK <code>image_cache.dart</code>의 <code>liveImage != null → _touch(...)</code> 분기를 탄다. <code>_touch</code>는 <code>_CachedImage</code>를 <code>_cache</code>에 삽입하고 <code>_checkCacheSize</code>를 돌린다 — 즉 78px 상세 초상 하나를 조회했을 뿐인데 500개 / 200MB keepAlive 캐시에서 <strong>다른 항목이 축출될 수 있다</strong>.
+    </dd>
+
+    <dt>영향</dt>
+    <dd>
+      팝업 1회 오픈당 1회로 빈도가 낮고 축출 대상도 재요청 가능한 이미지라 사용자 영향은 미미하다. 다만 위젯 doc(<code>:16-21</code> "…and never fetches it")과 수정된 주석(<code>:98-99</code>)이 <em>승격</em>만 언급하고 <em>축출 부작용</em>은 언급하지 않아, 계약이 실제보다 순수해 보인다. <strong>fetch를 하지 않는다는 핵심 주장 자체는 검증됐다</strong>(미스 시 loader throw → <code>_trackLiveImage</code> 도달 전 catch → <code>onError</code> → <code>null</code>).
+    </dd>
+
+    <dt>처분</dt>
+    <dd>
+      <span style="background:#e8f2e2">[v2]</span> 승격·축출은 <strong>Flutter <code>ImageCache</code>의 표준 동작</strong>이며, 이 코드가 일으키는 것은
+      <strong>정당하고 문서화된 캐시 변형</strong>이지 결함이 아니다. 무엇보다 <strong>"fetch하지 않는다"는 핵심 계약 자체는 거짓이 아님을 본 리뷰어가 SDK 코드로 직접 확인했다</strong>(미스 시 loader throw → <code>_trackLiveImage</code> 도달 전 catch → <code>onError</code> → <code>null</code>).
+      따라서 이 항목은 <strong>주석 표현의 완결성 문제 하나</strong>로 축소된다. <strong>릴리스 코드 변경 없음.</strong>
+      후속 정리 시 주석에 "live-only 엔트리를 keepAlive로 승격시키며 이때 캐시 크기 점검이 돌아 다른 항목이 축출될 수 있다"를 한 줄 덧붙이면 충분하다.
+      (초판이 대안으로 제시한 "<code>putIfAbsent</code> 전 <code>keepAlive</code> 선검사"는 프리뷰 적중률을 떨어뜨리므로 권하지 않는다.)
+    </dd>
+  </dl>
+</div>
+
+<div class="finding info">
+  <h3>F6. 완료/팝업 프리뷰는 78px 디코드를 60pt(3× 기준 180px)에 그린다 — 의도된, 승인 범위 안의 트레이드오프 <span class="badge b-info">INFO</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd>
+      <span class="path">picnic_lib/lib/presentation/pages/vote/vote_detail_helper.dart</span> — <code>voteDetailPortraitLogicalSize = 39</code>, <code>voteDetailPortraitDecodeSize = 78</code>, <code>voteDetailPortraitQuality = 55</code><br>
+      소비: <span class="path">voting_complete.dart:455-464</span>(60×60), <span class="path">:494-503</span>
+    </dd>
+    <dt>내용</dt>
+    <dd>
+      브리지 프레임은 약 2.3× 업스케일이라 DPR 3 기기에서 부드럽게(흐리게) 보이고, 제출된 iOS 관측(<em>78 프리뷰 → 약 2초 뒤 304 풀</em>)대로 그 상태가 약 2초간 유지된다. 새 테스트가 <code>expect(_decodedImage(...)!.width, 78)</code>로 이 값을 고정하고 있어 의도적 선택임이 분명하다.
+      <br><br>
+      <span style="background:#fdf1dc"><strong>[v2 정정 — 승인 요구 철회]</strong></span>
+      초판은 이 항목을 "디자인/기획 승인이 필요한 시각적 변경"으로 적었다. <strong>과도한 요구였으므로 철회한다</strong> —
+      사용자가 이미지 대기 제거를 전역으로 명시 요청했고 중대 이슈가 없으면 릴리스하도록 승인했으며, 78px 프리뷰는 <strong>이미 작업 범위에 포함된 결정</strong>이다.
+      본 리뷰어가 새 승인 게이트를 창설할 근거가 없다.
+      <br><br>
+      남는 것은 <strong>트레이드오프 기록</strong>뿐이다: "빈 화면 대신 약 2초간 흐린 프리뷰"를 택했고, 이는 요청된 목표(표시 대기 제거)와 정합적이다.
+      화질을 올리려면 <code>voteDetailPortraitDecodeSize</code>를 키워야 하는데 그건 상세 리스트 행의 메모리/대역폭과 직결되므로 이번 릴리스에서 건드릴 사안이 아니다. <strong>릴리스 코드 변경 없음.</strong>
+    </dd>
+  </dl>
+</div>
+
+<div class="finding info">
+  <h3>F7. 테스트 하네스는 실제 다운로드 동시성 게이트를 우회한다 — "12 동시"를 프로덕션 수치로 읽지 말 것 <span class="badge b-info">INFO</span></h3>
+  <dl>
+    <dt>위치</dt>
+    <dd><span class="path">picnic_lib/test/helpers/image_test_harness.dart:33</span> (<code>CachedNetworkImageProvider.defaultCacheManager = harness</code>)</dd>
+    <dt>내용</dt>
+    <dd>
+      하네스가 <code>BaseCacheManager</code>를 통째로 대체하므로 <code>flutter_cache_manager-3.4.1/web_helper.dart:54</code>의 <code>concurrentFetches</code>(기본 10) 게이트가 테스트에서는 실행되지 않는다. 따라서 <code>expect(harness.maximumActiveRequests, 12)</code>는 <strong>앱 레벨 동시성</strong>을 재는 것이고, 프로덕션에서는 같은 12건이 10건 인플라이트 + 2건 큐로 스로틀된다. 하네스 자체는 실제 콜드 요청을 세는 견고한 fake이며(<code>_performColdRequest</code>가 <code>_requestCounts</code>/<code>_activeRequests</code>를 관리), 요청 수·픽셀·상한을 관측값으로 검증한다는 점에서 좋은 설계다. 수치 해석만 주의하면 된다.
+    </dd>
+  </dl>
+</div>
+
+<h2>3. 릴리스 프로세스 메모 (결함 아님, 판단은 릴리스 담당 몫)</h2>
+<div class="note">
+  최근 태그가 <code>picnic-v1.3.3+130302-skip-tests</code>, <code>picnic-v1.3.3+130304-skip-tests</code>처럼 <code>-skip-tests</code> 접미사를 달고 있는데,
+  <code>d838b1fda chore(ci): remove full unit tests from Codemagic (#217)</code>로 Codemagic에서 전체 유닛 테스트 단계가 이미 제거됐다.
+  <code>codemagic.yaml:29-33</code> 기준 <code>picnic-v1.3.3+130305</code>와 <code>picnic-v1.3.3+130305-skip-tests</code> 둘 다 <code>picnic-v*</code>에 매칭되어 프로덕션 워크플로가 돈다.
+  어느 형태로 태그할지는 태그 생성 직전에 명시적으로 정할 것. <strong>본 리뷰어는 태그를 생성·푸시하지 않았다.</strong>
+</div>
+
+<h2>4. 재현 명령 (본 리뷰에서 실제 실행한 것만)</h2>
+<pre><code>cd /Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib
+
+# 1) 정적 분석 — error 0건, 이번 변경으로 생긴 신규 진단 0건.
+#    (디렉터리 범위라 100 issues 반환. 전부 기존 warning/info이며,
+#     그중 일부는 변경 파일 내부에도 존재한다 — 위 표 [v2 정정] 참조.
+#     정확한 46개 변경 파일 범위는 루트의 /tmp/picnic-image-global-analyze.log 가 기준.)
+flutter analyze --no-pub \
+  lib/presentation/common lib/presentation/widgets/vote lib/presentation/pages/vote \
+  test/presentation/common test/presentation/widgets/vote
+
+# 2) 델타 대상 포커스 테스트 — +21 All tests passed
+flutter test --no-pub \
+  test/presentation/common/picnic_cached_network_image_visibility_test.dart \
+  test/presentation/widgets/vote/voting/voting_artist_image_loading_test.dart
+</code></pre>
+<p style="font-size:13.5px; color:#5d646e;">
+  그 외 근거는 전부 소스 정독으로 확보했다(읽기 전용, 포맷/수정 없음):
+  <code>picnic_cached_network_image.dart</code>, <code>picnic_cached_network_image_helper.dart</code>,
+  <code>picnic_image_request.dart</code>, <code>picnic_image_prefetch.dart</code>,
+  <code>voting_dialog_widgets.dart</code>, <code>voting_complete.dart</code>, <code>vote_detail_helper.dart</code>,
+  <code>vote_list.dart</code>, <code>home_featured_vote_carousel.dart</code>, <code>common_banner.dart</code>,
+  <code>video_list_item.dart</code>, <code>image_test_harness.dart</code>, 및 패키지 원본
+  <code>visibility_detector-0.4.0+2</code>, <code>octo_image-2.1.0</code>, <code>flutter_cache_manager-3.4.1</code>,
+  Flutter SDK <code>image_cache.dart</code> / <code>scroll_physics.dart</code>.
+  광범위 스위트·네이티브 빌드·기기 테스트는 루트/구현 세션 소관이므로 중복 실행하지 않았고,
+  <strong>기기 프레임 타이밍은 본 리뷰 범위에서 측정하지 않았다</strong>(F1 참조 — 루트가 소스 변경 없이 별도 캡처를 진행 중이며, 본 리뷰는 그 결과를 기다리지 않는다).
+</p>
+
+<h2>5. 결론 및 권고</h2>
+
+<p><strong>남은 중대 이견(major objection): 없음.</strong> 사실관계 기준으로 정리하면:</p>
+<ul>
+  <li>재현 가능한 블로커 <strong>0건</strong>. 기능적 정확성·회귀·API 호환성·캐시 소유권·전경/배경 스케줄링·오프스크린 및 빠른 스크롤 상한·타임아웃·0.1 임계값·페이드 제거·버전 규칙 전부 통과.</li>
+  <li>정적 분석 <strong>신규 진단 0건</strong>(기존 진단이 변경 파일 안에 일부 존재하나 이번 델타 소산 아님).</li>
+  <li>유일한 Medium(F1)은 <strong>측정된 회귀가 아니며</strong>, 초판이 근거로 삼았던 4fps 수치는 앱 프레임레이트가 아닌 <strong>영상 샘플링 레이트</strong>였으므로 철회했다. 남는 것은 "정량 근거가 제한적인 아키텍처 후속 과제"이고, 이는 본 리뷰어가 처음부터 논블로커로 분류한 항목이다.</li>
+  <li>F2~F7은 전부 문서·정리 수준이며 릴리스 코드 변경을 요구하지 않는다.</li>
+</ul>
+
+<ol>
+  <li><strong>태그 진행에 대한 리뷰 측 반대 없음</strong> — 버전·빌드 번호(<code>1.3.3+130305</code>)도 규칙에 맞는다.</li>
+  <li><strong>본 리뷰는 새 릴리스 게이트를 요구하지 않는다.</strong> 초판의 "태그 전 프로파일 캡처 권고"는 철회한다 — 논블로커에 게이트를 다는 것은 일관되지 않으며, 게이트의 근거였던 4fps 주장 자체가 사실오류였다. 루트가 소스 변경 없이 기존 프로파일을 계측한 뒤 태그를 판단하기로 한 처분에 이견 없다.</li>
+  <li><strong>현행 프로덕션 소스 동결 유지에 동의한다.</strong> F1~F5의 정리(전역 대입 승격, 죽은 API 제거, 시계 단언 정리, 캐시 주석 보강)는 <strong>이번 릴리스 이후</strong> 별도 커밋이 안전하다 — 지금 손대면 검증이 끝난 델타의 표면이 다시 넓어진다.</li>
+  <li>F6(78px 프리뷰의 흐림)은 <strong>이미 승인된 범위 안의 트레이드오프</strong>로 기록만 한다. 추가 승인 절차를 요구하지 않는다.</li>
+</ol>
+
+<footer>
+  독립 적대적 릴리스 리뷰 · 구현자/기획자 리포트 및 근거 문서 미열람 · 소스 읽기 전용 ·
+  프로덕션/테스트 코드 수정 없음 · 네이티브 빌드 없음 · git commit/push/tag 없음 ·
+  투표/계정 관련 변경 없음 · 하위 에이전트 미사용<br>
+  개정 v2는 사실 정정과 처분 반영만 수행했으며 <strong>소스 재탐색·테스트 재실행·신규 게이트 추가 없음</strong>.
+  검증 대상 소스는 <code>161109c8711259bf93227952bde054e9f2ceb825</code>에서 변경되지 않았다.<br>
+  산출물: <span class="path">/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/image-loading-display-wait-review.html</span>
+</footer>
+
+</main>
+</body>
+</html>

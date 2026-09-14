@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>스플래시 지연 및 PICNIC-2665 개선 결과</title>
+  <style>
+    body{max-width:960px;margin:40px auto;padding:0 24px;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#202434;background:#fafafd}
+    h1{font-size:29px;line-height:1.35}h2{margin-top:36px;font-size:21px}p,li{word-break:keep-all}a{color:#654acb}code{background:#eeebf6;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}
+    table{border-collapse:collapse;width:100%;background:white;margin:16px 0}th,td{padding:12px 14px;border:1px solid #dddde8;text-align:left;vertical-align:top}th{background:#efedf8}.status{padding:14px 18px;background:#eaf8f1;border-left:4px solid #279b67}.muted{color:#646879;font-size:14px}
+  </style>
+</head>
+<body>
+  <h1>스플래시 지연 및 PICNIC-2665 개선 결과</h1>
+  <p class="muted">2026-09-13 · <code>fix/startup-loading-picnic-2665</code> · 기준 커밋 <code>b1a1bfd40</code></p>
+  <p class="status" id="review-status">구현·전체 테스트·iOS/Android 기기 검증·독립 교차 리뷰 완료. 남은 차단 지적 없음.</p>
+
+  <h2>스플래시에서 오래 기다린 원인과 수정</h2>
+  <table>
+    <thead><tr><th>확인한 원인</th><th>반영한 처리</th></tr></thead>
+    <tbody>
+      <tr><td>UMP 성공 콜백 안의 비동기 상태 조회가 실패하면 예외가 콜백 밖으로 빠져 초기화 Future가 끝나지 않을 수 있었습니다.</td><td>콜백 완료와 후속 조회를 분리하고 오류를 호출자에게 전달합니다. ATT·UMP의 기계적 대기 합계를 5초로 제한해 단계별 지연의 누적도 막았습니다.</td></tr>
+      <tr><td>동의와 Mobile Ads 초기화가 여러 경로에서 중복 실행되고, 광고·딥링크 SDK가 스플래시 완료를 함께 막고 있었습니다.</td><td>동시 호출은 한 초기화 작업을 공유합니다. 인증 완료는 기다리되 비인증 SDK를 추가로 기다리는 시간은 5초로 제한합니다. 실제 광고 SDK 준비 상태는 별도로 유지하고 실패 시 재시도합니다.</td></tr>
+      <tr><td>네트워크 상태 조회에 잘못된 빈 목록 조건과 제한 없는 대기가 있었습니다.</td><td>빈 연결 목록과 연결 없음 상태를 처리하고 플랫폼 조회·DNS 확인에 시간 제한을 적용했습니다.</td></tr>
+      <tr><td>진단용 헬스체크와 분석 속성 설정도 시작 경로에 포함돼 있었습니다.</td><td>오류를 관찰하는 비동기 작업으로 실행하고 초기화 단계별 소요 시간을 로그에 남깁니다.</td></tr>
+    </tbody>
+  </table>
+  <p>사용자가 ATT·UMP 동의창에서 선택하는 시간은 강제로 종료하지 않습니다. 첫 ATT 동의창을 표시하기 위한 고정 1초 대기는 SDK 응답 예산과 별도로 유지하며, 이미 결정한 사용자는 이 대기를 건너뜁니다. 상태 조회 자체가 응답하지 않는 경우에는 동의나 광고 허용으로 처리하지 않고 시작을 진행합니다. 로그인 복구, 이용 제한·업데이트 확인, 결제 이벤트 구독 경로는 유지했습니다. 광고 요청은 실제 SDK 준비와 UMP 허용 여부를 확인한 뒤 실행합니다.</p>
+  <p>시작 단계에서 동의 조회가 실패하면 곧바로 같은 조회를 반복하지 않습니다. 이후 실제 광고 요청에서는 다시 시도할 수 있습니다. 광고 준비 후 동의 상태를 확인하고, 대기 중 화면이 닫혔다면 광고 요청을 취소해 늦은 배너 로드도 방지했습니다.</p>
+
+  <h2>PICNIC-2665: 앱 전반 펄스 로딩</h2>
+  <p><a href="https://picnic-team.atlassian.net/browse/PICNIC-2665">PICNIC-2665 — 앱 전반 로딩바를 펄스 애니메이션으로 개선</a>의 제목을 기준으로 구현했습니다. 조회 당시 본문·댓글·첨부에 추가 요구사항은 없었습니다.</p>
+  <ul>
+    <li>알림, 프로필, 충전·이용 내역, 문의, 투표 버튼·팝업 등 앱이 표시하는 불확정 로딩을 공통 펄스로 통일했습니다.</li>
+    <li>작은 버튼에서 인디케이터가 화면 전체 크기로 늘어나던 문제를 수정하고 지정 크기 안에서 그리도록 했습니다.</li>
+    <li>시스템의 애니메이션 줄이기 설정에서는 펄스를 정지 상태로 표시합니다.</li>
+    <li>업로드 진행률, 새로고침 조작, 동영상·외부 SDK의 기본 제어 UI는 기존 의미를 유지합니다.</li>
+  </ul>
+
+  <h2>검증 결과</h2>
+  <table>
+    <thead><tr><th>검증</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>공통 라이브러리 전체 테스트</td><td>최종 수정본 13,473개 통과, 기존 제외 6개.</td></tr>
+      <tr><td>Picnic 앱 전체 테스트</td><td>41개 통과.</td></tr>
+      <tr><td>스플래시·동의·광고 대상 테스트</td><td>최종 동의·시작·광고 경계 테스트 46개 통과. 응답 누락, 실제 UMP 플랫폼 채널 오류, 동시 호출, 늦은 응답, reset, 사용자 동의 대기와 재시도를 검증했습니다. 전체 테스트에 포함되는 항목입니다.</td></tr>
+      <tr><td>로딩 UI 회귀 및 화면 캡처</td><td>대상 UI 테스트 133개 통과·기존 제외 1개. 별도 캡처 테스트 8개도 기존 기준 이미지로 통과했습니다.</td></tr>
+      <tr><td>변경 파일 정적 분석</td><td>새로운 지적 없음. 기존 visible-for-testing 접근 경고 1건과 BuildContext 비동기 사용 info 1건이 남아 있습니다.</td></tr>
+      <tr><td>iOS 시뮬레이터</td><td>iPhone 17 Pro / iOS 26.5. 홈·투표 목록·상세·팝업·알림 화면을 확인했습니다. 알림 펄스가 표시된 후 데이터 도착 시 사라졌습니다. 추가 완전 재실행 2회 모두 5초 시점에 홈이 표시됐습니다.</td></tr>
+      <tr><td>Android 실기기</td><td>SM-G781N / Android 13. 테스트용 별도 앱으로 profile 빌드·설치, 홈·투표 목록·상세·스크롤을 확인했습니다. 완전 재실행 2회 모두 5초 시점에 홈이 표시됐습니다.</td></tr>
+    </tbody>
+  </table>
+  <p>정상 네트워크에서의 기기 확인은 모든 간헐 지연이 사라졌다는 통계적 증명은 아닙니다. 오류와 응답 누락은 회귀 테스트에서 주입해 검증했습니다. 최종 iOS debug 실행의 SDK 파이프라인은 2,210ms였으며, 전체 앱 시작 시간이나 배포 빌드 성능 수치와 동일하지 않습니다. 동의 대기 예산은 앱 전체 시작 시간의 상한을 뜻하지 않습니다.</p>
+  <p>검증 중 드러난 테스트 에셋 누락은 실제 앱 아이콘을 연결해 해결했습니다. 존재하지 않던 메뉴 아이콘 테스트 경로도 실제 파일 경로로 고쳤으며, 오류를 숨기거나 캡처 기준 이미지를 교체하지 않았습니다.</p>
+
+  <h2>리뷰 및 작업 상태</h2>
+  <p id="review-result">Astra 분석, Sol 구현, Opus 독립 리뷰와 재검을 완료했습니다. 누적 대기 예산, 화면 종료 후 광고 요청, 동의 조회 순서, 자동 중복 초기화 지적을 해결했습니다. 추가로 느리게 성공한 ATT 조회 뒤 첫 동의창이 생략되는 경계 조건과 정상 광고 취소의 오류 수집도 수정했습니다. 원 리뷰어가 최종 수정 결과를 확인했으며 남은 차단 지적은 없습니다.</p>
+  <p>이번 작업은 현재 워크트리에 반영돼 있습니다. 버전·배포 태그는 변경하지 않았습니다. Android 검증은 별도 패키지 <code>io.iconcasting.picnic.imageqa</code>를 사용했습니다.</p>
+  <p class="muted">SDK 참고: <a href="https://developers.google.com/admob/flutter/privacy">Google Mobile Ads Flutter 개인정보 보호 문서</a>. 실제 해석·테스트 대상은 프로젝트에 해석된 <code>google_mobile_ads 6.0.0</code>입니다.</p>
+</body>
+</html>

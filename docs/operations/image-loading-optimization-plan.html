@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picnic 이미지 로딩 최적화 — 조사 및 변경안</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#202331;background:#f5f6fa;line-height:1.65}
+body{max-width:1100px;margin:0 auto;padding:36px 24px 64px}h1{font-size:30px;line-height:1.3}h2{margin-top:32px;font-size:22px}h3{font-size:17px}section,.lead{background:white;padding:22px 26px;margin:20px 0;border:1px solid #dfe2ed;border-radius:12px}
+.meta{color:#626878}.badge{display:inline-block;background:#ebe7ff;color:#503199;padding:4px 11px;border-radius:20px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #ddd;padding:12px 10px}th{background:#f1eff9}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;overflow-wrap:anywhere}code{background:#f1f2f6;padding:2px 4px}pre{white-space:pre-wrap;background:#f1f2f6;padding:16px;border-radius:8px}a{color:#5131a1;overflow-wrap:anywhere}li{margin:8px 0}.note{border-left:4px solid #8b6dd7;padding-left:16px}.small{font-size:13px;color:#565d6b}@media(max-width:700px){body{padding:20px 12px}section,.lead{padding:16px}table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<header>
+<span class="badge">최적화 실행 중 · 사용량 조회 예외 승인</span>
+<h1>앱 이미지 로딩 최적화</h1>
+<p class="meta">2026-09-12 · 기준 커밋 <code>1e38f174a</code> · Flutter 3.41.4 / Dart 3.11.1</p>
+<p class="small">작업 폴더: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화</code></p>
+</header>
+<div class="lead">
+<p><strong>목표:</strong> 메인 배너, 메인 투표 슬라이드, 투표 팝업, 투표 목록에서 이미지가 보이기까지의 대기를 줄이고, 재방문·스크롤 시 캐시를 재사용한다.</p>
+<p>현재 완료된 것은 소스 및 패키지 구현 조사와 기존 테스트 실행이다. 조사 시점에는 앱 코드를 수정하지 않았다. 2026-09-12 사용자 진행 응답에 따라 구현 단계로 이어간다. 실기기 네트워크 지연·전송량·프레임 시간은 아직 측정하지 않아 개선율을 제시하지 않는다.</p>
+</div>
+<section>
+<h2>확인한 지연 경로</h2>
+<table>
+<thead><tr><th>대상</th><th>소스에서 확인한 사실</th><th>사용자에게 미치는 영향</th></tr></thead>
+<tbody>
+<tr><td>메인 배너</td><td><code>common_banner.dart:295–350</code>: 일반 배너 데이터가 있어도 캠페인 로딩 중에는 최대 5초 shimmer. <code>:228</code>: 배너 키에 현재 슬라이드 인덱스 포함.</td><td>이미지를 요청하기 전 데이터 대기 단계에서 화면이 비어 보임. 슬라이드 이동마다 이미지 State 재생성 가능.</td></tr>
+<tr><td>메인 투표 슬라이드</td><td><code>home_featured_vote_card.dart:233</code>: 이미지 width/height 미지정. <code>home_featured_vote_carousel.dart:127–148</code>: 다음 항목 사전 로딩 없음.</td><td>CDN의 w/h가 없어 원본 요청. 다음 카드로 넘긴 뒤 이미지 준비를 시작.</td></tr>
+<tr><td>캠페인 배너</td><td><code>candy_boost_banner.dart:33</code>: 표시 크기와 즉시 로딩 설정 미지정.</td><td>일반 배너와 달리 원본 요청 및 기본 가시성 대기를 거침.</td></tr>
+<tr><td>투표 팝업</td><td><code>voting_dialog_widgets.dart:35</code>, <code>jma_voting_dialog.dart:631</code>: 기본 viewport 전략. visibility_detector 0.4.0+2 기본 알림 주기는 500ms.</td><td>팝업이 만들어진 뒤에도 요청 시작을 위한 가시성 알림 대기가 추가될 수 있음. 모든 상황에서 500ms 지연이 고정 발생한다는 뜻은 아님.</td></tr>
+<tr><td>투표 목록</td><td><code>vote_list.dart:232</code>: 세로 PageView, 다음 항목 이미지 사전 로딩 없음. <code>vote_info_card.dart:105–123</code>: 1초 애니메이션 중 뒤쪽 0.5초에만 opacity 증가.</td><td>이미지가 캐시에 있어도 처음 0.5초 동안 투명하게 숨겨짐. 다음 항목은 넘기는 시점까지 다운로드가 늦어질 수 있음.</td></tr>
+<tr><td>공통 디코딩</td><td><code>picnic_cached_network_image.dart:960–968,1001–1033</code>: memCache 크기를 지정한 CachedNetworkImage의 imageBuilder에서 다시 원래 provider로 Image 생성. cached_network_image 3.4.1 <code>cached_image_widget.dart:298–300</code>은 크기 조정 전 provider를 builder에 전달.</td><td>사전 디코딩과 최종 렌더가 다른 메모리 캐시 키를 사용. 캐시가 비어 있으면 추가 디코딩이 생길 수 있음. 네트워크도 반드시 두 번 호출된다는 주장은 하지 않음.</td></tr>
+<tr><td>스크롤 중 캐시</td><td><code>picnic_cached_network_image.dart:743–750</code>: 빠른 스크롤이면 캐시 적중 여부보다 먼저 placeholder 반환.</td><td>이미 준비된 이미지도 스크롤 중 가릴 수 있음. Flutter ScrollAwareImageProvider는 캐시 확인을 스크롤 지연 판단보다 먼저 수행.</td></tr>
+<tr><td>기타 화면</td><td><code>avatar_container.dart:59–65</code>: HTTP 아바타는 공통 로더를 우회. 크기 누락 이미지와 CDN/외부 이미지 경로가 혼재.</td><td>표시 크기 대비 큰 이미지의 요청·디코딩, 서로 다른 표시/오류 처리 경로가 남아 있음.</td></tr>
+</tbody>
+</table>
+</section>
+<section>
+<h2>추천 변경안</h2>
+<p><strong>공통 이미지 요청 규격을 정리하고, 사용자가 곧 보게 될 항목만 미리 준비한다.</strong> 화면별 플래그 수정만 하는 방안은 작고 빠르지만 원본 요청·캐시 키 차이·다음 페이지 대기를 함께 해결하지 못한다. CDN 포맷 전환과 서버 캐시 재설계는 실제 운영 경로 확인과 별도 배포가 필요하므로 이번 앱 변경안에는 포함하지 않는다.</p>
+<h3>1. 공통 요청과 캐시 재사용</h3>
+<ul>
+<li>최종 CDN URL, 다운로드 크기, 디코딩 크기, ImageProvider 키를 한 경로에서 계산해 표시와 사전 로딩에 함께 사용한다.</li>
+<li>화면 크기가 직접 주어지지 않은 이미지도 유한한 레이아웃 제약에서 요청 크기를 구한다. 너비·높이·DPR 변경 시 갱신하고 동일 조건의 재빌드는 같은 키를 유지한다.</li>
+<li>imageBuilder에서 원래 provider를 다시 디코딩하는 경로를 없앤다. 논리 픽셀/물리 픽셀을 구분하고 디코딩 크기에 상한을 둔다. 기존 명시적 memCache 크기는 물리 픽셀 계약을 보존한다.</li>
+<li>캐시에 있는 이미지는 즉시 유지하고, 빠른 스크롤에서는 새 작업만 지연한다. 화면 진입 시 임의 캐시 축소를 제거하거나 공통 상한 정책으로 통합한다.</li>
+<li>외부 HTTP(S)의 서명 쿼리와 기존 CDN w/h/q 계약을 유지한다. 글로벌 캐시 용량을 늘리는 방식은 사용하지 않는다.</li>
+</ul>
+<h3>2. 네 화면에 연결</h3>
+<ul>
+<li><strong>배너:</strong> 캠페인 응답 중에도 이미 조회된 일반 배너를 표시. 캠페인 데이터 도착 시 기존 필터·순서 규칙으로 합성한다. 캠페인 전용 행이 일반 배너에 재등장하지 않도록 기존 Supabase 필터를 보존한다. 배너 키는 항목 기준으로 고정하고 다음 슬라이드를 미리 준비한다.</li>
+<li><strong>메인 투표 슬라이드:</strong> 실제 히어로 영역 크기로 요청하고 현재 이미지 우선, 다음 1–2개만 미리 준비한다. 화면 크기·데이터 순서 변경과 위젯 해제를 처리한다.</li>
+<li><strong>팝업:</strong> 아티스트 이미지는 가시성 알림을 기다리지 않고 생성 즉시 로딩. 가능한 경우 팝업을 여는 동작에서 동일 규격 이미지를 미리 요청하되, 팝업 표시를 네트워크 완료까지 기다리지 않는다.</li>
+<li><strong>투표 리스트:</strong> 다음 카드의 대표/상위 아티스트 이미지만 제한적으로 사전 로딩하고, 마지막 페이지에 도달하기 전에 다음 데이터 조회를 시작한다. 이미지의 고정 0.5초 숨김을 없애거나 짧게 줄인다. 상세 후보 리스트에서도 캐시 적중 이미지는 스크롤 중 유지한다.</li>
+<li><strong>기타:</strong> 아바타·리워드·미디어 썸네일 등 공통 로더 이용 화면의 크기 누락과 지연 설정을 점검해 같은 원인의 누락만 수정한다.</li>
+</ul>
+<h3>3. 사전 로딩의 한계</h3>
+<p>사전 로딩은 화면별 인접 항목에 한정하며 백그라운드 동시 요청은 최대 2개를 시작 기준으로 검토한다. 중복 진행 요청을 합치고, 화면 이탈·빠른 페이지 전환 후 오래된 대기 작업을 버린다. 표시 이미지의 요청을 막는 전역 슬롯 제한이나 전체 목록 선다운로드를 추가하지 않는다. 메모리 캐시에는 실제 사용 크기만 유지한다.</p>
+</section>
+<section>
+<h2>파일 소유와 작업 순서</h2>
+<table>
+<thead><tr><th>단계</th><th>담당 / 대상</th><th>완료 기준</th></tr></thead>
+<tbody>
+<tr><td>조사</td><td>현재 조정자: 화면 흐름·패키지 구현·기준 테스트.<br>Orca Luna: 공통 로더·아바타·Lambda 조사.</td><td>완료. <code>task_8a536db8a697</code> / <code>ctx_03ecffaf377c</code>, 결과 메시지 수신 및 확인.</td></tr>
+<tr><td>상세 계획</td><td>풀부스트 예외 승인 시 Astra/ultra, Fast OFF. 공통 요청·디코딩·사전 로딩 설계 확정.</td><td>인접 프리로드와 표시의 키 동일성, 최대 동시성, 메모리 상한 및 실패 처리 계약 확정. 초기 Apex는 이 역할 1개만.</td></tr>
+<tr><td>공통 구현</td><td>Sol/ultra: 공통 로더·요청/프리로드 모듈·전용 회귀 테스트.</td><td>재현 테스트 실패 확인 후 수정, 키·디코딩·해제·캐시 적중 회귀 통과.</td></tr>
+<tr><td>화면 적용</td><td>공통 계약 확정 뒤 Sol/ultra. 홈/배너와 투표/팝업 파일 소유 분리 가능 시 최대 2명.</td><td>네 화면과 관련 공통 사용처 적용, 각 화면 회귀 테스트 통과.</td></tr>
+<tr><td>독립 리뷰</td><td>Opus/max: 요구사항·diff·테스트 결과로 반례 검토. 구현자의 자기평가는 전달하지 않음.</td><td>지적은 재현 조건·심각도·파일 위치 포함. 수정 후 같은 리뷰어 1회 재검증.</td></tr>
+</tbody>
+</table>
+<p class="small">주요 예상 파일: <code>picnic_cached_network_image.dart</code>, <code>picnic_cached_network_image_url_resolver.dart</code>, <code>common_banner.dart</code>, <code>candy_boost_banner.dart</code>, <code>avatar_container.dart</code>, <code>home_featured_vote_card.dart</code>, <code>home_featured_vote_carousel.dart</code>, <code>vote_list.dart</code>, <code>vote_info_card.dart</code>, <code>vote_info_card_vertical.dart</code>, <code>voting_dialog_widgets.dart</code>, <code>jma_voting_dialog.dart</code>, 투표 상세/홈의 이미지 관련 부분 및 대응 테스트. 서버·결제/투표 처리 로직·버전/빌드·배포는 범위 밖.</p>
+</section>
+<section>
+<h2>검증 기준</h2>
+<p><strong>기준 검사: 기존 관련 테스트 101개 통과, exit 0.</strong> 의존성은 기존 lockfile 기준 <code>flutter pub get --offline</code>으로 준비했으며 추적 중인 파일 변경은 없다.</p>
+<pre>cd "/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib"
+flutter test --no-pub \
+  test/presentation/common/picnic_cached_network_image_url_resolver_test.dart \
+  test/presentation/common/picnic_cached_network_image_regression_test.dart \
+  test/presentation/common/common_banner_render_test.dart \
+  test/presentation/widgets/vote/home_featured_vote_carousel_test.dart \
+  --reporter compact</pre>
+<p>실행 로그: <code>/tmp/picnic-image-baseline.log</code></p>
+<ul>
+<li>캠페인 미완료 상태에서 일반 배너가 즉시 표시되며 늦게 온 캠페인·새로고침·언어 변경·슬라이드 목록 축소가 올바르게 반영되는지 확인한다.</li>
+<li>가시성 알림 주기를 0으로 우회하지 않은 테스트에서 팝업·핵심 이미지의 요청 시작 시점을 검사한다.</li>
+<li>사전 로딩과 화면 표시의 ImageProvider 키를 비교하고, 테스트 이미지/HTTP 계수기로 인접 항목 준비·중복 다운로드·중복 디코딩을 검사한다.</li>
+<li>빠른 스크롤에서 이미 준비된 이미지 유지, 미준비 이미지의 정지 후 재개, URL 변경·dispose·재시도·404와 느린 응답을 검사한다.</li>
+<li>DPR 1/2/3, 작은 Android·iPhone 크기·태블릿/회전에서 요청/디코딩 크기와 상한을 검사한다. GIF 및 외부 서명 URL은 별도 회귀 대상으로 유지한다.</li>
+<li>기기 프로파일이 가능한 환경에서 콜드/웜 캐시, 정상망/지연망의 첫 표시 시간·요청 수·전송 바이트·프레임 시간을 비교한다. 실행할 수 없는 실기기 검사는 자동 테스트와 구분해 보고한다.</li>
+</ul>
+<p class="note">기존 <code>test/performance/image_loading_performance_test.dart</code>는 주로 위젯 생성 및 설정을 검사한다. 출력문에 있는 과거 “예상 성능 향상” 수치는 이 작업의 성능 근거로 사용하지 않는다.</p>
+</section>
+<section>
+<h2>조사에서 제외한 추정</h2>
+<p>Luna가 제안한 CDN 쿼리 보존 변경은 현재 resolver 테스트와 CDN 계약에 반하므로 이번 변경에 자동 반영하지 않는다. 로컬 Lambda의 버킷 설정은 실제 운영 배포본인지 확인되지 않아 현재 앱 지연 원인으로 단정하지 않는다. 기존 memCache/DPR 불일치 주석만으로 최종 이미지가 작게 디코딩된다고 단정할 수 없으며, 실제 imageBuilder가 원래 provider를 다시 사용한다는 패키지 경로를 기준으로 수정·검증한다.</p>
+</section>
+<section>
+<h2>오케스트레이션 상태와 승인 지점</h2>
+<p>요청은 풀부스트·Astra 적극 활용이다. Orca 1.4.200은 연결되지만 <code>account list</code>의 모든 rateLimits가 null이어서 실제 사용률·리셋·배분 압력은 계산할 수 없었다. 라우터는 <code>fallback=true</code>, Luna/low, 동시 워커 1, Fast OFF를 반환했다. 조사 단계에서는 Luna만 실행했으며, 사용자 예외 승인 후 Astra/ultra 계획 워커를 시작했다.</p>
+<p>사용자가 “사용량 조회 없이 풀부스트 진행”으로 예외를 승인했다. 예외 승인 후에는 Astra 계획, Sol 구현, Opus 교차 리뷰에 배분하며 가상의 사용량 비율을 제시하지 않는다. Fable 상태도 조회 실패다. <a href="/Users/charlie.hyun/.agents/skills/usage-aware-orchestration/modes.html">전체 모드 안내</a>.</p>
+<p>여러 화면과 공통 로더 구조 변경이므로 사용자 공통 AGENTS.md의 “대규모 변경 … 전에는 계획을 짧게 제시하고 확인받는다”에 따라 변경안을 제시했고 사용자 진행 응답을 받아 실행한다. Superpowers <a href="/Users/charlie.hyun/.codex/plugins/cache/openai-curated-remote/superpowers/6.3.0/skills/brainstorming/SKILL.md">brainstorming/SKILL.md</a>도 “Do NOT … write any code … until … they have approved it”을 요구한다.</p>
+</section>
+<section>
+<h2>참고 근거</h2>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/precacheImage.html">Flutter precacheImage</a>: 같은 키와 캐시 잔류 조건에서 재사용되며, 많은 이미지를 메모리에 고정하면 위험하다. 인접 항목과 동시성 상한 설계의 근거.</li>
+<li><a href="https://api.flutter.dev/flutter/painting/ResizeImage-class.html">Flutter ResizeImage</a>: 지정된 크기로 디코딩하는 provider와 메모리 사용 제어.</li>
+<li>설치된 Flutter의 <code>packages/flutter/lib/src/widgets/scroll_aware_image_provider.dart:78–108</code>: 캐시 적중 우선 확인 후 빠른 스크롤에서 미준비 이미지 로딩 지연.</li>
+<li>설치된 <code>cached_network_image-3.4.1/lib/src/cached_image_widget.dart:272–300</code> 및 <code>octo_image-2.1.0/lib/src/image/image.dart:205–208</code>: 내부 ResizeImage와 imageBuilder에 전달되는 원래 provider.</li>
+</ul>
+</section>
+</body>
+</html>

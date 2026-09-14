@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Image display-wait implementation result</title>
+  <style>
+    :root { color-scheme: light; }
+    body {
+      max-width: 1040px;
+      margin: 32px auto;
+      padding: 0 24px 48px;
+      color: #17212b;
+      background: #f5f7fa;
+      font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    h1 { font-size: 28px; }
+    h2 { margin-top: 30px; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; }
+    th, td { padding: 9px 11px; border: 1px solid #d7e0e8; text-align: left; vertical-align: top; }
+    th { background: #e8eef5; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+    pre { overflow-x: auto; padding: 14px; color: #edf5fc; background: #152331; }
+    .pass { padding: 12px 16px; border-left: 4px solid #22805b; background: #e6f3ec; }
+    .muted { color: #536474; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Image display-wait implementation result</h1>
+    <p class="muted">Task task_284b573c5dc6 · branch <code>fix/image-loading</code> · 2026-09-13 KST</p>
+    <p class="pass"><strong>Result:</strong> implemented and verified. Visible cold images now enter the existing request pipeline on the first visibility frame without the 500 ms detector batch or a priority/lazy-delay timer.</p>
+  </header>
+
+  <h2>Implementation</h2>
+  <ul>
+    <li>Set <code>VisibilityDetectorController.instance.updateInterval = Duration.zero</code> in widget initialization, before its detector can mount.</li>
+    <li>Removed the initial lazy-load timer, cancellation path, private delay calculation, and low-priority 200 ms delay; visibility still controls whether an image may load.</li>
+    <li>Kept the default <code>viewport</code> strategy, 0.1 spatial threshold, enum member order, and constructor named arguments. <code>lazyLoadDelay</code> and <code>priority</code> remain source-compatible but no longer delay first display.</li>
+    <li>Changed the public helper's <code>calculateLoadDelay</code> result to <code>Duration.zero</code>.</li>
+    <li>Did not change retry backoff, request timeout, cache/decode identity, scroll-aware cold-request deferral, or background prefetch scheduling.</li>
+  </ul>
+
+  <h2>Files</h2>
+  <table>
+    <thead><tr><th>Kind</th><th>Absolute path</th><th>Work</th></tr></thead>
+    <tbody>
+      <tr><td>Source</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart</code></td><td>Frame-granularity detector updates and immediate visibility-triggered loading.</td></tr>
+      <tr><td>Source</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart</code></td><td>Legacy load-delay helper now always returns zero.</td></tr>
+      <tr><td>Test (new)</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_visibility_test.dart</code></td><td>10 bounded widget tests for cold paint deadlines and preserved visibility/request behavior.</td></tr>
+      <tr><td>Test</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_helper_test.dart</code></td><td>Updated only initial-delay expectations.</td></tr>
+      <tr><td>Test</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_extended_test.dart</code></td><td>Replaced synthetic delay logic with calls to the production helper.</td></tr>
+      <tr><td>Directly affected test</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/widgets/vote/list/vote_info_card_image_prefetch_test.dart</code></td><td>Separated immediate visible-display requests from speculative prefetch assertions and made held-response cleanup failure-safe.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Red → green evidence</h2>
+  <p>The first cold/default widget test started the controller at 500 ms and failed before production changes with <code>Expected: 1, Actual: 0</code> at 48 ms fake time. The explicit viewport/low-priority/600 ms case and production-helper expectations then failed until the timer path and implicit 200 ms addition were removed; the final suite is green.</p>
+
+  <h2>Coverage</h2>
+  <p>The new 10-test file uses real cold cache-manager requests and decoded frames. It covers default and explicit viewport paint before 100 ms, low priority plus an explicit 600 ms delay, preload/progressive visibility gating, built offscreen-to-visible, the default 0.1 threshold, Offstage, same-URL detector-key safety, both values of <code>deferDuringFastScroll</code> with timeout deferral, pending/warm reuse, and two held background jobs with an independent visible foreground request.</p>
+
+  <h2>Verification</h2>
+  <table>
+    <thead><tr><th>Command</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td><code>flutter test --no-pub --timeout 120s test/presentation/common/picnic_cached_network_image_visibility_test.dart</code></td><td>10 passed</td></tr>
+      <tr><td><code>flutter test --no-pub --timeout 120s test/presentation/common/picnic_cached_network_image_helper_test.dart test/presentation/common/picnic_cached_network_image_extended_test.dart test/presentation/common/picnic_cached_network_image_enums_test.dart</code></td><td>122 passed</td></tr>
+      <tr><td><code>flutter test --no-pub --timeout 120s test/presentation/common/picnic_image_decode_test.dart test/presentation/common/picnic_cached_network_image_success_test.dart test/presentation/common/picnic_image_prefetch_test.dart</code></td><td>26 passed</td></tr>
+      <tr><td><code>flutter test --no-pub --timeout 120s test/presentation/common/picnic_cached_network_image_regression_test.dart test/presentation/widgets/vote/list/vote_info_card_image_prefetch_test.dart test/presentation/widgets/vote/list/vote_list_image_prefetch_test.dart</code></td><td>46 passed</td></tr>
+      <tr><td><code>dart analyze &lt;each of the six modified source/test files above&gt;</code></td><td>No issues in all 6 files</td></tr>
+      <tr><td><code>git diff --check -- &lt;the six modified source/test files above&gt;</code></td><td>Passed</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Total focused tests:</strong> 204 passed. Expected timeout/error-path logger output appeared in tests that intentionally exercise those paths.</p>
+
+  <h2>Remaining</h2>
+  <p>No worker-side code work remains. Independent Opus review, native QA, and final integration remain coordinator-owned; no native build, commit, push, tag, or cleanup was performed.</p>
+</body>
+</html>

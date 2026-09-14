@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picnic 이미지 로딩 구현 계획 — A / B / C</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#202536;background:#f5f6fa;line-height:1.65}
+body{max-width:1150px;margin:auto;padding:32px 24px 70px}h1{font-size:29px;line-height:1.3}h2{font-size:22px;margin:0 0 16px}h3{font-size:17px;margin-top:25px}
+section,header{background:white;border:1px solid #dce1eb;border-radius:12px;padding:24px;margin:18px 0}p{margin:10px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{text-align:left;vertical-align:top;border-bottom:1px solid #dde2ea;padding:10px}th{background:#eff1f8}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}code{overflow-wrap:anywhere;background:#f0f2f7;padding:2px 4px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f0f2f7;padding:16px;border-radius:8px}
+a{color:#4536a6;overflow-wrap:anywhere}.meta{font-size:13px;color:#5a6272}.note{border-left:4px solid #6556b5;padding-left:14px}.steps{list-style:none;padding-left:0}.steps>li{margin:13px 0}.steps>li::before{content:"☐ ";color:#6556b5;font-weight:bold}
+li{margin:7px 0}.tag{display:inline-block;background:#eeebff;color:#51429a;border-radius:16px;padding:3px 12px;font-size:13px}
+@media(max-width:700px){body{padding:14px 10px}section,header{padding:17px}table{display:block;overflow-x:auto}}
+</style>
+</head>
+<body>
+<header>
+<span class="tag">승인된 앱 범위 · 구현 계약 확정</span>
+<h1>Picnic 이미지 로딩 Implementation Plan</h1>
+<p><strong>Goal:</strong> 홈 배너·투표 캐러셀·투표 목록·팝업의 요청 시작 지연과 중복 디코드를 줄이고, 인접 이미지의 표시/사전 로딩 캐시를 재사용한다.</p>
+<p><strong>Architecture:</strong> 기존 URL resolver 위에 불변 요청 객체 하나를 만들고, 동일한 ImageProvider를 Flutter Image와 precacheImage가 사용한다. 공통 A 검증 후 홈/배너 B와 투표/공통 사용처 C가 파일을 나누어 병렬 구현한다. Riverpod 소스·CDN 계약·업무 흐름은 유지한다.</p>
+<p><strong>Tech Stack:</strong> 설치된 Flutter/Dart, cached_network_image 3.4.1, flutter_cache_manager 3.4.1, Riverpod, visibility_detector 0.4.0+2, card_swiper, flutter_test.</p>
+<p><strong>Spec:</strong> <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/image-loading-optimization-plan.html">승인된 image-loading-optimization-plan.html</a>. 원본의 “승인 대기” 표시는 이전 상태이며 현재 dispatch가 범위 및 사용량 조회 없는 풀부스트 승인을 확인했다.</p>
+<p class="meta">2026-09-12 · 기준 1e38f174a · 작업 폴더 /Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화<br>For agentic workers: 구현 시 superpowers:subagent-driven-development 또는 superpowers:executing-plans를 사용한다. 아래 체크박스는 묶음별 순서이며 조정자가 검증·독립 리뷰를 담당한다.</p>
+</header>
+<section>
+<h2>공통 제약</h2>
+<ul>
+<li>A 완료 후 B/C를 시작한다. B/C는 A 파일을 수정하지 않고 계약 문제를 조정자에게 전달한다.</li>
+<li>현재 비규격 브랜치 <code>charlie0421/이미지최적화</code>에서 commit/push/rename 하지 않는다. 배포·Lambda·서버·DB·provider 쿼리·인증·결제·투표 제출·버전/빌드는 범위 밖이다.</li>
+<li>외부 HTTP(S) URL 원문과 서명 쿼리는 기존 resolver 규칙으로 보존한다. CDN의 <code>q/w/h</code>와 기존 CDN 쿼리 제거 규칙을 바꾸지 않는다. 새 <code>fit/fm/dpr</code> 파라미터를 만들지 않는다.</li>
+<li>명시적 <code>memCacheWidth/Height</code>는 물리 픽셀이다. DPR을 곱하지 않는다. 미지정 축만 실제 논리 크기에서 물리 목표를 만든다.</li>
+<li>백그라운드 사전 로딩만 전역 최대2개. scope별 대기 후보도 최대2개. 표시 요청은 큐를 거치지 않는다. 전체 목록 다운로드·영구 keepAlive·글로벌 캐시 증량을 하지 않는다.</li>
+<li>개선율은 미측정이다. 기준101개 통과 로그 <code>/tmp/picnic-image-baseline.log</code>, 추가67개 통과는 조정자 전달 정보다. 이 계획 작성자는 소스·설치 패키지를 검토했으며 앱 테스트를 재실행하지 않았다.</li>
+</ul>
+</section>
+<section>
+<h2>독립 확인 결과와 선택</h2>
+<table>
+<thead><tr><th>근거</th><th>동작 → 결정</th></tr></thead>
+<tbody>
+<tr><td><code>picnic_cached_network_image.dart:_buildCachedNetworkImage</code>, 패키지 <code>cached_image_widget.dart:272–300</code>, <code>octo_image…/image.dart:205</code></td><td>OctoImage는 ResizeImage를 resolve하지만 imageBuilder는 원래 provider를 전달한다. Picnic의 두 번째 Image는 원래 키를 resolve한다. <strong>CachedNetworkImage 위젯 중첩을 Image 한 개로 교체</strong>하고 CachedNetworkImageProvider는 유지한다. 다운로드가 항상 두 번이라는 주장은 하지 않는다.</td></tr>
+<tr><td><code>cached_image_widget.dart:220–222</code></td><td>기본 fade-in500ms/fade-out1000ms다. 새 Image는 첫 프레임을 즉시 그린다. 기존 shimmer/error UI는 유지한다.</td></tr>
+<tr><td><code>_buildSafeMainWidget/_getTransformedUrls</code></td><td>LayoutBuilder의 크기가 URL 계산에 전달되지 않는다. 실제 유한 크기를 기본 request에 전달한다. 크기·DPR·옵션 변경도 요청 세대를 바꾼다.</td></tr>
+<tr><td>공통 build, Flutter <code>scroll_aware_image_provider.dart</code></td><td>최상단 scroll gate가 캐시 이미지까지 숨긴다. Flutter Image의 기본 ScrollAwareImageProvider를 사용하고 이미지 트리를 placeholder로 치환하는 gate를 없앤다.</td></tr>
+<tr><td><code>common_banner.dart:295–350</code>, <code>banner_list_provider.dart:38–40</code></td><td>일반 데이터가 있어도 캠페인 loading이면 최대5초 숨긴다. 일반 query는 이미 promotion_campaign_owned=false다. loading/error는 일반 슬라이드를 즉시 표시하고 late data에서 기존 합성을 적용한다.</td></tr>
+<tr><td><code>home_featured_vote_card.dart</code>, <code>candy_boost_banner.dart</code></td><td>크기와 즉시 로딩 설정이 빠져 있다. 홈 hero 높이는 제목·타이머·저장 상태에 따라 변하므로 부모의 실제 너비로 만든 <strong>너비 기반 request</strong>를 render/prefetch에 함께 전달한다. 배너는 실제 AspectRatio 영역의 두 축을 사용한다.</td></tr>
+<tr><td><code>vote_info_card.dart:105–123</code>, <code>vote_list.dart:_onPageChanged</code></td><td>첫500ms opacity0, 마지막 카드에서 fetch. 이미지/텍스트 opacity는 즉시1, 장식 이동만180ms로 줄인다. 다음 데이터는 남은 카드2개에서 조회한다.</td></tr>
+<tr><td><code>avatar_container.dart:59</code>, cache manager <code>image_cache_manager.dart:66–103</code></td><td>HTTP avatar는 별도 경로다. 공통으로 통일한다. 디스크 resize는 원본 전체 decode 후 PNG 재인코드를 하므로 새 provider의 disk maxWidth/maxHeight는 null로 둔다. CDN 응답/외부 압축 바이트는 URL 키로 저장하고 메모리 decode만 제한한다. GIF도 디스크 재인코드하지 않는다.</td></tr>
+</tbody></table>
+<p class="note"><code>ResizeImagePolicy.fit</code>으로 원본 비율을 보존한다. exact로 정사각형 decode 후 cover하면 비율을 잃는다. 극단적으로 긴 원본은 작은 영역에 cover할 때 상한 때문에 일부 업스케일이 남을 수 있다. 이를 없애려고 무제한 decode나 서버 crop 계약을 추가하지 않는다.</p>
+</section>
+<section>
+<h2>파일 소유권과 의존성</h2>
+<p>경로는 작업 폴더 기준이다. 새 패키지/lockfile 변경은 필요 없다. 테스트 공용 도우미는 A가 소유하며 B/C는 소비한다.</p>
+<p class="note"><strong>인수 시 실행 보정:</strong> 조정자가 공통 위젯의 동일 ResizeImage 재사용·성공 콜백 안정화만 수행하는 A0를 이미 진행 중이다. A의 신규 request/prefetch 파일은 A0와 독립 구현 가능하지만 <code>picnic_cached_network_image.dart</code> 통합은 A0 종료 뒤 순차 수행한다. A0의 <code>picnic_cached_network_image_success_test.dart</code>와 helper를 인수·재사용하며 중복 fixture를 만들지 않는다. 최종 A API 검증 뒤 B/C를 시작한다.</p>
+<table>
+<thead><tr><th>산출물</th><th>소유 파일</th><th>완료 계약</th></tr></thead>
+<tbody>
+<tr><td><strong>A 공통</strong></td><td>생성: <code>picnic_lib/lib/presentation/common/picnic_image_request.dart</code>, <code>picnic_image_prefetch.dart</code>.<br>수정: 같은 폴더 <code>picnic_cached_network_image.dart</code>.<br>검사만: <code>picnic_cached_network_image_url_resolver.dart</code>.<br>생성: <code>picnic_lib/test/helpers/image_test_harness.dart</code>; <code>test/presentation/common/picnic_image_request_test.dart</code>, <code>picnic_image_prefetch_test.dart</code>, <code>picnic_image_decode_test.dart</code>.<br>기존 <code>test/presentation/common/picnic_cached_network_image*_test.dart</code>, <code>test/performance/image_loading_performance_test.dart</code>의 내부 위젯 관찰 수정 가능.</td><td>아래 API, key/실제 픽셀/리트라이/scroll/큐 회귀 통과. B/C 도우미 API도 동결.</td></tr>
+<tr><td><strong>B 홈/배너</strong></td><td><code>picnic_lib/lib/presentation/common/common_banner.dart</code>, <code>candy_boost_banner.dart</code>;<br><code>presentation/widgets/vote/home_featured_vote_card.dart</code>, <code>home_featured_vote_carousel.dart</code>;<br><code>presentation/pages/vote/vote_home_page.dart</code>의 진입 캐시 축소만.<br>기존 <code>test/presentation/common/common_banner_render_test.dart</code>, <code>test/presentation/widgets/vote/home_featured_vote_card_test.dart</code>, <code>home_featured_vote_carousel_test.dart</code>; 생성 <code>home_image_prefetch_test.dart</code>.</td><td>A API 소비. source/financial provider, C VoteInfoCard 계열 수정 금지.</td></tr>
+<tr><td><strong>C 투표/공통</strong></td><td><code>picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart</code>, <code>vote_info_card.dart</code>, <code>vote_info_card_vertical.dart</code>, <code>vote_info_card_achieve.dart</code>, <code>vote_info_card_helper.dart</code>;<br><code>widgets/vote/voting/voting_dialog_widgets.dart</code>, <code>jma_voting_dialog.dart</code> 이미지부;<br><code>presentation/common/avatar_container.dart</code>;<br>필요한 크기/플래그만 <code>widgets/vote/reward_list_section.dart</code>, <code>latest_media_section.dart</code>.<br>대응 avatar/list/card/voting/reward 테스트, <code>test/presentation/pages/vote/vote_detail_image_key_test.dart</code>.<br>생성 <code>test/presentation/widgets/vote/list/vote_list_image_prefetch_test.dart</code>, <code>test/presentation/widgets/vote/voting/voting_artist_image_loading_test.dart</code>.</td><td>A API 소비. B의 vote_home_page 수정 금지. 상세 후보 목록은 A로 개선되므로 기존39×39/mem78/q55/cap2.0 유지 후 검증.</td></tr>
+</tbody></table>
+<pre>A 구현 → A 회귀/계약 확인 → ┬ B 홈·배너 구현/검사 ─┐
+                            └ C 투표·공통 구현/검사 ┴→ 조정자 통합 검사/독립 리뷰</pre>
+</section>
+<section>
+<h2>A — 공통 request / provider / precache + 회귀</h2>
+<h3>A1. B/C가 소비할 정확한 API</h3>
+<pre>// lib/presentation/common/picnic_image_request.dart
+@immutable
+final class PicnicImageRequest {
+  factory PicnicImageRequest.resolve({
+    required BuildContext context,
+    required String imageUrl,
+    double? width,                 // 논리 px, null축은 CDN query 생략
+    double? height,
+    int? memCacheWidth,             // 물리 px
+    int? memCacheHeight,
+    int? maxQualityOverride,
+    double? maxResolutionMultiplierCap,
+  });
+  final String imageUrl;           // 입력 원문, 위젯 source 검증용
+  final String url;                // 기존 resolver의 최종 URL
+  final int? requestWidth;         // CDN 목표 물리 px
+  final int? requestHeight;
+  final int decodeWidth;           // ResizeImage의 비율 보존 bound
+  final int decodeHeight;
+  final ImageProvider&lt;Object&gt; provider;
+  Future&lt;Object&gt; obtainKey(ImageConfiguration configuration);
+}
+
+// PicnicCachedNetworkImage: 기존 생성자/옵션 유지, 필드 하나 추가
+final PicnicImageRequest? imageRequest; // 생성자: this.imageRequest
+// build 안에서 assert(imageRequest == null || imageRequest.imageUrl == imageUrl)
+// const 생성자의 initializer에서 request의 속성을 읽지 않는다.
+// 있으면 요청/디코드는 request가 결정. width/height/fit는 배치용.
+// 없으면 LayoutBuilder의 실제 크기로 resolve. 이중 ResizeImage 금지.
+
+// lib/presentation/common/picnic_image_prefetch.dart
+final class PicnicImagePrefetchScope {
+  PicnicImagePrefetchScope();
+  void replace(BuildContext context, Iterable&lt;PicnicImageRequest&gt; requests);
+  void dispose();
+}</pre>
+<p>obtainKey는 provider.obtainKey를 그대로 반환한다. 별도 문자열/source 성공 Set/retry token을 메모리 캐시 키로 쓰지 않는다. 기존 성공 Set의 상한/LRU 및 lazy 진입 힌트는 유지하지만 준비 완료/overlay 숨김은 해당 request의 실제 첫 프레임을 기준으로 한다.</p>
+<h3>A2. 크기·키 계산 규칙</h3>
+<ol>
+<li>기본 위젯의 배치 크기는 각 축에서 <code>유효한 명시 width/height → 유한 max constraint → 100</code> 순서로 구하고 부모 min/max로 constrain한다. 0 크기 영역은 요청하지 않는다. NaN/무한/음수는 유효 크기가 아니다. 100 fallback은 무한 공간의 현행 safe layout을 보존한다. CDN 요청은 명시한 한 축만 있는 호출의 기존 width-only/height-only 계약을 유지한다. 양 축 모두 미지정이면 cover에서 두 실제 축을 추론하고, contain/fitWidth 등에서는 너비 한 축만 요청하여 서버 crop 가능성을 피한다. decode는 별도로 비율을 보존하는 양 축 상한을 적용한다.</li>
+<li>factory는 nullable 축을 유지한다. 주어진 양수 유한값만 URL에 사용한다. 양 축 null은 q-only를 허용하며 decode는400×400 bound. home hero는 실제 width만 전달해 h-auto로 요청한다.</li>
+<li>현행 배율 Android min(DPR×1.1,2.5), iPad min(DPR×1.3,4), 기타 min(DPR×1.2,2.5)를 유지한다. 유한 양수 cap에만 min 적용. DPR이 비유한/0이하면1로 대체하고 비정상 cap은 무시한다. quality는 현행 면적50,000 미만85, 그 외80, GIF80, 기존 low 이미지 override를 유지한다. GIF 판단은 Uri.path로 해 .gif?token도 인식한다.</li>
+<li>물리 목표는 round(논리×배율), 최소1. <strong>한 축 최대2000px, 두 축 면적 최대2,000,000px</strong>로 비례 축소 후 floor한다. 한 축뿐이면 그 축만2000 cap. 이 값을 resolver의 width/height에, multiplier1로 전달한다. 외부 URL에는 resize query를 적용하지 않는다.</li>
+<li>decode bound는 명시 memCache 우선(DPR 미적용), 없으면 요청 물리 목표. width-only면 decodeWidth를 우선 보존하고 decodeHeight를 <code>min(2000,2000000 ~/ decodeWidth)</code>로 보충한다(height-only는 반대). 양 축 모두 자동/명시면 2000/2MP 초과 때만 함께 비례 축소한다. 한 축만 명시하면 그 값을 먼저 보존하고 자동 축에 나머지 면적 cap을 적용한다. 상세 목록78×78은 DPR1/2/3 모두78×78이다.</li>
+<li><code>CachedNetworkImageProvider(url, cacheKey: url)</code>에 disk maxWidth/maxHeight를 주지 않는다. <code>ResizeImage(..., width: decodeWidth, height: decodeHeight, policy: ResizeImagePolicy.fit, allowUpscaling: false)</code>로 한 번 감싼다. 실제 decode는 bound 이하이며 원본 비율 유지. fit/clip은 Image/부모 담당. 2MP는 프레임당 약8MB이며 GIF 전체 메모리 상한이라는 뜻은 아니다.</li>
+<li>최종 URL+decode 크기/정책이 같으면 같은 키다. DPR/constraints/옵션으로 키가 바뀌면 새 세대, 동일 rebuild는 같은 세대. request는 context를 보관하지 않는다. 제공된 imageRequest가 같으면 UI 높이 변화만으로 키를 바꾸지 않는다.</li>
+</ol>
+<h3>A3. 단일 표시 경로·생명주기</h3>
+<pre>Image(
+  key: ValueKey((request.url, request.decodeWidth,
+      request.decodeHeight, reloadToken)),
+  image: request.provider,
+  width: renderedWidth, height: renderedHeight, fit: widget.fit,
+  gaplessPlayback: false,
+  frameBuilder: (context, child, frame, synchronous) {
+    if (frame != null) {
+      markFirstFrame(); // generation+attempt당 성공 예약 한 번
+      return child;    // GIF 후속 프레임에도 동일 child
+    }
+    return buildCurrentPlaceholder();
+  },
+  errorBuilder: (context, error, stack) =&gt;
+      handleCurrentAttemptError(error),
+);</pre>
+<p>세 함수는 공통 State의 private 메서드로 구현한다. markFirstFrame은 기존 _onImageLoadSuccess 진입점, placeholder는 사용자 placeholder/showLoadingOverlay/clip 재사용, error는 현행 retry 분류/backoff/오류 위젯으로 연결한다. 추가 progress UI나 stream widget을 만들지 않는다.</p>
+<ul>
+<li>첫 프레임에 timeout/retry를 취소하고 상태를 한 번만 갱신한다. GIF 매 프레임 성공 로그/setState 금지. 예약 postFrame도 mounted+generation+attempt를 다시 확인한다. URL 변경/dispose 뒤 이전 성공·오류 무시.</li>
+<li>요청 세대와 retry attempt를 구분한다. retry는 같은 provider 키와 reloadToken에 의한 Image Element 재생성. URL/cacheKey에 token을 붙이지 않는다. 실패해 남은 정확한 메모리 키만 필요 시 evict한다. live/pending 성공 작업과 disk 파일을 매 retry마다 제거하지 않는다.</li>
+<li>timeout은 실제 로딩 가능한 시점부터 시작한다. cold resolve가 fast scroll로 보류되면 timer를 시작하지 않고 기존 다음 프레임 재평가를 timer 시작에만 사용한다. 이미 시작한 pending 요청은 감시 유지. reset/dispose는 모든 Timer 취소.</li>
+<li>Image는 SDK 내부 ScrollAwareImageProvider를 적용하므로 이중 wrapper가 필요 없다. deferDuringFastScroll 필드는 유지하지만 이미지 트리를 제거하지 않는다. viewport lazy gate는 유지한다. 성공 URL 힌트만으로 eviction 이후 로딩 UI를 숨기지 않는다.</li>
+<li>기존 상한 모바일200MB/500개, 웹150MB/300개를 늘리지 않는다. 공통 GIF 전용 임시 축소/복구를 제거하고 LRU에 맡긴다. B가 페이지 진입50% 축소를 제거한다. telemetry map 상한/정리는 보존한다.</li>
+</ul>
+<h3>A4. 사전 로딩 scope</h3>
+<ul>
+<li>private Queue/Map/activeCount만 사용한다. scope들이 scheduler 하나를 공유하며 speculative active 최대2. display Image는 scheduler를 참조하지 않는다.</li>
+<li>replace는 우선순위순 첫2개의 서로 다른 provider 키만 유지한다. createLocalImageConfiguration(context)로 obtain한다. generation은 갱신하되 동일 후보 rebuild가 진행 중 작업을 다시 시작하지 않는다.</li>
+<li>시작 직전 scope 생존/generation/context.mounted 확인. 오래된 queued 작업 폐기. 동일 in-flight key는 관심 scope를 합친다. 한 scope dispose가 다른 살아 있는 scope의 작업을 지우지 않는다.</li>
+<li>표준 <code>precacheImage(request.provider, context, onError: ...)</code>로 시작한다. 첫 프레임 뒤 표준 listener가 해제되게 프레임을 진행하고 별도 pin하지 않는다. 에러는 소비, finally에서 슬롯/in-flight 제거. background retry 없음.</li>
+<li>이미 시작된 HTTP/decode는 precacheImage로 강제 취소할 수 없다. replace/dispose는 새 시작과 stale 결과 사용을 취소한다. 시작 작업은 실제 완료까지 슬롯 점유. 가짜 timeout으로 슬롯만 반환해 실제 동시성을 초과시키지 않는다. speculative 두 작업이 느려도 display는 기다리지 않는다.</li>
+<li>영구 completed-key Set 금지. 준비된 정확한 key는 cache-hit, eviction 후 재진입은 다시 준비 가능해야 한다. 화면은 의미 있는 페이지/데이터/크기 변화 후 postFrame에서 replace, dispose에서 scope.dispose 호출.</li>
+</ul>
+</section>
+<section>
+<h2>A — 실바이트 검증과 인수</h2>
+<p>test/helpers/image_test_harness.dart는 테스트용 BaseCacheManager로 getFileStream을 실제 PNG/GIF FileInfo에 연결한다. URL별 cold fetch 횟수·active 수·완료 gate를 기록하고 이미 파일이 있으면 fetch 횟수를 늘리지 않는다. disk resize가 없어 ImageCacheManager/sqflite/path_provider 초기화가 필요 없다. CachedNetworkImageProvider.defaultCacheManager를 교체/복원하고 이미지 캐시와 임시 파일도 정리한다. PNG decode 실패를 suppressImageErrors로 삼키지 않는다.</p>
+<pre>// A가 제공하는 테스트 도우미 API
+final class ImageTestHarness {
+  static Future&lt;ImageTestHarness&gt; create();
+  Future&lt;void&gt; respondPng(String url,
+      {int width = 400, int height = 200,
+       Color color = const Color(0xffff0000), bool held = false});
+  Future&lt;void&gt; respondAnimatedGif(String url, {bool held = false});
+  void failNext(String url, Object error);
+  void release(String url);
+  int requestsFor(String url);
+  int get activeRequests;
+  int get maximumActiveRequests;
+  Future&lt;void&gt; dispose();
+}
+
+// PNG: PictureRecorder → Canvas.drawColor → toImage(width,height)
+// → toByteData(format: ui.ImageByteFormat.png).
+// GIF: 두 색이 다른 2-frame bytes를 helper 내 fixture 상수로 둔다.
+// 파일/codec 완료만 tester.runAsync, pump/fake timer는 그 밖에서 수행.
+
+// 아래는 harness/request/context를 준비한 testWidgets 본문의 핵심.
+final config = createLocalImageConfiguration(context);
+final key = await request.obtainKey(config);
+await precacheImage(request.provider, context);
+await tester.pump(); // precache listener의 end-of-frame 해제
+final preparedCompleter = request.provider.resolve(config).completer;
+// 같은 request를 전달한 PicnicCachedNetworkImage를 pump한 뒤:
+final displayed = tester.widget&lt;Image&gt;(find.byType(Image).last);
+expect(await displayed.image.obtainKey(config), key);
+expect(displayed.image.resolve(config).completer,
+    same(preparedCompleter));
+expect(harness.requestsFor(request.url), 1);
+final raw = tester.widget&lt;RawImage&gt;(find.byType(RawImage).last);
+expect(raw.image, isNotNull);
+expect(raw.image!.width / raw.image!.height, closeTo(2, 0.02));
+// raw.image.toByteData의 중심 RGBA도 (255,0,0,255)인지 검사.</pre>
+<p>negative control은 resize 전 CachedNetworkImageProvider를 resolve해 다른 key/completer가 나옴을 확인한다. 캐시 재사용 주장을 단순 widget 개수로 대체하지 않는다. defaultCacheManager 참조/복원 시 실제 DefaultCacheManager 초기화를 유발하는 테스트 환경이면 테스트용 setter를 먼저 사용하고, 테스트용 manager 간 복원으로 native 초기화를 피한다.</p>
+<table>
+<thead><tr><th>영역</th><th>관찰 가능한 합격 조건</th></tr></thead>
+<tbody>
+<tr><td>크기/key</td><td>DPR1/2/3,320/393/1024px·회전, explicit mem78, width-only, 무한/0/NaN,2000/2MP cap. bounded/크기미지정이면 q-only가 사라짐. 같은 rebuild는 같은 key, 크기/DPR 변경은 새 key. signed URL/CDN 기존 resolver 테스트 유지.</td></tr>
+<tr><td>prefetch→render</td><td>실제 PNG 픽셀, 같은 key/completer, cold1회·warm추가0회. 다른 decode 크기는 다른 key지만 URL disk bytes는 재사용. source 성공 Set만으로 cache-hit 판정 금지.</td></tr>
+<tr><td>동시성/취소</td><td>scope2개, held A/B/C/D: active최대2, 중복A1회, replace/dispose 뒤 stale C0회. A/B held인 동안 display E 요청은 즉시 시작. eviction 후 재준비. 화면 dispose 뒤 setState 예외0.</td></tr>
+<tr><td>scroll</td><td>완료된 정확한 키 이미지가 fast ScrollPhysics 중 동일 RawImage/픽셀 유지. cold request0회→defer 종료1회. 같은 source의 다른 크기는 cold. pending 작업 재시작0.</td></tr>
+<tr><td>retry/수명</td><td>404 terminal error, SocketException maxRetries까지만 backoff, timeout/dispose 취소. timeout 뒤 늦은 성공은 예약 retry 취소. A→B 변경 뒤 A의 성공/실패가 B에 영향0. 반복 rebuild로 timer/retry 중복0.</td></tr>
+<tr><td>성공 후 정착</td><td>정적 PNG 성공 뒤 반복 pump에도 새 frame이 영구 예약되지 않는다. 조정자가 실제 PNG로 재현한 <code>picnic_lib/.dart_tool/initial_image_probe_test.dart</code>, <code>/tmp/picnic-image-success-probe.log</code>를 A0 회귀 근거로 인수한다. GIF/의도된 shimmer ticker가 없는 정적 테스트에서 scheduler가 정착해야 한다.</td></tr>
+<tr><td>GIF/표시</td><td>2-frame GIF 및 .gif?token의 픽셀 변화, 성공 처리1회.400×200 PNG→square cover에서 비율 보존. cache-hit 추가 fade/overlay0.</td></tr>
+</tbody></table>
+<ol class="steps">
+<li>request/실바이트/큐 테스트를 먼저 작성하고 현재 코드에서 누락 API 또는 잘못된 크기/컴플리터로 실패함을 확인한다.</li>
+<li>request와 단일 Image를 구현하고 기존 visibility/telemetry/error에 연결한다.</li>
+<li>최대2 precache scope를 구현하고 held 응답으로 display 독립성을 검사한다.</li>
+<li>기존 CachedNetworkImage 타입/필드 관찰을 request/provider/픽셀 관찰로 바꾼다. 기존 회귀 의미는 삭제하지 않는다.</li>
+<li>A 검사 통과와 API 동결을 조정자에게 보고한다. 이 완료 전 B/C 편집을 시작하지 않는다.</li>
+</ol>
+<pre>cd "/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib"
+flutter test --no-pub test/presentation/common/picnic_image_request_test.dart test/presentation/common/picnic_image_prefetch_test.dart test/presentation/common/picnic_image_decode_test.dart test/presentation/common/picnic_cached_network_image*_test.dart --reporter compact
+dart analyze lib/presentation/common/picnic_image_request.dart lib/presentation/common/picnic_image_prefetch.dart lib/presentation/common/picnic_cached_network_image.dart</pre>
+</section>
+<section>
+<h2>B — 홈 히어로·배너의 실제 크기와 인접 준비</h2>
+<h3>B1. 홈 request 전달</h3>
+<pre>// home_featured_vote_card.dart: 기존 생성자에 선택 필드 추가
+final PicnicImageRequest? heroImageRequest; // this.heroImageRequest
+
+// 같은 파일 top-level. 카드와 carousel이 함께 사용.
+PicnicImageRequest homeFeaturedHeroRequest(
+  BuildContext context, {
+  required String imageUrl,
+  required double heroWidth,
+}) =&gt; PicnicImageRequest.resolve(
+  context: context, imageUrl: imageUrl, width: heroWidth,
+);
+
+// carousel LayoutBuilder 안. 화면 전체 너비를 사용하지 않는다.
+final heroWidth = (constraints.maxWidth *
+    HomeFeaturedVoteCarousel.viewportFraction -
+    HomeFeaturedVoteCarousel.pageMargin.horizontal - 2.0 - 32.w)
+    .clamp(1.0, constraints.maxWidth).toDouble();
+// 2.0은 card frame Border.all 기본1px의 좌우 padding 합.
+// carousel은 유한 양수 maxWidth일 때만 request/prefetch를 생성한다.
+final request = homeFeaturedHeroRequest(context,
+    imageUrl: topItem.artist?.image ?? topItem.artistGroup?.image ?? '',
+    heroWidth: heroWidth);
+HomeFeaturedVoteCard(vote: entry.vote, percent: entry.topPercent,
+    heroImageRequest: request);
+
+// card의 실제 hero LayoutBuilder. 단독 card 사용은 같은 함수로 요청 생성.
+PicnicCachedNetworkImage(
+  imageUrl: imageUrl,
+  imageRequest: widget.heroImageRequest ?? measuredRequest,
+  width: actualHeroWidth, height: actualHeroHeight, fit: BoxFit.cover,
+  lazyLoadingStrategy: LazyLoadingStrategy.none,
+  priority: ImagePriority.high,
+);</pre>
+<p>topItem이 null이면 현재와 같이 빈 영역이며 request를 만들지 않는다. measuredRequest는 actualHeroWidth로 같은 함수를 호출한 값이다. 실제 render bounds와 계산 heroWidth를 테스트에서 비교하며 frame border 폭을 바꾸면 양쪽 계산도 함께 변경한다. width-only 요청이어도 표시 영역은 실제 두 축이다. source 선택은 현행 topItem 식을 사용한다. save/share 때 높이만 변하면 key가 같아 재요청하지 않는다.</p>
+<p>State당 scope 하나. 현재 다음1–2개만 같은 함수로 준비하고 마지막에서 wrap하지 않는다. 현재 Image 먼저 build, 다음 postFrame에 prefetch. vote.id 기반 카드 key를 사용한다. reorder/shrink는 현재 vote.id를 우선 보존하고 없으면 clamp하여 PageController/dots를 postFrame에 맞춘다. 데이터/크기/DPR 변경은 replace, dispose는 scope.dispose.</p>
+<h3>B2. 일반 배너 즉시 표시와 late merge</h3>
+<pre>// common_banner.dart: ordinary data를 받은 뒤 campaign branch
+loading: () =&gt; _renderSlides(_ordinarySlides(data)),
+error: (_, _) =&gt; _renderSlides(_ordinarySlides(data)),
+data: (resolved) =&gt; _renderSlides(_homeSlides(data, resolved)),
+// ordinary 자체 loading은 기존 shimmer, error UI도 유지.
+// ordinary empty + campaign loading은 SizedBox.shrink(), wait timer 없음.
+
+// CandyBoostBanner: 기존 생성자에 선택 필드 추가
+final PicnicImageRequest? imageRequest;
+// const CandyBoostBanner({super.key, required this.creative, this.imageRequest});
+
+// CommonBannerSlide의 기존 id/duration/child에 추가
+final PicnicImageRequest imageRequest;</pre>
+<ul>
+<li>AspectRatio를 감싸는 LayoutBuilder에서 실제 Size(maxWidth,maxWidth/aspectRatio)를 계산해 ordinary/campaign에 동일 사용. MediaQuery 전체 너비와 banner의 논리값 memCache를 제거한다. 이 사용처만 실제 영역의 자동 물리 decode로 전환하며2MP cap 적용.</li>
+<li>_campaignWaitTask/_campaignWaitExpired/_armCampaignWaitCap/_clearCampaignWaitCap 및 waitCap 상수 제거. provider/RPC/owned 필터/locale/source precedence는 수정하지 않는다.</li>
+<li>이미지 key는 <code>ValueKey('banner_' + item.id.toString())</code>, campaign은 campaign:bannerId. index를 key에 넣지 않는다. localized URL 변경은 A가 처리한다.</li>
+<li>late campaign prepend/reorder에서도 현재 <strong>slide.id를 보존</strong>하고 새 index로 Swiper/dots를 함께 맞춘다. 현재 id 삭제면0. 새 campaign은 다음 autoplay 순회에서 노출된다.</li>
+<li>autoplay를 build마다 재예약하지 않는다. 같은 현재 id/duration이면 남은 timer를 유지한다. prepend로 index만 바뀌어도 남은 시간 유지; 콜백은 최신 목록에서 다음 index를 계산한다. duration 변경/사용자 이동/id 삭제만 새 duration 예약.</li>
+<li>예약 generation으로 오래된 postFrame/timer 무효화. 프로그램 index 이동의 중복 onIndexChanged가 같은 id timer를 다시 시작하지 않게 한다. single↔multiple/shrink/locale/location/UniqueKey refresh 검사.</li>
+<li>banner scope는 다음1개만 준비하며 마지막→처음 wrap. 슬라이드1개면 후보0. CandyBoostBanner도 none/high. 클릭/링크/합성 순서는 보존.</li>
+<li>vote_home_page에서 _optimizeImageCacheForPage 호출/메서드만 제거. pagination 초기화/provider invalidate는 변경하지 않는다.</li>
+</ul>
+<h3>B3. 단계와 검사</h3>
+<ol class="steps">
+<li>기존 “loading withholds ordinary”/5초 cap 테스트를 새 계약으로 바꾸고 실패 확인. ordinary 데이터 도착 첫 pump에 ordinary subtree 존재, campaign future는 미완료.</li>
+<li>LayoutBuilder/request 전달, hero none/high 구현. skeleton geometry/golden/share 캡처 경계 보존.</li>
+<li>banner id/autoplay generation/late merge 및 scope 연결.</li>
+<li>held background2개에도 current hero 요청 즉시, next1–2만 다운로드, swipe 후 key/completer 재사용, shrink/reorder/회전/dispose의 stale 시작0을 A harness로 검사.</li>
+<li>campaign loading/error/invalidate/remount/locale에서 ordinary 중복0, late owned 제외 유지, 실제 slide duration과 scheduler 호출 수 확인. 기존 V1/V2 source 테스트 전부 통과.</li>
+</ol>
+<pre>// fake scheduler acceptance:
+// ordinary A(duration3000),B; 1000ms 후 campaign X prepend.
+// active id A/index1. 1999ms 이동0, +1ms B로1회 이동.
+// rebuild10회가 timer를 재시작하지 않음.
+// A 삭제 시 X/index0 + X.duration timer1개.
+
+flutter test --no-pub test/presentation/common/common_banner_render_test.dart test/presentation/widgets/vote/home_featured_vote_card_test.dart test/presentation/widgets/vote/home_featured_vote_carousel_test.dart test/presentation/widgets/vote/home_image_prefetch_test.dart --reporter compact</pre>
+</section>
+<section>
+<h2>C — 투표 목록·팝업·관련 공통 사용처</h2>
+<h3>C1. 목록 이미지/데이터 선조회</h3>
+<pre>// vote_info_card_helper.dart: 기존 render의 실제 선택 재사용
+static List&lt;VoteItemModel&gt; previewItems(
+    List&lt;VoteItemModel&gt;? items, VoteStatus status) =&gt;
+  prepareVoteItems(items, status).take(2).toList();
+
+static PicnicImageRequest rankImageRequest(
+    BuildContext context, VoteItemModel item) =&gt;
+  PicnicImageRequest.resolve(
+    context: context,
+    imageUrl: resolveVoteItemImageUrl(item),
+    width: 72, height: 72,
+  );
+
+// vote_list.dart
+void _onPageChanged(int index) {
+  _currentIndex = index;
+  scheduleAdjacentImages();
+  if (!_isLoading &amp;&amp; !_isFetchingMore &amp;&amp; !_noMoreItems &amp;&amp;
+      index &gt;= _items.length - 3) {
+    _fetchVotes();
+  }
+}</pre>
+<p>scheduleAdjacentImages는 State private 메서드다. index+1이 일반 active/end 카드이면 previewItems/rankImageRequest로 scope.replace를 postFrame 예약하고 그 외에는 빈 목록으로 교체한다. debug의 실제 status 판정은 render와 공유한다. State당 scope 하나, 데이터/필터/dispose generation 처리. top3 모두×다음2카드로 확대하지 않는다.</p>
+<ul>
+<li>VoteCardColumnVertical은 바깥72px 슬롯 안에서100px 요청하던 부분을 같은 rankImageRequest와72×72 배치로 맞춘다. border의1.w inset 차이는 decode 여유로 허용. 기존 artist/group 선택 규칙은 보존한다.</li>
+<li>upcoming shuffle은 State 내부라 다음 카드의 첫 grid를 추측하지 않는다. 현재 VoteInfoCard의 실제 shuffled pages에서 다음 <strong>내부 thumbnail page</strong> 첫2개만56×56 동일 request로 준비한다. 다음 세로 upcoming 카드 전체를 선다운로드하지 않는다.</li>
+<li>achieve reward rank는 별도 fetch 결과다. prefetch를 위한 새 data fetch는 하지 않는다. 실제 reward 슬롯45×45로 크기를 맞추고 즉시 first frame을 표시한다. 이 예외들은 데이터/랜덤화 구조 변경을 피하기 위한 의도된 제한이다.</li>
+<li>_opacityAnimation을 <code>const AlwaysStoppedAnimation&lt;double&gt;(1)</code>로 바꿔 준비 이미지를 숨기지 않는다. _offsetAnimation은 <code>Tween&lt;Offset&gt;(begin: const Offset(0, 0.05), end: Offset.zero)</code>의 전체180ms easeOut으로 줄인다. 초기 전체 높이 이동으로 이미지가 clip 밖에 숨는 대기도 없애며 첫 프레임/refresh/save 캡처를 검사한다.</li>
+<li>_fetchVotes 내부에서 중복 guard/_isFetchingMore를 동기 설정. 시작 시 generation/requestedPage/status/category/area/portal 캡처, await마다 현재 세대 확인. refresh/filter 변경은 세대를 바꿔 이전 응답 append/finally 상태 변경 무시.</li>
+<li>현행 empty-page skip은 tempPage+1 저장 뒤 다시 _pageKey++하는 경로가 있다. 로컬 consumedPage만 진행하고 적용 시 한 번 <code>_pageKey=consumedPage+1</code>. PIC 필터와 빈 페이지 최대3회 추가 확인 유지. provider는 수정하지 않는다.</li>
+<li>초기 데이터1–3개면 현재index0 경계 확인을 첫 layout 후 한 번 수행. 진행 중 tail fetch 중복0. 매 fetch 완료마다 재귀 fetch를 걸어 전체 페이지를 소진하지 않는다. refresh는 controller 유효index 복구.</li>
+</ul>
+<h3>C2. 팝업/avatar/누락 크기</h3>
+<pre>// VotingArtistImage에서는 imageSide=80.w
+// JMA _buildArtistInfoRow에서는 imageSide=60.w
+PicnicCachedNetworkImage(
+  imageUrl: imageUrl,
+  width: imageSide, height: imageSide, fit: BoxFit.cover,
+  lazyLoadingStrategy: LazyLoadingStrategy.none,
+  priority: ImagePriority.high,
+);
+// 팝업 표시를 await precacheImage 뒤로 미루지 않는다.</pre>
+<ul>
+<li>이번 팝업은 생성 즉시 로딩만 구현한다. opener에서 동시에 prefetch를 추가하지 않는다. 첫 프레임에 요청이 시작되면 수용한다. submit/잔액/키보드 동작 수정 금지.</li>
+<li>ProfileImageContainer는 resolveAvatarImageUrl 후 HTTP/상대 URL 모두 공통 loader로 표시. null/빈 NoAvatar, clip/border/relative placeholder 및 기존 물리 memCache 유지. 기존 HTTP 경로는 none으로 즉시 시작, 상대 경로 viewport 유지. 대문자 HTTP(S)/protocol-relative도 resolver와 동일하게 분류.</li>
+<li>reward_list_section/latest_media_section은 GridTwoColumn1.45 비율의 bounded Stack이다. A fallback만으로 크기가 해결되는지 실제 request부터 검사한다. 필요하면 해당 이미지 LayoutBuilder의 실제 크기 명시만 수정. reward first4 none/high 유지, 모든 grid 아이템 immediate 전환 금지.</li>
+<li>vote_home_page120×100 memCache 및 상세 page의 명시값을 DPR 증배하지 않는다. 상세 sliver의 none/defer/78×78로 warm/cold scroll 회귀 검사. local file 썸네일/video_thumbnail 생성기/원본 뷰어·공유 export는 이번 수정 대상이 아니다.</li>
+</ul>
+<h3>C3. 단계와 검사</h3>
+<ol class="steps">
+<li>10개 목록 index7에서 page2 호출1회 테스트를 작성해 기존 last-only 실패 확인. index8/9 연속 이동 중복0, refresh 중 이전 page2 완료 stale append0.</li>
+<li>fetch 세대/페이지 bookkeeping와 인접 top2 scope 구현. skip 성공 뒤 page 번호 연속성 및 _noMoreItems 중단 검사.</li>
+<li>72/45/56px 규격/즉시 opacity/팝업 none-high/avatar 통합. C 소유 파일 밖 문제는 조정자에게 전달.</li>
+<li>실제 PNG가 준비된 rank 이미지는16–32ms에서 보이고 첫500ms opacity0이 아님을 검사. next card top2 render/prefetch key와 request 추가0회 확인.</li>
+<li>VisibilityDetector updateInterval 기본500ms에서 팝업 요청이 그 전에 시작됨을 검사. interval=zero/notifyNow 우회 금지. signed avatar는 요청 문자열 전체 비교.</li>
+<li>C 검사 및 기존 voting 계정/닫기/실패 회귀 실행. 코드/검사 결과로 업무 로직 영향 여부 확인.</li>
+</ol>
+<pre>flutter test --no-pub test/presentation/widgets/vote/list/vote_list*_test.dart test/presentation/widgets/vote/list/vote_info_card*_test.dart test/presentation/widgets/vote/voting/voting_artist_image_loading_test.dart test/presentation/widgets/vote/voting/voting_dialog*_test.dart test/presentation/widgets/vote/voting/jma_voting_dialog*_test.dart test/presentation/common/avatar_container_test.dart test/presentation/pages/vote/vote_detail_image_key_test.dart test/presentation/widgets/vote/reward_list_section_test.dart --reporter compact</pre>
+</section>
+<section>
+<h2>조정자 인수 기준</h2>
+<ol>
+<li>A/B/C 검사 종료값과 실패→성공 근거 확인. 기존101개 baseline과 추가67개 영역 재검증. 테스트 교체/추가로 개수가 바뀔 수 있어 숫자만 성공 기준으로 삼지 않는다.</li>
+<li>최종 URL/decode 크기/실제 key, RawImage pixels/ImageStreamCompleter/request counter를 함께 검토. widget 개수/옵션 비교만으로 decode·다운로드 감소 주장 금지.</li>
+<li>변경 파일 dart format/analyze 후 통합 flutter test. 무관한 실패는 baseline과 구분. golden은 실제 레이아웃 변경을 확인한 뒤에만 갱신.</li>
+<li>독립 리뷰에는 요구사항/diff/파일/검사 결과만 전달. ordinary 즉시 노출과 late merge, stale 이미지/팝업 수명, background가 display를 막는 반례 우선.</li>
+<li>가용 기기는 조정자 확인 기준 Android SM G781N/iPhone17 Pro simulator. 가능하면 profile cold/warm·정상/지연 네트워크에서 홈/배너 swipe/세로목록/팝업의 첫 요청·첫 표시·요청수/bytes/frame 시간을 전후 비교. 실행하지 않은 항목은 미측정으로 표시.</li>
+</ol>
+<p class="note">확정 계약은 <strong>request→단일 provider→display/precache 동일 key</strong>, <strong>실제 UI 크기/물리 memCache</strong>, <strong>ordinary 즉시 노출/id 기반 timing</strong>, <strong>A 뒤 분리된 B/C 소유권</strong>이다. 이번 계획 산출물은 이 HTML 한 개이며 production/test 코드·커밋·배포는 생성하지 않았다.</p>
+</section>
+</body>
+</html>

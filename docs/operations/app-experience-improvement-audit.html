@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Picnic 앱 사용성·성능 개선 점검</title><style>
+:root{color-scheme:light;--ink:#172238;--muted:#536176;--line:#dce4ef;--brand:#3453be}*{box-sizing:border-box}body{font:16px/1.75 -apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:#f4f6fa;color:var(--ink);margin:0}main{max-width:1060px;margin:auto;padding:40px 24px 72px}header,section{background:white;border:1px solid var(--line);border-radius:14px;padding:28px;margin-bottom:20px}header{border-top:5px solid var(--brand)}h1{font-size:30px;line-height:1.35;margin:0 0 12px}h2{font-size:22px;line-height:1.45;margin:0 0 18px}h3{font-size:16px;margin:16px 0 3px}p{margin:8px 0}.meta,small{color:var(--muted)}.pill{display:inline-block;padding:1px 9px;border-radius:6px;font-size:12px;vertical-align:middle;white-space:nowrap}.P1{color:#972727;background:#fff0f0}.P2{color:#745210;background:#fff5d9}.P3{color:#35566c;background:#edf4f9}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border-bottom:1px solid var(--line);padding:12px;text-align:left;vertical-align:top}th{background:#f1f4fa}a{color:var(--brand);text-decoration:none;overflow-wrap:anywhere}a:hover{text-decoration:underline}details{margin-top:18px}summary{cursor:pointer;font-weight:600}code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px}pre{background:#eef2f8;padding:16px;border-radius:8px;white-space:pre-wrap;overflow-wrap:anywhere}li{margin:4px 0}.note{background:#f0f5ff;border-left:4px solid var(--brand);padding:14px}@media(max-width:650px){main{padding:16px 12px}header,section{padding:20px}h1{font-size:25px}th,td{padding:8px}}@media print{body{background:white}main{padding:0}section{break-inside:avoid}details>ul{display:block}}
+</style></head><body><main>
+<header><h1>Picnic 앱 사용성·성능 개선 점검</h1><p class="meta">2026-09-13 12:48 KST · 기준 1.3.3+130305 · <code>161109c8711259bf93227952bde054e9f2ceb825</code></p>
+<p>이미지 개선 이후 남은 데이터 대기, 반복 조회, 오류 복구, 화면 수명을 점검했다. 가장 먼저 다룰 항목은 광고 동의 상태 조회 오류가 앱 시작 대기로 이어질 수 있는 결함이다. 일상적인 체감 개선은 홈 복귀 시 데이터 유지와 달성형 투표의 반복 조회 축소가 유력하다.</p>
+<p class="note">이번 작업은 검사다. 제품 소스·설정·버전·태그를 수정하지 않았다. 서비스/위젯 장애 주입으로 두 결함의 동작을 재현했으며, 새 실기기 성능 측정이나 운영 발생 빈도 조사는 수행하지 않았다.</p>
+<p><strong>P1</strong> 우선 수정할 안정성 문제 · <strong>P2</strong> 다음 개선 작업에 포함할 사용성·효율 문제 · <strong>P3</strong> 추가 측정 후 판단할 후보</p></header>
+<section><h2>개선 후보</h2><table><thead><tr><th>우선순위</th><th>항목</th><th>근거 수준</th></tr></thead><tbody><tr><td><span class="pill P1">P1</span></td><td><a href="#A1">광고 동의 상태 조회 오류가 앱 시작 대기로 이어질 수 있음</a></td><td>장애 주입 재현 + 시작 호출 경로 확인</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A2">통신 오류를 빈 목록으로 표시하고 재시도 경로를 잃음</a></td><td>목록 위젯 장애 주입 재현; 상세는 코드 확인</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A3">달성형 투표가 매초 후보 전체와 달성 정보를 반복 조회</a></td><td>코드 확인; 요청 수·전력 실측 전</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A4">홈 탭 복귀 시 캐시된 이미지 앞에 데이터 로딩이 다시 발생</a></td><td>탭 이동·provider 폐기 경로 코드 확인</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A5">상세 진입 시 후보·아티스트 데이터가 두 경로로 중복 수신됨</a></td><td>쿼리 및 실제 화면 구독 코드 확인</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A6">시작 과정의 고정 대기와 광고 초기화 책임 중복</a></td><td>실행 가능한 시작 경로 코드 확인; 시간 실측 전</td></tr><tr><td><span class="pill P2">P2</span></td><td><a href="#A7">검색 중 새 검색어가 무시되어 이전 결과가 표시될 수 있음</a></td><td>아티스트 선택 위젯의 요청·응답 경로 코드 확인</td></tr></tbody></table></section>
+<section id="A1"><h2><span class="pill P1">P1</span> 광고 동의 상태 조회 오류가 앱 시작 대기로 이어질 수 있음</h2><h3>발생 조건</h3><p>앱 시작 중 UMP 정보 갱신은 성공하지만 이후 getConsentStatus 호출이 PlatformException으로 실패하는 경우.</p><h3>사용자 영향</h3><p>처음 호출한 ConsentService.initialize Future가 완료되지 않아 이를 통해 sdkReady를 기다리는 앱이 시작 화면에 머물 수 있다. 별도의 initialize 재호출 자체가 모두 막히는 것은 아니다. 운영 발생 빈도는 이번 감사에서 측정하지 않았다.</p><h3>확인한 원인</h3><p>성공 콜백이 async인데 내부 예외를 completer.completeError로 전달하지 않는다. 바깥 initialize의 catch로도 전달되지 않으므로 Future가 미완료 상태로 남는다. MainInitializer는 광고·딥링크 초기화까지 await한 뒤에만 sdkReady를 완료한다. _isInitialized가 성공 시에만 true가 되므로 뒤의 별도 initialize 호출은 다시 시도할 수 있으나, 앱 시작이 기다리던 첫 Future는 자동으로 복구되지 않는다.</p><h3>최소 개선 방향</h3><p>콜백 내부 오류를 반드시 완료 결과로 전달하고 늦은 콜백의 중복 완료를 방어한다. 필수 앱 준비와 광고 준비를 분리하되 광고 요청에는 기존 동의 확인을 유지한다. SDK 응답 부재에 대한 제한된 대기와 복구 경로도 검증한다.</p><h3>검증과 한계</h3><p>실제 ConsentService와 설치된 UMP 플러그인 MethodChannel을 사용한 정상 대조군/예외 주입 2개 통과. 예외 주입 시 오류가 zone으로 빠지고 가상 시간 60초 뒤에도 initialize가 미완료임을 확인. 전체 앱 시작 화면을 실기기로 장애 재현한 것은 아니다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/services/consent_service.dart">picnic_lib/lib/core/services/consent_service.dart:50</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/utils/main_initializer.dart">picnic_lib/lib/core/utils/main_initializer.dart:140</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_app/lib/app.dart">picnic_app/lib/app.dart:153</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_app/lib/app.dart">picnic_app/lib/app.dart:236</a></li></ul></details></section><section id="A2"><h2><span class="pill P2">P2</span> 통신 오류를 빈 목록으로 표시하고 재시도 경로를 잃음</h2><h3>발생 조건</h3><p>투표 목록의 첫 페이지 조회 실패 또는 상세 초기 조회·전체 새로고침 실패.</p><h3>사용자 영향</h3><p>실제 투표가 있어도 “투표 없음”으로 보이거나 상세 콘텐츠가 비어 보인다. 빈 상태에서는 당겨서 새로고침도 사라져 사용자가 복구 방법을 알기 어렵다.</p><h3>확인한 원인</h3><p>VoteList는 오류를 저장하지 않고 로딩만 종료한 뒤 VoteNoItem을 RefreshIndicator보다 먼저 반환한다. 상세 provider는 오류를 null 또는 []로 바꿔 오류 UI 분기를 우회한다.</p><h3>최소 개선 방향</h3><p>성공한 빈 결과와 조회 실패를 구분하고, 마지막 성공 데이터를 유지하면서 오류 안내·재시도를 제공한다. 실제 빈 목록도 새로고침할 수 있게 한다.</p><h3>검증과 한계</h3><p>실제 VoteList에 첫 페이지 실패를 주입해 VoteNoItem 1개, RefreshIndicator 0개를 확인한 테스트 1개 통과. 최종 오류 상태를 즉시 보기 위해 테스트에서만 Riverpod 자동 retry를 껐다. 운영 재시도 소요 시간은 이 결과로 판단하지 않는다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart">picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart:221</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart">picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart:494</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/vote_detail_provider.dart">picnic_lib/lib/presentation/providers/vote_detail_provider.dart:58</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/vote_detail_provider.dart">picnic_lib/lib/presentation/providers/vote_detail_provider.dart:115</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart">picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart:565</a></li></ul></details></section><section id="A3"><h2><span class="pill P2">P2</span> 달성형 투표가 매초 후보 전체와 달성 정보를 반복 조회</h2><h3>발생 조건</h3><p>달성형 투표 상세를 열어 두거나 화면이 다시 빌드될 때. 응답이 1초보다 느린 연결에서 특히 확인이 필요하다.</p><h3>사용자 영향</h3><p>후보·아티스트 데이터를 반복 전송·파싱하며 같은 달성 정보도 중복 조회한다. 트래픽과 화면 작업을 줄일 여지가 크고 느린 요청이 겹칠 수 있다.</p><h3>확인한 원인</h3><p>1초 Timer가 in-flight 검사 없이 전체 후보 provider를 refresh한다. 두 FutureBuilder가 fetchVoteAchieve를 build마다 각각 직접 실행하며, _achievements 캐시는 이 두 호출을 막지 않는다.</p><h3>최소 개선 방향</h3><p>일반 투표 상세에 이미 있는 id/vote_total 경량 갱신, 무변경 시 state 유지, 중복 요청 방지 방식을 적용한다. 달성 정보는 하나의 provider 또는 Future를 공유한다.</p><h3>검증과 한계</h3><p>일반 상세의 refreshVoteTotals와 비교해 차이를 확인했다. 다음 검증은 10초 동일 데이터 및 2초 응답 지연에서 요청 횟수·동시 요청 수를 측정하고 달성 애니메이션과 votePortal 동작을 확인하는 것이다. refresh마다 스켈레톤이 나온다는 주장은 하지 않는다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart">picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart:102</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart">picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart:627</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart">picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart:710</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/vote_detail_provider.dart">picnic_lib/lib/presentation/providers/vote_detail_provider.dart:128</a></li></ul></details></section><section id="A4"><h2><span class="pill P2">P2</span> 홈 탭 복귀 시 캐시된 이미지 앞에 데이터 로딩이 다시 발생</h2><h3>발생 조건</h3><p>홈을 로드한 뒤 다른 하단 탭에 잠시 머물렀다가 홈으로 복귀.</p><h3>사용자 영향</h3><p>이미지는 캐시에 있어도 대표 투표 데이터를 다시 받아야 하므로 카드 대신 스켈레톤이 보이고 캐러셀 위치가 초기화된다.</p><h3>확인한 원인</h3><p>하단 탭 변경은 내비게이션 스택을 새 페이지 하나로 교체한다. 홈이 제거되면 단독 구독하는 featured provider도 autoDispose되어 다음 방문에 투표 및 총합 조회를 다시 실행한다.</p><h3>최소 개선 방향</h3><p>최근 성공 데이터를 제한된 기간 유지하고 복귀 시 우선 표시한 뒤 필요한 갱신을 수행한다. 위치 보존은 별도 상태로 관리한다. 모든 탭 전체를 무기한 유지하는 방식은 필요하지 않다.</p><h3>검증과 한계</h3><p>상세 push/back은 홈을 스택에 남겨 같은 원인이 아니다. 살아 있는 provider의 invalidate 역시 기존 값 표시가 가능하다. 홈→다른 하단 탭→홈에서 조회 횟수와 스켈레톤, 만료·수동 새로고침을 지연 응답 테스트로 확인해야 한다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/navigation_provider.dart">picnic_lib/lib/presentation/providers/navigation_provider.dart:364</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/ui/picnic_animated_switcher.dart">picnic_lib/lib/presentation/widgets/ui/picnic_animated_switcher.dart:26</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/generated/providers/active_featured_votes_provider.g.dart">picnic_lib/lib/generated/providers/active_featured_votes_provider.g.dart:36</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/home_featured_vote_carousel.dart">picnic_lib/lib/presentation/widgets/vote/home_featured_vote_carousel.dart:128</a></li></ul></details></section><section id="A5"><h2><span class="pill P2">P2</span> 상세 진입 시 후보·아티스트 데이터가 두 경로로 중복 수신됨</h2><h3>발생 조건</h3><p>투표 상세 최초 진입 및 전체 새로고침. 후보가 많은 투표일수록 비용을 확인할 가치가 높다.</p><h3>사용자 영향</h3><p>상세 메타데이터 요청과 후보 목록 요청에 후보·아티스트 전체 정보가 겹쳐 전송·파싱·메모리 비용이 늘어난다. 단축 시간과 바이트 수는 미측정이다.</p><h3>확인한 원인</h3><p>AsyncVoteDetail가 vote_item과 artist 전체 정보를 join하고 AsyncVoteItemList도 동일 voteId의 후보·아티스트를 조회한다. 상세 화면은 두 provider를 모두 사용한다.</p><h3>최소 개선 방향</h3><p>상세 화면에서 메타데이터와 후보 목록의 책임을 분리해 후보 데이터를 한 번만 받는다. 목록 카드의 갱신은 기존 detail.voteItem을 사용하므로 공용 쿼리에서 일괄 제거하지 않고 호출 계약을 분리한다.</p><h3>검증과 한계</h3><p>상세 진입의 select/응답 바이트/후보 파싱 횟수와 카드 갱신·공유·투표 팝업을 함께 검사한다. 두 요청의 필드가 겹친다는 사실과 전체 속도가 두 배라는 주장은 다르다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/vote_detail_provider.dart">picnic_lib/lib/presentation/providers/vote_detail_provider.dart:39</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/providers/vote_detail_provider.dart">picnic_lib/lib/presentation/providers/vote_detail_provider.dart:96</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart">picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart:523</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart">picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart:140</a></li></ul></details></section><section id="A6"><h2><span class="pill P2">P2</span> 시작 과정의 고정 대기와 광고 초기화 책임 중복</h2><h3>발생 조건</h3><p>모바일 앱 시작. ATT 상태를 이미 결정한 사용자에게도 적용되는 코드 경로가 있다.</p><h3>사용자 영향</h3><p>PrivacyConsentManager의 ATT 상태 확인 전 고정 500ms 대기가 앱 준비 경로에 포함된다. 광고·딥링크 준비도 홈 진입 조건에 포함되어 느린 외부 초기화가 앱 전체 대기로 이어진다.</p><h3>확인한 원인</h3><p>Group1에서 privacy/광고를 초기화하고 Group2에서 ConsentService 및 MobileAds.initialize를 다시 호출한다. 광고 초기화가 SDK 내부에서 중복을 흡수할 수 있으므로 두 배 비용이라고 단정하지 않는다.</p><h3>최소 개선 방향</h3><p>동의·광고 준비의 소유자를 하나로 정리한다. 상태가 이미 결정된 경우의 고정 대기는 제거 가능성을 검증하고 첫 동의 UI는 준비 완료 신호로 제어한다. 홈 진입의 필수 의존성을 명확히 분리한다.</p><h3>검증과 한계</h3><p>첫 설치/재실행, 동의 허용/거부, 느린 SDK 응답을 나눠 profile 빌드로 첫 홈 표시 시점을 비교한다. 이번에는 새 cold-start A/B 측정을 수행하지 않았다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/utils/privacy_consent_manager.dart">picnic_lib/lib/core/utils/privacy_consent_manager.dart:103</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/utils/main_initializer.dart">picnic_lib/lib/core/utils/main_initializer.dart:94</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/utils/main_initializer.dart">picnic_lib/lib/core/utils/main_initializer.dart:123</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/core/utils/main_initializer.dart">picnic_lib/lib/core/utils/main_initializer.dart:233</a></li></ul></details></section><section id="A7"><h2><span class="pill P2">P2</span> 검색 중 새 검색어가 무시되어 이전 결과가 표시될 수 있음</h2><h3>발생 조건</h3><p>사용 중인 최애 아티스트 선택 화면에서 조회가 아직 진행 중일 때 검색어를 다시 바꿈. 궁합 선택 코드도 같은 위젯을 사용하지만 이번 감사에서 해당 화면의 운영 노출은 확인하지 않았다.</p><h3>사용자 영향</h3><p>입력창은 새 검색어인데 결과는 이전 검색어의 결과로 남을 수 있다. 추가 스크롤은 새 검색어의 다음 페이지를 받아 서로 다른 검색 결과가 섞일 수 있다.</p><h3>확인한 원인</h3><p>검색어 provider는 바로 갱신되지만 _loadInitialData는 _isLoading이면 반환한다. 진행 중이던 응답에는 검색어/요청 세대 검증이 없고, 완료 후 최신 검색을 다시 수행하는 경로도 없다.</p><h3>최소 개선 방향</h3><p>중복 요청 방지는 같은 검색어에 적용하고 검색어 변경은 새 요청 세대로 처리한다. 오래된 응답을 무시하고 최신 검색어의 첫 페이지를 반드시 조회한다. 검색어별 페이지와 결과를 일치시킨다.</p><h3>검증과 한계</h3><p>지연된 A 검색 중 B 검색 입력 후 A 응답을 도착시키는 순서, 초기 로딩/추가 페이지 로딩 중 변경, 빈 검색어 복귀를 위젯 테스트로 검증해야 한다. 이번에는 코드 경로만 확인했으며 검색 위젯의 실제 장애 주입은 수행하지 않았다.</p><details><summary>코드 위치</summary><ul><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart">picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart:109</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart">picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart:120</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart">picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart:165</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart">picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart:231</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/my_page/my_artist_page.dart">picnic_lib/lib/presentation/pages/my_page/my_artist_page.dart:187</a></li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/community/goonghap_artist_select_page.dart">picnic_lib/lib/presentation/pages/community/goonghap_artist_select_page.dart:107</a></li></ul></details></section>
+<section><h2>검증 기록</h2><p>Astra(ultra, Fast OFF)가 데이터·화면 수명을 감사하고 Opus(max)가 목록·검색·리소스를 독립 감사했다. 조정자가 쿼리와 실제 호출 경로를 재검증했으며 Opus는 시작 오류, 홈 재진입, 상세 중복 payload, 달성형 반복 조회, 오류 복구 항목에 동의했다. 시작 오류는 처음 기다리던 Future의 미완료로 범위를 정밀화했다. 검색 요청 드롭도 독립적으로 일치했다. 추가 지적 중 정상 홈과 대체 화면을 혼동한 부분 및 서로 다른 테이블이라는 잘못된 전제는 최종 발견에서 제외했다. 같은 리뷰어가 반례를 재검증해 투표 누락 지적을 철회하고, 홈 무한 조회 지적을 예전 대체 화면에 한정했다. 덮인 화면 타이머의 규모 주장도 철회해 구조적 참고로 낮췄다. 모든 감사 작업은 완료했고 작업자 터미널을 정리했다.</p>
+<ul><li>조정자: 시작 의존성·실제 호출 경로 조사, 후보 반례 확인, 소스 위치 재검증.</li><li>일회성 동의 서비스 테스트: 정상 대조군 + 상태 조회 예외 주입, 2개 통과. 이 통과는 수정 완료가 아니라 결함 동작을 예상대로 재현했다는 의미다.</li><li>일회성 VoteList 테스트: 첫 페이지 실패 시 빈 목록 표시 및 RefreshIndicator 소실 확인, 1개 통과.</li><li>현재 제품 소스에서 검증했고 제품 파일 변경은 없다. 검사만 수행했으므로 전체 회귀·빌드·태그 배포는 다시 실행하지 않았다.</li></ul>
+<pre>cd "/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib"
+flutter test --no-pub /tmp/picnic_app_ux_audit_test.dart -r expanded
+flutter test --no-pub /tmp/picnic_vote_error_audit_test.dart -r expanded</pre>
+<p>증거 로그: <a href="/tmp/picnic-app-ux-audit-reproduction.log">동의 서비스 장애 주입</a> · <a href="/tmp/picnic-vote-error-audit.log">목록 오류 위젯 재현</a></p>
+<details><summary>동의 서비스 재현 코드</summary><pre>import &#x27;dart:async&#x27;;
+import &#x27;package:flutter/services.dart&#x27;;
+import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:google_mobile_ads/src/ump/user_messaging_channel.dart&#x27;;
+import &#x27;package:google_mobile_ads/src/ump/user_messaging_codec.dart&#x27;;
+import &#x27;package:picnic_lib/core/services/consent_service.dart&#x27;;
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  final channel = MethodChannel(&#x27;picnic.audit.ump&#x27;, StandardMethodCodec(UserMessagingCodec()));
+  final messenger = TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+  final original = UserMessagingChannel.instance;
+  setUp(() { UserMessagingChannel.instance = UserMessagingChannel(channel); });
+  tearDown(() { UserMessagingChannel.instance = original; messenger.setMockMethodCallHandler(channel, null); });
+
+  testWidgets(&#x27;control: consent update and status success complete initialization&#x27;, (tester) async {
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      if (call.method == &#x27;ConsentInformation#getConsentStatus&#x27;) return 1;
+      if (call.method == &#x27;ConsentInformation#isConsentFormAvailable&#x27;) return false;
+      return null;
+    });
+    bool? result;
+    ConsentService().initialize().then((value) =&gt; result = value);
+    await tester.pump();
+    expect(result, true);
+    ConsentService().reset();
+    await tester.pump();
+  });
+
+  testWidgets(&#x27;reproduction: status channel failure escapes and leaves initialize pending for 60 seconds&#x27;, (tester) async {
+    final errors = &lt;Object&gt;[];
+    final calls = &lt;String&gt;[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call.method);
+      if (call.method == &#x27;ConsentInformation#getConsentStatus&#x27;) {
+        throw PlatformException(code: &#x27;audit-status-failure&#x27;);
+      }
+      return null;
+    });
+    bool settled = false;
+    runZonedGuarded(() {
+      ConsentService().initialize().then((_) =&gt; settled = true, onError: (Object e) { settled = true; });
+    }, (Object error, StackTrace stack) { errors.add(error); });
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 60));
+    expect(calls, contains(&#x27;ConsentInformation#getConsentStatus&#x27;));
+    expect(errors, hasLength(1));
+    expect(errors.single, isA&lt;PlatformException&gt;());
+    expect(settled, false);
+    ConsentService().reset();
+    await tester.pump();
+  });
+}
+</pre></details>
+<details><summary>목록 오류 재현 코드</summary><pre>import &#x27;dart:async&#x27;;
+
+import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:picnic_lib/data/models/vote/vote.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/providers/vote_list_provider.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/widgets/vote/list/vote_list.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/widgets/vote/vote_no_item.dart&#x27;;
+
+import &#x27;file:///Users/charlie.hyun/orca/workspaces/picnic-app/%EC%9D%B4%EB%AF%B8%EC%A7%80%EC%B5%9C%EC%A0%81%ED%99%94/picnic_lib/test/helpers/factories/vote_factory.dart&#x27;;
+import &#x27;file:///Users/charlie.hyun/orca/workspaces/picnic-app/%EC%9D%B4%EB%AF%B8%EC%A7%80%EC%B5%9C%EC%A0%81%ED%99%94/picnic_lib/test/helpers/ignore_image_errors.dart&#x27;;
+import &#x27;file:///Users/charlie.hyun/orca/workspaces/picnic-app/%EC%9D%B4%EB%AF%B8%EC%A7%80%EC%B5%9C%EC%A0%81%ED%99%94/picnic_lib/test/helpers/test_app.dart&#x27;;
+import &#x27;file:///Users/charlie.hyun/orca/workspaces/picnic-app/%EC%9D%B4%EB%AF%B8%EC%A7%80%EC%B5%9C%EC%A0%81%ED%99%94/picnic_lib/test/helpers/test_environment.dart&#x27;;
+
+class _PageRequest {
+  const _PageRequest({
+    required this.page,
+    required this.limit,
+    required this.sort,
+    required this.order,
+    required this.area,
+    required this.status,
+    required this.category,
+    required this.portal,
+  });
+
+  final int page;
+  final int limit;
+  final String sort;
+  final String order;
+  final String area;
+  final VoteStatus status;
+  final VoteCategory category;
+  final VotePortal portal;
+}
+
+typedef _PageLoader = Future&lt;List&lt;VoteModel&gt;&gt; Function(_PageRequest request);
+
+class _ScriptedVoteList extends AsyncVoteList {
+  _ScriptedVoteList(this.loader);
+
+  final _PageLoader loader;
+
+  @override
+  Future&lt;List&lt;VoteModel&gt;&gt; build(
+    int page,
+    int limit,
+    String sort,
+    String order,
+    String area, {
+    VotePortal votePortal = VotePortal.vote,
+    required VoteStatus status,
+    required VoteCategory category,
+  }) {
+    return loader(
+      _PageRequest(
+        page: page,
+        limit: limit,
+        sort: sort,
+        order: order,
+        area: area,
+        status: status,
+        category: category,
+        portal: votePortal,
+      ),
+    );
+  }
+}
+
+
+void main() {
+  setUp(initTestColors);
+  testWidgets(&#x27;reproduction: failed first page renders no votes and removes pull to refresh&#x27;, (tester) async {
+    int calls = 0;
+    await tester.pumpWidget(buildTestApp(
+      const VoteList(VoteStatus.active, VoteCategory.all, &#x27;all&#x27;),
+      retry: (_, _) =&gt; null,
+      extraOverrides: [asyncVoteListProvider.overrideWith(() =&gt; _ScriptedVoteList((_) async {
+        calls++;
+        throw StateError(&#x27;audit upstream failed&#x27;);
+      }))],
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    expect(calls, 1);
+    expect(find.byType(VoteNoItem), findsOneWidget);
+    expect(find.byType(RefreshIndicator), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
+}
+</pre></details></section>
+<section><h2>추가 검증 후보: MEDIA 목록 끝의 종료 판정</h2>
+<p><strong>P2 · 코드 확인, 위젯 재현 전.</strong> 현재 MEDIA 탭은 <code>vote_media_list_page.dart:36</code>에서 마지막 페이지 대신 누적 항목 수로 종료를 판단한다. 첫 페이지에 10개가 차고 사용자가 마지막 항목까지 내려가면, 이후 빈 응답도 누적 수를 줄이지 않아 다음 페이지가 계속 존재하는 것으로 처리될 수 있다. 설치된 페이지네이션 패키지는 다음 페이지가 있다고 판단하는 동안 끝 항목 빌드에서 추가 조회를 유발한다. 현재 미디어 건수·운영 요청 빈도는 확인하지 않았다.</p>
+<p>마지막 페이지 길이 또는 서버의 종료 신호로 판단하도록 바꾸는 것이 최소 수정 방향이다. 10개·11개·20개 고정 응답으로 끝까지 스크롤한 뒤 요청 수가 멈추는지를 먼저 검증해야 한다. 이 후보는 현행 홈의 문제로 보고했던 초기 지적을 정정하면서 도달 가능한 별도 화면으로 범위를 좁힌 것이다.</p>
+<p>근거: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_media_list_page.dart">vote_media_list_page.dart:36, 79, 125</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/data/models/navigator/navigation_configs.dart">navigation_configs.dart:37</a></p></section>
+<section><h2>제외하거나 낮게 평가한 후보</h2><ul>
+<li>스크롤 중 이미지 요청 제한과 화면 밖 선로딩 제한은 불필요한 대기와 구분했다. 이전 이미지 최적화에서 유지한 제한을 해제할 근거는 발견하지 않았다.</li>
+<li>일반 투표 상세의 경량 득표수 갱신·동일 데이터 재빌드 억제, 투표 목록의 중복 페이지 요청 방지·오래된 응답 차단은 이미 구현되어 있다.</li>
+<li>2초 최소 스플래시 함수는 현재 picnic_app 진입 경로에서 호출되지 않아 시작 지연 원인에서 제외했다. 실제 홈의 당김 새로고침은 featured provider를 invalidate한다.</li>
+<li>네트워크 검사에 <code>isEmpty &amp;&amp; first == none</code> 조건 오류가 있으나 설치된 connectivity_plus는 정상 반환 목록이 비어 있지 않음을 명시한다. 빈 목록 크래시를 흔한 운영 결함으로 주장하지 않았다. 오프라인 목록에서 DNS 검사로 넘어가는 동작과 google.com 단일 의존성은 별도 네트워크 복구 점검 후보다.</li>
+<li>광고 SDK 중복 초기화 호출을 확인했지만 SDK 내부 중복 처리를 고려해 실제 지연이 두 배라는 주장은 하지 않았다. 배터리 감소량·프레임 개선율·응답 단축 시간 역시 미측정이다.</li>
+</ul></section>
+</main></body></html>

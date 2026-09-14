@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>앱 초기화 복구 및 남은 성능 개선 계획</title><style>body{font:16px/1.65 system-ui,sans-serif;max-width:1000px;margin:40px auto;padding:0 24px;color:#18202c}h1,h2{line-height:1.3}table{width:100%;border-collapse:collapse}th,td{border:1px solid #d7dce3;padding:12px;vertical-align:top;text-align:left}pre{background:#f3f5f8;padding:16px;overflow:auto}code{font-family:monospace}</style></head><body>
+<h1>앱 초기화 복구 및 남은 성능 개선 구현 계획</h1>
+<p>2026-09-13 · 사용자의 “진행” 승인에 따른 작업. 기존 스플래시·동의·펄스·투표 목록 재시도 변경을 보존한다. 관련 분석: <a href="app-remaining-improvements-audit.html">남은 개선 감사</a>. 이번 목표는 실패에서 복구 가능한 시작 화면, 누락 없는 필수 검사, 중복 없는 달성 투표 조회, 최신 검색어에 맞는 결과다.</p>
+<p>Flutter/Dart/Riverpod. Astra 계획·반례 조사, Sol 구현, Opus 독립 교차 리뷰. 사용량 조회 생략은 기존 사용자 승인에 따른다. Fast OFF, 파일 소유를 분리한 구현 작업자 최대 2명. 각 작업은 Superpowers 디버깅·TDD·검증 절차로 실행한다.</p>
+<h2>1. 초기화 실패와 연결 복구</h2>
+<p>대상: main_initializer.dart, app_initializer.dart, update_service.dart, app_initialization_provider.dart, picnic_app/lib/app.dart 및 공유 API를 사용하는 ttja_app/lib/app.dart. 작은 재시도 helper와 공통 오류 화면만 추가하며 전역 구조 재설계는 하지 않는다.</p>
+<ol><li>실패 결과, 완료 단계 보존, 실행 중 작업 공유를 실제 helper 테스트로 재현한다. 앱 위젯에서는 오류→재시도→성공, 연속 탭, dispose 후 응답을 검증한다.</li><li>SDK 준비 성공과 실패를 명시적으로 전달한다. 성공한 단계와 실행 중인 원본 Future를 보존한다. 기계 작업 관찰에만 제한 시간을 두며 ATT/UMP 사용자 응답에는 새 제한 시간을 적용하지 않는다.</li><li>앱 오류는 로컬라이즈된 오류·재시도 화면으로 표시한다. 초기화와 재시도는 한 번만 실행되며 완료 전에 메인 화면을 표시하지 않는다. 구매·광고·푸시 리스너의 중복 설치를 방지한다.</li><li>연결 복구는 네트워크·버전·차단 검사 전용 경로를 호출한다. 기존 값을 이용한 조기 Portal 진입을 막고 최신 서버 버전 검사를 수행한 결과를 함께 반영한다. 기존 디바이스 차단 정책과 캐시 fallback은 의도치 않게 변경하지 않는다.</li><li>스토어 업데이트 검사를 OTA와 분리한다. OTA 확인은 기존 PatchRestartDialogListener가 소유하므로 startup update_service의 중복 OTA 호출을 제거한다. 서버 검사 대기·실패는 재시도 가능한 상태로 처리한다.</li></ol>
+<pre><code>// SDK 단계의 핵심 계약
+await stages.run('supabase', initializeSupabase); // 성공 및 진행 중 Future 공유
+await stages.run('privacy', initializePrivacyConsent); // 사용자 판단 대기 보존
+// 앱의 재시도는 실패 결과를 지우고 동일한 실행 중 시도에 합류한다.
+// 연결 복구는 검사 완료 결과를 한 번에 반영하며 SDK/푸시 설치를 반복하지 않는다.</code></pre>
+<h2>2. 달성 투표와 아티스트 검색</h2>
+<p>소유 파일: vote_detail_achieve_page.dart, artist_select_list_view.dart 및 전용 테스트. 일반 투표의 기존 refreshVoteTotals API를 재사용한다.</p>
+<ol><li>검색 A→B 응답 역전·오류 역전, 이전 페이지 응답과 새 검색 충돌, 중복 페이지 요청을 실패 테스트로 고정한다.</li><li>검색 변경은 기존 loading guard와 독립된 새 generation을 시작한다. 요청은 query/page/locale/scope를 고정해 보내고, 이전 generation의 success/error/finally를 버린다.</li><li>달성 투표는 total-only 조회를 한 번씩 수행한다. lifecycle·scroll·종료 여부에 맞춰 조회 빈도를 조절하고, 두 FutureBuilder와 폴링은 같은 달성 조건 조회 Future를 공유한다.</li><li>반복 build에서 조회 횟수, 진행 중 tick 합류, 정지·dispose 뒤 작업 없음, 실패 후 재시도와 축하 중복 방지를 검증한다.</li></ol>
+<pre><code>final generation = ++requestGeneration;
+final result = await fetchPage(query: querySnapshot, page: 0);
+if (!mounted || generation != requestGeneration) return;
+// 최신 응답만 items/page/loading 상태를 갱신한다.
+await ref.read(asyncVoteItemListProvider(voteId: id, votePortal: portal).notifier)
+    .refreshVoteTotals(voteId: id, votePortal: portal);</code></pre>
+<h2>3. 통합·검증·전달</h2>
+<p>각 작업의 RED→GREEN 로그, 변경 파일 정적 분석, dart format, git diff --check를 확인한다. 독립 Opus 리뷰에는 요구사항·diff·테스트만 제공한다. 차단 지적은 근거로 수정 또는 반박하고 재검증한다. 최종 전체 picnic_lib/picnic_app 테스트와 iOS 시뮬레이터·Android QA 앱 빌드/화면 확인을 수행한다. 기존 Android 본 앱 데이터는 보존한다.</p>
+<pre><code>cd picnic_lib
+flutter test --no-pub --reporter expanded
+cd ../picnic_app
+flutter test --no-pub --reporter expanded
+git diff --check</code></pre>
+<p>검증된 변경을 Conventional Commit으로 정리하고 PR 준비·통합을 진행한다. 실제 프로덕션 실행 단계는 flutter-release.md에 따라 대상 버전·플랫폼·커밋을 확정한다. 기존 이미지 릴리스 태그를 재사용하거나 이동하지 않는다. 실행하지 않은 검증이나 배포를 완료로 기록하지 않는다.</p>
+</body></html>

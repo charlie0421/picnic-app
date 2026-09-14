@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>전역 이미지 표시 대기 분석 · Astra</title><style>body{font:15px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17212b;background:#f5f7fa;max-width:1140px;margin:32px auto;padding:0 24px 48px}h1{font-size:28px}h2{font-size:21px;margin-top:32px}h3{font-size:17px}p,li{max-width:1050px}table{width:100%;border-collapse:collapse;background:white;margin:16px 0}th,td{text-align:left;vertical-align:top;border:1px solid #d7e0e8;padding:9px 11px}th{background:#e8eef5}a{color:#145ca5;overflow-wrap:anywhere}code{font-family:ui-monospace,SFMono-Regular,monospace;font-size:12px}pre{background:#152331;color:#edf5fc;padding:16px;overflow:auto;line-height:1.5}aside{background:#e6f3ec;border-left:4px solid #22805b;padding:14px 18px}small,.muted{color:#536474}details{margin:16px 0}summary{cursor:pointer;font-weight:600}.pill{font-size:12px;background:#dce9f6;border-radius:4px;padding:2px 5px}</style></head><body><header><h1>전역 이미지 표시 대기 분석 · Astra</h1><p class="muted">읽기 전용 소스 감사 · 2026-09-13 KST · 현재 dirty worktree 기준. 앱 코드·테스트 수정, 테스트 실행, 기기 작업 없음.</p></header>
+<aside><strong>최소 권고:</strong> 기존 viewport lazy gate를 유지하면서 공통 위젯이 <code>visibility_detector</code> 콜백을 매 프레임 끝에 받게 하고, 진입 후 우선순위/명시적 지연 타이머를 제거한다. 프로덕션 수정은 공통 로더와 helper 두 파일, 실제 호출부 마이그레이션은 0곳이다. Flutter의 스크롤 요청 보류, prefetch 한도, decode/cache/retry는 그대로 둔다.</aside>
+<h2>1. 원인과 유지해야 할 대기</h2><table><thead><tr><th>구분</th><th>확인한 동작과 근거</th><th>판정</th></tr></thead><tbody>
+<tr><td><strong>가시성 배치 500ms</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L158">로더 기본값:158</a>은 viewport이며 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L340">초기 gate:340</a>에서 false로 시작한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L542">VisibilityDetector:542</a>가 콜백을 받아야 cold Image를 만든다. 설치된 <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/visibility_detector-0.4.0+2/lib/src/visibility_detector_controller.dart#L25">controller:25</a> 기본 간격은 500ms; <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/visibility_detector-0.4.0+2/lib/src/render_visibility_detector.dart#L137">배치 스케줄러:137</a>는 첫 업데이트에서 Timer를 만들고 뒤 업데이트는 같은 배치에 합친다. 독립된 첫 배치는 약 500ms+스케줄링을 기다리고, 이미 열린 배치에 합류하면 남은 시간만 기다린다. 이미지마다 반드시 500ms를 더하는 구조는 아니다.</td><td>제거: Duration.zero → post-frame 배치. high 우선순위도 이 배치는 우회하지 못한다.</td></tr>
+<tr><td><strong>최초 로드 타이머</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L400">_triggerLazyLoad:400</a> → <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L418">_calculateLoadDelay:418</a>: high=0, normal=lazyLoadDelay 또는 0, low=그 값+200ms. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart#L92">helper 계산:92</a>는 동일하지만 프로덕션 호출이 없다. 전체 실제 호출부에 lazyLoadDelay 전달은 0건이고, low는 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart#L1367">상세 행:1367</a> 한 곳에서 none과 함께 쓰므로 현재 그 200ms 경로를 타지 않는다.</td><td>500ms 주원인과 별개. public API로 도달 가능한 불필요한 지연 경로도 제거.</td></tr>
+<tr><td><strong>실패 후 백오프</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L303">backoff 계산:303</a>은 500×1.5^retryCount ms, 상한 30s. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L1077">재시도 증가:1077</a> 후 계산하므로 첫 재시도 750ms, 두 번째 1125ms이다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L1003">실패 소비:1003</a>가 진입점이며 최초 성공 요청을 늦추는 타이머가 아니다.</td><td>유지. helper calculateBackoffDelay도 수정하지 않음.</td></tr>
+<tr><td><strong>요청 타임아웃</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L227">기본값:227</a> 30s, 호출부에서 10/12/15s 등 override. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L885">요청 허용 확인:885</a> 후 시작하며 cold fast-scroll 보류 중에는 시작하지 않는다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L903">timeout Timer:903</a>와 retry Timer의 취소/세대 식별도 별도이다.</td><td>유지.</td></tr>
+<tr><td><strong>빠른 스크롤 보류</strong></td><td>설치 Flutter <a href="/opt/homebrew/share/flutter/packages/flutter/lib/src/widgets/image.dart#L1197">Image._resolveImage:1197</a>는 항상 ScrollAwareImageProvider로 감싼다. <a href="/opt/homebrew/share/flutter/packages/flutter/lib/src/widgets/scroll_aware_image_provider.dart#L85">cache 우선 검사:85</a> 후 <a href="/opt/homebrew/share/flutter/packages/flutter/lib/src/widgets/scroll_aware_image_provider.dart#L97">scroll 검사:97</a>에서 새 cold 요청만 다음 프레임으로 미룬다. <a href="/opt/homebrew/share/flutter/packages/flutter/lib/src/widgets/scroll_physics.dart#L266">기본 heuristic:266</a>는 abs(velocity)>화면 physical longestSide; 앱 로더의 timeout 모니터도 동일 추천을 따른다. deferDuringFastScroll 값으로 이 provider를 켜고 끄는 구현은 현재 없다.</td><td>유지. 감지기 간격을 0으로 해도 이 요청 제한은 사라지지 않는다.</td></tr>
+<tr><td><strong>화면 밖/공간 임계값</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L356">가시성 조건:356</a>은 fraction≥visibilityThreshold. 기본 10%, 수직 카드 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card_vertical.dart#L115">override:115</a> 5%. 완전 offscreen cold는 시작하지 않는다. none은 build 시 진입하므로 부모의 lazy build 범위를 따른다.</td><td>공간 정책 유지. 이 최소안은 1~9%만 노출된 기본 이미지까지 즉시 받는 정책 변경은 포함하지 않는다.</td></tr>
+<tr><td><strong>decoded frame 표시</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L611">단일 Image:611</a>의 frameBuilder는 frame==null 동안 placeholder, 첫 frame부터 child를 즉시 반환한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L1206">성공 처리:1206</a>는 timer를 취소한다. 공통 로더에 별도 fade-in 또는 최소 shimmer 노출 시간은 없다.</td><td>기존 첫-frame 표시 유지.</td></tr>
+</tbody></table>
+<p>프로덕션 <code>picnic_lib/lib</code>, <code>picnic_app/lib</code>, <code>ttja_app/lib</code>의 모든 Dart 소스에서 VisibilityDetector/SliverVisibilityDetector 사용은 공통 로더 1곳, controller 간격 설정은 0곳이다. 설치 pub-cache 라이브러리 검색에서도 detector 패키지 자체 이외 사용은 발견되지 않았다. 따라서 이번 앱에서는 전역 interval 변경의 확인된 소비자가 이미지뿐이다. 패키지는 per-instance interval을 제공하지 않는다. <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/visibility_detector-0.4.0+2/lib/src/visibility_detector_controller.dart#L11">singleton 계약:11</a></p>
+<p><strong>다른 담당 범위:</strong> coordinator가 <code>voting_complete.dart</code>, <code>voting_dialog_widgets.dart</code>, <code>voting_artist_image_loading_test.dart</code> 및 <code>widgets/vote/media/video_list_item.dart</code>를 소유한다. 마지막 파일의 직접 CachedNetworkImage fade 제거는 coordinator가 처리하며 이 계획에 포함하지 않는다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/splash_image.dart#L347">splash 1~2초 대기:347</a>는 패치 상태 메시지 유지, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/article/article_images.dart#L159">article 300ms:159</a>는 확대 변환 애니메이션이다. 이 숫자들을 이미지 첫 요청 타이머로 간주하지 않는다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart#L120">카드 opacity:120</a>는 이미 1로 고정되어 있다.</p>
+<h2>2. 구현자용 최소 계획</h2><p><strong>Goal:</strong> cold visible 이미지가 관측 다음 프레임에 요청에 진입하고 첫 decoded frame을 바로 그린다. <strong>Architecture:</strong> 기존 visibility/lazy 상태와 단일 Image pipeline을 보존하고 시간 기반 최초 진입 대기만 없앤다. <strong>Stack:</strong> 설치 Flutter, visibility_detector 0.4.0+2, cached_network_image 3.4.1. <strong>Spec:</strong> 이 dispatch의 “불필요한 표시 대기 제거, 독립 스크롤/요청 제한 보존” 요청. 아래 구현은 후속 담당자가 수행한다.</p>
+<ol><li><strong>먼저 실패 테스트:</strong> 새 visibility 테스트 파일에서 controller를 실제 기본 500ms로 되돌린 뒤, prefetch/성공 기록 없이 실제 PNG cold 요청 및 첫 픽셀이 100ms 미만의 테스트 시간에 나타나는지 확인한다. 현재 소스는 visible 기본값/명시 viewport 테스트에서 실패해야 한다.</li><li><strong>공통 interval:</strong> <code>initState</code>에서 첫 detector가 만들어지기 전에 아래 설정을 적용한다. app별 main 변경이나 모든 호출부 none 전환은 필요 없다. 테스트의 이전 singleton 값은 각 테스트가 복원한다.</li></ol>
+<pre><code>@override
+void initState() {
+  super.initState();
+  // Visibility gates use post-frame geometry; request throttling stays in Image.
+  VisibilityDetectorController.instance.updateInterval = Duration.zero;
+  _initializeLazyLoading();
+  if (widget.enableMemoryOptimization) {
+    _PicnicCachedNetworkImageState._optimizeImageCache();
+  }
+}</code></pre>
+<p><code>Duration.zero</code>도 build/paint 도중 콜백을 실행하지 않고 프레임 끝에 묶어서 실행한다. <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/visibility_detector-0.4.0+2/lib/src/render_visibility_detector.dart#L153">설치 구현:153</a> 변경 전에 이미 예약된 500ms callback에는 설정 변경이 소급 적용되지 않는다. 이 계획은 새 mount/앱 시작 경로를 보장하며, 기존 mount에 대한 hot reload를 완료 검증으로 쓰지 않는다. <code>notifyNow()</code>를 build/init마다 호출해 전역 콜백을 강제 실행하는 우회는 넣지 않는다.</p>
+<ol start="3"><li><strong>최초 지연 경로 제거:</strong> <code>_triggerLazyLoad</code>를 아래처럼 만들고 <code>_lazyLoadTimer</code>, <code>_calculateLoadDelay</code>, <code>_cancelLoading</code> 및 이에만 연결된 visibility의 low-priority else-if, dispose/URL 변경 cancel 문을 제거한다. <code>_retryTimer</code>, <code>_imageTimeoutTimer</code>, 모니터 프레임 예약은 유지한다. load-state 전이, URL 교체 post-frame 및 generation 검사는 유지한다.</li></ol>
+<pre><code>void _triggerLazyLoad() {
+  if (_shouldLoadImage || !mounted) return;
+  _startLoading();
+}
+
+// Helper API shape remains available, but no artificial initial delay remains.
+static Duration calculateLoadDelay(
+  ImagePriority priority, {
+  Duration? baseDelay,
+}) =&gt; Duration.zero;</code></pre>
+<ol start="4"><li><strong>호환성:</strong> <code>LazyLoadingStrategy</code>, <code>ImagePriority</code>, <code>ImageComplexity</code>의 이름/멤버/순서, constructor named arguments와 저장된 값은 유지한다. viewport를 기본값으로 유지한다. preload/progressive는 현재도 같은 visibility 진입과 단일 provider로 동작하며 실제 호출부는 0건이다. 새로운 prefetch나 다중 decode 의미를 부여하지 않는다. <code>lazyLoadDelay</code>는 source-compatible하게 받되 더 이상 첫 표시를 늦추지 않는다고 문서화한다. <code>priority</code>가 이제 시간 지연을 결정하지 않는다는 주석도 갱신한다. 이 동작 변경은 의도적이고 실제 앱 호출부에 lazyLoadDelay 전달은 없다.</li><li><strong>검증:</strong> 아래 새 테스트, 기존 scroll/cache/decode/retry/prefetch 집중 테스트를 실행한다. helper의 옛 200ms 기대값을 바꾸고, extended 테스트의 구현과 무관한 자체 삼항 계산은 삭제하거나 실제 helper 호출로 교체한다. enum constructor 기본값 테스트는 유지한다. 다른 파일 리팩터링은 하지 않는다.</li></ol>
+<h3>파일 소유권</h3><table><tr><th>파일</th><th>후속 담당자 작업</th></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L313">picnic_lib/lib/presentation/common/picnic_cached_network_image.dart:313</a></td><td>수정: interval, 최초 지연 private 코드 제거, public API/주석 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart#L91">picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart:91</a></td><td>수정: calculateLoadDelay를 0으로 통일; backoff 등 나머지 함수 유지</td></tr>
+<tr><td><code>picnic_lib/test/presentation/common/picnic_cached_network_image_visibility_test.dart:1</code></td><td>신규: cold visible/offscreen/scroll/warm 실제 요청과 frame 회귀. 이 분석에서 파일은 생성하지 않음</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_helper_test.dart#L220">picnic_lib/test/presentation/common/picnic_cached_network_image_helper_test.dart:220</a></td><td>수정: load delay 기대값만 현재 정책으로 변경</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_extended_test.dart#L244">picnic_lib/test/presentation/common/picnic_cached_network_image_extended_test.dart:244</a></td><td>수정: 옛 지연을 자체 계산하는 검증 제거/실제 helper 호출로 교체</td></tr>
+</table><p>기존 decode/success/prefetch/regression 테스트는 우선 그대로 실행한다. 새 파일에서 기존 scroll helper를 짧게 재사용/복제하면 기존 테스트 소유권을 넓히지 않아도 된다. 모든 실제 호출부와 request/prefetch 구현은 읽기 전용이다.</p>
+<h2>3. 회귀 테스트: 실제 실패를 구분하는 조건</h2>
+<p><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_regression_test.dart#L40">기존 setUp:40</a>은 interval=0이고 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_regression_test.dart#L79">settle:79</a>은 550ms를 흘린다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_cached_network_image_success_test.dart#L252">성공 테스트 host:252</a>는 none으로 고정된다. 이 검증들은 현재 500ms 배치를 놓친다. 새 테스트는 <strong>500ms/notifyNow로 통과시키지 않고</strong> production interval 설정과 실제 프레임을 검증해야 한다.</p>
+<table><tr><th>테스트</th><th>필수 조건과 assertion</th><th>잡는 회귀</th></tr>
+<tr><td>Cold visible, &lt;500ms</td><td>매 테스트 새 ImageTestHarness, 성공 URL Set/실패 기록/imageCache+live clear, 고유 외부 URL, respondPng만 등록, file cache 없음 확인. controller=500ms로 시작. 기본 constructor(전략 생략) 및 viewport/preload/progressive 각각의 실제 visible 이미지에서 fake time ≤100ms에 requestsFor=1, RawImage.image≠null, shimmer 없음, 실제 boundary 중앙 픽셀=fixture 색.</td><td>500ms 배치, 기본값만 none으로 바꾼 불완전 수정, 단순 Image widget 존재만 확인하는 오탐</td></tr>
+<tr><td>지연 제거</td><td>위 cold 조건을 normal/low/high와 lazyLoadDelay=null/600ms로 반복. frame deadline≤100ms, 요청 1회. normal/low의 명시 지연도 무시되고 first frame 준비 즉시 표시.</td><td>200ms priority timer 잔존, helper와 실제 로더의 불일치</td></tr>
+<tr><td>실제로 build된 offscreen</td><td>높이 100의 clipped SingleChildScrollView에 높이 400 spacer 뒤 cold 이미지: element는 존재하지만 첫 1s requests=0. jumpTo로 보인 뒤 새 deadline≤100ms에 요청/paint. 별도로 Offstage(true)→false, 두 sibling 같은 URL(각 detector 고유 Key)을 검사.</td><td>모든 strategy를 none 취급해 eager 다운로드, 1회 mount만 처리하여 이후 화면 진입 놓침</td></tr>
+<tr><td>공간 임계값</td><td>기본 fraction 0.05에서는 요청0, 0.1 이상 이동하면 즉시 요청1; 수직 카드 threshold0.05도 경계 전/후 확인. 완전히 clipped 상태는0.</td><td>시간 지연 제거와 공간 gate 제거를 혼동</td></tr>
+<tr><td>Cold fast-scroll + timeout</td><td>기존 _ToggleDeferredPhysics와 동일한 physics로 deferred=true. default와 explicit viewport, deferDuringFastScroll true/false를 교차. 테스트 timeout50ms/maxRetries0을 켜고 600ms pump 후 requests=0, timeout/failure 기록 없음. false로 전환 후 ≤100ms 내 요청1. held fixture를 유지하면 허용 후에만 timeout 발생.</td><td>frame 단위 visibility가 request throttle을 우회, 보류 시간을 네트워크 실패로 오판</td></tr>
+<tr><td>실제 fling 보조</td><td>lazy ListView.builder(cacheExtent 명시)에 고유 URL 다수. 실제 fling 중 recommendDeferredLoading=true임을 확인하고 새로 노출된 cold 행은 요청0; 정지 후 현재 행 요청1. unbuilt 먼 행은 끝까지0. 물리 속도 고정값만 가정하지 말고 추천 값을 assertion.</td><td>가짜 physics 테스트가 부모 Scrollable 연결 오류를 놓침</td></tr>
+<tr><td>Warm / pending / 재생성</td><td>같은 provider의 성공 frame 후 키를 유지한 rebuild와 제거→remount, cached/held pending 동안 deferred=true로 전환. 실제 다운로드1회, 완료 frame 유지, pending이 완료되면 스크롤 중에도 paint. 새 URL gate와 구 URL callback 혼선 없음.</td><td>warm image를 placeholder로 교체, pending 취소/중복 요청</td></tr>
+<tr><td>메모리 warm vs 파일 warm vs 성공 기록</td><td>(a) 정확한 provider precache 후 성공 Set은 비워 cache probe 검증, (b) 파일 cache만 남기고 imageCache/성공 Set clear 후 새 visible remount: 추가 다운로드0, 빠른 decode/paint, (c) 성공 Set만 남기고 양 cache 제거/held cold response: gate 통과해도 frame 전에는 shimmer 유지.</td><td>성공 기록을 decoded-ready로 오인, 파일 cache 검사를 실제 네트워크 수로 착각</td></tr>
+<tr><td>Prefetch 경계</td><td>기존 global2/scope2·3/replace/dispose/key-dedup 테스트 재사용. A/B 두 held background job 중 실제 default viewport visible C가 ≤100ms에 시작하고 최대 총 요청3이 허용됨을 추가 검증. 배경 D는 슬롯 열리기 전 요청0.</td><td>global2를 foreground 전체 제한으로 잘못 확장, 반대로 background 한도를 제거</td></tr>
+<tr><td>오류·decode 회귀</td><td>기존 success의 retry/404/timeout/late-success/URL 교체/dispose, decode의 단일 variant·DPR/크기 변경·2M/2000 caps·GIF frame 테스트 재실행. 기존 helper backoff 기대값 유지.</td><td>최초 delay 정리 중 retry timer 또는 캐시/decoded frame 상태 훼손</td></tr>
+</table>
+<p>구현 예시는 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/helpers/image_test_harness.dart#L20">ImageTestHarness:20</a>를 사용한다. respondPng는 응답 fixture만 준비하고 cold 카운트는 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/helpers/image_test_harness.dart#L165">실제 cold 요청:165</a>에서 증가한다. 스크롤 helper: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_image_decode_test.dart#L629">_ToggleDeferredPhysics:629</a>. 기존 scroll/timeout 검증: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_image_decode_test.dart#L378">cold scroll:378</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_image_decode_test.dart#L420">warm/pending:420</a>. 배경2+foreground1은 이미 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/test/presentation/common/picnic_image_prefetch_test.dart#L218">prefetch 테스트:218</a>에서 올바르게 허용한다.</p>
+<details><summary>새 테스트 파일의 코드 초안 (미실행): 기본값의 진짜 cold 요청 + 첫 paint</summary><p>아래 테스트의 fake clock 500ms 미만은 앱의 인위적 대기를 검증한다. runAsync는 native codec을 진행시키기 위한 실시간 I/O drain이며 외부 CDN 응답시간 SLA를 뜻하지 않는다. 성공 전 notifyNow/interval=0/precache/성공 Set seed를 넣지 않는다.</p>
+<pre><code>import &#x27;dart:ui&#x27; as ui;
+import &#x27;package:flutter/material.dart&#x27;;
+import &#x27;package:flutter/rendering.dart&#x27;;
+import &#x27;package:flutter_test/flutter_test.dart&#x27;;
+import &#x27;package:visibility_detector/visibility_detector.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/common/picnic_cached_network_image.dart&#x27;;
+import &#x27;package:picnic_lib/presentation/common/image_shimmer_loading.dart&#x27;;
+import &#x27;../../helpers/image_test_harness.dart&#x27;;
+import &#x27;../../helpers/test_environment.dart&#x27;;
+
+void main() {
+  setUpAll(initTestColors);
+  testWidgets(&#x27;default cold visible image requests and paints before 100ms&#x27;,
+      (tester) async {
+    final controller = VisibilityDetectorController.instance;
+    final previousInterval = controller.updateInterval;
+    final previousTimeoutFlag = PicnicCachedNetworkImage.disableTimeoutForTest;
+    final harness = await ImageTestHarness.create();
+    final boundaryKey = GlobalKey();
+    const url = &#x27;https://images.example.com/cold-visible-deadline.png&#x27;;
+    try {
+      resetSuccessfullyLoadedImageUrlsForTest();
+      resetImageLoadTrackingMapsForTest();
+      controller.updateInterval = const Duration(milliseconds: 500);
+      PicnicCachedNetworkImage.disableTimeoutForTest = true;
+      await tester.runAsync(() =&gt; harness.respondPng(
+        url, width: 32, height: 32, color: const Color(0xffff0000)));
+      expect(await harness.getFileFromCache(url), isNull);
+      expect(harness.requestsFor(url), 0);
+      expect(successfullyLoadedImageUrlsContainsForTest(url), isFalse);
+      final startedAt = tester.binding.clock.now();
+      await tester.pumpWidget(MaterialApp(home: Scaffold(body: Center(
+        child: RepaintBoundary(key: boundaryKey,
+          child: const PicnicCachedNetworkImage(
+            imageUrl: url, width: 32, height: 32,
+            memCacheWidth: 32, memCacheHeight: 32,
+          ),
+        ),
+      ))));
+      // 48 fake milliseconds: enough frames, never enough to expire a 500ms timer.
+      for (var frame = 0; frame &lt; 3; frame++) {
+        await tester.pump(const Duration(milliseconds: 16));
+        await tester.runAsync(() =&gt; Future&lt;void&gt;.delayed(
+          const Duration(milliseconds: 2)));
+      }
+      expect(harness.requestsFor(url), 1);
+      bool decoded() =&gt; tester.widgetList&lt;RawImage&gt;(find.byType(RawImage))
+          .any((widget) =&gt; widget.image != null);
+      for (var attempt = 0; attempt &lt; 150 &amp;&amp; !decoded(); attempt++) {
+        await tester.runAsync(() =&gt; Future&lt;void&gt;.delayed(
+          const Duration(milliseconds: 2)));
+        await tester.pump(); // No additional fake elapsed time.
+      }
+      expect(decoded(), isTrue);
+      expect(find.byType(ShimmerLoading), findsNothing);
+      await tester.pump();
+      final boundary = boundaryKey.currentContext!.findRenderObject()
+          as RenderRepaintBoundary;
+      final painted = await tester.runAsync(() =&gt; boundary.toImage(pixelRatio: 1));
+      try {
+        final bytes = await tester.runAsync(
+          () =&gt; painted!.toByteData(format: ui.ImageByteFormat.rawRgba));
+        final x = painted!.width ~/ 2, y = painted.height ~/ 2;
+        final offset = (y * painted.width + x) * 4;
+        expect(bytes!.buffer.asUint8List().sublist(offset, offset + 4),
+          [255, 0, 0, 255]);
+      } finally {
+        painted?.dispose();
+      }
+      expect(tester.binding.clock.now().difference(startedAt),
+        lessThan(const Duration(milliseconds: 100)));
+      expect(harness.requestsFor(url), 1);
+      expect(tester.takeException(), isNull);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      controller.notifyNow(); // Cleanup only, after the assertions and unmount.
+      controller.updateInterval = previousInterval;
+      PicnicCachedNetworkImage.disableTimeoutForTest = previousTimeoutFlag;
+      resetSuccessfullyLoadedImageUrlsForTest();
+      resetImageLoadTrackingMapsForTest();
+      await harness.dispose();
+    }
+  });
+}</code></pre>
+</details><h3>후속 실행 명령 (이 분석에서는 미실행)</h3>
+<pre><code># Workdir: picnic_lib
+flutter test test/presentation/common/picnic_cached_network_image_visibility_test.dart
+flutter test test/presentation/common/picnic_cached_network_image_helper_test.dart test/presentation/common/picnic_cached_network_image_extended_test.dart test/presentation/common/picnic_cached_network_image_enums_test.dart
+flutter test test/presentation/common/picnic_image_decode_test.dart test/presentation/common/picnic_cached_network_image_success_test.dart test/presentation/common/picnic_image_prefetch_test.dart
+flutter test test/presentation/common/picnic_cached_network_image_regression_test.dart test/presentation/widgets/vote/list/vote_info_card_image_prefetch_test.dart test/presentation/widgets/vote/list/vote_list_image_prefetch_test.dart</code></pre>
+<h2>4. 실제 호출부 전수 목록 · 43곳 / 31파일</h2><p>세 앱의 lib/**/*.dart에서 실제 constructor 호출을 확인했다. .backup 및 주석 속 예시는 제외했다. 아래 모든 호출부는 유지한다. <strong>기본 viewport 24곳, 명시 viewport 4곳, none 12곳, 조건부 none/viewport 3곳</strong>이다. high가 있어도 viewport면 500ms 배치 대상이었다. 수정 후에는 동일 공간 gate를 프레임 단위로 평가한다.</p><table><thead><tr><th>호출 위치</th><th>현재 전략</th><th>마이그레이션</th></tr></thead><tbody>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/avatar_container.dart#L59">common/avatar_container.dart:59</a></td><td>조건부 none / viewport</td><td>없음 · 양 분기 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/candy_boost_banner.dart#L39">common/candy_boost_banner.dart:39</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/common_banner.dart#L335">common/common_banner.dart:335</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/dialogs/fortune_dialog.dart#L452">dialogs/fortune_dialog.dart:452</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/dialogs/reward_dialog.dart#L71">dialogs/reward_dialog.dart:71</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/dialogs/reward_dialog.dart#L342">dialogs/reward_dialog.dart:342</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/dialogs/reward_dialog.dart#L374">dialogs/reward_dialog.dart:374</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/community/board_list_page.dart#L354">pages/community/board_list_page.dart:354</a></td><td>명시 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/my_page/my_page.dart#L387">pages/my_page/my_page.dart:387</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/pic/gallery_page.dart#L90">pages/pic/gallery_page.dart:90</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/pic/pic.dart#L102">pages/pic/pic.dart:102</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/pic/pic_home_page.dart#L261">pages/pic/pic_home_page.dart:261</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/pic/pic_home_page.dart#L382">pages/pic/pic_home_page.dart:382</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart#L369">pages/vote/vote_detail_achieve_page.dart:369</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart#L579">pages/vote/vote_detail_achieve_page.dart:579</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart#L867">pages/vote/vote_detail_achieve_page.dart:867</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_achieve_page.dart#L1049">pages/vote/vote_detail_achieve_page.dart:1049</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart#L689">pages/vote/vote_detail_page.dart:689</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart#L777">pages/vote/vote_detail_page.dart:777</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_detail_page.dart#L1367">pages/vote/vote_detail_page.dart:1367</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/pages/vote/vote_home_page.dart#L341">pages/vote/vote_home_page.dart:341</a></td><td>조건부 none / viewport</td><td>없음 · 양 분기 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/article/article_images.dart#L42">widgets/article/article_images.dart:42</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/article/article_images.dart#L194">widgets/article/article_images.dart:194</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/common/artist_select_list_view.dart#L407">widgets/common/artist_select_list_view.dart:407</a></td><td>명시 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/community/goonghap/goonghap_card.dart#L58">widgets/community/goonghap/goonghap_card.dart:58</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart#L59">widgets/community/write/embed_builder/media_embed_builder.dart:59</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart#L138">widgets/community/write/embed_builder/media_embed_builder.dart:138</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart#L182">widgets/community/write/embed_builder/media_embed_builder.dart:182</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/community/write/embed_builder/youtube_embed_builder.dart#L113">widgets/community/write/embed_builder/youtube_embed_builder.dart:113</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/splash_image.dart#L654">widgets/splash_image.dart:654</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/ui/artist_search_result_item.dart#L53">widgets/ui/artist_search_result_item.dart:53</a></td><td>명시 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/ui/popup_carousel.dart#L251">widgets/ui/popup_carousel.dart:251</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/home_featured_vote_card.dart#L259">widgets/vote/home_featured_vote_card.dart:259</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/latest_media_section.dart#L62">widgets/vote/latest_media_section.dart:62</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card.dart#L485">widgets/vote/list/vote_info_card.dart:485</a></td><td>기본 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card_achieve.dart#L76">widgets/vote/list/vote_info_card_achieve.dart:76</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_info_card_vertical.dart#L108">widgets/vote/list/vote_info_card_vertical.dart:108</a></td><td>명시 viewport</td><td>없음 · 프레임 단위 가시성</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/reward_list_section.dart#L92">widgets/vote/reward_list_section.dart:92</a></td><td>조건부 none / viewport</td><td>없음 · 양 분기 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/vote_item_request/common_artist_widget.dart#L94">widgets/vote/vote_item_request/common_artist_widget.dart:94</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart#L632">widgets/vote/voting/jma_voting_dialog.dart:632</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/voting/voting_complete.dart#L455">widgets/vote/voting/voting_complete.dart:455</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/voting/voting_complete.dart#L494">widgets/vote/voting/voting_complete.dart:494</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+<tr><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart#L220">widgets/vote/voting/voting_dialog_widgets.dart:220</a></td><td>명시 none</td><td>없음 · 기존 즉시/build 경로 유지</td></tr>
+</tbody></table>
+<h2>5. 변경 금지 불변식과 판단 한계</h2><ul>
+<li><strong>Prefetch:</strong> <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_image_prefetch.dart#L8">scope 기본2:8</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_image_prefetch.dart#L76">허용1~3:76</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_image_prefetch.dart#L88">전역 active2:88</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/widgets/vote/list/vote_list.dart#L43">인접 rank scope3:43</a>를 유지한다. scope2/3는 후보 수이지 동시 네트워크 수가 아니다. scheduler는 raw provider precache를 쓰므로 자체 scroll-aware 제한은 없고 독립된 소량 speculative 작업이다. display를 이 큐 뒤에 넣지 않는다.</li>
+<li><strong>Request/decode:</strong> <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_image_request.dart#L62">ResizeImage(CachedNetworkImageProvider):62</a> 단일 provider와 동일 key, fit/no-upscale, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_image_request.dart#L103">2000px·2,000,000px cap:103</a> 및 화면별 q/DPR override 유지. enum progressive를 다중 URL/원본 decode로 되살리지 않는다.</li>
+<li><strong>Cache:</strong> 성공 Set은 진입 힌트(<a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L323">init:323</a>), 정확한 provider cache probe는 별도(<a href="/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart#L702">probe:702</a>). imageCache.containsKey는 pending/keepAlive만 확인(<a href="/opt/homebrew/share/flutter/packages/flutter/lib/src/painting/image_cache.dart#L455">설치 구현:455</a>); 모든 live-only 항목 또는 파일 cache가 즉시 decoded-ready라는 뜻은 아니다. 배치 제거가 캐시 key·LRU·에러 eviction·성공 판정을 바꾸어서는 안 된다.</li>
+<li><strong>실제 다운로드:</strong> cache manager <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/flutter_cache_manager-3.4.1/lib/src/web/file_service.dart#L17">기본 concurrentFetches10:17</a> 및 <a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/flutter_cache_manager-3.4.1/lib/src/web/web_helper.dart#L48">내부 queue:48</a> 유지. 이는 설치된 manager의 다운로드 제어이며 앱의 모든 네트워크 요청에 걸린 전역2라는 의미는 아니다.</li>
+<li><strong>범위:</strong> 이미 build된 완전 offscreen cold 이미지와 아직 build되지 않은 lazy-list 항목의 억제를 보존한다. 이미 진행 중인 요청을 스크롤 시 취소하거나 성공 기록에 따른 기존 eager 진입을 새로 제한하지 않는다. 10%/5% visibilityThreshold 자체의 의미는 유지하므로 “1픽셀이라도 보이면 요청”으로 바꾸려면 별도 공간 정책 변경이다.</li>
+<li><strong>근거 수준:</strong> 설치 소스와 43개 호출부 감사로 확정한 구현 경로이며 이번 dispatch에서 새 테스트/기기 측정은 수행하지 않았다. 보고서의 테스트 코드와 명령은 후속 검증안이다. 이전 device 검증 또는 coordinator의 테스트 통과를 이 수정안의 통과로 인용하지 않는다.</li></ul>
+<footer><h2>감사 스냅샷</h2>
+<p><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image.dart</code><br><small>SHA-256 ede767c4df1baabd8517c5582a6b658258e7ac60d81137e08663dfa452f00381</small></p>
+<p><code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화/picnic_lib/lib/presentation/common/picnic_cached_network_image_helper.dart</code><br><small>SHA-256 47fb6d93ba5c286af80a7030da098abbc1b955e6fbb2224530bf5cf1e3eb51cd</small></p>
+<p class="muted">Git HEAD 1e38f174a5ae28cf2dd26e301ad37fbd9deef01a. 동시 작업 중인 dirty 파일의 줄 번호이며, 후속 구현은 수정 전 최신 diff와 소유권을 다시 확인한다. 이 dispatch가 생성한 파일은 본 HTML 하나다.</p></footer></body></html>

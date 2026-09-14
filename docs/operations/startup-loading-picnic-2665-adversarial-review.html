@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>PICNIC-2665 / 스플래시 지연 수정 — 독립 적대적 리뷰 (최종 처분 반영)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Segoe UI", Roboto, sans-serif;
+         max-width: 1100px; margin: 0 auto; padding: 32px 24px; line-height: 1.65; color: #1a1a1a; }
+  h1 { font-size: 1.7rem; border-bottom: 3px solid #222; padding-bottom: 10px; }
+  h2 { font-size: 1.25rem; margin-top: 2.4em; border-bottom: 1px solid #ddd; padding-bottom: 6px; }
+  h3 { font-size: 1.02rem; margin-top: 1.8em; }
+  code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 0.86rem; }
+  code { background: #f2f3f5; padding: 1px 5px; border-radius: 3px; }
+  pre { background: #f7f8fa; border: 1px solid #e2e4e8; border-left: 3px solid #888;
+        padding: 12px 14px; overflow-x: auto; border-radius: 4px; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.9rem; }
+  th, td { border: 1px solid #d9dce0; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f2f3f5; }
+  .sev { font-weight: 700; padding: 2px 8px; border-radius: 3px; color: #fff; font-size: 0.8rem; white-space: nowrap; }
+  .high { background: #b3261e; } .med { background: #b26a00; } .low { background: #5f6368; }
+  .ok { background: #1e6f3c; } .withdrawn { background: #4a4a4a; }
+  .box { background: #fbfbfc; border: 1px solid #e2e4e8; border-radius: 5px; padding: 14px 18px; margin: 1em 0; }
+  .verdict { background: #f0f6ff; border-left: 4px solid #1a56b8; }
+  .fixed { background: #f1f8f2; border-left: 4px solid #1e6f3c; }
+  .newissue { background: #fff8ee; border-left: 4px solid #b26a00; }
+  .loc { color: #7a2f8a; font-weight: 600; }
+  ul { padding-left: 1.3em; }
+  .rev { font-size: 0.82rem; color: #5f6368; }
+  s { color: #7a7a7a; }
+</style>
+</head>
+<body>
+
+<h1>PICNIC-2665 / 스플래시 지연 수정 — 독립 적대적 리뷰</h1>
+
+<p class="rev"><strong>1차 리뷰</strong>: HEAD <code>b1a1bfd40</code> 대비 working-tree diff.
+<strong>2차(최종) 재검</strong>: H1–H4 교정 diff + 신규 <code>startup_machine_budget.dart</code> 및 테스트.
+읽기 전용 — 소스·index·HEAD·버전·릴리스·외부 변경 없음.</p>
+
+<div class="box verdict">
+<h3 style="margin-top:0">최종 판정</h3>
+<p><strong>리뷰 종결 — 남은 차단 요소 없음.</strong> 원 지적 H1–H4 전부 해소 확인.
+2차에서 제기한 반례 2건도 3차 확인에서 종결됐다 — <strong>N1-a</strong>(고정 1초 지연의 예산 과금)는 수정 확인,
+<strong>N1-b</strong>(status 무응답 시 프롬프트 생략을 "필수 프롬프트 회귀"로 단정한 부분)는 구현자 반박이 옳아
+<strong>철회</strong>, <strong>N2</strong>(게이트 거부의 Sentry 보고)는 해소.
+원 보고서의 <strong>H4 신규/기존 분류는 오류</strong>였고, <strong>H5·H7 재현 경로는 철회</strong>한다(§3).</p>
+</div>
+
+<h2>1. 원 지적 최종 처분</h2>
+
+<table>
+<tr><th>#</th><th>처분</th><th>확인 근거</th></tr>
+<tr>
+  <td><strong>H1</strong><br>기계 연산 총량 무제한</td>
+  <td><span class="sev ok">해소</span></td>
+  <td>신규 <code>StartupMachineBudget</code>(<span class="loc">startup_machine_budget.dart:8-56</span>)이
+      <em>run 내부 경과 시간만</em> 누적 과금한다. <code>PrivacyConsentManager.initialize()</code>가 단일 예산 객체를 만들어
+      (<span class="loc">privacy_consent_manager.dart:129</span>) ATT·config·<code>ConsentService.initialize</code>에 공유 전달한다
+      (<span class="loc">:147-149</span>). 사용자 결정은 예산 밖: ATT 프롬프트 <span class="loc">:90-92</span>,
+      <code>form.show</code> + dismissal <span class="loc">consent_service.dart:280-294</span>(<code>budget.run</code> 외부).
+      최악 ~31초 누적 경로가 5초 총량으로 수렴함을 확인.</td>
+</tr>
+<tr>
+  <td><strong>H2</strong><br>dispose 후 배너 로드 누수</td>
+  <td><span class="sev ok">해소</span></td>
+  <td><code>AdRequestReadinessGate.run</code>이 liveness를 3회 확인한다 — 진입 <span class="loc">startup_readiness.dart:97</span>,
+      readiness 직후 <span class="loc">:105</span>, <strong>request 직전</strong> <span class="loc">:128</span>.
+      <span class="loc">:128</span> 확인과 <code>Future&lt;T&gt;.sync(request)</code>(<span class="loc">:131</span>) 사이에 await가 없어
+      <code>loadBannerAd</code>의 <code>_loadedAds</code> 등록이 같은 마이크로태스크에서 일어난다 — 끼어들 지점 없음.
+      호출부 <span class="loc">banner_ad_widget.dart:130-134</span>가 <code>isRequestActive: () =&gt; !_isDisposed</code>를 넘기고
+      게이트 반환 직후 <code>if (_isDisposed) return;</code>로 한 번 더 막는다.<br>
+      부수 결함도 함께 닫힘: <code>onAdLoaded</code>가 dispose 상태면 <code>ad.dispose()</code> 하고
+      (<span class="loc">:109-112</span>), completer를 <em>항상</em> 완료시켜(<span class="loc">:113, :128</span>)
+      <code>await completer.future</code> 영구 정지가 사라졌다.</td>
+</tr>
+<tr>
+  <td><strong>H3</strong><br>동의 권한 병렬 샘플링</td>
+  <td><span class="sev ok">해소</span></td>
+  <td><span class="loc">startup_readiness.dart:102-119</span>가 <code>waitForAdMob</code> → liveness → <code>canRequestAds()</code>를
+      <em>순차</em> 실행하고 <code>checkReadiness().timeout(timeout)</code> 하나로 공유 데드라인을 건다.
+      "초기화가 동의 흐름을 완료시킬 수 있으므로 이후에 권한을 읽는다"는 의도가 주석과 코드 모두에 일치.<br>
+      늦은 작업 차단도 확인: 타임아웃 시 <code>finally</code>가 <code>observing=false</code>(<span class="loc">:125</span>)로 만들고,
+      뒤늦게 깨어난 <code>checkReadiness</code>는 <span class="loc">:105</span>에서 던져 <code>canRequestAds</code>·<code>request</code>에
+      도달하지 못한다. 이때 버려진 future의 에러는 <code>Future.timeout</code>이 원본에 onError를 붙이므로
+      <strong>unhandled zone error가 되지 않는다</strong>(별도 확인함).</td>
+</tr>
+<tr>
+  <td><strong>H4</strong><br>스타트업 UMP 중복 실행</td>
+  <td><span class="sev ok">해소</span><br><span class="sev withdrawn">분류 정정</span></td>
+  <td>신규 <code>StartupAdMobInitializationGuard</code>(<span class="loc">main_initializer.dart:27-49</span>)가
+      <code>ConsentService().lastAttemptFailed</code>를 보고 Group 2 자동 재시도를 건너뛴다(<span class="loc">:225-227</span>).
+      명시적 광고 재시도는 보존 — 광고 요청은 가드를 거치지 않고 <code>_adMobInitializer</code>를 직접 타며
+      새 예산을 받는다. <code>_lastAttemptFailed</code>는 성공 시(<span class="loc">consent_service.dart:175</span>)와
+      <code>reset()</code>(<span class="loc">:396</span>)에서만 해제되고, stale attempt에서는 세팅되지 않는다
+      (<span class="loc">:179-181</span>의 <code>_isCurrent</code> 가드).<br>
+      <strong>정정</strong>: §3 참조 — "신규 결함"이 아니라 <em>기존</em> 문제였다.</td>
+</tr>
+</table>
+
+<h2>2. 교정 코드에서 새로 확인된 반례 — <span class="sev ok">최종: N1 부분수용·부분반박 / N2 해소</span></h2>
+
+<div class="box fixed">
+<h3 style="margin-top:0">최종 처분 요약 (3차 확인)</h3>
+<table>
+<tr><th>#</th><th>처분</th><th>확인 근거</th></tr>
+<tr>
+  <td><strong>N1-a</strong><br>고정 1초 지연의 예산 과금</td>
+  <td><span class="sev ok">수용 → 수정 확인</span></td>
+  <td><span class="loc">privacy_consent_manager.dart:81-85</span> — <code>waitForAttPresentation()</code>가
+      <code>budget.run</code> 밖으로 이동했다. 주석도 "느리게 성공한 status 읽기가 1초 미만 잔여를 이유로
+      프롬프트를 취소해서는 안 된다"로 의도를 고정한다.<br>
+      회귀 테스트 <span class="loc">privacy_consent_manager_test.dart:238-277</span>: status 4.5s 성공 →
+      presentation 1s(무과금) → 프롬프트 표시 → 사용자 60s 결정(무과금) → UMP가 잔여 0.5s 사용.
+      <code>expect(sharedBudget.remaining, 500ms)</code>로 회계까지 단언한다 —
+      내가 제기한 반례가 그대로 고정됐다. RED 선행 확인 <code>/tmp/picnic-startup-att-edge-red.log</code>.</td>
+</tr>
+<tr>
+  <td><strong>N1-b</strong><br>status 무응답 시 프롬프트 생략을<br>"필수 프롬프트 회귀"로 단정</td>
+  <td><span class="sev withdrawn">반박 수용 → 지적 철회</span></td>
+  <td>구현자 반박이 옳다. 계약은 "<em>이미 표시·요청된</em> 사용자 동의 대기는 제한하지 않는다"이지
+      "미표시 상태의 SDK 채널 무응답도 무제한 대기한다"가 아니다. 내가 제안한 fallback은 성립하지 않는다 —
+      설치된 <code>app_tracking_transparency 2.0.6+1</code>에서 status 조회와 request가 <strong>동일 MethodChannel</strong>을
+      쓰므로, status가 무응답인 상황에서 <code>requestTrackingAuthorization()</code>을 무제한 await 하면
+      바로 이 작업이 없애려던 <strong>splash hang을 재도입</strong>한다. 채널 무응답에서 fail-closed 후 시작을 진행하는 것이
+      의도된 설계이고, ATT 상태는 <code>notDetermined</code>로 남아 다음 실행에서 프롬프트가 다시 시도된다.<br>
+      계약 고정 테스트 <span class="loc">privacy_consent_manager_test.dart:281-312</span>:
+      status 5s 무응답 → 프롬프트 호출 0회(<code>expect(events, isEmpty)</code>) →
+      실제 <code>ConsentService</code> 예산 0 → <code>lastAttemptFailed == true</code> → flow 정상 완료.<br>
+      기존 long-ATT 예산 회계 테스트(<span class="loc">:317-395</span>)도 함께 갱신됐다.
+      <strong>N1의 이 부분은 결함이 아니므로 철회한다.</strong></td>
+</tr>
+<tr>
+  <td><strong>N2</strong><br>게이트 거부의 Sentry 보고</td>
+  <td><span class="sev ok">해소</span></td>
+  <td><span class="loc">admob_platform.dart:148-157</span>에 포괄 catch <em>앞</em>으로
+      <code>on AdsUnavailable catch (e)</code> 절이 추가됐다(<code>startup_readiness.dart</code> 직접 import
+      <span class="loc">:8</span>). 동작: <code>logger.i</code> + <code>stopAllAnimations()</code>,
+      그리고 <code>context.mounted &amp;&amp; !isDisposed</code>일 때만 <code>label_ads_load_fail</code> 1회 안내.<br>
+      확인 결과 — <code>logAdLoadFailure</code>·<code>Sentry.captureException</code> 경로 <strong>미진입</strong>,
+      <code>'not ready'</code> 키워드 오적중으로 인한 <strong>"광고 소진" 오안내 소멸</strong>,
+      닫힌 화면에서는 안내 없음. 포괄 catch는 그대로 남아 다른 SDK 예외의 기존 처리
+      (<code>logAdLoadFailure</code> → 분류 → Sentry/다이얼로그)는 보존된다.</td>
+</tr>
+</table>
+</div>
+
+<h3 style="color:#5f6368">아래 N1 원문은 이력 보존용 — 처분은 위 표를 따른다</h3>
+
+<div class="box newissue">
+<h3 style="margin-top:0"><span class="sev high">MED-HIGH</span> <s>N1 — 공유 예산 소진이 <em>필수</em> ATT 프롬프트를 통째로 건너뛴다</s> <span class="sev ok">a 수정 / b 철회</span></h3>
+<table>
+<tr><th>위치</th><td><span class="loc">picnic_lib/lib/core/utils/privacy_consent_manager.dart:71-98</span>
+(특히 <code>_awaitMachineOperation(waitForAttPresentation, …)</code> <span class="loc">:84-88</span> 와 catch <span class="loc">:94-97</span>)</td></tr>
+<tr><th>실패 조건</th><td>
+iOS 콜드 스타트에서 <code>trackingAuthorizationStatus</code> 읽기가 느려 5초 공유 예산을 소진하면:
+<code>budget.run</code>이 att-status에서 <code>TimeoutException</code>을 던지고 → catch가 <code>return false</code> →
+<strong><code>requestTrackingAuthorization()</code>이 아예 호출되지 않는다.</strong> 즉 이번 실행에서 ATT 시스템 프롬프트가 표시되지 않는다.
+요구사항의 "explicit ATT 사용자 결정은 필수"와 정면으로 충돌한다.<br><br>
+연쇄 효과: <code>attAuthorized == false</code> → <code>_configureNonPersonalizedAds</code>가 즉시
+"budget exhausted before" 로 실패 → <code>initializeUmp(budget)</code>도 잔여 0으로 전 단계 즉시 실패 →
+<code>_lastAttemptFailed = true</code> → <strong>N4 가드가 Group 2 AdMob 초기화까지 통째로 건너뛴다.</strong>
+느린 플랫폼 읽기 <em>한 건</em>이 ATT 프롬프트 + UMP + AdMob 세 가지를 동시에 무력화한다.
+</td></tr>
+<tr><th>부수 요인</th><td>
+고정 1초 프레젠테이션 지연(<code>Future.delayed(1s)</code>, <span class="loc">:138-139</span>)이 예산에 과금된다.
+이 지연은 <em>절대 stall 하지 않는 타이머</em>라 바운드해서 얻는 것이 없는데 5초 예산의 20%를 먹는다.
+iOS 최초 실행 시 UMP 네트워크 왕복 2회(<code>requestConsentInfoUpdate</code>, <code>loadConsentForm</code>) +
+채널 읽기 2회가 남은 ~3.5초 안에 끝나야 한다 — 모바일 데이터에서는 빠듯하다.
+</td></tr>
+<tr><th>신규/기존</th><td>
+<strong>신규(교정 코드가 만든 회귀).</strong> 교정 전에는 att-status가 <em>독립</em> 5초 바운드였고
+<code>waitForAttPresentation</code>은 예산 밖이어서, att-status가 느려도 프롬프트에는 도달했다.
+</td></tr>
+<tr><th>최소 수정</th><td>
+<pre>// 1) 고정 지연은 예산에서 제외 (:84-88 → 아래로)
+await waitForAttPresentation();
+
+// 2) 상태를 확정적으로 읽지 못했으면 프롬프트 시도는 유지한다.
+//    이미 결정한 사용자에게 호출해도 iOS 는 저장된 상태를 즉시 반환할 뿐
+//    프롬프트를 띄우지 않으므로 안전하다.</pre>
+주의: 현재 동작은 <span class="loc">privacy_consent_manager_test.dart:237-311</span>
+('a long ATT decision is excluded before UMP uses the remainder')이 1초 과금을 명시적으로 고정하고 있으므로,
+수정 시 해당 테스트의 예산 회계 기대값도 함께 갱신해야 한다.
+</td></tr>
+</table>
+</div>
+
+<div class="box newissue">
+<h3 style="margin-top:0"><span class="sev med">MED</span> <s>N2 — 게이트 거부가 정상 사용자 행동인데 Sentry 이슈로 보고된다</s> <span class="sev ok">해소</span></h3>
+<table>
+<tr><th>위치</th><td>
+<span class="loc">picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart:147-157</span>
+(포괄 <code>catch</code> → <code>logAdLoadFailure</code>),
+분류기 <span class="loc">ad_platform.dart:455-465, 504-540</span>
+</td></tr>
+<tr><th>실패 조건</th><td>
+<code>AdsUnavailable.toString()</code> 4종을 <code>isNonReportableAdError</code>에 대입하면:
+<table style="margin:6px 0">
+<tr><th>메시지</th><th>분류</th><th>결과</th></tr>
+<tr><td><code>AdMob is not ready</code></td><td>우연히 <code>'not ready'</code> 키워드 적중</td><td>Sentry 제외 ✓ 단, <strong>"모든 광고 소진" 다이얼로그</strong>가 뜬다(원인 오도)</td></tr>
+<tr><td><code>Ad request is no longer active</code></td><td>미적중</td><td><strong>Sentry 보고</strong> ⚠ — 사용자가 무료충전소 시트를 닫았을 뿐</td></tr>
+<tr><td><code>UMP does not currently permit ad requests</code></td><td>미적중</td><td><strong>Sentry 보고</strong> ⚠ — EEA 사용자가 동의를 거부한 정상 상태, 탭할 때마다</td></tr>
+<tr><td><code>Ad readiness check failed</code></td><td>미적중</td><td><strong>Sentry 보고</strong> ⚠ — 느린 콜드 스타트</td></tr>
+</table>
+다이얼로그는 <code>context.mounted &amp;&amp; !isDisposed</code>로 가드되어 유령 팝업은 없다(확인함).
+<code>Sentry.captureException</code>(<span class="loc">ad_platform.dart:465</span>)에는 그 가드가 없다.
+배너 쪽은 <code>logger.e</code>만 쓰고 로거가 Sentry로 포워딩하지 않아 무관(확인함).
+</td></tr>
+<tr><th>신규/기존</th><td>
+<strong>신규.</strong> 이 예외 문자열들은 이번 작업이 처음 만든다. 이전에는 <code>RewardedAd.load</code>가
+<code>LoadAdError</code> code 1/2/3을 돌려줬고 그 코드들은 분류기가 명시적으로 걸러낸다.
+</td></tr>
+<tr><th>최소 수정</th><td>
+<code>_loadRewardedAd</code>의 포괄 catch 앞에 전용 절을 추가한다
+(<code>AdsUnavailable</code>은 <code>startup_readiness.dart</code>에서 직접 import — <code>main_initializer.dart</code>는 재수출하지 않는다):
+<pre>} on AdsUnavailable catch (e) {
+  logger.i('[$id] 광고 요청 게이트 차단: $e');
+  stopAllAnimations();
+} catch (e, s) {
+  logAdLoadFailure('AdMob', e, _adUnitId, e.toString(), s);
+  stopAllAnimations();
+}</pre>
+</td></tr>
+</table>
+</div>
+
+<h2>3. 원 보고서 정정 · 철회 (root 지적 검증 결과)</h2>
+
+<table>
+<tr><th>항목</th><th>검증 결과</th></tr>
+<tr>
+  <td><strong>H1 "정확히 31초"</strong></td>
+  <td><span class="sev low">정정</span> root 지적대로 <em>abort 경로가 섞이면</em> 31초는 성립하지 않는다.
+      att-status가 <em>타임아웃</em>하면 catch가 조기 반환해 1초 프레젠테이션 지연이 실행되지 않기 때문이다.
+      다만 31초 자체는 도달 가능하다 — 각 단계가 <strong>바운드 직전에 성공</strong>하는 경로
+      (att-status ≈5s 성공/notDetermined → 지연 1s → 프롬프트(제외) → 거부 → config ≈5s → UMP 4×5s)에서
+      기계 시간 합계가 ≈31초가 된다. 표기를 "최대 ~31초(단계별 근접-성공 누적 시)"로 정정한다.
+      결론(총량 예산 필요)은 유지되며 이미 해소됐다.</td>
+</tr>
+<tr>
+  <td><strong>H4 "신규 결함"</strong></td>
+  <td><span class="sev withdrawn">분류 오류 — 정정</span> root 지적이 옳다. HEAD에서도 한 콜드 스타트에
+      UMP 경로가 둘이었다: <code>git show HEAD:main_initializer.dart:96</code>
+      (<code>group1.add(AppInitializer.initializePrivacyConsent())</code> → <code>privacy_consent_manager.dart:50</code>
+      <code>_initializeUMP</code> → <code>ConsentInformation.instance.requestConsentInfoUpdate</code> 직접 호출) 와
+      <code>:129 _initializeAdMob()</code> → <code>:233 await ConsentService().initialize()</code>.
+      게다가 HEAD의 <code>ConsentService.initialize()</code>에는 single-flight 자체가 없었다.
+      따라서 이번 작업은 중복을 <em>만든 것이 아니라 줄였고</em>, 교정 가드가 남은 자동 반복까지 닫았다.
+      "신규" 라벨을 철회하고 "기존 문제, 이번 작업으로 축소 → 교정으로 종결"로 정정한다.</td>
+</tr>
+<tr>
+  <td><strong>H5 디버그 지오그래피 복원 권고</strong></td>
+  <td><span class="sev withdrawn">철회</span> root 지적이 옳다. HEAD의
+      <code>testIdentifiers: ['TEST-DEVICE-HASHED-ID']</code>(<code>privacy_consent_manager.dart:58</code>)는
+      Google 문서의 <strong>리터럴 플레이스홀더</strong>다. UMP의 <code>debugGeography</code>는 등록된 테스트 디바이스에만
+      적용되므로 실제 기기가 매칭될 수 없고, 즉 <strong>HEAD 시점에도 이미 동작하지 않던 코드</strong>다.
+      "프로덕션 수정으로 플레이스홀더를 되살리지 말라"는 지적을 수용해 권고를 철회한다.
+      새 디버그 지오그래피 정책 요구도 없으므로 조치 없음.</td>
+</tr>
+<tr>
+  <td><strong>H6 Android ATT 우회</strong></td>
+  <td><span class="sev low">수용 — 정보성으로 강등</span> iOS 전용 API에 대한 의도된 정정으로 확인.
+      <code>PrivacyConsentManager.canShowPersonalizedAds</code>는 세 lib 트리(<code>picnic_lib/lib</code>,
+      <code>picnic_app/lib</code>, <code>ttja_app/lib</code>) 전체에서 프로덕션 호출부 0건(정의부만 존재).
+      실제 영향 없음.</td>
+</tr>
+<tr>
+  <td><strong>H7 설정 버튼 재현 시나리오</strong></td>
+  <td><span class="sev withdrawn">재현 경로 철회</span> root 지적이 옳다. <code>showPrivacyOptionsForm</code>은
+      세 lib 트리 전체 grep 결과 <code>consent_service.dart:433</code> 정의부 외 호출부가 <strong>0건</strong>이다.
+      "설정 화면에서 개인정보 옵션을 누르면"이라는 재현 시나리오는 현재 앱에 존재하지 않는 경로이므로 철회한다.
+      <code>_isFlowCurrent(null, …)</code>의 <code>_activeAttempt</code> 미관찰은 dead code 상의 잠재 흠으로만 남긴다.</td>
+</tr>
+</table>
+
+<h2>4. 1차 리뷰에서 검증하여 문제 없던 항목 (재확인 유지)</h2>
+<ul>
+  <li><code>ConsentService</code> generation/single-flight 불변식 — 미완료 future로 인한 스플래시 영구 정지 도달 불가.</li>
+  <li>타임아웃 이후 늦게 도착하는 SDK 콜백 가드, 늦게 온 <code>ConsentForm</code>의 <code>_disposeFormSafely</code> 처리.</li>
+  <li><code>runZonedGuarded</code> 래핑의 필요성(<code>UserMessagingChannel</code>이 <code>async void</code>이고
+      <code>PlatformException</code>만 포착).</li>
+  <li><code>MobileAds.instance.initialize()</code> 단일 호출부 수렴, 중복 초기화 없음.</li>
+  <li>PICNIC-2665 전환 완결성 — determinate 업로드 진행바(<span class="loc">post_write.dart:278</span>) 보존,
+      24px pulse가 12×12 / 14×14 슬롯에서 안전하게 clamp.</li>
+  <li><code>StartupMachineBudget.run</code>의 과금 회계(<span class="loc">startup_machine_budget.dart:44-49</span>) —
+      run 내부 경과만 누적하며 상한을 넘겨 과금하지 않음.</li>
+</ul>
+
+<h2>5. 1차 테스트 공백 중 남은 항목</h2>
+<p>교정 작업이 게이트 liveness·공유 데드라인·늦은 readiness 반례를 새로 덮었다
+(<span class="loc">startup_readiness_test.dart:120-231</span>) 및 누적 예산 반례 2건
+(<span class="loc">privacy_consent_manager_test.dart:181-311</span>). 다음은 여전히 미커버 —
+모두 후속 처리 가능 수준이며 이번 병합의 차단 요소는 아니다.</p>
+<ul>
+  <li>동의 폼이 <code>FormError</code>와 함께 닫히는 경로 (<span class="loc">consent_service.dart:265-272</span>).</li>
+  <li>동의 폼 표시 <em>중</em> <code>reset()</code> (stale dismissal, <span class="loc">:257-260</span>).</li>
+  <li><code>canRequestAds()</code>의 기계 타임아웃 시 false 반환.</li>
+  <li>N1 반례 — 예산 소진으로 ATT 프롬프트가 생략되는 경로.</li>
+  <li>N2 반례 — <code>AdsUnavailable</code>의 Sentry 보고 여부.</li>
+  <li>pulse compact-bounds의 실제 tight 부모(12×12 / 14×14) 크기 단언, reduced-motion 해제→재개 전이.</li>
+  <li><code>NetworkConnectivityService.onlineStream</code>.</li>
+  <li><code>host_app_asset_bundle.dart</code>의 <code>firstWhere</code> <code>orElse</code> 부재 및 테스트 파일 내 중복 정의.</li>
+</ul>
+
+<h2>6. 최종 권고</h2>
+<ol>
+  <li><strong>남은 차단 요소 없음 — 리뷰 종결.</strong> H1–H4 해소, N1-a 수정 확인, N1-b 철회, N2 해소.</li>
+  <li><s>후속 1순위 — N1</s> → <strong>종결.</strong> 고정 프레젠테이션 지연은 예산 밖으로 이동됐고,
+      상태 채널 무응답 시의 fail-closed는 <em>의도된 계약</em>임을 확인해 지적을 철회했다
+      (동일 MethodChannel이므로 fallback은 splash hang을 재도입한다).</li>
+  <li><s>후속 2순위 — N2</s> → <strong>종결.</strong> <code>on AdsUnavailable</code> 전용 절로
+      Sentry 진입과 "광고 소진" 오안내가 모두 제거됐고, 다른 SDK 예외 처리는 보존된다.</li>
+  <li>H5는 조치 없음(철회), H6·H7은 정보성으로만 유지.</li>
+  <li>§5의 잔여 테스트 공백은 이번 범위 밖 후속 항목으로 유지한다(신규 지적 추가 없음).</li>
+</ol>
+
+</body>
+</html>
