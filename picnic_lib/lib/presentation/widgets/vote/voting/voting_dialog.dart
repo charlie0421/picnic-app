@@ -38,6 +38,18 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+/// How much of the voting popup body stays pinned while the middle scrolls.
+enum _PinnedChrome {
+  /// Portrait and names pinned above, submit (and logo) pinned below.
+  full,
+
+  /// Portrait pinned above, submit pinned below; the names scroll.
+  compact,
+
+  /// Nothing pinned: the whole body scrolls.
+  none,
+}
+
 Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
@@ -197,6 +209,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId = ref.watch(
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
+    // Read for the flag only; the height budget below comes from the layout
+    // constraints, which already have this inset applied once by the Dialog.
+    final isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     // Closing the dialog does not cancel the vote: the request keeps running
     // against the captured ProviderContainer. Reopening and voting again mints
@@ -244,66 +259,268 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   showCloseButton: false,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
-                    // 320x568 / 200% / 키보드 300 에서는 남는 높이가 220 남짓이라
-                    // 금액 입력과 투표 버튼이 그 밖으로 밀려났고,
-                    // `Scrollable.ensureVisible`(:314) 은 찾을 Scrollable 이
-                    // 없어 조용히 아무 일도 하지 않았다.
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          top: PicnicUi.vertical(24),
-                          bottom: PicnicUi.vertical(16),
-                          left: PicnicUi.horizontal(24),
-                          right: PicnicUi.horizontal(24),
-                        ),
-                        // The balance, use-all, amount and clear controls each
-                        // carry a 48 tap target now, so the gaps that used to
-                        // separate 20 and 32 high rows moved inside those
-                        // controls.
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            VotingArtistImage(
-                              voteItemModel: widget.voteItemModel,
-                            ),
-                            SizedBox(height: PicnicUi.vertical(16)),
-                            VotingMemberInfo(
-                              voteItemModel: widget.voteItemModel,
-                            ),
-                            VotingStarCandyInfo(
-                              myStarCandy: displayedBalance,
-                              onRecharge: _navigateToStore,
-                            ),
-                            VotingCheckAllOption(
-                              checkAll: _checkAll,
-                              onToggle: _toggleCheckAll,
-                            ),
-                            _buildVoteAmountInput(context),
-                            SizedBox(height: PicnicUi.vertical(8)),
-                            VotingErrorMessage(
-                              canVote: _canVote,
-                              hasValue: _hasValue,
-                            ),
-                            _buildBubble(),
-                            SizedBox(height: PicnicUi.vertical(8)),
-                            VotingSubmitButton(
-                              canVote: _canVote,
-                              isVoting: _isVoting,
-                              onPressed: () => _handleVote(myStarCandy, userId),
-                            ),
-                            SizedBox(height: PicnicUi.vertical(16)),
-                            VotingLogoImage(voteModel: widget.voteModel),
-                          ],
-                        ),
+                    child: switch (_pinnedChromeFor(
+                      context,
+                      budget: budget,
+                      width: constraints.maxWidth,
+                      isKeyboardVisible: isKeyboardVisible,
+                    )) {
+                      _PinnedChrome.none => _buildAllScrollBody(
+                        context,
+                        displayedBalance: displayedBalance,
+                        myStarCandy: myStarCandy,
+                        userId: userId,
+                        isKeyboardVisible: isKeyboardVisible,
                       ),
-                    ),
+                      final pinned => _buildFixedChromeBody(
+                        context,
+                        displayedBalance: displayedBalance,
+                        myStarCandy: myStarCandy,
+                        userId: userId,
+                        isKeyboardVisible: isKeyboardVisible,
+                        pinNames: pinned == _PinnedChrome.full,
+                      ),
+                    },
                   ),
                 );
               },
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Which parts of the body the budget can afford to pin.
+  ///
+  /// PICNIC-2688: with the keyboard up, a single scroll view centred the amount
+  /// input and pushed the artist portrait out of the capsule. Pinning the
+  /// portrait and the submit button keeps both in view and lets only the
+  /// balance/amount rows scroll. The names pin with the portrait when there is
+  /// room ([_PinnedChrome.full]); on a shorter budget they move into the
+  /// scrolling window so the portrait can stay pinned ([_PinnedChrome.compact]);
+  /// only a budget that cannot hold even portrait + submit + one 48 row (a
+  /// 320x568 viewport at 200% text with a 300 keyboard) scrolls the whole
+  /// body as before, so nothing overflows ([_PinnedChrome.none]).
+  ///
+  /// The pinned parts are measured, not assumed: the names wrap, so a fixed
+  /// threshold left a long name to overflow the pinned column. The estimate
+  /// mirrors each pinned widget's own geometry and carries a small margin so
+  /// a rounding difference can never turn into an overflow.
+  _PinnedChrome _pinnedChromeFor(
+    BuildContext context, {
+    required double budget,
+    required double width,
+    required bool isKeyboardVisible,
+  }) {
+    final contentWidth =
+        width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(24) * 2;
+    if (contentWidth <= 0) return _PinnedChrome.none;
+
+    final portrait =
+        _headerTopPadding(isKeyboardVisible) +
+        VotingArtistImage.preferredHeight() +
+        _headerGap(isKeyboardVisible);
+    final names = VotingMemberInfo.preferredHeight(
+      context,
+      voteItemModel: widget.voteItemModel,
+      maxWidth: contentWidth,
+    );
+    final footer =
+        _footerTopPadding(isKeyboardVisible) +
+        VotingSubmitButton.preferredHeight(context) +
+        (isKeyboardVisible
+            ? 0
+            : PicnicUi.vertical(16) +
+                  VotingLogoImage.preferredHeight(widget.voteModel)) +
+        _footerBottomPadding(isKeyboardVisible);
+    // The scrolling window has to show the amount input whole, and at a large
+    // text scale the input outgrows its 48 minimum (scaled line plus padding
+    // and border), so the window is sized from the input, not the minimum.
+    const margin = 8.0;
+    final window = _amountInputPreferredHeight(context, contentWidth) + margin;
+    if (budget >= portrait + names + footer + window) return _PinnedChrome.full;
+    if (budget >= portrait + footer + window) return _PinnedChrome.compact;
+    return _PinnedChrome.none;
+  }
+
+  /// Mirrors the amount input built in [_buildVoteAmountInput]: the 48
+  /// minimum, or the scaled digit line plus the field padding and border.
+  double _amountInputPreferredHeight(BuildContext context, double maxWidth) {
+    final line = measureVotingTextHeight(
+      context,
+      '0',
+      _amountInputStyle(),
+      maxWidth: maxWidth,
+    );
+    return math.max(
+      PicnicUi.minimumTapTarget,
+      line + _amountInputVerticalPadding() * 2 + _amountInputBorderWidth * 2,
+    );
+  }
+
+  static const double _amountInputBorderWidth = 1;
+  double _amountInputVerticalPadding() => PicnicUi.vertical(8);
+  TextStyle _amountInputStyle() =>
+      PicnicUi.text(size: 16, weight: FontWeight.w700);
+
+  EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
+    left: PicnicUi.horizontal(24),
+    right: PicnicUi.horizontal(24),
+  );
+
+  /// Pinned header + scrolling middle + pinned footer.
+  ///
+  /// `Flexible.loose` (not `Expanded`) so the middle takes only the height it
+  /// needs while everything fits and the capsule keeps its intrinsic height;
+  /// it grows a scroll bar only when the keyboard eats into the budget.
+  Widget _buildFixedChromeBody(
+    BuildContext context, {
+    required BigInt displayedBalance,
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+    required bool pinNames,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildHeader(isKeyboardVisible: isKeyboardVisible, withNames: pinNames),
+        Flexible(
+          fit: FlexFit.loose,
+          child: SingleChildScrollView(
+            child: _buildScrollableMiddle(
+              context,
+              displayedBalance,
+              pinned: true,
+              withNames: !pinNames,
+            ),
+          ),
+        ),
+        _buildFooter(
+          myStarCandy: myStarCandy,
+          userId: userId,
+          isKeyboardVisible: isKeyboardVisible,
+        ),
+      ],
+    );
+  }
+
+  /// The same pieces in the same order inside one scroll view, for a budget
+  /// too small to pin anything.
+  Widget _buildAllScrollBody(
+    BuildContext context, {
+    required BigInt displayedBalance,
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(isKeyboardVisible: isKeyboardVisible, withNames: true),
+          _buildScrollableMiddle(
+            context,
+            displayedBalance,
+            pinned: false,
+            withNames: false,
+          ),
+          _buildFooter(
+            myStarCandy: myStarCandy,
+            userId: userId,
+            isKeyboardVisible: isKeyboardVisible,
+          ),
+        ],
+      ),
+    );
+  }
+
+  // With the keyboard up the header and footer give up part of their
+  // breathing room (as the JMA dialog does), so the scrolling window between
+  // them keeps the bonus bubble whole on a phone instead of a sliver of it.
+  double _headerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 24);
+  double _headerGap(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 8 : 16);
+  double _footerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 4 : 8);
+  double _footerBottomPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 16);
+
+  Widget _buildHeader({
+    required bool isKeyboardVisible,
+    required bool withNames,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        top: _headerTopPadding(isKeyboardVisible),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingArtistImage(voteItemModel: widget.voteItemModel),
+          SizedBox(height: _headerGap(isKeyboardVisible)),
+          if (withNames) VotingMemberInfo(voteItemModel: widget.voteItemModel),
+        ],
+      ),
+    );
+  }
+
+  // The balance, use-all, amount and clear controls each carry a 48 tap
+  // target now, so the gaps that used to separate 20 and 32 high rows moved
+  // inside those controls.
+  Widget _buildScrollableMiddle(
+    BuildContext context,
+    BigInt displayedBalance, {
+    required bool pinned,
+    required bool withNames,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (withNames) VotingMemberInfo(voteItemModel: widget.voteItemModel),
+          VotingStarCandyInfo(
+            myStarCandy: displayedBalance,
+            onRecharge: _navigateToStore,
+          ),
+          VotingCheckAllOption(checkAll: _checkAll, onToggle: _toggleCheckAll),
+          _buildVoteAmountInput(context, pinned: pinned),
+          SizedBox(height: PicnicUi.vertical(8)),
+          VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
+          _buildBubble(),
+        ],
+      ),
+    );
+  }
+
+  /// The submit button, and the partner/picnic logo only while the keyboard
+  /// is down: with it up the logo's row is better spent on the amount input.
+  Widget _buildFooter({
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        top: _footerTopPadding(isKeyboardVisible),
+        bottom: _footerBottomPadding(isKeyboardVisible),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingSubmitButton(
+            canVote: _canVote,
+            isVoting: _isVoting,
+            onPressed: () => _handleVote(myStarCandy, userId),
+          ),
+          if (!isKeyboardVisible) ...[
+            SizedBox(height: PicnicUi.vertical(16)),
+            VotingLogoImage(voteModel: widget.voteModel),
+          ],
+        ],
       ),
     );
   }
@@ -342,7 +559,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     _validateVote();
   }
 
-  Widget _buildVoteAmountInput(BuildContext context) {
+  /// [pinned] is true inside the pinned-header body, where the input scrolls
+  /// in a short middle window: centring it there dragged the balance row
+  /// half under the pinned names even when the input was already in view, so
+  /// that window moves only as far as it must. The all-scroll body keeps
+  /// centring, which also brings the submit button below into view.
+  Widget _buildVoteAmountInput(BuildContext context, {required bool pinned}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
@@ -350,15 +572,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
       if (_focusNode.hasFocus) {
-        final RenderObject? renderObject = _inputFieldKey.currentContext
-            ?.findRenderObject();
-        if (renderObject != null) {
-          Scrollable.ensureVisible(
-            _inputFieldKey.currentContext!,
-            alignment: 0.5,
-            duration: const Duration(milliseconds: 300),
-          );
+        final inputContext = _inputFieldKey.currentContext;
+        final RenderObject? renderObject = inputContext?.findRenderObject();
+        if (inputContext == null || renderObject == null) return;
+        if (pinned) {
+          // Each policy is a no-op unless the input is cut off on its side,
+          // so at most one of the two moves the window.
+          for (final policy in const [
+            ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+            ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          ]) {
+            Scrollable.ensureVisible(
+              inputContext,
+              alignmentPolicy: policy,
+              duration: const Duration(milliseconds: 300),
+            );
+          }
+          return;
         }
+        Scrollable.ensureVisible(
+          inputContext,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+        );
       }
     });
 
@@ -372,7 +608,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           color: !_canVote && _hasValue
               ? AppColors.statusError
               : PicnicUi.actionColor,
-          width: 1,
+          width: _amountInputBorderWidth,
         ),
         borderRadius: BorderRadius.circular(24),
       ),
@@ -411,7 +647,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   isCollapsed: true,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: PicnicUi.horizontal(24),
-                    vertical: PicnicUi.vertical(8),
+                    vertical: _amountInputVerticalPadding(),
                   ),
                 ),
                 onChanged: (_) => _validateVote(),
@@ -452,7 +688,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     );
                   }),
                 ],
-                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                style: _amountInputStyle(),
               ),
             ),
           ),

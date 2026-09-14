@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -10,6 +12,25 @@ import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
+
+/// The height a [Text] with [style] takes at [maxWidth] in this [context]:
+/// same scaler, direction and locale as the widget would resolve.
+double measureVotingTextHeight(
+  BuildContext context,
+  String text,
+  TextStyle style, {
+  required double maxWidth,
+}) {
+  final painter = TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    locale: Localizations.maybeLocaleOf(context),
+  )..layout(maxWidth: math.max(0.0, maxWidth));
+  final height = painter.height;
+  painter.dispose();
+  return height;
+}
 
 final class _CacheOnlyImageMiss implements Exception {
   const _CacheOnlyImageMiss();
@@ -201,6 +222,9 @@ class VotingArtistImage extends StatelessWidget {
 
   const VotingArtistImage({super.key, required this.voteItemModel});
 
+  /// The height [build] lays out, for a caller that has to budget for it.
+  static double preferredHeight() => 80.w;
+
   @override
   Widget build(BuildContext context) {
     String? imageUrl;
@@ -250,11 +274,62 @@ class VotingMemberInfo extends StatelessWidget {
 
   const VotingMemberInfo({super.key, required this.voteItemModel});
 
+  static bool _hasArtistGroup(VoteItemModel voteItemModel) =>
+      (voteItemModel.artist?.id ?? 0) != 0 &&
+      voteItemModel.artist?.artistGroup?.name != null;
+
+  static String _artistName(VoteItemModel voteItemModel) =>
+      getLocaleTextFromJson(
+        (voteItemModel.artist?.id ?? 0) != 0
+            ? voteItemModel.artist?.name ?? {}
+            : voteItemModel.artistGroup?.name ?? {},
+      );
+
+  static TextStyle _nameStyle() =>
+      PicnicUi.text(size: 16, weight: FontWeight.w700);
+
+  static TextStyle _groupStyle() =>
+      PicnicUi.text(size: 12, color: PicnicUi.secondaryText);
+
+  static double _dividerHeight() => 20.0.h;
+
+  /// The height [build] lays out at [maxWidth], for a caller that has to
+  /// budget for it before the frame.
+  ///
+  /// Mirrors the row below: with a group the two names share the width as
+  /// equal `Flexible`s around the gap, so each wraps inside half of it.
+  static double preferredHeight(
+    BuildContext context, {
+    required VoteItemModel voteItemModel,
+    required double maxWidth,
+  }) {
+    final hasArtistGroup = _hasArtistGroup(voteItemModel);
+    final nameWidth = hasArtistGroup
+        ? math.max(0.0, (maxWidth - PicnicUi.horizontal(8)) / 2)
+        : maxWidth;
+    var row = measureVotingTextHeight(
+      context,
+      _artistName(voteItemModel),
+      _nameStyle(),
+      maxWidth: nameWidth,
+    );
+    if (hasArtistGroup) {
+      row = math.max(
+        row,
+        measureVotingTextHeight(
+          context,
+          getLocaleTextFromJson(voteItemModel.artist!.artistGroup!.name),
+          _groupStyle(),
+          maxWidth: nameWidth,
+        ),
+      );
+    }
+    return row + _dividerHeight();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final hasArtistGroup =
-        (voteItemModel.artist?.id ?? 0) != 0 &&
-        voteItemModel.artist?.artistGroup?.name != null;
+    final hasArtistGroup = _hasArtistGroup(voteItemModel);
 
     return Column(
       children: [
@@ -266,12 +341,8 @@ class VotingMemberInfo extends StatelessWidget {
           children: [
             Flexible(
               child: Text(
-                getLocaleTextFromJson(
-                  (voteItemModel.artist?.id ?? 0) != 0
-                      ? voteItemModel.artist?.name ?? {}
-                      : voteItemModel.artistGroup?.name ?? {},
-                ),
-                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                _artistName(voteItemModel),
+                style: _nameStyle(),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -282,14 +353,18 @@ class VotingMemberInfo extends StatelessWidget {
                   getLocaleTextFromJson(
                     voteItemModel.artist!.artistGroup!.name,
                   ),
-                  style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
+                  style: _groupStyle(),
                   textAlign: TextAlign.center,
                 ),
               ),
             ],
           ],
         ),
-        Divider(color: AppColors.grey300, thickness: 1, height: 20.0.h),
+        Divider(
+          color: AppColors.grey300,
+          thickness: 1,
+          height: _dividerHeight(),
+        ),
       ],
     );
   }
@@ -301,12 +376,22 @@ class VotingLogoImage extends StatelessWidget {
 
   const VotingLogoImage({super.key, required this.voteModel});
 
+  static bool _showsPartner(VoteModel voteModel) {
+    final partner = voteModel.partner;
+    return (voteModel.isPartnership ?? false) &&
+        partner != null &&
+        partner.isNotEmpty;
+  }
+
+  /// The height [build] lays out, for a caller that has to budget for it.
+  static double preferredHeight(VoteModel voteModel) =>
+      _showsPartner(voteModel) ? 100.w : 60.w;
+
   @override
   Widget build(BuildContext context) {
-    final isPartnership = voteModel.isPartnership ?? false;
     final partner = voteModel.partner;
 
-    if (isPartnership && partner != null && partner.isNotEmpty) {
+    if (_showsPartner(voteModel) && partner != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -515,6 +600,23 @@ class VotingSubmitButton extends StatelessWidget {
     this.onPressed,
   });
 
+  static const double _minHeight = 52;
+
+  static TextStyle _labelStyle({Color? color}) =>
+      PicnicUi.text(size: 18, weight: FontWeight.w600, color: color);
+
+  /// The height [build] lays out, for a caller that has to budget for it
+  /// before the frame: the 52 minimum, or the scaled label plus padding.
+  static double preferredHeight(BuildContext context) {
+    final label = measureVotingTextHeight(
+      context,
+      AppLocalizations.of(context).label_button_vote,
+      _labelStyle(),
+      maxWidth: 172.w - PicnicUi.horizontal(12) * 2,
+    );
+    return math.max(_minHeight, label + PicnicUi.vertical(4) * 2);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isEnabled = canVote && !isVoting;
@@ -524,7 +626,7 @@ class VotingSubmitButton extends StatelessWidget {
       onTap: isEnabled ? onPressed : null,
       child: Container(
         width: 172.w,
-        constraints: const BoxConstraints(minHeight: 52),
+        constraints: const BoxConstraints(minHeight: _minHeight),
         decoration: BoxDecoration(
           color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
           borderRadius: BorderRadius.circular(24),
@@ -543,9 +645,7 @@ class VotingSubmitButton extends StatelessWidget {
             : Text(
                 AppLocalizations.of(context).label_button_vote,
                 textAlign: TextAlign.center,
-                style: PicnicUi.text(
-                  size: 18,
-                  weight: FontWeight.w600,
+                style: _labelStyle(
                   color: isActive
                       ? PicnicUi.onActionColor
                       : PicnicUi.secondaryText,
