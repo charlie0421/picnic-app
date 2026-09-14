@@ -11,7 +11,13 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 part '../../generated/providers/ad_reward_recovery_provider.g.dart';
 
 /// Foreground ladder used right after the user finishes watching an ad, while
-/// the server-side grant callback lands. Six reads spread over 30 seconds.
+/// the server-side grant callback lands. Seven reads spread over 60 seconds.
+///
+/// The last step exists for AdMob: its grant waits on Google's server-side
+/// verification callback, which lands 19-21 s (p50) and 61-66 s (p90) after the
+/// claim was issued (production, 7 days to 2026-09-14). A 30-second ladder gave
+/// up before the p90 callback, so a reward that was paid moments later read as
+/// "not credited" on screen.
 ///
 /// This is the **only** ladder left. Startup, resume and same-user auth events
 /// used to replay it over every unacknowledged reward the server knew about,
@@ -26,6 +32,7 @@ const adRewardPollDelays = [
   Duration(seconds: 4),
   Duration(seconds: 8),
   Duration(seconds: 15),
+  Duration(seconds: 30),
 ];
 
 typedef AdRewardDelay = Future<void> Function(Duration duration);
@@ -103,11 +110,11 @@ class AdRewardRecovery extends _$AdRewardRecovery {
   /// Claims a reference for the dialog pipeline, from the moment a terminal
   /// status is queued until the reference leaves that pipeline for good.
   ///
-  /// The claim deliberately outlives the `dialogQueue` entry. Background and
-  /// foreground ladders run side by side on one reference (see
-  /// [_pollRecoveredReferences] and [_pollForegroundForOwner]), so a sibling
-  /// poller can still be walking its 30 seconds of delays while the first
-  /// poller's terminal status is already on screen. Releasing the claim when
+  /// The claim deliberately outlives the `dialogQueue` entry. A reference can
+  /// be polled by more than one caller (a repeated SDK callback, or a second
+  /// [poll] from a later screen — see [_pollForegroundForOwner]), so a sibling
+  /// poller can still be walking its delays while the first poller's terminal
+  /// status is already on screen. Releasing the claim when
   /// the dialog is acknowledged would let that late sibling re-read the same
   /// GRANTED status and queue it a second time - a second dialog and a second
   /// `acknowledge` for one reward. Only [discardDialog] releases it, because

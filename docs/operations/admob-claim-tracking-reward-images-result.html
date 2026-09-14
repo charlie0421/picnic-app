@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AdMob 적립 추적·리워드 이미지 콜드 리사이즈 수정 결과</title>
+  <style>
+    :root { color-scheme: light; --bg:#f6f7fa; --card:#fff; --ink:#252528; --muted:#5d5f66; --line:#dddde5; --purple:#745cc9; --warn:#925d12; --ok:#28724f; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15.5px/1.65 system-ui,-apple-system,"Pretendard",sans-serif; }
+    main { max-width:980px; margin:40px auto; padding:40px; background:var(--card); border:1px solid var(--line); border-radius:20px; }
+    h1,h2,h3 { line-height:1.3; } h1 { margin:0; font-size:28px; } h2 { margin-top:38px; padding-bottom:8px; border-bottom:1px solid var(--line); font-size:21px; }
+    p { margin:10px 0; } code { padding:2px 6px; background:#f0eef8; border-radius:5px; overflow-wrap:anywhere; }
+    pre { padding:14px 16px; background:#f4f3f8; border-radius:10px; overflow-x:auto; font-size:13px; }
+    table { width:100%; border-collapse:collapse; } th,td { padding:10px 12px; border:1px solid var(--line); text-align:left; vertical-align:top; } th { background:#f5f2ff; }
+    .summary,.warning,.success { margin:20px 0; padding:15px 18px; border-left:5px solid var(--purple); background:#f7f4ff; }
+    .warning { border-color:var(--warn); background:#fff8ea; } .success { border-color:var(--ok); background:#edf8f2; }
+    ul,ol { padding-left:24px; } li+li { margin-top:6px; } .meta { color:var(--muted); }
+    @media(max-width:650px){main{margin:0;padding:24px;border:0;border-radius:0}table{font-size:13px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>AdMob 적립 추적·리워드 이미지 콜드 리사이즈 수정 결과</h1>
+  <p class="meta">작성일 2026-09-14 · 저장소 charlie0421/picnic-app · 브랜치 <code>fix/admob-claim-tracking-reward-images</code> · 기준 1.3.4+130401 TestFlight 보고</p>
+
+  <div class="summary">
+    TestFlight 1.3.4+130401 에서 보고된 두 문제 — <strong>글로벌픽 #1(AdMob) 적립 안 됨</strong>, <strong>리워드 상세 이미지 지연</strong> — 를 조사했다.
+    둘 다 130401 의 코드 변경이 만든 회귀는 아니었다. AdMob 은 앱이 클레임 참조를 버려 정상 적립조차 화면에 반영되지 않는 설계 공백이 있었고,
+    리워드 이미지는 CDN 리사이저의 콜드 경로(5~10초)가 PR #219 의 렌더 크기 기반 사이즈 산출과 맞물려 기기별로 콜드 리사이즈를 맞는 구조였다.
+    수정은 이 문서의 3절, 원격으로 확정하지 못한 부분은 5절에 남겼다.
+  </div>
+
+  <h2>1. AdMob 적립 — 조사 결과</h2>
+  <p>서버 기록(프로덕션 <code>ad_reward_claims</code>)으로 본 보고자 계정의 9/14 AdMob 클레임 4건:</p>
+  <table>
+    <tr><th>클레임 생성(KST)</th><th>상태</th><th>Google SSV 콜백</th></tr>
+    <tr><td>14:12:35</td><td>GRANTED</td><td>14:12:54 도착(19초 뒤)</td></tr>
+    <tr><td>14:15:16</td><td>PENDING</td><td>없음</td></tr>
+    <tr><td>14:15:39</td><td>PENDING</td><td>없음</td></tr>
+    <tr><td>14:28:08</td><td>PENDING</td><td>없음</td></tr>
+  </table>
+  <ul>
+    <li>같은 시간대 iOS 전체는 정상(14시대 GRANTED 165 / PENDING 7). <code>callback-admob</code> 엣지 로그 24시간 21,881건에서 위 3건의 claim_id 는 한 번도 도착하지 않았다 — 서버 거부가 아니라 Google 이 콜백을 보내지 않은 것.</li>
+    <li>24시간 콜백의 <code>ad_network</code> 는 전부 AdMob 네트워크(5450213213286189855). Meta·Pangle·Liftoff 미디에이션 소스는 0건. 미디에이션 채움이 SSV 없이 끝나 PENDING 이 되는지는 기기에서만 가릴 수 있다.</li>
+    <li>7일 기준 클레임 PENDING 비율 iOS 3.9%(3,325/85,600) · Android 1.4%. 클레임 생성→콜백 지연 p10 6초 / p50 19~21초 / p90 61~66초.</li>
+    <li><strong>확정된 앱 설계 공백:</strong> Pangle 은 클레임을 pending store 에 저장하고 상태를 폴링해 적립 영수증을 띄우고 ack 하지만, AdMob 은 그 경로가 없었다(<code>admob_platform.dart</code> 는 보상 콜백에서 프로필 새로고침만). 광고 닫힘 직후 새로고침은 대개 적립(SSV)보다 먼저 실행되므로 정상 적립도 "안 들어옴"으로 보였다. 서버 <code>get_ad_reward_status</code> 는 이미 <code>ADMOB_CLAIM</code> 을 지원한다.</li>
+    <li>AdMob 관련 앱 코드는 130308 → 130401 사이 변경이 없다(diff 0). 앱 로그는 Sentry 로 가지 않아 기기 측 원인(로드·표시 실패, 조기 닫힘, 미디에이션 채움)을 원격으로 가릴 수 없었다.</li>
+  </ul>
+
+  <h2>2. 리워드 이미지 — 조사 결과</h2>
+  <p>리워드 이미지(원본 1000×1000 PNG, 1.7MB)를 앱이 요청하는 방식대로 CDN 에서 받은 실측:</p>
+  <table>
+    <tr><th>요청</th><th>응답</th><th>시간</th></tr>
+    <tr><td><code>/picnic/reward/&lt;key&gt;.png</code> (원본)</td><td>200, 1.7MB</td><td>0.18초</td></tr>
+    <tr><td><code>?q=80&amp;w=733&amp;h=733</code> 첫 요청</td><td>302 → <code>/cache/picnic/reward/&lt;key&gt;_w733_h733_fpng_q80.png</code></td><td><strong>4.9~7.1초</strong></td></tr>
+    <tr><td><code>?q=80&amp;w=1083&amp;h=983</code> 첫 요청</td><td>302 → cache</td><td><strong>7.6~10.0초</strong></td></tr>
+    <tr><td>같은 조합 재요청</td><td>302 → cache (CloudFront hit)</td><td>0.03~0.08초</td></tr>
+    <tr><td>14KB 이미지 새 조합</td><td>302 → cache</td><td>0.5~0.8초</td></tr>
+  </table>
+  <ul>
+    <li>리사이저는 (w,h,q) 조합마다 별도 캐시 객체를 만들고 새 조합의 첫 요청은 원본 크기에 비례해 느리다.</li>
+    <li>PR #219(1.3.3+130301 이후 탑재)가 w/h 산출을 "위젯 인자"에서 "실제 렌더 크기"로 바꿔 리워드 상단 이미지 키가 달라졌다(iPhone 3x: w=1083 → w=983, 사이즈가이드: q만 → w/h 추가). 기존 캐시 변형이 전부 미스가 되어 기기 폭별 첫 사용자가 5~10초 콜드 리사이즈를 맞는다. Android 도 같은 구조.</li>
+  </ul>
+
+  <h2>3. 수정 내용</h2>
+  <table>
+    <tr><th>파일</th><th>변경</th></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart</code></td>
+      <td><code>AdmobClaimPreflight</code> 가 클레임 참조를 pending store 에 저장(<code>persist</code>)하고 토큰+참조를 돌려준다. <code>onUserEarnedReward</code> 에서 <code>AdRewardRecovery.poll</code> 사다리를 시작해 GRANTED 시 적립 영수증 표시·ack 까지 Pangle 과 같은 경로를 탄다. 로드 시 <code>ResponseInfo</code> 의 실제 광고 소스(<code>AdmobAdSourceSummary</code>: 소스명·소스 ID·어댑터·미디에이션 여부)를 로그와 Sentry breadcrumb(<code>ad.admob</code>: loaded/claim_issued/showed/earned/dismissed/show_failed)으로 남긴다.</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/providers/ad_reward_recovery_provider.dart</code></td>
+      <td>포그라운드 폴링 사다리에 30초 단계를 추가(총 30초 → 60초)해 AdMob SSV p90 을 덮는다.</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/dialogs/reward_dialog.dart</code></td>
+      <td>모든 리워드 이미지가 기기와 무관한 고정 변형 <code>?q=80&amp;w=1000</code> 하나만 요청한다(<code>RewardDialogConstants.imageRequestWidth</code>, <code>rewardImageRequest</code> → <code>PicnicCachedNetworkImage.imageRequest</code>). 높이는 보내지 않아 크롭 없이 비율을 유지한다. 콜드 리사이즈는 이미지당 전역 1회로 줄고, 같은 이미지를 두 번째 여는 사용자는 모두 CloudFront 히트를 받는다.</td></tr>
+  </table>
+
+  <h2>4. 검증</h2>
+  <table>
+    <tr><th>검증</th><th>결과</th></tr>
+    <tr><td>추가 테스트</td><td>AdMob preflight 저장·전파·토큰 없음 5건, <code>AdmobAdSourceSummary</code> 3건, 폴링 사다리 60초 1건, 리워드 다이얼로그 고정 변형·DPR 불변 2건 — TDD 로 실패 확인 후 통과.</td></tr>
+    <tr><td>영향 스위트</td><td><code>reward_dialog_render_test</code> · <code>free_charge_station/</code> 전체 · <code>ad_reward_recovery_provider_test</code>: 422 통과, 실패 0.</td></tr>
+    <tr><td>정적 분석</td><td>변경 6개 파일 <code>flutter analyze</code> 이슈 0. <code>dart format</code> 적용.</td></tr>
+    <tr><td>picnic_lib 전체 테스트</td><td>13,723 통과 / 10 실패. 실패 10건은 전부 <code>test/services/error_handling_service_coverage_test.dart</code>·<code>duplicate_prevention_coverage_test.dart</code>(이 변경이 건드리지 않은 서비스 테스트)이며, 두 파일을 단독 실행하면 기준 커밋 3b4231626 과 수정 브랜치 모두 42/42 통과 — 병렬 전체 실행의 순서 의존 실패로 이 변경과 무관.</td></tr>
+    <tr><td>리뷰</td><td>Codex 주간 한도 100% 소진으로 교차 공급자 리뷰 불가. 독립 컨텍스트의 Sonnet 반례 리뷰(요구사항·diff·테스트 결과만 제공): 차단 0, 주요 0, 경미 1(광고 소스 진단값이 인스턴스 공유 필드라 이중 탭 시 오염) → 광고 단위 지역값으로 수정 후 재검증 402 통과. 나머지는 기존 설계 확인(persist-before-show 는 Pangle 과 동일한 트레이드오프, 1000px 디코드는 의도된 비용).</td></tr>
+  </table>
+
+  <h2>4-1. 시뮬레이터 실기 검증 (2026-09-14 16:07~16:12 KST)</h2>
+  <p class="meta">iPhone 17 Pro / iOS 26.5 시뮬레이터, 수정 브랜치 디버그 빌드, <code>ENVIRONMENT=prod</code> (프로덕션 백엔드, 보고자 계정).</p>
+  <table>
+    <tr><th>항목</th><th>관찰</th></tr>
+    <tr><td>리워드 다이얼로그 요청 URL</td><td>앱 이미지 캐시 DB(<code>libCachedImageData.db</code>) 기준 상단·개요 이미지 모두 <code>…/reward/&lt;key&gt;.png?q=80&amp;w=1000</code>. 같은 계정의 이전 빌드 기록은 <code>?q=85&amp;w=697&amp;h=480</code> 등 기기 크기 변형이었다.</td></tr>
+    <tr><td>첫 열기 체감</td><td>전역 첫 요청이라 콜드 리사이즈를 맞아 8~9초 뒤 표시(예상된 1회 비용). 이후 같은 URL 은 CDN 0.03~0.08초.</td></tr>
+    <tr><td>CDN 캐시 관찰</td><td>앱이 받은 직후 별도 클라이언트(curl)의 같은 URL 첫 요청은 다시 9~12초 콜드였고, 그 뒤부터 Accept 헤더와 무관하게 0.03초였다. 리사이저 결과가 오리진에서 즉시 재사용되지 않고 CloudFront 의 302 캐시(노드·TTL 단위)에 의존하는 것으로 보인다. 고정 키로 사용자 간 공유는 되지만 "전역 1회"는 노드·TTL 단위로 읽어야 하며, 리사이저의 <code>/cache/</code> 객체 재사용 여부는 인프라 확인 과제.</td></tr>
+    <tr><td>AdMob 글로벌 픽 #1</td><td>로드 로그 <code>ad_source=AdMob Network(5450213213286189855) adapter=GADMAdapterGoogleAdMobAds mediated=false</code>, 클레임 <code>4a94bfdc…</code> 16:10:31 생성 → 테스트 광고 시청(2/2) → 보상 콜백 수신 → 폴링 시작 → 서버 SSV 16:10:57(26초 뒤) GRANTED → 광고 닫힘 직후 <strong>"캔디가 적립됐어요! 코튼캔디 +1, 현재 보유 4"</strong> 영수증 표시 → 확인 탭 → 서버 <code>acknowledged_at</code> 16:11:44 기록. 이전 빌드의 보고자 클레임(14:12 GRANTED)은 <code>acknowledged_at</code> 이 null 이었다.</td></tr>
+    <tr><td>부수 관찰</td><td>디버그 실행에서 Firebase 미초기화라 GA4 earn 이벤트 발송 예약이 해제되는 경고가 남는다(시뮬레이터 환경 한정, 적립과 무관). 스토어 구매 상품 목록은 시뮬레이터에서 정상 로딩됐다.</td></tr>
+  </table>
+
+  <h2>5. 남은 확인·주의</h2>
+  <ul>
+    <li><strong>TestFlight 재검증 필요.</strong> 다음 TF 빌드에서 글로벌픽 #1 을 시청한 뒤 (1) 적립 영수증 다이얼로그가 뜨는지, (2) 안 뜨면 Sentry 의 <code>ad.admob</code> breadcrumb(earned 유무, ad_source_name/mediated)으로 조기 닫힘·표시 실패·미디에이션 채움 중 무엇인지 가른다. 미디에이션 채움에서 PENDING 이 반복되면 AdMob 콘솔의 미디에이션 그룹에서 해당 네트워크의 보상형 SSV 지원을 확인해야 한다.</li>
+    <li>이 수정은 Google 이 콜백을 보내지 않는 경우(PENDING 3건)를 고치지 못한다. 그 원인은 기기 증거가 필요하다.</li>
+    <li>리워드 이미지의 첫 요청은 여전히 이미지당 1회 콜드다. 운영자가 리워드 이미지를 올린 직후 <code>?q=80&amp;w=1000</code> 을 한 번 호출해 두면 사용자에게는 콜드가 보이지 않는다. 리사이저 자체(1.7MB PNG 5~10초)는 인프라 과제로 남긴다.</li>
+    <li>홈 리워드 목록 카드는 기존대로 기기 크기 변형을 쓴다(≤12장, 다운로드 크기 우선).</li>
+    <li>배포는 Dart 변경만이라 Shorebird OTA 대상이지만 130401 이 아직 스토어 심사 전이므로 배포 방식은 릴리스 담당 세션이 결정한다.</li>
+  </ul>
+</main>
+</body>
+</html>

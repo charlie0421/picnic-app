@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/config/environment.dart';
@@ -10,8 +12,11 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_provider.dart';
+import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
 
@@ -22,15 +27,33 @@ typedef AdmobClaimCreator =
       required String clientRequestId,
     });
 
+class AdmobClaimPreflightResult {
+  const AdmobClaimPreflightResult({
+    required this.signedToken,
+    required this.reference,
+  });
+
+  final String signedToken;
+  final AdRewardReference reference;
+}
+
 /// SDK가 광고를 표시하기 전에 AdMob SSV용 opaque 토큰을 발급받는다.
 ///
 /// 발급 실패를 호출자에게 전파하므로, 호출자는 [RewardedAd.show]에 도달하지 않는다.
+///
+/// 발급된 클레임 참조는 Pangle 과 같은 계약으로 [persist] 에 넘긴다 — 보상은
+/// Google 의 SSV 콜백이 서버에 닿은 뒤에야 GRANTED 가 되므로(클레임 생성 기준
+/// p50 19~21초, p90 61~66초), 앱은 그 참조로 상태를 폴링해 적립 영수증을 띄우고
+/// ack 해야 한다. 예전에는 참조를 버려서 정상 적립조차 화면에 반영되지 않았고,
+/// 광고 닫힘 직후의 프로필 새로고침은 대개 적립보다 먼저 실행됐다.
 class AdmobClaimPreflight {
-  const AdmobClaimPreflight({required this.createClaim});
+  const AdmobClaimPreflight({required this.createClaim, required this.persist});
 
   final AdmobClaimCreator createClaim;
+  final Future<void> Function(String ownerUserId, AdRewardReference reference)
+  persist;
 
-  Future<String> execute({
+  Future<AdmobClaimPreflightResult> execute({
     required String ownerUserId,
     required String platform,
     required String placementId,
@@ -47,8 +70,81 @@ class AdmobClaimPreflight {
     if (claim.signedToken.isEmpty) {
       throw const FormatException('AdMob claim is missing a signed token');
     }
-    return claim.signedToken;
+    await persist(ownerUserId, claim.reference);
+    return AdmobClaimPreflightResult(
+      signedToken: claim.signedToken,
+      reference: claim.reference,
+    );
   }
+}
+
+/// 로드된 광고를 실제로 채운 광고 소스 요약.
+///
+/// 진단용이다. Google 은 SSV 콜백에 `ad_network` 소스 ID 를 함께 보내는데,
+/// 프로덕션 24시간 콜백 21,881건이 전부 AdMob 네트워크(5450213213286189855)
+/// 였고 Meta·Pangle·Liftoff 미디에이션 소스는 0건이었다(2026-09-14). 미디에이션
+/// 채움이 SSV 없이 끝나 PENDING 으로 남는지는 기기에서만 가릴 수 있으므로,
+/// 로드 시점의 소스를 로그와 Sentry breadcrumb 으로 남긴다.
+class AdmobAdSourceSummary {
+  const AdmobAdSourceSummary({
+    required this.adSourceName,
+    required this.adSourceId,
+    required this.adapterClassName,
+    required this.mediationAdapterClassName,
+    required this.responseId,
+  });
+
+  factory AdmobAdSourceSummary.fromResponseInfo(ResponseInfo? info) {
+    final loaded = info?.loadedAdapterResponseInfo;
+    return AdmobAdSourceSummary(
+      adSourceName: loaded?.adSourceName,
+      adSourceId: loaded?.adSourceId,
+      adapterClassName: loaded?.adapterClassName,
+      mediationAdapterClassName: info?.mediationAdapterClassName,
+      responseId: info?.responseId,
+    );
+  }
+
+  /// Google 의 SSV `ad_network` 파라미터가 AdMob 네트워크일 때 쓰는 소스 ID.
+  static const String admobNetworkSourceId = '5450213213286189855';
+
+  final String? adSourceName;
+  final String? adSourceId;
+  final String? adapterClassName;
+  final String? mediationAdapterClassName;
+  final String? responseId;
+
+  /// 타사 미디에이션 네트워크가 채웠으면 true, AdMob 네트워크면 false,
+  /// 판단할 정보가 없으면 null.
+  bool? get isMediated {
+    final adapter = adapterClassName ?? mediationAdapterClassName;
+    if (adSourceId == admobNetworkSourceId) return false;
+    if (adSourceId != null && adSourceId!.isNotEmpty) return true;
+    if (adapter == null || adapter.isEmpty) return null;
+    return !adapter.toLowerCase().contains('mediation.admob');
+  }
+
+  String describe() {
+    if (adSourceName == null &&
+        adSourceId == null &&
+        adapterClassName == null &&
+        mediationAdapterClassName == null) {
+      return 'ad_source=unknown';
+    }
+    final source = adSourceName ?? '?';
+    final id = adSourceId == null ? '' : '($adSourceId)';
+    final adapter = adapterClassName ?? mediationAdapterClassName ?? '?';
+    return 'ad_source=$source$id adapter=$adapter '
+        'mediated=${isMediated ?? 'unknown'} response=${responseId ?? '-'}';
+  }
+
+  Map<String, dynamic> toBreadcrumbData() => {
+    'ad_source_name': adSourceName,
+    'ad_source_id': adSourceId,
+    'adapter': adapterClassName ?? mediationAdapterClassName,
+    'mediated': isMediated,
+    'response_id': responseId,
+  };
 }
 
 /// AdMob 광고 플랫폼 구현
@@ -119,9 +215,15 @@ class AdmobPlatform extends AdPlatform {
                 ad.dispose();
                 return;
               }
-              logger.i('[$id] 광고 로드 완료');
+              // 광고 한 건에 묶인 지역값이다 — 인스턴스 필드에 두면 이중 탭으로
+              // 두 광고가 겹칠 때 두 번째 로드가 첫 광고의 earned 진단을 덮어쓴다.
+              final adSource = AdmobAdSourceSummary.fromResponseInfo(
+                ad.responseInfo,
+              );
+              logger.i('[$id] 광고 로드 완료 ${adSource.describe()}');
+              _breadcrumb('loaded', adSource.toBreadcrumbData());
               _setupAdCallbacks(ad);
-              await _showRewardedAd(ad);
+              await _showRewardedAd(ad, adSource);
             },
             onAdFailedToLoad: (LoadAdError error) {
               logger.e(
@@ -175,10 +277,12 @@ class AdmobPlatform extends AdPlatform {
     ad.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (RewardedAd ad) {
         logger.i('[$id] 광고가 전체 화면으로 표시됨');
+        _breadcrumb('showed');
         stopAllAnimations();
       },
       onAdDismissedFullScreenContent: (RewardedAd ad) {
         logger.i('[$id] 광고가 닫힘');
+        _breadcrumb('dismissed');
         stopAllAnimations();
         commonUtils.refreshUserProfile();
         _disposeCurrentAd();
@@ -190,6 +294,11 @@ class AdmobPlatform extends AdPlatform {
           '  message: ${error.message}\n'
           '  domain: ${error.domain}',
         );
+        _breadcrumb('show_failed', {
+          'code': error.code,
+          'domain': error.domain,
+          'message': error.message,
+        });
         logAdShowFailure('AdMob', error, _adUnitId, error.toString(), null);
         stopAllAnimations();
         _disposeCurrentAd();
@@ -212,7 +321,10 @@ class AdmobPlatform extends AdPlatform {
     logger.d('[$id] 현재 광고 정리됨');
   }
 
-  Future<void> _showRewardedAd(RewardedAd ad) async {
+  Future<void> _showRewardedAd(
+    RewardedAd ad,
+    AdmobAdSourceSummary adSource,
+  ) async {
     if (!context.mounted || isDisposed) {
       _disposeCurrentAd();
       return;
@@ -230,15 +342,23 @@ class AdmobPlatform extends AdPlatform {
     }
 
     try {
-      final signedToken =
+      // Pangle 과 같은 이유로 keepAlive notifier 와 store 를 await 이전에 잡는다:
+      // 폴링은 광고가 끝난 뒤 돌아오는데 그 사이 이 화면이 사라지면
+      // `AdPlatform.ref` 의 read 가 던져 확정된 적립 확인이 조용히 사라진다.
+      final pendingStore = ref.read(pendingAdRewardStoreProvider);
+      final adRewardRecovery = ref.read(adRewardRecoveryProvider.notifier);
+      final preflight =
           await AdmobClaimPreflight(
             createClaim: AdRewardRepository(supabase).createAdmobClaim,
+            persist: pendingStore.add,
           ).execute(
             ownerUserId: userId,
             platform: platform,
             placementId: _adUnitId,
             clientRequestId: const Uuid().v4(),
           );
+      final reference = preflight.reference;
+      _breadcrumb('claim_issued', {'claim_id': reference.id});
 
       if (!context.mounted || isDisposed) {
         _disposeCurrentAd();
@@ -247,18 +367,47 @@ class AdmobPlatform extends AdPlatform {
       }
 
       logger.i(
-        '[$id] AdMob SSV claim 설정: platform=$platform, adUnit=$_adUnitId',
+        '[$id] AdMob SSV claim 설정: platform=$platform, adUnit=$_adUnitId, '
+        'claim=${reference.id}',
       );
       await ad.setServerSideOptions(
-        ServerSideVerificationOptions(userId: userId, customData: signedToken),
+        ServerSideVerificationOptions(
+          userId: userId,
+          customData: preflight.signedToken,
+        ),
       );
 
       ad.show(
         onUserEarnedReward: (AdWithoutView ad, RewardItem reward) {
           logger.i(
-            '[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, userId=$userId',
+            '[$id] 보상 콜백 수신: ${reward.amount} ${reward.type}, '
+            'userId=$userId, claim=${reference.id} '
+            '${adSource.describe()}',
           );
+          _breadcrumb('earned', {
+            'claim_id': reference.id,
+            'amount': reward.amount,
+            'type': reward.type,
+            ...adSource.toBreadcrumbData(),
+          });
           commonUtils.refreshUserProfile();
+          // SDK 의 보상 콜백은 "시청 완료" 일 뿐 지급이 아니다. 지급은 Google 의
+          // SSV 콜백이 서버에 닿아야 확정되므로 여기서부터 상태 사다리를 돈다.
+          // Future.sync: dispose 된 ref.read 처럼 동기로 던지는 경우도 모은다.
+          unawaited(
+            Future.sync(
+              () => adRewardRecovery.poll(
+                ownerUserId: userId,
+                reference: reference,
+              ),
+            ).catchError((Object error, StackTrace stackTrace) {
+              logger.e(
+                '[$id] AdMob reward polling failed: claim=${reference.id}',
+                error: error,
+                stackTrace: stackTrace,
+              );
+            }),
+          );
         },
       );
     } catch (e, s) {
@@ -276,6 +425,24 @@ class AdmobPlatform extends AdPlatform {
         );
       }
     }
+  }
+
+  /// 광고 한 건의 생애주기를 Sentry breadcrumb 으로 남긴다.
+  ///
+  /// 앱 로그는 Sentry 로 가지 않아 테스트플라이트에서 "적립 안 됨" 이 로드 실패·
+  /// 표시 실패·조기 닫힘·미디에이션 채움 중 무엇인지 원격으로 가릴 수 없었다.
+  /// 이후 이벤트가 잡히면 이 빵부스러기가 붙어 나온다.
+  void _breadcrumb(String step, [Map<String, dynamic>? data]) {
+    unawaited(
+      Sentry.addBreadcrumb(
+        Breadcrumb(
+          category: 'ad.admob',
+          message: step,
+          level: SentryLevel.info,
+          data: {'slot': id, 'ad_unit': _adUnitId, ...?data},
+        ),
+      ),
+    );
   }
 
   @override

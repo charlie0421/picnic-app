@@ -677,4 +677,17 @@ void main() {
       expect(repository.acknowledged, isEmpty);
     });
   });
+  test(
+    'foreground ladder waits at least a minute for the AdMob SSV callback',
+    () {
+      // AdMob 은 Google 서버가 SSV 콜백을 보낸 뒤에야 GRANTED 가 된다. 프로덕션
+      // 실측(2026-09-14, 7일) 클레임 생성→콜백 p50 19~21초, p90 61~66초. 30초
+      // 사다리는 p90 을 놓쳐 정상 적립이 "안 들어옴" 으로 보였다.
+      final total = adRewardPollDelays.fold(
+        Duration.zero,
+        (sum, delay) => sum + delay,
+      );
+      expect(total, greaterThanOrEqualTo(const Duration(seconds: 60)));
+    },
+  );
 }
