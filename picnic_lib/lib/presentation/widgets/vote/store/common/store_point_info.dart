@@ -42,9 +42,10 @@ class StorePointInfo extends ConsumerStatefulWidget {
 }
 
 class _StorePointInfoState extends ConsumerState<StorePointInfo> {
-  /// 헤더(제목·안내·새로고침) 한 줄의 높이. 머티리얼 기본 탭 영역(48)보다
-  /// 낮춰 카드를 타이트하게 유지한다.
-  static const double kHeaderRowHeight = 36;
+  /// 헤더(제목·안내·새로고침) 한 줄의 높이. 새로고침·안내 버튼의 탭 영역을
+  /// 머티리얼 최소 조작 영역(48)으로 유지한다 — 대신 카드 상단 패딩과
+  /// 헤더↔잔액 간격을 줄여 카드를 타이트하게 만든다 (Codex 리뷰 반영).
+  static const double kHeaderRowHeight = 48;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +58,9 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
       child: Container(
         width: widget.width,
         margin: EdgeInsets.only(top: widget.topMargin),
-        padding: const EdgeInsets.fromLTRB(14, 10, 14, 12),
+        // 상단 4: 48px 헤더 행 안에서 제목·아이콘이 세로 중앙에 오므로
+        // 시각적 여백은 4 + 12 = 16 이다. 하단은 잔액 박스 아래 12.
+        padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
         decoration: BoxDecoration(
           color: Colors.white,
           border: Border.all(color: const Color(0xFF9A7BFA), width: 2),
@@ -74,7 +77,7 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
           mainAxisSize: MainAxisSize.min,
           children: [
             _buildHeader(localizations),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             if (isSupabaseLoggedSafely) ...[
               const StarCandyInfoText(),
             ] else ...[
@@ -188,14 +191,11 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
       key: const Key('store-point-info-refresh'),
       tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
       onPressed: widget.onRefresh,
-      // M3 IconButton 은 기본 탭 영역을 48 로 키우므로 헤더 행 높이(36)에
-      // 맞추려면 style 로 줄여야 한다.
-      style: IconButton.styleFrom(
-        fixedSize: const Size.square(kHeaderRowHeight),
-        minimumSize: const Size.square(kHeaderRowHeight),
-        padding: const EdgeInsets.all(6),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      constraints: const BoxConstraints.tightFor(
+        width: kHeaderRowHeight,
+        height: kHeaderRowHeight,
       ),
+      padding: const EdgeInsets.all(12),
       icon: child,
     );
   }

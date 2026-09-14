@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provi
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_period_banner.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 
@@ -78,6 +79,57 @@ void main() {
       // 파우치 → 10 → Divider(height 14).
       expect(nextRect.top - pouchRect.bottom, 10);
       expect(nextRect.height, 14);
+    });
+
+    testWidgets('keeps the same pouch gap when the candy boost banner shows', (
+      WidgetTester tester,
+    ) async {
+      // PICNIC-2689: 배너가 있을 때 파우치 → 10 → 배너 → 2 → Divider(14).
+      // 배너가 없을 때(위 테스트)와 파우치 하단 간격이 같아야 한다.
+      await tester.pumpWidget(
+        buildTestApp(
+          const PurchaseStarCandy(),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => [
+                {
+                  'id': 'STAR100',
+                  'price': 1.99,
+                  'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+                },
+              ],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => const <ProductDetails>[],
+            ),
+            paymentBadgePromotionProvider.overrideWith(
+              (ref) async => (
+                displayName: {'ko': '캔디 부스트 데이'},
+                code: 'CANDY_BOOST_DAY',
+                multiplierTenths: 20,
+                extraBonusBps: null,
+              ),
+            ),
+            paymentBadgePromotionPeriodProvider.overrideWith(
+              (ref) async => (
+                startsAt: DateTime.utc(2026, 9, 7, 15),
+                endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      final pouchRect = tester.getRect(find.byType(StorePointInfo));
+      final bannerRect = tester.getRect(find.byType(CandyBoostPeriodBanner));
+      final dividerRect = tester.getRect(find.byType(Divider).first);
+
+      expect(bannerRect.top - pouchRect.bottom, 10);
+      expect(dividerRect.top - bannerRect.bottom, 2);
+      expect(dividerRect.height, 14);
     });
 
     testWidgets('renders the product-specific star candy artwork', (
