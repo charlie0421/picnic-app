@@ -1610,21 +1610,49 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<Map<String, dynamic>> serverProducts,
     List<ProductDetails> storeProducts,
   ) {
+    // PICNIC-2687: every row's price button shares the widest label's width
+    // so the column of prices lines up instead of hugging each label.
+    final priceLabels = [
+      for (final serverProduct in serverProducts)
+        _priceLabelFor(serverProduct, storeProducts),
+    ];
+    final actionMinWidth = StoreListTile.uniformActionWidth(
+      context,
+      priceLabels,
+    );
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) =>
-          _buildProductItem(serverProducts[index], storeProducts),
+      itemBuilder: (BuildContext context, int index) => _buildProductItem(
+        serverProducts[index],
+        storeProducts,
+        priceLabel: priceLabels[index],
+        actionMinWidth: actionMinWidth,
+      ),
       separatorBuilder: (BuildContext context, int index) =>
           const Divider(color: AppColors.grey200, height: 24),
       itemCount: serverProducts.length,
     );
   }
 
-  Widget _buildProductItem(
+  String _priceLabelFor(
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
-  ) {
+  ) => PurchaseStarCandyHelper.productPriceLabel(
+    serverProduct: serverProduct,
+    storeProducts: storeProducts,
+    isAndroid: Platform.isAndroid,
+    inappAppNamePrefix: Environment.inappAppNamePrefix,
+    environment: Environment.currentEnvironment,
+    paymentProductNamespace: Environment.storeQueryNamespace,
+  );
+
+  Widget _buildProductItem(
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts, {
+    required String priceLabel,
+    required double actionMinWidth,
+  }) {
     final productId = serverProduct['id'] as String;
     // 스토어 ID 는 정책에 따라 변형된다 (Android 는 소문자 SKU, iOS 는
     // 접두사). 서버 ID 와의 raw 비교는 Android 에서 구조적으로 false 라
@@ -1686,14 +1714,8 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       // fixed height every other store list has.
       flexibleHeight: preview.hasEventBonus,
       isLoading: isCurrentProductLoading,
-      buttonText: PurchaseStarCandyHelper.productPriceLabel(
-        serverProduct: serverProduct,
-        storeProducts: storeProducts,
-        isAndroid: Platform.isAndroid,
-        inappAppNamePrefix: Environment.inappAppNamePrefix,
-        environment: Environment.currentEnvironment,
-        paymentProductNamespace: Environment.storeQueryNamespace,
-      ),
+      buttonText: priceLabel,
+      actionMinWidth: actionMinWidth,
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null,

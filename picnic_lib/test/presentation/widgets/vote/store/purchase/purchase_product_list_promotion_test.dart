@@ -51,6 +51,16 @@ final localizedStoreStar200 = ProductDetails(
   currencyCode: 'KRW',
 );
 
+/// A store price wide enough to dwarf the USD fallback of its neighbour.
+final wideLocalizedStoreStar200 = ProductDetails(
+  id: 'testSTAR200',
+  title: 'Star Candy 200',
+  description: '200 Star Candies',
+  price: '₩110,000',
+  rawPrice: 110000,
+  currencyCode: 'KRW',
+);
+
 final unregisteredStoreStar777 = ProductDetails(
   id: 'testSTAR777',
   title: 'Star Candy 777',
@@ -159,6 +169,39 @@ void main() {
       );
     },
   );
+
+  testWidgets('gives every price button the same width and centers the price', (
+    tester,
+  ) async {
+    // PICNIC-2687: a store-localized "₩110,000" next to a USD fallback
+    // "1.99 $" used to size each button to its own label, so the column of
+    // prices looked jagged. Every row shares the widest label's width and the
+    // shorter prices sit centered inside it.
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await pumpStore(
+      tester,
+      promotion: () => null,
+      storeProducts: [wideLocalizedStoreStar200],
+    );
+
+    expect(tester.takeException(), isNull);
+    final buttons = find.byKey(const Key('purchase-price-cta'));
+    expect(buttons, findsNWidgets(2));
+    final shortRect = tester.getRect(buttons.at(0));
+    final longRect = tester.getRect(buttons.at(1));
+    expect(shortRect.width, closeTo(longRect.width, 0.5));
+    expect(shortRect.width, greaterThan(0));
+
+    final shortLabel = tester.getRect(find.text('1.99 \$'));
+    final longLabel = tester.getRect(find.text('₩110,000'));
+    expect(shortLabel.width, lessThan(longLabel.width));
+    expect(shortLabel.center.dx, closeTo(shortRect.center.dx, 0.5));
+    expect(longLabel.center.dx, closeTo(longRect.center.dx, 0.5));
+  });
 
   testWidgets('falls back to the generic star candy icon for an unknown SKU', (
     tester,
