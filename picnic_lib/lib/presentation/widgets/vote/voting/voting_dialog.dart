@@ -38,6 +38,11 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
+/// The smallest body budget that can pin the header (portrait + names) and the
+/// footer (submit button) and still leave one 48 row for the scrolling middle.
+/// Below it the whole body scrolls instead.
+const double _fixedChromeMinimumBudget = 320;
+
 Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
@@ -197,6 +202,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId = ref.watch(
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
+    // Read for the flag only; the height budget below comes from the layout
+    // constraints, which already have this inset applied once by the Dialog.
+    final isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     // Closing the dialog does not cancel the vote: the request keeps running
     // against the captured ProviderContainer. Reopening and voting again mints
@@ -244,66 +252,168 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   showCloseButton: false,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
-                    // 320x568 / 200% / 키보드 300 에서는 남는 높이가 220 남짓이라
-                    // 금액 입력과 투표 버튼이 그 밖으로 밀려났고,
-                    // `Scrollable.ensureVisible`(:314) 은 찾을 Scrollable 이
-                    // 없어 조용히 아무 일도 하지 않았다.
-                    child: SingleChildScrollView(
-                      child: Container(
-                        padding: EdgeInsets.only(
-                          top: PicnicUi.vertical(24),
-                          bottom: PicnicUi.vertical(16),
-                          left: PicnicUi.horizontal(24),
-                          right: PicnicUi.horizontal(24),
-                        ),
-                        // The balance, use-all, amount and clear controls each
-                        // carry a 48 tap target now, so the gaps that used to
-                        // separate 20 and 32 high rows moved inside those
-                        // controls.
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            VotingArtistImage(
-                              voteItemModel: widget.voteItemModel,
-                            ),
-                            SizedBox(height: PicnicUi.vertical(16)),
-                            VotingMemberInfo(
-                              voteItemModel: widget.voteItemModel,
-                            ),
-                            VotingStarCandyInfo(
-                              myStarCandy: displayedBalance,
-                              onRecharge: _navigateToStore,
-                            ),
-                            VotingCheckAllOption(
-                              checkAll: _checkAll,
-                              onToggle: _toggleCheckAll,
-                            ),
-                            _buildVoteAmountInput(context),
-                            SizedBox(height: PicnicUi.vertical(8)),
-                            VotingErrorMessage(
-                              canVote: _canVote,
-                              hasValue: _hasValue,
-                            ),
-                            _buildBubble(),
-                            SizedBox(height: PicnicUi.vertical(8)),
-                            VotingSubmitButton(
-                              canVote: _canVote,
-                              isVoting: _isVoting,
-                              onPressed: () => _handleVote(myStarCandy, userId),
-                            ),
-                            SizedBox(height: PicnicUi.vertical(16)),
-                            VotingLogoImage(voteModel: widget.voteModel),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: _fitsFixedChrome(context, budget)
+                        ? _buildFixedChromeBody(
+                            context,
+                            displayedBalance: displayedBalance,
+                            myStarCandy: myStarCandy,
+                            userId: userId,
+                            isKeyboardVisible: isKeyboardVisible,
+                          )
+                        : _buildAllScrollBody(
+                            context,
+                            displayedBalance: displayedBalance,
+                            myStarCandy: myStarCandy,
+                            userId: userId,
+                            isKeyboardVisible: isKeyboardVisible,
+                          ),
                   ),
                 );
               },
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// Whether the body can afford to pin the header and footer.
+  ///
+  /// PICNIC-2688: with the keyboard up, a single scroll view centred the amount
+  /// input and pushed the artist portrait out of the capsule. Pinning the
+  /// portrait and the submit button keeps both in view and lets only the
+  /// balance/amount rows scroll. That only works when the budget holds the
+  /// pinned parts plus at least one scrolling row; a 320x568 viewport at 200%
+  /// text with a 300 keyboard does not, and there the whole body scrolls as
+  /// before so nothing is clipped.
+  bool _fitsFixedChrome(BuildContext context, double budget) {
+    if (budget < _fixedChromeMinimumBudget) return false;
+    return MediaQuery.textScalerOf(context).scale(14) <= 18.2;
+  }
+
+  EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
+    left: PicnicUi.horizontal(24),
+    right: PicnicUi.horizontal(24),
+  );
+
+  /// Pinned header + scrolling middle + pinned footer.
+  ///
+  /// `Flexible.loose` (not `Expanded`) so the middle takes only the height it
+  /// needs while everything fits and the capsule keeps its intrinsic height;
+  /// it grows a scroll bar only when the keyboard eats into the budget.
+  Widget _buildFixedChromeBody(
+    BuildContext context, {
+    required BigInt displayedBalance,
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildHeader(),
+        Flexible(
+          fit: FlexFit.loose,
+          child: SingleChildScrollView(
+            child: _buildScrollableMiddle(context, displayedBalance),
+          ),
+        ),
+        _buildFooter(
+          myStarCandy: myStarCandy,
+          userId: userId,
+          isKeyboardVisible: isKeyboardVisible,
+        ),
+      ],
+    );
+  }
+
+  /// The same pieces in the same order inside one scroll view, for a budget
+  /// too small to pin anything.
+  Widget _buildAllScrollBody(
+    BuildContext context, {
+    required BigInt displayedBalance,
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildHeader(),
+          _buildScrollableMiddle(context, displayedBalance),
+          _buildFooter(
+            myStarCandy: myStarCandy,
+            userId: userId,
+            isKeyboardVisible: isKeyboardVisible,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(top: PicnicUi.vertical(24)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingArtistImage(voteItemModel: widget.voteItemModel),
+          SizedBox(height: PicnicUi.vertical(16)),
+          VotingMemberInfo(voteItemModel: widget.voteItemModel),
+        ],
+      ),
+    );
+  }
+
+  // The balance, use-all, amount and clear controls each carry a 48 tap
+  // target now, so the gaps that used to separate 20 and 32 high rows moved
+  // inside those controls.
+  Widget _buildScrollableMiddle(BuildContext context, BigInt displayedBalance) {
+    return Padding(
+      padding: _bodyHorizontalPadding(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingStarCandyInfo(
+            myStarCandy: displayedBalance,
+            onRecharge: _navigateToStore,
+          ),
+          VotingCheckAllOption(checkAll: _checkAll, onToggle: _toggleCheckAll),
+          _buildVoteAmountInput(context),
+          SizedBox(height: PicnicUi.vertical(8)),
+          VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
+          _buildBubble(),
+        ],
+      ),
+    );
+  }
+
+  /// The submit button, and the partner/picnic logo only while the keyboard
+  /// is down: with it up the logo's row is better spent on the amount input.
+  Widget _buildFooter({
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        top: PicnicUi.vertical(8),
+        bottom: PicnicUi.vertical(16),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingSubmitButton(
+            canVote: _canVote,
+            isVoting: _isVoting,
+            onPressed: () => _handleVote(myStarCandy, userId),
+          ),
+          if (!isKeyboardVisible) ...[
+            SizedBox(height: PicnicUi.vertical(16)),
+            VotingLogoImage(voteModel: widget.voteModel),
+          ],
+        ],
       ),
     );
   }
