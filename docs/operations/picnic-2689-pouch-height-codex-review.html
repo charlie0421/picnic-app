@@ -61,5 +61,23 @@
       <tr><td>골든</td><td>변경된 두 골든을 포함하는 대상 테스트가 통과했다. 단, 이는 한국어/현재 기본 크기만 보증한다.</td></tr>
     </tbody>
   </table>
+
+  <h2>재검증 — 676fa3a02</h2>
+  <p class="meta">재검증 범위: <code>git diff 473f5a01d..HEAD</code> 및 전체 누적 diff <code>git diff 3b6ee0407..HEAD</code>. <code>git diff --check 473f5a01d..HEAD</code>는 통과했다.</p>
+  <section class="verdict">
+    <strong>재검증 최종 판정: approve</strong><br>
+    최초 지적은 resolved 2건, accepted-rebuttal 1건, still-open 0건이다. 재검증 범위에서 새 차단 회귀는 확인하지 못했다.
+  </section>
+  <table>
+    <thead><tr><th>기존 지적</th><th>결과</th><th>검증 근거</th></tr></thead>
+    <tbody>
+      <tr><td>MAJOR — 새로고침 36px 탭 영역</td><td><strong>resolved</strong></td><td><code>store_point_info.dart:190-200</code>이 48×48 제약과 12px padding을 사용한다. <code>store_point_info_test.dart:261-290</code>은 정확히 48×48인지와 모서리 안쪽 2px 두 지점 탭 콜백을 검증한다.</td></tr>
+      <tr><td>MAJOR — 카드 내부 글자 배율 고정</td><td><strong>accepted-rebuttal</strong></td><td><code>MediaQuery.withNoTextScaling</code>은 유지된다. PICNIC-2689의 명시적 고정 높이 요구와, 1.6 배율에서 라벨 줄바꿈으로 카드 높이가 바뀌는 확인 결과를 근거로 사용자가 이 접근성 trade-off를 승인했으므로 이번 재검증에서는 수용한다. 범위 밖 다이얼로그·목록은 시스템 배율을 유지한다.</td></tr>
+      <tr><td>MINOR — 긴 번역/배너 표시 경로 테스트 공백</td><td><strong>resolved</strong></td><td><code>store_point_info_test.dart:293-337</code>이 320px에서 fil/bn/my/id/th/vi/ja 실제 제목·안내 문구와 48px 새로고침을 검증한다. <code>purchase_star_candy_state_test.dart:84-133</code>은 배너 표시 시 <code>pouch → 10 → banner → 2 → Divider(14)</code>를 검증한다.</td></tr>
+    </tbody>
+  </table>
+  <p>실행 명령:</p>
+  <pre>cd picnic_lib &amp;&amp; flutter test test/presentation/widgets/vote/store/common/store_point_info_test.dart test/presentation/widgets/vote/store/purchase/purchase_star_candy_state_test.dart test/presentation/widgets/vote/store/free_charge_station/free_charge_content_test.dart test/presentation/pages/my_page/my_page_render_test.dart test/presentation/widgets/wallet/ test/presentation/widgets/vote/store/purchase/candy_boost_purchase_ui_visual_test.dart
+결과: All tests passed! (87 passed, 1 skipped)</pre>
 </body>
 </html>
