@@ -334,12 +334,35 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             : PicnicUi.vertical(16) +
                   VotingLogoImage.preferredHeight(widget.voteModel)) +
         _footerBottomPadding(isKeyboardVisible);
+    // The scrolling window has to show the amount input whole, and at a large
+    // text scale the input outgrows its 48 minimum (scaled line plus padding
+    // and border), so the window is sized from the input, not the minimum.
     const margin = 8.0;
-    final window = PicnicUi.minimumTapTarget + margin;
+    final window = _amountInputPreferredHeight(context, contentWidth) + margin;
     if (budget >= portrait + names + footer + window) return _PinnedChrome.full;
     if (budget >= portrait + footer + window) return _PinnedChrome.compact;
     return _PinnedChrome.none;
   }
+
+  /// Mirrors the amount input built in [_buildVoteAmountInput]: the 48
+  /// minimum, or the scaled digit line plus the field padding and border.
+  double _amountInputPreferredHeight(BuildContext context, double maxWidth) {
+    final line = measureVotingTextHeight(
+      context,
+      '0',
+      _amountInputStyle(),
+      maxWidth: maxWidth,
+    );
+    return math.max(
+      PicnicUi.minimumTapTarget,
+      line + _amountInputVerticalPadding() * 2 + _amountInputBorderWidth * 2,
+    );
+  }
+
+  static const double _amountInputBorderWidth = 1;
+  double _amountInputVerticalPadding() => PicnicUi.vertical(8);
+  TextStyle _amountInputStyle() =>
+      PicnicUi.text(size: 16, weight: FontWeight.w700);
 
   EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
     left: PicnicUi.horizontal(24),
@@ -585,7 +608,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           color: !_canVote && _hasValue
               ? AppColors.statusError
               : PicnicUi.actionColor,
-          width: 1,
+          width: _amountInputBorderWidth,
         ),
         borderRadius: BorderRadius.circular(24),
       ),
@@ -624,7 +647,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   isCollapsed: true,
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: PicnicUi.horizontal(24),
-                    vertical: PicnicUi.vertical(8),
+                    vertical: _amountInputVerticalPadding(),
                   ),
                 ),
                 onChanged: (_) => _validateVote(),
@@ -665,7 +688,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     );
                   }),
                 ],
-                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                style: _amountInputStyle(),
               ),
             ),
           ),

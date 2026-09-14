@@ -475,6 +475,43 @@ void main() {
       }
     });
 
+    // At 200% the amount input is taller than the 48 minimum (scaled line
+    // plus its padding and border). A budget that clears portrait + submit +
+    // 48 but not the real input must not pin, or the input can never be shown
+    // whole inside the scrolling window.
+    testWidgets('a pinned window is never shorter than the scaled input', (
+      tester,
+    ) async {
+      for (final inset in const [280.0, 284.0, 288.0, 292.0, 296.0]) {
+        await pumpCompactDialog(tester, keyboardInset: inset);
+        await focusAmountInput(tester);
+        expect(tester.takeException(), isNull, reason: 'inset $inset');
+
+        // The scroll view the input lives in clips at its own edges, so the
+        // whole input has to sit inside that viewport, not just the capsule.
+        final viewport = tester.getRect(
+          find
+              .ancestor(
+                of: find.byType(TextFormField),
+                matching: find.byType(Scrollable),
+              )
+              .first,
+        );
+        final input = tester.getRect(_amountInputSurface());
+        expect(
+          input.top,
+          greaterThanOrEqualTo(viewport.top - 0.5),
+          reason: 'inset $inset: input clipped at the top',
+        );
+        expect(
+          input.bottom,
+          lessThanOrEqualTo(viewport.bottom + 0.5),
+          reason: 'inset $inset: input clipped at the bottom',
+        );
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
     VoteModel partnerVote() => VoteModel.fromJson({
       ...MockData.vote().toJson(),
       'is_partnership': true,

@@ -15,7 +15,7 @@ import 'package:picnic_lib/ui/style.dart';
 
 /// The height a [Text] with [style] takes at [maxWidth] in this [context]:
 /// same scaler, direction and locale as the widget would resolve.
-double _measureTextHeight(
+double measureVotingTextHeight(
   BuildContext context,
   String text,
   TextStyle style, {
@@ -307,7 +307,7 @@ class VotingMemberInfo extends StatelessWidget {
     final nameWidth = hasArtistGroup
         ? math.max(0.0, (maxWidth - PicnicUi.horizontal(8)) / 2)
         : maxWidth;
-    var row = _measureTextHeight(
+    var row = measureVotingTextHeight(
       context,
       _artistName(voteItemModel),
       _nameStyle(),
@@ -316,7 +316,7 @@ class VotingMemberInfo extends StatelessWidget {
     if (hasArtistGroup) {
       row = math.max(
         row,
-        _measureTextHeight(
+        measureVotingTextHeight(
           context,
           getLocaleTextFromJson(voteItemModel.artist!.artistGroup!.name),
           _groupStyle(),
@@ -608,7 +608,7 @@ class VotingSubmitButton extends StatelessWidget {
   /// The height [build] lays out, for a caller that has to budget for it
   /// before the frame: the 52 minimum, or the scaled label plus padding.
   static double preferredHeight(BuildContext context) {
-    final label = _measureTextHeight(
+    final label = measureVotingTextHeight(
       context,
       AppLocalizations.of(context).label_button_vote,
       _labelStyle(),
