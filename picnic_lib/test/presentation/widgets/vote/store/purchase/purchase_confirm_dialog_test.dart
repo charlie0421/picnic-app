@@ -226,6 +226,36 @@ void main() {
     );
   });
 
+  testWidgets('keeps the bonus star candy label on one line beside its info', (
+    tester,
+  ) async {
+    // PICNIC-2687: on a phone-width dialog the label and its amount used to
+    // split the row evenly, which broke "보너스 스타캔디" onto two lines as
+    // soon as the info icon sat next to it.
+    tester.view.physicalSize = const Size(375, 812);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await openConfirmation(tester, product: star200);
+
+    expect(tester.takeException(), isNull);
+    final bonusLabel = tester.getRect(find.text('보너스 스타캔디'));
+    final starLabel = tester.getRect(find.text('스타캔디'));
+    // Same style, so a single line is exactly as tall as the star candy label.
+    expect(bonusLabel.height, closeTo(starLabel.height, 0.5));
+    final info = tester.getRect(
+      find.byKey(const Key('purchase-confirm-estimate-info')),
+    );
+    expect(info.left, greaterThanOrEqualTo(bonusLabel.right));
+    expect(
+      info.center.dy,
+      closeTo(bonusLabel.center.dy, bonusLabel.height / 2),
+    );
+    final amount = tester.getRect(find.text('25'));
+    expect(amount.left, greaterThanOrEqualTo(info.right));
+  });
+
   testWidgets('keeps the event hero when a legacy rate has no exact pill', (
     tester,
   ) async {

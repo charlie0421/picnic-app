@@ -312,69 +312,7 @@ class PurchaseConfirmDialog extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        kBonusStarCandyAsset,
-                        package: 'picnic_lib',
-                        width: 34,
-                        height: 34,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Flexible(
-                              child: Text(
-                                l10n.wallet_bonus_star_candy,
-                                style: getTextStyle(
-                                  AppTypo.body14B,
-                                  AppColors.grey800,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Tooltip(
-                              message: l10n.purchase_reward_estimate_note,
-                              child: Icon(
-                                Icons.info_outline_rounded,
-                                key: const Key(
-                                  'purchase-confirm-estimate-info',
-                                ),
-                                size: 15,
-                                color: AppColors.grey500,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              preview.hasEventBonus
-                                  ? '${l10n.purchase_reward_total_short} ${formatCandyRewardAmount(preview.productBonus + preview.eventBonus, locale)}'
-                                  : formatCandyRewardAmount(
-                                      preview.productBonus,
-                                      locale,
-                                    ),
-                              key: preview.hasEventBonus
-                                  ? const Key('purchase-confirm-bonus-total')
-                                  : null,
-                              textAlign: TextAlign.end,
-                              style: getTextStyle(
-                                AppTypo.body16B,
-                                kCandyBoostPurple,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                  _bonusHeadlineRow(context, l10n, preview, locale),
                   if (preview.hasEventBonus) ...[
                     const SizedBox(height: 6),
                     FittedBox(
@@ -438,6 +376,112 @@ class PurchaseConfirmDialog extends StatelessWidget {
           ),
         ),
     ];
+  }
+
+  /// The "보너스 스타캔디 (i) …… amount" line.
+  ///
+  /// PICNIC-2687: the label and the amount used to share the row 1:1, which
+  /// wrapped the label onto two lines on a phone-width dialog as soon as the
+  /// info icon sat beside it. Each side now gets a share proportional to the
+  /// width it actually needs (measured with the same style and text scale it
+  /// renders with): when the row is wide enough both fit as-is, and when it
+  /// is not, both scale down by the same factor - the label never wraps and
+  /// nothing overflows. Measuring here rather than in a [LayoutBuilder]
+  /// keeps the row usable inside [AlertDialog]'s intrinsic-width pass.
+  Widget _bonusHeadlineRow(
+    BuildContext context,
+    AppLocalizations l10n,
+    PurchaseRewardPreview preview,
+    Locale locale,
+  ) {
+    const infoIconSize = 15.0;
+    const labelToInfoGap = 4.0;
+    final labelStyle = getTextStyle(AppTypo.body14B, AppColors.grey800);
+    final amountStyle = getTextStyle(AppTypo.body16B, kCandyBoostPurple);
+    final amountText = preview.hasEventBonus
+        ? '${l10n.purchase_reward_total_short} ${formatCandyRewardAmount(preview.productBonus + preview.eventBonus, locale)}'
+        : formatCandyRewardAmount(preview.productBonus, locale);
+    final labelWidth =
+        _textWidth(context, l10n.wallet_bonus_star_candy, labelStyle) +
+        labelToInfoGap +
+        infoIconSize;
+    final amountWidth = _textWidth(context, amountText, amountStyle);
+
+    return Row(
+      children: [
+        Image.asset(
+          kBonusStarCandyAsset,
+          package: 'picnic_lib',
+          width: 34,
+          height: 34,
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          flex: _flexFor(labelWidth),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.wallet_bonus_star_candy,
+                  maxLines: 1,
+                  softWrap: false,
+                  style: labelStyle,
+                ),
+                const SizedBox(width: labelToInfoGap),
+                Tooltip(
+                  message: l10n.purchase_reward_estimate_note,
+                  child: Icon(
+                    Icons.info_outline_rounded,
+                    key: const Key('purchase-confirm-estimate-info'),
+                    size: infoIconSize,
+                    color: AppColors.grey500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          flex: _flexFor(amountWidth),
+          child: Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                amountText,
+                key: preview.hasEventBonus
+                    ? const Key('purchase-confirm-bonus-total')
+                    : null,
+                maxLines: 1,
+                softWrap: false,
+                textAlign: TextAlign.end,
+                style: amountStyle,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Flex weights are integers; a tenth of a pixel is precise enough and
+  /// keeps a zero-width edge case from producing a zero flex.
+  static int _flexFor(double width) => (width * 10).round().clamp(1, 1 << 30);
+
+  static double _textWidth(BuildContext context, String text, TextStyle style) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
   }
 
   Widget _bonusSourceCapsule({

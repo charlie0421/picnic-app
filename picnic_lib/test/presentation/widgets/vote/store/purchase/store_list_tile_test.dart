@@ -142,6 +142,63 @@ void main() {
       FlutterError.onError = oldHandler;
     });
 
+    testWidgets('shares one action width across tiles and centers the label', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(393, 852);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      const labels = ['₩9,900', '₩110,000'];
+
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(
+            builder: (context) {
+              final width = StoreListTile.uniformActionWidth(context, labels);
+              return Column(
+                children: [
+                  for (final label in labels)
+                    StoreListTile(
+                      // The 1x1 test PNG above fails to decode and paints an
+                      // error label wide enough to overflow the row, which
+                      // is what the other tests here filter out. This one
+                      // measures layout, so it needs a real asset.
+                      icon: Image.asset(
+                        'assets/icons/store/currency_bonus_star_candy.png',
+                        package: 'picnic_lib',
+                        width: 48,
+                        height: 48,
+                      ),
+                      title: Text(label),
+                      buttonText: label,
+                      buttonOnPressed: () {},
+                      actionMinWidth: width,
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      final buttons = find.byWidgetPredicate((w) => w is ButtonStyleButton);
+      expect(buttons, findsNWidgets(2));
+      final short = tester.getRect(buttons.at(0));
+      final long = tester.getRect(buttons.at(1));
+      expect(short.width, closeTo(long.width, 0.5));
+      final shortLabel = find.descendant(
+        of: buttons.at(0),
+        matching: find.text('₩9,900'),
+      );
+      expect(
+        tester.getRect(shortLabel).center.dx,
+        closeTo(short.center.dx, 0.5),
+      );
+    });
+
     testWidgets('renders disabled button when buttonOnPressed is null', (
       tester,
     ) async {
