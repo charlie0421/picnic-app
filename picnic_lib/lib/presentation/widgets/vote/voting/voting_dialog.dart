@@ -303,22 +303,22 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     if (contentWidth <= 0) return false;
 
     final header =
-        PicnicUi.vertical(24) +
+        _headerTopPadding(isKeyboardVisible) +
         VotingArtistImage.preferredHeight() +
-        PicnicUi.vertical(16) +
+        _headerGap(isKeyboardVisible) +
         VotingMemberInfo.preferredHeight(
           context,
           voteItemModel: widget.voteItemModel,
           maxWidth: contentWidth,
         );
     final footer =
-        PicnicUi.vertical(8) +
+        _footerTopPadding(isKeyboardVisible) +
         VotingSubmitButton.preferredHeight(context) +
         (isKeyboardVisible
             ? 0
             : PicnicUi.vertical(16) +
                   VotingLogoImage.preferredHeight(widget.voteModel)) +
-        PicnicUi.vertical(16);
+        _footerBottomPadding(isKeyboardVisible);
     const margin = 8.0;
     return budget >= header + footer + PicnicUi.minimumTapTarget + margin;
   }
@@ -343,11 +343,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildHeader(),
+        _buildHeader(isKeyboardVisible: isKeyboardVisible),
         Flexible(
           fit: FlexFit.loose,
           child: SingleChildScrollView(
-            child: _buildScrollableMiddle(context, displayedBalance),
+            child: _buildScrollableMiddle(
+              context,
+              displayedBalance,
+              pinned: true,
+            ),
           ),
         ),
         _buildFooter(
@@ -372,8 +376,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(),
-          _buildScrollableMiddle(context, displayedBalance),
+          _buildHeader(isKeyboardVisible: isKeyboardVisible),
+          _buildScrollableMiddle(context, displayedBalance, pinned: false),
           _buildFooter(
             myStarCandy: myStarCandy,
             userId: userId,
@@ -384,14 +388,28 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  Widget _buildHeader() {
+  // With the keyboard up the header and footer give up part of their
+  // breathing room (as the JMA dialog does), so the scrolling window between
+  // them keeps the bonus bubble whole on a phone instead of a sliver of it.
+  double _headerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 24);
+  double _headerGap(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 8 : 16);
+  double _footerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 4 : 8);
+  double _footerBottomPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 16);
+
+  Widget _buildHeader({required bool isKeyboardVisible}) {
     return Padding(
-      padding: _bodyHorizontalPadding().copyWith(top: PicnicUi.vertical(24)),
+      padding: _bodyHorizontalPadding().copyWith(
+        top: _headerTopPadding(isKeyboardVisible),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           VotingArtistImage(voteItemModel: widget.voteItemModel),
-          SizedBox(height: PicnicUi.vertical(16)),
+          SizedBox(height: _headerGap(isKeyboardVisible)),
           VotingMemberInfo(voteItemModel: widget.voteItemModel),
         ],
       ),
@@ -401,7 +419,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   // The balance, use-all, amount and clear controls each carry a 48 tap
   // target now, so the gaps that used to separate 20 and 32 high rows moved
   // inside those controls.
-  Widget _buildScrollableMiddle(BuildContext context, BigInt displayedBalance) {
+  Widget _buildScrollableMiddle(
+    BuildContext context,
+    BigInt displayedBalance, {
+    required bool pinned,
+  }) {
     return Padding(
       padding: _bodyHorizontalPadding(),
       child: Column(
@@ -412,7 +434,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             onRecharge: _navigateToStore,
           ),
           VotingCheckAllOption(checkAll: _checkAll, onToggle: _toggleCheckAll),
-          _buildVoteAmountInput(context),
+          _buildVoteAmountInput(context, pinned: pinned),
           SizedBox(height: PicnicUi.vertical(8)),
           VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
           _buildBubble(),
@@ -430,8 +452,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }) {
     return Padding(
       padding: _bodyHorizontalPadding().copyWith(
-        top: PicnicUi.vertical(8),
-        bottom: PicnicUi.vertical(16),
+        top: _footerTopPadding(isKeyboardVisible),
+        bottom: _footerBottomPadding(isKeyboardVisible),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -484,7 +506,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     _validateVote();
   }
 
-  Widget _buildVoteAmountInput(BuildContext context) {
+  /// [pinned] is true inside the pinned-header body, where the input scrolls
+  /// in a short middle window: centring it there dragged the balance row
+  /// half under the pinned names even when the input was already in view, so
+  /// that window moves only as far as it must. The all-scroll body keeps
+  /// centring, which also brings the submit button below into view.
+  Widget _buildVoteAmountInput(BuildContext context, {required bool pinned}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
@@ -492,15 +519,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
       if (_focusNode.hasFocus) {
-        final RenderObject? renderObject = _inputFieldKey.currentContext
-            ?.findRenderObject();
-        if (renderObject != null) {
-          Scrollable.ensureVisible(
-            _inputFieldKey.currentContext!,
-            alignment: 0.5,
-            duration: const Duration(milliseconds: 300),
-          );
+        final inputContext = _inputFieldKey.currentContext;
+        final RenderObject? renderObject = inputContext?.findRenderObject();
+        if (inputContext == null || renderObject == null) return;
+        if (pinned) {
+          // Each policy is a no-op unless the input is cut off on its side,
+          // so at most one of the two moves the window.
+          for (final policy in const [
+            ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+            ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          ]) {
+            Scrollable.ensureVisible(
+              inputContext,
+              alignmentPolicy: policy,
+              duration: const Duration(milliseconds: 300),
+            );
+          }
+          return;
         }
+        Scrollable.ensureVisible(
+          inputContext,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+        );
       }
     });
 

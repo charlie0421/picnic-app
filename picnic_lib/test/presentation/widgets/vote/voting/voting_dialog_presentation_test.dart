@@ -338,6 +338,44 @@ void main() {
       }
     });
 
+    // Centring the focused input inside the scrolling middle pushed the
+    // balance row half under the pinned names when the input was already in
+    // view. Pinned, the middle should only move as far as it has to.
+    testWidgets('focusing the input does not scroll the balance row away', (
+      tester,
+    ) async {
+      await pumpPhoneDialog(tester, keyboardInset: _phoneKeyboardInset);
+      await focusAmountInput(tester);
+      expect(tester.takeException(), isNull);
+
+      final names = tester.getRect(find.byType(VotingMemberInfo));
+      final balance = tester.getRect(find.byType(VotingStarCandyInfo));
+      expect(
+        balance.top,
+        greaterThanOrEqualTo(names.bottom - 0.5),
+        reason: 'the balance row scrolled under the pinned names',
+      );
+      expect(find.byType(VotingStarCandyInfo).hitTestable(), findsOneWidget);
+    });
+
+    // The pinned header and footer give up some of their breathing room while
+    // the keyboard is up, so the bonus bubble under the input still fits the
+    // scrolling window on a phone instead of showing as a sliver.
+    testWidgets('the bonus bubble stays whole in the scrolling window', (
+      tester,
+    ) async {
+      await pumpPhoneDialog(tester, keyboardInset: _phoneKeyboardInset);
+      await focusAmountInput(tester);
+      expect(tester.takeException(), isNull);
+
+      final names = tester.getRect(find.byType(VotingMemberInfo));
+      final submit = tester.getRect(find.byType(VotingSubmitButton));
+      final bubble = tester.getRect(find.byType(VotingBubbleInfo));
+      expect(bubble.top, greaterThanOrEqualTo(names.bottom - 0.5));
+      expect(bubble.bottom, lessThanOrEqualTo(submit.top + 0.5));
+      expect(find.byType(VotingBubbleInfo).hitTestable(), findsOneWidget);
+    });
+
     testWidgets('the picnic logo yields its room while the keyboard is up', (
       tester,
     ) async {
