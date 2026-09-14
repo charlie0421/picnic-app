@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>안드로이드 시스템 내비 바 콘텐츠 겹침 (PICNIC-777)</title>
+  <style>
+    body { font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif; max-width: 860px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; }
+    h1 { font-size: 1.6rem; } h2 { font-size: 1.2rem; margin-top: 2rem; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+    pre { background: #f5f5f7; padding: 12px; overflow-x: auto; border-radius: 6px; }
+    table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ddd; padding: 6px 10px; text-align: left; vertical-align: top; }
+    th { background: #f5f5f7; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>안드로이드 시스템 내비 바 콘텐츠 겹침 (PICNIC-777)</h1>
+    <p>작성일 2026-09-14. 2025-12 두 차례 수정(1.2.17+121732, 1.2.20+122003)에도 QA 재현이 계속된 건의 실제 원인과 수정 기록.</p>
+
+    <section>
+      <h2>증상</h2>
+      <p>
+        Android 기기에서 투표 상세·리워드 상세·궁합·커뮤니티 게시글 등 스크롤 화면의 콘텐츠가
+        시스템 내비게이션 바(특히 3버튼 바) 밑으로 지나가며 겹쳐 보인다. iOS 에서는 재현되지 않는다.
+      </p>
+    </section>
+
+    <section>
+      <h2>원인</h2>
+      <ul>
+        <li>
+          앱은 <code>targetSdk 36</code> 이라 Android 15 이상에서 edge-to-edge 가 <strong>강제</strong>된다.
+          시스템 내비 바는 투명해지고 Flutter 뷰는 화면 끝까지 그려진다. Android 13 이하에서는
+          바가 자체 영역을 가져 겹침이 생기지 않는다(같은 코드로 실기기 SM-G781N 확인).
+        </li>
+        <li>
+          앱은 <code>SystemUiOverlayStyle(systemNavigationBarContrastEnforced: false)</code> 로 대비 스크림까지 끄고,
+          각 페이지는 <em>스크롤 끝</em>에만 <code>viewPadding.bottom</code> 여백을 더한다.
+          그래서 스크롤 중간의 모든 행이 투명한 바 밑으로 그대로 지나간다. 이것이 QA 스크린샷의 상태다.
+        </li>
+        <li>
+          2025-12 수정은 "Scaffold 제거 + 끝 여백 추가"였다. 끝 여백은 실제로 동작하고 있었지만
+          스크롤 중간 겹침은 구조상 해결되지 않았다.
+        </li>
+      </ul>
+      <p>기각한 가설: <code>FixedWidthLayout</code> 이 전역 스냅샷(<code>globalMediaQueryProvider</code>)으로 MediaQuery 를 덮어쓰지만,
+      Android 15 에뮬레이터 진단 로그에서 스냅샷과 실제 값이 동일했다(<code>padding.bottom = viewPadding.bottom = 48</code>).
+      "Android 15 에서 <code>padding.bottom</code> 이 0" 이라는 기존 코드 주석도 실측과 다르다.</p>
+    </section>
+
+    <section>
+      <h2>수정</h2>
+      <p>
+        <code>picnic_lib/lib/presentation/widgets/ui/system_navigation_bar_inset.dart</code> 의
+        <code>SystemNavigationBarInset</code> 이 Android 에서 <code>MediaQuery.padding.bottom</code> 만큼
+        배경색 띠를 예약하고, 하위 트리의 <code>padding.bottom</code>·<code>viewPadding.bottom</code> 을 0 으로 만든다.
+        적용 지점은 두 곳이다.
+      </p>
+      <table>
+        <tr><th>지점</th><th>이유</th></tr>
+        <tr><td><code>AppBuilder.applySystemNavigationBarInset</code> → <code>PageTransitionsTheme</code>(Android 빌더를 <code>SystemNavigationBarInsetPageTransitionsBuilder</code> 로 감쌈)</td><td>모든 <code>MaterialPageRoute</code> 본문(홈 Portal, 알림 → 투표 상세처럼 루트 내비게이터로 push 되는 라우트)이 자동으로 바 위에서 끝난다. 띠가 <em>라우트 안쪽</em>에 있어 모달 배리어가 띠까지 함께 어둡게 한다.</td></tr>
+        <tr><td><code>FullScreenDialog</code> (리워드 상세 등)</td><td><code>showGeneralDialog</code> 라우트는 PageTransitionsTheme 을 타지 않는다.</td></tr>
+        <tr><td><code>FixedWidthLayout</code></td><td>시작 시점 MediaQuery 스냅샷으로 하위를 덮어쓰던 곳. 스냅샷의 bottom 인셋(48)이 되살아나면 Portal 페이지가 이중 여백을 갖고 플로팅 내비가 48dp 위로 뜨므로, <code>padding</code>·<code>viewPadding</code> 은 라이브 값을 쓰도록 바꿨다.</td></tr>
+      </table>
+      <p>거쳐 간 설계: (1) Portal + FullScreenDialog 개별 래핑 → Codex 교차 리뷰가 Navigator push 라우트 누락을 지적. (2) <code>MaterialApp.builder</code> 루트 래핑 → 에뮬레이터에서 모달 배리어가 Navigator 안만 어둡게 해 하단 띠가 밝게 남는 부작용 확인. (3) 최종: PageTransitionsTheme. 단, 래퍼 빌더에 값 동등성(<code>==</code>/<code>hashCode</code>)이 없으면 App 재빌드마다 <code>ThemeData</code> 가 달라져 Theme 의존 위젯 전부에 <code>didChangeDependencies</code> 가 돌고, Portal 페이지들이 <code>settingNavigation</code> 을 다시 호출해 투표 상세 위에 홈 헤더·플로팅 내비가 나타났다(에뮬레이터에서 다이얼로그를 열 때 재현). 회귀 테스트 <code>test/core/utils/app_builder_dialog_dependencies_test.dart</code>.</p>
+      <ul>
+        <li>높이 기준이 <code>padding</code> 이라 키보드가 바를 덮으면 띠도 사라진다(루트에서 라이브 MediaQuery 를 읽으므로 Portal 안에서도 성립).</li>
+        <li>띠 색은 <code>Theme.scaffoldBackgroundColor</code>(흰색)다. 궁합 그라데이션 페이지에서는 하단에 흰 띠가 보이며, 삼성 One UI 는 그 위에 반투명 스크림을 덧그린다. 포털별 색 지정은 후속 판단 사항.</li>
+        <li>iOS·웹은 그대로다(홈 인디케이터 아래로 콘텐츠가 지나가는 기존 동작 유지).</li>
+        <li>플로팅 하단 내비 마진 <code>16 + viewPadding.bottom</code> 은 <code>16 + 0</code> 이 되어 바에서의 거리는 이전과 같다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>함께 고친 잠재 결함: 다이얼로그가 열리면 내비게이션 상태가 뒤섞임</h2>
+      <p>
+        에뮬레이터 검증 중 투표 상세 위에 다이얼로그(로그인 필요 등)를 띄우면 헤더가 홈(Portal) 헤더로 바뀌고
+        플로팅 내비가 나타나는 현상을 발견했다. 원인은 이 티켓과 무관하게 이미 있던 경합이다.
+      </p>
+      <ul>
+        <li><code>RouteAwareStateMixin</code> 이 <code>ModalRoute.of(context)</code> 로 구독하면서 32개 페이지 State 가 라우트 상태(isCurrent)에 영구 의존한다.</li>
+        <li>다이얼로그가 열리고 닫힐 때마다 스택의 모든 페이지에 <code>didChangeDependencies</code> 가 돌고, 각 페이지가 post-frame 으로 <code>settingNavigation</code> 을 다시 호출한다. 마지막 호출이 이기며, 그 순서는 InheritedElement 의존자 해시 순서·트리 구조에 좌우된다.</li>
+        <li>위젯 테스트로 확인: 같은 트리에서 인셋 테마 유무만 바꿔도 post-frame 순서가 <code>home</code>↔<code>detail</code> 로 뒤바뀐다. 즉 내 변경이 경합을 만든 게 아니라 결과를 뒤집어 드러냈다.</li>
+      </ul>
+      <p>
+        수정: <code>AppRouteObserver</code> 가 최상단 <code>PageRoute</code> 를 추적하고(<code>currentPageRoute</code>), 믹스인은 그 값으로 한 번만 구독한다.
+        <code>ModalRoute.of</code> 는 옵저버가 없는 테스트 하네스에서만 폴백으로 쓴다. 이제 다이얼로그는 페이지의 <code>didChangeDependencies</code> 를 유발하지 않는다.
+        회귀 테스트 <code>test/core/navigation/route_aware_mixin_test.dart</code> 7건.
+      </p>
+    </section>
+
+    <section>
+      <h2>교차 리뷰(Codex GPT-5.6 Terra) 기록</h2>
+      <ul>
+        <li>1차: Navigator push 라우트 누락(수용 → PageTransitionsTheme 적용), FixedWidthLayout 스냅샷(수용 → 라이브 padding/viewPadding), 궁합 그라데이션 띠 색(문서화).</li>
+        <li>2차: (a) 외부 PageRoute pop 시 스택 전 페이지가 <code>onRoutePopNext</code> 를 받아 경합이 재현된다는 지적 — 변경 전에도 모든 페이지가 같은 홈 라우트에 구독돼 있었고, RouteObserver 는 구독자를 삽입 순서(LinkedHashSet)로 통지하므로 나중에 push 된 페이지의 post-frame 호출이 마지막에 적용된다(결정적). <code>route_aware_mixin_test.dart</code> 의 순서 테스트로 고정. (b) FixedWidthLayout 이 viewInsets 를 스냅샷으로 두어 키보드 리사이즈가 안 된다는 지적 — origin/main 과 동일한 기존 동작이며, 키보드 리사이즈를 새로 켜는 것은 이 티켓 범위 밖이다.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>검증</h2>
+      <table>
+        <tr><th>환경</th><th>결과</th></tr>
+        <tr><td>에뮬레이터 <code>picnic_staging</code> (Android 15, 3버튼)</td><td>투표 상세 스크롤 중·끝, 리워드 다이얼로그 끝, 홈 — 콘텐츠가 바 위에서 끝남</td></tr>
+        <tr><td>같은 에뮬레이터, 제스처 내비</td><td>약 24dp 띠, 플로팅 내비 위치 동일</td></tr>
+        <tr><td>SM-G781N (Android 13, 3버튼)</td><td><code>padding.bottom = 0</code> 이라 위젯이 통과(단위 테스트로 보장). 실기기에는 서명이 다른 디버그 빌드를 설치하지 않았다.</td></tr>
+        <tr><td>단위 테스트</td><td><code>test/presentation/widgets/ui/system_navigation_bar_inset_test.dart</code> 5건, <code>test/core/utils/app_builder_system_inset_test.dart</code> 6건(홈·push 라우트·전체화면 다이얼로그·배리어 안쪽 배치·테마 동등성·iOS), <code>app_builder_dialog_dependencies_test.dart</code> 3건, <code>test/ui/fixed_width_layout_test.dart</code> 2건 추가</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>재현·진단 방법</h2>
+      <ul>
+        <li>릴리스 APK 는 에뮬레이터에서 VM 감지로 종료된다. 디버그 빌드(<code>disableInDebugMode</code>)나 <code>--dart-define=DISABLE_VM_CHECK=true</code> 를 쓴다.</li>
+        <li><code>config/dev.json</code> 은 로컬에 값이 비어 있어 <code>ENVIRONMENT=prod</code> 디버그 빌드로 확인했다.</li>
+      </ul>
+      <pre>cd picnic_app
+flutter build apk --debug --target-platform android-arm64 \
+  --dart-define=ENVIRONMENT=prod --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod --dart-define=DISABLE_VM_CHECK=true
+adb -s emulator-5554 shell cmd overlay enable com.android.internal.systemui.navbar.threebutton
+adb -s emulator-5554 shell cmd overlay disable com.android.internal.systemui.navbar.gestural</pre>
+    </section>
+  </main>
+</body>
+</html>

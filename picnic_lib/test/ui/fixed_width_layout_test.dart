@@ -13,11 +13,7 @@ void main() {
   group('FixedWidthLayout', () {
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          FixedWidthLayout(
-            child: Text('Hello'),
-          ),
-        ),
+        buildTestApp(FixedWidthLayout(child: Text('Hello'))),
       );
       await tester.pump();
 
@@ -31,12 +27,7 @@ void main() {
 
     testWidgets('custom maxWidth is applied', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          FixedWidthLayout(
-            maxWidth: 400,
-            child: Text('Custom'),
-          ),
-        ),
+        buildTestApp(FixedWidthLayout(maxWidth: 400, child: Text('Custom'))),
       );
       await tester.pump();
 
@@ -52,11 +43,7 @@ void main() {
 
     testWidgets('contains Center and ConstrainedBox', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          FixedWidthLayout(
-            child: Text('Test'),
-          ),
-        ),
+        buildTestApp(FixedWidthLayout(child: Text('Test'))),
       );
       await tester.pump();
 
@@ -64,8 +51,9 @@ void main() {
       expect(find.byType(ConstrainedBox), findsWidgets);
     });
 
-    testWidgets('MediaQuery is overridden with global provider data',
-        (tester) async {
+    testWidgets('MediaQuery is overridden with global provider data', (
+      tester,
+    ) async {
       const testMediaQuery = MediaQueryData(
         size: Size(500, 900),
         padding: EdgeInsets.only(top: 20, bottom: 10),
@@ -91,6 +79,70 @@ void main() {
       await tester.pump();
 
       expect(find.text('MediaQuery Test'), findsOneWidget);
+    });
+    // PICNIC-777: the root SystemNavigationBarInset zeroes the bottom insets
+    // for its subtree. FixedWidthLayout must not resurrect them from the
+    // startup snapshot, otherwise Portal pages double-pad and the floating
+    // bottom nav floats 48dp too high on Android.
+    testWidgets(
+      'bottom padding/viewPadding follow the live MediaQuery, not the snapshot',
+      (tester) async {
+        MediaQueryData? seen;
+        await tester.pumpWidget(
+          buildTestApp(
+            FixedWidthLayout(
+              child: Builder(
+                builder: (context) {
+                  seen = MediaQuery.of(context);
+                  return const Text('live');
+                },
+              ),
+            ),
+            // Snapshot captured with a 48dp system bar.
+            mediaQueryData: const MediaQueryData(
+              size: Size(400, 800),
+              padding: EdgeInsets.only(bottom: 48),
+              viewPadding: EdgeInsets.only(bottom: 48),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        // The harness installs no bottom inset above FixedWidthLayout.
+        expect(seen!.padding.bottom, 0);
+        expect(seen!.viewPadding.bottom, 0);
+      },
+    );
+
+    testWidgets('live bottom insets above FixedWidthLayout reach the child', (
+      tester,
+    ) async {
+      MediaQueryData? seen;
+      await tester.pumpWidget(
+        buildTestApp(
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                padding: const EdgeInsets.only(bottom: 34),
+                viewPadding: const EdgeInsets.only(bottom: 34),
+              ),
+              child: FixedWidthLayout(
+                child: Builder(
+                  builder: (context) {
+                    seen = MediaQuery.of(context);
+                    return const Text('live');
+                  },
+                ),
+              ),
+            ),
+          ),
+          mediaQueryData: const MediaQueryData(size: Size(400, 800)),
+        ),
+      );
+      await tester.pump();
+
+      expect(seen!.padding.bottom, 34);
+      expect(seen!.viewPadding.bottom, 34);
     });
   });
 }

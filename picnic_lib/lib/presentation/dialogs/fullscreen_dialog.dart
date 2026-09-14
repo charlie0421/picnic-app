@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/presentation/widgets/ui/system_navigation_bar_inset.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 // 공통 상수 정의
@@ -63,18 +64,23 @@ class _FullScreenDialogState extends State<FullScreenDialog> {
         color: AppColors.grey00,
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        child: Stack(
-          children: [
-            widget.child,
-            Positioned(
-              top: 0,
-              right: 0,
-              child: SafeArea(
-                minimum: const EdgeInsets.only(top: 50, right: 15),
-                child: widget.closeButton ?? _buildCloseButton(),
+        // showGeneralDialog 라우트는 PageTransitionsTheme 을 타지 않아 Android
+        // 시스템 내비 바 영역을 여기서 따로 예약한다(PICNIC-777).
+        child: SystemNavigationBarInset(
+          color: AppColors.grey00,
+          child: Stack(
+            children: [
+              widget.child,
+              Positioned(
+                top: 0,
+                right: 0,
+                child: SafeArea(
+                  minimum: const EdgeInsets.only(top: 50, right: 15),
+                  child: widget.closeButton ?? _buildCloseButton(),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
