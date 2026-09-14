@@ -153,8 +153,11 @@ class UsagePolicyPopup extends ConsumerWidget {
               // 고정한다.
               padding: const EdgeInsets.fromLTRB(64, 24, 64, 16),
               child: Center(
+                // 좁은 화면(320dp) + 200% 글자 확대에서 긴 번역(bn 등)이 여러
+                // 줄로 늘어나 헤더가 본문을 밀어내고 넘쳤다. 제목은 2줄까지만.
                 child: VoteCommonTitle(
                   title: localizations.expiring_bonus_candy_guide,
+                  maxLines: 2,
                 ),
               ),
             ),

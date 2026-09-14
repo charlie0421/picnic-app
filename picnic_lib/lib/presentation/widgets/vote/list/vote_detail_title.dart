@@ -6,7 +6,12 @@ import 'package:picnic_lib/ui/style.dart';
 class VoteCommonTitle extends StatelessWidget {
   final String title;
 
-  const VoteCommonTitle({super.key, required this.title});
+  /// 제목 줄 수 상한. 기본(null)은 제한 없이 줄바꿈한다. 좁은 화면 + 큰 글자
+  /// 배율에서 제목이 헤더 전체를 차지하면 안 되는 호출자(소멸 예정 캔디 안내
+  /// 다이얼로그)가 제한한다. 넘치는 부분은 말줄임.
+  final int? maxLines;
+
+  const VoteCommonTitle({super.key, required this.title, this.maxLines});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +47,10 @@ class VoteCommonTitle extends StatelessWidget {
                           ..strokeMiterLimit = 28.96,
                       ),
                   softWrap: true,
+                  maxLines: maxLines,
+                  overflow: maxLines == null
+                      ? TextOverflow.clip
+                      : TextOverflow.ellipsis,
                 ),
                 Text(
                   title,
@@ -52,6 +61,10 @@ class VoteCommonTitle extends StatelessWidget {
                     color: PicnicUi.secondaryForeground,
                   ),
                   softWrap: true,
+                  maxLines: maxLines,
+                  overflow: maxLines == null
+                      ? TextOverflow.clip
+                      : TextOverflow.ellipsis,
                 ),
               ],
             ),
