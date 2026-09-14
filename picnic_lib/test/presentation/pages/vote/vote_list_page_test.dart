@@ -27,56 +27,53 @@ void main() {
   });
 
   group('VoteListContent rendering', () {
-    testWidgets('renders 5 vote-type chips with ALL first, regardless of isAdmin',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: false),
-        ),
-      );
-      await pumpAndIgnoreErrors(tester);
+    testWidgets(
+      'renders 5 vote-type chips with ALL first, regardless of isAdmin',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestApp(const VoteListContent(isAdmin: false)),
+        );
+        await pumpAndIgnoreErrors(tester);
 
-      // 탭 UI 대신 태그(칩): ALL + PICNIC/PIC CHART/MUSICAL/SPOTLIGHT = 5개.
-      for (final label in [
-        'ALL',
-        'PICNIC',
-        'PIC CHART',
-        'MUSICAL',
-        'SPOTLIGHT',
-      ]) {
-        expect(find.text(label), findsOneWidget, reason: 'chip $label');
-      }
-      // 더 이상 TabBar/TabBarView 를 쓰지 않는다.
-      expect(find.byType(TabBar), findsNothing);
-      expect(find.byType(TabBarView), findsNothing);
-    });
+        // 탭 UI 대신 태그(칩): ALL + PICNIC/PIC CHART/MUSICAL/SPOTLIGHT = 5개.
+        for (final label in [
+          'ALL',
+          'PICNIC',
+          'PIC CHART',
+          'MUSICAL',
+          'SPOTLIGHT',
+        ]) {
+          expect(find.text(label), findsOneWidget, reason: 'chip $label');
+        }
+        // 더 이상 TabBar/TabBarView 를 쓰지 않는다.
+        expect(find.byType(TabBar), findsNothing);
+        expect(find.byType(TabBarView), findsNothing);
+      },
+    );
 
     testWidgets(
-        'renders chips when isAdmin true (admin adds a status option, not a chip)',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: true),
-        ),
-      );
-      await pumpAndIgnoreErrors(tester);
+      'renders chips when isAdmin true (admin adds a status option, not a chip)',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestApp(const VoteListContent(isAdmin: true)),
+        );
+        await pumpAndIgnoreErrors(tester);
 
-      expect(find.text('ALL'), findsOneWidget);
-      expect(find.text('SPOTLIGHT'), findsOneWidget);
+        expect(find.text('ALL'), findsOneWidget);
+        expect(find.text('SPOTLIGHT'), findsOneWidget);
 
-      // Admin option is appended to the status dropdown's items instead.
-      final dropdown = tester.widget<DropdownButton<VoteStatus>>(
-        find.byType(DropdownButton<VoteStatus>),
-      );
-      expect(dropdown.items!.length, 4);
-      expect(dropdown.items!.last.value, VoteStatus.debug);
-    });
+        // Admin option is appended to the status dropdown's items instead.
+        final dropdown = tester.widget<DropdownButton<VoteStatus>>(
+          find.byType(DropdownButton<VoteStatus>),
+        );
+        expect(dropdown.items!.length, 4);
+        expect(dropdown.items!.last.value, VoteStatus.debug);
+      },
+    );
 
     testWidgets('status dropdown has 3 options for non-admin', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: false),
-        ),
+        buildTestApp(const VoteListContent(isAdmin: false)),
       );
       await pumpAndIgnoreErrors(tester);
 
@@ -87,25 +84,23 @@ void main() {
       expect(dropdown.value, VoteStatus.active);
     });
 
-    testWidgets('type chips are in a horizontal scrolling list', (tester) async {
+    testWidgets('type chips can scroll horizontally', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: false),
-        ),
+        buildTestApp(const VoteListContent(isAdmin: false)),
       );
       await pumpAndIgnoreErrors(tester);
 
-      final horizontalLists = tester
-          .widgetList<ListView>(find.byType(ListView))
-          .where((lv) => lv.scrollDirection == Axis.horizontal);
-      expect(horizontalLists, isNotEmpty);
+      final horizontalScrolls = tester
+          .widgetList<SingleChildScrollView>(find.byType(SingleChildScrollView))
+          .where((scroll) => scroll.scrollDirection == Axis.horizontal);
+      expect(horizontalScrolls, isNotEmpty);
     });
 
-    testWidgets('default selected chip is ALL (list area = all)', (tester) async {
+    testWidgets('default selected chip is ALL (list area = all)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: false),
-        ),
+        buildTestApp(const VoteListContent(isAdmin: false)),
       );
       await pumpAndIgnoreErrors(tester);
 
@@ -115,9 +110,7 @@ void main() {
 
     testWidgets('tapping a chip swaps the list to that area', (tester) async {
       await tester.pumpWidget(
-        buildTestApp(
-          const VoteListContent(isAdmin: false),
-        ),
+        buildTestApp(const VoteListContent(isAdmin: false)),
       );
       await pumpAndIgnoreErrors(tester);
 
@@ -130,8 +123,9 @@ void main() {
   });
 
   group('VoteListContent ValueKey', () {
-    testWidgets('different isAdmin values produce different keys',
-        (tester) async {
+    testWidgets('different isAdmin values produce different keys', (
+      tester,
+    ) async {
       const widget1 = VoteListContent(
         key: ValueKey('vote_list_false'),
         isAdmin: false,

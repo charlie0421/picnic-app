@@ -32,6 +32,7 @@ import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -644,11 +645,25 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           Text(
             localizations.message_error_occurred,
             textAlign: TextAlign.center,
+            style: PicnicUi.text(color: PicnicUi.secondaryText),
           ),
           TextButton(
             key: const Key('achieve-items-retry'),
             onPressed: _refreshVoteData,
-            child: Text(localizations.retry),
+            style: TextButton.styleFrom(
+              foregroundColor: PicnicUi.actionColor,
+              minimumSize: const Size(
+                PicnicUi.minimumTapTarget,
+                PicnicUi.minimumTapTarget,
+              ),
+            ),
+            child: Text(
+              localizations.retry,
+              style: PicnicUi.text(
+                weight: FontWeight.w600,
+                color: PicnicUi.actionColor,
+              ),
+            ),
           ),
         ],
       ),
@@ -710,11 +725,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: 18,
-          child: Text(
-            formatVotePeriod(voteModel.startAt, voteModel.stopAt),
-            style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 57.w),
+          child: VotePeriodLabel(
+            period: formatVotePeriod(voteModel.startAt, voteModel.stopAt),
           ),
         ),
         const SizedBox(height: 8),

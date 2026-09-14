@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class StoreListTile extends StatelessWidget {
   const StoreListTile({
@@ -23,7 +24,7 @@ class StoreListTile extends StatelessWidget {
   final Text title;
   final Widget? subtitle;
   final String buttonText;
-  final VoidCallback? buttonOnPressed; // 여기를 VoidCallback?로 변경
+  final VoidCallback? buttonOnPressed;
   final bool isLoading;
   final int? index;
   final double? buttonScale;
@@ -33,88 +34,108 @@ class StoreListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final content = Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final details = Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        icon,
-        SizedBox(width: 16.w),
-        Expanded(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center, // center로 변경
-            crossAxisAlignment: CrossAxisAlignment.start,
+        if (flexibleHeight)
+          Wrap(
+            spacing: PicnicUi.horizontal(8),
+            runSpacing: PicnicUi.vertical(4),
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (flexibleHeight)
-                // Let each item use its natural width. Two equal flex slots
-                // split long product IDs even when the badge is much shorter.
-                // A promoted row can grow if its badge needs the next line.
-                Wrap(
-                  spacing: 6.w,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    title,
-                    if (badge != null)
-                      KeyedSubtree(
-                        key: const Key('candy-boost-inline-badge'),
-                        child: badge!,
-                      ),
-                  ],
-                )
-              else
-                Row(
-                  children: [
-                    Flexible(child: title),
-                    if (badge != null) ...[
-                      SizedBox(width: 6.w),
-                      Flexible(child: badge!),
-                    ],
-                  ],
+              title,
+              if (badge != null)
+                KeyedSubtree(
+                  key: const Key('candy-boost-inline-badge'),
+                  child: badge!,
                 ),
-              if (subtitle != null) ...[
-                SizedBox(height: 4), // 간격 추가
-                subtitle!,
+            ],
+          )
+        else
+          Row(
+            children: [
+              Flexible(child: title),
+              if (badge != null) ...[
+                SizedBox(width: PicnicUi.horizontal(8)),
+                Flexible(child: badge!),
               ],
             ],
           ),
-        ),
-        const SizedBox(width: 8),
-        SizedBox(
-          height: 32,
-          child: ElevatedButton(
-            key: const Key('purchase-price-cta'),
-            onPressed: isLoading ? null : buttonOnPressed,
-            child: isLoading
-                ? SizedBox(
-                    width: 16.w,
-                    height: 16,
-                    child: const SmallPulseLoadingIndicator(),
-                  )
-                // The button box is a fixed 32px by design, so a large text
-                // scale used to push the label past it (a debug-only overflow
-                // report; release clipped the glyphs). Scaling the label down
-                // keeps it whole without changing any tile's geometry.
-                : FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      buttonText,
-                      style: getTextStyle(AppTypo.body14B),
-                    ),
-                  ),
-          ),
-        ),
+        if (subtitle != null) ...[
+          SizedBox(height: PicnicUi.vertical(4)),
+          subtitle!,
+        ],
       ],
     );
-
-    if (flexibleHeight) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(minHeight: subtitle != null ? 64 : 48),
-        child: SizedBox(width: buttonScale, child: content),
-      );
-    }
+    final action = PicnicActionButton(
+      key: const Key('purchase-price-cta'),
+      label: buttonText,
+      onPressed: buttonOnPressed,
+      isLoading: isLoading,
+      busySemanticLabel: AppLocalizations.of(context).loading,
+    );
 
     return ConstrainedBox(
       constraints: BoxConstraints(minHeight: subtitle != null ? 64 : 48),
-      child: SizedBox(width: buttonScale, child: content),
+      child: SizedBox(
+        width: buttonScale,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final scaler = MediaQuery.textScalerOf(context);
+            final pricePainter = TextPainter(
+              text: TextSpan(
+                text: buttonText,
+                style: PicnicUi.text(size: 14, weight: FontWeight.w600),
+              ),
+              textDirection: Directionality.of(context),
+              textScaler: scaler,
+            )..layout();
+            final priceWidth = (pricePainter.width + PicnicUi.horizontal(32))
+                .clamp(48.0, double.infinity);
+            pricePainter.dispose();
+            final iconWidth = icon.width ?? 48.w;
+            final leadingGap = PicnicUi.horizontal(16);
+            final actionGap = PicnicUi.horizontal(8);
+            // Preserve a useful text column. Long prices and larger text put
+            // the action below the product instead of shrinking either label.
+            final stackAction =
+                constraints.hasBoundedWidth &&
+                constraints.maxWidth <
+                    iconWidth +
+                        leadingGap +
+                        scaler.scale(128) +
+                        actionGap +
+                        priceWidth;
+            if (stackAction) {
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      icon,
+                      SizedBox(width: leadingGap),
+                      Expanded(child: details),
+                    ],
+                  ),
+                  SizedBox(height: PicnicUi.vertical(8)),
+                  Align(alignment: Alignment.centerRight, child: action),
+                ],
+              );
+            }
+            return Row(
+              children: [
+                icon,
+                SizedBox(width: leadingGap),
+                Expanded(child: details),
+                SizedBox(width: actionGap),
+                action,
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 }

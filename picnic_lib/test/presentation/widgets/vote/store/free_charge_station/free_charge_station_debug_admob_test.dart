@@ -218,7 +218,9 @@ void main() {
 
       final admobButton = find.descendant(
         of: admobRow,
-        matching: find.byType(ElevatedButton),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is ButtonStyleButton,
+        ),
       );
       expect(admobButton, findsOneWidget);
 

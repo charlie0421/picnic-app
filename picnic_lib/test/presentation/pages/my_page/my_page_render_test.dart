@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
@@ -16,6 +17,7 @@ import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/load_test_fonts.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
@@ -60,6 +62,8 @@ class _MenuHistoryRepository extends WalletRepository {
 void main() {
   late void Function() restore;
 
+  setUpAll(loadTestFonts);
+
   setUp(() {
     initTestColors();
     setupMockSupabase({'artist_user_bookmark': <dynamic>[]});
@@ -71,7 +75,74 @@ void main() {
     tearDownMockSupabase();
   });
 
+  Future<void> pumpCompactLargeTextMyPage(
+    WidgetTester tester, {
+    required bool loggedIn,
+    String? nickname,
+  }) async {
+    tester.view.devicePixelRatio = 3;
+    tester.view.physicalSize = const Size(320 * 3, 700 * 3);
+    addTearDown(tester.view.reset);
+
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      buildTestApp(
+        const MyPage(),
+        loggedIn: loggedIn,
+        userProfile: loggedIn
+            ? MockData.userProfile(nickname: nickname, avatarUrl: null)
+            : null,
+        extraOverrides: [
+          asyncBookmarkedArtistsProvider.overrideWith(
+            MockBookmarkedArtists.new,
+          ),
+        ],
+        designSize: kAppDesignSize,
+        splitScreenMode: kAppSplitScreenMode,
+        textScaler: const TextScaler.linear(2),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+    await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+  }
+
   group('MyPage render', () {
+    testWidgets('320px 200% long nickname keeps the profile row usable', (
+      tester,
+    ) async {
+      const nickname = '아주 긴 닉네임을 사용하는 피크닉 팬';
+      await pumpCompactLargeTextMyPage(
+        tester,
+        loggedIn: true,
+        nickname: nickname,
+      );
+
+      final label = find.text(nickname);
+      expect(label, findsOneWidget);
+      final rect = tester.getRect(label);
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(320));
+    });
+
+    testWidgets(
+      '320px 200% logged-out prompt keeps its trailing action visible',
+      (tester) async {
+        await pumpCompactLargeTextMyPage(tester, loggedIn: false);
+
+        final loggedOutProfile = find.byWidgetPredicate(
+          (widget) => widget is GestureDetector && widget.child is Row,
+        );
+        final prompt = find.descendant(
+          of: loggedOutProfile,
+          matching: find.text('로그인해 주세요'),
+        );
+        expect(prompt, findsOneWidget);
+        final rect = tester.getRect(prompt);
+        expect(rect.left, greaterThanOrEqualTo(0));
+        expect(rect.right, lessThanOrEqualTo(320));
+      },
+    );
+
     testWidgets('renders logged-in state', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestAppPage(
@@ -147,13 +218,23 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).first,
       );
+      final adminAction = find.ancestor(
+        of: find.text('관리자'),
+        matching: find.byType(InkWell),
+      );
+      await Scrollable.ensureVisible(
+        tester.element(adminAction),
+        alignment: 0.5,
+      );
+      await pumpAndIgnoreErrors(tester);
       expect(find.text('관리자'), findsOneWidget);
+      expect(adminAction.hitTestable(), findsOneWidget);
       expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
       expect(find.text('충전 내역'), findsNothing);
       expect(find.text('Ad Inspector'), findsNothing);
       expect(find.text('Reset & Reload GDPR'), findsNothing);
 
-      await tester.tap(find.text('관리자'));
+      await tester.tap(adminAction);
       await pumpAndIgnoreErrors(tester);
       expect(find.byType(AdminMenuPage), findsOneWidget);
     });

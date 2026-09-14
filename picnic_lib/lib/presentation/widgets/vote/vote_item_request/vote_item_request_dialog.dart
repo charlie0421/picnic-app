@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/current_applications_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_and_results_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_service.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 Future showVoteItemRequestDialog({
@@ -341,21 +342,30 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
           Expanded(
             child: Text(
               AppLocalizations.of(context).vote_item_request_title,
-              style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+              style: PicnicUi.text(size: 16, weight: FontWeight.w700),
             ),
           ),
           GestureDetector(
+            behavior: HitTestBehavior.opaque,
             onTap: () => Navigator.of(context).pop(),
-            child: Container(
-              padding: EdgeInsets.all(6.r),
-              decoration: BoxDecoration(
-                color: AppColors.grey100,
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-              child: Icon(
-                Icons.close_rounded,
-                color: AppColors.grey600,
-                size: 20.r,
+            // The rounded chip keeps its size; the surrounding box is what
+            // reaches the 48 minimum tap target.
+            child: SizedBox(
+              width: PicnicUi.minimumTapTarget,
+              height: PicnicUi.minimumTapTarget,
+              child: Center(
+                child: Container(
+                  padding: EdgeInsets.all(6.r),
+                  decoration: BoxDecoration(
+                    color: AppColors.grey100,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    color: PicnicUi.secondaryText,
+                    size: 20.r,
+                  ),
+                ),
               ),
             ),
           ),
@@ -574,36 +584,28 @@ class _VoteItemRequestDialogState extends ConsumerState<VoteItemRequestDialog> {
       _errorMessage!,
     );
 
+    final accent = isSuccess ? Colors.green : AppColors.statusError;
+
     return Container(
       margin: EdgeInsets.all(20.r),
       padding: EdgeInsets.all(16.r),
       decoration: BoxDecoration(
-        color: isSuccess
-            ? Colors.green.withValues(alpha: 0.1)
-            : Colors.red.withValues(alpha: 0.1),
+        color: accent.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: isSuccess
-              ? Colors.green.withValues(alpha: 0.3)
-              : Colors.red.withValues(alpha: 0.3),
-          width: 1,
-        ),
+        border: Border.all(color: accent.withValues(alpha: 0.3), width: 1),
       ),
       child: Row(
         children: [
           Icon(
             isSuccess ? Icons.check_circle_rounded : Icons.error_rounded,
-            color: isSuccess ? Colors.green : Colors.red,
+            color: accent,
             size: 20.r,
           ),
-          SizedBox(width: 8.w),
+          SizedBox(width: PicnicUi.horizontal(8)),
           Expanded(
             child: Text(
               _errorMessage!,
-              style: getTextStyle(
-                AppTypo.body14R,
-                isSuccess ? Colors.green : Colors.red,
-              ),
+              style: PicnicUi.text(size: 14, color: accent),
             ),
           ),
         ],

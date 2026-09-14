@@ -1166,7 +1166,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'label_retry'.
   ///
   /// In en, this message translates to:
-  /// **'Retrying'**
+  /// **'Retry'**
   String get label_retry;
 
   /// Auto-generated metadata for key 'label_setting_alarm'.

@@ -27,6 +27,7 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
@@ -37,6 +38,7 @@ import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_skeleton.dart';
@@ -346,7 +348,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       setState(() => _gapTooltipItemId = null);
     });
   }
-
 
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -680,7 +681,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
     final horizontalPadding = 57.w; // 타이틀과 동일 기준 패딩
-    final contentMaxWidth = width - (horizontalPadding * 2);
     return Column(
       children: [
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
@@ -697,24 +697,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
-        // 투표 기간 텍스트: 타이틀 가로 너비를 기준으로 축소/압축 표시
+        // 투표 기간은 타이틀 너비 안에서 큰 글자에도 자연스럽게 재배치한다.
         Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: SizedBox(
-            height: 18,
-            width: contentMaxWidth,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.center,
-              child: Text(
-                formatVotePeriod(voteModel.startAt, voteModel.stopAt),
-                style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
-                maxLines: 1,
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                textAlign: TextAlign.center,
-              ),
-            ),
+          child: VotePeriodLabel(
+            period: formatVotePeriod(voteModel.startAt, voteModel.stopAt),
           ),
         ),
         const SizedBox(height: 8),
@@ -937,11 +924,20 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       right: 16.w,
                       bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
                     ).r,
-                    child: SizedBox(
-                      height: 200,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 200),
                       child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).text_no_search_result,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: PicnicUi.horizontal(16),
+                            vertical: PicnicUi.vertical(16),
+                          ),
+                          child: PicnicFeedback(
+                            icon: Icons.search_off,
+                            message: AppLocalizations.of(
+                              context,
+                            ).text_no_search_result,
+                          ),
                         ),
                       ),
                     ),
@@ -1005,7 +1001,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   sliver: SliverPrototypeExtentList(
                     // 첫 아이템으로 만든 대표 행을 오프스테이지에서 1회 측정해
                     // 그 높이(행 + bottom-16 gap)를 모든 행 extent 로 사용.
-                    prototypeItem: _buildVoteRowPrototype(data, filteredIndices),
+                    prototypeItem: _buildVoteRowPrototype(
+                      data,
+                      filteredIndices,
+                    ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         // 안전성 체크 (기존 동작 보존)
@@ -1083,7 +1082,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('⏳ 투표 아이템 로딩 중...');
         // 주의: 부모가 CustomScrollView이므로 내부에 또 다른 CustomScrollView를 넣지 않기 위해
         // 아이템 영역 전용 스켈레톤을 사용한다.
-        return SliverToBoxAdapter(child: VoteDetailSkeleton.buildVoteListOnly());
+        return SliverToBoxAdapter(
+          child: VoteDetailSkeleton.buildVoteListOnly(),
+        );
       },
       error: (error, stackTrace) {
         logger.e('❌ 투표 아이템 로딩 실패: $error');
@@ -1131,7 +1132,12 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               logger.d('🔥 onTap: onTap');
               _handleVoteItemTap(context, item, index);
             },
-            artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
+            artistImage: _buildArtistImage(
+              item,
+              index,
+              actualRank,
+              rankChanged,
+            ),
             voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
             rankText: _buildRankText(actualRank, item),
           );

@@ -8,6 +8,8 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -239,16 +241,25 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
               elevation: 0,
               scrolledUnderElevation: 0,
               foregroundColor: AppColors.grey900,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+            ),
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.viewInsetsOf(context).bottom,
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: PicnicUi.horizontal(16),
+                    vertical: PicnicUi.vertical(8),
+                  ),
                   child: QnaSubmitButton.primary(
                     context,
                     onPressed: _submitThread,
                     isLoading: _isSubmitting,
                   ),
                 ),
-              ],
+              ),
             ),
             body: SingleChildScrollView(
               controller: _scrollController,
@@ -372,10 +383,11 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
+        PicnicActionButton(
           onPressed: _pickMedia,
+          variant: PicnicActionVariant.secondary,
           icon: const Icon(Icons.perm_media),
-          label: Text(AppLocalizations.of(context).qna_attach_media),
+          label: AppLocalizations.of(context).qna_attach_media,
         ),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
@@ -432,20 +444,31 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
                       Positioned(
                         top: 0,
                         right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            _removeAttachment(index);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
+                        child: SizedBox.square(
+                          dimension: PicnicUi.minimumTapTarget,
+                          child: IconButton(
+                            onPressed: () => _removeAttachment(index),
+                            tooltip: AppLocalizations.of(
+                              context,
+                            ).popup_label_delete,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 48,
+                              height: 48,
                             ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 12,
+                            padding: const EdgeInsets.all(12),
+                            icon: const DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(4),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
                             ),
                           ),
                         ),

@@ -732,7 +732,7 @@
   "@label_reply": {
     "description": "Auto-generated metadata for key 'label_reply'."
   },
-  "label_retry": "Retrying",
+  "label_retry": "Retry",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
   },

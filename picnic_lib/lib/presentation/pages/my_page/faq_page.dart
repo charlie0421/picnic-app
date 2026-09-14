@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
-import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
-import 'package:picnic_lib/ui/style.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
-import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page_helper.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/media_embed_builder.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class FAQContent {
   const FAQContent({required this.faqs, required this.categories});
@@ -86,7 +88,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
       // 폴백: Delta에서 plain text 추출
       return Text(
         _extractPlainTextFromDelta(delta),
-        style: getTextStyle(AppTypo.body14M, AppColors.grey700),
+        style: PicnicUi.text(color: PicnicUi.secondaryText),
       );
     }
   }
@@ -108,7 +110,7 @@ class _FAQPageState extends ConsumerState<FAQPage>
     // 폴백: 레거시 텍스트 렌더링
     return Text(
       _getLocalizedText(faq['answer'], language),
-      style: getTextStyle(AppTypo.body14M, AppColors.grey700),
+      style: PicnicUi.text(color: PicnicUi.secondaryText),
     );
   }
 
@@ -218,44 +220,34 @@ class _FAQPageState extends ConsumerState<FAQPage>
     final filteredFaqs = _getFilteredFaqs();
 
     if (_isLoading && _faqs.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: MediumPulseLoadingIndicator());
     }
     if (_loadError != null && _faqs.isEmpty) return _buildError(context);
 
     return Column(
       children: [
-        Container(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        ColoredBox(
+          color: PicnicUi.surface,
           child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: PicnicUi.horizontal(16),
+              vertical: PicnicUi.vertical(8),
+            ),
             scrollDirection: Axis.horizontal,
             child: Row(
               children: _categories.map((category) {
                 return Padding(
-                  padding: EdgeInsets.only(right: 8.w),
-                  child: ChoiceChip(
-                    label: Text(
-                      _getLocalizedCategoryLabel(category, currentLanguage),
-                      style: getTextStyle(
-                        AppTypo.caption12M,
-                        _selectedCategory == category
-                            ? AppColors.grey00
-                            : AppColors.grey700,
-                      ),
+                  padding: EdgeInsets.only(right: PicnicUi.horizontal(8)),
+                  child: PicnicFilterChip(
+                    label: _getLocalizedCategoryLabel(
+                      category,
+                      currentLanguage,
                     ),
                     selected: _selectedCategory == category,
-                    selectedColor: AppColors.primary500,
-                    backgroundColor: AppColors.grey100,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
-                    onSelected: (selected) {
-                      if (selected) {
-                        setState(() {
-                          _selectedCategory = category;
-                        });
-                      }
+                    onSelected: () {
+                      setState(() {
+                        _selectedCategory = category;
+                      });
                     },
                   ),
                 );
@@ -270,8 +262,8 @@ class _FAQPageState extends ConsumerState<FAQPage>
                 ? ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 16.h,
+                      horizontal: PicnicUi.horizontal(16),
+                      vertical: PicnicUi.vertical(16),
                     ),
                     itemCount:
                         filteredFaqs.length + (_loadError == null ? 0 : 1),
@@ -281,40 +273,61 @@ class _FAQPageState extends ConsumerState<FAQPage>
                       }
                       final faqIndex = index - (_loadError == null ? 0 : 1);
                       final faq = filteredFaqs[faqIndex];
-                      return ExpansionTile(
-                        title: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (faq['category'] != null)
-                              Text(
-                                _getLocalizedCategoryLabel(
-                                  faq['category'],
-                                  currentLanguage,
-                                ),
-                                style: getTextStyle(
-                                  AppTypo.body14M,
-                                  AppColors.primary500,
-                                ),
-                              ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              _getLocalizedText(
-                                faq['question'],
-                                currentLanguage,
-                              ),
-                              style: getTextStyle(
-                                AppTypo.body14B,
-                                AppColors.grey900,
-                              ),
+                      return Padding(
+                        padding: EdgeInsets.only(bottom: PicnicUi.vertical(12)),
+                        child: PicnicSurface(
+                          radius: 12,
+                          child: ExpansionTile(
+                            backgroundColor: Colors.transparent,
+                            collapsedBackgroundColor: Colors.transparent,
+                            iconColor: PicnicUi.actionColor,
+                            collapsedIconColor: PicnicUi.quietText,
+                            shape: const RoundedRectangleBorder(),
+                            collapsedShape: const RoundedRectangleBorder(),
+                            tilePadding: EdgeInsets.symmetric(
+                              horizontal: PicnicUi.horizontal(16),
+                              vertical: PicnicUi.vertical(4),
                             ),
-                          ],
-                        ),
-                        children: [
-                          Padding(
-                            padding: EdgeInsets.all(16.w),
-                            child: _buildAnswer(faq, currentLanguage),
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                if (faq['category'] != null)
+                                  Text(
+                                    _getLocalizedCategoryLabel(
+                                      faq['category'],
+                                      currentLanguage,
+                                    ),
+                                    style: PicnicUi.text(
+                                      weight: FontWeight.w600,
+                                      color: PicnicUi.actionColor,
+                                    ),
+                                  ),
+                                SizedBox(height: PicnicUi.vertical(4)),
+                                Text(
+                                  _getLocalizedText(
+                                    faq['question'],
+                                    currentLanguage,
+                                  ),
+                                  style: PicnicUi.text(weight: FontWeight.w700),
+                                ),
+                              ],
+                            ),
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  PicnicUi.horizontal(16),
+                                  0,
+                                  PicnicUi.horizontal(16),
+                                  PicnicUi.vertical(16),
+                                ),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: _buildAnswer(faq, currentLanguage),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       );
                     },
                   )
@@ -323,10 +336,16 @@ class _FAQPageState extends ConsumerState<FAQPage>
                     children: [
                       SizedBox(
                         height: MediaQuery.sizeOf(context).height * 0.55,
-                        child: NoItemContainer(
-                          message: AppLocalizations.of(
-                            context,
-                          ).common_text_no_search_result,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(PicnicUi.horizontal(24)),
+                            child: PicnicFeedback(
+                              icon: Icons.help_outline,
+                              message: AppLocalizations.of(
+                                context,
+                              ).common_text_no_search_result,
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -340,21 +359,16 @@ class _FAQPageState extends ConsumerState<FAQPage>
   Widget _buildError(BuildContext context, {bool compact = false}) {
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(compact ? 8 : 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context).message_error_occurred,
-              textAlign: TextAlign.center,
-            ),
-            TextButton.icon(
-              key: const ValueKey('faq-retry'),
-              onPressed: _fetchPage,
-              icon: const Icon(Icons.refresh),
-              label: Text(AppLocalizations.of(context).label_retry),
-            ),
-          ],
+        padding: EdgeInsets.all(
+          compact ? PicnicUi.horizontal(8) : PicnicUi.horizontal(24),
+        ),
+        child: PicnicFeedback(
+          key: const ValueKey('faq-retry'),
+          inline: compact,
+          icon: Icons.error_outline,
+          message: AppLocalizations.of(context).message_error_occurred,
+          actionLabel: AppLocalizations.of(context).label_retry,
+          onAction: _fetchPage,
         ),
       ),
     );

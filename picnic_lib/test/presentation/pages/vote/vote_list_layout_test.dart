@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 import 'package:picnic_lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -159,6 +160,28 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
     },
   );
+
+  testWidgets('type and status filters offer 48px targets on a small screen', (
+    tester,
+  ) async {
+    await _showList(tester, screen: const Size(320, 700), upcoming: false);
+    final typeChip = find.ancestor(
+      of: find.text('ALL'),
+      matching: find.byType(PicnicFilterChip),
+    );
+    final typeTarget = find.descendant(
+      of: typeChip,
+      matching: find.byType(InkWell),
+    );
+    expect(typeTarget, findsOneWidget);
+    expect(tester.getSize(typeTarget).height, greaterThanOrEqualTo(48));
+    expect(tester.getSize(typeTarget).width, greaterThanOrEqualTo(48));
+    final status = find.byType(DropdownButton<VoteStatus>);
+    expect(tester.getSize(status).height, greaterThanOrEqualTo(48));
+    drainExpectedImageErrors(tester);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1));
+  });
 
   for (final screen in [
     const Size(320, 700),

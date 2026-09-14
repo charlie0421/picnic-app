@@ -149,10 +149,12 @@ void main() {
       );
       final purchaseButton = find.descendant(
         of: star200Tile,
-        matching: find.byType(ElevatedButton),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is ButtonStyleButton,
+        ),
       );
       expect(
-        tester.widget<ElevatedButton>(purchaseButton).onPressed,
+        tester.widget<ButtonStyleButton>(purchaseButton).onPressed,
         isNotNull,
       );
     },
@@ -357,6 +359,9 @@ void main() {
     expect(find.text('450'), findsNothing);
     expect(find.text('+100%'), findsOneWidget);
     expect(find.byKey(const Key('purchase-price-cta')), findsOneWidget);
-    expect(find.byType(ElevatedButton), findsOneWidget);
+    expect(
+      find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      findsOneWidget,
+    );
   });
 }

@@ -213,6 +213,9 @@ void main() {
         await tester.pumpWidget(
           buildTestApp(
             const HomePage(),
+            // Match the app's split-screen policy so shrinking the viewport
+            // leaves a usable extent instead of also collapsing every .h gap.
+            splitScreenMode: true,
             extraOverrides: [
               asyncLatestMediaProvider.overrideWith(
                 () => DeferredLatestMedia(latest),
@@ -244,6 +247,10 @@ void main() {
         tester.view.physicalSize = const Size(1125, 450);
         await tester.pump();
         await tester.pump();
+        expect(
+          list.controller!.position.maxScrollExtent,
+          greaterThanOrEqualTo(120),
+        );
         expect(list.controller!.offset, closeTo(120, 0.1));
         expect(container.read(homeViewStateProvider).scrollOffset, 120);
       },

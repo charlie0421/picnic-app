@@ -9,6 +9,9 @@ import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart'
 import 'package:picnic_lib/presentation/providers/latest_media_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/grid_two_column.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_section_header.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// 홈 화면 최신 미디어(유튜브 영상) 2열 그리드 섹션.
@@ -33,13 +36,12 @@ class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16.w),
-          child: Text(
-            AppLocalizations.of(context).nav_media,
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+          child: PicnicSectionHeader(
+            title: AppLocalizations.of(context).nav_media,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: PicnicUi.vertical(16)),
         mediaAsync.when(
           loading: () {
             return _lastItems.isNotEmpty
@@ -50,11 +52,21 @@ class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
             return Column(
               children: [
                 if (_lastItems.isNotEmpty) _mediaGrid(_lastItems),
-                TextButton.icon(
-                  key: const ValueKey('latest-media-retry'),
-                  onPressed: () => ref.invalidate(asyncLatestMediaProvider),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(AppLocalizations.of(context).label_retry),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: PicnicUi.horizontal(16),
+                    vertical: PicnicUi.vertical(12),
+                  ),
+                  child: PicnicFeedback(
+                    key: const ValueKey('latest-media-retry'),
+                    message: AppLocalizations.of(
+                      context,
+                    ).message_error_occurred,
+                    icon: Icons.error_outline,
+                    actionLabel: AppLocalizations.of(context).label_retry,
+                    onAction: () => ref.invalidate(asyncLatestMediaProvider),
+                    inline: _lastItems.isNotEmpty,
+                  ),
                 ),
               ],
             );
@@ -95,7 +107,7 @@ class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
               right: 0,
               bottom: 0,
               child: Container(
-                height: 30,
+                constraints: const BoxConstraints(minHeight: 30),
                 color: AppColors.grey900.withValues(alpha: 0.7),
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -111,8 +123,11 @@ class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
   /// 미디어 제목 안의 `#아티스트` 해시태그를 강조(민트·볼드)해 렌더링한다.
   /// 예: "7월은 #지윤 의 달💙" → "#지윤" 부분만 강조.
   Widget _artistEmphasizedTitle(String title) {
-    final base = getTextStyle(AppTypo.body14R, Colors.white);
-    final emphasis = getTextStyle(AppTypo.body14B, AppColors.secondary500);
+    final base = PicnicUi.text(color: Colors.white);
+    final emphasis = PicnicUi.text(
+      weight: FontWeight.w600,
+      color: AppColors.secondary500,
+    );
     final tag = RegExp(r'#[^\s#]+');
     final spans = <TextSpan>[];
     var last = 0;

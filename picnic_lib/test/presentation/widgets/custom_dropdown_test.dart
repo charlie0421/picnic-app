@@ -4,9 +4,54 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/custom_dropdown_button.dart';
 
 import '../../helpers/test_environment.dart';
+import '../../helpers/test_app.dart';
+import '../../helpers/load_test_fonts.dart';
 
 void main() {
   setUpAll(() => initTestColors());
+  setUpAll(loadTestFonts);
+
+  testWidgets(
+    'long category remains readable and selectable at 320px and 200%',
+    (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const label = '보너스 스타캔디 적립 및 투표기능 관련 문의';
+      String? selected;
+      await tester.pumpWidget(
+        buildTestApp(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: CustomDropdown(
+              value: 'long',
+              onChanged: (value) => selected = value,
+              items: [
+                CustomDropdownMenuItem(value: 'long', text: label),
+                CustomDropdownMenuItem(value: 'general', text: '일반 문의'),
+              ],
+            ),
+          ),
+          designSize: const Size(393, 892),
+          splitScreenMode: true,
+          textScaler: const TextScaler.linear(2),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      final bounds = tester.getRect(find.byType(CustomDropdown));
+      final textBounds = tester.getRect(find.text(label));
+      expect(textBounds.left, greaterThanOrEqualTo(bounds.left));
+      expect(textBounds.right, lessThanOrEqualTo(bounds.right));
+      expect(textBounds.bottom, lessThanOrEqualTo(bounds.bottom));
+      await tester.tap(find.byType(DropdownButton<String>));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('일반 문의').last);
+      await tester.pumpAndSettle();
+      expect(selected, 'general');
+      expect(tester.takeException(), isNull);
+    },
+  );
 
   group('CustomDropdownMenuItem', () {
     test('생성 확인', () {
@@ -37,7 +82,8 @@ void main() {
               body: CustomDropdown(
                 value: value,
                 onChanged: onChanged ?? (_) {},
-                items: items ??
+                items:
+                    items ??
                     [
                       CustomDropdownMenuItem(value: 'option1', text: '옵션 1'),
                       CustomDropdownMenuItem(value: 'option2', text: '옵션 2'),
@@ -72,13 +118,15 @@ void main() {
     });
 
     testWidgets('빈 값(placeholder)으로 렌더링', (tester) async {
-      await tester.pumpWidget(buildTestWidget(
-        value: '',
-        items: [
-          CustomDropdownMenuItem(value: '', text: '선택하세요'),
-          CustomDropdownMenuItem(value: 'a', text: 'A'),
-        ],
-      ));
+      await tester.pumpWidget(
+        buildTestWidget(
+          value: '',
+          items: [
+            CustomDropdownMenuItem(value: '', text: '선택하세요'),
+            CustomDropdownMenuItem(value: 'a', text: 'A'),
+          ],
+        ),
+      );
       await tester.pump();
 
       expect(find.byType(CustomDropdown), findsOneWidget);

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,8 +26,16 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
+
+/// 라우트가 아무리 좁아도 팝업 본문을 이 아래로는 줄이지 않는다.
+const double _minimumDialogBudget = 200;
+
+/// 고정 헤더·푸터를 유지할 수 있는 최소 본문 예산. 이보다 좁으면 헤더/푸터만으로
+/// 예산을 넘겨 스크롤 영역이 0 이 되므로 전체 스크롤로 전환한다.
+const double _fixedChromeMinimumBudget = 360;
 
 Future showJmaVotingDialog({
   required BuildContext context,
@@ -266,13 +275,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
 
-    // 키보드 높이 감지
+    // 키보드 여백은 "보이는가" 판단과 여백 축소에만 쓰고, 다이얼로그 높이
+    // 계산에는 쓰지 않는다. AlertDialog/Dialog 가 viewInsets 와 insetPadding 을
+    // 먼저 덜어낸 뒤 content 에 제약을 주므로, 아래 LayoutBuilder 가 받는
+    // maxHeight 가 곧 "라우트가 실제로 남겨 준 높이"(세이프에어리어 포함)다.
+    // 여기서 viewInsets 를 다시 빼면 키보드를 두 번 적용하게 된다.
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = keyboardHeight > 0;
-
-    // 사용 가능한 화면 높이 계산 (키보드 고려)
-    final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight - keyboardHeight;
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -299,48 +308,60 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             onTap: () {
               FocusScope.of(context).unfocus();
             },
-            child: LargePopupWidget(
-              showCloseButton: false,
-              content: Container(
-                constraints: BoxConstraints(
-                  maxHeight:
-                      isKeyboardVisible
-                          ? availableHeight * 0.85
-                          : availableHeight * 0.75,
-                  minHeight: 200,
-                  maxWidth: MediaQuery.of(context).size.width - 32.w,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 고정 헤더 - JMA 제목 + 아티스트 정보
-                    _buildFixedHeader(),
-
-                    // 스크롤 가능한 중간 영역
-                    Expanded(
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20.w,
-                          ), // 6 → 20으로 증가
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              SizedBox(height: 8.h),
-                              _buildStarCandyInfo(myStarCandy),
-                              SizedBox(height: 8.h),
-                              _buildVoteInputSection(),
-                            ],
-                          ),
-                        ),
+            // 폭을 카드와 같은 값으로 고정해 둔다. AlertDialog 는 자식을
+            // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
+            // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
+            // 폭 제약이 그 질의를 여기서 끊는다.
+            child: SizedBox(
+              width: defaultLargePopupWidth(),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final available = constraints.hasBoundedHeight
+                      ? constraints.maxHeight
+                      : MediaQuery.of(context).size.height;
+                  // 평소 모습(키보드 85% / 기본 75%)은 선호 높이로 그대로 두고,
+                  // 라우트가 실제로 남겨 준 높이에서 카드 테두리와 숨김 스트립을
+                  // 뺀 값을 상한으로 삼는다. 예전 계산은 카드 안쪽만 비율로
+                  // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
+                  final preferred =
+                      (MediaQuery.of(context).size.height - keyboardHeight) *
+                      (isKeyboardVisible ? 0.85 : 0.75);
+                  final fits = math.max(
+                    0.0,
+                    available - largePopupHiddenChromeHeight(),
+                  );
+                  final budget = math.min(preferred, fits);
+                  // 큰 글자나 아주 낮은 뷰포트에서는 고정 헤더/푸터만으로도
+                  // 예산을 넘길 수 있다. 그때만 전체를 한 번에 스크롤하고,
+                  // 평소에는 기존 고정 헤더 + 스크롤 본문 + 고정 푸터를 쓴다.
+                  final compactChrome =
+                      budget < _fixedChromeMinimumBudget ||
+                      MediaQuery.textScalerOf(context).scale(14) > 18.2;
+                  return LargePopupWidget(
+                    showCloseButton: false,
+                    content: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: budget,
+                        // 200 은 팝업이 찌부러지지 않게 지키는 하한이지만,
+                        // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
+                        // 에어리어) 있는 만큼으로 함께 내려야 한다.
+                        minHeight: math.min(_minimumDialogBudget, budget),
+                        maxWidth: MediaQuery.of(context).size.width - 32.w,
                       ),
+                      child: compactChrome
+                          ? _buildAllScrollBody(
+                              myStarCandy,
+                              userId,
+                              isKeyboardVisible,
+                            )
+                          : _buildFixedChromeBody(
+                              myStarCandy,
+                              userId,
+                              isKeyboardVisible,
+                            ),
                     ),
-
-                    // 고정 푸터 - 투표 버튼 + JMA 로고 (키보드 시 로고 숨김)
-                    _buildFixedFooter(userId, isKeyboardVisible),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ),
@@ -349,12 +370,73 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
+  /// 기존 구성: 고정 헤더 + 스크롤 본문 + 고정 푸터.
+  Widget _buildFixedChromeBody(
+    int myStarCandy,
+    String userId,
+    bool isKeyboardVisible,
+  ) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // 고정 헤더 - JMA 제목 + 아티스트 정보
+        _buildFixedHeader(isKeyboardVisible),
+
+        // 스크롤 가능한 중간 영역
+        Expanded(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: _buildScrollableMiddle(myStarCandy, isKeyboardVisible),
+          ),
+        ),
+
+        // 고정 푸터 - 투표 버튼 + JMA 로고 (키보드 시 로고 숨김)
+        _buildFixedFooter(userId, isKeyboardVisible),
+      ],
+    );
+  }
+
+  /// 예산이 헤더/푸터조차 담지 못할 때만 쓰는 구성 — 같은 순서, 같은 조각을
+  /// 하나의 스크롤 안에 넣어 무엇도 잘리지 않게 한다.
+  Widget _buildAllScrollBody(
+    int myStarCandy,
+    String userId,
+    bool isKeyboardVisible,
+  ) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildFixedHeader(isKeyboardVisible),
+          _buildScrollableMiddle(myStarCandy, isKeyboardVisible),
+          _buildFixedFooter(userId, isKeyboardVisible),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildScrollableMiddle(int myStarCandy, bool isKeyboardVisible) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(height: PicnicUi.vertical(8)),
+          _buildStarCandyInfo(myStarCandy),
+          SizedBox(height: PicnicUi.vertical(8)),
+          _buildVoteInputSection(isKeyboardVisible),
+        ],
+      ),
+    );
+  }
+
   Widget _buildJmaHeader() {
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8,
-      ), // 12,6 → 16,8로 복원
+        horizontal: PicnicUi.horizontal(16),
+        vertical: PicnicUi.vertical(8),
+      ),
       decoration: BoxDecoration(
         gradient: commonGradient,
         borderRadius: BorderRadius.circular(20),
@@ -386,10 +468,22 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               ),
             ),
           ),
-          SizedBox(width: 8.w), // 6 → 8로 복원
-          Text(
-            'Jupiter Music Awards',
-            style: getTextStyle(AppTypo.caption12B, Colors.white),
+          SizedBox(width: PicnicUi.horizontal(8)),
+          // 기존 자간(1.5)이 이 한 줄을 좁은 화면에서 넘치게 만들었다. 자간 0
+          // 토큰으로 되돌리고, 더 좁은 화면을 위해 줄어들 수 있게 한다.
+          //
+          // 한 줄 + ellipsis 는 320 폭 / 200% 에서 대회 이름을 잘라냈다. 배지는
+          // 고정 높이가 아니므로 자연스럽게 줄바꿈해 전체 이름을 유지한다.
+          Flexible(
+            child: Text(
+              'Jupiter Music Awards',
+              softWrap: true,
+              style: PicnicUi.text(
+                size: 12,
+                weight: FontWeight.w700,
+                color: Colors.white,
+              ),
+            ),
           ),
         ],
       ),
@@ -411,9 +505,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  Widget _buildVoteAmountInput(BuildContext context) {
-    final isKeyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
-
+  Widget _buildVoteAmountInput(BuildContext context, bool isKeyboardVisible) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
@@ -421,8 +513,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
       if (_focusNode.hasFocus && isKeyboardVisible) {
-        final RenderObject? renderObject =
-            _inputFieldKey.currentContext?.findRenderObject();
+        final RenderObject? renderObject = _inputFieldKey.currentContext
+            ?.findRenderObject();
         if (renderObject != null) {
           Scrollable.ensureVisible(
             _inputFieldKey.currentContext!,
@@ -434,30 +526,25 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       }
     });
 
+    final hasError = !_canVote && _hasValue;
+    final frameColor = hasError ? AppColors.statusError : PicnicUi.actionColor;
+
     return Container(
       key: _inputFieldKey,
-      height: 36,
+      // 36 은 최소 터치 영역에 못 미치고 큰 글자에서 입력값을 잘라냈다.
+      constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
       decoration: BoxDecoration(
-        border: Border.all(
-          color:
-              !_canVote && _hasValue
-                  ? AppColors.statusError
-                  : AppColors.primary500,
-          width: 2,
-        ),
+        border: Border.all(color: frameColor, width: 2),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color:
-                !_canVote && _hasValue
-                    ? AppColors.statusError.withValues(alpha: 0.2)
-                    : AppColors.primary500.withValues(alpha: 0.2),
+            color: frameColor.withValues(alpha: 0.2),
             blurRadius: 6,
             offset: Offset(0, 2),
           ),
         ],
       ),
-      padding: EdgeInsets.only(right: 16.w),
+      padding: EdgeInsets.only(right: PicnicUi.horizontal(4)),
       child: Row(
         children: [
           Expanded(
@@ -475,7 +562,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               },
               child: TextFormField(
                 cursorHeight: 16.h,
-                cursorColor: AppColors.primary500,
+                cursorColor: PicnicUi.actionColor,
                 focusNode: _focusNode,
                 controller: _textEditingController,
                 keyboardType: TextInputType.number,
@@ -485,10 +572,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
                   border: InputBorder.none,
-                  focusColor: AppColors.primary500,
+                  focusColor: PicnicUi.actionColor,
                   fillColor: Colors.white,
                   isCollapsed: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 24.w),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: PicnicUi.horizontal(24),
+                    vertical: PicnicUi.vertical(8),
+                  ),
                 ),
                 onChanged: (_) => _validateVote(),
                 inputFormatters: [
@@ -528,7 +618,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     );
                   }),
                 ],
-                style: getTextStyle(AppTypo.body16B, AppColors.primary500),
+                style: PicnicUi.text(
+                  size: 16,
+                  weight: FontWeight.w700,
+                  color: PicnicUi.actionColor,
+                ),
               ),
             ),
           ),
@@ -539,62 +633,58 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   Widget _buildJmaInformation() {
+    final policyLineStyle = PicnicUi.text(size: 12, color: PicnicUi.ink);
+
     return Column(
       children: [
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: () {
             setState(() {
               _isPolicyExpanded = !_isPolicyExpanded;
             });
           },
-          child: Text(
-            AppLocalizations.of(context).label_button_view_policy,
-            style: getTextStyle(
-              AppTypo.caption12M,
-              AppColors.grey600,
-            ).copyWith(decoration: TextDecoration.underline),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: PicnicUi.minimumTapTarget,
+            ),
+            child: Center(
+              child: Text(
+                AppLocalizations.of(context).label_button_view_policy,
+                style: PicnicUi.text(
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: PicnicUi.secondaryText,
+                ).copyWith(decoration: TextDecoration.underline),
+              ),
+            ),
           ),
         ),
         if (_isPolicyExpanded)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            padding: EdgeInsets.symmetric(vertical: PicnicUi.vertical(8)),
             child: Column(
-              children:
-                  AppLocalizations.of(
-                    context,
-                  ).jma_voting_info_text.split('\n').map((line) {
-                    final text =
-                        line.startsWith('-')
-                            ? line.substring(1).trim()
-                            : line.trim();
+              children: AppLocalizations.of(context).jma_voting_info_text
+                  .split('\n')
+                  .map((line) {
+                    final text = line.startsWith('-')
+                        ? line.substring(1).trim()
+                        : line.trim();
                     if (text.isEmpty) {
                       return const SizedBox.shrink();
                     }
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 4.0),
+                      padding: EdgeInsets.only(bottom: PicnicUi.vertical(4)),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '• ',
-                            style: getTextStyle(
-                              AppTypo.caption12R,
-                              AppColors.grey700,
-                            ),
-                          ),
-                          Expanded(
-                            child: Text(
-                              text,
-                              style: getTextStyle(
-                                AppTypo.caption12R,
-                                AppColors.grey700,
-                              ),
-                            ),
-                          ),
+                          Text('• ', style: policyLineStyle),
+                          Expanded(child: Text(text, style: policyLineStyle)),
                         ],
                       ),
                     );
-                  }).toList(),
+                  })
+                  .toList(),
             ),
           ),
       ],
@@ -602,11 +692,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   // 아티스트 정보 (가로 레이아웃)
-  Widget _buildArtistInfoRow() {
-    // 키보드 상태 확인
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardVisible = keyboardHeight > 0;
-
+  Widget _buildArtistInfoRow(bool isKeyboardVisible) {
     // 아티스트 이미지 URL을 가져오기
     String? imageUrl;
     if ((widget.voteItemModel.artist?.id ?? 0) != 0) {
@@ -628,32 +714,31 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               border: Border.all(color: AppColors.primary500, width: 2),
             ),
             child: ClipOval(
-              child:
-                  imageUrl != null && imageUrl.isNotEmpty
-                      ? PicnicCachedNetworkImage(
+              child: imageUrl != null && imageUrl.isNotEmpty
+                  ? PicnicCachedNetworkImage(
+                      imageUrl: imageUrl,
+                      width: 60.w,
+                      height: 60.w,
+                      fit: BoxFit.cover,
+                      placeholder: VoteDetailPortraitCachePlaceholder(
                         imageUrl: imageUrl,
-                        width: 60.w,
-                        height: 60.w,
-                        fit: BoxFit.cover,
-                        placeholder: VoteDetailPortraitCachePlaceholder(
-                          imageUrl: imageUrl,
-                        ),
-                        lazyLoadingStrategy: LazyLoadingStrategy.none,
-                        priority: ImagePriority.high,
-                      )
-                      : Container(
-                        width: 60.w,
-                        height: 60.w,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.grey200,
-                        ),
-                        child: Icon(
-                          Icons.person,
-                          size: 30.w,
-                          color: AppColors.grey500,
-                        ),
                       ),
+                      lazyLoadingStrategy: LazyLoadingStrategy.none,
+                      priority: ImagePriority.high,
+                    )
+                  : Container(
+                      width: 60.w,
+                      height: 60.w,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.grey200,
+                      ),
+                      child: Icon(
+                        Icons.person,
+                        size: 30.w,
+                        color: AppColors.grey500,
+                      ),
+                    ),
             ),
           ),
           SizedBox(width: 12), // 10 → 12로 복원
@@ -663,11 +748,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         Expanded(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment:
-                isKeyboardVisible
-                    ? CrossAxisAlignment
-                        .center // 키보드 시 중앙 정렬
-                    : CrossAxisAlignment.start, // 평상시 왼쪽 정렬
+            crossAxisAlignment: isKeyboardVisible
+                ? CrossAxisAlignment
+                      .center // 키보드 시 중앙 정렬
+                : CrossAxisAlignment.start, // 평상시 왼쪽 정렬
             children: [
               // 메인 아티스트 이름
               Text(
@@ -676,12 +760,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                       ? widget.voteItemModel.artist?.name ?? {}
                       : widget.voteItemModel.artistGroup?.name ?? {},
                 ),
-                style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                textAlign:
-                    isKeyboardVisible
-                        ? TextAlign
-                            .center // 키보드 시 중앙 정렬
-                        : TextAlign.start, // 평상시 왼쪽 정렬
+                style: PicnicUi.text(size: 14, weight: FontWeight.w700),
+                textAlign: isKeyboardVisible
+                    ? TextAlign
+                          .center // 키보드 시 중앙 정렬
+                    : TextAlign.start, // 평상시 왼쪽 정렬
               ),
 
               // 그룹 이름 (솔로 아티스트의 경우)
@@ -692,12 +775,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   getLocaleTextFromJson(
                     widget.voteItemModel.artist!.artistGroup!.name,
                   ),
-                  style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
-                  textAlign:
-                      isKeyboardVisible
-                          ? TextAlign
-                              .center // 키보드 시 중앙 정렬
-                          : TextAlign.start, // 평상시 왼쪽 정렬
+                  style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
+                  textAlign: isKeyboardVisible
+                      ? TextAlign
+                            .center // 키보드 시 중앙 정렬
+                      : TextAlign.start, // 평상시 왼쪽 정렬
                 ),
               ],
             ],
@@ -714,11 +796,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.w),
-      decoration: BoxDecoration(
+      padding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(8),
+        vertical: PicnicUi.vertical(4),
+      ),
+      decoration: PicnicUi.surfaceDecoration(
+        radius: 8,
         color: AppColors.grey100,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200, width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -726,12 +810,19 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           // 나의 별사탕 섹션
           Text(
             AppLocalizations.of(context).jma_voting_my_star_candy,
-            style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
+            style: PicnicUi.text(size: 12, weight: FontWeight.w700),
           ),
 
           // 보유량 표시
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //
+          // 320 폭 / 200% 에서는 두 묶음이 한 줄에 들어가지 않아 Row 가 20px
+          // 넘쳤다. 자리가 있으면 예전과 같은 한 줄 양끝 정렬이고, 모자라면
+          // 다음 줄로 자연스럽게 넘어간다.
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: PicnicUi.horizontal(8),
+            runSpacing: PicnicUi.vertical(4),
             children: [
               // 기본 별사탕
               Row(
@@ -743,10 +834,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     width: 40,
                     height: 40,
                   ),
-                  SizedBox(width: 3),
+                  SizedBox(width: PicnicUi.horizontal(4)),
                   Text(
                     formatNumberWithComma(myStarCandy),
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey600),
+                    style: PicnicUi.text(
+                      size: 12,
+                      weight: FontWeight.w700,
+                      color: PicnicUi.secondaryText,
+                    ),
                   ),
                 ],
               ),
@@ -761,12 +856,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     width: 18,
                     height: 18,
                   ),
-                  SizedBox(width: 3),
+                  SizedBox(width: PicnicUi.horizontal(4)),
                   Text(
                     '${formatNumberWithComma(bonusStarCandy)}개',
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      Colors.orange.shade700,
+                    style: PicnicUi.text(
+                      size: 12,
+                      weight: FontWeight.w700,
+                      color: Colors.orange.shade700,
                     ),
                   ),
                 ],
@@ -794,9 +890,13 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           // 사용가능 별사탕 섹션
           Text(
             AppLocalizations.of(context).jma_voting_usable_jma_votes,
-            style: getTextStyle(AppTypo.caption12B, AppColors.primary500),
+            style: PicnicUi.text(
+              size: 12,
+              weight: FontWeight.w700,
+              color: PicnicUi.actionColor,
+            ),
           ),
-          SizedBox(height: 4),
+          SizedBox(height: PicnicUi.vertical(4)),
 
           // 사용 가능량들
           Row(
@@ -806,19 +906,20 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(width: 10),
+                  SizedBox(width: PicnicUi.horizontal(8)),
                   Image.asset(
                     package: 'picnic_lib',
                     'assets/icons/store/jma.png',
                     width: 22,
                     height: 22,
                   ),
-                  SizedBox(width: 12),
+                  SizedBox(width: PicnicUi.horizontal(12)),
                   Text(
                     formatNumberWithComma(usableStarCandy),
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      AppColors.primary500,
+                    style: PicnicUi.text(
+                      size: 12,
+                      weight: FontWeight.w700,
+                      color: PicnicUi.actionColor,
                     ),
                   ),
                 ],
@@ -834,14 +935,15 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     width: 18,
                     height: 18,
                   ),
-                  SizedBox(width: 3),
+                  SizedBox(width: PicnicUi.horizontal(4)),
                   Text(
                     _isDailyVoteCountLoaded
                         ? '${formatNumberWithComma(usableBonusVotes)}개'
                         : '-',
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      Colors.orange.shade700,
+                    style: PicnicUi.text(
+                      size: 12,
+                      weight: FontWeight.w700,
+                      color: Colors.orange.shade700,
                     ),
                   ),
                 ],
@@ -857,14 +959,18 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final remainingVotes = _maxDailyVotes - _dailyVoteCount;
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4),
-      margin: EdgeInsets.only(top: 4),
+      padding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(8),
+        vertical: PicnicUi.vertical(4),
+      ),
+      margin: EdgeInsets.only(top: PicnicUi.vertical(4)),
       decoration: BoxDecoration(
         color: remainingVotes > 0 ? Colors.blue.shade50 : Colors.red.shade50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color:
-              remainingVotes > 0 ? Colors.blue.shade200 : Colors.red.shade200,
+          color: remainingVotes > 0
+              ? Colors.blue.shade200
+              : Colors.red.shade200,
           width: 1,
         ),
       ),
@@ -872,26 +978,30 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         children: [
           Icon(
             remainingVotes > 0 ? Icons.access_time : Icons.warning,
-            color:
-                remainingVotes > 0 ? Colors.blue.shade600 : Colors.red.shade600,
-            size: 14,
+            color: remainingVotes > 0
+                ? Colors.blue.shade600
+                : Colors.red.shade600,
+            size: 16,
           ),
-          SizedBox(width: 6.w),
+          SizedBox(width: PicnicUi.horizontal(8)),
           Expanded(
             child: Text(
               remainingVotes > 0
                   ? AppLocalizations.of(
-                    context,
-                  ).jma_voting_daily_limit_remaining(
-                    _isDailyVoteCountLoaded ? _maxDailyVotes : 0,
-                    _isDailyVoteCountLoaded ? remainingVotes : 0,
-                  )
+                      context,
+                    ).jma_voting_daily_limit_remaining(
+                      _isDailyVoteCountLoaded ? _maxDailyVotes : 0,
+                      _isDailyVoteCountLoaded ? remainingVotes : 0,
+                    )
                   : AppLocalizations.of(
-                    context,
-                  ).jma_voting_daily_limit_exhausted,
-              style: getTextStyle(
-                AppTypo.caption10SB,
-                remainingVotes > 0 ? Colors.blue.shade700 : Colors.red.shade700,
+                      context,
+                    ).jma_voting_daily_limit_exhausted,
+              style: PicnicUi.text(
+                size: 12,
+                weight: FontWeight.w600,
+                color: remainingVotes > 0
+                    ? Colors.blue.shade700
+                    : Colors.red.shade700,
               ),
             ),
           ),
@@ -907,8 +1017,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       if (_validationMessage.isNotEmpty) {
         return Container(
           width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: 8.w),
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          margin: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(8)),
+          padding: EdgeInsets.symmetric(
+            horizontal: PicnicUi.horizontal(12),
+            vertical: PicnicUi.vertical(8),
+          ),
           decoration: BoxDecoration(
             color: AppColors.statusError.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(6),
@@ -928,17 +1041,18 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 ),
                 child: const Icon(
                   Icons.warning_rounded,
-                  size: 12,
+                  size: 16,
                   color: AppColors.statusError,
                 ),
               ),
-              const SizedBox(width: 6),
+              SizedBox(width: PicnicUi.horizontal(8)),
               Expanded(
                 child: Text(
                   _validationMessage,
-                  style: getTextStyle(
-                    AppTypo.caption12M,
-                    AppColors.statusError,
+                  style: PicnicUi.text(
+                    size: 12,
+                    weight: FontWeight.w500,
+                    color: AppColors.statusError,
                   ),
                 ),
               ),
@@ -956,8 +1070,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     if (isAdmin) {
       return Container(
         width: double.infinity,
-        margin: EdgeInsets.symmetric(horizontal: 8.w),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+        margin: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(8)),
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(8),
+        ),
         decoration: BoxDecoration(
           color: AppColors.primary500.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(6),
@@ -977,27 +1094,38 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               ),
               child: Icon(
                 Icons.calculate_rounded,
-                size: 12,
-                color: AppColors.primary500,
+                size: 16,
+                color: PicnicUi.actionColor,
               ),
             ),
-            const SizedBox(width: 4),
+            SizedBox(width: PicnicUi.horizontal(4)),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+              padding: EdgeInsets.symmetric(
+                horizontal: PicnicUi.horizontal(4),
+                vertical: 1,
+              ),
               decoration: BoxDecoration(
-                color: AppColors.primary500,
+                color: PicnicUi.actionColor,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 'Admin',
-                style: getTextStyle(AppTypo.caption10SB, Colors.white),
+                style: PicnicUi.text(
+                  size: 10,
+                  weight: FontWeight.w600,
+                  color: PicnicUi.onActionColor,
+                ),
               ),
             ),
-            const SizedBox(width: 6),
+            SizedBox(width: PicnicUi.horizontal(8)),
             Expanded(
               child: Text(
                 _getCalculationResultMessage(),
-                style: getTextStyle(AppTypo.caption12M, AppColors.primary500),
+                style: PicnicUi.text(
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: PicnicUi.actionColor,
+                ),
               ),
             ),
           ],
@@ -1047,23 +1175,28 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         }
         _validateVote();
       },
-      child: SizedBox(
-        height: 20,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               _checkAll ? Icons.check_box : Icons.check_box_outline_blank,
-              color: _checkAll ? AppColors.primary500 : AppColors.grey400,
+              color: _checkAll ? PicnicUi.actionColor : PicnicUi.secondaryText,
               size: 20,
             ),
-            SizedBox(width: 4.w),
-            Text(
-              AppLocalizations.of(context).jma_voting_use_all,
-              style: getTextStyle(
-                AppTypo.body14M,
-                _checkAll ? AppColors.primary500 : AppColors.grey400,
+            SizedBox(width: PicnicUi.horizontal(4)),
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context).jma_voting_use_all,
+                style: PicnicUi.text(
+                  size: 14,
+                  weight: FontWeight.w500,
+                  color: _checkAll
+                      ? PicnicUi.actionColor
+                      : PicnicUi.secondaryText,
+                ),
               ),
             ),
           ],
@@ -1087,10 +1220,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
         _focusNode.requestFocus();
       },
-      child: Icon(
-        Icons.clear,
-        color: _hasValue ? AppColors.primary500 : AppColors.grey400,
-        size: 20,
+      // 글리프는 20 그대로 두고, 감싸는 영역만 최소 터치 크기로 키운다.
+      child: SizedBox(
+        width: PicnicUi.minimumTapTarget,
+        height: PicnicUi.minimumTapTarget,
+        child: Center(
+          child: Icon(
+            Icons.clear,
+            color: _hasValue ? PicnicUi.actionColor : PicnicUi.secondaryText,
+            size: 20,
+          ),
+        ),
       ),
     );
   }
@@ -1102,11 +1242,15 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
 
       if (voteAmount > 0) {
         return Container(
-          padding: EdgeInsets.only(left: 22.w),
+          padding: EdgeInsets.only(left: PicnicUi.horizontal(24)),
           width: double.infinity,
           child: Text(
             '${formatNumberWithComma(voteAmount)}개의 투표를 진행합니다.',
-            style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
+            style: PicnicUi.text(
+              size: 12,
+              weight: FontWeight.w600,
+              color: PicnicUi.actionColor,
+            ),
             textAlign: TextAlign.left,
           ),
         );
@@ -1122,26 +1266,30 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       onTap: isEnabled ? () => _handleVote(userId) : null,
       child: Container(
         width: 172.w,
-        height: 44, // 44 → 52로 복원
+        // 44 는 최소 터치 크기 미만이었다.
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(4),
+        ),
         decoration: BoxDecoration(
           gradient: (_isVoting || isEnabled) ? commonGradient : null,
           color: (_isVoting || isEnabled) ? null : AppColors.grey300,
           borderRadius: BorderRadius.circular(24),
-          boxShadow:
-              (_isVoting || isEnabled)
-                  ? [
-                    BoxShadow(
-                      color: AppColors.primary500.withValues(alpha: 0.4),
-                      blurRadius: 8,
-                      offset: Offset(0, 4),
-                    ),
-                    BoxShadow(
-                      color: AppColors.secondary500.withValues(alpha: 0.2),
-                      blurRadius: 4,
-                      offset: Offset(0, 2),
-                    ),
-                  ]
-                  : null,
+          boxShadow: (_isVoting || isEnabled)
+              ? [
+                  BoxShadow(
+                    color: AppColors.primary500.withValues(alpha: 0.4),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                  BoxShadow(
+                    color: AppColors.secondary500.withValues(alpha: 0.2),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ]
+              : null,
         ),
         alignment: Alignment.center,
         child: _isVoting
@@ -1159,13 +1307,19 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                       color: Colors.white,
                       size: 20, // 18 → 20으로 복원
                     ),
-                    SizedBox(width: 8.w), // 6 → 8로 복원
+                    SizedBox(width: PicnicUi.horizontal(8)),
                   ],
-                  Text(
-                    AppLocalizations.of(context).label_button_vote,
-                    style: getTextStyle(
-                      AppTypo.title18B, // body16B → title18B로 복원
-                      Colors.white,
+                  Flexible(
+                    child: Text(
+                      AppLocalizations.of(context).label_button_vote,
+                      textAlign: TextAlign.center,
+                      style: PicnicUi.text(
+                        size: 18,
+                        weight: FontWeight.w700,
+                        color: (_isVoting || isEnabled)
+                            ? Colors.white
+                            : PicnicUi.secondaryText,
+                      ),
                     ),
                   ),
                 ],
@@ -1213,8 +1367,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     // 보너스 사용 계산
     final usableBonusVotes = _getUsableBonusVotes();
 
-    final bonusVotesUsed =
-        voteAmount <= usableBonusVotes ? voteAmount : usableBonusVotes;
+    final bonusVotesUsed = voteAmount <= usableBonusVotes
+        ? voteAmount
+        : usableBonusVotes;
 
     // 교환과 투표를 함께 수행
     await _performExchangeAndVoting(voteAmount, userId, bonusVotesUsed);
@@ -1341,9 +1496,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             if (mounted) {
               showSimpleDialog(
                 type: DialogType.error,
-                title: AppLocalizations.of(context).jma_voting_daily_limit_title,
-                content:
-                    AppLocalizations.of(context).jma_voting_daily_limit_error,
+                title: AppLocalizations.of(
+                  context,
+                ).jma_voting_daily_limit_title,
+                content: AppLocalizations.of(
+                  context,
+                ).jma_voting_daily_limit_error,
                 onOk: () {},
               );
             }
@@ -1440,43 +1598,47 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   // 고정 헤더 - JMA 제목 + 아티스트 정보
-  Widget _buildFixedHeader() {
-    // 키보드 상태 확인
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardVisible = keyboardHeight > 0;
-
+  Widget _buildFixedHeader(bool isKeyboardVisible) {
     return Container(
       padding: EdgeInsets.only(
-        top: isKeyboardVisible ? 12.h : 16.h, // 키보드 시 패딩 줄임
-        left: 20.w, // 16 → 20으로 증가
-        right: 20.w, // 16 → 20으로 증가
-        bottom: isKeyboardVisible ? 4.h : 8.h, // 키보드 시 패딩 줄임
+        top: isKeyboardVisible
+            ? PicnicUi.vertical(12)
+            : PicnicUi.vertical(16), // 키보드 시 패딩 줄임
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        bottom: isKeyboardVisible
+            ? PicnicUi.vertical(4)
+            : PicnicUi.vertical(8), // 키보드 시 패딩 줄임
       ),
       child: Column(
         children: [
           _buildJmaHeader(),
-          SizedBox(height: isKeyboardVisible ? 4 : 8), // 키보드 시 간격 줄임
-          _buildArtistInfoRow(),
+          SizedBox(
+            height: isKeyboardVisible
+                ? PicnicUi.vertical(4)
+                : PicnicUi.vertical(8),
+          ), // 키보드 시 간격 줄임
+          _buildArtistInfoRow(isKeyboardVisible),
         ],
       ),
     );
   }
 
   // 투표 입력 섹션
-  Widget _buildVoteInputSection() {
+  Widget _buildVoteInputSection(bool isKeyboardVisible) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         _buildDailyLimitInfo(),
-        const SizedBox(height: 8),
+        SizedBox(height: PicnicUi.vertical(4)),
+        // 전체 사용/입력/지우기는 각자 48 터치 영역을 품고 있어, 예전 20·36 높이
+        // 행을 떼어놓던 간격이 그 안으로 들어갔다.
         _buildCheckAllOption(),
-        const SizedBox(height: 6),
-        _buildVoteAmountInput(context),
-        const SizedBox(height: 6),
+        _buildVoteAmountInput(context, isKeyboardVisible),
+        SizedBox(height: PicnicUi.vertical(4)),
         _buildErrorMessage(),
-        const SizedBox(height: 8),
+        SizedBox(height: PicnicUi.vertical(8)),
         _buildCalculationAndErrorSection(), // 계산 영역을 여기로 이동
-        const SizedBox(height: 8),
         _buildJmaInformation(), // JMA 안내 영역을 아래로 이동
       ],
     );
@@ -1486,15 +1648,15 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   Widget _buildFixedFooter(String userId, bool isKeyboardVisible) {
     return Container(
       padding: EdgeInsets.only(
-        left: 20.w, // 16 → 20으로 증가
-        right: 20.w, // 16 → 20으로 증가
-        bottom: 16.h, // 12 → 16으로 증가
-        top: 8.h, // 6 → 8로 증가
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        bottom: PicnicUi.vertical(16),
+        top: PicnicUi.vertical(8),
       ),
       child: Column(
         children: [
           _buildJmaVoteButton(userId),
-          const SizedBox(height: 8), // 6 → 8로 증가
+          SizedBox(height: PicnicUi.vertical(8)),
           if (!isKeyboardVisible) _buildJmaLogoImage(),
         ],
       ),

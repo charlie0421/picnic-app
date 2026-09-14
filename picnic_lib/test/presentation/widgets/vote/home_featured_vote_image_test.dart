@@ -11,6 +11,7 @@ import 'package:visibility_detector/visibility_detector.dart';
 import '../../../helpers/factories/artist_factory.dart';
 import '../../../helpers/factories/vote_factory.dart';
 import '../../../helpers/image_test_harness.dart';
+import '../../../helpers/load_test_fonts.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
@@ -40,6 +41,7 @@ List<FeaturedVoteEntry> _entries(List<int> ids) => [
 ];
 
 void main() {
+  setUpAll(loadTestFonts);
   setUp(() {
     initTestColors();
     setupMockSupabase({});
@@ -60,6 +62,58 @@ void main() {
       );
       await tester.pump();
     }
+  }
+
+  for (final scale in [1.0, 2.0]) {
+    testWidgets(
+      'featured hero keeps its contents inside a small card at $scale',
+      (tester) async {
+        tester.view.devicePixelRatio = 1;
+        tester.view.physicalSize = const Size(320, 700);
+        addTearDown(tester.view.reset);
+        final harness = await ImageTestHarness.create();
+        addTearDown(harness.dispose);
+        const url = 'https://example.com/hero-small.png';
+        await tester.runAsync(
+          () => harness.respondPng(url, width: 800, height: 400),
+        );
+        final vote = VoteFactory.create(
+          title: {'ko': '현재 진행 중인 아티스트 투표'},
+          voteItem: [
+            VoteItemFactory.create(
+              artist: ArtistFactory.create(
+                image: url,
+                name: {'ko': '이름이 아주 긴 아티스트'},
+              ),
+            ),
+          ],
+        );
+        await tester.pumpWidget(
+          buildTestApp(
+            Center(
+              child: SizedBox(
+                width: 250,
+                height: 364,
+                child: HomeFeaturedVoteCard(vote: vote, percent: 1),
+              ),
+            ),
+            designSize: const Size(393, 892),
+            splitScreenMode: true,
+            textScaler: TextScaler.linear(scale),
+          ),
+        );
+        await decodeFrames(tester);
+        expect(tester.takeException(), isNull);
+        final hero = tester.getRect(find.byType(PicnicCachedNetworkImage));
+        final percent = tester.getRect(find.text('100.0%'));
+        expect(percent.right, lessThanOrEqualTo(hero.right));
+        expect(percent.bottom, lessThanOrEqualTo(hero.bottom));
+        expect(hero.width, closeTo(HomeFeaturedVoteCard.heroWidth(250), 0.01));
+        expect(harness.requestsFor(url), 1);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+      },
+    );
   }
 
   testWidgets(

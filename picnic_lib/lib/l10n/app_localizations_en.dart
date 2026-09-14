@@ -562,7 +562,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get label_reply => 'Replying to a reply';
 
   @override
-  String get label_retry => 'Retrying';
+  String get label_retry => 'Retry';
 
   @override
   String get label_setting_alarm => 'Notifications';

@@ -19,6 +19,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 /// 홈 화면 전용 "현재 진행중인 투표" 요약 카드.
 ///
@@ -34,6 +35,20 @@ class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
   final PicnicImageRequest? heroImageRequest;
 
   static double heroWidth(double cardWidth) => cardWidth - 2 - 32.w;
+
+  /// The hero keeps its distinctive frame in both loaded and loading states.
+  static BoxDecoration get frameDecoration => BoxDecoration(
+    borderRadius: BorderRadius.circular(20.r),
+    border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.primary500.withValues(alpha: 0.18),
+        blurRadius: 24,
+        spreadRadius: 1,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  );
 
   static PicnicImageRequest? imageRequestFor(
     BuildContext context,
@@ -146,18 +161,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
 
     return Container(
       key: HomeFeaturedVoteCard.frameKey,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary500.withValues(alpha: 0.18),
-            blurRadius: 24,
-            spreadRadius: 1,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: HomeFeaturedVoteCard.frameDecoration,
       clipBehavior: Clip.antiAlias,
       child: RepaintBoundary(
         key: _globalKey,
@@ -183,9 +187,9 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                             children: [
                               Text(
                                 getLocaleTextFromJson(vote.title, context),
-                                style: getTextStyle(
-                                  AppTypo.title18B,
-                                  AppColors.grey900,
+                                style: PicnicUi.text(
+                                  size: 18,
+                                  weight: FontWeight.w600,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -297,27 +301,53 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
             left: 16,
             right: 16,
             bottom: 14,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Text(
-                    name,
-                    style: getTextStyle(AppTypo.title18B, AppColors.grey00),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final artistName = Text(
+                  name,
+                  style: PicnicUi.text(
+                    size: 18,
+                    weight: FontWeight.w600,
+                    color: AppColors.grey00,
                   ),
-                ),
-                SizedBox(width: 8.w),
-                if (percentText.isNotEmpty)
-                  Text(
-                    percentText,
-                    style: getTextStyle(
-                      AppTypo.title18B,
-                      AppColors.secondary500,
-                    ).copyWith(fontSize: 26.sp, height: 1),
-                  ),
-              ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                );
+                if (percentText.isEmpty) return artistName;
+                final percentStyle = PicnicUi.text(
+                  size: 26,
+                  weight: FontWeight.w700,
+                  color: AppColors.secondary500,
+                ).copyWith(height: 1);
+                final percent = Text(percentText, style: percentStyle);
+                final painter = TextPainter(
+                  text: TextSpan(text: percentText, style: percentStyle),
+                  textDirection: Directionality.of(context),
+                  textScaler: MediaQuery.textScalerOf(context),
+                )..layout();
+                final needsSecondLine =
+                    painter.width + 8.w + 64 > constraints.maxWidth;
+                painter.dispose();
+                if (needsSecondLine) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      artistName,
+                      const SizedBox(height: 4),
+                      Align(alignment: Alignment.centerRight, child: percent),
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(child: artistName),
+                    SizedBox(width: 8.w),
+                    percent,
+                  ],
+                );
+              },
             ),
           ),
         ],

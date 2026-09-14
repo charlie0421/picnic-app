@@ -21,6 +21,8 @@ import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_carousel
 import 'package:picnic_lib/presentation/widgets/vote/latest_media_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/reward_list_section.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_section_header.dart';
 
 /// 홈 탭(index 0) 루트 페이지.
 ///
@@ -207,18 +209,22 @@ class _HomePageState extends ConsumerState<HomePage>
               controller: _scrollController,
               children: [
                 CommonBanner('vote_home', 786 / 400, key: _bannerKey),
-                const SizedBox(height: 20),
+                SizedBox(height: PicnicUi.vertical(24)),
                 Padding(
-                  padding: EdgeInsets.only(left: 16.w, bottom: 10),
-                  child: Text(
-                    AppLocalizations.of(context).label_home_current_vote,
-                    style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+                  padding: EdgeInsets.fromLTRB(
+                    16.w,
+                    0,
+                    16.w,
+                    PicnicUi.vertical(12),
+                  ),
+                  child: PicnicSectionHeader(
+                    title: AppLocalizations.of(context).label_home_current_vote,
                   ),
                 ),
                 const HomeFeaturedVoteCarousel(),
-                const SizedBox(height: 28),
+                SizedBox(height: PicnicUi.vertical(24)),
                 const RewardListSection(),
-                const SizedBox(height: 28),
+                SizedBox(height: PicnicUi.vertical(24)),
                 const LatestMediaSection(),
                 // 하단 플로팅 탭바에 마지막 섹션이 가리지 않도록 여백 확보
                 const SizedBox(height: 96),

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -217,47 +219,88 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
           contentPadding: EdgeInsets.zero,
-          content: LargePopupWidget(
-            showCloseButton: false,
-            content: Container(
-              padding: EdgeInsets.only(
-                top: 32,
-                bottom: 24,
-                left: 24.w,
-                right: 24.w,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 8),
-                  VotingArtistImage(voteItemModel: widget.voteItemModel),
-                  const SizedBox(height: 16),
-                  VotingMemberInfo(voteItemModel: widget.voteItemModel),
-                  VotingStarCandyInfo(
-                    myStarCandy: displayedBalance,
-                    onRecharge: _navigateToStore,
+          // 캡슐 자체는 뷰포트 안에 남고, 넘치는 것은 캡슐 "안쪽" 이 스크롤한다.
+          //
+          // 폭을 카드와 같은 값으로 고정해 두는 이유: AlertDialog 는 content 를
+          // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
+          // 질문에 답할 수 없다. 타이트한 폭 제약이 그 질의를 여기서 끊는다.
+          content: SizedBox(
+            width: defaultLargePopupWidth(),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // 이 제약이 곧 "라우트가 실제로 남겨 준 높이"다 — Dialog 가
+                // viewInsets 와 insetPadding 을, 라우트가 세이프에어리어를
+                // 이미 덜어낸 뒤의 값이라 여기서 MediaQuery 를 다시 읽으면
+                // 키보드를 두 번 적용하게 된다. 카드 테두리와 숨김 스트립은
+                // 캡슐 자신의 높이이므로 본문 예산에서 빼 준다.
+                final available = constraints.hasBoundedHeight
+                    ? constraints.maxHeight
+                    : MediaQuery.of(context).size.height;
+                final budget = math.max(
+                  0.0,
+                  available - largePopupHiddenChromeHeight(),
+                );
+                return LargePopupWidget(
+                  showCloseButton: false,
+                  content: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: budget),
+                    // 320x568 / 200% / 키보드 300 에서는 남는 높이가 220 남짓이라
+                    // 금액 입력과 투표 버튼이 그 밖으로 밀려났고,
+                    // `Scrollable.ensureVisible`(:314) 은 찾을 Scrollable 이
+                    // 없어 조용히 아무 일도 하지 않았다.
+                    child: SingleChildScrollView(
+                      child: Container(
+                        padding: EdgeInsets.only(
+                          top: PicnicUi.vertical(24),
+                          bottom: PicnicUi.vertical(16),
+                          left: PicnicUi.horizontal(24),
+                          right: PicnicUi.horizontal(24),
+                        ),
+                        // The balance, use-all, amount and clear controls each
+                        // carry a 48 tap target now, so the gaps that used to
+                        // separate 20 and 32 high rows moved inside those
+                        // controls.
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            VotingArtistImage(
+                              voteItemModel: widget.voteItemModel,
+                            ),
+                            SizedBox(height: PicnicUi.vertical(16)),
+                            VotingMemberInfo(
+                              voteItemModel: widget.voteItemModel,
+                            ),
+                            VotingStarCandyInfo(
+                              myStarCandy: displayedBalance,
+                              onRecharge: _navigateToStore,
+                            ),
+                            VotingCheckAllOption(
+                              checkAll: _checkAll,
+                              onToggle: _toggleCheckAll,
+                            ),
+                            _buildVoteAmountInput(context),
+                            SizedBox(height: PicnicUi.vertical(8)),
+                            VotingErrorMessage(
+                              canVote: _canVote,
+                              hasValue: _hasValue,
+                            ),
+                            _buildBubble(),
+                            SizedBox(height: PicnicUi.vertical(8)),
+                            VotingSubmitButton(
+                              canVote: _canVote,
+                              isVoting: _isVoting,
+                              onPressed: () => _handleVote(myStarCandy, userId),
+                            ),
+                            SizedBox(height: PicnicUi.vertical(16)),
+                            VotingLogoImage(voteModel: widget.voteModel),
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 8),
-                  VotingCheckAllOption(
-                    checkAll: _checkAll,
-                    onToggle: _toggleCheckAll,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildVoteAmountInput(context),
-                  const SizedBox(height: 8),
-                  VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
-                  _buildBubble(),
-                  const SizedBox(height: 9),
-                  VotingSubmitButton(
-                    canVote: _canVote,
-                    isVoting: _isVoting,
-                    onPressed: () => _handleVote(myStarCandy, userId),
-                  ),
-                  const SizedBox(height: 16),
-                  VotingLogoImage(voteModel: widget.voteModel),
-                ],
-              ),
+                );
+              },
             ),
           ),
         ),
@@ -321,17 +364,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
     return Container(
       key: _inputFieldKey,
-      height: 36,
+      // A 36 high field was below the minimum tap target and cropped its own
+      // text at large scales; the field now grows from 48 instead.
+      constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
       decoration: BoxDecoration(
         border: Border.all(
           color: !_canVote && _hasValue
               ? AppColors.statusError
-              : AppColors.primary500,
+              : PicnicUi.actionColor,
           width: 1,
         ),
         borderRadius: BorderRadius.circular(24),
       ),
-      padding: EdgeInsets.only(right: 16.w),
+      padding: EdgeInsets.only(right: PicnicUi.horizontal(4)),
       child: Row(
         children: [
           Expanded(
@@ -349,7 +394,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               },
               child: TextFormField(
                 cursorHeight: 16.h,
-                cursorColor: AppColors.primary500,
+                cursorColor: PicnicUi.actionColor,
                 focusNode: _focusNode,
                 controller: _textEditingController,
                 keyboardType: TextInputType.number,
@@ -359,14 +404,14 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context).label_input_input,
-                  hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
+                  hintStyle: PicnicUi.text(size: 16, color: PicnicUi.quietText),
                   border: InputBorder.none,
-                  focusColor: AppColors.primary500,
+                  focusColor: PicnicUi.actionColor,
                   fillColor: AppColors.grey900,
                   isCollapsed: true,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.w,
-                    vertical: 5,
+                    horizontal: PicnicUi.horizontal(24),
+                    vertical: PicnicUi.vertical(8),
                   ),
                 ),
                 onChanged: (_) => _validateVote(),
@@ -407,7 +452,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     );
                   }),
                 ],
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
               ),
             ),
           ),
@@ -434,7 +479,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return BubbleBox(
       shape: BubbleShapeBorder(
         border: BubbleBoxBorder(
-          color: AppColors.primary500,
+          color: PicnicUi.actionColor,
           width: 1.5,
           style: BubbleBoxBorderStyle.dashed,
         ),

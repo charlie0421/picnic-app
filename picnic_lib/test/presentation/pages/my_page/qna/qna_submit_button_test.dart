@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 
 import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/test_app.dart';
@@ -19,7 +20,7 @@ void main() {
           Scaffold(
             body: Builder(
               builder: (context) => Scaffold(
-                floatingActionButton: QnaSubmitButton.fab(
+                bottomNavigationBar: QnaSubmitButton.fab(
                   context,
                   onPressed: () {},
                 ),
@@ -30,7 +31,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(FloatingActionButton), findsOneWidget);
+      expect(find.byKey(const Key('qna-create-action')), findsOneWidget);
     });
 
     testWidgets('primary renders correctly', (tester) async {
@@ -38,16 +39,14 @@ void main() {
         tester,
         buildTestApp(
           Builder(
-            builder: (context) => QnaSubmitButton.primary(
-              context,
-              onPressed: () {},
-            ),
+            builder: (context) =>
+                QnaSubmitButton.primary(context, onPressed: () {}),
           ),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.byType(ElevatedButton), findsOneWidget);
+      expect(find.byType(PicnicActionButton), findsOneWidget);
     });
 
     testWidgets('primary shows loading state', (tester) async {

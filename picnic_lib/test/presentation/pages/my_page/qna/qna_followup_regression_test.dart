@@ -84,7 +84,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      await tester.tap(find.byType(FloatingActionButton));
+      await tester.tap(find.byKey(const Key('qna-create-action')));
       await tester.pumpAndSettle();
       Navigator.of(tester.element(find.byType(QnaThreadCreatePage))).pop(true);
       await tester.pumpAndSettle();

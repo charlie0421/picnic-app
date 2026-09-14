@@ -33,6 +33,8 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_rew
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
@@ -1518,7 +1520,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       children: [
         Text(
           AppLocalizations.of(context).text_purchase_vat_included,
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+          style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
         ),
         const SizedBox(height: 2),
       ],
@@ -1548,53 +1550,42 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }
 
   Widget _buildStoreProductsError() {
+    final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 24.h),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context).message_store_products_load_failed,
-              textAlign: TextAlign.center,
-              style: getTextStyle(AppTypo.body14M, AppColors.grey600),
-            ),
-            SizedBox(height: 8.h),
-            TextButton(
-              onPressed: () {
-                ref.invalidate(storeProductsProvider);
-              },
-              child: Text(
-                AppLocalizations.of(context).label_retry,
-                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              ),
-            ),
-          ],
-        ),
+      padding: EdgeInsets.symmetric(vertical: PicnicUi.vertical(24)),
+      child: PicnicFeedback(
+        message: l10n.message_store_products_load_failed,
+        icon: Icons.error_outline,
+        actionLabel: l10n.label_retry,
+        onAction: () => ref.invalidate(storeProductsProvider),
       ),
     );
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) => _buildShimmerItem(),
-        separatorBuilder: (context, index) =>
-            const Divider(color: AppColors.grey200, height: 32),
-        itemCount: 5,
+    return ColoredBox(
+      color: PicnicUi.surface,
+      child: Shimmer.fromColors(
+        enabled: !MediaQuery.disableAnimationsOf(context),
+        baseColor: AppColors.grey300,
+        highlightColor: AppColors.grey100,
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => _buildShimmerItem(),
+          separatorBuilder: (context, index) =>
+              const Divider(color: AppColors.grey200, height: 32),
+          itemCount: 5,
+        ),
       ),
     );
   }
 
   Widget _buildShimmerItem() {
     return ListTile(
-      leading: Container(width: 48.w, height: 48, color: Colors.white),
-      title: Container(height: 16, color: Colors.white),
-      subtitle: Container(height: 16, color: Colors.white),
+      leading: Container(width: 48.w, height: 48, color: PicnicUi.border),
+      title: Container(height: 16, color: PicnicUi.border),
+      subtitle: Container(height: 16, color: PicnicUi.border),
     );
   }
 
@@ -1663,7 +1654,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       ),
       title: Text(
         serverProduct['id'],
-        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+        style: PicnicUi.text(size: 16, weight: FontWeight.w600),
       ),
       // An eligible product shows what the event adds and what it ends up
       // paying; everything else keeps the plain catalog line it always had.

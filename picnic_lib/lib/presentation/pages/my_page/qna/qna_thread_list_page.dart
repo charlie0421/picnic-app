@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_card.dart';
@@ -11,6 +10,9 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
@@ -218,10 +220,24 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: QnaSubmitButton.fab(
-        context,
-        onPressed: _navigateToCreateThread,
+      backgroundColor: PicnicUi.surface,
+      // Reserve the action's actual height, including large text, so the last
+      // inquiry and retry controls remain reachable above it.
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: PicnicUi.horizontal(16),
+            vertical: PicnicUi.vertical(8),
+          ),
+          child: Center(
+            heightFactor: 1,
+            child: QnaSubmitButton.fab(
+              context,
+              onPressed: _navigateToCreateThread,
+            ),
+          ),
+        ),
       ),
       body: _buildBody(),
     );
@@ -245,8 +261,14 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverFillRemaining(
-                child: NoItemContainer(
-                  message: AppLocalizations.of(context).qna_no_inquiries,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(PicnicUi.horizontal(16)),
+                    child: PicnicFeedback(
+                      message: AppLocalizations.of(context).qna_no_inquiries,
+                      icon: Icons.inbox_outlined,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -256,7 +278,10 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
         return ListView.separated(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: PicnicUi.horizontal(16),
+            vertical: PicnicUi.vertical(16),
+          ),
           itemCount: _threadList.length + (_isMoreLoading ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == _threadList.length) {
@@ -274,72 +299,69 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
               onTap: () => _navigateToThreadDetail(thread),
             );
           },
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) =>
+              SizedBox(height: PicnicUi.vertical(12)),
         );
       }(),
     );
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: 5,
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(16),
+        vertical: PicnicUi.vertical(16),
+      ),
+      itemCount: 5,
+      itemBuilder: (context, index) => PicnicSurface(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: Shimmer.fromColors(
+          enabled: !MediaQuery.disableAnimationsOf(context),
+          baseColor: AppColors.grey200,
+          highlightColor: AppColors.grey100,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
+                key: ValueKey('qna-skeleton-title-$index'),
                 width: double.infinity,
-                height: 20.0,
-                color: Colors.white,
+                height: 20,
+                color: AppColors.grey200,
               ),
-              const SizedBox(height: 8.0),
-              Container(width: 150.0, height: 16.0, color: Colors.white),
+              SizedBox(height: PicnicUi.vertical(8)),
+              FractionallySizedBox(
+                widthFactor: 0.55,
+                child: Container(
+                  key: ValueKey('qna-skeleton-detail-$index'),
+                  height: 16,
+                  color: AppColors.grey200,
+                ),
+              ),
             ],
           ),
         ),
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
       ),
+      separatorBuilder: (context, index) =>
+          SizedBox(height: PicnicUi.vertical(12)),
     );
   }
 
   Widget _buildErrorView() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, color: Colors.red[400], size: 60),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context).qna_load_fail_title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _errorMessage!,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () => _loadThreads(isInitial: true),
-            icon: const Icon(Icons.refresh),
-            label: Text(AppLocalizations.of(context).retry),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: AppColors.primary500,
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: PicnicFeedback(
+          message: AppLocalizations.of(context).qna_load_fail_title,
+          icon: Icons.error_outline,
+          actionLabel: AppLocalizations.of(context).retry,
+          onAction: () => _loadThreads(isInitial: true),
+        ),
       ),
     );
   }

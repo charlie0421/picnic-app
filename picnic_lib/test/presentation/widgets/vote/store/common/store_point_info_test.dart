@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/presentation/common/underlined_text.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
@@ -41,8 +42,10 @@ void main() {
 
       expect(find.text('Test Title'), findsOneWidget);
 
-      // UnderlinedText for policy guide
-      expect(find.byType(UnderlinedText), findsWidgets);
+      final guide = AppLocalizations.of(
+        tester.element(find.byType(StorePointInfo)),
+      ).expiring_bonus_candy_guide;
+      expect(find.widgetWithText(TextButton, guide), findsOneWidget);
     });
 
     testWidgets('uses content height and does not overflow a compact request', (
@@ -144,8 +147,43 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      expect(find.byType(UnderlinedText), findsWidgets);
+      final guide = AppLocalizations.of(
+        tester.element(find.byType(StorePointInfo)),
+      ).expiring_bonus_candy_guide;
+      expect(find.widgetWithText(TextButton, guide), findsOneWidget);
     });
+  });
+
+  testWidgets('wallet header stays on one line at 393px and normal text', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(393, 852);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    const label = 'スターキャンディーの袋';
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      buildTestApp(
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: StorePointInfo(
+            title: label,
+            width: double.infinity,
+            onRefresh: () {},
+          ),
+        ),
+        locale: const Locale('ja'),
+        designSize: const Size(393, 892),
+        splitScreenMode: true,
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+    final paragraph = tester.renderObject<RenderParagraph>(find.text(label));
+    final boxes = paragraph.getBoxesForSelection(
+      const TextSelection(baseOffset: 0, extentOffset: label.length),
+    );
+    expect(boxes.map((box) => box.top).toSet(), hasLength(1));
+    expect(tester.takeException(), isNull);
   });
 
   group('StorePointInfo properties', () {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_card_layout.dart';
@@ -24,8 +25,8 @@ class VoteCardInfoHeader extends StatelessWidget {
     final titleHeight = VoteCardLayout.textHeight(
       context,
       title,
-      getTextStyle(AppTypo.body16B, AppColors.grey900),
-      maxWidth: (width - (status == VoteStatus.active ? 84 : 0)).clamp(
+      PicnicUi.text(size: 16, weight: FontWeight.w600),
+      maxWidth: (width - (status == VoteStatus.active ? 96 : 0)).clamp(
         1,
         double.infinity,
       ),
@@ -40,7 +41,7 @@ class VoteCardInfoHeader extends StatelessWidget {
           )
         : CountdownTimer.digitSize + (status == VoteStatus.upcoming ? 36 : 0);
     return titleHeight.clamp(
-          status == VoteStatus.active ? 42 : 0,
+          status == VoteStatus.active ? 48 : 0,
           double.infinity,
         ) +
         16 +
@@ -55,18 +56,18 @@ class VoteCardInfoHeader extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           constraints: BoxConstraints(
-            minHeight: status == VoteStatus.active ? 42 : 0,
+            minHeight: status == VoteStatus.active ? 48 : 0,
           ),
           child: Stack(
             alignment: Alignment.center,
             children: [
               Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: status == VoteStatus.active ? 42 : 0,
+                  horizontal: status == VoteStatus.active ? 48 : 0,
                 ),
                 child: Text(
                   title,
-                  style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                  style: PicnicUi.text(size: 16, weight: FontWeight.w600),
                   textAlign: TextAlign.center,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -76,19 +77,21 @@ class VoteCardInfoHeader extends StatelessWidget {
                 Positioned.fill(
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: onRefresh,
-                      child: Container(
-                        width: 42,
-                        height: 42,
-                        padding: const EdgeInsets.all(10),
-                        child: SvgPicture.asset(
-                          package: 'picnic_lib',
-                          'assets/icons/reset_style=line.svg',
-                          width: 20,
-                          height: 20,
-                        ),
+                    child: IconButton(
+                      tooltip: MaterialLocalizations.of(
+                        context,
+                      ).refreshIndicatorSemanticLabel,
+                      onPressed: onRefresh,
+                      constraints: const BoxConstraints.tightFor(
+                        width: 48,
+                        height: 48,
+                      ),
+                      padding: const EdgeInsets.all(12),
+                      icon: SvgPicture.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/reset_style=line.svg',
+                        width: 20,
+                        height: 20,
                       ),
                     ),
                   ),

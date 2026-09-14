@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class StorePointInfo extends ConsumerStatefulWidget {
   const StorePointInfo({
@@ -63,45 +64,7 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  widget.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF27222B),
-                  ),
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  logger.d('캔디 이용 정책 안내');
-                  showUsagePolicyDialog(context);
-                },
-                child: UnderlinedText(
-                  text: localizations.expiring_bonus_candy_guide,
-                  textStyle: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF7C58E8),
-                  ),
-                  underlineColor: const Color(0xFF7C58E8),
-                  underlineGap: 0,
-                ),
-              ),
-              if (widget.refreshButton case final refresh?) ...[
-                const SizedBox(width: 10),
-                refresh,
-              ] else if (widget.onRefresh != null) ...[
-                const SizedBox(width: 10),
-                _buildRefreshButton(),
-              ],
-            ],
-          ),
+          _buildHeader(localizations),
           const SizedBox(height: 12),
           if (isSupabaseLoggedSafely) ...[
             const StarCandyInfoText(),
@@ -132,6 +95,75 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
     );
   }
 
+  Widget _buildHeader(AppLocalizations localizations) {
+    final policy = TextButton(
+      onPressed: () {
+        logger.d('캔디 이용 정책 안내');
+        showUsagePolicyDialog(context);
+      },
+      style: TextButton.styleFrom(
+        minimumSize: const Size(48, 48),
+        foregroundColor: PicnicUi.actionColor,
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        localizations.expiring_bonus_candy_guide,
+        textAlign: TextAlign.center,
+        style: PicnicUi.text(
+          size: 12,
+          weight: FontWeight.w600,
+          color: PicnicUi.actionColor,
+        ),
+      ),
+    );
+    final refresh =
+        widget.refreshButton ??
+        (widget.onRefresh == null ? null : _buildRefreshButton());
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // A translated guide can be wider than the entire header at large text.
+        // Move it to its own line while keeping the balance title and refresh visible.
+        final stacked =
+            constraints.maxWidth < 300 ||
+            MediaQuery.textScalerOf(context).scale(14) > 18.2;
+        final title = Text(
+          widget.title,
+          maxLines: stacked ? null : 1,
+          overflow: stacked ? TextOverflow.clip : TextOverflow.ellipsis,
+          style: PicnicUi.text(size: 16, weight: FontWeight.w600),
+        );
+        if (stacked) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: title),
+                  if (refresh != null) ...[const SizedBox(width: 8), refresh],
+                ],
+              ),
+              Align(alignment: Alignment.centerRight, child: policy),
+            ],
+          );
+        }
+        return Row(
+          children: [
+            Expanded(child: title),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: constraints.maxWidth * 0.45,
+              ),
+              child: policy,
+            ),
+            if (refresh != null) ...[const SizedBox(width: 8), refresh],
+          ],
+        );
+      },
+    );
+  }
+
   Widget _buildRefreshButton() {
     final icon = SvgPicture.asset(
       package: 'picnic_lib',
@@ -152,10 +184,13 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
             child: icon,
           );
 
-    return GestureDetector(
+    return IconButton(
       key: const Key('store-point-info-refresh'),
-      onTap: widget.onRefresh,
-      child: child,
+      tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
+      onPressed: widget.onRefresh,
+      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      padding: const EdgeInsets.all(12),
+      icon: child,
     );
   }
 }

@@ -16,6 +16,8 @@ import 'package:picnic_lib/presentation/widgets/vote/vote_no_item.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 
 class VoteList extends ConsumerStatefulWidget {
   final VoteStatus status;
@@ -555,7 +557,7 @@ class _VoteListState extends ConsumerState<VoteList> {
             ),
             child: _hasLoadError
                 ? Material(
-                    color: Theme.of(context).colorScheme.surface,
+                    color: PicnicUi.surface,
                     elevation: 2,
                     borderRadius: BorderRadius.circular(12),
                     child: _buildRetryNotice(compact: true),
@@ -574,21 +576,13 @@ class _VoteListState extends ConsumerState<VoteList> {
     final message = Text(
       l10n.message_error_occurred,
       textAlign: compact ? TextAlign.start : TextAlign.center,
-      style: compact ? Theme.of(context).textTheme.labelLarge : null,
+      style: compact
+          ? Theme.of(
+              context,
+            ).textTheme.labelLarge!.copyWith(color: PicnicUi.secondaryText)
+          : PicnicUi.text(color: PicnicUi.secondaryText),
       maxLines: compact ? 1 : null,
       overflow: compact ? TextOverflow.ellipsis : null,
-    );
-    final button = TextButton(
-      key: const ValueKey('vote-list-retry'),
-      onPressed: _retryVotes,
-      style: compact
-          ? TextButton.styleFrom(
-              minimumSize: const Size(0, 32),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            )
-          : null,
-      child: Text(l10n.label_retry),
     );
     return Padding(
       padding: compact
@@ -598,7 +592,20 @@ class _VoteListState extends ConsumerState<VoteList> {
           ? Row(
               children: [
                 Expanded(child: message),
-                button,
+                TextButton(
+                  key: const ValueKey('vote-list-retry'),
+                  onPressed: _retryVotes,
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(0, 32),
+                    foregroundColor: PicnicUi.actionColor,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: Text(l10n.label_retry),
+                ),
               ],
             )
           : Column(
@@ -608,7 +615,12 @@ class _VoteListState extends ConsumerState<VoteList> {
                 const SizedBox(height: 16),
                 message,
                 const SizedBox(height: 8),
-                button,
+                PicnicActionButton(
+                  key: const ValueKey('vote-list-retry'),
+                  label: l10n.label_retry,
+                  onPressed: _retryVotes,
+                  variant: PicnicActionVariant.secondary,
+                ),
               ],
             ),
     );

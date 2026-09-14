@@ -30,6 +30,7 @@ import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_vertical.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class VoteInfoCard extends ConsumerStatefulWidget {
   const VoteInfoCard({
@@ -233,7 +234,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
 
   @override
   Widget build(BuildContext context) {
-    return Container(color: AppColors.grey00, child: _buildCard(context));
+    return Container(color: PicnicUi.surface, child: _buildCard(context));
   }
 
   Widget _buildCard(BuildContext context) {
@@ -446,6 +447,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         margin: const EdgeInsets.only(top: 24),
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
+          color: PicnicUi.surface,
           borderRadius: BorderRadius.circular(40),
           border: Border.all(color: AppColors.primary500, width: 1.5.w),
         ),
@@ -512,6 +514,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
           margin: const EdgeInsets.only(top: 24),
           clipBehavior: Clip.hardEdge,
           decoration: BoxDecoration(
+            color: PicnicUi.surface,
             borderRadius: BorderRadius.circular(40),
             border: Border.all(color: AppColors.primary500, width: 1.5.w),
           ),
@@ -565,6 +568,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       margin: const EdgeInsets.only(top: 16),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
+        color: PicnicUi.surface,
         borderRadius: BorderRadius.circular(40),
         border: Border.all(color: AppColors.primary500, width: 1.5.w),
       ),
@@ -888,6 +892,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       margin: const EdgeInsets.only(top: 24),
       clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
+        color: PicnicUi.surface,
         borderRadius: BorderRadius.circular(40),
         border: Border.all(color: AppColors.primary500, width: 1.5.w),
       ),

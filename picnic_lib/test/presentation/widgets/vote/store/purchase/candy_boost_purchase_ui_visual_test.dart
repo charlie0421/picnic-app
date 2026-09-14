@@ -20,6 +20,7 @@ import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../../helpers/load_test_fonts.dart';
+import '../../../../../helpers/picnic_ui_test_environment.dart';
 import '../../../../../helpers/mock_providers.dart';
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_environment.dart';
@@ -236,6 +237,10 @@ void main() {
     debugDefaultTargetPlatformOverride = null;
   });
   setUp(() {
+    final colors = PicnicUiColorFixture.install(
+      PicnicUiTestPalette.fromProductionConfig('picnic_app'),
+    );
+    addTearDown(colors.restore);
     SharedPreferences.setMockInitialValues({});
     setupMockSupabase({'products': _products});
   });
@@ -286,10 +291,15 @@ void main() {
     expect(find.textContaining('내부테스트'), findsNothing);
     final purchaseCtas = find.byKey(const Key('purchase-price-cta'));
     expect(purchaseCtas, findsNWidgets(_products.length));
-    final purchaseButtons = find.byType(ElevatedButton);
+    final purchaseButtons = find.descendant(
+      of: purchaseCtas,
+      matching: find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+    );
     expect(purchaseButtons, findsNWidgets(_products.length));
     expect(purchaseButtons.hitTestable(), findsNWidgets(_products.length));
-    for (final button in tester.widgetList<ElevatedButton>(purchaseButtons)) {
+    for (final button in tester.widgetList<ButtonStyleButton>(
+      purchaseButtons,
+    )) {
       expect(button.onPressed, isNotNull);
     }
     await _capture(tester, 'list_ko');

@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_card_layout.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 /// 투표 카드 스켈레톤 상태
 enum VoteCardStatus {
@@ -62,11 +63,11 @@ class VoteCardSkeleton extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(bottom: 16),
           constraints: BoxConstraints(
-            minHeight: status == VoteCardStatus.ongoing ? 42 : 0,
+            minHeight: status == VoteCardStatus.ongoing ? 48 : 0,
           ),
           alignment: Alignment.center,
           padding: EdgeInsets.symmetric(
-            horizontal: status == VoteCardStatus.ongoing ? 42 : 0,
+            horizontal: status == VoteCardStatus.ongoing ? 48 : 0,
           ),
           child: Shimmer.fromColors(
             baseColor: AppColors.grey300,
@@ -163,7 +164,7 @@ class VoteCardSkeleton extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey[300]!, width: 1.5.w),
+        border: Border.all(color: PicnicUi.border, width: 1.5.w),
       ),
       child: Column(
         mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
@@ -458,9 +459,9 @@ class VoteCardSkeleton extends StatelessWidget {
       height: 260,
       padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PicnicUi.surface,
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey[300]!, width: 1.5),
+        border: Border.all(color: PicnicUi.border, width: 1.5),
       ),
       child: Shimmer.fromColors(
         baseColor: AppColors.grey300,

@@ -9,6 +9,9 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/charge_station_item.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_section_header.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
 
 class FreeChargeContent extends ConsumerWidget {
   final Animation<double> buttonScaleAnimation;
@@ -86,14 +89,7 @@ class FreeChargeContent extends ConsumerWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(title, style: getTextStyle(AppTypo.body14B, AppColors.grey900)),
-        const SizedBox(height: 2),
-        const Divider(height: 1, thickness: 1, color: AppColors.grey200),
-      ],
-    );
+    return PicnicSectionHeader(title: title);
   }
 
   Widget _buildItemsList(
@@ -124,23 +120,20 @@ class FreeChargeContent extends ConsumerWidget {
     // 광고 로딩 상태 확인
     bool isLoading = loadingState[item.id] ?? false;
 
-    return Container(
+    return PicnicSurface(
       key: ValueKey('free-charge-${item.id}'),
-      decoration: BoxDecoration(
-        color: AppColors.grey100,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: AppColors.grey200, width: 1),
+      radius: 8,
+      color: AppColors.grey100,
+      padding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(12),
+        vertical: PicnicUi.vertical(8),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
       child: StoreListTile(
         flexibleHeight: true,
         index: item.isMission ? null : item.index,
         title: Text(
           item.title,
-          style: getTextStyle(
-            AppTypo.caption12B,
-            AppColors.grey900,
-          ).copyWith(height: 1),
+          style: PicnicUi.text(size: 14, weight: FontWeight.w600),
         ),
         buttonText: _getButtonText(item, isLoading, context),
         buttonOnPressed: isLoading ? null : item.onPressed,
@@ -165,9 +158,10 @@ class FreeChargeContent extends ConsumerWidget {
                           : AppLocalizations.of(
                               context,
                             ).free_charge_ads_reward(item.bonusText),
-                      style: getTextStyle(
-                        AppTypo.caption12B,
-                        AppColors.point900,
+                      style: PicnicUi.text(
+                        size: 12,
+                        weight: FontWeight.w600,
+                        color: PicnicUi.secondaryText,
                       ),
                     ),
                   ],

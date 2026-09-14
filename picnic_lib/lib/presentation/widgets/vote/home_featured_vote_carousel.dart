@@ -8,6 +8,7 @@ import 'package:picnic_lib/presentation/providers/home_view_state_provider.dart'
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// 홈 "현재 진행중인 투표" 가로 캐러셀.
@@ -162,19 +163,23 @@ class _HomeFeaturedVoteCarouselState
       error: (e, s) {
         final retry = Material(
           color: Colors.transparent,
-          child: TextButton.icon(
+          child: PicnicActionButton(
             key: const ValueKey('featured-votes-retry'),
             onPressed: () => ref.invalidate(asyncActiveFeaturedVotesProvider),
             icon: const Icon(Icons.refresh),
-            label: Text(AppLocalizations.of(context).label_retry),
+            label: AppLocalizations.of(context).label_retry,
+            variant: PicnicActionVariant.secondary,
           ),
         );
         if (_lastEntries.isEmpty) {
           return SizedBox(height: 96, child: Center(child: retry));
         }
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: [_buildEntries(_lastEntries), retry],
+        return Column(
+          children: [
+            _buildEntries(_lastEntries),
+            const SizedBox(height: 8),
+            retry,
+          ],
         );
       },
       data: (entries) {
@@ -300,18 +305,7 @@ class _FeaturedVoteCardSkeleton extends StatelessWidget {
       key: FeaturedVoteSkeletonKeys.frame,
       // HomeFeaturedVoteCard 의 프레임과 동일 — 테두리와 글로우까지 같아야
       // 데이터가 도착해도 카드 윤곽이 바뀌지 않는다.
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary500.withValues(alpha: 0.18),
-            blurRadius: 24,
-            spreadRadius: 1,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: HomeFeaturedVoteCard.frameDecoration,
       clipBehavior: Clip.antiAlias,
       child: ColoredBox(
         color: AppColors.grey00,

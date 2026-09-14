@@ -24,18 +24,15 @@ void main() {
     testWidgets('renders button with text', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return Row(
-              children: [
-                buildDialogButton(
-                  context,
-                  '확인',
-                  Colors.blue,
-                  () {},
-                ),
-              ],
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return Row(
+                children: [
+                  buildDialogButton(context, '확인', Colors.blue, () {}),
+                ],
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -49,18 +46,20 @@ void main() {
 
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return Row(
-              children: [
-                buildDialogButton(
-                  context,
-                  'OK',
-                  Colors.blue,
-                  () => pressed = true,
-                ),
-              ],
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return Row(
+                children: [
+                  buildDialogButton(
+                    context,
+                    'OK',
+                    Colors.blue,
+                    () => pressed = true,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -72,18 +71,15 @@ void main() {
     testWidgets('renders with custom text color', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return Row(
-              children: [
-                buildDialogButton(
-                  context,
-                  'Cancel',
-                  Colors.red,
-                  () {},
-                ),
-              ],
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return Row(
+                children: [
+                  buildDialogButton(context, 'Cancel', Colors.red, () {}),
+                ],
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -96,17 +92,19 @@ void main() {
     testWidgets('shows dialog with content', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  content: '테스트 메시지',
-                  onOk: () => Navigator.of(context).pop(),
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    content: '테스트 메시지',
+                    onOk: () => Navigator.of(context).pop(),
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -120,18 +118,20 @@ void main() {
     testWidgets('shows dialog with title and content', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  title: '알림',
-                  content: '내용입니다',
-                  onOk: () => Navigator.of(context).pop(),
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    title: '알림',
+                    content: '내용입니다',
+                    onOk: () => Navigator.of(context).pop(),
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -146,18 +146,20 @@ void main() {
     testWidgets('shows error type dialog', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  content: '에러 메시지',
-                  type: DialogType.error,
-                  onOk: () => Navigator.of(context).pop(),
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    content: '에러 메시지',
+                    type: DialogType.error,
+                    onOk: () => Navigator.of(context).pop(),
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -175,24 +177,26 @@ void main() {
 
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  content: '확인하시겠습니까?',
-                  onOk: () {
-                    okPressed = true;
-                    Navigator.of(context).pop();
-                  },
-                  onCancel: () {
-                    cancelPressed = true;
-                    Navigator.of(context).pop();
-                  },
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    content: '확인하시겠습니까?',
+                    onOk: () {
+                      okPressed = true;
+                      Navigator.of(context).pop();
+                    },
+                    onCancel: () {
+                      cancelPressed = true;
+                      Navigator.of(context).pop();
+                    },
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -212,17 +216,19 @@ void main() {
     testWidgets('shows dialog with contentWidget', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  contentWidget: const Text('커스텀 위젯'),
-                  onOk: () => Navigator.of(context).pop(),
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    contentWidget: const Text('커스텀 위젯'),
+                    onOk: () => Navigator.of(context).pop(),
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -236,18 +242,20 @@ void main() {
     testWidgets('shows dialog with titleWidget', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleDialog(
-                  titleWidget: const Icon(Icons.info),
-                  content: '내용',
-                  onOk: () => Navigator.of(context).pop(),
-                );
-              },
-              child: const Text('Show'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleDialog(
+                    titleWidget: const Icon(Icons.info),
+                    content: '내용',
+                    onOk: () => Navigator.of(context).pop(),
+                  );
+                },
+                child: const Text('Show'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -262,20 +270,24 @@ void main() {
 
   group('buildDialogButton widget tree', () {
     testWidgets('wraps TextButton in Expanded with flex 1', (tester) async {
+      var pressed = false;
+
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return Row(
-              children: [
-                buildDialogButton(
-                  context,
-                  'Test',
-                  Colors.green,
-                  () {},
-                ),
-              ],
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return Row(
+                children: [
+                  buildDialogButton(
+                    context,
+                    'Test',
+                    Colors.green,
+                    () => pressed = true,
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -283,9 +295,17 @@ void main() {
       final expanded = tester.widget<Expanded>(find.byType(Expanded));
       expect(expanded.flex, equals(1));
 
-      // SizedBox wraps TextButton
-      expect(find.byType(SizedBox), findsWidgets);
+      // The action used to be padded by an inert SizedBox wrapper. What the
+      // dialog actually owes the user is a reachable 48px target that fires,
+      // so that is what is pinned here.
       expect(find.byType(TextButton), findsOneWidget);
+      expect(
+        tester.getSize(find.byType(TextButton)).height,
+        greaterThanOrEqualTo(48.0),
+      );
+
+      await tester.tap(find.byType(TextButton));
+      expect(pressed, isTrue);
     });
   });
 
@@ -295,18 +315,18 @@ void main() {
       late BuildContext savedContext;
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            savedContext = context;
-            return const SizedBox();
-          }),
+          Builder(
+            builder: (context) {
+              savedContext = context;
+              return const SizedBox();
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
 
       // Replace the widget tree to unmount the saved context
-      await tester.pumpWidget(
-        buildTestApp(const SizedBox()),
-      );
+      await tester.pumpWidget(buildTestApp(const SizedBox()));
       await tester.pumpAndSettle();
 
       // Should not throw even with unmounted context
@@ -319,14 +339,16 @@ void main() {
     testWidgets('shows dialog with message only (no error)', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleErrorDialog(context, '단순 에러 메시지');
-              },
-              child: const Text('ShowError'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleErrorDialog(context, '단순 에러 메시지');
+                },
+                child: const Text('ShowError'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -344,19 +366,21 @@ void main() {
 
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleErrorDialog(
-                  context,
-                  '오류 발생',
-                  error: longError,
-                  truncateError: true,
-                );
-              },
-              child: const Text('ShowError'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleErrorDialog(
+                    context,
+                    '오류 발생',
+                    error: longError,
+                    truncateError: true,
+                  );
+                },
+                child: const Text('ShowError'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -373,19 +397,21 @@ void main() {
     testWidgets('does not truncate short error message', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleErrorDialog(
-                  context,
-                  '오류 발생',
-                  error: 'Short error',
-                  truncateError: true,
-                );
-              },
-              child: const Text('ShowError'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleErrorDialog(
+                    context,
+                    '오류 발생',
+                    error: 'Short error',
+                    truncateError: true,
+                  );
+                },
+                child: const Text('ShowError'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -397,25 +423,28 @@ void main() {
       expect(find.textContaining('Short error'), findsOneWidget);
     });
 
-    testWidgets('does not truncate when truncateError is false',
-        (tester) async {
+    testWidgets('does not truncate when truncateError is false', (
+      tester,
+    ) async {
       final longError = 'E' * 200;
 
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleErrorDialog(
-                  context,
-                  '오류 발생',
-                  error: longError,
-                  truncateError: false,
-                );
-              },
-              child: const Text('ShowError'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleErrorDialog(
+                    context,
+                    '오류 발생',
+                    error: longError,
+                    truncateError: false,
+                  );
+                },
+                child: const Text('ShowError'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();
@@ -432,18 +461,20 @@ void main() {
     testWidgets('shows with normal type override', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
-          Builder(builder: (context) {
-            return ElevatedButton(
-              onPressed: () {
-                showSimpleErrorDialog(
-                  context,
-                  '일반 타입 에러',
-                  type: DialogType.normal,
-                );
-              },
-              child: const Text('ShowError'),
-            );
-          }),
+          Builder(
+            builder: (context) {
+              return ElevatedButton(
+                onPressed: () {
+                  showSimpleErrorDialog(
+                    context,
+                    '일반 타입 에러',
+                    type: DialogType.normal,
+                  );
+                },
+                child: const Text('ShowError'),
+              );
+            },
+          ),
         ),
       );
       await tester.pumpAndSettle();

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/data/models/vote/artist.dart';
+import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/search_and_results_section.dart';
 import 'package:picnic_lib/presentation/widgets/vote/vote_item_request/vote_item_request_models.dart';
 
@@ -10,12 +10,7 @@ import '../../../../helpers/test_environment.dart';
 
 /// Wraps SearchAndResultsSection in a Column so Expanded works correctly
 Widget _wrapInColumn(Widget child) {
-  return SizedBox(
-    height: 600,
-    child: Column(
-      children: [child],
-    ),
-  );
+  return SizedBox(height: 600, child: Column(children: [child]));
 }
 
 void main() {
@@ -42,10 +37,15 @@ void main() {
 
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
       expect(find.byIcon(Icons.search_rounded), findsOneWidget);
+      expect(
+        tester.getSize(find.byType(EnhancedSearchBox)).height,
+        greaterThanOrEqualTo(48),
+      );
     });
 
-    testWidgets('renders with external focus node',
-        (WidgetTester tester) async {
+    testWidgets('renders with external focus node', (
+      WidgetTester tester,
+    ) async {
       final focusNode = FocusNode();
 
       await tester.pumpWidget(
@@ -69,8 +69,9 @@ void main() {
       focusNode.dispose();
     });
 
-    testWidgets('renders search box only with tap callback',
-        (WidgetTester tester) async {
+    testWidgets('renders search box only with tap callback', (
+      WidgetTester tester,
+    ) async {
       bool tapped = false;
 
       await tester.pumpWidget(
@@ -91,13 +92,22 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.byType(SearchAndResultsSection), findsOneWidget);
+      final tapTarget = find.ancestor(
+        of: find.byType(EnhancedSearchBox),
+        matching: find.byType(GestureDetector),
+      );
+      expect(tapTarget, findsOneWidget);
+      expect(tapped, isFalse);
+
+      await tester.tap(tapTarget);
+      await tester.pump();
+
+      expect(tapped, isTrue);
     });
   });
 
   group('SearchAndResultsSection - expanded mode', () {
-    testWidgets('renders searching/loading state',
-        (WidgetTester tester) async {
+    testWidgets('renders searching/loading state', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestApp(
           _wrapInColumn(
@@ -118,8 +128,9 @@ void main() {
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
     });
 
-    testWidgets('renders empty results state when query has no results',
-        (WidgetTester tester) async {
+    testWidgets('renders empty results state when query has no results', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           _wrapInColumn(
@@ -141,8 +152,9 @@ void main() {
       expect(find.byIcon(Icons.search_off_rounded), findsOneWidget);
     });
 
-    testWidgets('renders initial state when no search query',
-        (WidgetTester tester) async {
+    testWidgets('renders initial state when no search query', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           _wrapInColumn(
@@ -164,8 +176,9 @@ void main() {
       expect(find.byIcon(Icons.search_rounded), findsWidgets);
     });
 
-    testWidgets('renders close button in search mode',
-        (WidgetTester tester) async {
+    testWidgets('renders close button in search mode', (
+      WidgetTester tester,
+    ) async {
       bool closeCalled = false;
 
       await tester.pumpWidget(
@@ -190,14 +203,24 @@ void main() {
 
       expect(find.byIcon(Icons.close_rounded), findsOneWidget);
 
-      await tester.tap(find.byIcon(Icons.close_rounded));
+      final closeTarget = find.ancestor(
+        of: find.byIcon(Icons.close_rounded),
+        matching: find.byType(GestureDetector),
+      );
+      expect(closeTarget, findsOneWidget);
+      final closeSize = tester.getSize(closeTarget);
+      expect(closeSize.width, greaterThanOrEqualTo(48));
+      expect(closeSize.height, greaterThanOrEqualTo(48));
+
+      await tester.tap(closeTarget);
       await tester.pump();
 
       expect(closeCalled, true);
     });
 
-    testWidgets('renders expanded mode with search results',
-        (WidgetTester tester) async {
+    testWidgets('renders expanded mode with search results', (
+      WidgetTester tester,
+    ) async {
       final artist1 = MockData.artist(id: 1, nameKo: '지민', nameEn: 'Jimin');
       final artist2 = MockData.artist(id: 2, nameKo: '뷔', nameEn: 'V');
 
@@ -234,12 +257,12 @@ void main() {
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
     });
 
-    testWidgets('renders results with load more indicator',
-        (WidgetTester tester) async {
+    testWidgets('renders results with load more indicator', (
+      WidgetTester tester,
+    ) async {
       final artists = List.generate(
         5,
-        (i) => MockData.artist(
-            id: i + 1, nameKo: '아티스트$i', nameEn: 'Artist$i'),
+        (i) => MockData.artist(id: i + 1, nameKo: '아티스트$i', nameEn: 'Artist$i'),
       );
 
       await tester.pumpWidget(
@@ -264,8 +287,9 @@ void main() {
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
     });
 
-    testWidgets('renders with whitespace-only search query as initial state',
-        (WidgetTester tester) async {
+    testWidgets('renders with whitespace-only search query as initial state', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestApp(
           _wrapInColumn(
@@ -287,8 +311,9 @@ void main() {
       expect(find.byIcon(Icons.search_rounded), findsWidgets);
     });
 
-    testWidgets('renders results without application info (loading info)',
-        (WidgetTester tester) async {
+    testWidgets('renders results without application info (loading info)', (
+      WidgetTester tester,
+    ) async {
       final artist = MockData.artist(id: 1, nameKo: '지민', nameEn: 'Jimin');
 
       await tester.pumpWidget(
@@ -311,8 +336,9 @@ void main() {
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
     });
 
-    testWidgets('renders with already-applied status',
-        (WidgetTester tester) async {
+    testWidgets('renders with already-applied status', (
+      WidgetTester tester,
+    ) async {
       final artist = MockData.artist(id: 1, nameKo: '지민', nameEn: 'Jimin');
 
       await tester.pumpWidget(
@@ -343,8 +369,9 @@ void main() {
       expect(find.byType(SearchAndResultsSection), findsOneWidget);
     });
 
-    testWidgets('handles didUpdateWidget with new focus node',
-        (WidgetTester tester) async {
+    testWidgets('handles didUpdateWidget with new focus node', (
+      WidgetTester tester,
+    ) async {
       final focusNode1 = FocusNode();
       final focusNode2 = FocusNode();
 

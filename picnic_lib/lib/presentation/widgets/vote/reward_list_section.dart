@@ -2,14 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/reward.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
-import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/vote/grid_two_column.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_section_header.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:shimmer/shimmer.dart';
 
 /// 홈/투표 화면 공용 리워드 리스트 섹션.
@@ -35,13 +39,12 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: EdgeInsets.only(left: 16.w),
-          child: Text(
-            AppLocalizations.of(context).label_vote_reward_list,
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+          child: PicnicSectionHeader(
+            title: AppLocalizations.of(context).label_vote_reward_list,
           ),
         ),
-        const SizedBox(height: 16),
+        SizedBox(height: PicnicUi.vertical(16)),
         asyncRewardListState.when(
           data: (data) {
             _lastRewards = data;
@@ -52,6 +55,7 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
               : Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Shimmer.fromColors(
+                    enabled: !MediaQuery.disableAnimationsOf(context),
                     baseColor: AppColors.grey300,
                     highlightColor: AppColors.grey100,
                     child: GridTwoColumn(
@@ -69,13 +73,22 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
                   ),
                 ),
           error: (error, stackTrace) {
+            logger.e(error, stackTrace: stackTrace);
+            Sentry.captureException(error, stackTrace: stackTrace);
             final retry = KeyedSubtree(
               key: const ValueKey('reward-list-retry'),
-              child: buildErrorView(
-                context,
-                error: error.toString(),
-                stackTrace: stackTrace,
-                retryFunction: () => ref.invalidate(asyncRewardListProvider),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: PicnicUi.horizontal(16),
+                  vertical: PicnicUi.vertical(12),
+                ),
+                child: PicnicFeedback(
+                  message: AppLocalizations.of(context).message_error_occurred,
+                  icon: Icons.error_outline,
+                  actionLabel: AppLocalizations.of(context).label_retry,
+                  onAction: () => ref.invalidate(asyncRewardListProvider),
+                  inline: _lastRewards.isNotEmpty,
+                ),
               ),
             );
             if (_lastRewards.isEmpty) return retry;
@@ -134,16 +147,14 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
               right: 0,
               bottom: 0,
               child: Container(
-                height: 30,
+                constraints: const BoxConstraints(minHeight: 30),
                 color: AppColors.grey900.withValues(alpha: 0.7),
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
                 child: Text(
                   title,
-                  style: getTextStyle(
-                    AppTypo.body14R,
-                    Colors.white,
-                  ).copyWith(overflow: TextOverflow.ellipsis),
+                  style: PicnicUi.text(color: Colors.white),
+                  overflow: TextOverflow.ellipsis,
                   maxLines: 1,
                 ),
               ),

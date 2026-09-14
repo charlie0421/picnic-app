@@ -82,7 +82,7 @@ void main() {
       await tester.pumpAndSettle();
 
       final iconButton = tester.widget<IconButton>(find.byType(IconButton));
-      expect(iconButton.tooltip, '알림');
+      expect(iconButton.tooltip, '알림함');
     });
   });
 }

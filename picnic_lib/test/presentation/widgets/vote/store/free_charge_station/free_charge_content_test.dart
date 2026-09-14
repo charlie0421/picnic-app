@@ -86,9 +86,8 @@ void main() {
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester);
 
-      // Section headers should be present
-      expect(find.byType(Divider), findsWidgets);
-      expect(find.byType(Text), findsWidgets);
+      expect(find.text('미션에서 보너스 스타캔디 받기'), findsOneWidget);
+      expect(find.text('광고에서 코튼캔디 받기'), findsOneWidget);
     });
 
     testWidgets('shows reward type specific Korean copy for missions and ads', (

@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
+
+typedef NoticeDetailLoader =
+    Future<Map<String, dynamic>?> Function(int noticeId);
 
 class NoticeDetailPage extends ConsumerStatefulWidget {
-  const NoticeDetailPage({super.key, required this.noticeId});
+  const NoticeDetailPage({super.key, required this.noticeId, this.loadNotice});
 
   final int noticeId;
+  final NoticeDetailLoader? loadNotice;
 
   @override
   ConsumerState<NoticeDetailPage> createState() => _NoticeDetailPageState();
@@ -24,6 +30,7 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
   Object? _error;
   String? _prevPageTitle;
   String? _currentTitle;
+  int _loadGeneration = 0;
 
   String _getLocalizedText(Map<String, dynamic> json, String language) {
     if (json[language] != null) {
@@ -47,6 +54,7 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
 
   @override
   void dispose() {
+    _loadGeneration++;
     // 복원 로직은 PopScope.onPopInvoked에서 처리
     super.dispose();
   }
@@ -68,28 +76,39 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
   }
 
   Future<void> _fetchDetail() async {
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final res = await Supabase.instance.client
-          .from('notices')
-          .select()
-          .eq('id', widget.noticeId)
-          .single();
-      if (!mounted) return;
+    final generation = ++_loadGeneration;
+    if (mounted) {
       setState(() {
-        _notice = res;
+        _loading = true;
+        _error = null;
+      });
+    }
+    try {
+      final notice =
+          await (widget.loadNotice?.call(widget.noticeId) ??
+              _loadNotice(widget.noticeId));
+      if (!mounted || generation != _loadGeneration) return;
+      setState(() {
+        _notice = notice;
         _loading = false;
       });
-    } catch (e) {
-      if (!mounted) return;
+    } catch (error, stackTrace) {
+      logger.e('공지사항 상세 데이터 가져오기 오류', error: error, stackTrace: stackTrace);
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
-        _error = e;
+        _error = error;
         _loading = false;
       });
     }
+  }
+
+  Future<Map<String, dynamic>?> _loadNotice(int noticeId) async {
+    final response = await Supabase.instance.client
+        .from('notices')
+        .select()
+        .eq('id', noticeId)
+        .maybeSingle();
+    return response;
   }
 
   @override
@@ -97,14 +116,26 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
     Widget body;
     if (_loading) {
       body = const Center(child: MediumPulseLoadingIndicator());
-    } else if (_error != null || _notice == null) {
+    } else if (_error != null) {
       body = Center(
         child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: Text(
-            AppLocalizations.of(context).common_text_no_search_result,
-            style: getTextStyle(AppTypo.body14M, AppColors.grey700),
-            textAlign: TextAlign.center,
+          padding: EdgeInsets.all(PicnicUi.horizontal(24)),
+          child: PicnicFeedback(
+            key: const ValueKey('notice-detail-retry'),
+            icon: Icons.error_outline,
+            message: AppLocalizations.of(context).message_error_occurred,
+            actionLabel: AppLocalizations.of(context).label_retry,
+            onAction: _fetchDetail,
+          ),
+        ),
+      );
+    } else if (_notice == null) {
+      body = Center(
+        child: Padding(
+          padding: EdgeInsets.all(PicnicUi.horizontal(24)),
+          child: PicnicFeedback(
+            icon: Icons.description_outlined,
+            message: AppLocalizations.of(context).common_text_no_search_result,
           ),
         ),
       );
@@ -116,25 +147,32 @@ class _NoticeDetailPageState extends ConsumerState<NoticeDetailPage>
           _notice!['created_at']?.toString().substring(0, 10) ?? '';
 
       body = SingleChildScrollView(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: getTextStyle(AppTypo.title18B, AppColors.grey900),
-            ),
-            SizedBox(height: 8.h),
-            Text(
-              createdAt,
-              style: getTextStyle(AppTypo.caption12M, AppColors.grey500),
-            ),
-            SizedBox(height: 16.h),
-            Text(
-              content,
-              style: getTextStyle(AppTypo.body14M, AppColors.grey800),
-            ),
-          ],
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: PicnicSurface(
+          padding: EdgeInsets.all(PicnicUi.horizontal(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: PicnicUi.text(size: 18, weight: FontWeight.w700),
+              ),
+              SizedBox(height: PicnicUi.vertical(8)),
+              Text(
+                createdAt,
+                style: PicnicUi.text(
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: PicnicUi.quietText,
+                ),
+              ),
+              SizedBox(height: PicnicUi.vertical(16)),
+              Text(content, style: PicnicUi.text()),
+            ],
+          ),
         ),
       );
     }

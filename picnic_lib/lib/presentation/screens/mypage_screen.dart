@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_animated_switcher.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class MyPageScreen extends ConsumerStatefulWidget {
@@ -35,17 +36,16 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: AppColors.grey00,
-          foregroundColor: AppColors.grey900,
+          backgroundColor: PicnicUi.surface,
+          foregroundColor: PicnicUi.ink,
           leading: Builder(
             builder: (context) {
-              final buttonBgColor = AppColors.grey200;
               return Padding(
-                padding: EdgeInsets.only(left: 12),
+                padding: const EdgeInsets.only(left: 12),
                 child: Material(
-                  color: buttonBgColor,
+                  color: AppColors.grey200,
                   elevation: 3,
-                  shadowColor: AppColors.grey900.withValues(alpha: 0.18),
+                  shadowColor: PicnicUi.ink.withValues(alpha: 0.18),
                   shape: const CircleBorder(),
                   child: InkWell(
                     customBorder: const CircleBorder(),
@@ -60,16 +60,16 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
                       }
                     },
                     child: SizedBox(
-                      width: 42,
-                      height: 42,
+                      width: PicnicUi.minimumTapTarget,
+                      height: PicnicUi.minimumTapTarget,
                       child: Center(
                         child: SvgPicture.asset(
                           package: 'picnic_lib',
                           'assets/icons/arrow_left_style=line.svg',
                           width: 20,
                           height: 20,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.grey900,
+                          colorFilter: ColorFilter.mode(
+                            PicnicUi.ink,
                             BlendMode.srcIn,
                           ),
                         ),
@@ -82,10 +82,12 @@ class MyPageScreenState extends ConsumerState<MyPageScreen> {
           ),
           title: Text(
             pageName,
-            style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: PicnicUi.text(size: 16, weight: FontWeight.w700),
           ),
           centerTitle: true,
-          leadingWidth: 54,
+          leadingWidth: 60,
         ),
         body: const DrawerAnimatedSwitcher(),
       ),

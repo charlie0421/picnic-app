@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
 
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
@@ -36,7 +37,7 @@ void main() {
 
     expect(find.byKey(const ValueKey('notice-retry')), findsOneWidget);
     expect(find.textContaining('private failure'), findsNothing);
-    await tester.tap(find.byKey(const ValueKey('notice-retry')));
+    await tester.tap(find.widgetWithText(OutlinedButton, '재시도'));
     await tester.pump();
     await tester.pump();
     expect(find.text('공지 성공'), findsOneWidget);
@@ -76,7 +77,7 @@ void main() {
     await tester.pump();
     expect(find.byKey(const ValueKey('faq-retry')), findsOneWidget);
 
-    await tester.tap(find.byKey(const ValueKey('faq-retry')));
+    await tester.tap(find.widgetWithText(OutlinedButton, '재시도'));
     await tester.pump();
     await tester.pump();
     expect(find.text('질문'), findsOneWidget);
@@ -211,8 +212,8 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       await refresh;
       expect(find.text('질문 B'), findsOneWidget);
-      final allChip = tester.widget<ChoiceChip>(
-        find.widgetWithText(ChoiceChip, '전체'),
+      final allChip = tester.widget<PicnicFilterChip>(
+        find.widgetWithText(PicnicFilterChip, '전체'),
       );
       expect(allChip.selected, isTrue);
     },

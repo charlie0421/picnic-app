@@ -184,7 +184,14 @@ void main() {
     );
     await tester.pump();
     await tester.pump();
-    await tester.tap(find.byKey(const ValueKey('latest-media-retry')));
+    await tester.tap(
+      find.descendant(
+        of: find.byKey(const ValueKey('latest-media-retry')),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is ButtonStyleButton,
+        ),
+      ),
+    );
     await tester.pump();
     await tester.pump();
 

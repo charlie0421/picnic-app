@@ -8,6 +8,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 final class _CacheOnlyImageMiss implements Exception {
@@ -251,35 +252,42 @@ class VotingMemberInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasArtistGroup =
+        (voteItemModel.artist?.id ?? 0) != 0 &&
+        voteItemModel.artist?.artistGroup?.name != null;
+
     return Column(
       children: [
-        SizedBox(
-          height: 24,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
+        // A fixed 24 row cropped long artist names and every name at a large
+        // text scale; the names now wrap inside the popup width instead.
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Flexible(
+              child: Text(
                 getLocaleTextFromJson(
                   (voteItemModel.artist?.id ?? 0) != 0
                       ? voteItemModel.artist?.name ?? {}
                       : voteItemModel.artistGroup?.name ?? {},
                 ),
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                textAlign: TextAlign.center,
               ),
-              SizedBox(width: 8.w),
-              if ((voteItemModel.artist?.id ?? 0) != 0 &&
-                  voteItemModel.artist?.artistGroup?.name != null)
-                Align(
-                  alignment: Alignment.center,
-                  child: Text(
-                    getLocaleTextFromJson(
-                      voteItemModel.artist!.artistGroup!.name,
-                    ),
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+            ),
+            if (hasArtistGroup) ...[
+              SizedBox(width: PicnicUi.horizontal(8)),
+              Flexible(
+                child: Text(
+                  getLocaleTextFromJson(
+                    voteItemModel.artist!.artistGroup!.name,
                   ),
+                  style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
+                  textAlign: TextAlign.center,
                 ),
+              ),
             ],
-          ),
+          ],
         ),
         Divider(color: AppColors.grey300, thickness: 1, height: 20.0.h),
       ],
@@ -319,10 +327,10 @@ class VotingLogoImage extends StatelessWidget {
                 child: Center(
                   child: Text(
                     partner.toUpperCase(),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10.sp,
-                      fontWeight: FontWeight.bold,
+                    style: PicnicUi.text(
+                      size: 10,
+                      weight: FontWeight.w700,
+                      color: PicnicUi.primaryForeground,
                     ),
                   ),
                 ),
@@ -366,17 +374,23 @@ class VotingBubbleInfo extends StatelessWidget {
     // BubbleBox import를 피하기 위해 간단한 Container로 대체하지 않음
     // 이 위젯은 voting_dialog.dart에서 BubbleBox와 함께 사용됨
     // → 호출부에서 BubbleBox 래핑 유지
+    final style = PicnicUi.text(
+      size: 12,
+      weight: FontWeight.w600,
+      color: PicnicUi.actionColor,
+    );
+
     return Column(
       children: [
         isPartnership && partner != null && partner.isNotEmpty
             ? Text(
                 '· ${AppLocalizations.of(context).voting_share_benefit_text}\n· ${partner.toUpperCase()} 파트너십 혜택',
-                style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
+                style: style,
                 textAlign: TextAlign.center,
               )
             : Text(
                 '· ${AppLocalizations.of(context).voting_share_benefit_text}',
-                style: getTextStyle(AppTypo.caption10SB, AppColors.primary500),
+                style: style,
               ),
       ],
     );
@@ -412,14 +426,14 @@ class VotingStarCandyInfo extends StatelessWidget {
               height: 32,
             ),
           ),
-          SizedBox(width: 2.w),
+          SizedBox(width: PicnicUi.horizontal(4)),
           Expanded(
-            child: Container(
-              height: 26,
-              alignment: Alignment.topLeft,
-              child: Text(
-                formatWalletAmount(myStarCandy),
-                style: getTextStyle(AppTypo.body16B, AppColors.primary500),
+            child: Text(
+              formatWalletAmount(myStarCandy),
+              style: PicnicUi.text(
+                size: 16,
+                weight: FontWeight.w700,
+                color: PicnicUi.actionColor,
               ),
             ),
           ),
@@ -440,33 +454,48 @@ class _RechargeButton extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onPressed,
-      child: Container(
-        height: 32,
-        padding: EdgeInsets.symmetric(horizontal: 12.w),
-        decoration: BoxDecoration(
-          color: AppColors.secondary500,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(color: AppColors.primary500, width: 1),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context).label_button_recharge,
-              style: getTextStyle(AppTypo.body14B, AppColors.primary500),
+      // The mint pill keeps its 32 visual height and the tap area its 48
+      // minimum, so the surrounding row geometry stays recognisable — but both
+      // are now floors rather than fixed boxes. At 200% the label alone is
+      // 14 * 1.45 * 2 = 40.6 high, which a hard 32 pill simply painted
+      // outside of.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
+        child: Align(
+          alignment: Alignment.center,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 32),
+            padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(12)),
+            decoration: BoxDecoration(
+              color: AppColors.secondary500,
+              borderRadius: BorderRadius.circular(20.r),
+              border: Border.all(color: PicnicUi.actionColor, width: 1),
             ),
-            SizedBox(width: 4.w),
-            SvgPicture.asset(
-              package: 'picnic_lib',
-              'assets/icons/plus_style=fill.svg',
-              width: 16.w,
-              height: 16,
-              colorFilter: ColorFilter.mode(
-                AppColors.primary500,
-                BlendMode.srcIn,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  AppLocalizations.of(context).label_button_recharge,
+                  style: PicnicUi.text(
+                    size: 14,
+                    weight: FontWeight.w700,
+                    color: PicnicUi.actionColor,
+                  ),
+                ),
+                SizedBox(width: PicnicUi.horizontal(4)),
+                SvgPicture.asset(
+                  package: 'picnic_lib',
+                  'assets/icons/plus_style=fill.svg',
+                  width: 16.w,
+                  height: 16,
+                  colorFilter: ColorFilter.mode(
+                    PicnicUi.actionColor,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -489,19 +518,22 @@ class VotingSubmitButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isEnabled = canVote && !isVoting;
+    final isActive = isEnabled || isVoting;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onPressed : null,
       child: Container(
         width: 172.w,
-        height: 52,
+        constraints: const BoxConstraints(minHeight: 52),
         decoration: BoxDecoration(
-          color: isVoting
-              ? AppColors.primary500
-              : (isEnabled ? AppColors.primary500 : AppColors.grey300),
+          color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
           borderRadius: BorderRadius.circular(24),
         ),
         alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(4),
+        ),
         child: isVoting
             ? const SizedBox(
                 width: 24,
@@ -510,7 +542,14 @@ class VotingSubmitButton extends StatelessWidget {
               )
             : Text(
                 AppLocalizations.of(context).label_button_vote,
-                style: getTextStyle(AppTypo.title18SB, AppColors.grey00),
+                textAlign: TextAlign.center,
+                style: PicnicUi.text(
+                  size: 18,
+                  weight: FontWeight.w600,
+                  color: isActive
+                      ? PicnicUi.onActionColor
+                      : PicnicUi.secondaryText,
+                ),
               ),
       ),
     );
@@ -530,31 +569,32 @@ class VotingCheckAllOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final foreground = checkAll ? PicnicUi.actionColor : PicnicUi.secondaryText;
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onToggle,
-      child: SizedBox(
-        height: 20,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/check_style=line.svg',
               width: 20.w,
               height: 20,
-              colorFilter: ColorFilter.mode(
-                checkAll ? AppColors.primary500 : AppColors.grey300,
-                BlendMode.srcIn,
-              ),
+              colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
             ),
-            SizedBox(width: 4.w),
-            Text(
-              AppLocalizations.of(context).label_checkbox_entire_use,
-              style: getTextStyle(
-                AppTypo.body14M,
-                checkAll ? AppColors.primary500 : AppColors.grey300,
+            SizedBox(width: PicnicUi.horizontal(4)),
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context).label_checkbox_entire_use,
+                style: PicnicUi.text(
+                  size: 14,
+                  weight: FontWeight.w500,
+                  color: foreground,
+                ),
               ),
             ),
           ],
@@ -579,11 +619,15 @@ class VotingErrorMessage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!canVote && hasValue) {
       return Container(
-        padding: EdgeInsets.only(left: 22.w),
+        padding: EdgeInsets.only(left: PicnicUi.horizontal(24)),
         width: double.infinity,
         child: Text(
           AppLocalizations.of(context).text_need_recharge,
-          style: getTextStyle(AppTypo.caption10SB, AppColors.statusError),
+          style: PicnicUi.text(
+            size: 12,
+            weight: FontWeight.w600,
+            color: AppColors.statusError,
+          ),
           textAlign: TextAlign.left,
         ),
       );
@@ -608,15 +652,23 @@ class VotingClearButton extends StatelessWidget {
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onClear,
-      child: SvgPicture.asset(
-        package: 'picnic_lib',
-        'assets/icons/cancel_style=fill.svg',
-        colorFilter: ColorFilter.mode(
-          hasValue ? AppColors.grey700 : AppColors.grey200,
-          BlendMode.srcIn,
+      // The glyph keeps its 20px size; the surrounding box is what reaches the
+      // 48 minimum so the field's trailing control is actually hittable.
+      child: SizedBox(
+        width: PicnicUi.minimumTapTarget,
+        height: PicnicUi.minimumTapTarget,
+        child: Center(
+          child: SvgPicture.asset(
+            package: 'picnic_lib',
+            'assets/icons/cancel_style=fill.svg',
+            colorFilter: ColorFilter.mode(
+              hasValue ? PicnicUi.ink : AppColors.grey200,
+              BlendMode.srcIn,
+            ),
+            width: 20.w,
+            height: 20,
+          ),
         ),
-        width: 20.w,
-        height: 20,
       ),
     );
   }

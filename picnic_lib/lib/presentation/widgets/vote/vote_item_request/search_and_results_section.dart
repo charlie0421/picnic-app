@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/enhanced_search_box.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'vote_item_request_models.dart';
@@ -119,14 +121,13 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
     // 검색창만 표시 (초기 상태)
     if (widget.showSearchBoxOnly) {
       return Container(
-        margin: EdgeInsets.all(12.r),
-        decoration: BoxDecoration(
+        margin: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(12),
+        ),
+        decoration: PicnicUi.surfaceDecoration(
+          radius: 16,
           color: AppColors.grey100,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: AppColors.grey200.withValues(alpha: 0.5),
-            width: 1,
-          ),
         ),
         child: _buildSearchHeader(),
       );
@@ -135,14 +136,13 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
     // 검색 결과와 함께 표시 (Expanded)
     return Expanded(
       child: Container(
-        margin: EdgeInsets.all(12.r),
-        decoration: BoxDecoration(
+        margin: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(12),
+        ),
+        decoration: PicnicUi.surfaceDecoration(
+          radius: 16,
           color: AppColors.grey100,
-          borderRadius: BorderRadius.circular(20.r),
-          border: Border.all(
-            color: AppColors.grey200.withValues(alpha: 0.5),
-            width: 1,
-          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,7 +162,12 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
     final isSearchMode = !widget.showSearchBoxOnly;
 
     return Padding(
-      padding: EdgeInsets.fromLTRB(12.r, 12.r, 12.r, 8.r),
+      padding: EdgeInsets.fromLTRB(
+        PicnicUi.horizontal(12),
+        PicnicUi.vertical(12),
+        PicnicUi.horizontal(12),
+        PicnicUi.vertical(8),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -170,48 +175,65 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(4.r),
+                padding: EdgeInsets.symmetric(
+                  horizontal: PicnicUi.horizontal(4),
+                  vertical: PicnicUi.vertical(4),
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.primary500.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.search_rounded,
                   color: AppColors.primary500,
-                  size: 14.r,
+                  size: 16,
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: PicnicUi.horizontal(8)),
               Expanded(
                 child: Text(
                   AppLocalizations.of(context).vote_item_request_search_artist,
-                  style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                  style: PicnicUi.text(
+                    weight: FontWeight.w600,
+                    color: PicnicUi.ink,
+                  ),
                 ),
               ),
               // 검색 모드일 때 닫기 버튼 표시
               if (isSearchMode && widget.onCloseSearch != null)
-                GestureDetector(
-                  onTap: () {
-                    _searchFocusNode.unfocus();
-                    widget.onCloseSearch?.call();
-                  },
-                  child: Container(
-                    padding: EdgeInsets.all(4.r),
-                    decoration: BoxDecoration(
-                      color: AppColors.grey200,
-                      borderRadius: BorderRadius.circular(6.r),
-                    ),
-                    child: Icon(
-                      Icons.close_rounded,
-                      color: AppColors.grey600,
-                      size: 14.r,
+                Semantics(
+                  button: true,
+                  label: MaterialLocalizations.of(context).closeButtonLabel,
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () {
+                      _searchFocusNode.unfocus();
+                      widget.onCloseSearch?.call();
+                    },
+                    child: SizedBox.square(
+                      dimension: PicnicUi.minimumTapTarget,
+                      child: Center(
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: PicnicUi.disabledSurface,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            color: PicnicUi.secondaryText,
+                            size: 16,
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
 
-          SizedBox(height: 8.h),
+          SizedBox(height: PicnicUi.vertical(8)),
 
           // 검색 입력 박스
           // showSearchBoxOnly 모드일 때는 GestureDetector로 감싸서 탭 시 레이아웃 먼저 변경
@@ -221,32 +243,32 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
               onTap: widget.onSearchBoxTapped,
               child: AbsorbPointer(
                 child: EnhancedSearchBox(
-                  hintText: AppLocalizations.of(context)
-                      .vote_item_request_search_artist_hint,
+                  hintText: AppLocalizations.of(
+                    context,
+                  ).vote_item_request_search_artist_hint,
                   onSearchChanged: widget.onSearchChanged,
                   showClearButton: true,
                   showSearchIcon: true,
                   autofocus: false,
                   focusNode: _searchFocusNode,
-                  style: getTextStyle(AppTypo.body14R, AppColors.grey900),
-                  hintStyle: getTextStyle(AppTypo.caption12R, AppColors.grey400),
-                  height: 36.h,
+                  style: PicnicUi.text(color: PicnicUi.ink),
+                  hintStyle: PicnicUi.text(size: 12, color: PicnicUi.quietText),
                   debounceTime: const Duration(milliseconds: 200),
                 ),
               ),
             )
           else
             EnhancedSearchBox(
-              hintText: AppLocalizations.of(context)
-                  .vote_item_request_search_artist_hint,
+              hintText: AppLocalizations.of(
+                context,
+              ).vote_item_request_search_artist_hint,
               onSearchChanged: widget.onSearchChanged,
               showClearButton: true,
               showSearchIcon: true,
               autofocus: false,
               focusNode: _searchFocusNode,
-              style: getTextStyle(AppTypo.body14R, AppColors.grey900),
-              hintStyle: getTextStyle(AppTypo.caption12R, AppColors.grey400),
-              height: 36.h,
+              style: PicnicUi.text(color: PicnicUi.ink),
+              hintStyle: PicnicUi.text(size: 12, color: PicnicUi.quietText),
               debounceTime: const Duration(milliseconds: 200),
             ),
         ],
@@ -270,10 +292,10 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
       child: widget.isSearching
           ? _buildLoadingState()
           : !hasSearchQuery
-              ? _buildInitialState() // 초기 상태 (검색어 없음)
-              : widget.searchResults.isEmpty
-                  ? _buildEmptyState() // 검색 결과 없음
-                  : _buildResultsList(),
+          ? _buildInitialState() // 초기 상태 (검색어 없음)
+          : widget.searchResults.isEmpty
+          ? _buildEmptyState() // 검색 결과 없음
+          : _buildResultsList(),
     );
   }
 
@@ -356,65 +378,35 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
 
   /// 초기 상태: 검색어 입력 전 안내 메시지
   Widget _buildInitialState() {
-    return SizedBox(
-      height: 120.h,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: AppColors.primary500.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Icon(
-                Icons.search_rounded,
-                color: AppColors.primary500,
-                size: 32.r,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              AppLocalizations.of(context).vote_item_request_search_initial_guide,
-              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
-            ),
-          ],
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: PicnicFeedback(
+          icon: Icons.search_rounded,
+          message: AppLocalizations.of(
+            context,
+          ).vote_item_request_search_initial_guide,
         ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return SizedBox(
-      height: 120.h,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.all(16.r),
-              decoration: BoxDecoration(
-                color: AppColors.grey200.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(16.r),
-              ),
-              child: Icon(
-                Icons.search_off_rounded,
-                color: AppColors.grey500,
-                size: 32.r,
-              ),
-            ),
-            SizedBox(height: 12.h),
-            Text(
-              AppLocalizations.of(context).vote_item_request_no_search_results,
-              style: getTextStyle(AppTypo.body14B, AppColors.grey600),
-            ),
-            SizedBox(height: 4.h),
-            Text(
-              AppLocalizations.of(context).vote_item_request_search_try_other_keyword,
-              style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
-            ),
-          ],
+    final localizations = AppLocalizations.of(context);
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: PicnicFeedback(
+          icon: Icons.search_off_rounded,
+          message:
+              '${localizations.vote_item_request_no_search_results}\n'
+              '${localizations.vote_item_request_search_try_other_keyword}',
         ),
       ),
     );
@@ -425,7 +417,8 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
       controller: _scrollController,
       padding: EdgeInsets.fromLTRB(16.r, 8.r, 16.r, 16.r),
       physics: const BouncingScrollPhysics(),
-      itemCount: widget.searchResults.length +
+      itemCount:
+          widget.searchResults.length +
           (widget.hasMoreResults && widget.isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
         // 마지막 아이템이 로딩 인디케이터인지 확인
@@ -442,12 +435,14 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
         final isInfoLoaded = applicationInfo != null;
 
         // 신청 정보가 로드되지 않았으면 기본값 사용
-        final displayInfo = applicationInfo ??
+        final displayInfo =
+            applicationInfo ??
             ArtistApplicationInfo(
               artistName: ArtistNameUtils.getDisplayName(artist.name),
               applicationCount: 0,
-              applicationStatus:
-                  AppLocalizations.of(context).vote_item_request_can_apply,
+              applicationStatus: AppLocalizations.of(
+                context,
+              ).vote_item_request_can_apply,
               isAlreadyInVote: false,
               isSubmitting: false,
             );
@@ -475,7 +470,8 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
             currentSearchQuery: widget.currentSearchQuery,
             listIndex: artistIndex,
             trailing: SearchResultActionButton(
-              shouldShowApplicationButton: isInfoLoaded &&
+              shouldShowApplicationButton:
+                  isInfoLoaded &&
                   !displayInfo.isAlreadyInVote &&
                   displayInfo.applicationStatus ==
                       AppLocalizations.of(context).vote_item_request_can_apply,
@@ -492,8 +488,6 @@ class _SearchAndResultsSectionState extends State<SearchAndResultsSection> {
   }
 
   Widget _buildLoadMoreIndicator() {
-    return Column(
-      children: List.generate(3, (_) => _buildSkeletonItem()),
-    );
+    return Column(children: List.generate(3, (_) => _buildSkeletonItem()));
   }
 }

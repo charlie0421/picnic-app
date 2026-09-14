@@ -186,7 +186,9 @@ void main() {
       await tester.pump();
 
       expect(find.byType(StoreListTile), findsOneWidget);
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      final button = tester.widget<ButtonStyleButton>(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       // When isLoading is true, onPressed is null
       expect(button.onPressed, isNull);
     }, skip: true);
@@ -212,7 +214,9 @@ void main() {
       );
       await tester.pump();
 
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      final button = tester.widget<ButtonStyleButton>(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       expect(button.onPressed, isNull);
     });
 
@@ -239,7 +243,9 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       expect(pressed, true);
     });
   });
@@ -497,8 +503,13 @@ void main() {
       // The row keeps the 100 star candy and +50 bonus star candy separate.
       expect(find.text('Event 50'), findsOneWidget);
       expect(find.text('150'), findsNothing);
-      final buyButton = tester.widget<ElevatedButton>(
-        find.byKey(const Key('purchase-price-cta')),
+      final buyButton = tester.widget<ButtonStyleButton>(
+        find.descendant(
+          of: find.byKey(const Key('purchase-price-cta')),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is ButtonStyleButton,
+          ),
+        ),
       );
       expect(buyButton.onPressed, isNotNull);
 

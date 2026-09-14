@@ -1,27 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
-import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
 void main() {
   late void Function() restore;
+  late FAQContent fixture;
+
+  void setFixture(Map<String, dynamic> tables) {
+    fixture = FAQContent(
+      faqs: (tables['faqs'] as List<dynamic>).cast<Map<String, dynamic>>(),
+      categories: (tables['faq_categories'] as List<dynamic>)
+          .cast<Map<String, dynamic>>(),
+    );
+  }
+
+  FAQPage page() {
+    final content = fixture;
+    return FAQPage(loadContent: () async => content);
+  }
 
   setUp(() {
     initTestColors();
-    setupMockSupabase({
-      'faqs': <dynamic>[],
-      'faq_categories': <dynamic>[],
-    });
+    setFixture({'faqs': <dynamic>[], 'faq_categories': <dynamic>[]});
     restore = suppressImageErrors();
   });
 
   tearDown(() {
     restore();
-    tearDownMockSupabase();
   });
 
   Future<void> pumpAndDrain(WidgetTester tester, Widget widget) async {
@@ -34,18 +44,20 @@ void main() {
   }
 
   group('FAQPage render', () {
-    testWidgets('renders with empty data shows no results',
-        (WidgetTester tester) async {
-      await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
+    testWidgets('renders with empty data shows no results', (
+      WidgetTester tester,
+    ) async {
+      await pumpAndDrain(tester, buildTestAppPage(page()));
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
     });
 
-    testWidgets('renders with FAQ data and categories',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders with FAQ data and categories', (
+      WidgetTester tester,
+    ) async {
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -82,18 +94,19 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
+      await pumpAndDrain(tester, buildTestAppPage(page()));
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
 
       expect(find.byType(FAQPage), findsOneWidget);
       // Should show category chips
-      expect(find.byType(ChoiceChip), findsWidgets);
+      expect(find.byType(PicnicFilterChip), findsWidgets);
     });
 
-    testWidgets('renders with answer_delta (Quill content)',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders with answer_delta (Quill content)', (
+      WidgetTester tester,
+    ) async {
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -126,7 +139,7 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
+      await pumpAndDrain(tester, buildTestAppPage(page()));
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
 
@@ -140,9 +153,10 @@ void main() {
       }
     });
 
-    testWidgets('renders with multiple categories and filters',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders with multiple categories and filters', (
+      WidgetTester tester,
+    ) async {
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -179,12 +193,12 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
+      await pumpAndDrain(tester, buildTestAppPage(page()));
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
 
       // Tap a category chip to filter
-      final chips = find.byType(ChoiceChip);
+      final chips = find.byType(PicnicFilterChip);
       if (chips.evaluate().length > 1) {
         await tester.tap(chips.at(1));
         await tester.pump(const Duration(milliseconds: 300));
@@ -195,7 +209,7 @@ void main() {
     });
 
     testWidgets('renders with English locale', (WidgetTester tester) async {
-      setupMockSupabase({
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -219,7 +233,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const FAQPage(), locale: const Locale('en')),
+        buildTestAppPage(page(), locale: const Locale('en')),
       );
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
@@ -228,7 +242,7 @@ void main() {
     });
 
     testWidgets('renders with Japanese locale', (WidgetTester tester) async {
-      setupMockSupabase({
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -252,7 +266,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const FAQPage(), locale: const Locale('ja')),
+        buildTestAppPage(page(), locale: const Locale('ja')),
       );
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
@@ -260,9 +274,10 @@ void main() {
       expect(find.byType(FAQPage), findsOneWidget);
     });
 
-    testWidgets('renders with category without label map',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders with category without label map', (
+      WidgetTester tester,
+    ) async {
+      setFixture({
         'faqs': [
           {
             'id': 1,
@@ -284,7 +299,7 @@ void main() {
         ],
       });
 
-      await pumpAndDrain(tester, buildTestAppPage(const FAQPage()));
+      await pumpAndDrain(tester, buildTestAppPage(page()));
       await tester.pump(const Duration(milliseconds: 500));
       drainExpectedImageErrors(tester);
 

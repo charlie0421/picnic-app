@@ -1,25 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 
 class QnaSubmitButton {
   const QnaSubmitButton._();
 
   static Widget fab(BuildContext context, {required VoidCallback onPressed}) {
-    return FloatingActionButton.extended(
+    return PicnicActionButton(
+      key: const Key('qna-create-action'),
+      label: AppLocalizations.of(context).qna_submit_button,
       onPressed: onPressed,
-      backgroundColor: AppColors.primary500,
-      foregroundColor: Colors.white,
-      elevation: 3,
-      extendedPadding: const EdgeInsets.symmetric(horizontal: 16.0),
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      icon: const Icon(Icons.edit, size: 16),
-      label: Text(
-        AppLocalizations.of(context).qna_submit_button,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      icon: const Icon(Icons.edit, size: 20),
     );
   }
 
@@ -29,28 +20,12 @@ class QnaSubmitButton {
     bool isLoading = false,
     IconData icon = Icons.check,
   }) {
-    return ElevatedButton.icon(
-      onPressed: isLoading ? null : onPressed,
-      icon: isLoading
-          ? const SizedBox(
-              width: 14,
-              height: 14,
-              child: SmallPulseLoadingIndicator(),
-            )
-          : Icon(icon, size: 16),
-      label: Text(
-        AppLocalizations.of(context).qna_submit_button,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: AppColors.primary500,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
-        minimumSize: const Size(64, 36),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      ),
+    return PicnicActionButton(
+      label: AppLocalizations.of(context).qna_submit_button,
+      onPressed: onPressed,
+      isLoading: isLoading,
+      busySemanticLabel: AppLocalizations.of(context).loading,
+      icon: Icon(icon, size: 20),
     );
   }
 }

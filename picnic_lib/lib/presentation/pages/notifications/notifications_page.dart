@@ -9,19 +9,28 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/inbox_notification.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/community/community_post_detail_screen.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/notifications_unread_count_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+enum NotificationsPageMode { standalone, embedded }
+
 class NotificationsPage extends ConsumerStatefulWidget {
-  const NotificationsPage({super.key, this.service});
+  const NotificationsPage({
+    super.key,
+    this.service,
+    this.mode = NotificationsPageMode.standalone,
+  });
 
   final NotificationInboxService? service;
+  final NotificationsPageMode mode;
 
   @override
   ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
@@ -40,6 +49,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   bool _initialError = false;
   bool _appendError = false;
   bool _hasMore = true;
+  bool _markAllLoading = false;
   int _generation = 0;
   String? _pageTitle;
 
@@ -223,38 +233,45 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
   }
 
   Future<void> _markAllRead() async {
-    final pagerAtStart = _pager;
-    final visibleAtStart = _items.map((item) => item.identity).toSet();
-    final bufferedPersonalAtStart = pagerAtStart.snapshotBufferedPersonalIds();
-    final result = await _service.markAllNotificationsRead();
-    if (!mounted || !result.accountStillCurrent) return;
-    final personalOverlayIds = result.personalReadIds.toSet();
-    if (result.personalSucceeded && identical(_pager, pagerAtStart)) {
-      personalOverlayIds.addAll(bufferedPersonalAtStart);
-    }
-    _pager.applyReadIds(
-      personalIds: personalOverlayIds,
-      broadcastIds: result.broadcastReadIds,
-    );
-    setState(() {
-      for (var index = 0; index < _items.length; index++) {
-        final item = _items[index];
-        final succeeded = item.source == NotificationSource.personal
-            ? result.personalSucceeded
-            : result.broadcastSucceeded;
-        final wasTargeted = visibleAtStart.contains(item.identity);
-        final broadcastWasScanned = result.broadcastReadIds.contains(item.id);
-        if (succeeded &&
-            wasTargeted &&
-            (item.source == NotificationSource.personal ||
-                broadcastWasScanned) &&
-            !item.isRead) {
-          _items[index] = item.markedRead();
-        }
+    if (_markAllLoading) return;
+    setState(() => _markAllLoading = true);
+    try {
+      final pagerAtStart = _pager;
+      final visibleAtStart = _items.map((item) => item.identity).toSet();
+      final bufferedPersonalAtStart = pagerAtStart
+          .snapshotBufferedPersonalIds();
+      final result = await _service.markAllNotificationsRead();
+      if (!mounted || !result.accountStillCurrent) return;
+      final personalOverlayIds = result.personalReadIds.toSet();
+      if (result.personalSucceeded && identical(_pager, pagerAtStart)) {
+        personalOverlayIds.addAll(bufferedPersonalAtStart);
       }
-    });
-    if (result.personalSucceeded) {
-      ref.invalidate(unreadNotificationsCountProvider);
+      _pager.applyReadIds(
+        personalIds: personalOverlayIds,
+        broadcastIds: result.broadcastReadIds,
+      );
+      setState(() {
+        for (var index = 0; index < _items.length; index++) {
+          final item = _items[index];
+          final succeeded = item.source == NotificationSource.personal
+              ? result.personalSucceeded
+              : result.broadcastSucceeded;
+          final wasTargeted = visibleAtStart.contains(item.identity);
+          final broadcastWasScanned = result.broadcastReadIds.contains(item.id);
+          if (succeeded &&
+              wasTargeted &&
+              (item.source == NotificationSource.personal ||
+                  broadcastWasScanned) &&
+              !item.isRead) {
+            _items[index] = item.markedRead();
+          }
+        }
+      });
+      if (result.personalSucceeded) {
+        ref.invalidate(unreadNotificationsCountProvider);
+      }
+    } finally {
+      if (mounted) setState(() => _markAllLoading = false);
     }
   }
 
@@ -330,29 +347,67 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.mode == NotificationsPageMode.embedded) {
+      return ColoredBox(
+        color: PicnicUi.surface,
+        child: Column(
+          children: [
+            Align(
+              alignment: Alignment.centerRight,
+              child: _buildMarkAllAction(),
+            ),
+            Divider(height: 1, color: PicnicUi.border),
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
+      backgroundColor: PicnicUi.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: PicnicUi.surface,
+        foregroundColor: PicnicUi.ink,
         title: Text(
           _pageTitle ?? AppLocalizations.of(context).label_mypage_notifications,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: PicnicUi.text(size: 16, weight: FontWeight.w700),
         ),
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        actions: [
-          TextButton(
-            onPressed: _markAllRead,
-            child: Text(
-              AppLocalizations.of(context).notifications_mark_all_read,
-              style: const TextStyle(color: Colors.blue),
-            ),
-          ),
-        ],
+        actions: [_buildMarkAllAction()],
       ),
       body: _buildBody(),
+    );
+  }
+
+  Widget _buildMarkAllAction() {
+    final label = AppLocalizations.of(context).notifications_mark_all_read;
+    return TextButton(
+      key: const ValueKey('notifications-mark-all'),
+      onPressed: _markAllLoading ? null : _markAllRead,
+      style: TextButton.styleFrom(
+        foregroundColor: PicnicUi.actionColor,
+        disabledForegroundColor: PicnicUi.secondaryText,
+        minimumSize: const Size.square(PicnicUi.minimumTapTarget),
+        padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(12)),
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: PicnicUi.text(
+          weight: FontWeight.w600,
+          color: _markAllLoading
+              ? PicnicUi.secondaryText
+              : PicnicUi.actionColor,
+        ),
+      ),
     );
   }
 
@@ -362,12 +417,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
     if (_initialError && _items.isEmpty) {
       return _scrollableMessage(
-        icon: Icons.error_outline,
-        message: AppLocalizations.of(context).message_error_occurred,
-        action: ElevatedButton.icon(
-          onPressed: _loadFirstPage,
-          icon: const Icon(Icons.refresh),
-          label: Text(AppLocalizations.of(context).retry),
+        child: PicnicFeedback(
+          icon: Icons.error_outline,
+          message: AppLocalizations.of(context).message_error_occurred,
+          actionLabel: AppLocalizations.of(context).retry,
+          onAction: _loadFirstPage,
         ),
       );
     }
@@ -378,8 +432,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             SliverFillRemaining(
-              child: NoItemContainer(
-                message: AppLocalizations.of(context).common_text_no_data,
+              child: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(PicnicUi.horizontal(24)),
+                  child: PicnicFeedback(
+                    icon: Icons.notifications_none,
+                    message: AppLocalizations.of(context).common_text_no_data,
+                  ),
+                ),
               ),
             ),
           ],
@@ -398,41 +458,43 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             _items.length +
             (showRefreshError ? 1 : 0) +
             (showAppendFooter ? 1 : 0),
-        separatorBuilder: (_, _) => const Divider(height: 1),
+        separatorBuilder: (_, _) => Divider(height: 1, color: PicnicUi.border),
         itemBuilder: (context, index) {
           if (showRefreshError && index == 0) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 18),
-                  const SizedBox(width: 8),
-                  Text(AppLocalizations.of(context).message_error_occurred),
-                  const SizedBox(width: 8),
-                  TextButton.icon(
-                    onPressed: _loadFirstPage,
-                    icon: const Icon(Icons.refresh),
-                    label: Text(AppLocalizations.of(context).retry),
-                  ),
-                ],
+              padding: EdgeInsets.symmetric(
+                horizontal: PicnicUi.horizontal(16),
+                vertical: PicnicUi.vertical(8),
+              ),
+              child: PicnicFeedback(
+                inline: true,
+                icon: Icons.error_outline,
+                message: AppLocalizations.of(context).message_error_occurred,
+                actionLabel: AppLocalizations.of(context).retry,
+                onAction: _loadFirstPage,
               ),
             );
           }
           final itemIndex = index - (showRefreshError ? 1 : 0);
           if (itemIndex == _items.length) {
             if (_appendError) {
-              return Center(
-                child: TextButton.icon(
-                  onPressed: _loadMore,
-                  icon: const Icon(Icons.refresh),
-                  label: Text(AppLocalizations.of(context).retry),
+              return Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: PicnicUi.horizontal(16),
+                  vertical: PicnicUi.vertical(8),
+                ),
+                child: PicnicFeedback(
+                  inline: true,
+                  icon: Icons.error_outline,
+                  message: AppLocalizations.of(context).message_error_occurred,
+                  actionLabel: AppLocalizations.of(context).retry,
+                  onAction: _loadMore,
                 ),
               );
             }
-            return const Padding(
-              padding: EdgeInsets.all(16),
-              child: Center(child: MediumPulseLoadingIndicator()),
+            return Padding(
+              padding: EdgeInsets.all(PicnicUi.horizontal(16)),
+              child: const Center(child: MediumPulseLoadingIndicator()),
             );
           }
           return _buildNotificationTile(_items[itemIndex]);
@@ -441,24 +503,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     );
   }
 
-  Widget _scrollableMessage({
-    required IconData icon,
-    required String message,
-    required Widget action,
-  }) => CustomScrollView(
+  Widget _scrollableMessage({required Widget child}) => CustomScrollView(
     physics: const AlwaysScrollableScrollPhysics(),
     slivers: [
       SliverFillRemaining(
         child: Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 48),
-              const SizedBox(height: 12),
-              Text(message),
-              const SizedBox(height: 12),
-              action,
-            ],
+          child: Padding(
+            padding: EdgeInsets.all(PicnicUi.horizontal(24)),
+            child: child,
           ),
         ),
       ),
@@ -474,8 +526,11 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
         : localizedTitle.replaceFirst(emoji, '').trim();
     final isUnread = !notification.isRead;
     final tileColor = isUnread
-        ? Colors.blue.withValues(alpha: 0.08)
-        : Colors.grey.withValues(alpha: 0.03);
+        ? Color.alphaBlend(
+            AppColors.primary500.withValues(alpha: 0.08),
+            PicnicUi.surface,
+          )
+        : PicnicUi.surface;
 
     IconData fallbackIcon;
     switch (notification.type) {
@@ -495,8 +550,14 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
     }
 
     Widget leading = emoji == null
-        ? Icon(fallbackIcon, color: isUnread ? Colors.blue : Colors.grey)
-        : Text(emoji, style: const TextStyle(fontSize: 28));
+        ? Icon(
+            fallbackIcon,
+            color: isUnread ? PicnicUi.actionColor : PicnicUi.quietText,
+          )
+        : FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(emoji, style: const TextStyle(fontSize: 28, height: 1)),
+          );
     if (isUnread) {
       leading = Stack(
         clipBehavior: Clip.none,
@@ -508,8 +569,8 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             child: Container(
               width: 10,
               height: 10,
-              decoration: const BoxDecoration(
-                color: Colors.red,
+              decoration: BoxDecoration(
+                color: AppColors.statusError,
                 shape: BoxShape.circle,
               ),
             ),
@@ -520,18 +581,25 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
 
     return ListTile(
       key: ValueKey(notification.identity),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(16),
+        vertical: PicnicUi.vertical(4),
+      ),
       leading: SizedBox(width: 40, height: 40, child: Center(child: leading)),
       tileColor: tileColor,
       title: Text(
         displayTitle,
-        style: TextStyle(
-          fontWeight: isUnread ? FontWeight.bold : FontWeight.normal,
-          color: isUnread ? Colors.black : Colors.grey[700],
+        style: PicnicUi.text(
+          weight: isUnread ? FontWeight.w700 : FontWeight.w500,
+          color: isUnread ? PicnicUi.ink : PicnicUi.secondaryText,
         ),
       ),
       subtitle: Text(
         localizedBody,
-        style: TextStyle(color: isUnread ? Colors.black87 : Colors.grey[500]),
+        style: PicnicUi.text(
+          size: 12,
+          color: isUnread ? PicnicUi.secondaryText : PicnicUi.quietText,
+        ),
       ),
       onTap: () async {
         if (!notification.isRead) await _markRead(notification);
