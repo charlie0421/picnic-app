@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -111,6 +112,8 @@ void main() {
     // can raise and lower the keyboard on a live dialog.
     ValueNotifier<double>? keyboardInsetNotifier,
     VoteItemModel? item,
+    VoteModel? vote,
+    VotePortal portal = VotePortal.vote,
   }) async {
     tester.view.physicalSize = Size(viewport.width * 3, viewport.height * 3);
     tester.view.devicePixelRatio = 3.0;
@@ -132,9 +135,9 @@ void main() {
                 context,
               ).copyWith(viewInsets: EdgeInsets.only(bottom: inset)),
               child: VotingDialog(
-                voteModel: voteModel,
+                voteModel: vote ?? voteModel,
                 voteItemModel: item ?? voteItemModel,
-                portalType: VotePortal.vote,
+                portalType: portal,
               ),
             ),
           ),
@@ -142,6 +145,7 @@ void main() {
         textScaler: textScaler,
         designSize: kAppDesignSize,
         splitScreenMode: kAppSplitScreenMode,
+        userProfile: MockData.userProfile(starCandy: 500, starCandyBonus: 50),
         extraOverrides: [
           walletSummaryProvider.overrideWith(
             () => _WalletSummaryOverride(_wallet),
@@ -430,61 +434,152 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
+    // Between "everything pins" and "nothing fits" there is a band of short
+    // budgets (a 320x568 phone with a 280 keyboard at 1x) where the portrait
+    // and the submit button still fit pinned if the names move into the
+    // scrolling window. The portrait must not be unpinned there.
+    testWidgets('a short budget pins the portrait and scrolls the names', (
+      tester,
+    ) async {
+      await pumpCompactDialog(
+        tester,
+        textScaler: TextScaler.noScaling,
+        keyboardInset: 280,
+      );
+      await focusAmountInput(tester);
+      expect(tester.takeException(), isNull);
+
+      final popup = tester.getRect(find.byType(LargePopupWidget));
+      final portrait = tester.getRect(find.byType(VotingArtistImage));
+      expect(
+        portrait.top,
+        greaterThanOrEqualTo(popup.top - 0.5),
+        reason: 'the portrait scrolled above the capsule and is clipped',
+      );
+      expect(find.byType(VotingArtistImage).hitTestable(), findsOneWidget);
+      expect(find.byType(VotingMemberInfo), findsOneWidget);
+
+      final visibleBottom = _compactHeight - 280;
+      for (final entry in <String, Finder>{
+        'amount input': _amountInputSurface(),
+        'submit': find.byType(VotingSubmitButton),
+      }.entries) {
+        final rect = tester.getRect(entry.value);
+        expect(rect.top, greaterThanOrEqualTo(-0.5), reason: entry.key);
+        expect(
+          rect.bottom,
+          lessThanOrEqualTo(visibleBottom + 0.5),
+          reason: entry.key,
+        );
+        expect(entry.value.hitTestable(), findsOneWidget, reason: entry.key);
+      }
+    });
+
+    VoteModel partnerVote() => VoteModel.fromJson({
+      ...MockData.vote().toJson(),
+      'is_partnership': true,
+      'partner': 'jma',
+    });
+
+    testWidgets('the partner logo keeps its size without the keyboard', (
+      tester,
+    ) async {
+      await pumpCompactDialog(
+        tester,
+        textScaler: TextScaler.noScaling,
+        viewport: const Size(_phoneWidth, _phoneHeight),
+        vote: partnerVote(),
+      );
+      expect(tester.takeException(), isNull);
+
+      final logo = find.byType(VotingLogoImage);
+      expect(logo, findsOneWidget);
+      expect(logo.hitTestable(), findsOneWidget);
+      expect(tester.getSize(logo).height, closeTo(100.w, 0.5));
+      // The capsule keeps its intrinsic height: no keyboard, nothing pins.
+      final popup = tester.getRect(find.byType(LargePopupWidget));
+      expect(popup.height, lessThan(_phoneHeight - 48));
+    });
+
+    testWidgets('the partner logo yields its room while the keyboard is up', (
+      tester,
+    ) async {
+      await pumpCompactDialog(
+        tester,
+        textScaler: TextScaler.noScaling,
+        viewport: const Size(_phoneWidth, _phoneHeight),
+        keyboardInset: _phoneKeyboardInset,
+        vote: partnerVote(),
+      );
+      await focusAmountInput(tester);
+      expect(tester.takeException(), isNull);
+
+      expect(find.byType(VotingLogoImage), findsNothing);
+      final popup = tester.getRect(find.byType(LargePopupWidget));
+      final portrait = tester.getRect(find.byType(VotingArtistImage));
+      expect(portrait.top, greaterThanOrEqualTo(popup.top - 0.5));
+      expect(find.byType(VotingSubmitButton).hitTestable(), findsOneWidget);
+    });
+
     // 320x568 at 1x is the one geometry that swaps bodies as the keyboard
     // moves: pinned without it, all-scroll with it. The swap must not drop
-    // the focused input or what was typed into it.
-    testWidgets(
-      'raising and lowering the keyboard keeps focus and the amount',
-      (tester) async {
-        final inset = ValueNotifier<double>(0);
-        addTearDown(inset.dispose);
-        await pumpCompactDialog(
-          tester,
-          textScaler: TextScaler.noScaling,
-          keyboardInsetNotifier: inset,
-        );
-        expect(tester.takeException(), isNull);
-
-        await tester.showKeyboard(find.byType(TextFormField));
-        await tester.enterText(find.byType(TextFormField), '123');
-        await tester.pump(const Duration(milliseconds: 400));
-        expect(find.byType(VotingLogoImage), findsOneWidget);
-
-        Future<void> setInset(double value) async {
-          inset.value = value;
-          // The Dialog animates its inset padding (100) before the layout
-          // budget settles, and the settled body then animates the focused
-          // input into view (300); give both a few frames.
-          for (var i = 0; i < 4; i++) {
-            await tester.pump(const Duration(milliseconds: 400));
-          }
-          expect(tester.takeException(), isNull, reason: 'inset $value');
-          final field = tester.widget<TextField>(find.byType(TextField));
-          expect(field.focusNode?.hasFocus, isTrue, reason: 'inset $value');
-          expect(field.controller?.text, '123', reason: 'inset $value');
-          expect(
-            _amountInputSurface().hitTestable(),
-            findsOneWidget,
-            reason: 'inset $value',
+    // the focused input or what was typed into it. Both portals: pic reads
+    // its balance from the profile instead of the wallet.
+    for (final portal in VotePortal.values) {
+      testWidgets(
+        'raising and lowering the keyboard keeps focus and the amount ($portal)',
+        (tester) async {
+          final inset = ValueNotifier<double>(0);
+          addTearDown(inset.dispose);
+          await pumpCompactDialog(
+            tester,
+            textScaler: TextScaler.noScaling,
+            keyboardInsetNotifier: inset,
+            portal: portal,
           );
-          // With the keyboard up this geometry is in the all-scroll body,
-          // where submit is reachable by scrolling rather than pinned.
-          await tester.ensureVisible(find.byType(VotingSubmitButton));
+          expect(tester.takeException(), isNull);
+
+          await tester.showKeyboard(find.byType(TextFormField));
+          await tester.enterText(find.byType(TextFormField), '123');
           await tester.pump(const Duration(milliseconds: 400));
-          expect(
-            find.byType(VotingSubmitButton).hitTestable(),
-            findsOneWidget,
-            reason: 'inset $value',
-          );
-          expect(tester.takeException(), isNull, reason: 'inset $value');
-        }
+          expect(find.byType(VotingLogoImage), findsOneWidget);
 
-        await setInset(_keyboardInset);
-        expect(find.byType(VotingLogoImage), findsNothing);
-        await setInset(0);
-        expect(find.byType(VotingLogoImage), findsOneWidget);
-      },
-    );
+          Future<void> setInset(double value) async {
+            inset.value = value;
+            // The Dialog animates its inset padding (100) before the layout
+            // budget settles, and the settled body then animates the focused
+            // input into view (300); give both a few frames.
+            for (var i = 0; i < 4; i++) {
+              await tester.pump(const Duration(milliseconds: 400));
+            }
+            expect(tester.takeException(), isNull, reason: 'inset $value');
+            final field = tester.widget<TextField>(find.byType(TextField));
+            expect(field.focusNode?.hasFocus, isTrue, reason: 'inset $value');
+            expect(field.controller?.text, '123', reason: 'inset $value');
+            expect(
+              _amountInputSurface().hitTestable(),
+              findsOneWidget,
+              reason: 'inset $value',
+            );
+            // With the keyboard up this geometry is in the all-scroll body,
+            // where submit is reachable by scrolling rather than pinned.
+            await tester.ensureVisible(find.byType(VotingSubmitButton));
+            await tester.pump(const Duration(milliseconds: 400));
+            expect(
+              find.byType(VotingSubmitButton).hitTestable(),
+              findsOneWidget,
+              reason: 'inset $value',
+            );
+            expect(tester.takeException(), isNull, reason: 'inset $value');
+          }
+
+          await setInset(_keyboardInset);
+          expect(find.byType(VotingLogoImage), findsNothing);
+          await setInset(0);
+          expect(find.byType(VotingLogoImage), findsOneWidget);
+        },
+      );
+    }
   });
 
   group('VotingDialog presentation', () {
