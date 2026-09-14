@@ -215,23 +215,19 @@ void main() {
     );
   });
 
-  testWidgets('labels the amounts an estimate the server will confirm', (
-    tester,
-  ) async {
+  // PICNIC-2686: the info glyph was a bare Tooltip whose default trigger is a
+  // long press, so a plain tap did nothing. Product decision: drop the glyph
+  // rather than make it tappable.
+  testWidgets('shows no info glyph next to bonus star candy', (tester) async {
     await openConfirmation(tester, product: star200, promotion: doubleCampaign);
 
-    expect(
-      find.byKey(const Key('purchase-confirm-estimate-info')),
-      findsOneWidget,
-    );
+    expect(find.byIcon(Icons.info_outline_rounded), findsNothing);
+    expect(find.byType(Tooltip), findsNothing);
   });
 
-  testWidgets('keeps the bonus star candy label on one line beside its info', (
-    tester,
-  ) async {
+  testWidgets('keeps the bonus star candy label on one line', (tester) async {
     // PICNIC-2687: on a phone-width dialog the label and its amount used to
-    // split the row evenly, which broke "보너스 스타캔디" onto two lines as
-    // soon as the info icon sat next to it.
+    // split the row evenly, which broke "보너스 스타캔디" onto two lines.
     tester.view.physicalSize = const Size(375, 812);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
@@ -244,16 +240,8 @@ void main() {
     final starLabel = tester.getRect(find.text('스타캔디'));
     // Same style, so a single line is exactly as tall as the star candy label.
     expect(bonusLabel.height, closeTo(starLabel.height, 0.5));
-    final info = tester.getRect(
-      find.byKey(const Key('purchase-confirm-estimate-info')),
-    );
-    expect(info.left, greaterThanOrEqualTo(bonusLabel.right));
-    expect(
-      info.center.dy,
-      closeTo(bonusLabel.center.dy, bonusLabel.height / 2),
-    );
     final amount = tester.getRect(find.text('25'));
-    expect(amount.left, greaterThanOrEqualTo(info.right));
+    expect(amount.left, greaterThanOrEqualTo(bonusLabel.right));
   });
 
   testWidgets('keeps the event hero when a legacy rate has no exact pill', (

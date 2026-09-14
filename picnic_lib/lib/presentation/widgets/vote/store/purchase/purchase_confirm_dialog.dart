@@ -378,11 +378,11 @@ class PurchaseConfirmDialog extends StatelessWidget {
     ];
   }
 
-  /// The "보너스 스타캔디 (i) …… amount" line.
+  /// The "보너스 스타캔디 …… amount" line.
   ///
   /// PICNIC-2687: the label and the amount used to share the row 1:1, which
-  /// wrapped the label onto two lines on a phone-width dialog as soon as the
-  /// info icon sat beside it. Each side now gets a share proportional to the
+  /// wrapped the label onto two lines on a phone-width dialog. Each side now
+  /// gets a share proportional to the
   /// width it actually needs (measured with the same style and text scale it
   /// renders with): when the row is wide enough both fit as-is, and when it
   /// is not, both scale down by the same factor - the label never wraps and
@@ -394,17 +394,16 @@ class PurchaseConfirmDialog extends StatelessWidget {
     PurchaseRewardPreview preview,
     Locale locale,
   ) {
-    const infoIconSize = 15.0;
-    const labelToInfoGap = 4.0;
     final labelStyle = getTextStyle(AppTypo.body14B, AppColors.grey800);
     final amountStyle = getTextStyle(AppTypo.body16B, kCandyBoostPurple);
     final amountText = preview.hasEventBonus
         ? '${l10n.purchase_reward_total_short} ${formatCandyRewardAmount(preview.productBonus + preview.eventBonus, locale)}'
         : formatCandyRewardAmount(preview.productBonus, locale);
-    final labelWidth =
-        _textWidth(context, l10n.wallet_bonus_star_candy, labelStyle) +
-        labelToInfoGap +
-        infoIconSize;
+    final labelWidth = _textWidth(
+      context,
+      l10n.wallet_bonus_star_candy,
+      labelStyle,
+    );
     final amountWidth = _textWidth(context, amountText, amountStyle);
 
     return Row(
@@ -421,26 +420,14 @@ class PurchaseConfirmDialog extends StatelessWidget {
           child: FittedBox(
             fit: BoxFit.scaleDown,
             alignment: AlignmentDirectional.centerStart,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  l10n.wallet_bonus_star_candy,
-                  maxLines: 1,
-                  softWrap: false,
-                  style: labelStyle,
-                ),
-                const SizedBox(width: labelToInfoGap),
-                Tooltip(
-                  message: l10n.purchase_reward_estimate_note,
-                  child: Icon(
-                    Icons.info_outline_rounded,
-                    key: const Key('purchase-confirm-estimate-info'),
-                    size: infoIconSize,
-                    color: AppColors.grey500,
-                  ),
-                ),
-              ],
+            // PICNIC-2686: the (i) glyph that used to follow the label was a
+            // bare Tooltip (long-press only), so a tap did nothing. Product
+            // decision: drop it rather than make it tappable.
+            child: Text(
+              l10n.wallet_bonus_star_candy,
+              maxLines: 1,
+              softWrap: false,
+              style: labelStyle,
             ),
           ),
         ),
