@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/reward.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -47,6 +48,100 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     drainExpectedImageErrors(tester);
   }
+
+  group('RewardDialog CDN variant', () {
+    // 리워드 원본은 1000px 로 업로드된다. CDN 리사이저는 (w,h,q) 조합마다 별도
+    // 캐시 객체를 만들고 새 조합의 첫 요청은 1.7MB PNG 기준 5~10초가 걸린다
+    // (2026-09-14 실측). 기기 폭·DPR 로 키가 갈리면 기기마다 콜드 리사이즈를
+    // 맞으므로, 다이얼로그 이미지는 기기와 무관한 고정 변형 하나만 요청해야 한다.
+    List<String> collectRequestUrls(WidgetTester tester) {
+      return tester
+          .widgetList<PicnicCachedNetworkImage>(
+            find.descendant(
+              of: find.byType(RewardDialog),
+              matching: find.byType(PicnicCachedNetworkImage),
+            ),
+          )
+          .map((widget) => widget.imageRequest?.url ?? '<layout-dependent>')
+          .toList();
+    }
+
+    RewardModel makeFullReward() => makeReward(
+      thumbnail: '/reward/thumb.png',
+      overviewImages: ['/reward/overview-1.png', '/reward/overview-2.png'],
+      location: {
+        'ko': {
+          'map': ['/reward/map.png'],
+          'address': ['서울시 강남구'],
+          'images': ['/reward/location.png'],
+          'desc': ['설명'],
+        },
+      },
+      sizeGuide: {
+        'ko': [
+          {
+            'image': ['/reward/size.png'],
+            'desc': ['사이즈'],
+          },
+        ],
+      },
+    );
+
+    testWidgets('every image pins one width-only variant at the source size', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(RewardDialog(data: makeFullReward())),
+      );
+
+      final urls = collectRequestUrls(tester);
+      expect(urls, hasLength(6));
+      for (final url in urls) {
+        expect(
+          url,
+          endsWith(
+            "?q=80&w=${RewardDialogConstants.imageRequestWidth.toInt()}",
+          ),
+          reason: url,
+        );
+        expect(url, isNot(contains('&h=')), reason: url);
+      }
+      expect(RewardDialogConstants.imageRequestWidth, 1000);
+    });
+
+    testWidgets('variant key does not change with device pixel ratio', (
+      tester,
+    ) async {
+      final reward = makeFullReward();
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(data: reward),
+          mediaQueryData: const MediaQueryData(
+            size: Size(393, 852),
+            devicePixelRatio: 3,
+          ),
+        ),
+      );
+      final urlsAt3x = collectRequestUrls(tester);
+
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(data: reward),
+          mediaQueryData: const MediaQueryData(
+            size: Size(360, 780),
+            devicePixelRatio: 2,
+          ),
+        ),
+      );
+      final urlsAt2x = collectRequestUrls(tester);
+
+      expect(urlsAt3x, isNotEmpty);
+      expect(urlsAt2x, urlsAt3x);
+    });
+  });
 
   group('RewardDialog render', () {
     testWidgets('renders basic RewardDialog', (WidgetTester tester) async {
@@ -252,8 +347,9 @@ void main() {
   });
 
   group('RewardSection.hasContent', () {
-    testWidgets('overview returns true when images present',
-        (WidgetTester tester) async {
+    testWidgets('overview returns true when images present', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(
         overviewImages: ['https://example.com/img.jpg'],
       );
@@ -275,8 +371,9 @@ void main() {
       expect(section.hasContent(capturedContext), isTrue);
     });
 
-    testWidgets('overview returns false when no images',
-        (WidgetTester tester) async {
+    testWidgets('overview returns false when no images', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(overviewImages: null);
       final section = RewardSection(type: RewardType.overview, data: reward);
 
@@ -296,8 +393,9 @@ void main() {
       expect(section.hasContent(capturedContext), isFalse);
     });
 
-    testWidgets('location returns false when no location data',
-        (WidgetTester tester) async {
+    testWidgets('location returns false when no location data', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(location: null);
       final section = RewardSection(type: RewardType.location, data: reward);
 
