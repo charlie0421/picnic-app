@@ -38,11 +38,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 
-/// The smallest body budget that can pin the header (portrait + names) and the
-/// footer (submit button) and still leave one 48 row for the scrolling middle.
-/// Below it the whole body scrolls instead.
-const double _fixedChromeMinimumBudget = 320;
-
 Future showVotingDialog({
   required BuildContext context,
   required VoteModel voteModel,
@@ -252,7 +247,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   showCloseButton: false,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
-                    child: _fitsFixedChrome(context, budget)
+                    child:
+                        _fitsFixedChrome(
+                          context,
+                          budget: budget,
+                          width: constraints.maxWidth,
+                          isKeyboardVisible: isKeyboardVisible,
+                        )
                         ? _buildFixedChromeBody(
                             context,
                             displayedBalance: displayedBalance,
@@ -286,9 +287,40 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   /// pinned parts plus at least one scrolling row; a 320x568 viewport at 200%
   /// text with a 300 keyboard does not, and there the whole body scrolls as
   /// before so nothing is clipped.
-  bool _fitsFixedChrome(BuildContext context, double budget) {
-    if (budget < _fixedChromeMinimumBudget) return false;
-    return MediaQuery.textScalerOf(context).scale(14) <= 18.2;
+  ///
+  /// The pinned parts are measured, not assumed: the names wrap, so a fixed
+  /// threshold left a long name to overflow the pinned column. The estimate
+  /// mirrors each pinned widget's own geometry and carries a small margin so
+  /// a rounding difference can never turn into an overflow.
+  bool _fitsFixedChrome(
+    BuildContext context, {
+    required double budget,
+    required double width,
+    required bool isKeyboardVisible,
+  }) {
+    final contentWidth =
+        width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(24) * 2;
+    if (contentWidth <= 0) return false;
+
+    final header =
+        PicnicUi.vertical(24) +
+        VotingArtistImage.preferredHeight() +
+        PicnicUi.vertical(16) +
+        VotingMemberInfo.preferredHeight(
+          context,
+          voteItemModel: widget.voteItemModel,
+          maxWidth: contentWidth,
+        );
+    final footer =
+        PicnicUi.vertical(8) +
+        VotingSubmitButton.preferredHeight(context) +
+        (isKeyboardVisible
+            ? 0
+            : PicnicUi.vertical(16) +
+                  VotingLogoImage.preferredHeight(widget.voteModel)) +
+        PicnicUi.vertical(16);
+    const margin = 8.0;
+    return budget >= header + footer + PicnicUi.minimumTapTarget + margin;
   }
 
   EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
