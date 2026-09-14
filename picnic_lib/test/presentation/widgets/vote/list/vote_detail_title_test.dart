@@ -49,6 +49,40 @@ void main() {
   });
 
   group('VoteCommonTitle', () {
+    testWidgets('maxLines caps a long title instead of growing the header', (
+      tester,
+    ) async {
+      // 좁은 폭 + 200% 확대에서 긴 제목이 화면을 다 차지하지 않도록 호출자가
+      // 줄 수를 제한할 수 있다 (소멸 예정 캔디 안내 다이얼로그가 2줄로 제한).
+      tester.view.devicePixelRatio = 3;
+      tester.view.physicalSize = const Size(320 * 3, 568 * 3);
+      addTearDown(tester.view.reset);
+      const title = 'মেয়াদ শেষ হতে যাওয়া ক্যান্ডি নির্দেশিকা';
+      await tester.pumpWidget(
+        buildTestApp(
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 64),
+              child: VoteCommonTitle(title: title, maxLines: 2),
+            ),
+          ),
+          designSize: kAppDesignSize,
+          splitScreenMode: kAppSplitScreenMode,
+          textScaler: const TextScaler.linear(2),
+        ),
+      );
+      await tester.pump();
+      final paragraph = tester.renderObject<RenderParagraph>(
+        find.text(title).first,
+      );
+      expect(paragraph.didExceedMaxLines, isTrue);
+      final lineHeight = paragraph.getFullHeightForCaret(
+        const TextPosition(offset: 0),
+      );
+      expect(paragraph.size.height, lessThanOrEqualTo(lineHeight * 2 + 1));
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('renders with title text', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestApp(const VoteCommonTitle(title: 'Best Artist Award')),
