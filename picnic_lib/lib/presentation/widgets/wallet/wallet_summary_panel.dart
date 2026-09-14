@@ -37,43 +37,49 @@ class WalletSummaryPanel extends ConsumerWidget {
           data: (wallet) => Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: WalletCurrencySegment(
-                      key: const Key('wallet-star-card'),
-                      asset: 'assets/icons/store/currency_star_candy.png',
-                      label: localizations.wallet_star_candy,
-                      amount: wallet.star,
-                      compact: compact,
-                      contentAlignment: _contentAlignment,
+              // 세 통화 박스는 같은 높이로 — 라벨 줄 수가 달라도 카드 하단이
+              // 들쭉날쭉하지 않게. Row 의 stretch 는 높이가 무한한 부모(ListView)
+              // 아래에서는 쓸 수 없어 IntrinsicHeight 로 감싼다 (PICNIC-2689).
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: WalletCurrencySegment(
+                        key: const Key('wallet-star-card'),
+                        asset: 'assets/icons/store/currency_star_candy.png',
+                        label: localizations.wallet_star_candy,
+                        amount: wallet.star,
+                        compact: compact,
+                        contentAlignment: _contentAlignment,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: WalletCurrencySegment(
-                      key: const Key('wallet-bonus-card'),
-                      asset: 'assets/icons/store/currency_bonus_star_candy.png',
-                      label: localizations.wallet_bonus_star_candy,
-                      amount: wallet.bonus,
-                      compact: compact,
-                      contentAlignment: _contentAlignment,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: WalletCurrencySegment(
+                        key: const Key('wallet-bonus-card'),
+                        asset:
+                            'assets/icons/store/currency_bonus_star_candy.png',
+                        label: localizations.wallet_bonus_star_candy,
+                        amount: wallet.bonus,
+                        compact: compact,
+                        contentAlignment: _contentAlignment,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: WalletCurrencySegment(
-                      key: const Key('wallet-cotton-card'),
-                      asset: 'assets/icons/store/currency_cotton_candy.png',
-                      label: localizations.wallet_cotton_candy,
-                      amount: wallet.cotton,
-                      highlighted: true,
-                      compact: compact,
-                      contentAlignment: _contentAlignment,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: WalletCurrencySegment(
+                        key: const Key('wallet-cotton-card'),
+                        asset: 'assets/icons/store/currency_cotton_candy.png',
+                        label: localizations.wallet_cotton_candy,
+                        amount: wallet.cotton,
+                        highlighted: true,
+                        compact: compact,
+                        contentAlignment: _contentAlignment,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (buildCottonExpiryText(context, wallet) case final expiry?)
                 Container(
@@ -245,7 +251,7 @@ class WalletCurrencySegment extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(17),
         ),
-        padding: EdgeInsets.fromLTRB(8, compact ? 9 : 12, 6, compact ? 10 : 13),
+        padding: EdgeInsets.fromLTRB(8, compact ? 8 : 12, 6, compact ? 8 : 13),
         child: Column(
           crossAxisAlignment: contentAlignment,
           mainAxisSize: MainAxisSize.min,

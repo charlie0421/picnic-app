@@ -25,15 +25,18 @@ class WalletSummarySkeleton extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: _WalletSegmentSkeleton(compact: compact)),
-            const SizedBox(width: 8),
-            Expanded(child: _WalletSegmentSkeleton(compact: compact)),
-            const SizedBox(width: 8),
-            Expanded(child: _WalletSegmentSkeleton(compact: compact)),
-          ],
+        // 실제 패널(`WalletSummaryPanel`)과 같은 IntrinsicHeight + stretch.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(child: _WalletSegmentSkeleton(compact: compact)),
+              const SizedBox(width: 8),
+              Expanded(child: _WalletSegmentSkeleton(compact: compact)),
+              const SizedBox(width: 8),
+              Expanded(child: _WalletSegmentSkeleton(compact: compact)),
+            ],
+          ),
         ),
       ],
     );
@@ -60,7 +63,7 @@ class _WalletSegmentSkeleton extends StatelessWidget {
         border: Border.all(color: AppColors.grey200),
         borderRadius: BorderRadius.circular(17),
       ),
-      padding: EdgeInsets.fromLTRB(8, compact ? 9 : 12, 6, compact ? 10 : 13),
+      padding: EdgeInsets.fromLTRB(8, compact ? 8 : 12, 6, compact ? 8 : 13),
       child: Shimmer.fromColors(
         baseColor: AppColors.grey300,
         highlightColor: AppColors.grey100,

@@ -33,16 +33,20 @@ class _UnusedHistoryClient extends Fake implements SupabaseClient {}
 class _MenuHistoryRepository extends WalletRepository {
   _MenuHistoryRepository() : super(_UnusedHistoryClient());
   final historyCalls = <WalletCurrency>[];
+  int summaryCalls = 0;
   @override
-  Future<WalletSummaryModel> getSummary() async => WalletSummaryModel(
-    contractVersion: 'wallet.v1',
-    star: BigInt.zero,
-    bonus: BigInt.zero,
-    cotton: BigInt.zero,
-    cottonExpiringAmount: BigInt.zero,
-    cottonNextExpiresAt: null,
-    snapshotAt: DateTime.utc(2026, 9, 8),
-  );
+  Future<WalletSummaryModel> getSummary() async => (
+    summaryCalls++,
+    WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.zero,
+      bonus: BigInt.zero,
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026, 9, 8),
+    ),
+  ).$2;
   @override
   Future<CurrencyHistoryPageModel> getHistory({
     required WalletCurrency currency,
@@ -277,6 +281,43 @@ void main() {
       },
     );
 
+    testWidgets('pouch refresh button re-reads the wallet (PICNIC-2689)', (
+      tester,
+    ) async {
+      // 마이페이지 파우치에만 새로고침 버튼이 빠져 있었다 — 공통 위젯에
+      // onRefresh 를 넘기지 않아서. 스토어·무료충전소와 같은 동작을 보장한다.
+      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+      final repository = _MenuHistoryRepository();
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const MyPage(),
+          userProfile: MockData.userProfile(isAdmin: false),
+          extraOverrides: [
+            asyncBookmarkedArtistsProvider.overrideWith(
+              MockBookmarkedArtists.new,
+            ),
+            walletRepositoryProvider.overrideWithValue(repository),
+            walletHistorySessionProvider.overrideWithValue(
+              WalletHistorySession('test-user-id'),
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+
+      final refresh = find.descendant(
+        of: find.byType(StorePointInfo),
+        matching: find.byKey(const Key('store-point-info-refresh')),
+      );
+      expect(refresh, findsOneWidget);
+      final before = repository.summaryCalls;
+      await tester.tap(refresh);
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(repository.summaryCalls, before + 1);
+    });
+
     testWidgets('renders logged-out state', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestAppPage(
@@ -310,7 +351,7 @@ void main() {
       expect(find.text('관리자'), findsNothing);
     });
 
-    testWidgets('keeps 16px and 24px space around the candy pouch', (
+    testWidgets('keeps 16px space above and below the candy pouch', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -336,7 +377,7 @@ void main() {
       final nextRect = tester.getRect(find.text('언어 설정'));
 
       expect(pouchRect.top - previousRect.bottom, 16);
-      expect(nextRect.top - pouchRect.bottom, 24);
+      expect(nextRect.top - pouchRect.bottom, 16);
     });
 
     testWidgets('renders admin user with admin menus', (

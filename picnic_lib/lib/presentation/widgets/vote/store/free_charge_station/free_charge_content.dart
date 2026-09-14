@@ -60,7 +60,8 @@ class FreeChargeContent extends ConsumerWidget {
                 ref.read(walletSummaryProvider.notifier).refresh();
               },
             ),
-            const SizedBox(height: 16),
+            // 스토어의 캔디부스트 배너와 같은 파우치 하단 간격 (PICNIC-2689).
+            const SizedBox(height: 10),
           ],
           if (!isLogged) const SizedBox(height: 8),
 

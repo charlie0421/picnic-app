@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2689 적대적 코드 리뷰</title>
+  <style>
+    body { max-width: 920px; margin: 40px auto; padding: 0 24px; color: #27222b; background: #fbfafd; font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    h1, h2 { line-height: 1.25; } h1 { margin-bottom: 4px; } h2 { margin-top: 32px; border-bottom: 1px solid #e6e0ea; padding-bottom: 8px; }
+    .meta { color: #625b68; } .verdict { padding: 16px 18px; border-left: 5px solid #d94b86; background: #fff1f7; border-radius: 8px; }
+    .issue { margin: 18px 0; padding: 16px 18px; border: 1px solid #eadde5; background: #fff; border-radius: 10px; }
+    .severity { color: #a51249; font-weight: 800; } code { background: #f0edf3; padding: 1px 4px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #201d22; color: #f7f0f5; padding: 14px; border-radius: 8px; } ul { padding-left: 22px; }
+    table { width: 100%; border-collapse: collapse; background: #fff; } th, td { border: 1px solid #e6e0ea; padding: 9px; text-align: left; vertical-align: top; } th { background: #f2ebf5; }
+  </style>
+</head>
+<body>
+  <h1>PICNIC-2689 별사탕 파우치 높이 — Codex 적대적 리뷰</h1>
+  <p class="meta">대상: <code>3b6ee0407..473f5a01d</code> · 검토일: 2026-09-14 · 변경 파일 12개(소스 6, 테스트 4, 골든 2)</p>
+
+  <section class="verdict">
+    <strong>최종 판정: request-changes</strong><br>
+    발견: blocker 0건, major 2건, minor 1건, nit 0건. 고정 높이라는 제품 요구는 구현됐고 대상 테스트는 통과했지만, 사용자 접근성/조작성을 직접 낮추는 두 회귀를 해소해야 한다.
+  </section>
+
+  <h2>검토 범위와 확인</h2>
+  <p><code>git diff 3b6ee0407..473f5a01d</code>로 다음 변경을 검토했다: 공통 <code>StorePointInfo</code>, 지갑 패널/스켈레톤, 구매 탭, 무료충전소, 마이페이지, 대응 테스트와 <code>candy_boost_purchase_ui_list_ko.png</code>·<code>wallet_summary_panel.png</code> 골든.</p>
+  <pre>cd picnic_lib &amp;&amp; flutter test test/presentation/widgets/vote/store/common/store_point_info_test.dart test/presentation/widgets/wallet/ test/presentation/widgets/vote/store/purchase/purchase_star_candy_state_test.dart test/presentation/widgets/vote/store/free_charge_station/free_charge_content_test.dart test/presentation/pages/my_page/my_page_render_test.dart
+결과: All tests passed! (76 passed, 1 skipped)</pre>
+  <p><code>git diff --check 3b6ee0407..473f5a01d</code>도 통과했다. 지정된 기존 <code>usage_policy_dialog_*</code> 골든/레이아웃 10건 문제는 이번 지적에서 제외했다.</p>
+
+  <h2>지적 사항</h2>
+  <article class="issue">
+    <p><span class="severity">MAJOR</span> — 새로고침의 실제 탭 영역이 36×36 logical px로 축소됐다.</p>
+    <p><strong>근거:</strong> <code>picnic_lib/lib/presentation/widgets/vote/store/common/store_point_info.dart:193-198</code>에서 <code>fixedSize</code>·<code>minimumSize</code>를 36으로 두고 <code>MaterialTapTargetSize.shrinkWrap</code>을 사용한다. 대응 테스트도 <code>.../store_point_info_test.dart:261-284</code>에서 36 이하임을 승인 조건으로 고정한다.</p>
+    <p><strong>재현/영향:</strong> 구매 탭 또는 무료충전소에서 파우치의 새로고침 아이콘을 탭한다. 시각·운동 제약이 있거나 손가락으로 조작하는 사용자는 일반 Material 권장 최소 조작 영역(48 logical px)보다 25% 작은 표적을 눌러야 하며, 좁은 <code>FittedBox</code> 정책 버튼과 별개로 이 아이콘 자체가 실패 지점이 된다.</p>
+    <p><strong>최소 수정 방향:</strong> 시각적 헤더는 36으로 유지하되, 아이콘 버튼의 hit/semantic target은 48×48로 보존한다(예: 48 크기 투명 터치 래퍼를 헤더 밖으로 허용하거나 카드 상하 여백을 포함해 48을 확보). 48×48 hit rect와 콜백을 검증하는 위젯 테스트로 현재 36 이하 assertion을 교체한다.</p>
+  </article>
+
+  <article class="issue">
+    <p><span class="severity">MAJOR</span> — 카드 전체의 시스템 글자 확대를 무조건 해제해 잔액·로그인 안내·정책 문구까지 접근 불가능하게 작아진다.</p>
+    <p><strong>근거:</strong> <code>picnic_lib/lib/presentation/widgets/vote/store/common/store_point_info.dart:52-56</code>의 <code>MediaQuery.withNoTextScaling</code>은 헤더뿐 아니라 하위 <code>StarCandyInfoText</code>와 로그아웃 <code>UnderlinedText</code>까지 감싼다. <code>.../store_point_info_test.dart:231-258</code>은 1.6 배율에서도 같은 높이를 의도적으로 요구한다.</p>
+    <p><strong>재현/영향:</strong> Android 시스템 글자 크기를 160%로 설정한 뒤 로그인/로그아웃 각각의 스토어·무료충전소·마이페이지 파우치를 연다. 사용자가 확대한 글자 크기와 무관하게 11/12/14/16px 텍스트가 원래 크기로 렌더링되어, 특히 코튼캔디 만료 안내 및 로그인 유도 문구를 읽기 어렵다. 이는 카드 높이 고정 요구를 만족하지만 접근성 설정의 효과를 카드 전체에서 제거하는 기능 회귀다.</p>
+    <p><strong>최소 수정 방향:</strong> 높이를 고정해야 하는 헤더만 한 줄/ellipsis로 제어하고, 잔액·만료·로그인 안내는 시스템 <code>TextScaler</code>를 유지하거나 별도 접근성 레이아웃(확대 시 가로 스크롤/상세 보기 등)을 제공한다. 최소한 확대 시에도 읽기 가능한 대안과 semantics를 테스트로 증명해야 한다.</p>
+  </article>
+
+  <article class="issue">
+    <p><span class="severity">MINOR</span> — 긴 번역과 배너 존재 경로의 회귀 테스트가 빠져 있다.</p>
+    <p><strong>근거:</strong> 새 좁은 폭 테스트는 한국어 제목만 사용한다(<code>.../store_point_info_test.dart:190-228</code>). 정책 문구는 최대 폭 45% 뒤 <code>FittedBox</code>으로 축소된다(<code>store_point_info.dart:150-158</code>), 반면 실제 ja/vi/bn/th 번역은 더 길다. 구매 탭 간격 테스트도 배너가 없는 상태만 검증한다(<code>.../purchase_star_candy_state_test.dart:45-81</code>).</p>
+    <p><strong>재현/실패 조건:</strong> 320dp 폭(또는 화면 확대)에서 ja/vi/bn/th 로케일과 로그인/로그아웃, 코튼캔디 만료 2줄 상태를 조합하거나 캔디부스트 배너가 표시되는 구매 탭을 렌더링한다. 현재 테스트는 오버플로·과도한 축소·헤더 높이 변화, 그리고 배너가 있을 때의 <code>pouch → 10 → banner → 2 → divider(14)</code> 간격을 검출하지 못한다.</p>
+    <p><strong>최소 수정 방향:</strong> 해당 4개 로케일 중 폭이 가장 긴 문구를 포함한 320dp/확대 테스트를 추가하고, 로그인/만료 상태별 카드 높이 및 overflow 예외를 확인한다. 구매 탭은 배너 표시 provider를 주입한 별도 테스트로 10·2·14 간격을 고정한다.</p>
+  </article>
+
+  <h2>통과한 검토 항목</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td>요구된 화면별 여백</td><td>소스와 기존 갱신 테스트에서 구매(배너 없음 10 + Divider 14), 무료충전소(16 → 10), 마이페이지(24 → 16)가 일치한다.</td></tr>
+      <tr><td>로그아웃·지갑 로딩/에러</td><td>로그아웃 파우치 표시/숨김 및 지갑 실패 재시도·새로고침 중 마지막 잔액 유지 테스트가 통과했다.</td></tr>
+      <tr><td>IntrinsicHeight</td><td>3개 고정 세그먼트에 한정되어 있고 스켈레톤도 동일 구조이며, 이번 범위에서 unbounded-height 예외는 재현되지 않았다. 다만 위 로케일/확대 조합은 별도 보강이 필요하다.</td></tr>
+      <tr><td>골든</td><td>변경된 두 골든을 포함하는 대상 테스트가 통과했다. 단, 이는 한국어/현재 기본 크기만 보증한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>재검증 — 676fa3a02</h2>
+  <p class="meta">재검증 범위: <code>git diff 473f5a01d..HEAD</code> 및 전체 누적 diff <code>git diff 3b6ee0407..HEAD</code>. <code>git diff --check 473f5a01d..HEAD</code>는 통과했다.</p>
+  <section class="verdict">
+    <strong>재검증 최종 판정: approve</strong><br>
+    최초 지적은 resolved 2건, accepted-rebuttal 1건, still-open 0건이다. 재검증 범위에서 새 차단 회귀는 확인하지 못했다.
+  </section>
+  <table>
+    <thead><tr><th>기존 지적</th><th>결과</th><th>검증 근거</th></tr></thead>
+    <tbody>
+      <tr><td>MAJOR — 새로고침 36px 탭 영역</td><td><strong>resolved</strong></td><td><code>store_point_info.dart:190-200</code>이 48×48 제약과 12px padding을 사용한다. <code>store_point_info_test.dart:261-290</code>은 정확히 48×48인지와 모서리 안쪽 2px 두 지점 탭 콜백을 검증한다.</td></tr>
+      <tr><td>MAJOR — 카드 내부 글자 배율 고정</td><td><strong>accepted-rebuttal</strong></td><td><code>MediaQuery.withNoTextScaling</code>은 유지된다. PICNIC-2689의 명시적 고정 높이 요구와, 1.6 배율에서 라벨 줄바꿈으로 카드 높이가 바뀌는 확인 결과를 근거로 사용자가 이 접근성 trade-off를 승인했으므로 이번 재검증에서는 수용한다. 범위 밖 다이얼로그·목록은 시스템 배율을 유지한다.</td></tr>
+      <tr><td>MINOR — 긴 번역/배너 표시 경로 테스트 공백</td><td><strong>resolved</strong></td><td><code>store_point_info_test.dart:293-337</code>이 320px에서 fil/bn/my/id/th/vi/ja 실제 제목·안내 문구와 48px 새로고침을 검증한다. <code>purchase_star_candy_state_test.dart:84-133</code>은 배너 표시 시 <code>pouch → 10 → banner → 2 → Divider(14)</code>를 검증한다.</td></tr>
+    </tbody>
+  </table>
+  <p>실행 명령:</p>
+  <pre>cd picnic_lib &amp;&amp; flutter test test/presentation/widgets/vote/store/common/store_point_info_test.dart test/presentation/widgets/vote/store/purchase/purchase_star_candy_state_test.dart test/presentation/widgets/vote/store/free_charge_station/free_charge_content_test.dart test/presentation/pages/my_page/my_page_render_test.dart test/presentation/widgets/wallet/ test/presentation/widgets/vote/store/purchase/candy_boost_purchase_ui_visual_test.dart
+결과: All tests passed! (87 passed, 1 skipped)</pre>
+</body>
+</html>

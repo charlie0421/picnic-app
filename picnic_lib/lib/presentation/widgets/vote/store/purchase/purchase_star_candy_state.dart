@@ -1496,13 +1496,9 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 ),
                 const SizedBox(height: 2),
               ] else
-                const SizedBox(height: 16),
-              Divider(
-                color: AppColors.grey200,
-                height: displayedPromotion != null && promotionPeriod != null
-                    ? 14
-                    : 32,
-              ),
+                // 배너가 없을 때도 배너가 있을 때와 같은 간격 (PICNIC-2689).
+                const SizedBox(height: 10),
+              const Divider(color: AppColors.grey200, height: 14),
               _buildProductsList(),
               const Divider(color: AppColors.grey200, height: 32),
               _buildFooterSection(),

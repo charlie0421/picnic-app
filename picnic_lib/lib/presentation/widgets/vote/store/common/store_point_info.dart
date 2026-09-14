@@ -42,55 +42,68 @@ class StorePointInfo extends ConsumerStatefulWidget {
 }
 
 class _StorePointInfoState extends ConsumerState<StorePointInfo> {
+  /// 헤더(제목·안내·새로고침) 한 줄의 높이. 새로고침·안내 버튼의 탭 영역을
+  /// 머티리얼 최소 조작 영역(48)으로 유지한다 — 대신 카드 상단 패딩과
+  /// 헤더↔잔액 간격을 줄여 카드를 타이트하게 만든다 (Codex 리뷰 반영).
+  static const double kHeaderRowHeight = 48;
+
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context);
-    return Container(
-      width: widget.width,
-      margin: EdgeInsets.only(top: widget.topMargin),
-      padding: const EdgeInsets.fromLTRB(14, 14, 14, 14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xFF9A7BFA), width: 2),
-        borderRadius: BorderRadius.circular(23),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x149A7BFA),
-            blurRadius: 18,
-            offset: Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildHeader(localizations),
-          const SizedBox(height: 12),
-          if (isSupabaseLoggedSafely) ...[
-            const StarCandyInfoText(),
-          ] else ...[
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onTap: () {
-                logger.d('로그인 필요 다이얼로그 표시');
-                showRequireLoginDialog();
-              },
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: UnderlinedText(
-                  text: localizations.label_mypage_should_login,
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF7C58E8),
-                  ),
-                  underlineColor: const Color(0xFF7C58E8),
-                  underlineGap: 0,
-                ),
-              ),
+    // 파우치는 스토어·무료충전소·마이페이지가 공유하는 공통 영역이다. 기기의
+    // 글자 크기·화면 확대 설정을 따라가면 기종마다 카드 높이가 달라지므로
+    // (PICNIC-2689: S25 에서만 헤더가 2단으로 쌓임) 카드 안에서는 시스템
+    // 글자 배율을 적용하지 않는다.
+    return MediaQuery.withNoTextScaling(
+      child: Container(
+        width: widget.width,
+        margin: EdgeInsets.only(top: widget.topMargin),
+        // 상단 4: 48px 헤더 행 안에서 제목·아이콘이 세로 중앙에 오므로
+        // 시각적 여백은 4 + 12 = 16 이다. 하단은 잔액 박스 아래 12.
+        padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: const Color(0xFF9A7BFA), width: 2),
+          borderRadius: BorderRadius.circular(23),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x149A7BFA),
+              blurRadius: 18,
+              offset: Offset(0, 6),
             ),
           ],
-        ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildHeader(localizations),
+            const SizedBox(height: 4),
+            if (isSupabaseLoggedSafely) ...[
+              const StarCandyInfoText(),
+            ] else ...[
+              GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  logger.d('로그인 필요 다이얼로그 표시');
+                  showRequireLoginDialog();
+                },
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: UnderlinedText(
+                    text: localizations.label_mypage_should_login,
+                    textStyle: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF7C58E8),
+                    ),
+                    underlineColor: const Color(0xFF7C58E8),
+                    underlineGap: 0,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -102,13 +115,15 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
         showUsagePolicyDialog(context);
       },
       style: TextButton.styleFrom(
-        minimumSize: const Size(48, 48),
+        minimumSize: const Size(0, kHeaderRowHeight),
         foregroundColor: PicnicUi.actionColor,
         padding: const EdgeInsets.symmetric(horizontal: 8),
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
       ),
       child: Text(
         localizations.expiring_bonus_candy_guide,
+        maxLines: 1,
+        softWrap: false,
         textAlign: TextAlign.center,
         style: PicnicUi.text(
           size: 12,
@@ -120,42 +135,30 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
     final refresh =
         widget.refreshButton ??
         (widget.onRefresh == null ? null : _buildRefreshButton());
+    // 헤더는 항상 한 줄이다. 좁은 카드(화면 확대 설정, 긴 번역)에서는 안내
+    // 문구를 줄바꿈하거나 아래 줄로 내리지 않고 축소해서 맞춘다 — 2단으로
+    // 쌓이면 기종마다 파우치 높이가 달라진다 (PICNIC-2689).
     return LayoutBuilder(
       builder: (context, constraints) {
-        // A translated guide can be wider than the entire header at large text.
-        // Move it to its own line while keeping the balance title and refresh visible.
-        final stacked =
-            constraints.maxWidth < 300 ||
-            MediaQuery.textScalerOf(context).scale(14) > 18.2;
-        final title = Text(
-          widget.title,
-          maxLines: stacked ? null : 1,
-          overflow: stacked ? TextOverflow.clip : TextOverflow.ellipsis,
-          style: PicnicUi.text(size: 16, weight: FontWeight.w600),
-        );
-        if (stacked) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Expanded(child: title),
-                  if (refresh != null) ...[const SizedBox(width: 8), refresh],
-                ],
-              ),
-              Align(alignment: Alignment.centerRight, child: policy),
-            ],
-          );
-        }
         return Row(
           children: [
-            Expanded(child: title),
+            Expanded(
+              child: Text(
+                widget.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: PicnicUi.text(size: 16, weight: FontWeight.w600),
+              ),
+            ),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxWidth: constraints.maxWidth * 0.45,
               ),
-              child: policy,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerRight,
+                child: policy,
+              ),
             ),
             if (refresh != null) ...[const SizedBox(width: 8), refresh],
           ],
@@ -188,7 +191,10 @@ class _StorePointInfoState extends ConsumerState<StorePointInfo> {
       key: const Key('store-point-info-refresh'),
       tooltip: MaterialLocalizations.of(context).refreshIndicatorSemanticLabel,
       onPressed: widget.onRefresh,
-      constraints: const BoxConstraints.tightFor(width: 48, height: 48),
+      constraints: const BoxConstraints.tightFor(
+        width: kHeaderRowHeight,
+        height: kHeaderRowHeight,
+      ),
       padding: const EdgeInsets.all(12),
       icon: child,
     );

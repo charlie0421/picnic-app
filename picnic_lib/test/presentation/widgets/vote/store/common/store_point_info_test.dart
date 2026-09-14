@@ -186,6 +186,156 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets(
+    'wallet header stays on one line on a narrow card (PICNIC-2689)',
+    (tester) async {
+      // 갤럭시 S25 처럼 화면 확대 설정으로 카드 폭이 300 아래로 내려가도
+      // 헤더가 2단으로 쌓이지 않아야 한다 — 파우치는 공통 영역이라 기종·설정과
+      // 무관하게 같은 높이여야 한다.
+      tester.view.physicalSize = const Size(320, 700);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      const label = '별사탕 파우치';
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        buildTestApp(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: StorePointInfo(
+              title: label,
+              width: double.infinity,
+              onRefresh: () {},
+            ),
+          ),
+          loggedIn: false,
+          designSize: const Size(393, 892),
+          splitScreenMode: true,
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+
+      final guide = AppLocalizations.of(
+        tester.element(find.byType(StorePointInfo)),
+      ).expiring_bonus_candy_guide;
+      final titleRect = tester.getRect(find.text(label));
+      final guideRect = tester.getRect(find.text(guide));
+      final refreshRect = tester.getRect(
+        find.byKey(const Key('store-point-info-refresh')),
+      );
+      expect(guideRect.center.dy, closeTo(titleRect.center.dy, 1));
+      expect(refreshRect.center.dy, closeTo(titleRect.center.dy, 1));
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'pouch height does not follow the system text scale (PICNIC-2689)',
+    (tester) async {
+      Future<double> measure(TextScaler scaler) async {
+        await pumpWidgetAndIgnoreErrors(
+          tester,
+          buildTestApp(
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: StorePointInfo(
+                title: '별사탕 파우치',
+                width: double.infinity,
+                onRefresh: () {},
+              ),
+            ),
+            loggedIn: false,
+            textScaler: scaler,
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        return tester.getSize(find.byType(StorePointInfo)).height;
+      }
+
+      final normal = await measure(TextScaler.noScaling);
+      final large = await measure(const TextScaler.linear(1.6));
+      expect(large, normal);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets('pouch header keeps a 48px refresh target inside a tight card', (
+    tester,
+  ) async {
+    // PICNIC-2689: 카드는 타이트하되 새로고침의 탭 영역은 머티리얼 최소
+    // 조작 영역(48) 을 유지한다 (Codex 리뷰). 시각적 상단 여백은 헤더 행
+    // 안에서 아이콘이 세로 중앙에 오므로 4 + 12 = 16 이다.
+    var taps = 0;
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      buildTestApp(
+        StorePointInfo(
+          title: '별사탕 파우치',
+          width: double.infinity,
+          onRefresh: () => taps++,
+        ),
+        loggedIn: false,
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    final refresh = find.byKey(const Key('store-point-info-refresh'));
+    final refreshRect = tester.getRect(refresh);
+    expect(refreshRect.size, const Size(48, 48));
+    final card = tester.getRect(find.byType(StorePointInfo));
+    // 카드 상단 → 헤더 행 상단: 테두리 2 + 패딩 4.
+    expect(refreshRect.top - card.top, 6);
+    // 탭 영역 가장자리(모서리 안쪽 2px)에서도 눌린다.
+    await tester.tapAt(refreshRect.topLeft + const Offset(2, 2));
+    await tester.tapAt(refreshRect.bottomRight - const Offset(2, 2));
+    expect(taps, 2);
+  });
+
+  for (final locale in const ['fil', 'bn', 'my', 'id', 'th', 'vi', 'ja']) {
+    testWidgets(
+      'wallet header stays on one line at 320px in $locale (PICNIC-2689)',
+      (tester) async {
+        // 긴 번역(fil/bn/my 등)도 좁은 카드에서 2단으로 쌓이지 않고 축소된다.
+        tester.view.physicalSize = const Size(320, 700);
+        tester.view.devicePixelRatio = 1;
+        addTearDown(tester.view.reset);
+        Widget app(String title) => buildTestApp(
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: StorePointInfo(
+              title: title,
+              width: double.infinity,
+              onRefresh: () {},
+            ),
+          ),
+          loggedIn: false,
+          locale: Locale(locale),
+          designSize: const Size(393, 892),
+          splitScreenMode: true,
+        );
+        await pumpWidgetAndIgnoreErrors(tester, app('pouch'));
+        await pumpAndIgnoreErrors(tester);
+        final localizations = AppLocalizations.of(
+          tester.element(find.byType(StorePointInfo)),
+        );
+        final title = localizations.label_star_candy_pouch;
+        final guide = localizations.expiring_bonus_candy_guide;
+        // 해당 로케일의 실제 제목 문구로 다시 그린다.
+        await pumpWidgetAndIgnoreErrors(tester, app(title));
+        await pumpAndIgnoreErrors(tester);
+
+        final titleRect = tester.getRect(find.text(title));
+        final guideRect = tester.getRect(find.text(guide));
+        final refreshRect = tester.getRect(
+          find.byKey(const Key('store-point-info-refresh')),
+        );
+        expect(guideRect.center.dy, closeTo(titleRect.center.dy, 1));
+        expect(refreshRect.center.dy, closeTo(titleRect.center.dy, 1));
+        expect(refreshRect.size, const Size(48, 48));
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   group('StorePointInfo properties', () {
     test('can be instantiated with required params', () {
       const widget = StorePointInfo(title: 'Test');

@@ -32,6 +32,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
@@ -55,8 +56,20 @@ class MyPage extends ConsumerStatefulWidget {
 }
 
 class _MyPageState extends ConsumerState<MyPage>
-    with RouteAwareStateMixin<MyPage> {
+    with RouteAwareStateMixin<MyPage>, SingleTickerProviderStateMixin {
   String? _currentTitle;
+
+  /// 파우치 새로고침 아이콘 회전. 스토어·무료충전소와 같은 800ms.
+  late final AnimationController _pouchRefreshController = AnimationController(
+    duration: const Duration(milliseconds: 800),
+    vsync: this,
+  );
+
+  @override
+  void dispose() {
+    _pouchRefreshController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -108,11 +121,21 @@ class _MyPageState extends ConsumerState<MyPage>
                 // 프로필
                 data != null ? _buildProfile() : _buildNonLogin(),
                 const SizedBox(height: 16),
+                // 파우치는 공통 위젯. 새로고침은 스토어·무료충전소와 같은 동작
+                // (프로필 + 지갑 요약 재조회) — 여기만 빠져 있었다 (PICNIC-2689).
                 StorePointInfo(
                   title: AppLocalizations.of(context).label_star_candy_pouch,
                   width: double.infinity,
+                  refreshController: _pouchRefreshController,
+                  onRefresh: data == null
+                      ? null
+                      : () {
+                          _pouchRefreshController.forward(from: 0);
+                          ref.read(userInfoProvider.notifier).getUserProfiles();
+                          ref.read(walletSummaryProvider.notifier).refresh();
+                        },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Language
                 Text(
