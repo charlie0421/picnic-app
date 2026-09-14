@@ -84,6 +84,17 @@
     <tr><td>리뷰</td><td>Codex 주간 한도 100% 소진으로 교차 공급자 리뷰 불가. 독립 컨텍스트의 Sonnet 반례 리뷰(요구사항·diff·테스트 결과만 제공): 차단 0, 주요 0, 경미 1(광고 소스 진단값이 인스턴스 공유 필드라 이중 탭 시 오염) → 광고 단위 지역값으로 수정 후 재검증 402 통과. 나머지는 기존 설계 확인(persist-before-show 는 Pangle 과 동일한 트레이드오프, 1000px 디코드는 의도된 비용).</td></tr>
   </table>
 
+  <h2>4-1. 시뮬레이터 실기 검증 (2026-09-14 16:07~16:12 KST)</h2>
+  <p class="meta">iPhone 17 Pro / iOS 26.5 시뮬레이터, 수정 브랜치 디버그 빌드, <code>ENVIRONMENT=prod</code> (프로덕션 백엔드, 보고자 계정).</p>
+  <table>
+    <tr><th>항목</th><th>관찰</th></tr>
+    <tr><td>리워드 다이얼로그 요청 URL</td><td>앱 이미지 캐시 DB(<code>libCachedImageData.db</code>) 기준 상단·개요 이미지 모두 <code>…/reward/&lt;key&gt;.png?q=80&amp;w=1000</code>. 같은 계정의 이전 빌드 기록은 <code>?q=85&amp;w=697&amp;h=480</code> 등 기기 크기 변형이었다.</td></tr>
+    <tr><td>첫 열기 체감</td><td>전역 첫 요청이라 콜드 리사이즈를 맞아 8~9초 뒤 표시(예상된 1회 비용). 이후 같은 URL 은 CDN 0.03~0.08초.</td></tr>
+    <tr><td>CDN 캐시 관찰</td><td>앱이 받은 직후 별도 클라이언트(curl)의 같은 URL 첫 요청은 다시 9~12초 콜드였고, 그 뒤부터 Accept 헤더와 무관하게 0.03초였다. 리사이저 결과가 오리진에서 즉시 재사용되지 않고 CloudFront 의 302 캐시(노드·TTL 단위)에 의존하는 것으로 보인다. 고정 키로 사용자 간 공유는 되지만 "전역 1회"는 노드·TTL 단위로 읽어야 하며, 리사이저의 <code>/cache/</code> 객체 재사용 여부는 인프라 확인 과제.</td></tr>
+    <tr><td>AdMob 글로벌 픽 #1</td><td>로드 로그 <code>ad_source=AdMob Network(5450213213286189855) adapter=GADMAdapterGoogleAdMobAds mediated=false</code>, 클레임 <code>4a94bfdc…</code> 16:10:31 생성 → 테스트 광고 시청(2/2) → 보상 콜백 수신 → 폴링 시작 → 서버 SSV 16:10:57(26초 뒤) GRANTED → 광고 닫힘 직후 <strong>"캔디가 적립됐어요! 코튼캔디 +1, 현재 보유 4"</strong> 영수증 표시 → 확인 탭 → 서버 <code>acknowledged_at</code> 16:11:44 기록. 이전 빌드의 보고자 클레임(14:12 GRANTED)은 <code>acknowledged_at</code> 이 null 이었다.</td></tr>
+    <tr><td>부수 관찰</td><td>디버그 실행에서 Firebase 미초기화라 GA4 earn 이벤트 발송 예약이 해제되는 경고가 남는다(시뮬레이터 환경 한정, 적립과 무관). 스토어 구매 상품 목록은 시뮬레이터에서 정상 로딩됐다.</td></tr>
+  </table>
+
   <h2>5. 남은 확인·주의</h2>
   <ul>
     <li><strong>TestFlight 재검증 필요.</strong> 다음 TF 빌드에서 글로벌픽 #1 을 시청한 뒤 (1) 적립 영수증 다이얼로그가 뜨는지, (2) 안 뜨면 Sentry 의 <code>ad.admob</code> breadcrumb(earned 유무, ad_source_name/mediated)으로 조기 닫힘·표시 실패·미디에이션 채움 중 무엇인지 가른다. 미디에이션 채움에서 PENDING 이 반복되면 AdMob 콘솔의 미디에이션 그룹에서 해당 네트워크의 보상형 SSV 지원을 확인해야 한다.</li>
