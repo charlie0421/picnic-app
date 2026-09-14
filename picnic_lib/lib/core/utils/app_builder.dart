@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/presentation/widgets/ui/system_navigation_bar_inset.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -23,7 +24,6 @@ const bool kAppSplitScreenMode = true;
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class AppBuilder {
-
   /// 앱 초기화 후 MaterialApp 위젯 생성
   ///
   /// [navigatorKey] 앱 내비게이션 관리를 위한 키
@@ -66,7 +66,6 @@ class AppBuilder {
               localizationsDelegates: localizationsDelegates,
               supportedLocales: supportedLocales,
               locale: locale,
-
             );
 
         return safeChild;
@@ -82,7 +81,6 @@ class AppBuilder {
         localizationsDelegates: localizationsDelegates,
         supportedLocales: supportedLocales,
         locale: locale,
-
       ),
     );
   }
@@ -98,7 +96,6 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-
   }) {
     return OverlaySupport.global(
       child: _buildMaterialApp(
@@ -111,7 +108,6 @@ class AppBuilder {
         localizationsDelegates: localizationsDelegates,
         supportedLocales: supportedLocales,
         locale: locale,
-
       ),
     );
   }
@@ -134,7 +130,7 @@ class AppBuilder {
       // 원복: 앱에서 전달한 scaffoldKey 사용
       scaffoldMessengerKey: scaffoldKey,
       title: title,
-      theme: theme,
+      theme: applySystemNavigationBarInset(theme),
       debugShowCheckedModeBanner: false,
       routes: routes,
       home: home,
@@ -170,6 +166,28 @@ class AppBuilder {
         }
         return locale;
       },
+    );
+  }
+
+  /// Android 시스템 내비 바 영역을 모든 [MaterialPageRoute] 안쪽에서 예약한다
+  /// (PICNIC-777). 홈(Portal)과 루트 내비게이터로 push 되는 라우트가 전부
+  /// 바 위에서 끝나고, 하위 트리의 `MediaQuery.padding.bottom` 은 0 이 된다.
+  /// `showGeneralDialog` 계열은 이 테마를 타지 않으므로 [FullScreenDialog] 가
+  /// 따로 처리한다.
+  static ThemeData applySystemNavigationBarInset(ThemeData theme) {
+    final builders = Map<TargetPlatform, PageTransitionsBuilder>.of(
+      theme.pageTransitionsTheme.builders,
+    );
+    final android =
+        builders[TargetPlatform.android] ??
+        const PageTransitionsTheme().builders[TargetPlatform.android]!;
+    if (android is SystemNavigationBarInsetPageTransitionsBuilder) {
+      return theme;
+    }
+    builders[TargetPlatform.android] =
+        SystemNavigationBarInsetPageTransitionsBuilder(android);
+    return theme.copyWith(
+      pageTransitionsTheme: PageTransitionsTheme(builders: builders),
     );
   }
 
