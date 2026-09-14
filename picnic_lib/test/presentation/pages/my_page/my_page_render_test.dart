@@ -310,7 +310,7 @@ void main() {
       expect(find.text('관리자'), findsNothing);
     });
 
-    testWidgets('keeps 16px and 24px space around the candy pouch', (
+    testWidgets('keeps 16px space above and below the candy pouch', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -336,7 +336,7 @@ void main() {
       final nextRect = tester.getRect(find.text('언어 설정'));
 
       expect(pouchRect.top - previousRect.bottom, 16);
-      expect(nextRect.top - pouchRect.bottom, 24);
+      expect(nextRect.top - pouchRect.bottom, 16);
     });
 
     testWidgets('renders admin user with admin menus', (

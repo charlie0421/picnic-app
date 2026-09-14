@@ -112,7 +112,7 @@ class _MyPageState extends ConsumerState<MyPage>
                   title: AppLocalizations.of(context).label_star_candy_pouch,
                   width: double.infinity,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Language
                 Text(

@@ -176,7 +176,7 @@ void main() {
       expect(find.byType(StorePointInfo), findsOneWidget);
     });
 
-    testWidgets('keeps 16px space around the logged-in candy pouch', (
+    testWidgets('keeps 16px above and 10px below the logged-in candy pouch', (
       tester,
     ) async {
       await pumpWidgetAndIgnoreErrors(tester, buildWidget(loggedIn: true));
@@ -188,7 +188,8 @@ void main() {
       final nextRect = tester.getRect(find.text('미션에서 보너스 스타캔디 받기'));
 
       expect(pouchRect.top - previousRect.top, 16);
-      expect(nextRect.top - pouchRect.bottom, 16);
+      // 버닝(캔디부스트) 배너와 같은 하단 간격 (PICNIC-2689).
+      expect(nextRect.top - pouchRect.bottom, 10);
     });
 
     testWidgets('hides StorePointInfo when logged out', (tester) async {

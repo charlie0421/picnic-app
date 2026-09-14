@@ -74,7 +74,10 @@ void main() {
       final nextRect = tester.getRect(find.byType(Divider).first);
 
       expect(pouchRect.top - previousRect.top, 16);
-      expect(nextRect.top - pouchRect.bottom, 16);
+      // 배너가 없어도 캔디부스트 배너가 있을 때와 같은 간격 (PICNIC-2689):
+      // 파우치 → 10 → Divider(height 14).
+      expect(nextRect.top - pouchRect.bottom, 10);
+      expect(nextRect.height, 14);
     });
 
     testWidgets('renders the product-specific star candy artwork', (
