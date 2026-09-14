@@ -114,6 +114,12 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       GlobalKey<LoadingOverlayWithIconState>(); // 로딩 오버레이 키
   bool _isSaving = false;
 
+  /// 후보자 탭 → 탈퇴 차단 확인(서버 왕복) → 투표 다이얼로그 사이의 재진입
+  /// 가드. 서버가 느릴 때 그 창에서 들어온 추가 탭마다 핸들러가 새로 돌아
+  /// 다이얼로그가 쌓였다 (PICNIC-2655). 다이얼로그가 닫힐 때까지 잡는다 —
+  /// 모달 배리어가 뒤 화면을 막으므로 그 동안의 탭은 어차피 오지 않는다.
+  bool _isHandlingVoteItemTap = false;
+
   // 로컬 검색어 상태 - 프로바이더 대신 사용
   String _searchQuery = '';
 
@@ -1541,6 +1547,22 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int index,
   ) async {
     logger.d('🔥 _handleVoteItemTap 호출됨 - index: $index');
+    if (_isHandlingVoteItemTap) {
+      logger.d('🔥 _handleVoteItemTap 진행 중 — 중복 탭 무시');
+      return;
+    }
+    _isHandlingVoteItemTap = true;
+    try {
+      await _openVoteItemDialog(context, item);
+    } finally {
+      _isHandlingVoteItemTap = false;
+    }
+  }
+
+  Future<void> _openVoteItemDialog(
+    BuildContext context,
+    VoteItemModel item,
+  ) async {
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
         false;
@@ -1571,7 +1593,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (!context.mounted) return;
 
     if (isAdmin && isJmaVote) {
-      showVotingDialog(
+      await showVotingDialog(
         context: context,
         voteModel: ref
             .read(
@@ -1596,7 +1618,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         content: AppLocalizations.of(context).message_vote_is_upcoming,
       );
     } else {
-      showVotingDialog(
+      await showVotingDialog(
         context: context,
         voteModel: ref
             .read(

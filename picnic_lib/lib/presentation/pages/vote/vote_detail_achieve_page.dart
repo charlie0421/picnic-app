@@ -62,6 +62,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   bool _isLifecycleActive = true;
   bool _isScrolling = false;
   bool _isManualRefreshing = false;
+
+  /// 후보자 탭 → 탈퇴 차단 확인(서버 왕복) → 투표 다이얼로그 사이의 재진입
+  /// 가드 (PICNIC-2655). vote_detail_page.dart 의 동명 필드와 같은 이유.
+  bool _isHandlingVoteItemTap = false;
   DateTime? _scrollGateRaisedAt;
   int _pollGeneration = 0;
   int? _activePollGeneration;
@@ -1091,6 +1095,20 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     VoteModel voteDetail,
     VoteItemModel item,
   ) async {
+    if (_isHandlingVoteItemTap) return;
+    _isHandlingVoteItemTap = true;
+    try {
+      await _openVoteItemDialog(context, voteDetail, item);
+    } finally {
+      _isHandlingVoteItemTap = false;
+    }
+  }
+
+  Future<void> _openVoteItemDialog(
+    BuildContext context,
+    VoteModel voteDetail,
+    VoteItemModel item,
+  ) async {
     if (voteDetail.isEnded!) {
       showSimpleDialog(
         content: AppLocalizations.of(context).message_vote_is_ended,
@@ -1110,7 +1128,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       }
       if (!context.mounted) return;
 
-      showVotingDialog(
+      await showVotingDialog(
         context: context,
         voteModel: voteDetail,
         voteItemModel: item,
