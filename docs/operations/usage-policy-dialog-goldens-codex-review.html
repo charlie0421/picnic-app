@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사용 정책 다이얼로그 골든 갱신 — Codex 적대적 리뷰</title>
+  <style>
+    body { max-width: 920px; margin: 40px auto; padding: 0 24px; color: #172033; background: #fff; font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+    h1 { line-height: 1.25; } h2 { margin-top: 32px; border-bottom: 1px solid #d9e0ea; padding-bottom: 7px; }
+    .verdict { padding: 18px 20px; border: 1px solid #78b892; border-radius: 8px; background: #f1fbf5; }
+    .ok { color: #167044; font-weight: 700; } code { background: #f2f4f7; padding: 2px 5px; border-radius: 4px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    table { width: 100%; border-collapse: collapse; } th, td { padding: 10px; border: 1px solid #d9e0ea; text-align: left; vertical-align: top; } th { background: #f5f7fa; }
+    ul { padding-left: 22px; } .muted { color: #5a6678; }
+  </style>
+</head>
+<body>
+  <h1>사용 정책 다이얼로그 골든 갱신 — Codex 적대적 리뷰</h1>
+  <p class="muted">검토 범위: <code>141609c5b..6e3c06b43</code> · 대상: picnic_lib</p>
+
+  <section class="verdict">
+    <strong>최종 판정: <span class="ok">approve</span></strong><br>
+    blocker 0건 · major 0건 · minor 0건 · nit 0건. 변경 목적(좁은 화면·큰 글자에서의 헤더 오버플로 방지)에 맞고, 확인 가능한 회귀는 발견하지 못했다.
+  </section>
+
+  <h2>중점 검토 결과</h2>
+  <table>
+    <thead><tr><th>항목</th><th>결과와 근거</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>기본 호출자 보존</td>
+        <td><code>VoteCommonTitle</code>의 새 <code>maxLines</code> 기본값은 null이며, 두 <code>Text</code> 모두 null일 때 명시적으로 <code>TextOverflow.clip</code>을 사용한다. Flutter Text의 overflow 기본값도 clip이므로, 투표 상세·달성 페이지 및 리워드 다이얼로그의 기존 무제한 줄바꿈·clip 동작은 바뀌지 않는다. 호출부는 <code>vote_detail_page.dart:703</code>, <code>vote_detail_achieve_page.dart:729</code>, <code>reward_dialog.dart:114</code>에서 모두 기본값을 사용한다.</td>
+      </tr>
+      <tr>
+        <td>2줄 말줄임의 적합성</td>
+        <td><code>usage_policy_dialog.dart:154-161</code>만 2줄 제한을 적용한다. 이 제목은 전체 본문을 담는 스크롤 영역보다 우선될 수 없는 헤더이고, 320dp·200%에서 3줄 이상이 되면 Expanded 본문을 밀어내므로 제한이 타당하다. 가로 패딩만 줄이는 방식은 닫기 버튼과의 중심 정렬 기준을 무너뜨리며 모든 긴 번역에서 상한을 보장하지 않고, FittedBox는 사용자가 선택한 글자 확대를 축소하므로 더 나은 접근성 대안이 아니다. Text의 의미론 데이터는 원문 문자열을 유지하므로 시각적 말줄임이 보조기술의 제목 낭독을 축약하지 않는다.</td>
+      </tr>
+      <tr>
+        <td>골든 재생성 정당성</td>
+        <td>9개 PNG의 역사본과 새 파일은 모두 같은 캔버스 크기(각각 320×568, 360×640, 390×844)다. 변경된 레이아웃 소스는 제목의 줄 수 상한뿐이며, 각 골든의 픽셀 차이는 제목 높이 감소 뒤 스크롤 본문이 위로 이동한 결과와 일치한다. 특히 바닥 상태 골든도 별도로 갱신되어 스크롤 끝의 경계/신호 상태를 계속 고정한다.</td>
+      </tr>
+      <tr>
+        <td>테스트 공백</td>
+        <td>새 단위 테스트 <code>vote_detail_title_test.dart:52-84</code>는 bn 제목·320×568·200%에서 초과 줄과 2줄 상한을 확인한다. 더 중요한 실제 다이얼로그 조건은 기존 <code>usage_policy_dialog_layout_test.dart:64-70, 189-214</code>가 이미 320×568, bn, 2.0 배율을 조합해 <code>tester.takeException()</code>으로 오버플로를 검출한다. 따라서 단위 테스트가 다이얼로그 트리를 직접 펌프하지 않는 공백은 레이아웃 회귀 테스트가 메운다.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>검증</h2>
+  <ul>
+    <li><code>git diff --check 141609c5b..6e3c06b43</code>: 통과.</li>
+    <li><code>cd picnic_lib &amp;&amp; flutter test test/presentation/widgets/vote/store/common/ test/presentation/widgets/vote/list/vote_detail_title_test.dart test/presentation/pages/vote/vote_detail_page_render_test.dart test/presentation/dialogs/reward_dialog_render_test.dart</code>: 210건 통과.</li>
+    <li>변경 파일 12개를 검토했으며, 코드 2개·테스트 1개·동일 크기 골든 PNG 9개만 포함됨을 확인했다.</li>
+  </ul>
+</body>
+</html>
