@@ -202,6 +202,17 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return (userInfo?.starCandy ?? 0) + (userInfo?.starCandyBonus ?? 0);
   }
 
+  /// This dialog's own route, captured while the element is still attached so
+  /// every terminal path can address it after an await instead of guessing
+  /// from `context`.
+  ModalRoute<dynamic>? _dialogRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dialogRoute = ModalRoute.of(context);
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -217,6 +228,41 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   /// path can call it without checking who called it first.
   void _unfocusVoteInput() => _focusNode.unfocus();
 
+  /// Whether this dialog's own route is still in the navigator.
+  ///
+  /// `mounted` does not answer this. After an imperative pop (an account
+  /// switch, host routing — anything that bypasses `PopScope`) the State stays
+  /// mounted for the whole reverse transition, so a preflight that completes
+  /// inside that window would walk on and submit a vote from a popup the user
+  /// is already watching leave, with no way left to report the outcome.
+  ///
+  /// `isActive`, not `isCurrent`: a dialog that is merely *covered* — an error
+  /// sheet pushed on top of it — is still the user's dialog and its vote must
+  /// still finish.
+  bool get _routeIsActive => mounted && (_dialogRoute?.isActive ?? false);
+
+  /// Removes *this dialog's* route, whatever is on top of it.
+  ///
+  /// `Navigator.of(context).pop()` pops the topmost route, which is this dialog
+  /// only while nothing covers it. Once something else is on top that call
+  /// closes the wrong route, and once this route has already gone it closes the
+  /// page underneath. Both are silent: the caller still believes it closed
+  /// itself.
+  void _dismissOwnRoute() {
+    final route = _dialogRoute;
+    if (route == null || !route.isActive) return;
+    final navigator = route.navigator;
+    if (navigator == null) return;
+    if (route.isCurrent) {
+      navigator.pop();
+      return;
+    }
+    // Covered by another route: pop would take that one instead, so take this
+    // route out of the stack where it sits. Leaving it there would strand an
+    // unlocked dialog the user can submit from again.
+    navigator.removeRoute(route);
+  }
+
   /// The single user-initiated close.
   ///
   /// Re-reads [_isVoting] instead of trusting the state that was current when
@@ -227,12 +273,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   /// close its own dialog.
   void _requestClose() {
     if (!mounted || _isVoting) return;
-    if (ModalRoute.of(context)?.isCurrent != true) return;
+    if (_dialogRoute?.isCurrent != true) return;
     _unfocusVoteInput();
-    // A direct pop, not `maybePop`: the PopScope above vetoes every route-driven
-    // pop, so `maybePop` would come straight back into this method through
-    // `onPopInvokedWithResult` and recurse.
-    Navigator.of(context).pop();
+    // A direct removal, not `maybePop`: the PopScope above vetoes every
+    // route-driven pop, so `maybePop` would come straight back into this method
+    // through `onPopInvokedWithResult` and recurse.
+    _dismissOwnRoute();
   }
 
   @override
@@ -610,11 +656,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // double-charge window — and a refused close must leave the page underneath
     // untouched as well.
     if (!mounted || _isVoting) return;
-    if (ModalRoute.of(context)?.isCurrent != true) return;
+    if (_dialogRoute?.isCurrent != true) return;
     _unfocusVoteInput();
     ref.read(navigationInfoProvider.notifier).setCurrentPage(const StorePage());
     ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
-    Navigator.pop(context);
+    _dismissOwnRoute();
   }
 
   void _toggleCheckAll() {
@@ -838,7 +884,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     VotingDialogHelper.hasGeneralVoteBalance(wallet, amount),
               )
         : BigInt.from(myStarCandy) >= amount;
+    // `mounted` alone is not the guard here — it is only the half the analyzer
+    // can see. An imperative pop leaves the State mounted for the whole reverse
+    // transition, and a balance read that lands in that window would carry a
+    // leaving popup straight into a real submission.
     if (!mounted) return;
+    if (!_routeIsActive) return;
     if (voteAmount == 0 || !hasBalance) {
       setState(() => _isVoting = false);
       showSimpleDialog(
@@ -858,7 +909,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
+    // Same window as above, and the wider of the two: the withdrawal check is
+    // a network round trip.
     if (!mounted) return;
+    if (!_routeIsActive) return;
 
     _loadingKey.currentState?.show();
 
@@ -1038,7 +1092,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       // blurred the field, but this is the pop the completion dialog replaces
       // the route with, and it must not hand a live editing session over.
       _unfocusVoteInput();
-      Navigator.of(context).pop();
+      _dismissOwnRoute();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1068,8 +1122,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       if (mounted) {
         _unfocusVoteInput();
-        Navigator.of(context).pop();
       }
+      _dismissOwnRoute();
 
       // 복구(rollback/pop) 이후에 best-effort 텔레메트리. 절대 복구를 막지 않는다.
       _reportVoteFailure(e, afterInvoke: invokeSucceeded);

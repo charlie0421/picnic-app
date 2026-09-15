@@ -1,5 +1,9 @@
 import 'dart:convert';
 
+// A transitive package, imported only to subclass its isolate for this test.
+// ignore: depend_on_referenced_packages
+import 'package:yet_another_json_isolate/yet_another_json_isolate.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -7,8 +11,9 @@ import 'package:http/testing.dart';
 import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -27,25 +32,66 @@ import '../../../../helpers/test_environment.dart';
 /// request started — this adds the top-right X to both, which is only safe
 /// while it refuses mid-request.
 ///
-/// Harness note, measured rather than assumed. Under the widget-test clock a
-/// `functions.invoke` that carries a **body** never reaches an injected
-/// `MockClient` at all: the same call to the same endpoint reaches the handler
-/// without `body:` and does not reach it with `body:`. REST is unaffected — the
-/// withdrawal check's `user_profiles` GET does reach the mock, which is why the
-/// gate group below can hold the submit path open and count its reads. The
-/// shared `setupMockSupabase` client is constructed the same way and has the
-/// same limit.
+/// Harness note, measured rather than assumed. A `functions.invoke` that
+/// carries a non-String body used to never reach an injected `MockClient` at
+/// all — the same call reached it without `body:` and not with it. The cause is
+/// in `FunctionsClient.invoke`: a non-String body goes through
+/// `await _isolate.encode(body)` *before* the http client is touched, and that
+/// `Isolate.spawn` round trip does not advance under the widget-test clock, so
+/// the submit parked there forever. `SupabaseClient` takes a `YAJsonIsolate`,
+/// so [_SyncJsonIsolate] below encodes inline and the vote endpoint becomes
+/// reachable, countable and completable from a widget test.
 ///
-/// Two consequences, both deliberate:
-///   * `jma-voting-v2` cannot be counted or completed from here, so the
-///     JMA terminal success/failure pops are **not** covered in this file. The
-///     equivalent contracts are covered on the general dialog, whose suites
-///     inject a repository instead of HTTP.
-///   * The spinner is not evidence that a request was entered — it turns on
-///     with `_isVoting`, one line before the first await. Where this file needs
-///     that evidence it counts profile reads instead.
+/// The spinner still is not evidence that a request was entered — it turns on
+/// with `_isVoting`, one line before the first await. These tests assert on the
+/// recorded endpoint calls instead.
+
+/// A [YAJsonIsolate] that encodes on the calling isolate.
+///
+/// This is what unlocks the vote endpoint in a widget test. `FunctionsClient
+/// .invoke` encodes a non-String body with `await _isolate.encode(body)` before
+/// it ever touches the http client, and the real isolate's `Isolate.spawn`
+/// round trip does not advance under the fake clock — so an invoke with a body
+/// parked there forever and never reached the mock. Encoding inline removes
+/// the round trip without changing what is sent.
+class _SyncJsonIsolate extends YAJsonIsolate {
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<void> dispose() async {}
+
+  @override
+  Future<String> encode(Object? json) async => jsonEncode(json);
+
+  @override
+  Future<dynamic> decode(String json) async => jsonDecode(json);
+}
+
 class _JmaBackend {
+  /// How long the vote endpoint takes to answer.
+  ///
+  /// A `Future.delayed` rather than a `Completer` the test releases: a Completer
+  /// completed from the test body does not resume its awaiting continuation
+  /// inside `tester.pump`, so the response only landed after the test had
+  /// finished pumping. A delay is driven by the fake clock, so the test decides
+  /// exactly when the answer arrives by how far it pumps.
+  Duration voteDelay = const Duration(seconds: 2);
+
+  /// The scripted outcome the vote endpoint answers with.
+  ///
+  /// Defaults to a failure so that a test which only needs the *in-flight*
+  /// window can drain its pending request at the end without also rendering the
+  /// completion dialog.
+  int voteStatus = 500;
+
   final List<Uri> functionCalls = <Uri>[];
+
+  int callsTo(String function) => functionCalls
+      .where((uri) => uri.path.endsWith('/functions/v1/$function'))
+      .length;
+
+  int get voteCalls => callsTo('jma-voting-v2');
 
   void install() {
     final client = MockClient((request) async {
@@ -56,6 +102,16 @@ class _JmaBackend {
 
       if (path.endsWith('/functions/v1/jma-voting-usage')) {
         return _json(<String, dynamic>{'dailyVoteCount': 0});
+      }
+      if (path.endsWith('/functions/v1/jma-voting-v2')) {
+        if (voteDelay > Duration.zero) await Future<void>.delayed(voteDelay);
+        return _json(<String, dynamic>{
+          'votePickId': 'pick-1',
+          'updatedAt': '2026-09-15T00:00:00.000Z',
+          'existingVoteTotal': 0,
+          'addedVoteTotal': 5,
+          'updatedVoteTotal': 5,
+        }, status: voteStatus);
       }
       if (path.contains('/rest/v1/')) {
         final accept =
@@ -74,19 +130,24 @@ class _JmaBackend {
       'http://localhost:54321',
       'test-anon-key-for-testing-purposes-only',
       httpClient: client,
+      isolate: _SyncJsonIsolate(),
       authOptions: const AuthClientOptions(autoRefreshToken: false),
     );
   }
 
-  static http.Response _json(Map<String, dynamic> body) => http.Response(
-    jsonEncode(body),
-    200,
-    headers: const {'content-type': 'application/json'},
-  );
+  static http.Response _json(Map<String, dynamic> body, {int status = 200}) =>
+      http.Response(
+        jsonEncode(body),
+        status,
+        headers: const {'content-type': 'application/json'},
+      );
 }
 
-Future<void> _openJmaDialog(WidgetTester tester) async {
-  tester.view.physicalSize = const Size(1125, 3600);
+Future<void> _openJmaDialog(
+  WidgetTester tester, {
+  Size viewport = const Size(1125, 3600),
+}) async {
+  tester.view.physicalSize = viewport;
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.resetPhysicalSize);
   addTearDown(tester.view.resetDevicePixelRatio);
@@ -169,18 +230,29 @@ Future<void> _startVote(WidgetTester tester, String voteLabel) async {
   );
 }
 
-/// Runs the submit path up to the point where it parks in the request, without
-/// ever settling — the loading overlay animates forever from here.
-Future<void> _pumpUntilInFlight(WidgetTester tester) async {
+/// Runs the submit path until the vote request is actually out, without ever
+/// settling — the loading overlay animates forever from here.
+Future<void> _pumpUntilInFlight(
+  WidgetTester tester,
+  _JmaBackend backend,
+) async {
   for (var i = 0; i < 8; i++) {
     await pumpAndIgnoreErrors(tester);
     await tester.pump(const Duration(milliseconds: 16));
   }
   expect(
-    find.byType(SmallPulseLoadingIndicator),
-    findsWidgets,
-    reason: 'the request must be in flight for this test to mean anything',
+    backend.voteCalls,
+    1,
+    reason: 'the request must actually be out for this test to mean anything',
   );
+}
+
+/// Pumps past the endpoint's delay so no request outlives the widget tree.
+Future<void> _drainVoteRequest(WidgetTester tester) async {
+  for (var i = 0; i < 6; i++) {
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(seconds: 1));
+  }
 }
 
 void main() {
@@ -284,6 +356,8 @@ void main() {
       reason: 'the guard must already be up in the tap\'s own turn',
     );
     expect(_popup(tester).closeButtonEnabled, isFalse);
+
+    await _drainVoteRequest(tester);
   });
 
   testWidgets('system back cannot dismiss in the submit tap\'s own frame', (
@@ -306,6 +380,8 @@ void main() {
       findsOneWidget,
       reason: 'the route closed inside the guard\'s rebuild gap',
     );
+
+    await _drainVoteRequest(tester);
   });
 
   testWidgets('a barrier tap cannot dismiss in the submit tap\'s own frame', (
@@ -318,6 +394,8 @@ void main() {
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.byType(JmaVotingDialog), findsOneWidget);
+
+    await _drainVoteRequest(tester);
   });
 
   testWidgets(
@@ -327,7 +405,7 @@ void main() {
       final idleClose = _popup(tester).onClose!;
 
       await _startVote(tester, l10n.label_button_vote);
-      await _pumpUntilInFlight(tester);
+      await _pumpUntilInFlight(tester, backend);
 
       expect(
         _popup(tester).closeButtonEnabled,
@@ -350,6 +428,8 @@ void main() {
             'closing mid-vote leaves the request running and lets a second '
             'charge settle on reopen',
       );
+
+      await _drainVoteRequest(tester);
     },
   );
 
@@ -457,6 +537,91 @@ void main() {
         ),
         isEmpty,
         reason: 'a withdrawn user must never reach the vote endpoint',
+      );
+    });
+  });
+
+  group('terminal outcomes (reachable now that the vote endpoint is)', () {
+    /// Pumps past the endpoint's delay and on through the terminal path.
+    Future<void> settleTerminal(WidgetTester tester) async {
+      for (var i = 0; i < 8; i++) {
+        await pumpAndIgnoreErrors(tester);
+        await tester.pump(const Duration(seconds: 1));
+      }
+    }
+
+    testWidgets('a settled success closes the dialog and reports once', (
+      tester,
+    ) async {
+      backend.voteStatus = 200;
+      // Wider than the default phone viewport on purpose: the completion
+      // dialog overflows its own Row at 375 logical px (voting_complete.dart),
+      // which is a pre-existing layout issue and not what this test is about.
+      await _openJmaDialog(tester, viewport: const Size(1440, 3600));
+      await _startVote(tester, l10n.label_button_vote);
+      await _pumpUntilInFlight(tester, backend);
+
+      await settleTerminal(tester);
+
+      expect(
+        find.byType(JmaVotingDialog),
+        findsNothing,
+        reason: 'the user-dismiss guard must not trap a settled vote',
+      );
+      expect(find.byType(VotingCompleteDialog), findsOneWidget);
+      expect(
+        backend.voteCalls,
+        1,
+        reason: 'one submission must produce exactly one request',
+      );
+    });
+
+    testWidgets('a settled failure closes the dialog and reports once', (
+      tester,
+    ) async {
+      backend.voteStatus = 500;
+      await _openJmaDialog(tester);
+      await _startVote(tester, l10n.label_button_vote);
+      await _pumpUntilInFlight(tester, backend);
+
+      await settleTerminal(tester);
+
+      expect(find.byType(JmaVotingDialog), findsNothing);
+      expect(find.byType(VotingCompleteDialog), findsNothing);
+      expect(backend.voteCalls, 1);
+    });
+
+    testWidgets('a failure removes its own route, not the one covering it', (
+      tester,
+    ) async {
+      // `Navigator.of(context).pop()` closes whatever is on top. Once something
+      // else covers this dialog mid-request, that call takes the stranger's
+      // route and leaves an unlocked voting dialog behind to submit from again.
+      backend.voteStatus = 500;
+      await _openJmaDialog(tester);
+      await _startVote(tester, l10n.label_button_vote);
+      await _pumpUntilInFlight(tester, backend);
+
+      navigatorKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (_) => const Scaffold(body: Text('covering-route')),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('covering-route'), findsOneWidget);
+
+      await settleTerminal(tester);
+
+      expect(
+        find.byType(JmaVotingDialog),
+        findsNothing,
+        reason: 'the failing dialog must take its own route out of the stack',
+      );
+      expect(
+        find.text('covering-route'),
+        findsOneWidget,
+        reason: 'the route that happened to be on top must survive',
       );
     });
   });

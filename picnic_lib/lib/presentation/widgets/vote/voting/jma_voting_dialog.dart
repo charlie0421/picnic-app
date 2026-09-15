@@ -262,6 +262,16 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
   }
 
+  /// 이 다이얼로그 자신의 라우트. element 가 아직 붙어 있는 동안 잡아 두어
+  /// await 뒤에도 context 로 추측하지 않고 이 라우트를 직접 다룬다.
+  ModalRoute<dynamic>? _dialogRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dialogRoute = ModalRoute.of(context);
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
@@ -275,6 +285,36 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   /// path runs, focus may already belong to another route. Idempotent.
   void _unfocusVoteInput() => _focusNode.unfocus();
 
+  /// 이 다이얼로그의 라우트가 아직 네비게이터에 남아 있는가.
+  ///
+  /// mounted 로는 답이 안 된다. PopScope 를 우회하는 명령형 pop 뒤에도 State 는
+  /// 역방향 전환 내내 mounted 이고, 그 창에서 끝난 preflight 는 이미 떠나는
+  /// 팝업에서 실제 투표를 출발시킨다 - 결과를 알릴 방법도 없이.
+  ///
+  /// isCurrent 가 아니라 isActive 다. 위에 오류 시트가 덮인 것뿐인 다이얼로그는
+  /// 여전히 사용자의 다이얼로그이고 그 투표는 끝나야 한다.
+  bool get _routeIsActive => mounted && (_dialogRoute?.isActive ?? false);
+
+  /// 위에 무엇이 덮여 있든 *이 다이얼로그의* 라우트를 걷어낸다.
+  ///
+  /// Navigator.of(context).pop() 은 최상단 라우트를 닫으므로, 아무것도 덮이지
+  /// 않았을 때만 이 다이얼로그를 닫는다. 다른 라우트가 위에 있으면 엉뚱한
+  /// 라우트를, 이 라우트가 이미 사라졌으면 아래 페이지를 닫는다. 둘 다 조용히
+  /// 일어나고 호출부는 자기를 닫았다고 믿는다.
+  void _dismissOwnRoute() {
+    final route = _dialogRoute;
+    if (route == null || !route.isActive) return;
+    final navigator = route.navigator;
+    if (navigator == null) return;
+    if (route.isCurrent) {
+      navigator.pop();
+      return;
+    }
+    // 덮여 있으면 pop 은 위 라우트를 가져간다. 스택에서 이 라우트만 빼낸다 -
+    // 그냥 두면 잠금이 풀린 다이얼로그가 남아 재제출이 가능해진다.
+    navigator.removeRoute(route);
+  }
+
   /// The single user-initiated close.
   ///
   /// Re-reads [_isVoting] rather than trusting the state that was current when
@@ -283,11 +323,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   /// — routing them through here would trap a vote that has already settled.
   void _requestClose() {
     if (!mounted || _isVoting) return;
-    if (ModalRoute.of(context)?.isCurrent != true) return;
+    if (_dialogRoute?.isCurrent != true) return;
     _unfocusVoteInput();
-    // maybePop 이 아니라 직접 pop. 위 PopScope 가 라우트발 pop 을 모두 거부하므로
+    // maybePop 이 아니라 직접 제거. 위 PopScope 가 라우트발 pop 을 모두 거부하므로
     // maybePop 은 onPopInvokedWithResult 를 통해 이 메서드로 되돌아와 재귀한다.
-    Navigator.of(context).pop();
+    _dismissOwnRoute();
   }
 
   @override
@@ -1425,7 +1465,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       context: context,
       ref: ref,
     );
+    // mounted 는 절반일 뿐이다. 명령형 pop 뒤 역방향 전환 구간에서도 State 는
+    // mounted 라, 그 사이에 끝난 탈퇴 확인이 떠나는 팝업을 그대로 실제 제출로
+    // 끌고 간다.
     if (!mounted) return;
+    if (!_routeIsActive) return;
     if (withdrawalBlocked) {
       setState(() => _isVoting = false);
       return;
@@ -1640,7 +1684,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       // 멱등적 방어. 제출 시점에 이미 blur 했지만, 이 pop 이 결과 팝업으로
       // 교체되는 지점이라 살아 있는 편집 세션을 넘겨서는 안 된다.
       _unfocusVoteInput();
-      Navigator.of(context).pop();
+      _dismissOwnRoute();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1672,16 +1716,16 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       // 상위 라우팅처럼 PopScope 를 우회하는 명령형 pop 으로 라우트가 먼저
       // 제거된 뒤 요청이 실패하면, 예전 코드는 deactivated context 로
       // Navigator.of 를 호출하고 dispose 된 FocusNode 를 건드려 예외를 던졌다.
-      // 그 예외가 실패 안내마저 삼켰다. 소유 자원 정리와 pop 은 mounted 이면서
-      // 이 라우트가 여전히 최상단일 때만 하고, 실패 안내는 루트 네비게이터
-      // context 로 별도 판단한다. 순서(팝업 닫기 → 실패 안내)는 그대로다.
+      // 그 예외가 실패 안내마저 삼켰다. 소유 자원 정리는 mounted 일 때만 하고,
+      // 라우트 제거는 _dismissOwnRoute 가 생존·최상단 여부를 판단한다 - 덮인
+      // 경우까지 skip 하면 잠금이 풀린 다이얼로그가 스택에 남는다. 실패 안내는
+      // 루트 네비게이터 context 로 별도 판단한다. 순서(팝업 닫기 → 실패 안내)는
+      // 그대로다.
       if (mounted) {
         setState(() => _isVoting = false);
         _unfocusVoteInput();
-        if (ModalRoute.of(context)?.isCurrent == true) {
-          Navigator.of(context).pop();
-        }
       }
+      _dismissOwnRoute();
 
       _showVotingFailDialog();
     }
