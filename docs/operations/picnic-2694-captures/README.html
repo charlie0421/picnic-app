@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2694 수정 전후 에뮬레이터 캡처</title>
+<style>
+  :root {
+    --ink: #1b1d21;
+    --muted: #5c6370;
+    --line: #e3e6ea;
+    --bg: #ffffff;
+    --soft: #f6f7f9;
+    --bad: #c0392b;
+    --good: #1a7f4b;
+    --badbg: #fdf0ee;
+    --goodbg: #eef8f2;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                 "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+    font-size: 15px;
+    line-height: 1.7;
+    -webkit-text-size-adjust: 100%;
+  }
+  main { max-width: 1040px; margin: 0 auto; }
+  h1 {
+    font-size: 27px;
+    line-height: 1.3;
+    margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .sub { color: var(--muted); margin: 0 0 36px; font-size: 14px; }
+  h2 {
+    font-size: 19px;
+    margin: 48px 0 14px;
+    padding-bottom: 9px;
+    border-bottom: 2px solid var(--ink);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: 16px;
+    margin: 34px 0 10px;
+    letter-spacing: -0.01em;
+  }
+  p { margin: 0 0 12px; }
+  ul { margin: 0 0 14px; padding-left: 20px; }
+  li { margin-bottom: 5px; }
+  code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-size: 0.875em;
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 1px 5px;
+  }
+  pre {
+    background: var(--soft);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 16px;
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+  .tablewrap { overflow-x: auto; margin: 0 0 18px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 9px 11px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { background: var(--soft); font-weight: 600; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .note {
+    background: var(--soft);
+    border-left: 3px solid var(--muted);
+    border-radius: 0 6px 6px 0;
+    padding: 12px 16px;
+    margin: 0 0 18px;
+    font-size: 14px;
+  }
+  .pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 14px 0 8px;
+  }
+  @media (max-width: 720px) { .pair { grid-template-columns: 1fr; } }
+  figure {
+    margin: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--soft);
+  }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 10px 13px; font-size: 13.5px; line-height: 1.6; }
+  figcaption b { display: block; margin-bottom: 3px; font-size: 12px; letter-spacing: 0.04em; }
+  .before figcaption { background: var(--badbg); }
+  .before figcaption b { color: var(--bad); }
+  .after figcaption { background: var(--goodbg); }
+  .after figcaption b { color: var(--good); }
+  .filename {
+    display: block;
+    margin-top: 6px;
+    font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    word-break: break-all;
+  }
+  footer {
+    margin-top: 56px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+<main>
+
+  <h1>PICNIC-2694 — 투표 팝업 짧은·가로형 뷰포트 수정 전후 캡처</h1>
+  <p class="sub">안드로이드 에뮬레이터 실측 · 뷰포트 3종 × 다이얼로그 2종 × before/after = 12장</p>
+
+  <h2>1. 무엇을 캡처했나</h2>
+
+  <p>
+    짧은 창(플립 플렉스 모드 상단), 휴대폰 가로, 태블릿 1/3 분할 세 가지 뷰포트에서
+    <strong>금액 입력란 · 전체 사용 · 투표 버튼</strong>이 스크롤 없이(스크롤 오프셋 0에서)
+    보이는지를 수정 전(<code>2e5ccdc20</code>)과 수정 후(<code>467930fdd</code>)로 나눠 실제로 렌더해 담았다.
+  </p>
+
+  <div class="note">
+    <p style="margin:0"><strong>하네스는 실제 앱 플로가 아니다.</strong>
+    실제 투표 팝업까지 가려면 로그인이 필요해 자격증명 없이는 재현할 수 없다. 그래서 임시 진입점에서
+    프로덕션 진입 함수인 <code>showVotingDialog()</code> / <code>showJmaVotingDialog()</code> 를
+    목(mock) 데이터로 직접 호출했다. <strong>다이얼로그 위젯과 그 <code>showDialog</code> 라우트,
+    ScreenUtil 기하, 테마·폰트·이미지 자산은 모두 프로덕션과 동일</strong>하고, 잔액·아티스트·투표 모델만
+    목으로 주입했다(별사탕 3,000 + 보너스 50, JMA 투표권 100, 아티스트 지민/BTS).
+    이 임시 진입점은 캡처 후 삭제했으며 커밋하지 않았다.</p>
+  </div>
+
+  <h3>기하를 프로덕션과 맞춘 방법</h3>
+  <p>
+    <code>.w</code> / <code>.h</code> / <code>.r</code> 환산 배율이 달라지면 이 티켓의 레이아웃 예산 자체가
+    달라지므로, 하네스는 테스트 기본값(375×812)이 아니라 프로덕션 값을 그대로 썼다.
+  </p>
+<pre><code>ScreenUtilInit(
+  designSize: kAppDesignSize,        // Size(393, 892)
+  minTextAdapt: true,
+  splitScreenMode: kAppSplitScreenMode,  // true
+)
+theme: voteThemeLight                // 프로덕션 vote 포털 테마
+Environment.initConfig('prod')       // config/prod.json 의 실제 색상 토큰</code></pre>
+
+  <h2>2. 캡처 환경</h2>
+
+  <div class="tablewrap">
+  <table>
+    <tbody>
+      <tr><th>에뮬레이터</th><td>AVD <code>picnic_staging</code> / <code>emulator-5554</code> · Android 15 (API 35) · <code>sdk_gphone64_arm64</code> · google_apis_playstore</td></tr>
+      <tr><th>기본 디스플레이</th><td>1080 × 2400 px @ density 420 (dpr 2.625)</td></tr>
+      <tr><th>빌드</th><td>debug APK (릴리스 APK 는 VM 감지로 즉시 종료되어 사용 불가)</td></tr>
+      <tr><th>dart-define</th><td><code>ENVIRONMENT=prod</code> <code>PANGLE_ENVIRONMENT=prod</code> <code>PAYMENT_ENVIRONMENT=prod</code> <code>DISABLE_VM_CHECK=true</code></td></tr>
+      <tr><th>로케일</th><td>ko</td></tr>
+      <tr><th>캡처</th><td><code>adb -s emulator-5554 exec-out screencap -p</code> (무손실 PNG, 리사이즈·압축 없음)</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>뷰포트 3종 — 지정값과 앱이 실제로 본 값</h3>
+  <p>
+    <code>wm size</code> 로 디스플레이를 바꾸고 density 420 을 유지했다. 아래 &ldquo;앱 실측 dp&rdquo; 는
+    앱이 <code>MediaQuery.of(context).size</code> 로 직접 보고한 값을 <code>logcat</code> 으로 읽은 것이다
+    (계산값이 아니라 측정값).
+  </p>
+
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>뷰포트</th><th>목표 dp</th><th><code>wm size</code> (px)</th><th>density</th><th>앱 실측 dp</th><th>dpr</th><th>앱 실측 padding</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>flip-flex</strong><br>플립 플렉스 상단</td>
+        <td>412 × 500</td>
+        <td><code>1081x1313</code></td>
+        <td>420</td>
+        <td><code>411.81 × 500.19</code></td>
+        <td>2.625</td>
+        <td><code>top 28.2 / bottom 24.0</code></td>
+      </tr>
+      <tr>
+        <td><strong>phone-landscape</strong><br>휴대폰 가로</td>
+        <td>851 × 393</td>
+        <td><code>2234x1032</code></td>
+        <td>420</td>
+        <td><code>851.05 × 393.14</code></td>
+        <td>2.625</td>
+        <td><code>top 28.2 / bottom 24.0</code></td>
+      </tr>
+      <tr>
+        <td><strong>tablet-third</strong><br>태블릿 1/3 분할</td>
+        <td>375 × 834</td>
+        <td><code>984x2189</code></td>
+        <td>420</td>
+        <td><code>374.86 × 833.90</code></td>
+        <td>2.625</td>
+        <td><code>top 47.2 / bottom 24.0</code></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>
+    세 뷰포트 모두 density 420 이 그대로 수용됐고, 앱 실측 dp 가 목표값과 0.2 dp 이내로 일치한다.
+    각 뷰포트 변경 뒤에는 앱을 <code>force-stop</code> 후 콜드 스타트해 첫 프레임부터 새 기하가 반영되게 했다.
+    캡처가 끝난 뒤 <code>wm size reset</code> / <code>wm density reset</code> 으로 1080×2400 @420 으로 원복했다.
+  </p>
+
+  <div class="note">
+    <p style="margin:0">캡처에 보이는 <strong>어두운 회색 배경</strong>은 하네스의 홈 화면(팝업을 여는 버튼 두 개)이다.
+    프로덕션에서는 이 자리에 투표 목록 화면이 온다. 팝업 자체와 반투명 barrier 는 프로덕션과 동일하다.</p>
+  </div>
+
+  <h2>3. 캡처 12장</h2>
+
+  <h3>3-1. flip-flex — 412 × 500 dp (플립 플렉스 상단)</h3>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-flip-flex-vote.png" alt="수정 전 · flip-flex · 일반 투표 팝업">
+      <figcaption>
+        <b>BEFORE · 일반 투표</b>
+        &ldquo;전체 사용&rdquo; 행이 가로로 잘려 글자 아랫부분이 사라지고, <strong>금액 입력란이 아예 없다</strong>. 투표 버튼이 잘린 전체 사용 행 위로 겹쳐 올라왔다.
+        <span class="filename">before-flip-flex-vote.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-flip-flex-vote.png" alt="수정 후 · flip-flex · 일반 투표 팝업">
+      <figcaption>
+        <b>AFTER · 일반 투표</b>
+        전체 사용 · 입력란 · 투표 버튼 <strong>3종이 모두 온전히</strong> 보인다. 보너스 안내 밴드와 picnic 로고 꼬리를 접어 세로 예산을 확보했다.
+        <span class="filename">after-flip-flex-vote.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-flip-flex-jma.png" alt="수정 전 · flip-flex · JMA 팝업">
+      <figcaption>
+        <b>BEFORE · JMA</b>
+        &ldquo;전체 사용&rdquo; 행이 캡슐 하단 경계와 둥근 모서리에 걸려 잘리고, <strong>입력란과 투표 버튼은 화면 밖</strong>이다.
+        <span class="filename">before-flip-flex-jma.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-flip-flex-jma.png" alt="수정 후 · flip-flex · JMA 팝업">
+      <figcaption>
+        <b>AFTER · JMA</b>
+        잔액 패널은 스크롤 영역이라 잘리지만, <strong>전체 사용 · 입력란 · 투표 버튼은 고정되어 모두 보인다</strong>.
+        <span class="filename">after-flip-flex-jma.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <h3>3-2. phone-landscape — 851 × 393 dp (휴대폰 가로) · 가장 심한 케이스</h3>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-phone-landscape-vote.png" alt="수정 전 · 가로 · 일반 투표 팝업">
+      <figcaption>
+        <b>BEFORE · 일반 투표</b>
+        아바타가 캡슐 대부분을 차지하고 잔액 행이 하단 경계에서 잘린다. <strong>전체 사용 · 입력란 · 투표 버튼 셋 다 화면 밖</strong> — 투표가 아예 불가능하다.
+        <span class="filename">before-phone-landscape-vote.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-phone-landscape-vote.png" alt="수정 후 · 가로 · 일반 투표 팝업">
+      <figcaption>
+        <b>AFTER · 일반 투표</b>
+        아바타를 축소하고 잔액 행·보너스 밴드를 접어 <strong>3종을 모두 캡슐 안에</strong> 넣었다.
+        <span class="filename">after-phone-landscape-vote.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-phone-landscape-jma.png" alt="수정 전 · 가로 · JMA 팝업">
+      <figcaption>
+        <b>BEFORE · JMA</b>
+        JMA 헤더 · 아바타 · &ldquo;나의 별사탕&rdquo; 제목까지만 보이고 <strong>전체 사용 · 입력란 · 투표 버튼 셋 다 화면 밖</strong>이다.
+        <span class="filename">before-phone-landscape-jma.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-phone-landscape-jma.png" alt="수정 후 · 가로 · JMA 팝업">
+      <figcaption>
+        <b>AFTER · JMA</b>
+        스크롤 헤더는 잘리지만 <strong>3종이 고정되어 모두 보이고</strong> 투표 버튼이 캡슐 안에 들어온다.
+        <span class="filename">after-phone-landscape-jma.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <h3>3-3. tablet-third — 375 × 834 dp (태블릿 1/3 분할) · 회귀 없음 대조군</h3>
+
+  <p>
+    이 뷰포트는 수정 전에도 세 컨트롤이 모두 보였다. <strong>수정이 멀쩡하던 화면을 망가뜨리지 않았는지</strong>
+    확인하는 대조군이다. 두 쌍 모두 before/after 가 정상이며, 바뀐 것은 보조 요소의 배치뿐이다.
+  </p>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-tablet-third-vote.png" alt="수정 전 · 태블릿 1/3 · 일반 투표 팝업">
+      <figcaption>
+        <b>BEFORE · 일반 투표</b>
+        세 컨트롤 모두 정상. 보너스 안내 밴드가 입력란 <em>아래</em>에 있다.
+        <span class="filename">before-tablet-third-vote.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-tablet-third-vote.png" alt="수정 후 · 태블릿 1/3 · 일반 투표 팝업">
+      <figcaption>
+        <b>AFTER · 일반 투표</b>
+        동일하게 정상(회귀 없음). 보너스 안내 밴드가 잔액 행 바로 아래로 올라왔다 — 유효성 문구 위치 수정.
+        <span class="filename">after-tablet-third-vote.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <div class="pair">
+    <figure class="before">
+      <img src="before-tablet-third-jma.png" alt="수정 전 · 태블릿 1/3 · JMA 팝업">
+      <figcaption>
+        <b>BEFORE · JMA</b>
+        세 컨트롤 모두 정상. &ldquo;정책보기&rdquo;가 입력란과 투표 버튼 <em>사이</em>에 끼어 있다.
+        <span class="filename">before-tablet-third-jma.png</span>
+      </figcaption>
+    </figure>
+    <figure class="after">
+      <img src="after-tablet-third-jma.png" alt="수정 후 · 태블릿 1/3 · JMA 팝업">
+      <figcaption>
+        <b>AFTER · JMA</b>
+        정상 유지(회귀 없음). &ldquo;정책보기&rdquo;가 전체 사용 위로 올라가고 <strong>세 컨트롤이 하단에 붙어 한 덩어리</strong>가 됐다.
+        <span class="filename">after-tablet-third-jma.png</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <h2>4. 한 줄 요약</h2>
+
+  <div class="tablewrap">
+  <table>
+    <thead>
+      <tr><th>뷰포트</th><th>팝업</th><th>BEFORE 에서 안 보이는 것</th><th>AFTER</th></tr>
+    </thead>
+    <tbody>
+      <tr><td rowspan="2">flip-flex<br>412 × 500 dp</td><td>일반</td><td>금액 입력란 전체 + 전체 사용 행 하단 잘림</td><td>3종 모두 온전</td></tr>
+      <tr><td>JMA</td><td>입력란 · 투표 버튼 (전체 사용은 모서리에 잘림)</td><td>3종 모두 온전</td></tr>
+      <tr><td rowspan="2">phone-landscape<br>851 × 393 dp</td><td>일반</td><td>전체 사용 · 입력란 · 투표 버튼 <strong>전부</strong></td><td>3종 모두 온전</td></tr>
+      <tr><td>JMA</td><td>전체 사용 · 입력란 · 투표 버튼 <strong>전부</strong></td><td>3종 모두 온전</td></tr>
+      <tr><td rowspan="2">tablet-third<br>375 × 834 dp</td><td>일반</td><td>없음 (원래 정상)</td><td>정상 유지 · 보너스 밴드 위치만 이동</td></tr>
+      <tr><td>JMA</td><td>없음 (원래 정상)</td><td>정상 유지 · 정책보기 위치만 이동</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>5. 재현 절차</h2>
+  <ol>
+    <li>에뮬레이터 부팅 후 <code>adb -s emulator-5554 shell wm size &lt;W&gt;x&lt;H&gt;</code>, <code>wm density 420</code>.</li>
+    <li>임시 진입점을 target 으로 debug APK 빌드 (위 dart-define 4개), 설치. 서명이 다른 기존 앱이 있으면 먼저 <code>uninstall</code>.</li>
+    <li><code>am force-stop</code> → <code>am start</code> 로 콜드 스타트, 상단 절반 탭 → 일반 팝업 / 하단 절반 탭 → JMA 팝업.</li>
+    <li><code>adb -s emulator-5554 exec-out screencap -p &gt; &lt;파일&gt;</code>.</li>
+    <li>before 는 다이얼로그 4개 파일만 부모 커밋으로 되돌려(<code>voting_dialog.dart</code>, <code>jma_voting_dialog.dart</code>, <code>voting_dialog_widgets.dart</code>, <code>large_popup.dart</code>) 재빌드 후 동일 절차. 캡처 후 <code>git checkout HEAD -- picnic_lib/</code> 로 복원.</li>
+  </ol>
+
+  <footer>
+    PICNIC-2694 · PR #234 · 브랜치 <code>fix/vote-dialog-short-viewport</code><br>
+    before = <code>2e5ccdc20</code> (부모) · after = <code>467930fdd</code> (HEAD) · 캡처일 2026-09-15
+  </footer>
+
+</main>
+</body>
+</html>
