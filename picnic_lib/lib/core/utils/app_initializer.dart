@@ -37,6 +37,7 @@ import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -387,19 +388,37 @@ class AppInitializer {
     if (!isMobile()) return;
 
     logger.i('Initializing Tapjoy...');
-    final Map<String, dynamic> optionFlags = {};
     // Tapjoy setLoggingLevel이 버전 14.2.1에서 정의되지 않음 - 일시적으로 주석 처리
     // await Tapjoy.setLoggingLevel(TJLoggingLevel.debug);
-    await Tapjoy.connect(
+    //
+    // PICNIC-2682: Auth 복원과 Tapjoy connect 는 병렬로 시작하므로 여기서
+    // 세션이 이미 살아 있으면 connect 옵션으로 UUID 를 먼저 넘긴다. Auth 가
+    // 늦으면 TapjoySession 이 connect 성공 뒤 setUserID 를 보내고 성공
+    // 이벤트까지 기다린다. connect 자체는 MethodChannel 반환까지만 기다려
+    // 앱 시작이 SDK 이벤트에 묶이지 않게 한다.
+    await TapjoySession.instance.connect(
       sdkKey: isIOS()
           ? Environment.tapjoyIosSdkKey!
           : Environment.tapjoyAndroidSdkKey!,
-      options: optionFlags,
-      onConnectSuccess: _onTapjoyConnectSuccess,
-      onConnectFailure: _onTapjoyConnectFailure,
-      onConnectWarning: _onTapjoyConnectWarning,
+      initialUserId: supabase.auth.currentUser?.id,
+      onConnected: _onTapjoyConnectSuccess,
     );
     logger.i('Tapjoy initialized');
+  }
+
+  /// Auth 복원이 끝난 뒤 SDK 사용자 ID 를 한 번 맞춰 둔다.
+  ///
+  /// 실패해도 앱 시작을 막지 않는다 — 오퍼월 진입에서 TapjoySession 이 다시
+  /// 확인하고, 그때는 실패를 사용자에게 전달한다.
+  static Future<void> syncTapjoyUserAfterAuth() async {
+    if (!isMobile()) return;
+    if (supabase.auth.currentUser == null) return;
+    try {
+      await TapjoySession.instance.ensureUserReady();
+      logger.i('Tapjoy user id synced');
+    } catch (e) {
+      logger.w('Tapjoy user id sync skipped: $e');
+    }
   }
 
   static Future<void> _onTapjoyConnectSuccess() async {
@@ -409,14 +428,6 @@ class AppInitializer {
     Tapjoy.getPrivacyPolicy().setBelowConsentAge(TJStatus.unknownStatus);
     Tapjoy.getPrivacyPolicy().setUSPrivacy('1---');
     logger.i(Tapjoy.getPluginVersion());
-  }
-
-  static Future<void> _onTapjoyConnectFailure(int code, String? error) async {
-    logger.e('Tapjoy connect failed: $code, $error');
-  }
-
-  static Future<void> _onTapjoyConnectWarning(int code, String? warning) async {
-    logger.w('Tapjoy connect warning: $code, $warning');
   }
 
   static Future<void> initializeAuth() async {
@@ -894,6 +905,14 @@ class AppInitializer {
         final session = data.session;
         if (session != null) {
           logger.i('jwtToken: ${session.accessToken}');
+        }
+
+        // PICNIC-2682: 계정이 바뀌면 SDK 에 남은 사용자 ID 를 더는 믿을 수
+        // 없다. 다음 오퍼월 진입이 setUserID 성공을 다시 확인하게 만든다.
+        if (data.event == AuthChangeEvent.signedIn ||
+            data.event == AuthChangeEvent.signedOut ||
+            data.event == AuthChangeEvent.userUpdated) {
+          TapjoySession.instance.invalidateUser();
         }
 
         if (data.event == AuthChangeEvent.signedIn) {
