@@ -23,7 +23,7 @@
 <body>
   <h1>PICNIC-2700 긴 로케일 투표 버튼 구현 결과</h1>
   <div class="summary">
-    <p><strong>상태:</strong> 커밋 2건 완료 — <code>cf8af1d59</code>(코드), <code>0750d6689</code>(번역). 전체 투표 스위트 <span class="ok">+821 실패 0</span>, <code>analyze</code> 521(부모와 동일).</p>
+    <p><strong>상태:</strong> 커밋 2건 완료 — <code>cf8af1d59</code>(코드), <code>0750d6689</code>(번역). 전체 투표 스위트 <span class="ok">+1269 실패 0</span>, <code>analyze</code> 521(부모와 동일). 커밋 <code>03fa2387a</code> 는 적대적 리뷰가 찾은 회귀 수정이다.</p>
     <p><strong>결론:</strong> 일반 <code>VotingDialog</code>의 1단 제출 버튼을 고정 172 토큰에서 캡슐 안의 실제 코너 안전 폭으로 넓히고, 측정과 렌더 모두 라벨을 최대 2줄·말줄임으로 제한했다. 태국어·미얀마어·일본어 라벨 축약은 구조 수정과 분리해 적용하며 원어민 검토가 남아 있다.</p>
     <p><strong>범위:</strong> 일반 다이얼로그의 Dart 구현과 신규 전용 테스트를 변경했다. JMA Dart 파일은 읽기만 했고, 수량·전체 사용·지갑·분석·투표 요청 로직은 변경하지 않았다.</p>
   </div>
@@ -159,19 +159,50 @@
     <tbody>
       <tr><td class="left"><code>flutter analyze</code></td><td>521 (부모와 동일)</td></tr>
       <tr><td class="left"><code>flutter test .../voting_dialog_submit_label_test.dart</code></td><td class="ok">+22</td></tr>
-      <tr><td class="left"><code>flutter test test/presentation/widgets/vote/voting</code></td><td class="ok">+821 실패 0</td></tr>
+      <tr><td class="left"><code>flutter test test/presentation/widgets/vote/voting</code></td><td class="ok">+1269 실패 0</td></tr>
+      <tr><td class="left">신규 <code>voting_dialog_overflow_test.dart</code></td><td class="ok">+448</td></tr>
       <tr><td class="left">공유 회귀 5파일</td><td class="ok">+45</td></tr>
       <tr><td class="left">부모 동작 되돌림 검증</td><td class="ok">4건 RED</td></tr>
     </tbody>
   </table>
   <p>되돌림 검증은 프로덕션의 2줄 상한을 부모의 <code>columns ? 2 : null</code>로 되돌린 상태에서 신규 테스트를 실행해 확인했다. RED가 된 4건은 th 1.3배·th 2.0배·my 2.0배의 폭/예산 성질과 약 47px 라벨 슬롯 스트레스 케이스다. 나머지 18건은 해당 로케일·배율에서 원래 1줄이라 변이에 반응하지 않는 것이 정상이다. 확인 후 프로덕션을 원복하고 22건 GREEN을 재확인했다.</p>
 
-  <h2>8. 남은 위험과 확인사항</h2>
+  <h2>8. 적대적 리뷰 대응</h2>
+  <p>Opus 독립 리뷰가 6건을 제기했다. 각 건을 코드와 실행으로 확인한 결과는 다음과 같다.</p>
+  <table>
+    <thead><tr><th>건</th><th class="left">지적</th><th class="left">판정</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td class="left">고정 조작부 열이 넘쳐 조작부가 잘린다</td><td class="left"><span class="warn">수용 — 회귀 확정, 수정함.</span> 리뷰어보다 범위가 넓었다. 리뷰어는 1건만 회귀로 보고 th 2.6배는 기존 결함으로 분류했으나, 부모 커밋에서 같은 스윕을 돌려 <strong>330건 전부 통과</strong>함을 확인했다. 두 건 모두 이번 변경이 만든 회귀다.</td></tr>
+      <tr><td>F2</td><td class="left">두 커밋이 독립적으로 되돌려지지 않는다</td><td class="left"><span class="warn">수용 — 문서로 처리.</span> 출하되는 조합에서는 잘리는 라벨이 없음을 14개 로케일로 확인했다. 되돌림 경로의 위험은 커밋 메시지·테스트 주석·PR·Jira 네 곳에 명시했다.</td></tr>
+      <tr><td>F3</td><td class="left">키보드가 열리면 버튼 폭이 변한다</td><td class="left"><span class="warn">사실 확인 — 미수정, 결정 대기.</span> 393×852 에서 293.2 → 225.6 (23% 감소). 버튼이 바닥에 가까워지면 코너 여유가 더 필요해지는 기하상 정직한 결과지만, 키보드 전환 중 기본 CTA 가 크기를 바꾸는 것은 별개 문제다.</td></tr>
+      <tr><td>F4</td><td class="left">요구사항을 넘어 CTA 를 재설계했다</td><td class="left"><span class="warn">일부 수용 — 결정 대기.</span> 아래 실측 참조. 2.0배까지는 고정 172 로도 잘림이 없고, 2.0배를 넘어서야 폭 확장이 실제로 필요해진다.</td></tr>
+      <tr><td>F5</td><td class="left">라우트 여백 예산의 보수성 방향이 뒤집혔다</td><td class="left"><span class="left">수용 — 미수정, 기록.</span> 되돌리려면 제거한 두 번째 폭 기준을 되살려야 해 단일 기준 원칙과 충돌한다. 448 조합 실측에서 관측되지 않았고, 어긋나도 고정→스크롤로 완만히 저하한다.</td></tr>
+      <tr><td>F6</td><td class="left">테스트 축이 비어 있다</td><td class="left"><span class="ok">수용 — 테스트 추가.</span> 전 로케일·키보드·뷰포트 축을 여는 448건 회귀 테스트를 넣었고, 그 축이 실제로 F1 을 잡는다.</td></tr>
+    </tbody>
+  </table>
+  <p>리뷰어가 근거와 함께 기각한 항목도 기록한다. 코너 여유 기하는 <code>[0, R]</code> 위에서 자기역원이라 원형 모서리에 대해 정확하고, 4회 반복 루프는 폭이 단조 감소하며 목표가 4개 상태의 함수라 발산·진동이 불가능하다. <code>cardWidth</code> 통일은 2단 경로가 이 코드에 도달하기 전에 반환하므로 안전하다. <code>_expectsColumns</code> 의 <code>return</code> 식은 부모와 바이트 단위로 동일해 회귀를 가릴 수 없다.</p>
+
+  <h3>F4 판단 근거 — 고정 172 로 되돌리면 어디서 잘리는가</h3>
+  <p>축약 번역 적용 후, 버튼 폭을 예전 고정값(140.1px 실폭)으로 두고 2줄 상한만 적용했을 때 14개 로케일의 말줄임 여부를 실측했다.</p>
+  <table>
+    <thead><tr><th>배율</th><th class="left">고정 172 에서의 결과</th></tr></thead>
+    <tbody>
+      <tr><td>1.0 / 1.3</td><td class="left">전 로케일 1줄, 잘림 없음</td></tr>
+      <tr><td>2.0</td><td class="left">잘림 없음. fil·my·th·vi 가 2줄(110.3px)이 된다</td></tr>
+      <tr><td>2.6</td><td class="left"><span class="warn">my·vi 말줄임</span>. 나머지는 2줄(142.3px)</td></tr>
+    </tbody>
+  </table>
+  <p>즉 폭 확장이 실제로 막아 주는 것은 <strong>2.0배를 넘는 배율의 버마어·베트남어 잘림</strong>이다. 베트남어는 이번에 축약하지 않은 로케일이라 번역만으로는 닫히지 않는다. 그 대가는 기본 393×852 한국어 화면에서 버튼이 140.1 에서 293.2 로 넓어져 가운데 알약이 거의 전폭 바가 되는 것, 그리고 F3 의 키보드 전환 시 크기 변화다.</p>
+  <p>이 맞바꿈은 엔지니어링이 아니라 디자인 결정이다. 되돌리는 비용은 낮다 — <code>_buildFooter</code> 가 넘기는 <code>width</code> 를 <code>VotingSubmitButton.preferredWidth()</code> 로 바꾸면 되고, 그러면 2.0배 이하에서는 잘림 없이 예전 모양이 돌아오며 2.6배의 버마어·베트남어만 말줄임된다. 제3안은 말줄임 대신 자동 축소(<code>FittedBox</code>)를 넣어 고정 폭을 유지하는 것이다.</p>
+
+  <h2>9. 남은 위험과 확인사항</h2>
   <ul>
     <li>세 축약 번역은 기하 검증과 별개로 원어민 의미·톤 검토가 필요하다.</li>
     <li>JMA의 무제한 줄 구조는 남아 있다. 공유 번역 축약은 완화일 뿐 구조 보장이 아니다.</li>
     <li>일반 1단 잔액 라벨의 <code>maxLines</code>/<code>ellipsis</code>는 명시적으로 이번 범위 밖이며 별도 후속 후보다.</li>
     <li>실기기 폰트 폴백은 테스트 폰트와 글리프 폭이 다를 수 있으나, 최대 2줄 상한은 높이 폭주를 독립적으로 막는다.</li>
+    <li><strong>CTA 폭 확장과 키보드 전환 시 크기 변화(F3·F4)는 디자인 확인이 필요하다.</strong> 8절의 실측과 되돌림 경로 참조.</li>
+    <li>라우트 여백 예산의 보수성 방향 뒤집힘(F5)은 남겨 뒀다. 448 조합에서 관측되지 않았으나 구조적 보장은 아니다.</li>
     <li><code>_expectsColumns</code>는 번역 문자열 길이에 의존하는 정적 기대표다. 이번처럼 라벨이 바뀌면 함께 움직인다. 전환 자체를 성질로 검증하는 축은 아직 없다.</li>
   </ul>
 </body>
