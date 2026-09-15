@@ -410,7 +410,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                               withLogo: !isKeyboardVisible && !logoInTail,
                             ),
                         actions: _buildActions(isKeyboardVisible),
-                        submit: _buildSubmit(userId),
+                        submit: _buildSubmit(userId, contentWidth: contentWidth),
                         tail: _buildTail(withLogo: logoInTail),
                       ),
                     ),
@@ -486,14 +486,14 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  Widget _buildSubmit(String userId) {
+  Widget _buildSubmit(String userId, {required double contentWidth}) {
     return Padding(
       padding: EdgeInsets.only(
         left: PicnicUi.horizontal(16),
         right: PicnicUi.horizontal(16),
         top: PicnicUi.vertical(8),
       ),
-      child: _buildJmaVoteButton(userId),
+      child: _buildJmaVoteButton(userId, contentWidth: contentWidth),
     );
   }
 
@@ -556,10 +556,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   /// 카드 테두리와 좌우 여백을 뺀 조작부의 실제 폭.
-  double _contentWidth(double width) => math.max(
-    0.0,
-    width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(16) * 2,
-  );
+  double _contentWidth(double width) => jmaVoteDialogContentWidth(width);
 
   /// 스크롤로 밀어낼 수 없는 조작부 높이 — 전체 사용 + 입력 + 안내 + 투표 버튼.
   ///
@@ -592,16 +589,16 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         _amountInputBorderWidth * 2;
     final button = math.max(
       PicnicUi.minimumTapTarget,
-      measureVotingTextHeight(
-            context,
-            AppLocalizations.of(context).label_button_vote,
-            PicnicUi.text(size: 18, weight: FontWeight.w700),
-            // 활성 상태의 폭으로 잰다. 활성 버튼만 20 아이콘과 그 뒤 간격을
-            // 라벨 앞에 두므로 라벨에 남는 폭이 더 좁고, 그래서 같은 문구가
-            // 한 줄 더 감긴다 — 태국어·버마어는 393 폭·기본 배율에서도 26~52
-            // 만큼 더 높았다. 비활성 폭으로 재면 그 상태를 과소 예산해
-            // actionsPinned 를 잘못 골라 RenderFlex 가 넘친다.
-            maxWidth: _submitLabelMaxWidth(),
+      math.max(
+            _submitIconSide,
+            measureVotingTextHeight(
+              context,
+              AppLocalizations.of(context).label_button_vote,
+              PicnicUi.text(size: 18, weight: FontWeight.w700),
+              // 상태와 무관한 한 값이다 — 활성 버튼이 아이콘만큼 넓어져 라벨에
+              // 남는 폭이 비활성과 같기 때문이다. _submitButtonWidth 참고.
+              maxWidth: _submitLabelMaxWidth(contentWidth),
+            ),
           ) +
           PicnicUi.vertical(4) * 2,
     );
@@ -614,10 +611,34 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         PicnicUi.vertical(16);
   }
 
-  /// 활성 투표 버튼이 라벨에 남겨 주는 폭 — 버튼 안쪽에서 아이콘과 간격을 뺀 값.
-  double _submitLabelMaxWidth() => math.max(
+  /// 투표 버튼의 폭 — 활성 상태는 아이콘과 그 뒤 간격만큼 넓어진다.
+  ///
+  /// 버튼 폭을 상태와 무관하게 172 로 두면, 활성 버튼만 라벨 앞에 20 아이콘과
+  /// 간격을 놓으므로 같은 문구가 더 좁은 상자에서 감긴다 — 280 폭·1.0 배
+  /// 태국어는 라벨 폭 105 대 80, 버튼 높이 84 대 136 으로 52 차이였다. 그러면
+  /// 어떤 예산도 두 상태에 동시에 맞을 수 없다. 활성 폭으로 잡으면 비활성
+  /// 첫 화면이 쓰지도 않는 52 를 예약해 여백을 8 하한까지 내리고 장식을
+  /// 조작부 아래로 보내고, 비활성 폭으로 잡으면 활성에서 넘친다.
+  ///
+  /// 그래서 예산이 아니라 폭 정책을 고친다. 아이콘이 가져가는 만큼만 버튼을
+  /// 넓히면 라벨에 남는 폭이 두 상태에서 같아지고, 높이도 같아진다. 카드 안쪽
+  /// 폭([contentWidth])은 넘지 않는다.
+  double _submitButtonWidth({
+    required bool withIcon,
+    required double contentWidth,
+  }) => math.min(
+    contentWidth,
+    voteDialogCardExtent(172) +
+        (withIcon ? _submitIconSide + PicnicUi.horizontal(8) : 0.0),
+  );
+
+  /// 투표 버튼이 라벨에 남겨 주는 폭 — 두 상태에서 같은 값.
+  ///
+  /// 카드가 아주 좁아 위 폭이 [contentWidth] 에 잘리는 경우에만 활성 쪽이 더
+  /// 좁아지므로, 예산은 그 활성 폭을 쓴다. 좁은 쪽이 곧 높은 쪽이다.
+  double _submitLabelMaxWidth(double contentWidth) => math.max(
     0.0,
-    voteDialogCardExtent(172) -
+    _submitButtonWidth(withIcon: true, contentWidth: contentWidth) -
         PicnicUi.horizontal(12) * 2 -
         _submitIconSide -
         PicnicUi.horizontal(8),
@@ -633,21 +654,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     required double contentWidth,
   }) {
     if (_validationMessage.isNotEmpty) {
-      final textWidth = math.max(
-        0.0,
-        contentWidth -
-            PicnicUi.horizontal(12) * 2 -
-            _validationIconSide -
-            PicnicUi.horizontal(8),
+      return jmaValidationBandHeight(
+        context,
+        message: _validationMessage,
+        contentWidth: contentWidth,
       );
-      return measureVotingTextHeight(
-            context,
-            _validationMessage,
-            PicnicUi.text(size: 12, weight: FontWeight.w500),
-            maxWidth: textWidth,
-          ) +
-          PicnicUi.vertical(8) * 2 +
-          _validationBorderWidth * 2;
     }
     final hint = _voteHintText();
     if (hint == null) return 0;
@@ -665,11 +676,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   /// 활성 투표 버튼이 라벨 앞에 두는 아이콘의 한 변.
   static const double _submitIconSide = 20;
 
-  /// 유효성 안내 줄의 아이콘 박스 한 변 — 16 글리프에 좌우 2 패딩.
-  static const double _validationIconSide = 20;
-
   /// 유효성 안내 줄의 테두리 폭.
-  static const double _validationBorderWidth = 1;
+  static const double _validationBorderWidth = kJmaValidationBorderWidth;
 
   Widget _buildJmaHeader() {
     return Container(
@@ -1471,14 +1479,16 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              padding: const EdgeInsets.all(2),
+              padding: const EdgeInsets.all(kJmaValidationIconPadding),
               decoration: BoxDecoration(
                 color: AppColors.statusError.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(3),
               ),
               child: const Icon(
                 Icons.warning_rounded,
-                size: 16,
+                // 이 글리프와 위 패딩을 합친 값이 곧 예산이 쓰는
+                // [kJmaValidationIconSide] 다. 한쪽만 바꾸면 예산이 어긋난다.
+                size: kJmaValidationIconSide - kJmaValidationIconPadding * 2,
                 color: AppColors.statusError,
               ),
             ),
@@ -1525,13 +1535,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  Widget _buildJmaVoteButton(String userId) {
+  Widget _buildJmaVoteButton(String userId, {required double contentWidth}) {
     final isEnabled = _canVote && !_isVoting; // 투표 중이면 버튼 비활성화
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? () => _handleVote(userId) : null,
       child: Container(
-        width: voteDialogCardExtent(172),
+        // 투표 중에도 활성 폭을 유지한다 — 탭한 순간 버튼이 좁아지지 않는다.
+        width: _submitButtonWidth(
+          withIcon: isEnabled || _isVoting,
+          contentWidth: contentWidth,
+        ),
         // 44 는 최소 터치 크기 미만이었다.
         constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
         padding: EdgeInsets.symmetric(
@@ -1893,4 +1907,54 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       ),
     );
   }
+}
+
+/// 유효성 안내 줄의 아이콘 박스 한 변 — 글리프에 사방 패딩을 더한 값.
+const double kJmaValidationIconSide = 20;
+
+/// 그 아이콘 박스가 글리프 둘레에 두는 패딩.
+const double kJmaValidationIconPadding = 2;
+
+/// 유효성 안내 줄을 두르는 테두리 폭.
+const double kJmaValidationBorderWidth = 1;
+
+/// 카드 테두리와 좌우 여백을 뺀 JMA 조작부의 실제 폭.
+double jmaVoteDialogContentWidth(double width) => math.max(
+  0.0,
+  width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(16) * 2,
+);
+
+/// 입력 바로 아래 유효성 안내 줄이 실제로 차지하는 높이.
+///
+/// 예산과 렌더가 같은 값을 쓰도록 한곳에 둔다. 이 줄은 한 줄의 글자가 아니라
+/// 테두리를 두른 [Row] 다:
+///
+/// * 테두리는 [BoxDecoration] 이 안쪽에서 좌우 1 씩 먼저 떼어 가므로, 문구가
+///   받는 폭은 여기서도 그만큼 좁다. 빼지 않으면 줄바꿈 경계에서 한 줄을 통째로
+///   덜 센다.
+/// * 세로로는 아이콘 박스(20)와 문구 중 높은 쪽이 행 높이가 된다. 1.0 배 한 줄은
+///   17 이라 아이콘이 이기고, 문구 높이만 쓰면 실제보다 3 작게 잡는다. 그
+///   3 이 모드를 가르는 높이에서는 담을 수 없는 조작부를 pinned 로 고르게 한다.
+double jmaValidationBandHeight(
+  BuildContext context, {
+  required String message,
+  required double contentWidth,
+}) {
+  final textWidth = math.max(
+    0.0,
+    contentWidth -
+        kJmaValidationBorderWidth * 2 -
+        PicnicUi.horizontal(12) * 2 -
+        kJmaValidationIconSide -
+        PicnicUi.horizontal(8),
+  );
+  final text = measureVotingTextHeight(
+    context,
+    message,
+    PicnicUi.text(size: 12, weight: FontWeight.w500),
+    maxWidth: textWidth,
+  );
+  return math.max(kJmaValidationIconSide, text) +
+      PicnicUi.vertical(8) * 2 +
+      kJmaValidationBorderWidth * 2;
 }

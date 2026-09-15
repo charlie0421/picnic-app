@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/l10n/app_localizations_my.dart';
 import 'package:picnic_lib/l10n/app_localizations_th.dart';
@@ -13,6 +14,7 @@ import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -26,9 +28,10 @@ import '../../../../helpers/test_environment.dart';
 /// button at scroll offset 0 on a short or landscape viewport — a Flip in flex
 /// mode, a folded/unfolded foldable, a phone in landscape, a tablet split view.
 ///
-/// Every case here is keyboard-free (`viewInsets.bottom == 0`), because the bug
-/// reproduces with no keyboard at all: decoration sized off the *width* scale
-/// eats the vertical budget and pushes the controls below the fold.
+/// The ticket's own cases are keyboard-free (`viewInsets.bottom == 0`), because
+/// the bug reproduces with no keyboard at all: decoration sized off the *width*
+/// scale eats the vertical budget and pushes the controls below the fold. The
+/// keyboard groups further down cover the insets the fix has to survive too.
 
 class _WalletSummaryOverride extends WalletSummary {
   _WalletSummaryOverride(this.summary);
@@ -905,6 +908,224 @@ void main() {
           );
         }
       });
+    }
+
+    // The band the explanation lives in is a bordered row, not a bare line of
+    // text: a 20 icon box on the left, 1 of border on each side. Budgeting the
+    // text height alone is not an upper bound on it — a single 1.0x line is
+    // 17 against the icon's 20 — and a mode chosen from an under-estimate pins
+    // a group the body cannot hold.
+    for (final size in <Size>[
+      Size(851, 393),
+      Size(1194, 834),
+      Size(393, 852),
+      Size(280, 480),
+    ]) {
+      for (final locale in <String, AppLocalizations>{
+        'ko': AppLocalizationsKo(),
+        'th': AppLocalizationsTh(),
+        'my': AppLocalizationsMy(),
+      }.entries) {
+        for (final scale in <double>[1.0, 2.0]) {
+          testWidgets(
+            'the validation band never outgrows the height it is budgeted on '
+            '${size.width.toInt()}x${size.height.toInt()} in ${locale.key} '
+            'at ${scale}x',
+            (tester) async {
+              await pumpAt(
+                tester,
+                jmaDialog(),
+                viewport: size,
+                textScale: scale,
+                locale: Locale(locale.key),
+              );
+              await tester.enterText(find.byType(TextFormField), '106');
+              await settleDialogState(tester);
+
+              final text = locale.value.jma_voting_max_votes_exceeded(105);
+              final message = find.text(text);
+              expect(message, findsOneWidget);
+              final band = find
+                  .ancestor(of: message, matching: find.byType(Container))
+                  .first;
+              final context = tester.element(find.byType(JmaVotingDialog));
+
+              expect(
+                tester.getSize(band).height,
+                lessThanOrEqualTo(
+                  jmaValidationBandHeight(
+                        context,
+                        message: text,
+                        contentWidth: jmaVoteDialogContentWidth(
+                          resolveVoteDialogWidth(),
+                        ),
+                      ) +
+                      0.5,
+                ),
+                reason:
+                    'the band the popup reserves room for is shorter than the '
+                    'one it renders',
+              );
+            },
+          );
+        }
+      }
+    }
+
+    // The consequence of that under-estimate, at the height where it decides
+    // the mode: 851x393 in Korean is a single wrapped line, so the band is 3
+    // taller than its budget, and a parent right at the boundary pins an
+    // action group the body cannot hold. 311 is where this overflowed by
+    // 0.668 before the icon box entered the budget; the sweep around it keeps
+    // the regression from sliding off a single pixel.
+    testWidgets('a short parent at the validation budget boundary never pins '
+        'more than it can hold', (tester) async {
+      final text = l10n.jma_voting_max_votes_exceeded(105);
+      for (var parent = 300.0; parent <= 320.0; parent += 1.0) {
+        await pumpAt(
+          tester,
+          jmaDialog(),
+          viewport: const Size(851, 393),
+          textScale: 1.0,
+          parentHeight: parent,
+        );
+        await tester.enterText(find.byType(TextFormField), '106');
+        await settleDialogState(tester);
+
+        expect(find.text(text), findsOneWidget);
+        _expectControlsVisibleAtRest(tester, <String, Finder>{
+          ...jmaControls(l10n.label_button_vote),
+          'validation': find.text(text),
+        }, 'JMA invalid 851x393 in a ${parent.toInt()} high parent');
+
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+
+    // Claim 3, the other direction: the budget has to describe the state on
+    // screen. Measuring the idle button at the *active* label width reserves
+    // room the idle button does not use — 52 at 280 wide in Thai — and the
+    // popup then gives up its margin and its band order on a first screen
+    // whose controls actually fit. Keeping the label's width the same in both
+    // states is what makes one budget true for both.
+    for (final locale in <String, AppLocalizations>{
+      'th': AppLocalizationsTh(),
+      'my': AppLocalizationsMy(),
+      'ko': AppLocalizationsKo(),
+    }.entries) {
+      for (final scale in <double>[1.0, 2.0]) {
+        testWidgets(
+          'the vote button is the same height idle and active in '
+          '${locale.key} at ${scale}x',
+          (tester) async {
+            await pumpAt(
+              tester,
+              jmaDialog(),
+              viewport: const Size(280, 320),
+              textScale: scale,
+              locale: Locale(locale.key),
+            );
+            Finder button() => find
+                .ancestor(
+                  of: find.text(locale.value.label_button_vote),
+                  matching: find.byType(Container),
+                )
+                .first;
+
+            final idle = tester.getSize(button()).height;
+            await tester.enterText(find.byType(TextFormField), '5');
+            await settleDialogState(tester);
+            expect(find.byIcon(Icons.how_to_vote), findsOneWidget);
+
+            expect(
+              tester.getSize(button()).height,
+              closeTo(idle, 0.5),
+              reason:
+                  'the active button changed height, so no single budget can '
+                  'be true for both states',
+            );
+          },
+        );
+      }
+    }
+
+    // What the over-reserved idle budget costs on screen: the popup drops to
+    // the 8 floor of its margin and lays the artist and the balance out
+    // *under* the controls, on a first screen whose idle controls fit with
+    // room to spare. Typing a votable amount may not move either.
+    for (final locale in <String, AppLocalizations>{
+      'th': AppLocalizationsTh(),
+      'my': AppLocalizationsMy(),
+    }.entries) {
+      testWidgets(
+        'an idle popup in ${locale.key} keeps its margin and its band order '
+        'on 280x320',
+        (tester) async {
+          await pumpAt(
+            tester,
+            jmaDialog(),
+            viewport: const Size(280, 320),
+            textScale: 1.0,
+            locale: Locale(locale.key),
+          );
+
+          double inset() =>
+              tester
+                  .widget<AlertDialog>(find.byType(AlertDialog))
+                  .insetPadding!
+                  .vertical /
+              2;
+          double badgeTop() =>
+              tester.getRect(find.text('Jupiter Music Awards')).top;
+          double useAllTop() => tester
+              .getRect(
+                _nearestGestureTarget(
+                  find.byIcon(Icons.check_box_outline_blank),
+                ),
+              )
+              .top;
+
+          final idleInset = inset();
+          expect(
+            idleInset,
+            greaterThan(kVoteDialogMinimumVerticalInset),
+            reason:
+                'the idle controls fit, so the popup may not fall back to the '
+                'smallest margin it has',
+          );
+          expect(
+            badgeTop(),
+            lessThan(useAllTop()),
+            reason:
+                'the decoration belongs above the controls while they fit',
+          );
+          _expectControlsVisibleAtRest(
+            tester,
+            jmaControls(locale.value.label_button_vote),
+            'JMA idle ${locale.key} 280x320',
+          );
+
+          await tester.enterText(find.byType(TextFormField), '5');
+          await settleDialogState(tester);
+
+          expect(find.byIcon(Icons.how_to_vote), findsOneWidget);
+          expect(
+            inset(),
+            closeTo(idleInset, 0.5),
+            reason: 'the margin jumped when the amount became votable',
+          );
+          expect(
+            badgeTop(),
+            lessThan(useAllTop()),
+            reason: 'the bands reordered when the amount became votable',
+          );
+          _expectControlsVisibleAtRest(
+            tester,
+            jmaControls(locale.value.label_button_vote),
+            'JMA active ${locale.key} 280x320',
+          );
+        },
+      );
     }
 
     testWidgets('expanding the policy panel does not push the controls out', (
