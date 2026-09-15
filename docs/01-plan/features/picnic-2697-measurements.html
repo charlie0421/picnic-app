@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2697 가로형 2단 배치 실측</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #172033;
+      --muted: #667085;
+      --line: #d8dee9;
+      --panel: #f7f9fc;
+      --accent: #3157c8;
+      --good: #176b48;
+      --warn: #9a5b00;
+      --bad: #a12a2a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: #fff;
+      font-family: Pretendard, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      line-height: 1.62;
+    }
+    main { max-width: 1240px; margin: 0 auto; padding: 44px 28px 72px; }
+    h1, h2, h3 { line-height: 1.3; letter-spacing: -.02em; }
+    h1 { margin: 0 0 8px; font-size: 32px; }
+    h2 { margin: 44px 0 14px; padding-bottom: 8px; border-bottom: 2px solid var(--ink); font-size: 23px; }
+    h3 { margin: 28px 0 10px; font-size: 18px; }
+    p { margin: 9px 0; }
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #eef2f8;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+    }
+    .meta, .muted { color: var(--muted); }
+    .summary, .note, .decision, .warning {
+      margin: 16px 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--panel);
+    }
+    .summary { border-left: 5px solid var(--accent); }
+    .decision { border-left: 5px solid var(--warn); }
+    .warning { border-left: 5px solid var(--bad); }
+    .good { color: var(--good); font-weight: 700; }
+    .bad { color: var(--bad); font-weight: 700; }
+    .scroll { overflow-x: auto; margin: 12px 0 20px; }
+    table { width: 100%; border-collapse: collapse; min-width: 760px; font-variant-numeric: tabular-nums; }
+    th, td { padding: 8px 9px; border: 1px solid var(--line); vertical-align: top; text-align: right; white-space: nowrap; }
+    th { background: #edf1f7; font-weight: 700; }
+    th:first-child, td:first-child, .text { text-align: left; }
+    tr:nth-child(even) td { background: #fbfcfe; }
+    caption { padding: 0 0 8px; color: var(--muted); text-align: left; font-weight: 600; }
+    ul, ol { padding-left: 23px; }
+    li + li { margin-top: 6px; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 12px; margin: 16px 0; }
+    .card { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+    .card strong { display: block; margin-bottom: 4px; font-size: 18px; }
+    .small { font-size: 13px; }
+    @media (max-width: 700px) {
+      main { padding: 28px 16px 52px; }
+      h1 { font-size: 27px; }
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>PICNIC-2697 가로형 2단 배치 실측</h1>
+    <p class="meta">2026-09-15 · 디자인 확인용 · 산술 추정치를 Flutter 실제 글꼴 shaping/RenderBox 측정으로 교체</p>
+  </header>
+
+  <div class="summary">
+    <strong>실측 요약.</strong> 짧은 이름, 최대 2줄, 로컬 가로 치수, 열 간격 16의 전체 21개 조합 최악값은
+    <strong>980.80px</strong>이다. 간격 24/32이면 각각 <strong>988.80/996.80px</strong>이다.
+    긴 이름 2줄의 최악값은 <strong>1,413.14px</strong>, 모든 항목 1줄의 짧은 이름 최악값은
+    <strong>1,573.58px</strong>이므로 두 정책은 1194px 화면의 라우트 가용 폭 1,096.78px에서도 보편 조건으로 쓸 수 없다.
+    851×393 K280은 닫기 숨김/표시 양쪽에서 시험한 모든 배치가 닫혔다. 926×428 K280은 기존 관계를 바꾸는 일부 배치만 열렸다.
+  </div>
+
+  <section>
+    <h2>1. 측정 계약과 재현</h2>
+    <ul>
+      <li>하네스: <code>picnic_lib/test/presentation/widgets/vote/voting/picnic_2697_measurement_test.dart</code></li>
+      <li>프로덕션 기하: <code>designSize = 393×892</code>, <code>minTextAdapt = true</code>, <code>splitScreenMode = true</code>, DPR 3.</li>
+      <li>실제 <code>TextPainter</code> 줄 수·폭과 실제 테스트 위젯 <code>RenderBox</code> 높이를 사용했다. <code>measureVotingTextHeight</code>, <code>VotingArtistImage.preferredHeight</code>, <code>VotingCheckAllOption.preferredHeight</code>, <code>VotingSubmitButton.preferredHeight/preferredWidth</code>, <code>jmaValidationBandHeight</code>를 교차 확인했다.</li>
+      <li>로케일은 ko/en/th/my/ja/zh/id, 텍스트 배율은 1.0/1.3/2.0의 전 조합이다. 폭 단위는 논리 px이며 소수 둘째 자리로 반올림했다.</li>
+      <li><strong>로컬 기하</strong>는 2단 안에서 가로 padding·gap을 논리 px로 유지한다. 비교 열의 <strong>상속 기하</strong>는 851px 루트의 기존 <code>.w</code> 확대를 그대로 받는다.</li>
+    </ul>
+    <div class="warning small">
+      <strong>기준점.</strong> 하네스는 현재 브랜치의 PICNIC-2694 기준 <code>c83a3ee1d</code> 위에서 실행했다.
+      작업 중 PICNIC-2695가 main에 <code>0819c3a92</code>로 머지됐으나 충돌 방지를 위해 rebase하거나 기존 7개 파일을 수정하지 않았다.
+      0819 commit blob을 읽어 a/b/c/e는 폭 영향 없음, d는 닫기 숨김과 표시의 24px 차이로 반영했다.
+      2695가 추가한 <code>VotingBubbleInfo.preferredHeight</code>와 실제 <code>showTopClose</code> 통합 실행은 이 브랜치에 코드가 없어 미검증이며 rebase 뒤 확인 대상이다.
+    </div>
+    <div class="note small">
+      패키지가 번들한 Pretendard 네 weight를 로드했고, 해당 폰트에 없는 문자는 Flutter 테스트 엔진의 실제 fallback shaping 결과를 포함한다.
+      iOS/Android의 플랫폼별 fallback은 픽셀이 달라질 수 있으므로 아래 숫자를 로케일별 상수로 하드코딩하지 않고 런타임의 현재
+      <code>TextPainter</code> 적합성 검사에 사용해야 한다.
+    </div>
+    <div class="scroll">
+      <table>
+        <caption>고정 fixture — 무한 입력 범위를 보장한다고 해석하지 않는다</caption>
+        <thead><tr><th>항목</th><th class="text">값</th><th class="text">이유</th></tr></thead>
+        <tbody>
+          <tr><td class="text">편집/잔액 숫자</td><td class="text"><code>9,999,999</code></td><td class="text">테두리, 좌우 padding, clear 48을 포함한 유한 비교 fixture. 일반 지갑은 BigInt라 모든 자릿수를 한 번에 보이는 유한 최소 폭은 없다.</td></tr>
+          <tr><td class="text">JMA 예정 안내</td><td class="text"><code>9,999개의 투표를 진행합니다.</code></td><td class="text">현재 프로덕션과 같은 한국어 조합 문자열.</td></tr>
+          <tr><td class="text">JMA 환산</td><td class="text"><code>JMA 9,999투표 = 보너스 5개 + 별사탕 299,820개</code></td><td class="text">Admin 배지·아이콘·패딩까지 포함.</td></tr>
+          <tr><td class="text">이름</td><td class="text">각 로케일 짧은 이름 + 장문 아티스트/그룹 fixture</td><td class="text">짧은 이름 결과를 장문에 재사용하지 않는다.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. a — 우열 조작부 최소 폭</h2>
+    <p>각 셀의 <strong>앞/뒤</strong>는 각각 “줄바꿈 없는 1줄 / 최대 2줄” 최소 폭이다. 입력은 한 줄 편집을 유지하므로
+      일반/JMA 한 값으로 표시했다. 입력에는 border, 오른쪽 4, clear 탭 타깃 48, 좌우 padding 24씩이 들어간다.
+      JMA 활성 버튼에는 아이콘 20과 간격 8이 들어간다.</p>
+    <div class="scroll">
+      <table>
+        <thead>
+          <tr><th>locale</th><th>배율</th><th>전체 사용 G<br>1/2줄</th><th>전체 사용 J<br>1/2줄</th><th>입력 G/J</th><th>투표 G<br>1/2줄</th><th>활성 투표 J<br>1/2줄</th><th>JMA 안내<br>1/2줄</th><th>우열 전체<br>1/2줄</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>ko</td><td>1.0</td><td>75.82 / 48.19</td><td>75.82 / 48.19</td><td>181.83 / 183.83</td><td>55.11 / 24.00</td><td>83.11 / 52.00</td><td>169.91 / 101.56</td><td>183.83 / 183.83</td></tr>
+          <tr><td>ko</td><td>1.3</td><td>91.36 / 55.45</td><td>91.36 / 55.45</td><td>205.78 / 207.78</td><td>64.45 / 24.00</td><td>92.45 / 52.00</td><td>213.68 / 124.83</td><td>213.68 / 207.78</td></tr>
+          <tr><td>ko</td><td>2.0</td><td>127.63 / 72.39</td><td>127.63 / 72.39</td><td>261.66 / 263.66</td><td>86.23 / 24.00</td><td>114.23 / 52.00</td><td>315.82 / 179.13</td><td>315.82 / 263.66</td></tr>
+          <tr><td>en</td><td>1.0</td><td>74.07 / 48.86</td><td>68.13 / 48.86</td><td>181.83 / 183.83</td><td>62.54 / 45.93</td><td>91.36 / 74.45</td><td>169.91 / 101.56</td><td>183.83 / 183.83</td></tr>
+          <tr><td>en</td><td>1.3</td><td>89.09 / 56.32</td><td>81.37 / 56.32</td><td>205.78 / 207.78</td><td>74.10 / 52.51</td><td>103.16 / 81.19</td><td>213.68 / 124.83</td><td>213.68 / 207.78</td></tr>
+          <tr><td>en</td><td>2.0</td><td>124.13 / 73.73</td><td>112.27 / 73.73</td><td>261.66 / 263.66</td><td>101.08 / 67.87</td><td>130.71 / 96.91</td><td>315.82 / 179.13</td><td>315.82 / 263.66</td></tr>
+          <tr><td>th</td><td>1.0</td><td>248.00 / 164.00</td><td>164.00 / 94.00</td><td>262.00 / 183.83</td><td>240.00 / 150.00</td><td>268.00 / 178.00</td><td>169.91 / 101.56</td><td>268.00 / 262.00</td></tr>
+          <tr><td>th</td><td>1.3</td><td>315.20 / 205.99</td><td>206.00 / 114.99</td><td>310.00 / 207.78</td><td>304.80 / 187.79</td><td>332.80 / 215.79</td><td>213.68 / 124.83</td><td>332.80 / 310.00</td></tr>
+          <tr><td>th</td><td>2.0</td><td>472.00 / 304.00</td><td>304.00 / 164.00</td><td>422.00 / 263.66</td><td>456.00 / 276.00</td><td>484.00 / 304.00</td><td>315.82 / 179.13</td><td>484.00 / 422.00</td></tr>
+          <tr><td>my</td><td>1.0</td><td>290.00 / 178.00</td><td>206.00 / 122.00</td><td>326.00 / 183.83</td><td>168.00 / 114.00</td><td>196.00 / 142.00</td><td>169.91 / 101.56</td><td>326.00 / 326.00</td></tr>
+          <tr><td>my</td><td>1.3</td><td>369.80 / 224.20</td><td>260.60 / 151.39</td><td>393.20 / 207.78</td><td>211.20 / 140.99</td><td>239.20 / 168.99</td><td>213.68 / 124.83</td><td>393.20 / 393.20</td></tr>
+          <tr><td>my</td><td>2.0</td><td>556.00 / 332.00</td><td>388.00 / 220.00</td><td>550.00 / 263.66</td><td>312.00 / 204.00</td><td>340.00 / 232.00</td><td>315.82 / 179.13</td><td>556.00 / 550.00</td></tr>
+          <tr><td>ja</td><td>1.0</td><td>80.00 / 52.00</td><td>91.38 / 63.37</td><td>181.83 / 183.83</td><td>93.75 / 60.00</td><td>121.75 / 88.00</td><td>169.91 / 101.56</td><td>183.83 / 183.83</td></tr>
+          <tr><td>ja</td><td>1.3</td><td>96.80 / 60.39</td><td>111.59 / 75.18</td><td>205.78 / 207.78</td><td>114.67 / 70.79</td><td>142.67 / 98.79</td><td>213.68 / 124.83</td><td>213.68 / 207.78</td></tr>
+          <tr><td>ja</td><td>2.0</td><td>136.00 / 80.00</td><td>158.75 / 102.75</td><td>261.66 / 263.66</td><td>163.50 / 96.00</td><td>191.50 / 124.00</td><td>315.82 / 179.13</td><td>315.82 / 263.66</td></tr>
+          <tr><td>zh</td><td>1.0</td><td>80.00 / 52.00</td><td>80.00 / 52.00</td><td>181.83 / 183.83</td><td>62.54 / 45.93</td><td>91.36 / 74.45</td><td>169.91 / 101.56</td><td>183.83 / 183.83</td></tr>
+          <tr><td>zh</td><td>1.3</td><td>96.80 / 60.39</td><td>96.80 / 60.39</td><td>205.78 / 207.78</td><td>74.10 / 52.51</td><td>103.16 / 81.19</td><td>213.68 / 124.83</td><td>213.68 / 207.78</td></tr>
+          <tr><td>zh</td><td>2.0</td><td>136.00 / 80.00</td><td>136.00 / 80.00</td><td>261.66 / 263.66</td><td>101.08 / 67.87</td><td>130.71 / 96.91</td><td>315.82 / 179.13</td><td>315.82 / 263.66</td></tr>
+          <tr><td>id</td><td>1.0</td><td>147.58 / 88.30</td><td>127.87 / 79.27</td><td>181.83 / 183.83</td><td>58.86 / 43.35</td><td>87.88 / 72.03</td><td>169.91 / 101.56</td><td>183.83 / 183.83</td></tr>
+          <tr><td>id</td><td>1.3</td><td>184.65 / 107.59</td><td>159.02 / 95.85</td><td>205.78 / 207.78</td><td>69.31 / 49.15</td><td>98.64 / 78.05</td><td>213.68 / 124.83</td><td>213.68 / 207.78</td></tr>
+          <tr><td>id</td><td>2.0</td><td>271.16 / 152.61</td><td>231.73 / 134.55</td><td>261.66 / 263.66</td><td>93.71 / 62.70</td><td>123.75 / 92.07</td><td>315.82 / 179.13</td><td>315.82 / 263.66</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>지배 항목:</strong> ko/en/ja/zh/id의 2줄 우열은 입력 폭이 지배한다. th는 일반 입력/버튼, my는 일반 입력과 전체 사용이 지배한다.
+      JMA 안내 문자열은 현재 모든 로케일에서 한국어라 그 열은 로케일과 무관하다.</p>
+  </section>
+
+  <section>
+    <h2>3. b — 좌열 최소 폭</h2>
+    <p>좌열 전체는 일반과 JMA를 서로 섞지 않고 각각 계산한 뒤 큰 쪽을 취했다. “짧은/긴 1줄→2줄”은 이름뿐 아니라
+      좌열 내 라벨에도 동일 줄 정책을 적용한 결과다. 초상화는 최소 32, 일반 선호 80, JMA 선호 60이다.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>locale</th><th>배율</th><th>짧은 이름<br>1줄 → 2줄</th><th>긴 이름<br>1줄 → 2줄</th><th>2줄 일반 identity<br>32 → 80</th><th>2줄 JMA identity<br>32 → 60</th><th>2줄 일반 잔액</th><th>2줄 JMA<br>배지 / 잔액 / 한도 / 환산</th></tr></thead>
+        <tbody>
+          <tr><td>ko</td><td>1.0</td><td>360.52 → 235.38</td><td>360.52 → 235.38</td><td>75.11 → 123.11</td><td>75.11 → 103.11</td><td>163.83</td><td>136.88 / 119.36 / 141.88 / 235.38</td></tr>
+          <tr><td>ko</td><td>1.3</td><td>444.68 → 282.00</td><td>444.68 → 282.00</td><td>84.44 → 132.44</td><td>84.44 → 112.44</td><td>187.78</td><td>159.94 / 131.17 / 172.44 / 282.00</td></tr>
+          <tr><td>ko</td><td>2.0</td><td>641.04 → 390.77</td><td>641.04 → 390.77</td><td>106.22 → 154.22</td><td>106.22 → 134.22</td><td>243.66</td><td>213.76 / 158.73 / 243.76 / 390.77</td></tr>
+          <tr><td>en</td><td>1.0</td><td>360.52 → 235.38</td><td>362.08 → 235.38</td><td>70.92 → 118.92</td><td>70.92 → 98.92</td><td>191.38</td><td>136.88 / 119.36 / 196.92 / 235.38</td></tr>
+          <tr><td>en</td><td>1.3</td><td>444.68 → 282.00</td><td>457.50 → 282.00</td><td>78.99 → 126.99</td><td>78.99 → 106.99</td><td>224.80</td><td>159.94 / 131.17 / 244.00 / 282.00</td></tr>
+          <tr><td>en</td><td>2.0</td><td>641.04 → 390.77</td><td>680.16 → 390.77</td><td>97.84 → 145.84</td><td>97.84 → 125.84</td><td>302.76</td><td>213.76 / 158.73 / 353.85 / 390.77</td></tr>
+          <tr><td>th</td><td>1.0</td><td>539.22 → 292.00</td><td>620.00 → 332.00</td><td>92.00 → 140.00</td><td>92.00 → 120.00</td><td>229.83</td><td>136.88 / 124.00 / 292.00 / 235.38</td></tr>
+          <tr><td>th</td><td>1.3</td><td>688.98 → 367.60</td><td>792.80 → 418.39</td><td>106.40 → 154.40</td><td>106.40 → 134.40</td><td>274.77</td><td>159.94 / 156.40 / 367.60 / 282.00</td></tr>
+          <tr><td>th</td><td>2.0</td><td>1,038.44 → 544.00</td><td>1,196.00 → 620.00</td><td>140.00 → 188.00</td><td>140.00 → 168.00</td><td>379.66</td><td>213.76 / 232.00 / 544.00 / 390.77</td></tr>
+          <tr><td>my</td><td>1.0</td><td>510.45 → 280.00</td><td>684.00 → 428.00</td><td>104.00 → 152.00</td><td>104.00 → 132.00</td><td>229.83</td><td>136.88 / 184.00 / 280.00 / 235.38</td></tr>
+          <tr><td>my</td><td>1.3</td><td>651.58 → 352.00</td><td>876.00 → 543.19</td><td>122.00 → 170.00</td><td>122.00 → 150.00</td><td>274.77</td><td>159.94 / 234.40 / 352.00 / 282.00</td></tr>
+          <tr><td>my</td><td>2.0</td><td>980.90 → 520.00</td><td>1,324.00 → 812.00</td><td>164.00 → 212.00</td><td>164.00 → 192.00</td><td>379.66</td><td>213.76 / 352.00 / 520.00 / 390.77</td></tr>
+          <tr><td>ja</td><td>1.0</td><td>360.52 → 235.38</td><td>360.52 → 235.38</td><td>80.00 → 128.00</td><td>80.00 → 108.00</td><td>187.83</td><td>136.88 / 119.36 / 155.50 / 235.38</td></tr>
+          <tr><td>ja</td><td>1.3</td><td>444.68 → 282.00</td><td>444.68 → 282.00</td><td>90.80 → 138.80</td><td>90.80 → 118.80</td><td>220.17</td><td>159.94 / 131.17 / 190.15 / 282.00</td></tr>
+          <tr><td>ja</td><td>2.0</td><td>641.04 → 390.77</td><td>641.04 → 390.77</td><td>116.00 → 164.00</td><td>116.00 → 144.00</td><td>295.66</td><td>213.76 / 158.73 / 271.00 / 390.77</td></tr>
+          <tr><td>zh</td><td>1.0</td><td>360.52 → 235.38</td><td>360.52 → 235.38</td><td>80.00 → 128.00</td><td>80.00 → 108.00</td><td>191.38</td><td>136.88 / 119.36 / 148.56 / 235.38</td></tr>
+          <tr><td>zh</td><td>1.3</td><td>444.68 → 282.00</td><td>444.68 → 282.00</td><td>90.80 → 138.80</td><td>90.80 → 118.80</td><td>224.80</td><td>159.94 / 131.17 / 181.13 / 282.00</td></tr>
+          <tr><td>zh</td><td>2.0</td><td>641.04 → 390.77</td><td>641.04 → 390.77</td><td>116.00 → 164.00</td><td>116.00 → 144.00</td><td>302.76</td><td>213.76 / 158.73 / 257.12 / 390.77</td></tr>
+          <tr><td>id</td><td>1.0</td><td>360.52 → 235.38</td><td>391.49 → 235.38</td><td>70.92 → 118.92</td><td>70.92 → 98.92</td><td>210.79</td><td>136.88 / 119.36 / 170.88 / 235.38</td></tr>
+          <tr><td>id</td><td>1.3</td><td>444.68 → 282.00</td><td>495.74 → 285.46</td><td>78.99 → 126.99</td><td>78.99 → 106.99</td><td>250.03</td><td>159.94 / 131.17 / 210.15 / 282.00</td></tr>
+          <tr><td>id</td><td>2.0</td><td>641.04 → 390.77</td><td>738.98 → 415.48</td><td>97.84 → 145.84</td><td>97.84 → 125.84</td><td>341.59</td><td>213.76 / 158.73 / 301.77 / 390.77</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>관찰:</strong> 보편 1줄에서는 JMA 환산/한도 또는 긴 이름이 폭을 지배한다. 2줄에서도 th의 한도와 my의 긴 이름이 남는다.
+      32→80/60 초상화 확대는 identity 폭만 48/28px 늘리며, 다른 패널이 더 넓은 조합에서는 좌열 전체 최소값을 바꾸지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>4. c — 2단 최소 카드 폭</h2>
+    <p>공식은 <code>2×실제 border + 2×16 + gap + max(G좌+G우, J좌+J우)</code>다. 일반 좌와 JMA 우처럼 서로 존재하지 않는
+      최댓값을 섞지 않았다. 아래는 로컬 가로 치수, 최대 2줄이다.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>locale</th><th>배율</th><th>짧은·gap16</th><th>짧은·gap24</th><th>짧은·gap32</th><th>긴·gap16</th><th>기존 .w 상속<br>짧은·gap16</th></tr></thead>
+        <tbody>
+          <tr><td>ko</td><td>1.0</td><td>470.35</td><td>478.35</td><td>486.35</td><td>470.35</td><td>638.17</td></tr>
+          <tr><td>ko</td><td>1.3</td><td>540.92</td><td>548.92</td><td>556.92</td><td>540.92</td><td>708.74</td></tr>
+          <tr><td>ko</td><td>2.0</td><td>705.57</td><td>713.57</td><td>721.57</td><td>705.57</td><td>873.38</td></tr>
+          <tr><td>en</td><td>1.0</td><td>470.35</td><td>478.35</td><td>486.35</td><td>470.35</td><td>638.17</td></tr>
+          <tr><td>en</td><td>1.3</td><td>540.92</td><td>548.92</td><td>556.92</td><td>540.92</td><td>708.74</td></tr>
+          <tr><td>en</td><td>2.0</td><td>705.57</td><td>713.57</td><td>721.57</td><td>705.57</td><td>873.38</td></tr>
+          <tr><td>th</td><td>1.0</td><td>542.97</td><td>550.97</td><td>558.97</td><td>645.14</td><td>734.09</td></tr>
+          <tr><td>th</td><td>1.3</td><td>635.91</td><td>643.91</td><td>651.91</td><td>779.53</td><td>827.03</td></tr>
+          <tr><td>th</td><td>2.0</td><td>899.14</td><td>907.14</td><td>915.14</td><td>1,093.14</td><td>1,043.92</td></tr>
+          <tr><td>my</td><td>1.0</td><td>606.97</td><td>614.97</td><td>622.97</td><td>805.14</td><td>798.09</td></tr>
+          <tr><td>my</td><td>1.3</td><td>719.11</td><td>727.11</td><td>735.11</td><td>987.53</td><td>910.23</td></tr>
+          <tr><td>my</td><td>2.0</td><td class="bad">980.80</td><td class="bad">988.80</td><td class="bad">996.80</td><td class="bad">1,413.14</td><td>1,171.92</td></tr>
+          <tr><td>ja</td><td>1.0</td><td>470.35</td><td>478.35</td><td>486.35</td><td>470.35</td><td>638.17</td></tr>
+          <tr><td>ja</td><td>1.3</td><td>540.92</td><td>548.92</td><td>556.92</td><td>540.92</td><td>708.74</td></tr>
+          <tr><td>ja</td><td>2.0</td><td>705.57</td><td>713.57</td><td>721.57</td><td>705.57</td><td>873.38</td></tr>
+          <tr><td>zh</td><td>1.0</td><td>470.35</td><td>478.35</td><td>486.35</td><td>470.35</td><td>638.17</td></tr>
+          <tr><td>zh</td><td>1.3</td><td>540.92</td><td>548.92</td><td>556.92</td><td>540.92</td><td>708.74</td></tr>
+          <tr><td>zh</td><td>2.0</td><td>705.57</td><td>713.57</td><td>721.57</td><td>705.57</td><td>873.38</td></tr>
+          <tr><td>id</td><td>1.0</td><td>470.35</td><td>478.35</td><td>486.35</td><td>470.35</td><td>638.17</td></tr>
+          <tr><td>id</td><td>1.3</td><td>540.92</td><td>548.92</td><td>556.92</td><td>544.38</td><td>708.74</td></tr>
+          <tr><td>id</td><td>2.0</td><td>705.57</td><td>713.57</td><td>721.57</td><td>730.28</td><td>873.38</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cards">
+      <div class="card"><strong>980.80</strong>짧은 이름·2줄·gap16의 보편 최소</div>
+      <div class="card"><strong>1,413.14</strong>긴 이름·2줄·gap16의 보편 최소</div>
+      <div class="card"><strong>1,573.58</strong>짧은 이름·1줄·gap16의 보편 최소</div>
+      <div class="card"><strong>1,171.92</strong>기존 <code>.w</code> 상속·짧은 이름·2줄·gap16</div>
+    </div>
+    <p class="bad">측정으로 배제: 모든 로케일·2.0×를 1줄로 보장하는 안, 긴 이름 2줄을 1194px 이하 화면에서 항상 2단으로 여는 안,
+      기존 <code>.w</code> 가로 padding을 그대로 상속하면서 cap 800만 적용하는 안.</p>
+  </section>
+
+  <section>
+    <h2>5. d — K280에서 입력과 투표 버튼을 한 행에 둔 실제 높이</h2>
+    <p>PICNIC-2695 이후 본문 예산은 두 경우다. 닫기 숨김 strip이면 851×393 <strong>69.86</strong>, 926×428 <strong>104.86</strong>이고,
+      상단 닫기 strip이 표시되면 정확히 24 작아져 <strong>45.86/80.86</strong>이다. 안내와 유효성 오류는 프로덕션처럼 상호 배타적으로 측정했다.
+      높이는 더 큰 JMA 활성 버튼/validation RenderBox를, inline pair 폭은 일반과 JMA 각각의 합 중 큰 값을 사용했다.
+      첫 표의 각 셀은 닫기 숨김에서 <code>필요 높이 범위 (폭과 높이를 모두 통과한 locale 수/7)</code>다.</p>
+    <div class="scroll">
+      <table>
+        <caption>닫기 숨김 strip — 본문 69.86 / 104.86</caption>
+        <thead><tr><th>viewport</th><th>배율</th><th>상태</th><th>계약 순서<br>U / pair / F</th><th>U+F 위행</th><th>U 좌열<br>pair+F 우열</th><th>F 좌열<br>U+pair 우열</th><th>U+F 좌열<br>pair 우열</th><th>U+I+V 한 행<br>F 아래</th></tr></thead>
+        <tbody>
+          <tr><td>851×393</td><td>1.0</td><td>안내</td><td>142.11 (0/7)</td><td>121.97 (0/7)</td><td>90.97 (0/7)</td><td>121.97 (0/7)</td><td>80.70 (0/7)</td><td>90.97 (0/7)</td></tr>
+          <tr><td>851×393</td><td>1.0</td><td>오류</td><td>159.67–173.67 (0/7)</td><td>121.97–122.53 (0/7)</td><td>108.53–122.53 (0/7)</td><td>121.97 (0/7)</td><td>98.25–112.25 (0/7)</td><td>108.53–122.53 (0/7)</td></tr>
+          <tr><td>851×393</td><td>1.3</td><td>안내</td><td>164.11 (0/7)</td><td>137.97 (0/7)</td><td>112.97 (0/7)</td><td>137.97 (0/7)</td><td>86.83 (0/7)</td><td>112.97 (0/7)</td></tr>
+          <tr><td>851×393</td><td>1.3</td><td>오류</td><td>178.67–224.67 (0/7)</td><td>137.97–173.53 (0/7)</td><td>127.53–173.53 (0/7)</td><td>137.97 (0/7)</td><td>101.25–147.25 (0/7)</td><td>127.53–173.53 (0/7)</td></tr>
+          <tr><td>851×393</td><td>2.0</td><td>안내</td><td>212.11 (0/7)</td><td>173.97 (0/7)</td><td>160.97 (0/7)</td><td>173.97 (0/7)</td><td>122.83 (0/7)</td><td>160.97 (0/7)</td></tr>
+          <tr><td>851×393</td><td>2.0</td><td>오류</td><td>261.67–296.67 (0/7)</td><td>210.53–245.53 (0/7)</td><td>210.53–245.53 (0/7)</td><td>173.97 (0/7)</td><td>148.25–183.25 (0/7)</td><td>210.53–245.53 (0/7)</td></tr>
+          <tr><td>926×428</td><td>1.0</td><td>안내</td><td>142.11 (0/7)</td><td>121.97 (0/7)</td><td class="good">90.97 (7/7)</td><td>121.97 (0/7)</td><td class="good">80.70 (7/7)</td><td class="good">90.97 (5/7)</td></tr>
+          <tr><td>926×428</td><td>1.0</td><td>오류</td><td>159.67–173.67 (0/7)</td><td>121.97–122.53 (0/7)</td><td>108.53–122.53 (0/7)</td><td>121.97 (0/7)</td><td class="good">98.25–112.25 (5/7)</td><td>108.53–122.53 (0/7)</td></tr>
+          <tr><td>926×428</td><td>1.3</td><td>안내</td><td>164.11 (0/7)</td><td>137.97 (0/7)</td><td>112.97 (0/7)</td><td>137.97 (0/7)</td><td class="good">86.83 (5/7)</td><td>112.97 (0/7)</td></tr>
+          <tr><td>926×428</td><td>1.3</td><td>오류</td><td>178.67–224.67 (0/7)</td><td>137.97–173.53 (0/7)</td><td>127.53–173.53 (0/7)</td><td>137.97 (0/7)</td><td class="good">101.25–147.25 (4/7)</td><td>127.53–173.53 (0/7)</td></tr>
+          <tr><td>926×428</td><td>2.0</td><td>안내</td><td>212.11 (0/7)</td><td>173.97 (0/7)</td><td>160.97 (0/7)</td><td>173.97 (0/7)</td><td>122.83 (0/7)</td><td>160.97 (0/7)</td></tr>
+          <tr><td>926×428</td><td>2.0</td><td>오류</td><td>226.67–296.67 (0/7)</td><td>175.53–245.53 (0/7)</td><td>175.53–245.53 (0/7)</td><td>173.97 (0/7)</td><td>122.83–183.25 (0/7)</td><td>175.53–245.53 (0/7)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="scroll">
+      <table>
+        <caption>상단 닫기 표시 — 필요 높이는 위와 같고 본문만 24 감소</caption>
+        <thead><tr><th>viewport</th><th>본문</th><th>배율</th><th>안내 상태에서 열림</th><th>오류 상태에서 열림</th><th class="text">판정</th></tr></thead>
+        <tbody>
+          <tr><td>851×393</td><td>45.86</td><td>1.0</td><td>없음</td><td>없음</td><td class="text">최저 필요 높이 80.70도 35px가량 초과.</td></tr>
+          <tr><td>851×393</td><td>45.86</td><td>1.3</td><td>없음</td><td>없음</td><td class="text">최저 86.83.</td></tr>
+          <tr><td>851×393</td><td>45.86</td><td>2.0</td><td>없음</td><td>없음</td><td class="text">최저 122.83.</td></tr>
+          <tr><td>926×428</td><td>80.86</td><td>1.0</td><td class="good">U+F 좌열 7/7</td><td>없음</td><td class="text">80.70으로 0.16px만 남는다. 오류가 생기면 닫힘.</td></tr>
+          <tr><td>926×428</td><td>80.86</td><td>1.3</td><td>없음</td><td>없음</td><td class="text">최저 86.83.</td></tr>
+          <tr><td>926×428</td><td>80.86</td><td>2.0</td><td>없음</td><td>없음</td><td class="text">최저 122.83.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li><strong>851 판정:</strong> 닫기 숨김의 최저 80.70도 본문 69.86보다 10.84px 크고, 표시 때는 더 불리하다. <span class="bad">두 경우 모두 열리는 조합이 없다.</span></li>
+      <li><strong>926·닫기 숨김:</strong> 계약 순서(U→pair→F)는 모든 배율·상태에서 닫힌다. 다만 1.0× 안내에서 U만 좌열로 보내면 7/7, U+I+V 한 행은 th/my를 뺀 5/7이 열린다.</li>
+      <li><strong>926·닫기 표시:</strong> 1.0× 안내의 U+F 좌열만 7/7 열린다. 0.16px 여유뿐이고 오류 상태는 0/7이라 안정된 전환 조건으로 쓰기 어렵다.</li>
+      <li>U+F를 좌열로 보내는 안은 닫기 숨김에서 1.0× 안내 7/7·오류 5/7, 1.3× 안내 5/7·오류 4/7이 열린다. 그러나 입력과 피드백의 인접 관계를 깨고, 상태에 따라 적합성이 바뀐다.</li>
+      <li>모드가 입력 상태에 따라 흔들리지 않으려면 안내가 아니라 더 큰 오류 상태를 예약해야 한다. 그러면 926에서도 현재 관계를 보존한 2단 K280 조합은 없다.</li>
+      <li>2단은 장식과 조작부를 나눠 2695의 <code>showTopClose</code> 조건을 1단보다 자주 참으로 만들 수 있다. 따라서 “숨김 예산으로 2단 진입 후 닫기가 나타나 24px 부족”이 되지 않도록 열 수와 닫기 표시를 하나의 후보 계산에서 함께 풀어야 한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>6. e — 카드 폭 상한 후보</h2>
+    <p>라우트 가용 폭은 현재 좌우 <code>16.w</code>를 뺀 값이다. 아래 여백은 화면과 최종 카드 사이의 한쪽 여백이며 SafeArea가 0인 비교값이다.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>화면 폭</th><th>라우트 가용</th><th>현재 cap560<br>카드 / 여백</th><th>후보 cap720<br>카드 / 여백</th><th>후보 cap800<br>카드 / 여백</th><th>후보 cap1000<br>카드 / 여백</th></tr></thead>
+        <tbody>
+          <tr><td>851</td><td>781.71</td><td>560 / 145.50</td><td>720 / 65.50</td><td>781.71 / 34.65</td><td>781.71 / 34.65</td></tr>
+          <tr><td>926</td><td>850.60</td><td>560 / 183.00</td><td>720 / 103.00</td><td>800 / 63.00</td><td>850.60 / 37.70</td></tr>
+          <tr><td>1194</td><td>1,096.78</td><td>560 / 317.00</td><td>720 / 237.00</td><td>800 / 197.00</td><td>1,000 / 97.00</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <ul>
+      <li>정확한 최소치는 gap16/24/32별 <strong>980.80/988.80/996.80</strong>이다. 정수·소수 경계 여유를 두는 후보 <strong>1000</strong>은 1194에서 짧은 이름·2줄·gap32까지 만족한다.</li>
+      <li><strong>720</strong>은 gap16에서 짧은 이름의 전 로케일 1.3× 최악 719.11을 간신히 넘는다. 851/926의 넓은 여백을 보존하지만 2.0× th/my와 일부 긴 이름은 폴백한다.</li>
+      <li><strong>800</strong>은 기존 계획 후보와 같고 851/926에서 폭을 더 활용한다. 1194에서는 한쪽 197px가 남고, 2.0× th/my와 my 장문 1.0×의 805.14는 여전히 폴백한다.</li>
+      <li><strong>1000</strong>은 851/926에서 라우트 폭으로 clamp되고 1194에서만 온전히 적용된다. 짧은 이름 보편 조건은 만족하지만 장문 최악 1,413.14는 만족하지 않는다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>7. 디자인 결정 4건 — 선택지와 트레이드오프</h2>
+    <h3>결정 1 · 줄 정책과 편집 폭</h3>
+    <div class="decision">
+      <ul>
+        <li><strong>A. 모든 문구 1줄:</strong> 짧은 이름도 카드 1,573.58px가 필요해 대상 화면에서 배제된다.</li>
+        <li><strong>B. 라벨·이름 최대 2줄, 입력 1줄:</strong> 짧은 이름 최악이 980.80px로 줄어든다. 높이가 늘고 851/926의 th/my 2.0×는 폭 폴백이 필요하다.</li>
+        <li><strong>C. 현재 TextPainter로 1줄 우선, 안 되면 2줄/1단:</strong> 일반 조합은 조밀하고 극단값은 안전하다. 런타임 측정 계약과 경계 테스트가 필요하다.</li>
+      </ul>
+      일반 BigInt의 모든 자릿수를 동시에 보이는 유한 폭은 없다. <code>9,999,999</code> 이후도 허용하려면 TextField 가로 스크롤을 제품 계약으로 인정하거나 최대 자릿수를 별도로 정해야 한다.
+    </div>
+
+    <h3>결정 2 · 좌열 정보 밀도와 긴 이름</h3>
+    <div class="decision">
+      <ul>
+        <li><strong>A. JMA 배지·잔액·한도·환산을 모두 좌열 고정:</strong> 정보가 한곳에 모이지만 짧은 my 2.0× 좌열도 520px, 긴 이름은 812px가 필요하다.</li>
+        <li><strong>B. 잔액 요약을 고정하고 한도·환산은 좌열 상세 스크롤:</strong> 최초 화면의 핵심 자원을 보존한다. 새 요약 구조와 전문 접근성 정의가 필요하다.</li>
+        <li><strong>C. 한도·환산을 우열 상세로 분산:</strong> 좌열 폭/길이는 줄지만 키보드 때 우열 조작부와 높이를 경쟁한다.</li>
+      </ul>
+      긴 이름 1줄은 my 2.0× 좌열 1,324px, 2줄도 812px다. 2줄 생략을 택하면 전문을 읽는 semantics/툴팁 경로가 필요하고, 무제한 줄을 택하면 폭 대신 identity 최소 높이를 런타임 검사해야 한다.
+    </div>
+
+    <h3>결정 3 · 열 간격과 2단 cap</h3>
+    <div class="decision">
+      <ul>
+        <li><strong>A. gap16 + cap720:</strong> 1.3×까지 넓게 열고 팝업 인상을 보존한다. 2.0× th/my와 일부 장문을 의도적으로 1단 폴백한다.</li>
+        <li><strong>B. gap16/24 + cap800:</strong> 851·926에서 실사용 폭을 더 회수한다. 1194에서는 여백이 크고 보편 2.0× 최소 980.80을 충족하지 않는다.</li>
+        <li><strong>C. gap32 + cap1000:</strong> 1194에서 짧은 이름 전체 조합을 수용하고 한쪽 여백 97px를 남긴다. 작은 두 화면에서는 route clamp 때문에 같은 보장을 하지 않는다.</li>
+      </ul>
+      cap은 1단의 560을 바꾸지 않고 2단 후보에만 적용해야 한다. 어느 안도 긴 이름 전 조합 1,413.14px를 보편적으로 열지는 못한다.
+    </div>
+
+    <h3>결정 4 · 키보드 때 U와 피드백의 위치</h3>
+    <div class="decision">
+      <ul>
+        <li><strong>A. 기존 관계 유지:</strong> 입력+버튼만 한 행으로 만들어도 851/926 K280에서 전 조합이 닫힌다. 동작·읽기 순서는 가장 안정적이다.</li>
+        <li><strong>B. U만 좌열:</strong> 닫기 숨김인 926·1.0× 안내는 7/7 열리지만 오류와 닫기 표시 예산에서는 0/7이다. 오류 공간을 사전 예약하면 이 이득이 사라진다.</li>
+        <li><strong>C. U+F 좌열:</strong> 닫기 숨김 926에서 가장 많은 조합이 열리고, 닫기 표시 1.0× 안내도 7/7이다. 입력과 설명이 분리되고 안내→오류 전환 시 적합성이 달라진다.</li>
+        <li><strong>D. K280은 1단 스크롤 폴백:</strong> 851의 물리적 한계와 상태 안정성을 보존한다. 926의 일부 가능한 가로 배치를 활용하지 못한다.</li>
+      </ul>
+      측정상 “열리는 조합”은 있으나 계약 변경을 수반한다. 어떤 상태에서도 열 수를 고정할지, 오류 높이를 예약할지가 디자인 확인 대상이다.
+    </div>
+  </section>
+
+  <section>
+    <h2>8. 7.3 겹치기 검토와 PICNIC-2695 머지 결과</h2>
+    <p>선행 문서 7.3은 겹치기를 선택했지만, main에 머지된 <code>0819c3a92</code>의 실제 구현은 이를 대체해
+      <strong>여유가 있을 때만 48 상단 strip을 보이고, 아니면 24 숨김 strip으로 돌아간다.</strong> 0819 blob에는 겹치기를 시도했으나 아래 충돌 때문에 더 나빴다는 근거도 남아 있다.
+      이번 실측은 그 결과에 맞춰 두 본문 예산을 모두 냈다.</p>
+    <ol>
+      <li>충전 48 탭 타깃과 닫기 hit 영역의 충돌.</li>
+      <li><code>resolveVoteDialogShape</code>가 푼 실제 RRect 반경에서 닫기가 clip되는 문제.</li>
+      <li>JMA 최상단 배지의 오른쪽 끝과 닫기 영역의 충돌.</li>
+      <li>스크롤 이름·잔액이 닫기 아래로 지나가는 가독성·hit-test 문제.</li>
+    </ol>
+    <p class="muted">0819의 다섯 변경점은 commit blob으로 직접 확인했지만, 현재 c83 기반 브랜치와의 post-rebase 통합 테스트는 코디네이터 후속 작업이라 이 문서에서는 미확인이다.</p>
+  </section>
+
+  <section>
+    <h2>9. 검증 명령</h2>
+    <pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting/picnic_2697_measurement_test.dart
+flutter analyze test/presentation/widgets/vote/voting/picnic_2697_measurement_test.dart</code></pre>
+    <div class="scroll">
+      <table>
+        <thead><tr><th class="text">검증</th><th class="text">결과</th></tr></thead>
+        <tbody>
+          <tr><td class="text">신규 측정 테스트</td><td class="text"><span class="good">통과</span> — 21개 폭 조합과 42개 viewport/locale/scale 행, 닫기 두 예산을 예외 없이 측정.</td></tr>
+          <tr><td class="text">신규 파일 단독 <code>flutter analyze</code></td><td class="text"><span class="good">No issues found</span>.</td></tr>
+          <tr><td class="text">전체 <code>flutter analyze</code></td><td class="text">기존 저장소 이슈 522건으로 종료 코드 1. 신규 파일 경로의 이슈는 0건이며 단독 분석으로 분리 확인.</td></tr>
+          <tr><td class="text">HTML / diff</td><td class="text"><code>tidy -errors -quiet</code>와 <code>git diff --check</code> 통과.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="muted">이 문서는 디자인 선택을 확정하거나 2단 구현을 승인하지 않는다. 측정으로 불가능한 안만 명시적으로 배제한다.</p>
+  </section>
+</main>
+</body>
+</html>

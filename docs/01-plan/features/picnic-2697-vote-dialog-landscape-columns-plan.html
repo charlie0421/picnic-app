@@ -331,7 +331,11 @@ expect(tester.getRect(_capsuleCard()).width, greaterThan(560));
 <tr><td>플립 412&times;500 K280 일반 / JMA</td><td>극단 표본의 계약 문제</td><td>216.99 vs 212.5, 4.49px 초과</td></tr>
 </tbody>
 </table>
-<p>사용자는 세 안 중 <strong>겹치기</strong>를 선택했다. 닫기가 높이를 전혀 쓰지 않아 본문이 2694 와 동일해지고, 네 건이 모두 해소되면서 기존 보장을 하나도 줄이지 않는 유일한 안이기 때문이다. 이 계획은 그 결정을 따른다.</p>
+<p><strong>2026-09-15 최종 — 겹치기는 채택되지 않았다.</strong> 사용자가 한때 겹치기를 선택했으나, 아래 1 번 지적이 2695 브랜치에서 실측으로 확인되어 철회됐다. 가로 851 에서 장식을 끝까지 스크롤하면 잔액 행 우측 <code>665</code> 가 닫기 X 좌측 <code>649.5</code> 아래로 들어간다. 안전하게 만들려면 반경에 따라 <code>63~83</code> 을 비워야 해 줄 배치의 24 보다 비싸다.</p>
+<p><strong>채택된 최종안은 조건부 표시다</strong>(PICNIC-2695, main <code>0819c3a92</code>). 닫기 strip 은 카드 위 별도 영역이며 겹치지 않는다. 두 다이얼로그가 각자 <code>showTopClose</code> 를 계산해 <code>LargePopupWidget</code> 에 넘긴다. 조건은 <code>available - topCloseChrome &gt;= essential + decorationComfort</code> 이고, 거짓이면 기존 숨김 strip 으로 돌아간다. <code>largePopupTopCloseChromeHeight</code> 는 숨김보다 24 크므로 닫기가 보이는 경우 본문 예산이 24 줄어든다. 보너스 안내는 조건에 넣지 않았다 — 넣으면 일반 기기에서 키패드를 올릴 때 X 가 사라진다(갤럭시 S20 FE, 360&times;800, 인셋 294 에서 실측).</p>
+<p><strong>2 단 배치에서의 함의.</strong> 조작부가 좌우로 나뉘면 세로 예산이 남으므로 닫기 표시 조건이 더 자주 참이 된다. 매트릭스에 닫기 표시/숨김 두 경우를 모두 넣고, <strong>조건이 거짓일 때 사용자의 탈출구는 배리어 탭과 시스템 뒤로가기뿐</strong>이라는 점도 함께 기록한다.</p>
+<p>아래 4 건은 겹치기가 철회된 뒤에도 유효하다. 1 번은 철회의 근거였고, 2~4 번은 닫기 strip 이 카드 위에 있어도 2 단 우열 상단 기하를 정할 때 같은 검사가 필요하다.</p>
+
 <p><strong>겹치기 구현 시 확인할 것 4 건.</strong> &ldquo;카드 우상단이 비어 있다&rdquo; 는 전제는 성립하지 않는다.</p>
 <ol>
 <li><strong>충전 버튼이 그 자리로 올라온다(최우선).</strong> <code>VotingStarCandyInfo</code> 는 <code>spaceBetween</code> 이고 오른쪽 끝이 48 탭 타깃의 충전 버튼이다(<code>voting_dialog_widgets.dart:514</code> 부근). 장식 밴드 순서가 초상화 &rarr; 이름 &rarr; 잔액이라 장식이 스크롤되는 짧은 화면에서 잔액 행이 밴드 최상단까지 올라온다. Stack 은 나중 자식이 히트테스트를 이기므로 충전을 누르면 팝업이 닫히고 입력한 금액이 사라진다. <em>해법:</em> 닫기가 있을 때 장식 밴드에 상단 인셋을 준다. 장식은 양보하는 밴드라 조작부 필수 높이를 건드리지 않는다. 2단의 우열 상단 여백과 같은 값을 쓴다.</li>
