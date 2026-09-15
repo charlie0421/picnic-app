@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2694 투표 팝업 뷰포트 대응 구현 결과</title>
+<style>
+  :root{color-scheme:light;--ink:#172438;--muted:#57657a;--line:#d9e1eb;--accent:#2358a8;--light:#f3f6fa}
+  *{box-sizing:border-box}
+  body{margin:0;background:#eef2f7;color:var(--ink);font:15px/1.7 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+  main{max-width:1180px;margin:32px auto;padding:34px 42px;background:#fff;border-radius:16px}
+  h1{font-size:28px;line-height:1.35;margin:0 0 14px}
+  h2{font-size:22px;border-top:2px solid var(--line);padding-top:24px;margin-top:38px}
+  h3{font-size:17px;margin-top:24px}
+  p{margin:11px 0}
+  code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.87em;background:#edf2f8;padding:1px 4px;border-radius:3px;overflow-wrap:anywhere}
+  pre{overflow:auto;white-space:pre-wrap;background:#152238;color:#eef5ff;padding:16px;border-radius:8px;line-height:1.5;font-size:12.5px}
+  pre code{background:none;color:inherit;padding:0}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:16px 0}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:var(--light)}
+  thead th{text-align:center}
+  .table-wrap{overflow:auto}
+  .muted{color:var(--muted);font-size:13px}
+  .callout{background:#edf4ff;border-left:4px solid var(--accent);padding:12px 18px;margin:18px 0}
+  .caution{background:#fff7e6;border-left-color:#b87908}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+  .chip{background:var(--light);border-radius:14px;padding:3px 12px;font-size:12px}
+  li{margin:5px 0}
+  .ok{color:#186a3b;font-weight:600}
+</style>
+</head>
+<body>
+<main>
+
+<h1>PICNIC-2694 — 투표 팝업: 짧은·가로형 뷰포트에서 금액 입력·전체 사용·투표 버튼 보장</h1>
+
+<div class="chips">
+  <span class="chip">브랜치 <code>fix/vote-dialog-short-viewport</code></span>
+  <span class="chip">기준 HEAD <code>2e5ccdc20</code></span>
+  <span class="chip">2026-09-15</span>
+  <span class="chip">Dart 전용 변경 · 네이티브·에셋·의존성 변경 0</span>
+</div>
+
+<p>
+  갤럭시 플립 플렉스 모드, 폴더블, 휴대폰 가로, 태블릿 분할 창에서
+  <strong>키보드가 없어도</strong> 금액 입력창이 보이지 않고 ‘전체 사용’ 행만 보이며 스크롤이 생기던 결함을 수정했다.
+  화면비·기기 분기를 쓰지 않고, <strong>라우트가 실제로 남겨 준 높이(부모 constraints)</strong>만으로
+  조작부를 먼저 배치하고 장식이 양보하도록 레이아웃 정책을 바꿨다.
+</p>
+
+<h2>1. 근본 원인 (코드로 확인한 것)</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>원인</th><th>확인한 코드</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>세로 치수를 폭 배율 <code>.w</code> 로 씀</td>
+      <td><code>voting_dialog_widgets.dart</code> 초상화 <code>80.w</code>, 로고 <code>60.w</code>/<code>100.w</code>,
+          <code>jma_voting_dialog.dart</code> 초상화 <code>60.w</code>, 로고 <code>120.w×60.w</code></td>
+      <td>가로 851 에서 <code>scaleWidth = 851/393 = 2.17</code> → 초상화 173, 로고 130.
+          장식만으로 세로 예산을 소진해 입력·버튼이 첫 화면 밖으로 밀림.</td>
+    </tr>
+    <tr>
+      <td>카드 폭도 폭 배율</td>
+      <td><code>large_popup.dart:22</code> <code>defaultLargePopupWidth() = 345.w</code></td>
+      <td>가로 851 에서 카드가 747 로 커지고 내부 장식도 함께 커짐.</td>
+    </tr>
+    <tr>
+      <td>티어 계산이 ‘입력 한 줄 + 8’ 만 예약</td>
+      <td>구 <code>voting_dialog.dart</code> <code>_pinnedChromeFor()</code></td>
+      <td>스크롤 창이 입력을 담을 <em>가능성</em>만 보장. 오프셋 0 에서 입력 앞에 놓인
+          잔액·전체 사용 높이를 예약하지 않음.</td>
+    </tr>
+    <tr>
+      <td>입력 실제 높이 과소 추정</td>
+      <td>구 <code>_amountInputPreferredHeight()</code> = <code>max(48, line + padding*2 + border*2)</code></td>
+      <td>실제 높이는 <code>max(48, line+padding*2) + border*2</code>. 48 지우기 버튼이 행 하한이라
+          테두리 2 만큼 항상 모자랐다.</td>
+    </tr>
+    <tr>
+      <td>JMA 는 고정 임계값 분기</td>
+      <td>구 <code>jma_voting_dialog.dart</code> <code>budget &lt; 360 || textScaler.scale(14) &gt; 18.2</code></td>
+      <td>실제 조작부 높이를 재지 않아, 고정 티어에서도 잔액·일일 한도 패널이 입력을 화면 밖으로 밀어냄.</td>
+    </tr>
+    <tr>
+      <td>초기 화면 보정 없음</td>
+      <td><code>Scrollable.ensureVisible</code> 은 <code>_focusNode.hasFocus</code> 일 때만 실행</td>
+      <td>포커스 전(=팝업이 막 열린 상태)에는 숨은 입력이 저절로 드러나지 않음.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>2. 구현 — 조작부 우선 밴드 레이아웃</h2>
+
+<h3>2.1 신규 공유 정책 <code>voting_dialog_layout.dart</code></h3>
+<ul>
+  <li><code>VoteDialogBands</code> — 본문을 <strong>장식 / 조작부 / 투표 버튼 / 꼬리</strong> 4 밴드로 나눈다.
+      조작부·버튼·꼬리는 <em>비-flex</em> 로 먼저 자연 높이를 가져가고, 장식만 <code>Flexible(loose)</code> +
+      <code>SingleChildScrollView</code> 로 남은 높이를 받아 <strong>모자라면 스크롤</strong>한다.
+      시각 순서는 기존과 동일하다.</li>
+  <li><code>selectVoteDialogLayout({bodyHeight, essentialHeight})</code> — 조작부조차 담기지 않는 예산에서만
+      <code>allScroll</code> 로 떨어지고, 그때는 <strong>조작부를 맨 위</strong>로 올려 전체 스크롤한다.</li>
+  <li><code>voteDialogDecorationExtent(design)</code> = <code>min(design.w, design)</code> —
+      세로 치수는 <strong>좁은 화면에서는 줄되 넓은 화면에서 커지지 않는다</strong>.</li>
+  <li><code>resolveVoteDialogWidth()</code> = <code>min(345.w, 560)</code> — 투표 팝업 전용 논리 폭 상한.
+      <code>voteDialogCardExtent(design)</code> 가 내부 가로 여백·버튼 폭을 같은 비율로 함께 줄인다.</li>
+  <li><code>resolveVoteDialogPortraitSide()</code> — 장식 밴드가 받은 높이에서 이름·잔액 몫을 뺀 만큼으로
+      초상화를 <strong>80 → 최소 32</strong> 까지 줄인다. 배분되는 높이는 비-flex 형제들의 높이로만 결정되므로
+      측정이 자기 자신으로 되먹임되지 않는다.</li>
+  <li><code>voteDialogCardBorderRadius(bodyHeight)</code> = <code>circular(min(120.r, bodyHeight/4))</code> —
+      짧은 카드에서 <code>Clip.antiAlias</code> 둥근 모서리가 가장자리에 붙은 조작부를 깎지 않게 한다.</li>
+</ul>
+
+<h3>2.2 일반 <code>VotingDialog</code></h3>
+<ul>
+  <li><code>_PinnedChrome{full,compact,none}</code> 3 티어 제거. 대신 실측 <code>_essentialHeight()</code>
+      (전체 사용 + 입력 + 간격 + 오류문구 + 버튼 상단 여백 + 버튼 + 하단 여백) 하나로 판정.</li>
+  <li>밴드 구성 — 장식: 초상화·이름·잔액·보너스 버블 / 조작부: 전체 사용·입력·오류 /
+      버튼: 투표 / 꼬리: 로고 + 하단 여백.</li>
+  <li>로고는 <em>가장 먼저 양보</em>한다. <code>조작부 + 로고 + 장식 최소치 ≤ 예산</code> 일 때만 버튼 아래 자리를 지키고,
+      아니면 스크롤되는 장식 밴드 끝으로 내려가 <strong>접근성은 유지</strong>한다. 키보드가 올라오면 기존처럼 숨는다.</li>
+  <li>입력 높이 공식을 실제 구조(48 지우기 버튼 + 테두리 2)에 맞게 고쳤다.</li>
+</ul>
+
+<h3>2.3 <code>JmaVotingDialog</code></h3>
+<ul>
+  <li><code>budget &lt; 360 || scale(14) &gt; 18.2</code> 고정 임계값 제거 → 같은 실측 정책 사용.</li>
+  <li><code>0.75 / 0.85</code> 선호 비율은 <strong>평소 모습으로 유지</strong>하되
+      <code>budget = min(max(preferred, essential), fits)</code> 로 바꿔, 비율 때문에 조작부가 밀리지 않게 했다.</li>
+  <li>밴드 구성 — 장식: JMA 배지·아티스트·잔액·일일 한도·계산/검증 패널·정책 안내 /
+      조작부: 전체 사용·입력·투표 안내 문구 / 버튼: 투표 / 꼬리: JMA 로고 + 하단 여백.</li>
+  <li><code>maxWidth: MediaQuery.size.width - 32.w</code> → <code>resolveVoteDialogWidth()</code>
+      (기존 값은 카드보다 넓어 의미가 없었고 가로에서는 더 커졌다).</li>
+</ul>
+
+<h3>2.4 공유 위젯 / <code>LargePopupWidget</code></h3>
+<ul>
+  <li><code>VotingArtistImage</code> 에 <code>logicalSize</code> 인자 추가(기본값은 기존 호출과 호환).</li>
+  <li><code>VotingCheckAllOption.preferredHeight</code>, <code>VotingErrorMessage.preferredHeight</code>,
+      <code>VotingStarCandyInfo.preferredHeight</code>, <code>VotingSubmitButton.preferredWidth</code> 추가.</li>
+  <li><code>LargePopupWidget</code> 에 선택 인자 <code>cardBorderRadius</code> 추가.
+      <strong>미지정 시 기존 <code>BorderRadius.circular(120.r)</code> 그대로</strong> → voting_complete·PIC 등 다른 호출부 무변경.</li>
+</ul>
+
+<h2>3. 계획 대비 편차와 근거</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>계획(3장·4장)</th><th>실제 구현</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>VoteDialogLayoutMode { comfortable, actionsPinned, allScroll }</code> 3 모드 +
+          <code>fullContentHeight</code> 측정</td>
+      <td><code>{ actionsPinned, allScroll }</code> 2 모드. <code>fullContentHeight</code> 는 측정하지 않는다.</td>
+      <td><code>comfortable</code> 은 “전체 콘텐츠가 들어간다”는 뜻인데, 그 판정에는 <code>bubble_box</code> 내부 기하까지
+          모델링해야 해서 오차가 곧 재발로 이어진다. 대신 <code>Flexible(loose)</code> 가 <em>남는 높이에서만</em> 줄어드는
+          성질을 이용해, 여유가 있으면 장식이 자연 높이를 그대로 가져가 <strong>기존과 픽셀 동일</strong>하고
+          모자라면 자동으로 스크롤한다. 측정은 ‘절대 밀리면 안 되는 조작부’에만 쓴다.</td>
+    </tr>
+    <tr>
+      <td>짧은 모드에서만 혜택/안내를 부가 영역으로 이동</td>
+      <td>보너스 버블을 <strong>항상</strong> 잔액 아래(입력 위)로 옮겼다.</td>
+      <td>조작부(전체 사용·입력·오류·버튼)를 <strong>연속된 한 덩어리</strong>로 만들어야 밴드 하나로 먼저 배치할 수 있다.
+          버블이 입력과 버튼 사이에 남으면 양보 가능한 영역이 두 군데로 쪼개지고, <code>Flex</code> 는 두 개의
+          loose flexible 사이에 우선순위를 줄 수 없어 넓은 화면에서 로고가 잘리는 반대 회귀가 생겼다(측정으로 확인).
+          기존 테스트의 불변식(<code>bubble.top ≥ names.bottom</code>, <code>bubble.bottom ≤ submit.top</code>)은 그대로 유지된다.</td>
+    </tr>
+    <tr>
+      <td>JMA 계산·정책을 입력 <em>아래</em> 상세 스크롤로</td>
+      <td>계산/검증 패널과 정책 안내가 입력 <strong>위</strong> 장식 밴드로 이동.</td>
+      <td>같은 이유(조작부 연속성). 정보는 삭제하지 않았고 스크롤로 접근 가능하다.
+          입력 직후 피드백인 “N개의 투표를 진행합니다” 문구(<code>_buildErrorMessage</code>)는
+          <strong>조작부 밴드에 남겨</strong> 항상 입력 바로 아래에 보인다.</td>
+    </tr>
+    <tr>
+      <td>카드 반경: 짧은 모드에서 <code>circular(24)</code></td>
+      <td><code>circular(min(120.r, bodyHeight/4))</code> 연속 클램프.</td>
+      <td>모드 경계에서 반경이 120 → 24 로 튀지 않는다. 예산 480 이상(일반 폰)에서는 기존 값과 동일하다.</td>
+    </tr>
+    <tr>
+      <td>신규 파일 <code>voting_dialog_layout_test.dart</code></td>
+      <td>만들지 않았다.</td>
+      <td>계획 4장 스스로 “순수 helper 반환값만 확인하는 테스트로 대체하지 말 것”을 요구한다.
+          정책의 실제 효과는 <code>voting_dialog_viewport_test.dart</code> 의 실제 Rect·clip·hitTest 검사로 고정했다.</td>
+    </tr>
+    <tr>
+      <td>인수 기준의 <code>ValueKey('vote-dialog-card')</code></td>
+      <td>카드를 <code>Container(clipBehavior: Clip.antiAlias)</code> 로 찾는다.</td>
+      <td>공유 위젯에 테스트 전용 key 를 심지 않고 실제로 클리핑하는 박스를 그대로 잡기 위해서다.
+          숨김 24 스트립은 자동으로 제외된다.</td>
+    </tr>
+    <tr>
+      <td>2 단(2-column) 배치</td>
+      <td>도입하지 않음(계획과 동일).</td>
+      <td>1 열 조작부 고정만으로 인수 조건을 만족한다.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>4. 추가한 테스트</h2>
+
+<p class="muted">
+  <code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code> (신규, 64 케이스).
+  모든 케이스는 <code>tester.view.physicalSize = W*3 × H*3</code>, <code>devicePixelRatio = 3</code>,
+  <code>designSize: kAppDesignSize</code>, <code>splitScreenMode: kAppSplitScreenMode</code> 로
+  프로덕션 ScreenUtil 기하를 그대로 쓴다.
+</p>
+
+<h3>4.1 매트릭스 — 일반 <code>VotingDialog</code> × <code>JmaVotingDialog</code></h3>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>논리 크기</th><th>용도</th><th>텍스트 배율</th><th>키보드</th><th>검증 조건</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>412 × 500</td><td>Z Flip 플렉스 상단</td><td rowspan="10">1.0 / 1.3 / 2.0</td><td rowspan="10">0</td>
+        <td rowspan="10">
+          ① 예외 0 (RenderFlex overflow 포함)<br>
+          ② 트리 안 모든 <code>ScrollPosition.pixels == 0 ± 0.01</code><br>
+          ③ 금액 입력(테두리 포함 컨테이너)·전체 사용(터치 영역)·투표 버튼의
+             <strong>Rect 전체가 캡슐 카드 안</strong> (오차 0.5)<br>
+          ④ 스크롤 조상이 있으면 그 viewport 안에도 전체 포함<br>
+          ⑤ 세 컨트롤 모두 <code>hitTestable</code><br>
+          ⑥ 세 Rect 서로 겹치지 않음
+        </td></tr>
+    <tr><td>412 × 448</td><td>Flip 더 짧은 부모</td></tr>
+    <tr><td>412 × 430</td><td>계획 2장의 compact 경계</td></tr>
+    <tr><td>851 × 393</td><td>Android 휴대폰 가로 A</td></tr>
+    <tr><td>926 × 428</td><td>Android 휴대폰 가로 B</td></tr>
+    <tr><td>844 × 390</td><td>iPhone 가로</td></tr>
+    <tr><td>375 × 834</td><td>iPad 1/3 분할</td></tr>
+    <tr><td>1194 × 834</td><td>iPad 가로</td></tr>
+    <tr><td>600 × 500</td><td>Stage Manager 작은 창</td></tr>
+    <tr><td>280 × 480</td><td>좁은 창 하한</td></tr>
+  </tbody>
+</table>
+</div>
+<p class="muted">10 크기 × 3 배율 × 2 다이얼로그 = 60 케이스.</p>
+
+<h3>4.2 개별 케이스 4건 (일반 다이얼로그)</h3>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>테스트</th><th>입력</th><th>검증 조건</th></tr></thead>
+  <tbody>
+    <tr><td>파트너 로고가 가로 뷰포트에서 조작부를 밀지 않는다</td>
+        <td>851×393, 1.0×, K=0, <code>is_partnership=true / partner=jma</code></td>
+        <td>4.1 의 ①~⑥ 전부</td></tr>
+    <tr><td>여러 줄로 감기는 긴 이름이 조작부를 밀지 않는다</td>
+        <td>851×393, 1.3×, K=0, ‘아주긴아티스트이름’ ×6 + 동일 그룹명</td>
+        <td>4.1 의 ①~⑥ 전부</td></tr>
+    <tr><td>가로 회전 후에도 조작부와 입력값이 남는다</td>
+        <td>393×852 → ‘123’ 입력 → 852×393 로 회전</td>
+        <td>컨트롤러 텍스트 <code>'123'</code> 유지 + 4.1 의 ①~⑥</td></tr>
+    <tr><td>디자인 픽셀 장식이 뷰포트 폭을 따라 커지지 않는다</td>
+        <td>851×393, 1.0×, K=0</td>
+        <td>초상화 높이 ≤ 80.5, 캡슐 카드 폭 ≤ 560.5</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3>4.3 수정한 기존 테스트 1건</h3>
+<p>
+  <code>voting_dialog_presentation_test.dart</code> —
+  <em>“a pinned window is never shorter than the scaled input”</em> (320×568, 200%, 인셋 280·284·288·292·296).
+  기존 코드는 입력의 <code>Scrollable</code> 조상을 <code>.first</code> 로 무조건 참조했는데,
+  이제 그 예산대에서는 <strong>입력이 스크롤 밖에 고정</strong>되므로 조상이 없어 <code>Bad state: No element</code> 가 난다.
+  계획 5.2 절의 예시대로 <strong>조상이 있으면 그 viewport, 없으면 캡슐</strong>을 기준으로 포함을 검사하도록 바꾸고
+  <code>hitTestable</code> 검사를 추가했다. 테스트의 의도(입력이 잘리지 않는다)는 더 강해졌다.
+</p>
+<p class="muted">
+  그 외 PICNIC-2688 회귀 테스트(375×812·K336 초상화/버블/로고, 320×568·K280 짧은 예산,
+  320×568·K300 200%, 0→300→0 키보드 전환 × vote/pic 포털)는 <strong>무수정으로 통과</strong>한다.
+  <code>matchesGoldenFile</code> 기반 골든은 이 디렉터리에 없어 갱신한 골든도 없다.
+</p>
+
+<h2>5. 검증 출력</h2>
+
+<h3>5.1 <code>flutter analyze</code></h3>
+<pre><code>$ cd picnic_lib &amp;&amp; flutter analyze
+Analyzing picnic_lib...
+...
+522 issues found. (ran in 6.7s)
+
+# 기준선: 변경 파일을 HEAD~1 로 되돌리고 신규 파일 2개를 치운 뒤
+$ cd picnic_lib &amp;&amp; flutter analyze
+522 issues found. (ran in 6.1s)</code></pre>
+
+<div class="callout caution">
+  <strong>인수 조건 “analyze 0 이슈” 는 달성하지 못했고, 달성할 수도 없다.</strong>
+  <code>picnic_lib</code> 는 이 작업 이전부터 522건(대부분 테스트 코드의 <code>unused_import</code>,
+  <code>deprecated_member_use</code>)을 갖고 있고, 그 정리는 이 작업의 Ownership(투표 팝업 파일·테스트·결과 문서) 밖이다.
+  <strong>이번 변경이 새로 만든 이슈는 0건</strong>이다 — 같은 워크트리에서 변경 파일을 <code>HEAD~1</code> 상태로
+  되돌리고 신규 2개 파일을 치운 뒤 측정한 기준선도 정확히 <strong>522건</strong>이었다.
+  변경한 6개 파일이 기여하는 이슈는 다음 1건뿐이며,
+  이는 손대지 않은 기존 코드다 — HEAD 에서는 <code>jma_voting_dialog.dart:1581</code> 로,
+  변경 후에는 같은 코드가 줄만 밀려 <code>:1740</code> 으로 보고된다.
+</div>
+<pre><code>info • Don't use 'BuildContext's across async gaps, guarded by an unrelated 'mounted' check
+     • lib/presentation/widgets/vote/voting/jma_voting_dialog.dart:1740:20
+     • use_build_context_synchronously</code></pre>
+<p class="muted">
+  신규 <code>voting_dialog_layout.dart</code>, 신규 <code>voting_dialog_viewport_test.dart</code>,
+  수정한 <code>voting_dialog.dart</code> / <code>voting_dialog_widgets.dart</code> /
+  <code>large_popup.dart</code> / <code>voting_dialog_presentation_test.dart</code> 의 이슈는 0건이다
+  (<code>flutter analyze &lt;파일&gt;</code> 단건 실행으로도 <code>No issues found!</code> 확인).
+</p>
+
+<h3>5.2 <code>flutter test test/presentation/widgets/vote/voting</code></h3>
+<pre><code>$ cd picnic_lib &amp;&amp; flutter test test/presentation/widgets/vote/voting
+...
+🎉 454 tests passed.</code></pre>
+<p class="muted">
+  신규 <code>voting_dialog_viewport_test.dart</code> 단독: <code>+64: All tests passed</code>.
+  수정 전 같은 파일을 기존 구현에 대고 돌렸을 때는 <code>+7 -43</code> (RED 확인 → TDD).
+</p>
+
+<h3>5.3 공유 위젯 회귀 (범위 밖이지만 <code>LargePopupWidget</code> 을 건드려 함께 실행)</h3>
+<pre><code>$ flutter test test/presentation/widgets/ui/large_popup_test.dart \
+      test/presentation/widgets/ui/large_popup_presentation_test.dart \
+      test/presentation/widgets/vote/store/common/usage_policy_dialog_test.dart \
+      test/presentation/pages/vote/vote_detail_page_tap_test.dart \
+      test/presentation/pages/vote/vote_detail_achieve_page_tap_test.dart
+00:05 +38: All tests passed!</code></pre>
+
+<h2>6. 남은 위험</h2>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>위험</th><th>내용</th><th>대응 / 판단</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>같은 방식으로 깨질 수 있는 다른 팝업 — <code>voting_complete.dart</code></td>
+      <td><code>LargePopupWidget</code> content 를 스크롤 없이 <code>Column</code> + 고정 높이(51·120 등)로 쌓아
+          합계 약 450~500. 짧은 세로 뷰포트에서 상·하단이 잘릴 수 있다.</td>
+      <td><strong>이번 범위 밖(미수정)</strong>. 공유 이미지 캡처 기하와 얽혀 있어 별도 검증이 필요하다.
+          <code>LargePopupWidget</code> 기본 반경·기본 폭을 바꾸지 않았으므로 이번 변경으로 <em>악화되지는</em> 않는다.</td>
+    </tr>
+    <tr>
+      <td>같은 방식 — <code>pic_camera_view_page.dart</code></td>
+      <td>content 를 <code>Container(height: 500)</code> 으로 하드코딩. 더 작은 뷰포트에서 오버플로 가능.</td>
+      <td><strong>이번 범위 밖(미수정)</strong>. 미운영 영역이라 우선순위가 낮다고 보이나 확인 필요.</td>
+    </tr>
+    <tr>
+      <td>보너스 버블 / JMA 정책·계산 패널의 위치 변경</td>
+      <td>버블이 입력 아래 → 잔액 아래로, JMA 계산/정책이 입력 아래 → 위로 이동했다.
+          모든 화면에 적용되는 <strong>시각적 변경</strong>이다.</td>
+      <td>정보 삭제·축약 없음. 3장 편차 사유 참조. 디자인 확인이 필요하면 밴드 구성만 바꾸면 되고
+          레이아웃 정책은 그대로 쓸 수 있다.</td>
+    </tr>
+    <tr>
+      <td>‘남은 높이가 한 컨트롤보다도 짧은’ 물리적 하한</td>
+      <td>예: 851×393 에 키보드 280 이면 남는 높이가 40 미만이다.
+          세 컨트롤 동시 표시는 물리적으로 불가능하다.</td>
+      <td><code>allScroll</code> 폴백이 <strong>조작부를 맨 위</strong>로 올려 스크롤 0 에서 입력부터 보이게 한다.
+          오버플로 예외는 발생하지 않는다. 신규 매트릭스는 계획대로 <strong>키보드 0</strong> 조건만 동시 표시를 요구한다.</td>
+    </tr>
+    <tr>
+      <td>실기기 미검증</td>
+      <td>모든 판정은 위젯 테스트(논리 px, DPR 3) 결과다. 실제 Flip 플렉스 모드·듀얼 스크린·힌지
+          <code>DisplayFeature</code> 경로는 검증하지 않았다.</td>
+      <td>QA 에서 실기기 확인 필요. 다만 정책이 <strong>기기·화면비 분기가 아니라 부모 constraints</strong> 기반이라
+          부모 크기만 정확히 전달되면 같은 결과가 나온다.</td>
+    </tr>
+    <tr>
+      <td>장식 밴드 내부 우선순위</td>
+      <td>장식 밴드 안에서는 초상화 → 이름 → 잔액 → 버블 → (로고) 순으로 스크롤된다.
+          아주 짧은 예산에서는 초상화가 32 로 줄고 잔액이 스크롤 아래로 갈 수 있다.</td>
+      <td>조작부 보장이 우선이라는 계획 3.1 의 순서를 따른 결과다.
+          잔액을 항상 고정해야 한다면 조작부 밴드로 옮기고 <code>_essentialHeight</code> 에 더하면 된다.</td>
+    </tr>
+    <tr>
+      <td>JMA 선호 비율 0.75 / 0.85 유지</td>
+      <td>조작부는 보장하지만, 장식이 길면 여유 화면에서도 비율 상한까지만 커진 뒤 스크롤한다.</td>
+      <td>기존 모습을 지키려 의도적으로 남겼다. 스크롤을 더 줄이려면 <code>preferred</code> 를 <code>fits</code> 로
+          올리면 되지만 팝업 높이가 눈에 띄게 커진다 — 디자인 결정 사항.</td>
+    </tr>
+    <tr>
+      <td>Shorebird OTA</td>
+      <td>Dart 레이아웃·테스트만 변경했고 네이티브·플러그인·에셋·<code>pubspec</code> 변경은 없다.</td>
+      <td>OTA <em>검토 가능한 범위</em>라는 뜻이며 OTA 호환·배포 성공을 확인한 것은 아니다.
+          배포는 <code>flutter-release</code> 정책을 먼저 읽고 진행해야 한다.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>7. 변경 파일</h2>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>파일</th><th>상태</th><th>요약</th></tr></thead>
+  <tbody>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart</code></td><td>신규</td>
+        <td>공유 밴드 레이아웃·모드 선택·폭/장식 치수 상한·반경 클램프</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart</code></td><td>수정</td>
+        <td>3 티어 제거 → 밴드 구성 + 실측 조작부 높이. 투표 요청·지갑·분석 코드 무변경</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart</code></td><td>수정</td>
+        <td>고정 임계값 제거 → 같은 정책. 검증·30개 환산·일일 한도 로직 무변경</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart</code></td><td>수정</td>
+        <td>초상화 <code>logicalSize</code>, 장식 치수 상한, <code>preferredHeight</code>/<code>preferredWidth</code> 헬퍼</td></tr>
+    <tr><td><code>picnic_lib/lib/presentation/widgets/ui/large_popup.dart</code></td><td>수정</td>
+        <td>선택 인자 <code>cardBorderRadius</code> 추가(기본 동작 불변)</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code></td><td>신규</td>
+        <td>PICNIC-2694 매트릭스 64 케이스</td></tr>
+    <tr><td><code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart</code></td><td>수정</td>
+        <td>고정된 입력에 맞춰 clip 기준을 조상 viewport ↔ 캡슐로 분기 (1 테스트)</td></tr>
+    <tr><td><code>docs/01-plan/features/picnic-2694-vote-dialog-viewport-plan.html</code></td><td>신규</td>
+        <td>선행 분석·계획 문서(Astra)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p class="muted">
+  문서 경로: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2694/docs/operations/picnic-2694-implementation-result.html</code>
+</p>
+
+</main>
+</body>
+</html>

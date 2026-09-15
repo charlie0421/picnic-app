@@ -477,8 +477,11 @@ void main() {
 
     // At 200% the amount input is taller than the 48 minimum (scaled line
     // plus its padding and border). A budget that clears portrait + submit +
-    // 48 but not the real input must not pin, or the input can never be shown
-    // whole inside the scrolling window.
+    // 48 but not the real input used to pin a window the input could never be
+    // shown whole in. PICNIC-2694 keeps the input out of the scrolling area
+    // altogether while the budget can hold it, so the containment check moves
+    // to whichever box actually clips it: its scroll viewport when it has one,
+    // the capsule when it does not.
     testWidgets('a pinned window is never shorter than the scaled input', (
       tester,
     ) async {
@@ -487,26 +490,30 @@ void main() {
         await focusAmountInput(tester);
         expect(tester.takeException(), isNull, reason: 'inset $inset');
 
-        // The scroll view the input lives in clips at its own edges, so the
-        // whole input has to sit inside that viewport, not just the capsule.
-        final viewport = tester.getRect(
-          find
-              .ancestor(
-                of: find.byType(TextFormField),
-                matching: find.byType(Scrollable),
-              )
-              .first,
+        final scrollAncestor = find.ancestor(
+          of: find.byType(TextFormField),
+          matching: find.byType(Scrollable),
+        );
+        final clip = tester.getRect(
+          scrollAncestor.evaluate().isNotEmpty
+              ? scrollAncestor.first
+              : find.byType(LargePopupWidget),
         );
         final input = tester.getRect(_amountInputSurface());
         expect(
           input.top,
-          greaterThanOrEqualTo(viewport.top - 0.5),
+          greaterThanOrEqualTo(clip.top - 0.5),
           reason: 'inset $inset: input clipped at the top',
         );
         expect(
           input.bottom,
-          lessThanOrEqualTo(viewport.bottom + 0.5),
+          lessThanOrEqualTo(clip.bottom + 0.5),
           reason: 'inset $inset: input clipped at the bottom',
+        );
+        expect(
+          _amountInputSurface().hitTestable(),
+          findsOneWidget,
+          reason: 'inset $inset: input not reachable',
         );
         await tester.pumpWidget(const SizedBox.shrink());
       }

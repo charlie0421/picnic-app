@@ -42,6 +42,14 @@ class LargePopupWidget extends StatelessWidget {
   final double? width;
   final bool showCloseButton;
 
+  /// The card's corner radius.
+  ///
+  /// Defaults to the design's `120.r` capsule. A caller that pins controls
+  /// against the card edges on a short body passes a smaller radius, because
+  /// the card really does clip ([Clip.antiAlias]) and a 120 radius on a 200
+  /// high card is most of its height.
+  final BorderRadius? cardBorderRadius;
+
   const LargePopupWidget({
     super.key,
     this.titleWidget,
@@ -50,6 +58,7 @@ class LargePopupWidget extends StatelessWidget {
     this.backgroundColor,
     this.width,
     this.showCloseButton = true,
+    this.cardBorderRadius,
   });
 
   @override
@@ -71,7 +80,8 @@ class LargePopupWidget extends StatelessWidget {
                     color: AppColors.secondary500,
                     width: largePopupCardBorderWidth(),
                   ),
-                  borderRadius: BorderRadius.circular(120.r),
+                  borderRadius:
+                      cardBorderRadius ?? BorderRadius.circular(120.r),
                 ),
                 child: content,
               ),

@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart'
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -33,9 +34,11 @@ import 'package:picnic_lib/ui/common_gradient.dart';
 /// 라우트가 아무리 좁아도 팝업 본문을 이 아래로는 줄이지 않는다.
 const double _minimumDialogBudget = 200;
 
-/// 고정 헤더·푸터를 유지할 수 있는 최소 본문 예산. 이보다 좁으면 헤더/푸터만으로
-/// 예산을 넘겨 스크롤 영역이 0 이 되므로 전체 스크롤로 전환한다.
-const double _fixedChromeMinimumBudget = 360;
+/// 키보드가 없을 때 팝업이 화면에서 차지하는 기본 비율.
+const double _preferredHeightRatio = 0.75;
+
+/// 키보드가 올라왔을 때의 기본 비율.
+const double _preferredHeightRatioWithKeyboard = 0.85;
 
 Future showJmaVotingDialog({
   required BuildContext context,
@@ -313,7 +316,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
             // 폭 제약이 그 질의를 여기서 끊는다.
             child: SizedBox(
-              width: defaultLargePopupWidth(),
+              width: resolveVoteDialogWidth(),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final available = constraints.hasBoundedHeight
@@ -325,20 +328,50 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
                   final preferred =
                       (MediaQuery.of(context).size.height - keyboardHeight) *
-                      (isKeyboardVisible ? 0.85 : 0.75);
+                      (isKeyboardVisible
+                          ? _preferredHeightRatioWithKeyboard
+                          : _preferredHeightRatio);
                   final fits = math.max(
                     0.0,
                     available - largePopupHiddenChromeHeight(),
                   );
-                  final budget = math.min(preferred, fits);
-                  // 큰 글자나 아주 낮은 뷰포트에서는 고정 헤더/푸터만으로도
-                  // 예산을 넘길 수 있다. 그때만 전체를 한 번에 스크롤하고,
-                  // 평소에는 기존 고정 헤더 + 스크롤 본문 + 고정 푸터를 쓴다.
-                  final compactChrome =
-                      budget < _fixedChromeMinimumBudget ||
-                      MediaQuery.textScalerOf(context).scale(14) > 18.2;
+                  // PICNIC-2694: 그 비율은 "평소 모습"일 뿐 조작부보다 우선하지
+                  // 않는다. 라우트가 조작부를 담을 높이를 남겼다면 비율 때문에
+                  // 입력·투표 버튼을 화면 밖으로 밀지 않는다.
+                  final contentWidth = math.max(
+                    0.0,
+                    constraints.maxWidth -
+                        largePopupCardBorderWidth() * 2 -
+                        PicnicUi.horizontal(16) * 2,
+                  );
+                  final essential = _essentialHeight(
+                    context,
+                    contentWidth: contentWidth,
+                  );
+                  final budget = math.min(math.max(preferred, essential), fits);
+                  // 로고는 가장 먼저 양보한다 — 버튼 아래 자리를 지키는 것은
+                  // 위쪽 초상화·잔액이 제 크기를 유지할 수 있을 때뿐이고,
+                  // 그렇지 않으면 스크롤되는 상단 영역으로 내려가 접근만
+                  // 유지한다.
+                  final logoInTail =
+                      !isKeyboardVisible &&
+                      essential +
+                              _tailLogoHeight() +
+                              _decorationComfortHeight(
+                                context,
+                                contentWidth: contentWidth,
+                                isKeyboardVisible: isKeyboardVisible,
+                              ) <=
+                          budget;
+                  final mode = selectVoteDialogLayout(
+                    bodyHeight: budget,
+                    essentialHeight:
+                        essential + (logoInTail ? _tailLogoHeight() : 0.0),
+                  );
                   return LargePopupWidget(
                     showCloseButton: false,
+                    width: resolveVoteDialogWidth(),
+                    cardBorderRadius: voteDialogCardBorderRadius(budget),
                     content: Container(
                       constraints: BoxConstraints(
                         maxHeight: budget,
@@ -346,19 +379,22 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
                         // 에어리어) 있는 만큼으로 함께 내려야 한다.
                         minHeight: math.min(_minimumDialogBudget, budget),
-                        maxWidth: MediaQuery.of(context).size.width - 32.w,
+                        maxWidth: resolveVoteDialogWidth(),
                       ),
-                      child: compactChrome
-                          ? _buildAllScrollBody(
+                      child: VoteDialogBands(
+                        mode: mode,
+                        decorationBuilder: (context, availableHeight) =>
+                            _buildDecoration(
                               myStarCandy,
-                              userId,
                               isKeyboardVisible,
-                            )
-                          : _buildFixedChromeBody(
-                              myStarCandy,
-                              userId,
-                              isKeyboardVisible,
+                              availableHeight: availableHeight,
+                              contentWidth: contentWidth,
+                              withLogo: !isKeyboardVisible && !logoInTail,
                             ),
+                        actions: _buildActions(isKeyboardVisible),
+                        submit: _buildSubmit(userId),
+                        tail: _buildTail(withLogo: logoInTail),
+                      ),
                     ),
                   );
                 },
@@ -370,66 +406,189 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  /// 기존 구성: 고정 헤더 + 스크롤 본문 + 고정 푸터.
-  Widget _buildFixedChromeBody(
+  /// 스크롤로 양보하는 영역 — JMA 배지·아티스트·잔액·일일 한도·계산 안내·정책.
+  ///
+  /// PICNIC-2694 이전에는 이 내용이 입력보다 먼저 고정 높이를 차지해, 짧은
+  /// 뷰포트에서 입력과 투표 버튼을 첫 화면 밖으로 밀어냈다. 이제는 조작부가
+  /// 먼저 높이를 가져가고 남은 만큼만 쓴다.
+  Widget _buildDecoration(
     int myStarCandy,
-    String userId,
-    bool isKeyboardVisible,
-  ) {
+    bool isKeyboardVisible, {
+    required double availableHeight,
+    required double contentWidth,
+    required bool withLogo,
+  }) {
+    final portrait = resolveVoteDialogPortraitSide(
+      preferredSide: voteDialogDecorationExtent(_portraitLogicalSize),
+      availableHeight: availableHeight,
+      reservedHeight: _headerChromeHeight(context, isKeyboardVisible),
+    );
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // 고정 헤더 - JMA 제목 + 아티스트 정보
-        _buildFixedHeader(isKeyboardVisible),
-
-        // 스크롤 가능한 중간 영역
-        Expanded(
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: _buildScrollableMiddle(myStarCandy, isKeyboardVisible),
+        _buildFixedHeader(isKeyboardVisible, portraitSide: portrait),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: PicnicUi.vertical(8)),
+              _buildStarCandyInfo(myStarCandy),
+              SizedBox(height: PicnicUi.vertical(8)),
+              _buildDailyLimitInfo(),
+              SizedBox(height: PicnicUi.vertical(8)),
+              _buildCalculationAndErrorSection(),
+              _buildJmaInformation(),
+              if (withLogo) ...[
+                SizedBox(height: PicnicUi.vertical(8)),
+                _buildJmaLogoImage(),
+              ],
+            ],
           ),
         ),
-
-        // 고정 푸터 - 투표 버튼 + JMA 로고 (키보드 시 로고 숨김)
-        _buildFixedFooter(userId, isKeyboardVisible),
       ],
     );
   }
 
-  /// 예산이 헤더/푸터조차 담지 못할 때만 쓰는 구성 — 같은 순서, 같은 조각을
-  /// 하나의 스크롤 안에 넣어 무엇도 잘리지 않게 한다.
-  Widget _buildAllScrollBody(
-    int myStarCandy,
-    String userId,
-    bool isKeyboardVisible,
-  ) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildFixedHeader(isKeyboardVisible),
-          _buildScrollableMiddle(myStarCandy, isKeyboardVisible),
-          _buildFixedFooter(userId, isKeyboardVisible),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScrollableMiddle(int myStarCandy, bool isKeyboardVisible) {
+  /// 전체 사용 + 금액 입력 + 입력 바로 아래 안내. 스크롤 밖에 남는다.
+  Widget _buildActions(bool isKeyboardVisible) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(height: PicnicUi.vertical(8)),
-          _buildStarCandyInfo(myStarCandy),
-          SizedBox(height: PicnicUi.vertical(8)),
-          _buildVoteInputSection(isKeyboardVisible),
+          // 전체 사용/입력/지우기는 각자 48 터치 영역을 품고 있어, 예전 20·36
+          // 높이 행을 떼어놓던 간격이 그 안으로 들어갔다.
+          _buildCheckAllOption(),
+          _buildVoteAmountInput(context, isKeyboardVisible),
+          SizedBox(height: PicnicUi.vertical(4)),
+          _buildErrorMessage(),
         ],
       ),
     );
   }
+
+  Widget _buildSubmit(String userId) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        top: PicnicUi.vertical(8),
+      ),
+      child: _buildJmaVoteButton(userId),
+    );
+  }
+
+  /// 버튼 아래 JMA 로고와 본문 하단 여백. 공간이 모자랄 때 가장 먼저 양보한다.
+  Widget _buildTail({required bool withLogo}) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        bottom: PicnicUi.vertical(16),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (withLogo) ...[
+            SizedBox(height: PicnicUi.vertical(8)),
+            _buildJmaLogoImage(),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// 초상화의 기본 한 변.
+  static const double _portraitLogicalSize = 60;
+
+  /// 로고가 버튼 아래 자리를 지킬 때 더해지는 높이.
+  double _tailLogoHeight() =>
+      PicnicUi.vertical(8) + voteDialogDecorationExtent(_portraitLogicalSize);
+
+  /// 헤더에서 초상화를 제외한 고정 요소(배지·여백·이름 두 줄)의 대략 높이.
+  double _headerChromeHeight(BuildContext context, bool isKeyboardVisible) {
+    final badge =
+        measureVotingTextHeight(
+          context,
+          'Jupiter Music Awards',
+          PicnicUi.text(size: 12, weight: FontWeight.w700),
+          maxWidth: double.infinity,
+        ) +
+        PicnicUi.vertical(8) * 2;
+    return PicnicUi.vertical(isKeyboardVisible ? 12 : 16) +
+        badge +
+        PicnicUi.vertical(isKeyboardVisible ? 4 : 8) +
+        PicnicUi.vertical(isKeyboardVisible ? 4 : 8);
+  }
+
+  /// 압축하고 싶지 않은 상단 영역 — 헤더와 초상화, 그리고 잔액 패널 한 줄.
+  ///
+  /// 일일 한도·계산·정책은 일부러 뺀다. 계획이 스크롤로 보내도 된다고 한
+  /// 부분이 그쪽이다.
+  double _decorationComfortHeight(
+    BuildContext context, {
+    required double contentWidth,
+    required bool isKeyboardVisible,
+  }) {
+    return _headerChromeHeight(context, isKeyboardVisible) +
+        voteDialogDecorationExtent(_portraitLogicalSize) +
+        PicnicUi.vertical(8) * 2 +
+        PicnicUi.minimumTapTarget;
+  }
+
+  /// 스크롤로 밀어낼 수 없는 조작부 높이 — 전체 사용 + 입력 + 안내 + 투표 버튼.
+  ///
+  /// 실제 자식 기준으로 잰다. 200% 글자에서 입력은 48 하한을, 버튼은 48 하한을
+  /// 넘어서고, 입력 테두리 2 와 48 지우기 버튼도 높이에 포함된다.
+  double _essentialHeight(
+    BuildContext context, {
+    required double contentWidth,
+  }) {
+    final checkAll = math.max(
+      PicnicUi.minimumTapTarget,
+      measureVotingTextHeight(
+        context,
+        AppLocalizations.of(context).jma_voting_use_all,
+        PicnicUi.text(size: 14, weight: FontWeight.w500),
+        maxWidth: math.max(0.0, contentWidth - 20 - PicnicUi.horizontal(4)),
+      ),
+    );
+    final input =
+        math.max(
+          PicnicUi.minimumTapTarget,
+          measureVotingTextHeight(
+                context,
+                '0',
+                PicnicUi.text(size: 16, weight: FontWeight.w700),
+                maxWidth: contentWidth,
+              ) +
+              PicnicUi.vertical(8) * 2,
+        ) +
+        _amountInputBorderWidth * 2;
+    final button = math.max(
+      PicnicUi.minimumTapTarget,
+      measureVotingTextHeight(
+            context,
+            AppLocalizations.of(context).label_button_vote,
+            PicnicUi.text(size: 18, weight: FontWeight.w700),
+            maxWidth: math.max(
+              0.0,
+              voteDialogCardExtent(172) - PicnicUi.horizontal(12) * 2,
+            ),
+          ) +
+          PicnicUi.vertical(4) * 2,
+    );
+    return checkAll +
+        input +
+        PicnicUi.vertical(4) +
+        PicnicUi.vertical(8) +
+        button +
+        PicnicUi.vertical(16);
+  }
+
+  /// 입력 테두리 폭 — 위아래 양쪽에서 높이에 더해진다.
+  static const double _amountInputBorderWidth = 2;
 
   Widget _buildJmaHeader() {
     return Container(
@@ -497,8 +656,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         Image.asset(
           'assets/images/partners/jma.png',
           package: 'picnic_lib',
-          width: 120.w, // 60 → 120으로 복원
-          height: 60.w, // 30 → 60으로 복원
+          width: voteDialogDecorationExtent(120),
+          height: voteDialogDecorationExtent(60),
           fit: BoxFit.contain,
         ),
       ],
@@ -692,7 +851,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   // 아티스트 정보 (가로 레이아웃)
-  Widget _buildArtistInfoRow(bool isKeyboardVisible) {
+  Widget _buildArtistInfoRow(bool isKeyboardVisible, double portraitSide) {
     // 아티스트 이미지 URL을 가져오기
     String? imageUrl;
     if ((widget.voteItemModel.artist?.id ?? 0) != 0) {
@@ -707,8 +866,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         // 아티스트 이미지 - 키보드가 나올 때 숨김
         if (!isKeyboardVisible) ...[
           Container(
-            width: 60.w,
-            height: 60.w,
+            width: portraitSide,
+            height: portraitSide,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.primary500, width: 2),
@@ -717,8 +876,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               child: imageUrl != null && imageUrl.isNotEmpty
                   ? PicnicCachedNetworkImage(
                       imageUrl: imageUrl,
-                      width: 60.w,
-                      height: 60.w,
+                      width: portraitSide,
+                      height: portraitSide,
                       fit: BoxFit.cover,
                       placeholder: VoteDetailPortraitCachePlaceholder(
                         imageUrl: imageUrl,
@@ -727,15 +886,15 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                       priority: ImagePriority.high,
                     )
                   : Container(
-                      width: 60.w,
-                      height: 60.w,
+                      width: portraitSide,
+                      height: portraitSide,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.grey200,
                       ),
                       child: Icon(
                         Icons.person,
-                        size: 30.w,
+                        size: portraitSide / 2,
                         color: AppColors.grey500,
                       ),
                     ),
@@ -1265,7 +1424,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? () => _handleVote(userId) : null,
       child: Container(
-        width: 172.w,
+        width: voteDialogCardExtent(172),
         // 44 는 최소 터치 크기 미만이었다.
         constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
         padding: EdgeInsets.symmetric(
@@ -1598,7 +1757,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
   }
 
   // 고정 헤더 - JMA 제목 + 아티스트 정보
-  Widget _buildFixedHeader(bool isKeyboardVisible) {
+  Widget _buildFixedHeader(
+    bool isKeyboardVisible, {
+    required double portraitSide,
+  }) {
     return Container(
       padding: EdgeInsets.only(
         top: isKeyboardVisible
@@ -1618,46 +1780,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                 ? PicnicUi.vertical(4)
                 : PicnicUi.vertical(8),
           ), // 키보드 시 간격 줄임
-          _buildArtistInfoRow(isKeyboardVisible),
-        ],
-      ),
-    );
-  }
-
-  // 투표 입력 섹션
-  Widget _buildVoteInputSection(bool isKeyboardVisible) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildDailyLimitInfo(),
-        SizedBox(height: PicnicUi.vertical(4)),
-        // 전체 사용/입력/지우기는 각자 48 터치 영역을 품고 있어, 예전 20·36 높이
-        // 행을 떼어놓던 간격이 그 안으로 들어갔다.
-        _buildCheckAllOption(),
-        _buildVoteAmountInput(context, isKeyboardVisible),
-        SizedBox(height: PicnicUi.vertical(4)),
-        _buildErrorMessage(),
-        SizedBox(height: PicnicUi.vertical(8)),
-        _buildCalculationAndErrorSection(), // 계산 영역을 여기로 이동
-        _buildJmaInformation(), // JMA 안내 영역을 아래로 이동
-      ],
-    );
-  }
-
-  // 고정 푸터 - 투표 버튼 + JMA 로고
-  Widget _buildFixedFooter(String userId, bool isKeyboardVisible) {
-    return Container(
-      padding: EdgeInsets.only(
-        left: PicnicUi.horizontal(16),
-        right: PicnicUi.horizontal(16),
-        bottom: PicnicUi.vertical(16),
-        top: PicnicUi.vertical(8),
-      ),
-      child: Column(
-        children: [
-          _buildJmaVoteButton(userId),
-          SizedBox(height: PicnicUi.vertical(8)),
-          if (!isKeyboardVisible) _buildJmaLogoImage(),
+          _buildArtistInfoRow(isKeyboardVisible, portraitSide),
         ],
       ),
     );
