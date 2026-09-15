@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2693 — 투표 현황 푸시 원인 분석 및 구현 계획</title>
+  <style>
+    :root { color-scheme: light; --ink:#1c2634; --muted:#596778; --line:#dce3ec; --accent:#2857a5; }
+    * { box-sizing:border-box; }
+    body { margin:0; color:var(--ink); background:#f3f6fa; font:15px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+    main { max-width:1180px; margin:32px auto; padding:44px; background:white; border:1px solid var(--line); border-radius:14px; }
+    h1 { font-size:29px; line-height:1.4; margin:0 0 16px; }
+    h2 { margin:42px 0 16px; font-size:23px; padding-top:14px; border-top:2px solid var(--line); }
+    h3 { margin:26px 0 10px; font-size:18px; }
+    p { margin:10px 0; } li { margin:6px 0; }
+    a { color:var(--accent); overflow-wrap:anywhere; }
+    code { font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace; background:#edf2f8; padding:2px 4px; border-radius:3px; overflow-wrap:anywhere; }
+    pre { white-space:pre-wrap; overflow-wrap:anywhere; background:#172332; color:#e6edf5; padding:18px; border-radius:8px; font:13px/1.65 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    pre code { background:none; color:inherit; padding:0; }
+    .table { overflow-x:auto; } table { width:100%; border-collapse:collapse; margin:15px 0; font-size:14px; }
+    th,td { border:1px solid var(--line); padding:12px; text-align:left; vertical-align:top; }
+    th { background:#eef3f9; } .meta { color:var(--muted); font-size:13px; }
+    .callout { border-left:5px solid var(--accent); background:#edf4ff; padding:16px 20px; margin:20px 0; }
+    .unknown { border-left-color:#b77918; background:#fff6e5; }
+    .tag { font-size:12px; font-weight:700; display:inline-block; padding:2px 7px; border-radius:4px; background:#e7edf5; }
+    .yes { color:#176348; background:#e4f4ec; } .pending { color:#855710; background:#fff0d2; }
+    .no { color:#5f6570; background:#edf0f4; }
+    .steps { list-style:none; padding-left:0; } .steps li::before { content:"☐ "; color:var(--accent); }
+    .small { font-size:13px; color:var(--muted); }
+    @media(max-width:760px) { main { margin:0; padding:22px 16px; border:0; border-radius:0; } h1 { font-size:24px; } th,td { padding:8px; } }
+    @media print { body { background:white; } main { max-width:none; margin:0; border:0; padding:0; } h2,h3 { break-after:avoid; } tr,pre,.callout { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+<main>
+<header>
+  <p class="meta">T1 · 계획 역할 · 조사 기준 2026-09-15 · HEAD 2e5ccdc20</p>
+  <h1>PICNIC-2693<br>투표 현황 푸시 클릭 시 초기화면 이동</h1>
+  <p><strong>목표:</strong> 투표 현황 알림을 탭하면 해당 투표 상세를 열고, 앱 시작·복귀·포그라운드 수신 과정에서 목적지를 잃지 않게 한다.</p>
+  <p><strong>아키텍처:</strong> 실제 발송 payload 계약을 먼저 확인한다. 원격/로컬 알림의 입구에서 목적지를 한 번 추출하고, 콜백이 아직 없는 구간은 <code>PushTokenService</code> 내부 pending queue 가 보존한다. <span class="tag no">초안 폐기</span> Branch 경로의 준비 상태·대기열을 재사용하는 안은 회귀 위험 대비 이득이 없어 채택하지 않았다.</p>
+  <p><strong>기술:</strong> Flutter / Riverpod / Firebase Messaging / flutter_local_notifications / Branch / Supabase.</p>
+  <p><strong>명세:</strong> Jira PICNIC-2693 원문 — “투표 현황 푸시 수신했을때 클릭하면 해당 투표의 상세로 이동하게 해야함. 현재는 초기화면으로 이동함.”</p>
+  <p class="meta">워크트리: /Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2693<br>브랜치: fix/picnic-2693-vote-push-deeplink · 앱: picnic_app 1.3.4+130403</p>
+</header>
+
+<section id="summary">
+  <h2>1. 결론과 확정 범위</h2>
+  <div class="callout">
+    <strong>원인은 확정됐다. 서버는 정상이며 결함은 전부 앱에 있다.</strong> 발송처 <code>picnic-supabase/supabase/functions/notify-vote-progress/index.ts:164–168</code>이 <code>{ type:'vote_progress', vote_id:String(id), action_url:'https://applink.picnic.fan/vote/detail/&lt;id&gt;' }</code>를 보내고, <code>send-push/index.ts:121–125</code>의 <code>buildFcmData</code>가 이를 그대로 FCM <code>message.data</code>에 넣는다. 프로덕션 Edge Function <code>notify-vote-progress</code>는 ACTIVE version 53으로 실제 배포돼 있고, <code>DeepLinkHandler</code>는 이 canonical URL을 <code>['vote','detail','&lt;id&gt;']</code>로 이미 지원한다. 따라서 <strong>서버 수정은 불필요</strong>하고, 아래 세 가지 앱 결함이 목적지를 잃게 만든다.
+  </div>
+  <ol>
+    <li><strong>탭 실행을 프레임에만 맡겨 지연될 수 있다.</strong> 원격 탭은 <code>push_token_service.dart:122</code> → <code>app_initializer.dart:664</code>로 post-frame 콜백을 중첩한다. 이 함수는 새 프레임을 요청하지 않으므로 화면이 정지해 있으면 후속 콜백이 사용자 조작까지 대기할 수 있다. 로컬 탭도 <code>app_initializer.dart:673</code>에서 같은 위험이 있다.</li>
+    <li><strong>초기화 이전 resume이 최초 원격 탭을 소비한다. (주원인)</strong> <code>app.dart:469</code>가 포그라운드 복귀마다 무조건 <code>PushTokenService.resume()</code>을 호출하고, <code>resume()</code>은 콜백 설치 없이 coordinator를 생성한다. <code>_installSubscriptions():148</code>이 1회성 <code>getInitialMessage()</code>를 소비하면 <code>_handleNotificationTap</code>은 콜백이 없어 로그만 남기고 탭을 버린다. 이후 <code>initialize()</code>가 콜백을 설치해도 복구 경로가 없다. 앱 종료 상태에서 푸시를 탭했을 때 resume이 background task의 initialize보다 먼저 도달하면 재현된다.</li>
+    <li><strong>기존 로컬 알림을 눌러 종료 상태에서 실행하면 launch payload 복구가 없다.</strong> <code>getNotificationAppLaunchDetails()</code> 호출이 앱 코드 전체에 없다. 원격 FCM의 <code>getInitialMessage()</code>가 이 로컬 알림을 대신 복구한다고 가정할 수 없다.</li>
+    <li><strong>정정 — 로컬 정규식은 결함이 아니다.</strong> <code>push_token_service.dart:469</code>의 <code>RegExp(r'https?://[^\s}]+')</code>은 <strong>raw string</strong>이므로 <code>\s</code>는 문자 <code>s</code>가 아니라 공백 문자 클래스로 정상 동작한다. 초기 조사에서 이스케이프를 잘못 읽은 것이며 결함 목록에서 제외한다. 다만 service가 동일 로직을 <code>push_token_helper.dart:141</code>과 중복 구현하고 있어 helper 호출로 일원화한다(동작 변경 없음, 중복 제거 목적).</li>
+  </ol>
+  <p><strong>배포 판단:</strong> 이 문서의 기본 앱 수정은 Dart만 변경하므로 <strong>기존 바이너리와 호환되는 OTA 후보</strong>다. iOS/Android 네이티브 수정은 현재 근거로 필요하지 않다. 실제 iOS 탭 이벤트가 Dart에 도달하지 않는 별도 네이티브 문제가 확인되면 신규 빌드로 전환한다. 서버 payload 는 정상으로 확인됐으므로 서버 배포는 필요 없다(2절).</p>
+  <p class="small"><strong>문서 상태:</strong> 최초 작성 시점에는 분석·계획 문서였고, 이후 구현·교차 리뷰를 거쳐 <strong>확정 설계에 맞게 갱신</strong>했다. 초안과 달라진 항목에는 <span class="tag no">미채택</span> 또는 “초안과 다름” 표시를 붙였으므로, 표시가 붙은 서술은 구현 근거로 쓰지 말 것. 앱 Dart 코드와 테스트만 변경했고 네이티브·버전(1.3.4+130403)·의존성·서버는 변경하지 않았으며 commit/push/배포는 수행하지 않았다.</p>
+</section>
+
+<section id="sender">
+  <h2>2. 발송처와 payload 계약</h2>
+  <div class="callout">
+    <strong>이 절은 확정 전 조사 기록이다.</strong> 아래 표의 “확정할 수 없는 내용”은 그 시점 기준이며, 이후 발송처를 직접 확인해 <strong>전부 해소됐다</strong> — <code>notify-vote-progress/index.ts:164–168</code> 이 <code>action_url</code> 에 canonical URL 을 담고 <code>send-push/index.ts:121–125</code> 의 <code>buildFcmData</code> 가 그대로 FCM <code>message.data</code> 로 전달하며, 프로덕션 Edge Function 은 ACTIVE version 53 이다. 조사 경로를 남기기 위해 표는 그대로 둔다.
+  </div>
+  <h3>저장소에서 확인한 사실 (확정 전)</h3>
+  <div class="table"><table>
+    <thead><tr><th>증거</th><th>확인한 내용</th><th>확정할 수 없는 내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>supabase/migrations/20260728012937_clean_baseline.sql:5032</code>, <code>:6483</code></td><td>broadcast_notifications / user_notifications에 별도 <code>data jsonb</code>, nullable <code>action_url text</code>, <code>type</code> 열이 있다.</td><td>DB action_url 열이 FCM의 <code>message.data.action_url</code>로 복사되는지는 알 수 없다. 열의 존재는 전송 payload의 증거가 아니다.</td></tr>
+      <tr><td>동일 SQL <code>:5991</code></td><td>push_messages에는 title, body, data, target_type, platform, 성공/실패 수 등이 있다.</td><td>실제 발송기와 투표 현황 발송 일정·대상·메시지 내용은 없다.</td></tr>
+      <tr><td><code>supabase/functions/</code>, <code>picnic-supabase/README.md:3</code></td><td>현재 functions는 광고 콜백 및 track-country 중심이다. picnic-supabase에는 README만 있고 분리 레포를 설명한다.</td><td>“투표 현황” 생성 함수·FCM 발송 함수·관련 notification INSERT trigger는 로컬 사본에서 발견하지 못했다. 원격 배포본과 동일하다는 보장이 없다.</td></tr>
+      <tr><td><code>picnic_lib/lib/presentation/pages/notifications/notifications_page.dart:297</code></td><td>앱 내 알림함은 <code>type == 'vote'</code>이면 <code>data.vote_id</code> 또는 <code>data.id</code>로 VoteDetailPage를 연다.</td><td>이것이 실제 투표 현황 FCM 계약이라는 증거는 아니다. 푸시 탭 서비스에는 이 fallback이 없다.</td></tr>
+      <tr><td><code>picnic_lib/lib/presentation/widgets/vote/home_featured_vote_card.dart:134</code>, <code>core/utils/deeplink.dart:17</code></td><td>앱 공유 링크의 원래 목적지는 <code>appLinkPrefix/vote/detail/&lt;id&gt;</code>; Branch 생성 시 <code>$desktop_url</code>에 넣는다.</td><td>공유 링크 생성 규칙을 푸시 발송 규칙으로 간주할 수 없다.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>payload 계약 <span class="tag yes">확인 완료</span></h3>
+  <p class="small">아래는 최초에 “제안”으로 적었던 형태이며, 이후 발송처 확인 결과 <strong>실제 계약과 일치</strong>했다.</p>
+  <pre><code>{
+  "message": {
+    "notification": { "title": "투표 현황", "body": "대상 투표의 현황" },
+    "data": {
+      "action_url": "https://applink.picnic.fan/vote/detail/123"
+    }
+  }
+}
+달성형 투표: action_url = https://applink.picnic.fan/vote/detail/123?type=achieve</code></pre>
+  <p><code>notification.title/body</code>는 표시 내용, <code>message.data.action_url</code>은 앱 이동 목적지다. notification 본문·DB의 최상위 action_url·APNs의 일반 url·Branch 단축 URL은 이 계약과 같지 않다. <code>123</code>은 예시 ID다.</p>
+  <h3>배포본 확인 방법</h3>
+  <ol>
+    <li>동일 제보의 발송 시각, 대상 OS, 앱 버전, messageId, 앱 상태를 확보한다. 발송기 로그의 FCM 요청과 단말 RemoteMessage.data를 대조한다. 사용자 ID·토큰·본문 전체는 공유 로그에 남기지 않는다.</li>
+    <li>실제 Supabase 프로젝트의 Edge Functions 목록·배포 소스·스케줄, 별도 picnic-supabase/관리자 발송 레포를 읽기 전용으로 확인한다. 로컬 baseline을 배포 소스로 대신 사용하지 않는다.</li>
+    <li>최근 관련 push_messages.data와 user_notifications/broadcast_notifications의 type·action_url·data 키를 비교한다. DB row와 FCM 요청을 함께 봐야 변환 과정의 누락을 찾을 수 있다.</li>
+    <li>반환 데이터에는 <code>action_url</code>, <code>url/link/route</code>, <code>type</code>, <code>vote_id</code>, 달성형 구분 키가 있는지 기록한다. 단축 URL이라면 Branch 원래 목적지도 확인한다.</li>
+  </ol>
+  <pre><code>-- 운영 담당자가 선택한 프로젝트에서 읽기 전용 확인. 토큰/수신자 목록은 조회하지 않는다.
+SELECT id, created_at, data
+FROM public.push_messages
+WHERE title ILIKE '%투표%'
+ORDER BY created_at DESC LIMIT 20;
+
+SELECT id, created_at, type, action_url, data
+FROM public.broadcast_notifications
+WHERE title ILIKE '%투표%'
+ORDER BY created_at DESC LIMIT 20;
+
+SELECT id, created_at, type, action_url, data
+FROM public.user_notifications
+WHERE title ILIKE '%투표%'
+ORDER BY created_at DESC LIMIT 20;</code></pre>
+  <p class="small">위 SQL은 실행하지 않았다. 다국어 제목·별도 발송 저장소를 쓰면 제목 검색만으로 누락 여부를 판정하지 말고 발송 시각·messageId로 조회한다. 운영 DB 접근 및 발송 로그는 이번 워커에 제공되지 않았다.</p>
+</section>
+
+<section id="flow">
+  <h2>3. 탭부터 투표 화면까지</h2>
+  <p><strong>수정 전</strong>의 경로다. 유실 지점을 보이기 위해 남겨 둔다.</p>
+  <pre><code>FCM 백그라운드 탭 → onMessageOpenedApp ┐
+FCM 종료 상태 탭 → getInitialMessage ├→ coordinator.onOpenedMessage
+                                     └→ post-frame #1
+                                        → _handleNotificationTap
+                                          → data.action_url 검사
+                                          → AppInitializer callback / isActive 검사
+                                            → post-frame #2 / isActive 검사
+                                              → DeepLinkHandler
+                                                → setPortal(vote): 홈 스택으로 교체
+                                                → post-frame #3
+                                                  → setCurrentPage(투표 상세)
+
+포그라운드 수신 → onMessage → _showLocalNotification
+  → 로컬 탭 → URL 추출(정규식 정상) → onActionUrlTap → post-frame #2 이후 동일
+
+로컬 알림 탭으로 종료 상태 실행 → getNotificationAppLaunchDetails 호출 없음
+
+기존 Branch 링크 → $desktop_url → BranchLinkService 대기열
+  → App이 healthy Portal + Navigator 준비를 알림 → handleDeepLink</code></pre>
+  <p>근거: <code>push_token_service.dart:107–127,150–158,455–492,552–562,572–586</code>, <code>push_token_initialization_coordinator.dart:103–155</code>, <code>app_initializer.dart:654–676</code>, <code>deep_link_handler.dart:45–57,92–123,230–253</code>.</p>
+  <h3>수정 후 경로</h3>
+  <pre><code>FCM 백그라운드 탭 → onMessageOpenedApp ┐
+FCM 종료 상태 탭 → getInitialMessage ├→ coordinator.onOpenedMessage
+                                     └→ _handleNotificationTap        (post-frame #1 제거)
+                                        → data.action_url 검사
+                                        → 콜백 없으면 pending queue 에 보류
+                                        → AppInitializer callback / isActive 검사
+                                          → post-frame 1회 + ensureVisualUpdate()  (프레임 요청)
+                                            → DeepLinkHandler
+                                              → 이미 vote 포털이면 setPortal 생략 (홈 스택 교체 없음)
+                                              → setCurrentPage(투표 상세)          (post-frame #3 제거)
+
+포그라운드 수신 → onMessage → _showLocalNotification
+  → 로컬 탭 → PushTokenHelper.extractActionUrl → onActionUrlTap → 위와 동일
+
+로컬 알림 탭으로 종료 상태 실행
+  → initialize 가 coordinator 와 병렬로 getNotificationAppLaunchDetails 조회
+  → resolveLaunchActionUrl → 위와 동일 (권한 시트를 기다리지 않음)
+
+기존 Branch 링크 → $desktop_url → BranchLinkService 대기열   (변경 없음)
+  → App이 healthy Portal + Navigator 준비를 알림 → handleDeepLink</code></pre>
+  <div class="callout">
+    <strong>사전 조사에서 정정할 점:</strong> 현재 투표 경로는 <code>pushVotePageKeepScreen</code>을 호출하지 않는다. <code>_handleVote():121</code>이 usePushKeepScreen을 지정하지 않아 기본 false이고, <code>:250</code>의 <code>setCurrentPage</code>로 간다. keepScreen=true는 <code>_handleNotice():88</code>에서 사용한다. 이 차이만으로 초기화면 이동을 설명할 수는 없다.
+  </div>
+</section>
+
+<section id="causes">
+  <h2>4. 근본 원인 후보 (a)–(e)</h2>
+  <div class="table"><table>
+    <thead><tr><th>후보 / 판정</th><th>채택·기각 근거</th><th>성립 조건과 확인 방법</th></tr></thead>
+    <tbody>
+      <tr><td><strong>(a) action_url 누락·다른 키</strong><br><span class="tag no">기각 · 서버 payload 확인 완료</span></td><td><code>push_token_service.dart:574–585</code>은 비어 있지 않은 String action_url만 통과시킨다. <code>app_initializer.dart:657–660</code>도 같은 검사다. <strong>발송처를 직접 확인했다</strong>: <code>notify-vote-progress/index.ts:164–168</code>이 <code>action_url</code> 키로 canonical URL을 담고 <code>send-push/index.ts:121–125</code>가 다국어 키만 덧붙여 그대로 전달한다. 키 누락도, 다른 키도 아니다.</td><td>확인 완료. 프로덕션 <code>notify-vote-progress</code>는 ACTIVE version 53이다. 서버 배포는 이번 수정 범위에서 제외한다.</td></tr>
+      <tr><td><strong>(b) 콜드 스타트·준비 전 유실</strong><br><span class="tag yes">앱 결함 조건 채택</span><br><span class="tag yes">주원인으로 확정</span></td><td>일반 초기화는 <code>app.dart:247–258</code>에서 Navigator context를 확인하고 <code>app_initializer.dart:620–634</code> 뒤 push 초기화를 시작한다. 따라서 “언제나 isActive=false”는 기각한다. isActive는 앱 foreground 여부가 아니라 <code>context.mounted &amp;&amp; App.mounted</code>다. 그러나 <code>app.dart:469</code>의 무조건 resume → <code>push_token_service.dart:40–43</code>의 coordinator 생성 → <code>coordinator.dart:148–150</code>의 최초 메시지 소비는 콜백 설치보다 앞설 수 있다. 목적지를 저장·재시도하는 장치가 없다. 중첩 post-frame도 새 프레임을 요청하지 않는다.</td><td>① 초기화 지연 중 resume → 최초 메시지 완료 → 콜백 없음 순서를 재현한다. ② 애니메이션이 없는 준비 완료 화면에서 tap 후 사용자 추가 입력 없이 navigation이 진행되는지 검증한다. ③ Portal 미준비·재시도·dispose 시 목적지가 보존 또는 올바르게 폐기되는지 확인한다.</td></tr>
+      <tr><td><strong>(c) 이후 초기화가 네비게이션 리셋</strong><br><span class="tag no">주원인으로 기각 · 관측 증거 없음</span></td><td><code>app.dart:168–171,299–316</code>은 스플래시/포털 표시를 바꾼다. <code>app_initializer.dart:613–617,899–931</code>은 프로필 갱신·인증 분석을 수행하나 navigation reset은 없다. <code>navigation_provider.dart:24</code>는 keepAlive이고 <code>Portal.build():29–171</code>에 스택 초기화가 없다. 정상 상세 push 이후 앱 초기화가 반드시 홈으로 돌린다는 흐름은 찾지 못했다.</td><td>딥링크 자체의 <code>setPortal():198–203</code>는 먼저 홈 스택을 만든다. 이어지는 상세 push가 프레임 대기로 늦어지는 현상은 (b)에 속한다. 실제 reset 로그가 있으면 호출자를 추가 조사한다. setCurrentPage는 스택에 상세를 추가하며, 실제 화면은 <code>picnic_animated_switcher.dart:29–50</code>의 마지막 스택 항목을 표시한다.</td></tr>
+      <tr><td><strong>(d) URL 형식 파싱 실패</strong><br><span class="tag no">기각 · 서버 형식 확인 완료</span></td><td><code>deep_link_handler.dart:48–50</code>은 길이 1 경로에서도 두 번째 항목에 접근하므로 단축 URL은 RangeError 후 catch된다. <code>/vote/123</code>은 page=123으로 default return(<code>:118</code>), <code>picnic://vote/detail/123</code>은 vote가 host여서 portal=detail이다. 정수 ID가 아니면 <code>:109,111</code>에서 실패한다. 반면 <code>/vote/detail/123</code>과 <code>?type=achieve</code>는 명시적으로 지원한다.</td><td><strong>기각.</strong> 발송처가 보내는 값은 단축 URL이 아니라 canonical <code>https://applink.picnic.fan/vote/detail/&lt;id&gt;</code>이며(<code>notify-vote-progress/index.ts:164–168</code>, 프로덕션 ACTIVE version 53), <code>DeepLinkHandler</code>가 명시적으로 지원하는 형식이다. 푸시는 Branch 흐름을 거치지 않고 <code>deeplink.dart:getLongUrl</code>도 호출되지 않으므로 형식 변환 계층은 필요 없다. fallback은 홈 push가 아니라 반환·오류 흡수·일부 경로의 프로필 갱신이다.</td></tr>
+      <tr><td><strong>(e) 로컬 payload 파싱 실패</strong><br><span class="tag no">기각 · 정규식은 결함이 아님</span><br><span class="tag yes">launch details 미조회는 확정 결함</span></td><td><strong>정정.</strong> <code>push_token_service.dart:469</code>의 패턴은 raw string <code>r'https?://[^\s}]+'</code>이므로 <code>\s</code>는 공백 문자 클래스이며 <code>push_token_helper.dart:141</code>과 동일하다. 초기 조사의 "문자 s를 제외한다"는 서술은 이스케이프 오독이었다. 파싱 자체에는 결함이 없고, 남는 문제는 service가 helper와 로직을 중복 보유한다는 점뿐이다.</td><td>정규식 가설은 기각한다. 종료 후 로컬 탭은 파싱과 별개로 <code>getNotificationAppLaunchDetails()</code> 미조회가 확정 결함이며 그것만 수정 대상이다. iOS의 네이티브 배너를 누른 경우에는 로컬 파서를 경유했다고 가정하지 않는다.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>정규식 확인 결과 (정정)</h3>
+  <div class="callout">
+    <strong>이전 판정을 철회한다.</strong> 아래 표는 패턴을 <code>[^\\s}]</code>(역슬래시 + 문자 s 제외)로 잘못 옮겨 실행한 결과였다. 실제 소스는 raw string <code>r'https?://[^\s}]+'</code>이므로 <code>\s</code>는 공백 문자 클래스이며, <code>https://links.picnic.fan/...</code>도 잘리지 않는다. 정규식은 결함이 아니다.
+  </div>
+  <p>참고용으로 남기는 <strong>잘못된 패턴</strong>의 실행 결과다. <a href="https://api.dart.dev/dart-core/RegExp-class.html">Dart RegExp 공식 문서</a>.</p>
+  <div class="table"><table>
+    <thead><tr><th>입력 payload</th><th>잘못 옮긴 패턴의 추출 결과 (실제 소스 아님)</th></tr></thead>
+    <tbody>
+      <tr><td><code>action_url: https://applink.picnic.fan/vote/detail/123</code></td><td>원본 URL 그대로</td></tr>
+      <tr><td><code>action_url: https://applink.picnic.fan/vote/detail/123?type=achieve</code></td><td>원본 URL 그대로</td></tr>
+      <tr><td><code>action_url: https://links.picnic.fan/vote/detail/123</code></td><td>잘못 옮긴 패턴에서만 <code>https://link</code>로 잘렸다. <strong>실제 raw string 패턴에서는 원본 URL 그대로</strong>다.</td></tr>
+      <tr><td><code>{action_url: https://applink.picnic.fan/vote/detail/123, title: vote status}</code></td><td><code>https://applink.picnic.fan/vote/detail/123, title: vote </code> — 뒤 필드까지 포함; 과거 문자열 반례</td></tr>
+      <tr><td><code>action_url: picnic://vote/detail/123</code></td><td>null</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Dart /dev/stdin 실행은 main 함수 로딩 오류로 실행되지 않았다. 위 표는 별도로 성공한 ECMAScript 실행 결과이며 Dart 직접 실행 성공으로 기록하지 않는다.</p>
+</section>
+
+<section id="platforms">
+  <h2>5. 앱 상태 × 플랫폼 판단</h2>
+  <p class="small"><strong>수정 전 기준</strong>이다. “중첩 frame”·“launch details 미조회”는 진단 시점의 동작이며 현재는 §3 “수정 후 경로”대로 해소됐다. 후보 (a)(d)(e-정규식)는 4절에서 기각됐다.</p>
+  <div class="table"><table>
+    <thead><tr><th>수신 / 탭 상황</th><th>Android</th><th>iOS</th></tr></thead>
+    <tbody>
+      <tr><td>백그라운드 수신, 프로세스 유지 후 탭</td><td>FCM onMessageOpenedApp → action_url → 중첩 frame. (a)(d)는 payload 의존, (b)의 frame 대기는 공통. 정상 초기화 완료 후에는 cold-start callback 미설치 문제가 보통 적용되지 않는다.</td><td>동일 Dart 경로. AppDelegate는 UNUserNotificationCenter.delegate=self, FlutterAppDelegate 상속(<code>AppDelegate.swift:10,49–53</code>). 탭 didReceiveNotificationResponse를 앱이 재정의하지 않는다. 네이티브 탭 전달 실패의 증거는 없다.</td></tr>
+      <tr><td>앱 종료 상태에서 원격 알림 탭</td><td>FCM getInitialMessage 1회 소비. callback 설치 전 resume·프레임 대기·준비 상태 미연동을 검사한다.</td><td>동일. getInitialMessage는 권한 팝업을 기다리기 전에 설치되므로 APNs/token 지연이 탭을 반드시 막는다는 가설은 기각한다(<code>coordinator.dart:59–64,103–155</code>).</td></tr>
+      <tr><td>포그라운드 수신, 앱 실행 중 로컬 알림 탭</td><td><code>onMessage → showLocalNotification → onDidReceiveNotificationResponse</code>. (b) 단일 post-frame 대기를 검사한다. (e) 파싱은 정상으로 확인됐다.</td><td>Dart onMessage 경유 시 Android와 같다. 다만 <code>AppDelegate.swift:57–66</code>이 네이티브 foreground 배너 표시를 직접 수행하므로 실제 배너가 원격인지 로컬인지 식별해야 한다. 두 경로가 모두 표시되거나 onMessage 전달이 다를 가능성은 미확인이다.</td></tr>
+      <tr><td>포그라운드에서 생성된 로컬 알림을 남긴 채 앱 종료, 이후 탭</td><td><strong>로컬 launch details 미조회로 목적지 복구 누락.</strong> FCM getInitialMessage로 복구하지 못한다.</td><td>실제로 local notification이 생성된 경우 같은 누락. 네이티브 원격 배너였으면 원격 getInitialMessage 경로로 분류한다.</td></tr>
+      <tr><td>강제 종료·알림 권한 미허용</td><td>설정에서 force-stop한 경우의 수신 제한과 앱 라우팅 실패를 구분한다. “이미 표시된 알림을 탭한 경우”와 새 메시지 수신 여부를 따로 기록한다.</td><td>사용자의 앱 스와이프 종료 뒤 background 전달 제한과 라우팅 실패를 구분한다. 수신하지 않은 메시지를 라우팅 테스트 실패로 세지 않는다.</td></tr>
+    </tbody>
+  </table></div>
+  <p>FCM의 원격 최초 메시지 소비·백그라운드 탭·플랫폼 수신 제약: <a href="https://firebase.google.com/docs/cloud-messaging/flutter/receive-messages#handling_interaction">Firebase 공식 수신 문서</a>. 로컬 launch 처리: 설치된 <code>flutter_local_notifications-19.5.0/lib/src/flutter_local_notifications_plugin.dart:102–106</code> 및 <a href="https://pub.dev/documentation/flutter_local_notifications/19.5.0/flutter_local_notifications/FlutterLocalNotificationsPlugin/initialize.html">플러그인 initialize 문서</a>. frame 예약 동작: <a href="https://api.flutter.dev/flutter/scheduler/SchedulerBinding/addPostFrameCallback.html">Flutter 공식 API</a>.</p>
+</section>
+
+<section id="plan">
+  <h2>6. 최소 구현 계획</h2>
+  <p><strong>전역 제약:</strong> 기존 1.3.4+130403 유지 · 의존성/네이티브 변경 없음 · 투표 ID/유형 추측 금지 · 푸시 권한 팝업이 탭 처리를 막지 않도록 유지 · 지연 시간 하드코딩 금지 · 로그에 토큰/개인정보 추가 금지 · 서버 코드 없는 상태에서 배포본을 임의로 재작성하지 않음.</p>
+  <h3>단계 0 — 재현 payload를 고정하고 수정 범위 선택 <span class="tag yes">종결</span></h3>
+  <p class="small">발송 계약이 canonical URL 로 확정돼(2절) 아래 분기는 모두 소진됐다. <strong>서버 수정 없음 · 앱 전용 수정</strong>으로 결론났고, 단계 1–3 만 수행했다. 판단 경로를 남기기 위해 항목은 그대로 둔다.</p>
+  <ul class="steps">
+    <li>2절의 실제 발송/수신 확인으로 실패 메시지 한 건을 익명화한 테스트 fixture로 고정한다.</li>
+    <li>action_url 누락이고 투표 ID도 없으면 <strong>서버 수정 필수</strong>. 앱은 목적지를 복원할 정보가 없다.</li>
+    <li>실제 type=vote + vote_id 계약이 확인되면 해당 조합에만 fallback을 추가한다. 일반 data.id를 모든 알림의 vote ID로 사용하지 않는다. 달성형 구분 키는 실제 계약 확인 후 사용한다.</li>
+    <li>단축 URL 또는 /vote/&lt;id&gt;이면 발송기가 canonical /vote/detail/&lt;id&gt;를 보내는 서버 수정이 가장 작다. 이미 배포된 알림 호환성이 필요할 때만 관측된 기존 형식의 앱 변환을 추가한다.</li>
+    <li>canonical URL에서도 실패하면 아래 단계 1의 탭 전달 문제를 우선 수정한다. 원인을 보지 않고 url/link/route 등 임의의 키를 모두 허용하지 않는다.</li>
+  </ul>
+  <h3>단계 1 — 수신과 화면 준비를 연결</h3>
+  <div class="table"><table>
+    <thead><tr><th>수정 파일 / 함수</th><th>변경 내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>picnic_lib/lib/core/services/push_token_service.dart</code><br>resume, initialize, _createCoordinator.onOpenedMessage</td><td><strong>resume은 lazy coordinator 생성을 유지한다.</strong> resume은 초기화가 없었던 프로세스의 유일한 복구 경로(토큰 등록·토픽 구독·리스너 재설치)라 막으면 안 된다. 대신 콜백 미설치 구간의 목적지는 service 내부 <strong>pending queue</strong>가 보존하고 initialize가 콜백 설치 직후 순서대로 1회 배출한다(동일 URL 중복 제거, 최대 5개, dispose 시 폐기). onOpenedMessage의 첫 post-frame을 없애고 살아 있는 owner에서 즉시 탭을 전달한다. 기존 permission/token single-flight·dispose guard는 유지한다.</td></tr>
+      <tr><td><code>picnic_lib/lib/core/services/branch_link_service.dart</code></td><td><strong>채택하지 않음 — 수정 없음.</strong> Branch 큐 재사용안은 Branch/푸시의 처리 시점과 중복 규칙이 얽혀 회귀 위험이 큰 데 비해 이득이 없다고 판단해 폐기했다. 목적지 보존은 위의 push_token_service 내부 pending queue로 해결하며 Branch 경로는 건드리지 않는다.</td></tr>
+      <tr><td><code>picnic_lib/lib/core/utils/app_initializer.dart</code><br>_initializeBackgroundTasks의 두 tap callback</td><td>두 콜백을 <code>buildPushTapHandler</code> / <code>buildActionUrlTapHandler</code>로 추출해 테스트가 프로덕션 콜백을 그대로 쓸 수 있게 한다. 둘 다 <strong>단일</strong> owner-guarded dispatch(<code>_navigateAfterFrame</code>)를 거치며, <code>addPostFrameCallback</code> 뒤에 <code>ensureVisualUpdate()</code>로 <strong>프레임을 요청</strong>한다. post-frame 콜백은 프레임을 요청하지 않으므로(<code>scheduler/binding.dart:833</code>) idle 상태에서는 이것이 없으면 탭이 영영 처리되지 않는다.</td></tr>
+      <tr><td><code>picnic_app/lib/app.dart</code><br>initState/build/dispose</td><td><strong>기본 구현에서는 수정 불필요.</strong> 기존 attach(<code>:121</code>), healthy Portal/Navigator readiness(<code>:326–332</code>), detach(<code>:450</code>)를 재사용한다. 이 wiring이 push에도 적용되는지는 widget test로 반드시 검증한다.</td></tr>
+    </tbody>
+  </table></div>
+  <pre><code>// PushTokenService.resume — lazy 생성 유지 (복구 경로)
+if (kIsWeb) return;
+_coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
+await _coordinator!.resume();
+
+// 콜백이 아직 없으면 목적지를 버리지 않고 보류한다
+logger.w('[FCM] onNotificationTap callback not set yet; deferring');
+_enqueuePendingTap(_PendingTap(actionUrl: actionUrl, message: msg));
+
+// initialize — 콜백 설치 직후 배출, 그리고 launch read 는 coordinator 와 병렬
+_onNotificationTap = onNotificationTap;
+_onActionUrlTap = onActionUrlTap;
+_flushPendingTaps();
+final coordinatorReady = _coordinator!.initialize();
+final launchNotification = _consumeLaunchNotification();
+await Future.wait([coordinatorReady, launchNotification]);
+
+// _createCoordinator의 onOpenedMessage — 중첩 post-frame 제거
+if (owner != _ownerGeneration) return;
+_handleNotificationTap(message as RemoteMessage);
+
+// AppInitializer — 단일 dispatch + 프레임 요청
+binding.addPostFrameCallback((_) {
+  if (!isActive()) return;
+  handleDeepLink(ref, actionUrl);
+});
+binding.ensureVisualUpdate();</code></pre>
+  <ul class="steps">
+    <li>먼저 “resume before initialize 에서 토큰 등록과 탭 replay 가 둘 다 일어남”, “idle 상태 탭이 프레임을 요청함”, “권한 시트 미완료 중에도 launch 목적지가 먼저 전달됨” 실패 테스트를 작성한다.</li>
+    <li>해당 테스트가 현재 코드의 유실/미처리를 잡는지 확인한 뒤 위 변경을 적용한다.</li>
+    <li>notice/post/qna/community/pic/novel 회귀 테스트를 함께 실행한다.</li>
+  </ul>
+  <p><strong>회귀 위험:</strong> pending queue 는 service 내부에만 있으므로 Branch 경로의 처리 시점·중복 규칙은 바뀌지 않는다. DeepLinkHandler의 2초 중복 규칙은 유지한다. 서로 다른 투표 ID를 같은 페이지 타입이라는 이유로 묶지 않는다. “상세 A를 처리 중 B 탭”에서 B를 잃지 않는지 확인한다.</p>
+  <h3>단계 2 — 로컬 알림 payload와 종료 후 탭 복구</h3>
+  <div class="table"><table>
+    <thead><tr><th>수정 파일 / 함수</th><th>변경 내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>picnic_lib/lib/core/services/push_token_helper.dart</code><br>buildNotificationPayload, extractActionUrl</td><td><span class="tag no">JSON 전환 미채택</span> 기존 <code>'action_url: &lt;url&gt;'</code> 형식을 <strong>그대로 유지</strong>한다(<code>push_token_helper.dart:118–123</code>). 정규식이 결함이 아닌 것으로 확인돼(raw string) 형식을 바꿀 이유가 없어졌고, 이미 알림 센터에 떠 있는 알림과의 호환을 깨지 않는 편이 안전하다. 실제 변경은 <strong>helper 추가 1개뿐</strong>이다 — <code>resolveLaunchActionUrl({didNotificationLaunchApp, payload})</code> 가 launch 여부 판정과 URL 추출을 한 자리에 모은다. <code>buildNotificationPayload</code>/<code>extractActionUrl</code> 의 동작은 바뀌지 않았고, service 가 중복 구현 대신 이 helper 를 호출하게 된 것이 차이다.</td></tr>
+      <tr><td><code>picnic_lib/lib/core/services/push_token_service.dart</code><br>_showLocalNotification, _initializeLocalNotifications</td><td>service의 중복 문자열/파서를 제거하고 helper를 실제 호출한다. <code>getNotificationAppLaunchDetails()</code>는 <strong>coordinator 초기화와 병렬로 즉시</strong> 읽는다 — 권한 시트는 사용자 입력이라 무한정 대기할 수 있고, 그 뒤로 직렬화하면 종료 상태에서 로컬 알림을 탭한 사용자가 그만큼 초기화면에 머문다. 두 플랫폼 모두 launch details 를 Dart <code>initialize()</code> 이전에 캡처된 네이티브 상태(Android launch Intent, iOS <code>_launchNotificationResponseDict</code>)로 답하므로 조기 조회도 정확하다. didNotificationLaunchApp=true인 notificationResponse.payload를 실행 중 callback과 동일한 처리 함수에 전달한다. 읽기는 <strong>성공한 경우에만</strong> 1회로 래치하고(실패 시 다음 initialize 에서 재시도) 동시 호출은 single-flight 로 합친다.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">
+    <strong>아래는 구현된 코드다.</strong> 이전 초안에 있던 <em>jsonEncode payload 전환</em>과 <em>plugin initialize 완료 뒤 owner-guarded launch 조회</em>는 <strong>둘 다 채택하지 않았다</strong>. 특히 launch 조회 순서는 초안과 정반대다 — 초기화 뒤가 아니라 <strong>coordinator 와 병렬</strong>로 읽는다.
+  </div>
+  <pre><code>// payload 형식은 그대로다 (push_token_helper.dart:118-123).
+static String? buildNotificationPayload(Map&lt;String, dynamic&gt;? data) {
+  if (data == null) return null;
+  if (data.containsKey('action_url')) return 'action_url: ${data['action_url']}';
+  return data.toString();
+}
+
+// service 는 자체 파서 대신 helper 를 호출한다.
+final payload = PushTokenHelper.buildNotificationPayload(data);      // _showLocalNotification
+onDidReceiveNotificationResponse: (response) =&gt;
+    _handleLocalNotificationResponse(response.payload);              // → extractActionUrl
+
+// launch 조회는 coordinator 를 기다리지 않는다 (push_token_service.dart:51-53).
+final coordinatorReady = _coordinator!.initialize();
+final launchNotification = _consumeLaunchNotification();
+await Future.wait([coordinatorReady, launchNotification]);
+
+// 성공한 read 만 래치하고, 동시 호출은 single-flight 로 합친다 (:64-96).
+static Future&lt;void&gt; _consumeLaunchNotification() {
+  if (_launchPayloadConsumed) return Future&lt;void&gt;.value();
+  final inFlight = _launchNotificationRead;
+  if (inFlight != null) return inFlight;
+
+  late final Future&lt;void&gt; attempt;
+  attempt = () async {
+    try {
+      final details = await (_debugLaunchPayloadReader ?? _readLaunchPayload)();
+      _launchPayloadConsumed = true;          // 실패하면 래치하지 않아 다음에 재시도된다
+      final actionUrl = PushTokenHelper.resolveLaunchActionUrl(
+        didNotificationLaunchApp: details.didNotificationLaunchApp,
+        payload: details.payload,
+      );
+      if (actionUrl == null) return;
+      _deliverActionUrl(actionUrl);           // 실행 중 탭과 같은 처리 경로
+    } catch (e, s) {
+      logger.e('[FCM] Could not read notification launch details; will retry',
+          error: e, stackTrace: s);
+    } finally {
+      if (identical(_launchNotificationRead, attempt)) _launchNotificationRead = null;
+    }
+  }();
+  _launchNotificationRead = attempt;
+  return attempt;
+}</code></pre>
+  <p><strong>owner 보호:</strong> 초안의 <code>_ownerGeneration</code> 재검사 대신 <code>_deliverActionUrl</code> 이 콜백 유무를 보고 분기한다. dispose 가 콜백과 pending queue 를 함께 비우므로(<code>dispose()</code>), 죽은 owner 로 목적지가 흘러가지 않는다.</p>
+  <p><strong>세부 계약(구현 기준):</strong> payload 에 <code>action_url</code> 이 없으면 null 이며 다른 필드의 URL 을 대신 고르지 않는다. 추출 실패는 예외를 밖으로 던지지 않는다. 이미 생성된 legacy 알림은 형식을 바꾸지 않았으므로 그대로 읽힌다. launch 처리 완료는 <strong>성공한 read 뒤에만</strong> 기록해 동일 launch 를 중복 전달하지 않으면서 실패는 재시도된다. 권한 요청과 토큰 등록을 기다리느라 launch 조회를 지연시키지 않는다.</p>
+  <p><strong>범위 선택:</strong> 정규식은 결함이 아니므로 JSON 형식 전환은 이번 범위에서 제외했다(중복 제거를 위한 helper 호출 일원화만 수행). 종료 후 로컬 탭 복구는 수용 범위에 포함했다.</p>
+  <h3>단계 3 — URL 형식과 상세 이동 완료 검증</h3>
+  <p><strong>수정 완료:</strong> <code>picnic_lib/lib/core/utils/deep_link_handler.dart</code>의 <code>_handleVote</code> / <code>_pushToCurrentPortal</code>. 포털 라우팅 결정은 순수 함수 <code>DeepLinkNavigationPlanner</code>(<code>deep_link_navigation_plan.dart</code>)로 분리했고, <code>navigation_provider</code> 는 건드리지 않았다.</p>
+  <ul class="steps">
+    <li><span class="tag no">미채택</span> 단축 URL의 <strong>사전 segment 검사는 넣지 않았다.</strong> 서버가 canonical URL 만 보내는 것이 확인돼 필요가 없어졌고, segment 1개짜리 URL 은 기존처럼 <code>handleDeepLink</code> 의 catch 가 흡수한다(<code>:49–51</code> 의 <code>pathSegments[1]</code> 접근은 그대로다). /notice, /post, /qna 두 segment 경로는 회귀 테스트로 보호했다.</li>
+    <li><span class="tag yes">적용</span> vote ID 는 <code>int.tryParse</code> 로 검증하고 0 이하·누락·비정수에서 아무 것도 push 하지 않는다. 정상 <code>/vote/detail/ID</code> 와 <code>?type=achieve</code> 는 보존한다.</li>
+    <li><span class="tag yes">적용 · 초안과 다름</span> 초안은 투표 경로의 내부 post-frame 을 <em>유지</em>하려 했으나 <strong>제거했다.</strong> 같은 포털이면 <code>setPortal</code> 자체를 생략하므로 기다릴 rebuild 가 없고, 다른 포털이면 <code>setPortal</code> 직후 같은 턴에 push 한다 — 동기 state 를 읽으므로 stale stack 문제가 없다. 그 결과 홈 화면이 한 프레임 노출되는 깜빡임도 사라졌다. 고정 delay 는 넣지 않았다. (<code>_pushFullScreenPage</code> 의 post/qna post-frame 은 Navigator push 용이라 그대로 둔다.)</li>
+    <li><span class="tag no">변경 없음</span> 투표의 <code>usePushKeepScreen</code> 은 기본값(false) 그대로다. 필요한 회귀가 나오지 않았고, 화면 표시가 stack 기반이라 이 플래그는 제보 해결과 무관했다. notice 의 keepScreen=true 도 그대로 유지된다.</li>
+    <li><span class="tag no">미채택 · 불필요</span> legacy <code>/vote/ID</code>·custom scheme·단축 링크 호환 분기는 <strong>추가하지 않았다.</strong> 발송처가 canonical URL 만 보내는 것이 확인됐고(ACTIVE version 53), 푸시는 Branch 흐름을 거치지 않아 단축 해석이 필요 없다. <code>getLongUrl</code> 도 계속 푸시에서 호출되지 않는다.</li>
+  </ul>
+  <p><strong>결과:</strong> 서버가 이미 canonical URL 을 보내므로 새 네트워크 요청이나 단축 해석 의존성을 앱에 추가하지 않았다. <code>vote_id</code> fallback helper 도 <strong>구현하지 않았다</strong> — <code>action_url</code> 이 항상 유효하게 도착하므로 쓸 자리가 없고, 없는 계약을 추측해 목적지를 만들지 않는다는 원칙은 그대로다.</p>
+</section>
+
+<section id="tests">
+  <h2>7. 테스트 파일과 검증 명령</h2>
+  <p>기존 <code>deeplink_test.dart:6–28</code>은 함수 존재·타입만 검사하며 DeepLinkHandler의 navigation을 검증하지 않는다. <code>push_token_service_coverage_test.dart</code>도 언어/플랫폼 계산 중심이다. 새 테스트는 private 구현을 복제하지 말고 service가 실제 사용하는 helper 또는 주입한 plugin/stream을 통해 진입해야 한다.</p>
+  <div class="table"><table>
+    <thead><tr><th>테스트 파일</th><th>추가 또는 실행 케이스</th></tr></thead>
+    <tbody>
+      <tr><td><code>picnic_lib/test/core/services/push_token_tap_delivery_test.dart</code> 신규<br><span class="tag yes">작성 완료</span></td><td>① <strong>resume before initialize 에서 토큰 등록과 탭 replay 가 둘 다 일어남</strong>(resume 은 coordinator 를 만들고, pending queue 가 목적지를 보존한다) ② 콜백 설치 시 보류분을 순서대로 1회 배출 ③ 동일 URL 중복 미적재 ④ 콜백 설치 후 도착한 탭은 큐를 거치지 않음 ⑤ dispose 가 보류분을 폐기 ⑥ launch read 실패 후 다음 initialize 에서 재시도 ⑦ 동시 initialize 는 launch read 1회 ⑧ <strong>권한 시트 미완료 상태에서도 launch 목적지가 먼저 전달됨</strong>.</td></tr>
+      <tr><td><code>picnic_lib/test/core/services/push_tap_navigation_test.dart</code> 신규<br><span class="tag yes">작성 완료</span></td><td>debug tap handler 를 쓰지 않고 프로덕션 배선만 통과시키는 widget test: ① <strong>idle 상태 원격 탭이 프레임을 요청</strong>(<code>hasScheduledFrame</code> 직접 검사) ② 종료 상태 원격 탭이 렌더된 <code>VoteDetailPage</code> 에 도달 ③ <strong>로컬 cold launch</strong>가 실제 plugin 채널의 <code>getNotificationAppLaunchDetails</code> 를 거쳐 도달 ④ <strong>포그라운드 로컬 탭</strong>이 plugin 이 등록한 <code>didReceiveNotificationResponse</code> 핸들러를 거쳐 도달. Firebase 스트림과 plugin 채널만 가짜이고 coordinator·service·<code>buildActionUrlTapHandler</code>·<code>handleDeepLink</code> 는 전부 실제다.</td></tr>
+      <tr><td><code>picnic_lib/test/core/services/push_token_service_test.dart</code><br><span class="tag no">아래는 폐기된 초안</span></td><td>① <s>initialize 전 resume이 factory/getInitialMessage를 호출하지 않음</s> — <strong>최종 설계는 반대다.</strong> resume 은 lazy coordinator 를 만들고 getInitialMessage 를 소비할 수 있으며, pending queue 가 그 목적지를 보존한다. ② initialize에서 callback 설치 후 최초 메시지를 정확히 한 번 전달 ③ 원격 opened 이벤트가 추가 frame 펌프 없이 ingress callback에 도달 ④ dispose 뒤 미완료 launch/initial callback 무시 ⑤ service 실제 local callback의 JSON·legacy 추출 및 show payload round-trip. 필요시 Firebase/로컬 plugin 의존성을 주입하는 최소 test seam을 추가한다. 기존 debug coordinator factory로 service 내부 handler를 완전히 바꿔치기한 테스트만으로 검증 완료하지 않는다.</td></tr>
+      <tr><td><code>picnic_lib/test/core/services/push_token_initialization_coordinator_test.dart</code></td><td>① 권한 Future가 미완료여도 non-null initial message와 opened 이벤트 처리 ② 초기 메시지 조회는 initialize/resume 반복에도 한 번 ③ dispose 후 initial completer 완료는 전달 안 함 ④ token/topic 실패 후 탭 구독 유지. 초기 권한 대기 테스트에 getInitialMessage=null만 주지 않는다.</td></tr>
+      <tr><td><code>picnic_lib/test/core/services/push_token_helper_test.dart</code><br><span class="tag yes">resolveLaunchActionUrl 추가 완료</span></td><td><s>JSON</s> 형식 전환은 폐기했으므로 round-trip 은 기존 <code>'action_url: &lt;url&gt;'</code> 형식으로 검사한다. 실제 추가분은 <code>resolveLaunchActionUrl</code>(didNotificationLaunchApp=false/payload 없음/action_url 없음/정상). 폐기된 초안: ① canonical 일반·달성형 URL JSON round-trip ② null/empty/비문자 action_url ③ literal s·쉼표·쿼리·인코딩 문자 보존 ④ legacy prefix/map 호환 ⑤ malformed JSON에서 예외 없음 ⑥ 다른 키의 URL을 action_url로 오인하지 않음 ⑦ 실제 계약 확인 시 type=vote + vote_id fallback 및 비투표/잘못된 ID 거부.</td></tr>
+      <tr><td><code>picnic_lib/test/core/services/branch_link_service_test.dart</code><br><span class="tag no">폐기 · Branch 큐 재사용 미채택</span></td><td><strong>추가하지 않는다.</strong> Branch 경로를 건드리지 않으므로 아래 항목은 성립하지 않는다. 폐기된 초안: ① Branch 세션 시작 없이 push enqueue 가능 ② handler attach·ready 전 대기 ③ ready=true에서 한 번 전달 ④ ready=false 동안 탭 보존 후 복구 ⑤ 같은 URL pending/in-flight 중복 제거 ⑥ A/B 두 투표 순서 ⑦ detach 후 과거 이벤트 폐기 ⑧ stale owner가 새 owner를 detach/ready 변경하지 못함. 기존 Branch 이벤트의 +clicked_branch_link 조건도 유지.</td></tr>
+      <tr><td><code>picnic_lib/test/core/utils/deep_link_navigation_plan_test.dart</code> 신규<br><span class="tag yes">작성 완료</span></td><td>포털 라우팅 결정을 순수 함수로 분리해 전 조합을 검사한다: vote→vote 는 <strong>포털 전환 없이</strong> push(초기화면 경유 제거), notice 는 keepScreen 유지, community/pic/novel 은 자기 스택에 push, goongHap/mypage 만 전환 후 push.</td></tr>
+      <tr><td><code>picnic_lib/test/core/utils/deep_link_handler_test.dart</code> 신규<br><span class="tag yes">작성 완료</span></td><td>ConsumerWidget에서 실제 WidgetRef 확보 후 provider 스택 확인: ① canonical → VoteDetailPage(voteId=123) ② type=achieve → VoteDetailAchievePage ③ 누락/비정수 ID·단축 URL 무예외/스택 불변 ④ vote/community/pic/novel/mypage 출발 ⑤ 상세 A에서 다른 ID B ⑥ 큐에 두 목적지를 넣고 실제 마지막 push 완료까지 순서 검증 ⑦ 공지/게시물 경로 회귀. 네트워크 page build 대신 provider 상태를 먼저 검증하고 별도 widget smoke test에서 화면을 확인한다.</td></tr>
+      <tr><td><code>picnic_lib/test/core/utils/app_initializer_background_test.dart</code></td><td>실제로는 <code>push_tap_navigation_test.dart</code> 가 프로덕션 <code>buildPushTapHandler</code> / <code>buildActionUrlTapHandler</code> 를 그대로 호출해 이 wiring 을 덮는다. 폐기된 초안: ① 두 푸시 callback이 같은 목적지 큐로 이어짐 ② 권한 팝업이 preload/badge/탭 처리를 막지 않음 ③ disposed owner는 enqueue하지 않음. 실제 _initializeBackgroundTasks wiring을 검증할 수 있는 작은 주입 지점을 사용한다.</td></tr>
+      <tr><td><code>picnic_app/test/widget_test.dart</code><br><span class="tag no">확장 미채택</span></td><td>Branch 큐를 재사용하지 않으므로 확장하지 않았다. 폐기된 초안: ① startup 미완료 중 push enqueue → Portal 준비 후 상세 ② network error 동안 대기 → 복구 후 처리 ③ banned/updateRequired에서 화면 강제 우회 안 함 ④ Phoenix 형태 remount 뒤 stale callback 무시 ⑤ 사용자 추가 터치 없이 정상 steady 화면에서 상세로 이동.</td></tr>
+    </tbody>
+  </table></div>
+  <h3>실패 테스트의 핵심 형태</h3>
+  <pre><code>// push_tap_navigation_test.dart — post-frame 은 프레임을 요청하지 않는다
+expect(tester.binding.hasScheduledFrame, isFalse);   // 전제: idle
+opened.add(voteTap(2693));
+await tester.pump();
+expect(tester.binding.hasScheduledFrame, isTrue,
+    reason: '탭은 자신이 필요한 프레임을 요청해야 한다');
+
+// push_token_tap_delivery_test.dart — 권한 시트 뒤로 직렬화되면 안 된다
+final initializing = PushTokenService.initialize(onActionUrlTap: delivered.add)
+    .whenComplete(() =&gt; initializeCompleted = true);
+launchDetails.complete((didNotificationLaunchApp: true, payload: payload));
+await Future&lt;void&gt;.delayed(Duration.zero);
+expect(delivered, [url]);            // 목적지가 먼저 도착
+expect(initializeCompleted, isFalse); // coordinator 는 아직 권한 대기 중
+
+// push_token_helper_test.dart: 서비스도 반드시 이 helper를 실제 사용해야 한다.
+test('payload round-trip preserves the complete vote URL', () {
+  const url = 'https://applink.picnic.fan/vote/detail/123?type=achieve&amp;source=push';
+  final payload = PushTokenHelper.buildNotificationPayload({'action_url': url});
+  expect(PushTokenHelper.extractActionUrl(payload), url);
+});</code></pre>
+  <p>testWidgets에서 pumpAndSettle을 반복하는 것만으로 frame 미요청 문제를 검사하지 않는다. 테스트가 임의로 계속 frame을 만들면 기존 결함을 숨긴다. ingress callback의 즉시 전달과 pending → ready 배출을 별도 검사하고, 실제 기기에서는 아무 화면 조작 없이 진입 여부를 확인한다.</p>
+  <h3>구현 후 실행 명령</h3>
+  <pre><code>cd /Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2693/picnic_lib
+flutter test \
+  test/core/services/push_token_service_test.dart \
+  test/core/services/push_token_service_coverage_test.dart \
+  test/core/services/push_token_initialization_coordinator_test.dart \
+  test/core/services/push_token_helper_test.dart \
+  test/core/services/push_token_tap_delivery_test.dart \
+  test/core/services/push_tap_navigation_test.dart \
+  test/core/utils/deeplink_test.dart \
+  test/core/utils/deep_link_handler_test.dart \
+  test/core/utils/deep_link_navigation_plan_test.dart \
+  test/core/utils/app_initializer_background_test.dart \
+  test/core/utils/app_initializer_startup_recovery_test.dart \
+  test/core/utils/app_initializer_signed_in_test.dart \
+  test/presentation/providers/navigation_provider_test.dart
+flutter analyze
+
+cd /Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2693/picnic_app
+flutter test test/widget_test.dart
+flutter analyze</code></pre>
+  <p class="small"><code>deep_link_handler_test.dart</code>·<code>deep_link_navigation_plan_test.dart</code>·<code>push_token_tap_delivery_test.dart</code>·<code>push_tap_navigation_test.dart</code>는 구현 단계에서 생성했다. 분석 실패는 기존 이슈인지 새 변경인지 구분해 보고했다 — 최종 <code>flutter analyze</code> 는 picnic_lib 522 issues · picnic_app 2 issues 로 <strong>기준선과 동일</strong>(신규 0)하고 <code>flutter test</code> 는 양쪽 모두 통과했다.</p>
+  <h3>실기기 수용 기준</h3>
+  <ul>
+    <li>Android/iOS 각각 백그라운드 원격 탭, 종료 원격 탭, 포그라운드 로컬 탭, 로컬 알림 생성 후 종료 탭을 검증한다. iOS 원격 배너와 로컬 배너는 messageId/notification ID와 callback 종류로 구분한다.</li>
+    <li>일반 투표·달성형 투표 각각 올바른 ID와 화면 유형을 표시한다. 로그인 세션 복구 지연·네트워크 복구·다른 포털에서 탭해도 목표가 사라지지 않는다.</li>
+    <li>탭 뒤 추가 스크롤/터치 없이 이동한다. 중복 수신으로 상세가 두 번 쌓이지 않는다. 잘못된 payload는 현재 화면을 파괴하지 않는다.</li>
+    <li>진단은 received(source/id), destination-resolved, queued, ready, dispatched, page-pushed 단계로 남긴다. full payload/토큰 대신 필요한 키 목록·정규화된 경로·오류 이유만 남긴다.</li>
+  </ul>
+</section>
+
+<section id="delivery">
+  <h2>8. OTA / 서버 / 신규 바이너리 경계</h2>
+  <div class="table"><table>
+    <thead><tr><th>변경</th><th>배포 범위 / 판단</th></tr></thead>
+    <tbody>
+      <tr><td>pending queue 로 콜백 미설치 구간 보존, resume 의 lazy 생성 유지, frame 중첩 제거 + <code>ensureVisualUpdate</code>, launch read 병렬화, payload 추출 helper 일원화, local launch details 조회, voteId 양수 검사</td><td><strong>앱 Dart OTA 후보.</strong> 설치된 firebase_messaging 16.1.2(제약 ^16.0.4)와 flutter_local_notifications 19.5.0에 필요한 API가 이미 있다 — <code>getNotificationAppLaunchDetails</code> 는 기존 네이티브 핸들러라 신규 빌드가 필요 없다. 플러그인 추가/업데이트·권한/Manifest·엔진 변경 없이 구현 가능하다. 실제 대상 Shorebird release 존재 및 native diff는 배포 담당자가 확인한다.</td></tr>
+      <tr><td>투표 현황 발송 payload의 action_url·투표 ID·유형 수정</td><td><span class="tag no">해당 없음</span> 발송 payload 는 이미 올바르다(<code>notify-vote-progress</code> ACTIVE version 53). <strong>서버 배포는 하지 않는다.</strong> DB 스키마 변경도 필요하지 않다.</td></tr>
+      <tr><td>iOS AppDelegate의 delegate 전달 수정 또는 native plugin 변경이 필요해진 경우</td><td><strong>신규 Codemagic 바이너리.</strong> 현행 AppDelegate의 foreground willPresent는 super를 호출하지 않아 Dart onMessage 경로와 네이티브 배너 구성이 다를 수 있다. 이는 조사 포인트이며 탭 실패를 증명한 것은 아니다. 실기기에서 Dart 이벤트 부재가 확인될 때만 별도 범위로 올린다.</td></tr>
+    </tbody>
+  </table></div>
+  <p><strong>네이티브 최종 판단:</strong> 이번에 확인한 Dart 탭 전달/로컬 launch 복구 문제를 고치는 데 네이티브 변경은 필요하지 않다. 그러므로 기본 계획은 OTA이며, 제보의 전체 해결 여부와 iOS 이벤트 도달은 실기기로 확인해야 한다. 네이티브 수정 필요성 또는 OTA 호환성이 끝내 불확실하면 공통 배포 정책에 따라 신규 빌드로 처리한다.</p>
+  <p>공통 정책 <code>/Users/charlie.hyun/.config/ai-agent-policies/flutter-release.md</code>를 전체 확인했다. OTA는 앱 버전 <code>1.3.4+130403</code>을 유지한다. 신규 바이너리는 실제 배포 이력 확인 후 버전/빌드 번호를 결정하며 이 계획에서 임의 증가하지 않는다. 이 문서는 OTA/서버 배포의 실행 승인을 포함하지 않는다.</p>
+</section>
+
+<section id="verification">
+  <h2>9. 조사 산출물 검증과 남은 작업</h2>
+  <ul>
+    <li>확인 완료: 원격/로컬 ingress, 최초 메시지 소비 시점, mounted와 readiness 차이, navigation 스택, 관련 테스트 공백, 설치된 SDK의 launch API, 네이티브 알림 설정.</li>
+    <li>확인 완료(추가): <strong>실제 발송 함수와 FCM data 계약</strong>. <code>notify-vote-progress/index.ts:164–168</code> + <code>send-push/index.ts:121–125</code>, 프로덕션 ACTIVE version 53. 단축 링크가 아닌 canonical <code>https://applink.picnic.fan/vote/detail/&lt;id&gt;</code>이며 <code>DeepLinkHandler</code>가 지원하는 형식이다. 근본 원인은 앱 3결함으로 확정한다.</li>
+    <li>미확인: 제보 당시 앱 상태·OS·실제 단말 로그. 앱 결함 3건이 코드로 확정됐으므로 수정 착수를 이 정보에 의존시키지 않는다.</li>
+    <li>실행 완료: Flutter 테스트와 정적 분석. picnic_lib·picnic_app 전체 통과, analyze 는 기준선(522 / 2) 대비 신규 0.</li>
+    <li>미실행: 실기기 수신 검증 / 운영 SQL / 서버 또는 OTA 배포. 구현과 교차 리뷰는 끝났지만 실기기 확인과 배포는 별도 담당이다.</li>
+    <li>파일 검증 완료: HTMLParser로 시작/종료 태그 균형, UTF-8/doctype/style, <code>&lt;pre&gt;</code> 내부 이스케이프, 후보 (a)–(e), 검증 명령, 네이티브/OTA 판단 포함을 확인했다.</li>
+    <li>브라우저 검증 미완료: Orca tab list는 runtime_unavailable, 독립 Playwright Chrome 실행은 sandbox 내 SIGABRT로 실패했다. 파일 렌더링 자체의 오류를 확인한 것은 아니다. 코디네이터에게 브라우저 로딩 검증을 요청했으며, 데스크톱/모바일 가로 overflow 검사는 아직 수행하지 못했다.</li>
+    <li>변경 범위: 이 문서 외에 앱 Dart 코드(<code>push_token_service</code>, <code>push_token_helper</code>, <code>app_initializer</code>, <code>deep_link_handler</code>, 신규 <code>deep_link_navigation_plan</code>)와 테스트가 함께 바뀌었다. 네이티브·pubspec·버전·서버는 무변경이다. commit/push 는 수행하지 않으며 coordinator 가 문서 추적 여부를 함께 처리한다.</li>
+  </ul>
+</section>
+<footer class="meta"><p>PICNIC-2693 · 원인 확정(앱 3결함)과 확정 설계를 담은 구현 문서. <span class="tag no">미채택</span> 표시가 붙은 초안 서술은 구현 근거로 사용하지 말 것.</p></footer>
+</main>
+</body>
+</html>
