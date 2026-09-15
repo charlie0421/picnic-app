@@ -21,16 +21,69 @@ double measureVotingTextHeight(
   String text,
   TextStyle style, {
   required double maxWidth,
+  int? maxLines,
 }) {
   final painter = TextPainter(
     text: TextSpan(text: text, style: style),
     textDirection: Directionality.of(context),
     textScaler: MediaQuery.textScalerOf(context),
     locale: Localizations.maybeLocaleOf(context),
+    maxLines: maxLines,
   )..layout(maxWidth: math.max(0.0, maxWidth));
   final height = painter.height;
   painter.dispose();
   return height;
+}
+
+/// The narrowest width at which [text] stays within [maxLines].
+///
+/// A natural one-line width is used when it fits. Otherwise a bounded binary
+/// search finds the width needed for at most two lines, using the same locale,
+/// direction and text scaler as the rendered label.
+double measureVotingTextMinimumWidth(
+  BuildContext context,
+  String text,
+  TextStyle style, {
+  required int maxLines,
+}) {
+  if (text.isEmpty) return 0;
+  final natural = TextPainter(
+    text: TextSpan(text: text, style: style),
+    textDirection: Directionality.of(context),
+    textScaler: MediaQuery.textScalerOf(context),
+    locale: Localizations.maybeLocaleOf(context),
+    maxLines: 1,
+  )..layout();
+  final naturalWidth = natural.width;
+  natural.dispose();
+  if (maxLines <= 1) return naturalWidth;
+
+  bool fits(double width) {
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      locale: Localizations.maybeLocaleOf(context),
+      maxLines: maxLines,
+    )..layout(maxWidth: width);
+    final result =
+        !painter.didExceedMaxLines &&
+        painter.computeLineMetrics().length <= maxLines;
+    painter.dispose();
+    return result;
+  }
+
+  var low = 0.0;
+  var high = naturalWidth;
+  for (var iteration = 0; iteration < 48; iteration += 1) {
+    final middle = (low + high) / 2;
+    if (fits(middle)) {
+      high = middle;
+    } else {
+      low = middle;
+    }
+  }
+  return high;
 }
 
 final class _CacheOnlyImageMiss implements Exception {
@@ -294,8 +347,13 @@ class VotingArtistImage extends StatelessWidget {
 /// 아티스트/그룹 이름 정보
 class VotingMemberInfo extends StatelessWidget {
   final VoteItemModel voteItemModel;
+  final bool columns;
 
-  const VotingMemberInfo({super.key, required this.voteItemModel});
+  const VotingMemberInfo({
+    super.key,
+    required this.voteItemModel,
+    this.columns = false,
+  });
 
   static bool _hasArtistGroup(VoteItemModel voteItemModel) =>
       (voteItemModel.artist?.id ?? 0) != 0 &&
@@ -315,6 +373,58 @@ class VotingMemberInfo extends StatelessWidget {
       PicnicUi.text(size: 12, color: PicnicUi.secondaryText);
 
   static double _dividerHeight() => 20.0.h;
+  static double _columnNameGap() => 2.0.h;
+
+  static double columnMinimumWidth(
+    BuildContext context, {
+    required VoteItemModel voteItemModel,
+  }) {
+    final widths = <double>[
+      measureVotingTextMinimumWidth(
+        context,
+        _artistName(voteItemModel),
+        _nameStyle(),
+        maxLines: 2,
+      ),
+    ];
+    if (_hasArtistGroup(voteItemModel)) {
+      widths.add(
+        measureVotingTextMinimumWidth(
+          context,
+          getLocaleTextFromJson(voteItemModel.artist!.artistGroup!.name),
+          _groupStyle(),
+          maxLines: 2,
+        ),
+      );
+    }
+    return widths.reduce(math.max);
+  }
+
+  static double columnPreferredHeight(
+    BuildContext context, {
+    required VoteItemModel voteItemModel,
+    required double maxWidth,
+  }) {
+    var height = measureVotingTextHeight(
+      context,
+      _artistName(voteItemModel),
+      _nameStyle(),
+      maxWidth: maxWidth,
+      maxLines: 2,
+    );
+    if (_hasArtistGroup(voteItemModel)) {
+      height +=
+          _columnNameGap() +
+          measureVotingTextHeight(
+            context,
+            getLocaleTextFromJson(voteItemModel.artist!.artistGroup!.name),
+            _groupStyle(),
+            maxWidth: maxWidth,
+            maxLines: 2,
+          );
+    }
+    return height + _dividerHeight();
+  }
 
   /// The height [build] lays out at [maxWidth], for a caller that has to
   /// budget for it before the frame.
@@ -353,6 +463,39 @@ class VotingMemberInfo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasArtistGroup = _hasArtistGroup(voteItemModel);
+
+    if (columns) {
+      return ColoredBox(
+        color: Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _artistName(voteItemModel),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: _nameStyle(),
+              textAlign: TextAlign.start,
+            ),
+            if (hasArtistGroup) ...[
+              SizedBox(height: _columnNameGap()),
+              Text(
+                getLocaleTextFromJson(voteItemModel.artist!.artistGroup!.name),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: _groupStyle(),
+                textAlign: TextAlign.start,
+              ),
+            ],
+            Divider(
+              color: AppColors.grey300,
+              thickness: 1,
+              height: _dividerHeight(),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Column(
       children: [
@@ -546,29 +689,81 @@ class VotingBubbleInfo extends StatelessWidget {
 class VotingStarCandyInfo extends StatelessWidget {
   final BigInt myStarCandy;
   final VoidCallback onRecharge;
+  final bool columns;
 
   const VotingStarCandyInfo({
     super.key,
     required this.myStarCandy,
     required this.onRecharge,
+    this.columns = false,
   });
+
+  static const String _columnAmountFixture = '9,999,999';
+
+  static TextStyle _amountStyle() =>
+      PicnicUi.text(size: 16, weight: FontWeight.w700);
+
+  static TextStyle _rechargeStyle() =>
+      PicnicUi.text(size: 14, weight: FontWeight.w700);
+
+  static double _columnAmountWidth(BuildContext context) =>
+      measureVotingTextMinimumWidth(
+        context,
+        _columnAmountFixture,
+        _amountStyle(),
+        maxLines: 1,
+      );
+
+  static double columnMinimumWidth(BuildContext context) {
+    final amount = _columnAmountWidth(context);
+    final recharge =
+        12 * 2 +
+        measureVotingTextMinimumWidth(
+          context,
+          AppLocalizations.of(context).label_button_recharge,
+          _rechargeStyle(),
+          maxLines: 2,
+        ) +
+        4 +
+        16;
+    return 32 + 4 + amount + recharge;
+  }
 
   /// The height [build] lays out at [maxWidth]: the 32 icon, the balance and
   /// the recharge button's 48 tap target, whichever is tallest.
   static double preferredHeight(
     BuildContext context, {
     required double maxWidth,
+    bool columns = false,
   }) {
     final amount = measureVotingTextHeight(
       context,
       '0',
-      PicnicUi.text(size: 16, weight: FontWeight.w700),
+      _amountStyle(),
       maxWidth: maxWidth,
     );
+    if (columns) {
+      final amountWidth = _columnAmountWidth(context);
+      final rechargeLabelWidth = math.max(
+        0.0,
+        maxWidth - 32 - 4 - amountWidth - 12 * 2 - 4 - 16,
+      );
+      final recharge = measureVotingTextHeight(
+        context,
+        AppLocalizations.of(context).label_button_recharge,
+        _rechargeStyle(),
+        maxWidth: rechargeLabelWidth,
+        maxLines: 2,
+      );
+      return math.max(
+        PicnicUi.minimumTapTarget,
+        math.max(32, math.max(amount, recharge)),
+      );
+    }
     final recharge = measureVotingTextHeight(
       context,
       AppLocalizations.of(context).label_button_recharge,
-      PicnicUi.text(size: 14, weight: FontWeight.w700),
+      _rechargeStyle(),
       maxWidth: maxWidth,
     );
     return math.max(
@@ -579,34 +774,51 @@ class VotingStarCandyInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconWidth = columns ? 32.0 : 32.w;
+    final amount = columns
+        ? Text(
+            formatWalletAmount(myStarCandy),
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
+            style: _amountStyle().copyWith(color: PicnicUi.actionColor),
+          )
+        : Text(
+            formatWalletAmount(myStarCandy),
+            style: _amountStyle().copyWith(color: PicnicUi.actionColor),
+          );
+    final recharge = _RechargeButton(onPressed: onRecharge, columns: columns);
     return SizedBox(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 32.w,
+            width: iconWidth,
             height: 32,
             alignment: Alignment.centerLeft,
             child: Image.asset(
               package: 'picnic_lib',
               'assets/icons/store/star_100.png',
-              width: 32.w,
+              width: iconWidth,
               height: 32,
             ),
           ),
-          SizedBox(width: PicnicUi.horizontal(4)),
-          Expanded(
-            child: Text(
-              formatWalletAmount(myStarCandy),
-              style: PicnicUi.text(
-                size: 16,
-                weight: FontWeight.w700,
-                color: PicnicUi.actionColor,
-              ),
+          SizedBox(width: columns ? 4 : PicnicUi.horizontal(4)),
+          if (columns) ...[
+            SizedBox(
+              // Keep the neutral reserved geometry stable when a wallet
+              // refresh changes the value. Balances beyond the supported
+              // fixture are ellipsized rather than expanding into the 48px
+              // recharge target or changing the selected column count.
+              width: _columnAmountWidth(context),
+              child: amount,
             ),
-          ),
-          _RechargeButton(onPressed: onRecharge),
+            Expanded(child: recharge),
+          ] else ...[
+            Expanded(child: amount),
+            Flexible(child: recharge),
+          ],
         ],
       ),
     );
@@ -615,11 +827,22 @@ class VotingStarCandyInfo extends StatelessWidget {
 
 class _RechargeButton extends StatelessWidget {
   final VoidCallback onPressed;
+  final bool columns;
 
-  const _RechargeButton({required this.onPressed});
+  const _RechargeButton({required this.onPressed, this.columns = false});
 
   @override
   Widget build(BuildContext context) {
+    final iconGap = columns ? 4.0 : voteDialogCardExtent(4);
+    final iconWidth = columns ? 16.0 : voteDialogCardExtent(16);
+    final label = Text(
+      AppLocalizations.of(context).label_button_recharge,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: VotingStarCandyInfo._rechargeStyle().copyWith(
+        color: PicnicUi.actionColor,
+      ),
+    );
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onPressed,
@@ -634,35 +857,42 @@ class _RechargeButton extends StatelessWidget {
           alignment: Alignment.center,
           child: Container(
             constraints: const BoxConstraints(minHeight: 32),
-            padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(12)),
+            padding: EdgeInsets.symmetric(
+              horizontal: columns ? 12 : voteDialogCardExtent(12),
+            ),
             decoration: BoxDecoration(
               color: AppColors.secondary500,
               borderRadius: BorderRadius.circular(20.r),
               border: Border.all(color: PicnicUi.actionColor, width: 1),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  AppLocalizations.of(context).label_button_recharge,
-                  style: PicnicUi.text(
-                    size: 14,
-                    weight: FontWeight.w700,
-                    color: PicnicUi.actionColor,
-                  ),
-                ),
-                SizedBox(width: PicnicUi.horizontal(4)),
-                SvgPicture.asset(
-                  package: 'picnic_lib',
-                  'assets/icons/plus_style=fill.svg',
-                  width: 16.w,
-                  height: 16,
-                  colorFilter: ColorFilter.mode(
-                    PicnicUi.actionColor,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final availableWidth = constraints.hasBoundedWidth
+                    ? constraints.maxWidth
+                    : iconWidth + iconGap;
+                final resolvedIconWidth = math.min(iconWidth, availableWidth);
+                final showGap = availableWidth >= iconWidth + iconGap;
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(child: label),
+                    if (showGap) SizedBox(width: iconGap),
+                    SizedBox(
+                      width: resolvedIconWidth,
+                      child: SvgPicture.asset(
+                        package: 'picnic_lib',
+                        'assets/icons/plus_style=fill.svg',
+                        width: resolvedIconWidth,
+                        height: 16,
+                        colorFilter: ColorFilter.mode(
+                          PicnicUi.actionColor,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -676,12 +906,14 @@ class VotingSubmitButton extends StatelessWidget {
   final bool canVote;
   final bool isVoting;
   final VoidCallback? onPressed;
+  final bool columns;
 
   const VotingSubmitButton({
     super.key,
     required this.canVote,
     required this.isVoting,
     this.onPressed,
+    this.columns = false,
   });
 
   static const double _minHeight = 52;
@@ -691,15 +923,31 @@ class VotingSubmitButton extends StatelessWidget {
 
   /// The height [build] lays out, for a caller that has to budget for it
   /// before the frame: the 52 minimum, or the scaled label plus padding.
-  static double preferredHeight(BuildContext context) {
+  static double preferredHeight(
+    BuildContext context, {
+    double? maxWidth,
+    bool columns = false,
+  }) {
+    final horizontalPadding = columns ? 12.0 : PicnicUi.horizontal(12);
     final label = measureVotingTextHeight(
       context,
       AppLocalizations.of(context).label_button_vote,
       _labelStyle(),
-      maxWidth: preferredWidth() - PicnicUi.horizontal(12) * 2,
+      maxWidth: (maxWidth ?? preferredWidth()) - horizontalPadding * 2,
+      maxLines: columns ? 2 : null,
     );
-    return math.max(_minHeight, label + PicnicUi.vertical(4) * 2);
+    final verticalPadding = columns ? 4.0 : PicnicUi.vertical(4);
+    return math.max(_minHeight, label + verticalPadding * 2);
   }
+
+  static double columnMinimumWidth(BuildContext context) =>
+      12 * 2 +
+      measureVotingTextMinimumWidth(
+        context,
+        AppLocalizations.of(context).label_button_vote,
+        _labelStyle(),
+        maxLines: 2,
+      );
 
   /// The button box width — the design 172, shrunk with the card when a wide
   /// window caps the capsule.
@@ -713,7 +961,7 @@ class VotingSubmitButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        width: preferredWidth(),
+        width: columns ? double.infinity : preferredWidth(),
         constraints: const BoxConstraints(minHeight: _minHeight),
         decoration: BoxDecoration(
           color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
@@ -721,8 +969,8 @@ class VotingSubmitButton extends StatelessWidget {
         ),
         alignment: Alignment.center,
         padding: EdgeInsets.symmetric(
-          horizontal: PicnicUi.horizontal(12),
-          vertical: PicnicUi.vertical(4),
+          horizontal: columns ? 12 : PicnicUi.horizontal(12),
+          vertical: columns ? 4 : PicnicUi.vertical(4),
         ),
         child: isVoting
             ? const SizedBox(
@@ -732,6 +980,8 @@ class VotingSubmitButton extends StatelessWidget {
               )
             : Text(
                 AppLocalizations.of(context).label_button_vote,
+                maxLines: columns ? 2 : null,
+                overflow: columns ? TextOverflow.ellipsis : null,
                 textAlign: TextAlign.center,
                 style: _labelStyle(
                   color: isActive
@@ -748,11 +998,13 @@ class VotingSubmitButton extends StatelessWidget {
 class VotingCheckAllOption extends StatelessWidget {
   final bool checkAll;
   final VoidCallback onToggle;
+  final bool columns;
 
   const VotingCheckAllOption({
     super.key,
     required this.checkAll,
     required this.onToggle,
+    this.columns = false,
   });
 
   static const double _glyphSize = 20;
@@ -765,15 +1017,29 @@ class VotingCheckAllOption extends StatelessWidget {
   static double preferredHeight(
     BuildContext context, {
     required double maxWidth,
+    bool columns = false,
   }) {
+    final glyph = columns ? _glyphSize : _glyphSize.w;
+    final gap = columns ? 4.0 : PicnicUi.horizontal(4);
     final label = measureVotingTextHeight(
       context,
       AppLocalizations.of(context).label_checkbox_entire_use,
       _labelStyle(),
-      maxWidth: maxWidth - _glyphSize.w - PicnicUi.horizontal(4),
+      maxWidth: maxWidth - glyph - gap,
+      maxLines: columns ? 2 : null,
     );
     return math.max(PicnicUi.minimumTapTarget, math.max(_glyphSize, label));
   }
+
+  static double columnMinimumWidth(BuildContext context) =>
+      _glyphSize +
+      4 +
+      measureVotingTextMinimumWidth(
+        context,
+        AppLocalizations.of(context).label_checkbox_entire_use,
+        _labelStyle(),
+        maxLines: 2,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -790,14 +1056,16 @@ class VotingCheckAllOption extends StatelessWidget {
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/check_style=line.svg',
-              width: 20.w,
+              width: columns ? 20 : 20.w,
               height: 20,
               colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
             ),
-            SizedBox(width: PicnicUi.horizontal(4)),
+            SizedBox(width: columns ? 4 : PicnicUi.horizontal(4)),
             Flexible(
               child: Text(
                 AppLocalizations.of(context).label_checkbox_entire_use,
+                maxLines: columns ? 2 : null,
+                overflow: columns ? TextOverflow.ellipsis : null,
                 style: _labelStyle().copyWith(color: foreground),
               ),
             ),
@@ -812,11 +1080,13 @@ class VotingCheckAllOption extends StatelessWidget {
 class VotingErrorMessage extends StatelessWidget {
   final bool canVote;
   final bool hasValue;
+  final bool columns;
 
   const VotingErrorMessage({
     super.key,
     required this.canVote,
     required this.hasValue,
+    this.columns = false,
   });
 
   static TextStyle _messageStyle() => PicnicUi.text(
@@ -832,24 +1102,39 @@ class VotingErrorMessage extends StatelessWidget {
     required bool canVote,
     required bool hasValue,
     required double maxWidth,
+    bool columns = false,
+    bool reserveWhenHidden = false,
   }) {
-    if (canVote || !hasValue) return 0;
+    if (!reserveWhenHidden && (canVote || !hasValue)) return 0;
+    final leftPadding = columns ? 24.0 : PicnicUi.horizontal(24);
     return measureVotingTextHeight(
       context,
       AppLocalizations.of(context).text_need_recharge,
       _messageStyle(),
-      maxWidth: maxWidth - PicnicUi.horizontal(24),
+      maxWidth: maxWidth - leftPadding,
+      maxLines: columns ? 2 : null,
     );
   }
+
+  static double columnMinimumWidth(BuildContext context) =>
+      24 +
+      measureVotingTextMinimumWidth(
+        context,
+        AppLocalizations.of(context).text_need_recharge,
+        _messageStyle(),
+        maxLines: 2,
+      );
 
   @override
   Widget build(BuildContext context) {
     if (!canVote && hasValue) {
       return Container(
-        padding: EdgeInsets.only(left: PicnicUi.horizontal(24)),
+        padding: EdgeInsets.only(left: columns ? 24 : PicnicUi.horizontal(24)),
         width: double.infinity,
         child: Text(
           AppLocalizations.of(context).text_need_recharge,
+          maxLines: columns ? 2 : null,
+          overflow: columns ? TextOverflow.ellipsis : null,
           style: _messageStyle(),
           textAlign: TextAlign.left,
         ),
@@ -863,11 +1148,13 @@ class VotingErrorMessage extends StatelessWidget {
 class VotingClearButton extends StatelessWidget {
   final bool hasValue;
   final VoidCallback onClear;
+  final bool columns;
 
   const VotingClearButton({
     super.key,
     required this.hasValue,
     required this.onClear,
+    this.columns = false,
   });
 
   @override
@@ -888,7 +1175,7 @@ class VotingClearButton extends StatelessWidget {
               hasValue ? PicnicUi.ink : AppColors.grey200,
               BlendMode.srcIn,
             ),
-            width: 20.w,
+            width: columns ? 20 : 20.w,
             height: 20,
           ),
         ),

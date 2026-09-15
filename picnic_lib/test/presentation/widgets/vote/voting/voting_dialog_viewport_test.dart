@@ -435,8 +435,8 @@ void main() {
     // and scaled with `.w`, which is the *width* factor: on a 851 wide viewport
     // that is 2.17, so an 80 high portrait renders 173 high and eats the
     // vertical budget the controls need.
-    testWidgets('decoration authored in design pixels does not grow with the '
-        'viewport width', (tester) async {
+    testWidgets('decoration stays capped and the active layout uses its '
+        'approved width cap', (tester) async {
       await pumpAt(
         tester,
         VotingDialog(
@@ -453,10 +453,16 @@ void main() {
         lessThanOrEqualTo(80.5),
         reason: 'the portrait grew with the viewport width',
       );
+      // PICNIC-2697 approved an 800px cap only for the conditional columns
+      // path. Preserve PICNIC-2694's 560px contract for every one-column
+      // result while checking the wider path against its own explicit cap.
+      final usesColumns = find.byType(VoteDialogColumns).evaluate().isNotEmpty;
       expect(
         tester.getSize(_capsuleCard()).width,
-        lessThanOrEqualTo(560.5),
-        reason: 'the capsule grew with the viewport width',
+        lessThanOrEqualTo(usesColumns ? 800.5 : 560.5),
+        reason: usesColumns
+            ? 'the two-column capsule exceeded its approved cap'
+            : 'the one-column capsule grew with the viewport width',
       );
     });
   });
