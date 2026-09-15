@@ -357,6 +357,46 @@ void main() {
     });
   });
 
+  group('authGeneration', () {
+    test('세션 인스턴스를 바꿔도 세대가 뒤로 가지 않는다', () {
+      final first = TapjoySession(
+        setUserIdAndWait: (userId) => TapjoyUserIdAttempt(
+          userId,
+          dispatch: Future<void>.value(),
+          terminal: Completer<void>().future,
+        ),
+        currentUserId: () => uid,
+        connect: _immediateSuccessConnector(),
+        nativeUserId: () async => uid,
+        nativeConnected: () async => true,
+      );
+      first.invalidateUser();
+      first.invalidateUser();
+      final before = first.authGeneration;
+      expect(before, greaterThan(0));
+
+      final second = TapjoySession(
+        setUserIdAndWait: (userId) => TapjoyUserIdAttempt(
+          userId,
+          dispatch: Future<void>.value(),
+          terminal: Completer<void>().future,
+        ),
+        currentUserId: () => uid,
+        connect: _immediateSuccessConnector(),
+        nativeUserId: () async => uid,
+        nativeConnected: () async => true,
+      );
+
+      // 세대가 되돌아가면 앞선 시도가 캡처한 값과 다시 같아져, 계정이 바뀐 뒤의
+      // 늦은 콜백이 live 로 판정된다 (blocker-2 의 가드가 무력화된다).
+      expect(
+        second.authGeneration,
+        greaterThanOrEqualTo(before),
+        reason: '단조 증가여야 앞선 시도가 되살아나지 않는다',
+      );
+    });
+  });
+
   group('TapjoyAttemptGuard', () {
     test('지난 시도의 늦은 콜백은 현재 시도로 인정되지 않는다', () {
       final guard = TapjoyAttemptGuard();

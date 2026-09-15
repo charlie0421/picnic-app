@@ -325,8 +325,12 @@ class TapjoySession {
   ///
   /// 오퍼월 시도가 이 값을 캡처해 두면, 계정이 A→B→A 로 되돌아와도 앞선 시도의
   /// 늦은 콜백을 문자열 일치만으로 되살리지 않는다 (blocker-2).
+  ///
+  /// **static 인 이유**: SDK 도 Auth 도 프로세스에 하나뿐이고, 세대가 뒤로
+  /// 가는 순간 앞선 시도가 캡처한 값과 다시 같아져 가드가 무력화된다. 세션
+  /// 인스턴스가 교체돼도 단조성을 잃지 않아야 한다.
   int get authGeneration => _authGeneration;
-  int _authGeneration = 0;
+  static int _authGeneration = 0;
 
   /// 로그아웃·계정 전환·dispose 로 SDK 사용자 상태를 더는 신뢰할 수 없을 때.
   void invalidateUser() {

@@ -65,6 +65,9 @@ void main() {
           throw MissingPluginException('No implementation for ${call.method}');
         case 'hang':
           return Completer<Object?>().future;
+        case 'slow':
+          // 상한 안쪽의 평범한 지연.
+          await Future<void>.delayed(const Duration(seconds: 2));
       }
       switch (call.method) {
         case 'getUserID':
@@ -406,6 +409,44 @@ void main() {
         countOf('getPlacement'),
         2,
         reason: '플러그인이 없으면 네이티브에 도달할 수 없어 늦은 콜백도 없다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+  });
+
+  group('dispatch 상한은 평범한 지연을 조기 종료하지 않는다', () {
+    // 네이티브 getPlacement·requestContent·showContent·isContentAvailable 은
+    // 모두 네트워크 없이 즉시 result.success 를 돌려주는 로컬 호출이다
+    // (TapjoyOfferwallPlugin.kt:366-400). 상한은 플랫폼 스레드가 완전히 막힌
+    // 경우를 위한 것이지 평범한 지연을 끊기 위한 값이 아니다.
+    testWidgets('2초 지연된 requestContent 는 모호한 실패로 취급되지 않는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      channelBehavior['requestContent'] = 'slow';
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await tester.pump(const Duration(seconds: 3));
+      await drain(tester);
+      await first;
+      expect(countOf('requestContent'), 1);
+
+      channelBehavior.remove('requestContent');
+      await deliver('onRequestSuccess', 'mission');
+      await drain(tester);
+      await deliver('onContentReady', 'mission');
+      await drain(tester);
+      await deliver('onContentDismiss', 'mission');
+      await drain(tester);
+
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        2,
+        reason: '평범한 지연을 모호한 실패로 끊으면 게이트가 영구 격리된다',
       );
       platform.dispose();
       await pumpAndIgnoreErrors(tester);
