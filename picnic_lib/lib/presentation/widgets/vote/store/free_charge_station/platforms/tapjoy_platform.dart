@@ -5,7 +5,6 @@ import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
-import 'package:picnic_lib/supabase_options.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
 /// Tapjoy 미션 플랫폼 구현
@@ -79,7 +78,7 @@ class TapjoyPlatform extends AdPlatform {
         _attemptGuard.isCurrent(attempt) &&
         !isDisposed &&
         context.mounted &&
-        supabase.auth.currentUser?.id == userId;
+        TapjoySession.instance.currentUserId == userId;
 
     final placement = await TJPlacement.getPlacement(
       placementName: 'mission',

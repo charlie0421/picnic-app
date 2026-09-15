@@ -166,6 +166,10 @@ class TapjoySession {
   /// SDK 사용자 ID 가 확인된 사용자. 확인 전이면 null.
   String? get readyUserId => _readyUserId;
 
+  /// 현재 로그인 사용자의 UUID. 세션이 "현재 사용자"의 단일 소스이므로
+  /// 오퍼월 콜백의 계정 재확인도 전역 supabase 대신 이 값을 쓴다.
+  String? get currentUserId => _currentUserId();
+
   /// `Tapjoy.connect` 를 보낸다. MethodChannel 반환까지만 기다리므로 앱 시작이
   /// SDK 이벤트 때문에 막히지 않는다. 준비 완료는 [ensureUserReady] 가 기다린다.
   Future<void> connect({
