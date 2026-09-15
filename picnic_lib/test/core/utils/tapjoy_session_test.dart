@@ -130,10 +130,20 @@ void main() {
     late List<Completer<void>> gates;
     late String? currentUser;
 
+    /// 네이티브 SDK 가 들고 있는 사용자 ID. 성공 게이트가 열리면 반영된다.
+    late String? nativeUserId;
+
     Future<void> fakeSetUserId(String userId, {Duration timeout = Duration.zero}) {
       setCalls.add(userId);
       final gate = Completer<void>();
       gates.add(gate);
+      // 실제 SDK 도 성공 이벤트 시점에는 그 ID 를 들고 있다.
+      gate.future.then<void>(
+        (_) {
+          nativeUserId = userId;
+        },
+        onError: (Object _) {},
+      );
       return gate.future;
     }
 
@@ -141,12 +151,15 @@ void main() {
       setCalls = <String>[];
       gates = <Completer<void>>[];
       currentUser = uid;
+      nativeUserId = null;
     });
 
     TapjoySession makeSession({TapjoyConnector? connect}) => TapjoySession(
       setUserIdAndWait: fakeSetUserId,
       currentUserId: () => currentUser,
       connect: connect ?? _immediateSuccessConnector(),
+      nativeUserId: () async => nativeUserId,
+      nativeConnected: () async => false,
       userIdTimeout: const Duration(seconds: 10),
       connectTimeout: const Duration(seconds: 15),
     );

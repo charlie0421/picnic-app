@@ -190,6 +190,54 @@ void main() {
       expect(await pending, userA);
     });
 
+    testWidgets('재연결하면 앞선 연결의 실패한 공유 대기를 버린다', (tester) async {
+      // 두 번째 connect 의 성공 이벤트 시점을 테스트가 통제한다.
+      void Function() fireSuccess = () {};
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              fireSuccess = onConnectSuccess;
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      nativeConnected = false;
+
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await firstFailed;
+
+      // 앱이 다시 연결한다.
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      final pending = session.ensureUserReady();
+      await tester.pump();
+      fireSuccess();
+      await tester.pump();
+
+      expect(
+        countOf('setUserID'),
+        1,
+        reason: '낡은 실패 대기를 들고 있으면 재연결해도 영영 열리지 않는다',
+      );
+      nativeUserId = userA;
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump();
+      expect(await pending, userA);
+    });
+
     testWidgets('연결도 이벤트도 없으면 두 번째 대기자가 15초를 또 지불하지 않는다', (tester) async {
       final session = makeSession(
         currentUserId: () => userA,

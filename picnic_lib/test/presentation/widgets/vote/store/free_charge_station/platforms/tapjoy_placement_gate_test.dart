@@ -71,6 +71,7 @@ void main() {
   });
 
   tearDown(() {
+    TapjoyPlacementGate.resetForTest();
     messenger.setMockMethodCallHandler(channel, null);
     TapjoySession.setInstanceForTest(TapjoySession());
     try {

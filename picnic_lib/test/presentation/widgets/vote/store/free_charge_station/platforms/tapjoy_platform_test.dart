@@ -46,6 +46,9 @@ void main() {
   late String? currentUser;
   late TapjoySession session;
 
+  /// 네이티브 SDK 가 들고 있는 사용자 ID. 성공 게이트가 열리면 반영된다.
+  String? nativeUserId;
+
   Future<void> fakeSetUserId(
     String userId, {
     Duration timeout = Duration.zero,
@@ -53,6 +56,12 @@ void main() {
     setCalls.add(userId);
     final gate = Completer<void>();
     gates.add(gate);
+    gate.future.then<void>(
+        (_) {
+          nativeUserId = userId;
+        },
+        onError: (Object _) {},
+      );
     return gate.future;
   }
 
@@ -71,9 +80,12 @@ void main() {
     setCalls = <String>[];
     gates = <Completer<void>>[];
     currentUser = uid;
+    nativeUserId = null;
     session = TapjoySession(
       setUserIdAndWait: fakeSetUserId,
       currentUserId: () => currentUser,
+      nativeUserId: () async => nativeUserId,
+      nativeConnected: () async => false,
       connect:
           ({
             required String sdkKey,

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show VoidCallback, visibleForTesting;
 import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -15,11 +15,24 @@ import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 /// SDK 가 아직 들고 있는 기본 기기 ID 로 오퍼가 만들어지고 서버 콜백의 `snuid` 가
 /// UUID 가 아니게 된다.
 class TapjoyPlatform extends AdPlatform {
+  /// 무료충전소 미션 오퍼월의 placement 이름.
+  static const String placementName = 'mission';
+
+  /// 오퍼가 열려 있어도 게이트를 영원히 물고 있지 않기 위한 상한.
+  /// dismiss 콜백이 끝내 오지 않는 단말에서도 다음 시도를 막지 않는다.
+  static const Duration placementLease = Duration(minutes: 3);
+
   Timer? _safetyTimer;
   bool _isInitialized = false;
 
-  /// 늦게 도착한 placement 콜백이 지난 시도의 화면을 열지 못하게 막는다.
+  /// 늦게 도착한 placement 콜백이 **같은 인스턴스의** 지난 시도를 열지 못하게
+  /// 막는다. 같은 이름의 placement 를 다시 잡는 경우는 이 토큰으로 막히지
+  /// 않으므로 [TapjoyPlacementGate] 가 함께 필요하다.
   final TapjoyAttemptGuard _attemptGuard = TapjoyAttemptGuard();
+
+  /// 이 인스턴스가 잡고 있는 placement 게이트를 놓는 함수.
+  VoidCallback? _releasePlacement;
+  Timer? _placementLeaseTimer;
 
   TapjoyPlatform(super.ref, super.context, super.id,
       [super.animationController]);
@@ -70,8 +83,33 @@ class TapjoyPlatform extends AdPlatform {
 
   @visibleForTesting
   Future<void> requestPlacement(String userId) async {
+    // SDK 는 placement 를 이름 하나로 캐시하고 getPlacement 마다 콜백을 통째로
+    // 덮어쓴다. requestContent 의 채널 반환은 즉시라 세션 큐가 바로 풀리므로,
+    // 활성 수명 동안은 앱 전역 게이트로 두 번째 요청을 막는다.
+    if (!TapjoyPlacementGate.tryEnter(placementName, this)) {
+      logInfo('$placementName 오퍼월이 이미 열려 있어 중복 요청을 무시한다');
+      stopAllAnimations();
+      return;
+    }
+
     startPerformanceLog('플레이스먼트 요청');
     final attempt = _attemptGuard.begin();
+
+    var released = false;
+    void release() {
+      if (released) return;
+      released = true;
+      _placementLeaseTimer?.cancel();
+      _placementLeaseTimer = null;
+      _releasePlacement = null;
+      TapjoyPlacementGate.exit(placementName, this);
+    }
+
+    _releasePlacement = release;
+    _placementLeaseTimer = Timer(placementLease, () {
+      logWarning('$placementName 오퍼월 종료 콜백이 오지 않아 게이트를 회수한다');
+      release();
+    });
 
     /// 이 콜백이 아직 이번 시도·이번 계정의 것인가.
     bool isLive() =>
@@ -80,46 +118,55 @@ class TapjoyPlatform extends AdPlatform {
         context.mounted &&
         TapjoySession.instance.currentUserId == userId;
 
-    final placement = await TJPlacement.getPlacement(
-      placementName: 'mission',
-      onRequestSuccess: (placement) {
-        logInfo('플레이스먼트 요청 성공');
-      },
-      onRequestFailure: (placement, error) {
-        if (!isLive()) return;
-        logAdLoadFailure(
-            'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
-        _handleAdFailure(error);
-      },
-      onContentReady: (placement) {
-        if (!isLive()) {
-          logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않음');
-          return;
-        }
-        logInfo('콘텐츠 준비 완료');
-        placement.showContent();
-        stopAllAnimations();
-      },
-      onContentShow: (placement) {
-        logInfo('콘텐츠 표시 시작');
-      },
-      onContentDismiss: (placement) {
-        logInfo('콘텐츠 닫힘');
-        if (context.mounted && !isDisposed) {
+    try {
+      final placement = await TJPlacement.getPlacement(
+        placementName: placementName,
+        onRequestSuccess: (placement) {
+          logInfo('플레이스먼트 요청 성공');
+        },
+        onRequestFailure: (placement, error) {
+          release();
+          if (!isLive()) return;
+          logAdLoadFailure('Tapjoy', error, placementName, error.toString(),
+              StackTrace.current);
+          _handleAdFailure(error);
+        },
+        onContentReady: (placement) {
+          if (!isLive()) {
+            logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않음');
+            return;
+          }
+          logInfo('콘텐츠 준비 완료');
+          placement.showContent();
           stopAllAnimations();
-          commonUtils.refreshUserProfile();
-        }
-        endPerformanceLog('플레이스먼트 요청');
-      },
-    );
+        },
+        onContentShow: (placement) {
+          logInfo('콘텐츠 표시 시작');
+        },
+        onContentDismiss: (placement) {
+          logInfo('콘텐츠 닫힘');
+          release();
+          if (context.mounted && !isDisposed) {
+            stopAllAnimations();
+            commonUtils.refreshUserProfile();
+          }
+          endPerformanceLog('플레이스먼트 요청');
+        },
+      );
 
-    if (!isLive()) {
-      logWarning('플레이스먼트 생성 사이에 시도가 무효화됨 — 요청하지 않음');
-      return;
+      if (!isLive()) {
+        logWarning('플레이스먼트 생성 사이에 시도가 무효화됨 — 요청하지 않음');
+        release();
+        return;
+      }
+
+      placement.setEntryPoint(TJEntryPoint.entryPointStore);
+      await placement.requestContent();
+    } catch (error) {
+      // 요청을 못 보냈으면 게이트를 물고 있을 이유가 없다.
+      release();
+      rethrow;
     }
-
-    placement.setEntryPoint(TJEntryPoint.entryPointStore);
-    await placement.requestContent();
   }
 
   void _handleAdFailure(String? error) {
@@ -146,6 +193,8 @@ class TapjoyPlatform extends AdPlatform {
   void dispose() {
     _safetyTimer?.cancel();
     _safetyTimer = null;
+    // 화면이 사라지면 이 인스턴스가 잡은 게이트도 놓는다.
+    _releasePlacement?.call();
     // 늦게 도착할 SDK 콜백이 이 화면을 되살리지 못하게 한다.
     _attemptGuard.cancel();
     super.dispose();
