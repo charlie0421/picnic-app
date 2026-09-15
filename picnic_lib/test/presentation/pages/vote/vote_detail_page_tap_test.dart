@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_item_widget.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -120,6 +121,44 @@ void main() {
       }
 
       expect(find.byType(VotingDialog), findsOneWidget);
+      await settle(tester);
+    });
+
+    testWidgets('closing with the top-right X allows one clean reopen', (
+      tester,
+    ) async {
+      // PICNIC-2695 gave the dialog a close button, so the page's re-entrancy
+      // guard now has a path it never had: open, leave, open again. The guard
+      // is a `try/finally` around the tap handler — if leaving through the X
+      // left it set, the row would be dead on the second tap.
+      await pumpPage(tester);
+
+      final row = find.byType(VoteItemWidget);
+      await tester.tap(row, warnIfMissed: false);
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 150));
+        drainExpectedImageErrors(tester);
+      }
+      expect(find.byType(VotingDialog), findsOneWidget);
+
+      await tester.tap(find.byKey(kLargePopupTopCloseKey));
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 150));
+        drainExpectedImageErrors(tester);
+      }
+      expect(find.byType(VotingDialog), findsNothing);
+
+      await tester.tap(row, warnIfMissed: false);
+      for (var i = 0; i < 4; i++) {
+        await tester.pump(const Duration(milliseconds: 150));
+        drainExpectedImageErrors(tester);
+      }
+      expect(
+        find.byType(VotingDialog),
+        findsOneWidget,
+        reason: 'leaving through the X must not strand the re-entrancy guard',
+      );
+
       await settle(tester);
     });
 

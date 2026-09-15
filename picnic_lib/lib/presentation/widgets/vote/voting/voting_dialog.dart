@@ -229,7 +229,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     if (!mounted || _isVoting) return;
     if (ModalRoute.of(context)?.isCurrent != true) return;
     _unfocusVoteInput();
-    unawaited(Navigator.of(context).maybePop());
+    // A direct pop, not `maybePop`: the PopScope above vetoes every route-driven
+    // pop, so `maybePop` would come straight back into this method through
+    // `onPopInvokedWithResult` and recurse.
+    Navigator.of(context).pop();
   }
 
   @override
@@ -261,12 +264,30 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // overlay already swallows barrier taps (it is a full-screen opaque entry
     // above this route); system back is the path that still gets through.
     return PopScope(
-      canPop: !_isVoting,
-      // A notification, not an interception: the pop has already happened, so
-      // this only ends the editing session the barrier and the system back
-      // used to leave running into the reverse transition. Never pop here.
+      // Veto every route-driven pop and decide in [_requestClose] instead.
+      //
+      // `canPop: !_isVoting` cannot hold this line. PopScope copies `canPop`
+      // into the route's notifier only from `didUpdateWidget`
+      // (pop_scope.dart:205-208) and `ModalRoute.popDisposition` reads that
+      // notifier (routes.dart:2037-2044), so a back press or barrier tap that
+      // arrives in the submit tap's own frame — before the rebuild — still
+      // reads the pre-submit `true` and pops. The request is already on its
+      // way by then, which is exactly the double-charge window 7fbd2bec8
+      // closed. Vetoing unconditionally moves the decision to the moment of
+      // the request, where `_isVoting` is whatever `setState` just wrote.
+      //
+      // The cost is Android's predictive-back animation, which this dialog
+      // route does not use.
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) _unfocusVoteInput();
+        if (didPop) {
+          // An imperative pop (this dialog's own terminal paths, an account
+          // switch, host routing) already removed the route. Nothing to
+          // decide — just make sure no editing session outlives it.
+          _unfocusVoteInput();
+          return;
+        }
+        _requestClose();
       },
       child: LoadingOverlayWithIcon(
         key: _loadingKey,

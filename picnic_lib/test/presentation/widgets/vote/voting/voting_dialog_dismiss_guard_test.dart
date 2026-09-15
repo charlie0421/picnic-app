@@ -213,6 +213,59 @@ void main() {
     },
   );
 
+  testWidgets('system back cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    // `PopScope` copies `canPop` into the route's `canPopNotifier` only from
+    // `didUpdateWidget` (pop_scope.dart:205-208), and `ModalRoute`
+    // .popDisposition reads that notifier (routes.dart:2037-2044). So between
+    // `setState(_isVoting = true)` and the frame that rebuilds the PopScope,
+    // the route still answers "can pop" — and the request is already on its
+    // way. No pump between the tap and the back press is what puts the test
+    // inside that window.
+    final voteGate = Completer<void>();
+    addTearDown(() {
+      if (!voteGate.isCompleted) voteGate.complete();
+    });
+
+    await _openDialog(tester, voteGate: voteGate);
+
+    await tester.enterText(find.byType(TextFormField), '5');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(VotingSubmitButton));
+    await tester.binding.handlePopRoute();
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(
+      find.byType(VotingDialog),
+      findsOneWidget,
+      reason:
+          'the route closed inside the guard\'s rebuild gap, which reopens '
+          'the double-charge window 7fbd2bec8 closed',
+    );
+  });
+
+  testWidgets('a barrier tap cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    final voteGate = Completer<void>();
+    addTearDown(() {
+      if (!voteGate.isCompleted) voteGate.complete();
+    });
+
+    await _openDialog(tester, voteGate: voteGate);
+
+    await tester.enterText(find.byType(TextFormField), '5');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(VotingSubmitButton));
+    await tester.tapAt(const Offset(4, 4));
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(VotingDialog), findsOneWidget);
+  });
+
   testWidgets('system back still dismisses the dialog before a vote starts', (
     tester,
   ) async {

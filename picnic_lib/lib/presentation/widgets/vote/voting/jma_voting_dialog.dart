@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
@@ -284,7 +285,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     if (!mounted || _isVoting) return;
     if (ModalRoute.of(context)?.isCurrent != true) return;
     _unfocusVoteInput();
-    unawaited(Navigator.of(context).maybePop());
+    // maybePop 이 아니라 직접 pop. 위 PopScope 가 라우트발 pop 을 모두 거부하므로
+    // maybePop 은 onPopInvokedWithResult 를 통해 이 메서드로 되돌아와 재귀한다.
+    Navigator.of(context).pop();
   }
 
   @override
@@ -306,12 +309,28 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     // 투표하면 두 번째 요청이 별도로 정산돼 이중 과금 창이 열린다. 일반 투표
     // 팝업은 7fbd2bec8 에서 이 가드를 얻었지만 JMA 에는 없었다.
     return PopScope(
-      canPop: !_isVoting,
-      // pop 을 가로채는 게 아니라 이미 끝난 pop 의 통지다. 배리어·시스템 백이
-      // 역방향 전환 내내 살려 두던 입력 세션만 여기서 끝낸다. 여기서 다시
-      // pop 하지 않는다.
+      // 라우트발 pop 은 모두 거부하고 판단은 _requestClose 에서 한다.
+      //
+      // canPop: !_isVoting 으로는 막지 못한다. PopScope 는 canPop 을
+      // didUpdateWidget 에서만 라우트의 notifier 에 복사하고
+      // (pop_scope.dart:205-208), ModalRoute.popDisposition 이 그 notifier 를
+      // 읽는다(routes.dart:2037-2044). 그래서 제출 탭과 같은 frame 에 들어온
+      // 백/배리어는 리빌드 전이라 제출 이전 값 true 를 보고 라우트를 닫는다.
+      // 그 시점엔 이미 요청이 출발했으므로 정확히 7fbd2bec8 이 막으려던
+      // 이중 과금 창이 다시 열린다. 무조건 거부하면 판단이 요청 시점으로
+      // 옮겨져 setState 가 방금 쓴 _isVoting 을 그대로 읽는다.
+      //
+      // 대가는 Android predictive back 애니메이션인데 이 다이얼로그 라우트는
+      // 쓰지 않는다.
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) {
-        if (didPop) _unfocusVoteInput();
+        if (didPop) {
+          // 명령형 pop(자신의 terminal 경로, 계정 전환, 상위 라우팅)으로 이미
+          // 라우트가 사라진 경우다. 편집 세션만 정리한다.
+          _unfocusVoteInput();
+          return;
+        }
+        _requestClose();
       },
       child: LoadingOverlayWithIcon(
         key: _loadingKey,
@@ -1579,14 +1598,37 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         ),
       );
 
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      // 정산은 이미 끝났고 아래 둘은 부가 갱신이다. 그런데 닫기 가드는 이
+      // await 구간 내내 걸려 있고, RetryHttpClient 는 idempotent 요청을
+      // 3회까지 재시도하며 매 시도의 타임아웃이 30초다
+      // (retry_http_client.dart:30,139). 그대로 두면 서버가 200 을 준 뒤에도
+      // 사용자가 최대 2분 가까이 팝업에 갇힌다. 순서(갱신 → hide → pop →
+      // 결과 팝업)는 그대로 두고 각 갱신만 5초 bounded best-effort 로 감싼다 -
+      // 실패하거나 느려도 결과 팝업을 막지 못한다.
+      await VotingDialogHelper.bestEffortWalletRefresh(
+        () => ref.read(userInfoProvider.notifier).getUserProfiles(),
+        onError: (error, stackTrace) => logger.w(
+          'jma post-vote profile refresh failed',
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
+
+      if (!mounted) return;
 
       ref
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
 
       // 투표 성공 시 일일 카운트 새로고침
-      await _loadDailyVoteCount();
+      await VotingDialogHelper.bestEffortWalletRefresh(
+        _loadDailyVoteCount,
+        onError: (error, stackTrace) => logger.w(
+          'jma post-vote daily count refresh failed',
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
 
       _loadingKey.currentState?.hide();
 
@@ -1626,26 +1668,39 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
 
-      // 투표 실패 시 버튼 다시 활성화
+      // 이 catch 는 async gap 뒤라 State 가 이미 사라졌을 수 있다. 계정 전환이나
+      // 상위 라우팅처럼 PopScope 를 우회하는 명령형 pop 으로 라우트가 먼저
+      // 제거된 뒤 요청이 실패하면, 예전 코드는 deactivated context 로
+      // Navigator.of 를 호출하고 dispose 된 FocusNode 를 건드려 예외를 던졌다.
+      // 그 예외가 실패 안내마저 삼켰다. 소유 자원 정리와 pop 은 mounted 이면서
+      // 이 라우트가 여전히 최상단일 때만 하고, 실패 안내는 루트 네비게이터
+      // context 로 별도 판단한다. 순서(팝업 닫기 → 실패 안내)는 그대로다.
       if (mounted) {
         setState(() => _isVoting = false);
+        _unfocusVoteInput();
+        if (ModalRoute.of(context)?.isCurrent == true) {
+          Navigator.of(context).pop();
+        }
       }
-
-      _unfocusVoteInput();
-      Navigator.of(context).pop();
 
       _showVotingFailDialog();
     }
   }
 
   void _showVotingFailDialog() {
+    // 이 다이얼로그 라우트는 방금 pop 됐을 수 있으므로 State.context 가 아니라
+    // Localizations 가 살아 있는 루트 네비게이터 context 로 문구를 조회한다
+    // (일반 투표 팝업의 _voteFailMessage 와 같은 이유).
+    final navContext = navigatorKey.currentContext;
+    if (navContext == null || !navContext.mounted) return;
+
     showSimpleDialog(
       type: DialogType.error,
-      content: AppLocalizations.of(context).dialog_title_vote_fail,
+      content: AppLocalizations.of(navContext).dialog_title_vote_fail,
       onOk: () {
-        final navContext = navigatorKey.currentContext;
-        if (navContext != null && navContext.mounted) {
-          Navigator.of(navContext).pop();
+        final okContext = navigatorKey.currentContext;
+        if (okContext != null && okContext.mounted) {
+          Navigator.of(okContext).pop();
         }
       },
     );

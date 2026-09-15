@@ -27,14 +27,23 @@ import '../../../../helpers/test_environment.dart';
 /// request started — this adds the top-right X to both, which is only safe
 /// while it refuses mid-request.
 ///
-/// Harness note: `functions.invoke` with a request body never reaches an
-/// injected `MockClient` under the widget-test clock (the shared
-/// `setupMockSupabase` mock has the same limit), so the submit parks inside the
-/// HTTP call. That is exactly the in-flight state these tests need, but it also
-/// means the request cannot be counted or completed from here — the assertions
-/// below are about the dismissal contract, and the terminal success/failure
-/// pops stay covered by the general dialog's suites, which inject a repository
-/// instead of HTTP.
+/// Harness note, measured rather than assumed. Under the widget-test clock a
+/// `functions.invoke` that carries a **body** never reaches an injected
+/// `MockClient` at all: the same call to the same endpoint reaches the handler
+/// without `body:` and does not reach it with `body:`. REST is unaffected — the
+/// withdrawal check's `user_profiles` GET does reach the mock, which is why the
+/// gate group below can hold the submit path open and count its reads. The
+/// shared `setupMockSupabase` client is constructed the same way and has the
+/// same limit.
+///
+/// Two consequences, both deliberate:
+///   * `jma-voting-v2` cannot be counted or completed from here, so the
+///     JMA terminal success/failure pops are **not** covered in this file. The
+///     equivalent contracts are covered on the general dialog, whose suites
+///     inject a repository instead of HTTP.
+///   * The spinner is not evidence that a request was entered — it turns on
+///     with `_isVoting`, one line before the first await. Where this file needs
+///     that evidence it counts profile reads instead.
 class _JmaBackend {
   final List<Uri> functionCalls = <Uri>[];
 
@@ -277,6 +286,40 @@ void main() {
     expect(_popup(tester).closeButtonEnabled, isFalse);
   });
 
+  testWidgets('system back cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    // `PopScope` copies `canPop` into the route's notifier only from
+    // `didUpdateWidget` (pop_scope.dart:205-208) and `ModalRoute
+    // .popDisposition` reads that notifier (routes.dart:2037-2044), so a back
+    // press that lands before the post-submit rebuild used to see the stale
+    // `true` and pop the route while the request was already leaving. No pump
+    // between the tap and the back press is what puts this inside that window.
+    await _openJmaDialog(tester);
+    await _startVote(tester, l10n.label_button_vote);
+    await tester.binding.handlePopRoute();
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(
+      find.byType(JmaVotingDialog),
+      findsOneWidget,
+      reason: 'the route closed inside the guard\'s rebuild gap',
+    );
+  });
+
+  testWidgets('a barrier tap cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    await _openJmaDialog(tester);
+    await _startVote(tester, l10n.label_button_vote);
+    await tester.tapAt(const Offset(4, 4));
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(JmaVotingDialog), findsOneWidget);
+  });
+
   testWidgets(
     'neither the close, a stale handler nor system back dismisses an in-flight vote',
     (tester) async {
@@ -309,6 +352,114 @@ void main() {
       );
     },
   );
+
+  group('the withdrawal gate (the submit path\'s first await)', () {
+    // The shared mock is the harness here, not the file's own client: the
+    // withdrawal check reads `user_profiles` over REST, a GET with no body, so
+    // unlike `functions.invoke` it does reach a mock — and `tableResponseDelays`
+    // can hold it open. A profile read that has actually been entered is the
+    // only proof this harness can offer that the submit path ran; the spinner
+    // turns on one line earlier and so only proves the tap was accepted.
+    Future<void> openWithProfile(
+      WidgetTester tester, {
+      required Map<String, dynamic> profileRow,
+      required Duration readDelay,
+    }) async {
+      await setupMockSupabaseWithAuth(<String, dynamic>{
+        'user_profiles': [profileRow],
+      }, userId: 'test-user-id');
+      tableResponseDelays['user_profiles'] = readDelay;
+      await _openJmaDialog(tester);
+    }
+
+    Map<String, dynamic> profileRow({DateTime? deletedAt}) => <String, dynamic>{
+      'id': 'test-user-id',
+      'nickname': 'TestUser',
+      'star_candy': 3000,
+      'star_candy_bonus': 10,
+      'deleted_at': deletedAt?.toIso8601String(),
+    };
+
+    int profileReads() => capturedMockRequests
+        .where((uri) => uri.path.endsWith('/rest/v1/user_profiles'))
+        .length;
+
+    testWidgets('every close path is refused while the read is outstanding', (
+      tester,
+    ) async {
+      await openWithProfile(
+        tester,
+        profileRow: profileRow(),
+        readDelay: const Duration(seconds: 2),
+      );
+      final idleClose = _popup(tester).onClose!;
+      final readsBefore = profileReads();
+
+      await _startVote(tester, l10n.label_button_vote);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(
+        profileReads(),
+        readsBefore + 1,
+        reason:
+            'the submit path must actually be inside its first await for this '
+            'test to mean anything',
+      );
+      expect(_popup(tester).closeButtonEnabled, isFalse);
+
+      await tester.tap(_topClose(), warnIfMissed: false);
+      await tester.pump(const Duration(milliseconds: 16));
+      idleClose();
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.binding.handlePopRoute();
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.byType(JmaVotingDialog), findsOneWidget);
+      expect(
+        profileReads(),
+        readsBefore + 1,
+        reason: 'no refused close may let a second submission start',
+      );
+
+      // Let the held read land, or its timer outlives the widget tree.
+      tableResponseDelays.remove('user_profiles');
+      for (var i = 0; i < 4; i++) {
+        await pumpAndIgnoreErrors(tester);
+        await tester.pump(const Duration(seconds: 1));
+      }
+    });
+
+    testWidgets('a withdrawn user releases the lock and never votes', (
+      tester,
+    ) async {
+      await openWithProfile(
+        tester,
+        profileRow: profileRow(deletedAt: DateTime.utc(2026, 9, 1)),
+        readDelay: const Duration(milliseconds: 200),
+      );
+
+      await _startVote(tester, l10n.label_button_vote);
+      for (var i = 0; i < 6; i++) {
+        await pumpAndIgnoreErrors(tester);
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+
+      expect(
+        _popup(tester).closeButtonEnabled,
+        isTrue,
+        reason: 'a blocked submission must hand the close back to the user',
+      );
+      expect(
+        capturedMockRequests.where(
+          (uri) => uri.path.endsWith('/functions/v1/jma-voting-v2'),
+        ),
+        isEmpty,
+        reason: 'a withdrawn user must never reach the vote endpoint',
+      );
+    });
+  });
 
   testWidgets('the daily usage read never reaches the vote endpoint', (
     tester,
