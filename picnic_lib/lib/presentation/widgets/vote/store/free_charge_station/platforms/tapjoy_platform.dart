@@ -145,8 +145,11 @@ class TapjoyPlatform extends AdPlatform {
             // onContentReady·show·dismiss 가 오지 않으므로 여기가 이 요청의
             // terminal 이다. 패키지 예제(home_widget.dart:161)도 같은 분기를 쓴다.
             bool available;
+            // 원 Future 를 따로 들고 있어야 상한을 넘긴 뒤 늦게 도착한 정상
+            // 결과(no-fill)를 terminal 로 인정할 수 있다.
+            final availability = placement.isContentAvailable();
             try {
-              available = await placement.isContentAvailable().timeout(
+              available = await availability.timeout(
                 dispatchTimeout,
                 onTimeout: () => throw TimeoutException(
                   'isContentAvailable',
@@ -163,6 +166,14 @@ class TapjoyPlatform extends AdPlatform {
                 logWarning(
                   'isContentAvailable 확인 실패 — terminal 까지 격리',
                   error: error,
+                );
+                // 늦게라도 no-fill 이 확정되면 그게 이 요청의 terminal 이다.
+                unawaited(
+                  availability.then<void>((late) {
+                    if (late) return;
+                    logWarning('늦게 도착한 no-fill 결과 — 게이트를 놓는다');
+                    release();
+                  }, onError: (Object _) {}),
                 );
               }
               if (isLive()) _handleAdFailure('content_check_failed');
@@ -212,12 +223,33 @@ class TapjoyPlatform extends AdPlatform {
             if (!matches || !isLive()) {
               logWarning('표시 직전 SDK 사용자 ID 불일치 — 표시하지 않는다');
               release();
+              // 계정 전환·dispose 로 이미 stale 이면 알릴 대상이 없다. 아직
+              // 화면을 보고 있다면 실패를 전달해야 로딩이 안전 타이머까지
+              // 남지 않는다. SDK 는 이 async 콜백의 Future 를 기다리지 않으므로
+              // showAd 의 safelyExecute 로는 전파되지 않는다.
+              if (isLive()) _handleAdFailure('user_id_mismatch');
               return;
             }
 
             logInfo('콘텐츠 준비 완료');
-            await placement.showContent();
-            stopAllAnimations();
+            try {
+              await _withDispatchTimeout(
+                'showContent',
+                () => placement.showContent(),
+              );
+              stopAllAnimations();
+            } catch (error) {
+              if (_isCertainlyUndelivered(error)) {
+                logWarning('showContent 미전달 — 게이트를 놓는다', error: error);
+                release();
+              } else {
+                logWarning(
+                  'showContent 전달 여부 불명 — terminal 까지 게이트 유지',
+                  error: error,
+                );
+              }
+              if (isLive()) _handleAdFailure('show_failed');
+            }
           },
           onContentShow: (placement) {
             logInfo('콘텐츠 표시 시작');

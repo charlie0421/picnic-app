@@ -492,6 +492,9 @@ void main() {
     });
 
     testWidgets('timeout 뒤 늦게 도착한 no-fill 결과로 게이트를 놓는다', (tester) async {
+      // 게이트는 테스트 본문 zone 에서 만든다 — setUp zone 의 Future 는
+      // FakeAsync 가 돌려주지 않아 pump 로 풀리지 않는다.
+      channelGate = Completer<void>();
       final platform = await buildPlatform(tester);
 
       final first = platform.showAd();
