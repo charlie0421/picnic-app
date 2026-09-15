@@ -193,41 +193,55 @@ void main() {
       expect(popup.right, lessThanOrEqualTo(_compactWidth + 0.5));
     });
 
-    testWidgets('the top close fits the 320x568 keyboard budget', (
+    testWidgets(
+      'the top close fits the 320x568 budget with the keyboard down',
+      (tester) async {
+        // PICNIC-2695: the close strip is chrome the body has to pay for. Where
+        // the body can pay, the X is there — inside the window, a full tap
+        // target, and clear of the capsule it sits above.
+        await pumpCompactDialog(tester);
+        expect(tester.takeException(), isNull);
+
+        final close = tester.getRect(find.byKey(kLargePopupTopCloseKey));
+        final popup = tester.getRect(find.byType(LargePopupWidget));
+
+        expect(close.top, greaterThanOrEqualTo(-0.5));
+        expect(close.bottom, lessThanOrEqualTo(_compactHeight + 0.5));
+        expect(
+          close.height,
+          greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+        );
+        expect(
+          close.width,
+          greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+        );
+        expect(close.right, lessThanOrEqualTo(popup.right + 0.5));
+        expect(
+          find.byKey(kLargePopupTopCloseKey).hitTestable(),
+          findsOneWidget,
+          reason: 'the X must be reachable without scrolling the popup',
+        );
+      },
+    );
+
+    testWidgets('the top close yields when the keyboard leaves it no room', (
       tester,
     ) async {
-      // PICNIC-2695: the close strip is chrome the body has to pay for. It
-      // must be inside the space the keyboard leaves, tappable without
-      // scrolling, and clear of the capsule it sits above.
+      // 320x568 with a 300 keyboard is the budget PICNIC-2688 pinned the
+      // portrait on and PICNIC-2694 had already spent down to its floor. The
+      // strip costs 24 more than the hidden one, and there is no 24 here, so
+      // the affordance yields rather than push the decoration out. The barrier
+      // and system back still close the dialog, and lowering the keyboard
+      // brings both the room and the X back.
       await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
       expect(tester.takeException(), isNull);
-
-      final close = tester.getRect(find.byKey(kLargePopupTopCloseKey));
-      final popup = tester.getRect(find.byType(LargePopupWidget));
-      final visibleBottom = _compactHeight - _keyboardInset;
-
-      expect(close.top, greaterThanOrEqualTo(-0.5));
-      expect(close.bottom, lessThanOrEqualTo(visibleBottom + 0.5));
-      expect(
-        close.height,
-        greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
-      );
-      expect(
-        close.width,
-        greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
-      );
-      expect(close.right, lessThanOrEqualTo(popup.right + 0.5));
-      expect(
-        find.byKey(kLargePopupTopCloseKey).hitTestable(),
-        findsOneWidget,
-        reason: 'the X must be reachable without scrolling the popup',
-      );
+      expect(find.byKey(kLargePopupTopCloseKey), findsNothing);
     });
 
     testWidgets('the close strip keeps its geometry when a vote starts', (
       tester,
     ) async {
-      await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
+      await pumpCompactDialog(tester);
       final before = tester.getRect(find.byKey(kLargePopupTopCloseKey));
       final popupBefore = tester.getRect(find.byType(LargePopupWidget));
 

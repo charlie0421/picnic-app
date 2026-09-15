@@ -480,6 +480,41 @@ class VotingBubbleInfo extends StatelessWidget {
 
   const VotingBubbleInfo({super.key, required this.voteModel});
 
+  static TextStyle _style() => PicnicUi.text(
+    size: 12,
+    weight: FontWeight.w600,
+    color: PicnicUi.actionColor,
+  );
+
+  /// The band the bubble needs, bubble border and all.
+  ///
+  /// The decoration is allowed to scroll this away, so the layout does not
+  /// reserve it. A caller deciding whether it can *afford* something else —
+  /// the top close strip costs 24 — needs to know what that something else
+  /// would push out.
+  static double preferredHeight(
+    BuildContext context,
+    VoteModel voteModel, {
+    required double maxWidth,
+  }) {
+    final partner = voteModel.partner;
+    final twoLines =
+        (voteModel.isPartnership ?? false) &&
+        partner != null &&
+        partner.isNotEmpty;
+    final text = twoLines
+        ? '· ${AppLocalizations.of(context).voting_share_benefit_text}\n· ${partner.toUpperCase()} 파트너십 혜택'
+        : '· ${AppLocalizations.of(context).voting_share_benefit_text}';
+    // The bubble draws a 1.5 dashed border on both edges and a pointer above.
+    return measureVotingTextHeight(
+          context,
+          text,
+          _style(),
+          maxWidth: maxWidth,
+        ) +
+        PicnicUi.vertical(3) * 2;
+  }
+
   @override
   Widget build(BuildContext context) {
     final isPartnership = voteModel.isPartnership ?? false;
@@ -488,11 +523,7 @@ class VotingBubbleInfo extends StatelessWidget {
     // BubbleBox import를 피하기 위해 간단한 Container로 대체하지 않음
     // 이 위젯은 voting_dialog.dart에서 BubbleBox와 함께 사용됨
     // → 호출부에서 BubbleBox 래핑 유지
-    final style = PicnicUi.text(
-      size: 12,
-      weight: FontWeight.w600,
-      color: PicnicUi.actionColor,
-    );
+    final style = _style();
 
     return Column(
       children: [

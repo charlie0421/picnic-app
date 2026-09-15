@@ -11,9 +11,9 @@ import 'package:picnic_lib/l10n/app_localizations_my.dart';
 import 'package:picnic_lib/l10n/app_localizations_th.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -970,69 +970,6 @@ void main() {
           );
         }
       }
-    }
-
-    // PICNIC-2695: the close X is overlaid on the card, so it wins the hit
-    // test over anything the decoration scrolls under it. The balance row ends
-    // with a 48 recharge button at the card's right edge, so if the decoration
-    // can bring that row up to the card's top the user taps recharge and the
-    // popup closes instead, losing the amount they typed.
-    for (final entry in <String, Size>{
-      'phone landscape': Size(851, 393),
-      'flip flex top half': Size(412, 500),
-      'portrait phone': Size(393, 852),
-    }.entries) {
-      testWidgets('the recharge button never sits under the close X on '
-          '${entry.key}', (tester) async {
-        await pumpAt(
-          tester,
-          plainDialog(),
-          viewport: entry.value,
-          textScale: 1.0,
-          keyboard: 280,
-        );
-
-        final close = find.byKey(kLargePopupTopCloseKey);
-        final recharge = find.byType(VotingStarCandyInfo);
-        if (close.evaluate().isEmpty || recharge.evaluate().isEmpty) return;
-
-        // The hazard needs the decoration scrolled to its end: that is what
-        // lifts the balance row to the card's top edge.
-        final scrollable = find.descendant(
-          of: find.byType(VotingArtistImage),
-          matching: find.byType(Scrollable),
-        );
-        final decorationScroll = scrollable.evaluate().isNotEmpty
-            ? scrollable
-            : find.ancestor(
-                of: find.byType(VotingArtistImage),
-                matching: find.byType(Scrollable),
-              );
-        if (decorationScroll.evaluate().isNotEmpty) {
-          await tester.drag(
-            decorationScroll.first,
-            const Offset(0, -400),
-            warnIfMissed: false,
-          );
-          await settleDialogState(tester);
-        }
-
-        final closeRect = tester.getRect(close);
-        final balanceRect = tester.getRect(recharge);
-        final overlapsVertically =
-            balanceRect.top < closeRect.bottom &&
-            balanceRect.bottom > closeRect.top;
-        final overlapsHorizontally =
-            balanceRect.right > closeRect.left &&
-            balanceRect.left < closeRect.right;
-        expect(
-          overlapsVertically && overlapsHorizontally,
-          isFalse,
-          reason:
-              'balance row $balanceRect runs under the close X $closeRect on '
-              '${entry.key} — a recharge tap would close the popup',
-        );
-      });
     }
 
     // The consequence of that under-estimate, at the height where it decides

@@ -441,7 +441,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         (isKeyboardVisible
                             ? _preferredHeightRatioWithKeyboard
                             : _preferredHeightRatio);
-                    final fits = math.max(
+                    final fitsWithClose = math.max(
                       0.0,
                       available - largePopupTopCloseChromeHeight(),
                     );
@@ -453,6 +453,25 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                       context,
                       contentWidth: contentWidth,
                     );
+                    // 일반 팝업과 같은 규칙. 닫기 strip 은 숨김 strip 보다 24
+                    // 비싸므로, 그 24 를 내고도 조작부와 장식이 제 크기로
+                    // 들어갈 때만 자리를 얻는다. 그렇지 않으면 숨김 strip 으로
+                    // 되돌아간다 — PICNIC-2694 가 확보한 짧은 창의 여백과 밴드
+                    // 순서를 닫기 버튼이 밀어내지 않게 한다.
+                    final showTopClose =
+                        fitsWithClose >=
+                        essential +
+                            _decorationComfortHeight(
+                              context,
+                              contentWidth: contentWidth,
+                              isKeyboardVisible: isKeyboardVisible,
+                            );
+                    final fits = showTopClose
+                        ? fitsWithClose
+                        : math.max(
+                            0.0,
+                            available - largePopupHiddenChromeHeight(),
+                          );
                     final budget = math.min(
                       math.max(preferred, essential),
                       fits,
@@ -479,7 +498,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                           largePopupCardBorderWidth() + PicnicUi.horizontal(16),
                     );
                     return LargePopupWidget(
-                      showCloseButton: true,
+                      showCloseButton: showTopClose,
                       closeButtonPlacement:
                           LargePopupCloseButtonPlacement.topRight,
                       // 비활성이되 사라지지는 않는다. strip 높이를 유지해야 요청이

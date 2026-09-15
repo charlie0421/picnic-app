@@ -361,15 +361,44 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 final available = constraints.hasBoundedHeight
                     ? constraints.maxHeight
                     : MediaQuery.of(context).size.height;
-                final budget = math.max(
-                  0.0,
-                  available - largePopupTopCloseChromeHeight(),
-                );
                 final contentWidth = _contentWidth(constraints.maxWidth);
                 final essential = _essentialHeight(
                   context,
                   contentWidth: contentWidth,
                   isKeyboardVisible: isKeyboardVisible,
+                );
+                // PICNIC-2695 의 X 는 숨김 strip 보다 24 비싸다. PICNIC-2694 가
+                // 조작부를 통째로 담아 주기로 한 가장 짧은 창들은 이미 라우트
+                // 여백을 하한까지 내준 상태라 그 24 를 낼 데가 없다. 그래서
+                // 닫기는 조작부를 밀어내지 않을 때만 자리를 얻는다. 못 얻으면
+                // 배리어 탭과 시스템 백이 그대로 나가는 길이고, 키보드를 내리는
+                // 순간 예산이 돌아오면서 X 도 돌아온다.
+                final showTopClose =
+                    available - largePopupTopCloseChromeHeight() >=
+                    essential +
+                        _decorationComfortHeight(
+                          context,
+                          contentWidth: contentWidth,
+                          isKeyboardVisible: isKeyboardVisible,
+                        ) +
+                        // 키보드가 올라온 동안에는 보너스 안내까지 지켜야 한다.
+                        // 그때가 사용자가 금액을 넣는 순간이라 안내가 가장
+                        // 필요하고, PICNIC-2688 이 일반 폰에서 그것을 보장한다.
+                        // 키보드가 없으면 예산이 넉넉해 안내는 스크롤로 닿는다.
+                        (isKeyboardVisible
+                            ? PicnicUi.vertical(8) +
+                                  VotingBubbleInfo.preferredHeight(
+                                    context,
+                                    widget.voteModel,
+                                    maxWidth: contentWidth,
+                                  )
+                            : 0.0);
+                final budget = math.max(
+                  0.0,
+                  available -
+                      (showTopClose
+                          ? largePopupTopCloseChromeHeight()
+                          : largePopupHiddenChromeHeight()),
                 );
                 // The logo is the first thing to give way: it keeps its place
                 // under the button only while the decoration above can still
@@ -396,7 +425,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 );
                 final mode = shape.mode;
                 return LargePopupWidget(
-                  showCloseButton: true,
+                  showCloseButton: showTopClose,
                   closeButtonPlacement: LargePopupCloseButtonPlacement.topRight,
                   // Disabled, not removed: the strip keeps its height so the
                   // popup does not jump when the request starts, and the
