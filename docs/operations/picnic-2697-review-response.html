@@ -200,14 +200,22 @@ pillWidth = min(contentWidth, max(room / 2, room - amountMin))</code></pre>
     <ul>
       <li>“half-share보다 작아야 한다”는 단언은 375×812 en 1.3x에서 콘텐츠와 half-share 차이가 약 0.001px이라 원리적으로 구별할 수 없었다.</li>
       <li>테스트가 <code>min(content, max(room/2, room-amountMin))</code> 구현식을 그대로 복제한 단언은 식 자체만 다시 계산해 독립 계약을 고정하지 못했다.</li>
+      <li>구현식 대신 성질 1~4로 바꾼 뒤에도 과거 <code>min(content, room/2)</code>가 모두 통과했다. 성질 단언이라는 형식만으로 판정력이 생기지는 않았다.</li>
     </ul>
     <p>
-      구현식 복제는 네 가지 성질로 교체했다. pill은 (1) 콘텐츠보다 커지지 않고, (2) 콘텐츠가 필요로 하는 범위에서 half-share 아래로 눌리지 않으며,
+      구현식 복제는 다섯 가지 성질로 교체했다. pill은 (1) 콘텐츠보다 커지지 않고, (2) 콘텐츠가 필요로 하는 범위에서 half-share 아래로 눌리지 않으며,
       (3) 행을 넘지 않고, (4) 실제로 양보했고 잔액 최소 폭과 pill 바닥이 동시에 성립할 때 남은 공간이 고정 잔액 최소 폭을 충족해야 한다.
+      (5) 콘텐츠와 잔액 최소 폭을 모두 담을 수 있다면 pill은 반드시 콘텐츠 폭과 일치해야 한다.
       잔액 최소 폭도 테스트에서 fixture 측정식을 복제하지 않고 프로덕션의 <code>amountMinimumWidth</code>를 읽는다.
       충분 구간에 무조건 <code>pill ≥ room/2</code>를 요구했던 초기 단언은 375×812 ko 2.0x에서 콘텐츠 92.38px보다
       room/2 122.20px을 우선해 pill을 도로 부풀리는 구간 분류 오류였다. 조건에 프로덕션의 <code>max</code>식을 복제하는 대신 네 성질로 분기를 없앴다.
       격리용 squeezed 그룹은 테스트가 one-column row 폭을 다시 유도한다는 약점이 남지만, 실제 다이얼로그를 통과하는 36조합 그룹이 그 공백을 보완하므로 이번에는 유지했다.
+    </p>
+    <p>
+      5번은 커밋 직전 과거 식을 적대적으로 다시 대입해 본 결과 1~4가 결함을 놓친다는 점을 이 세션이 발견해 추가했다.
+      실제로 프로덕션 식을 <code>min(content, room/2)</code>로 되돌려 실행하자 columns 스위트가 <code>+239 -8</code>이 됐고,
+      실패 8건은 모두 th/my에서 5번 성질이 냈다. 최종식 원복 뒤에는 <code>+247</code>로 전건 통과했다.
+      성질 단언도 “고친 결함을 되돌렸을 때 실제 실패하는가”를 직접 검증해야 판정력을 주장할 수 있다.
     </p>
 
     <h3>테스트 교훈 2 · 커버리지 축 누락</h3>
@@ -321,8 +329,11 @@ pillWidth = min(contentWidth, max(room / 2, room - amountMin))</code></pre>
         </tr>
         <tr>
           <td>B2</td>
-          <td>기존 flex 경로는 ko에서 정확한 half-share. 초판 <code>min(content, room/2)</code>로 되돌린 확장 매트릭스는 <code>+22 -14</code>.</td>
-          <td>최종식으로 14건을 닫고 충분 구간 36건·부족 구간 4건 모두 콘텐츠 소유·양보 하한·containment 계약 통과.</td>
+          <td>
+            기존 flex 경로는 ko에서 정확한 half-share. 초판 <code>min(content, room/2)</code> 확장 매트릭스는 <code>+22 -14</code>.
+            최종 5번 단언을 둔 역변이도 th/my 8건 RED(<code>+239 -8</code>).
+          </td>
+          <td>최종식으로 14건을 닫고 columns 단독 <code>+247</code>. 충분 구간 36건·부족 구간 4건의 콘텐츠 소유·양보 하한·containment 계약 통과.</td>
         </tr>
         <tr>
           <td>N1</td>
@@ -375,6 +386,11 @@ pillWidth = min(contentWidth, max(room / 2, room - amountMin))</code></pre>
           <td><code>flutter test test/presentation/widgets/vote/voting</code></td>
           <td>799 passed, 0 failed</td>
           <td><span class="ok-text">통과</span> · 750 → 799 (+49)</td>
+        </tr>
+        <tr>
+          <td><code>voting_dialog_columns_test.dart</code></td>
+          <td>247 passed, 0 failed</td>
+          <td><span class="ok-text">통과</span> · B2 역변이에서는 239 passed, 8 failed</td>
         </tr>
         <tr>
           <td>공유 LargePopup·정책·탭 회귀 5파일</td>
