@@ -459,16 +459,26 @@ class TapjoySession {
 
   static bool _isRecoverableConnectFailure(TapjoySessionException error) =>
       error.reason == 'CONNECT_FAILED' ||
-      error.reason == 'CONNECT_CHANNEL_ERROR';
+      error.reason == 'CONNECT_CHANNEL_ERROR' ||
+      // timeout 도 네트워크가 돌아오면 복구 가능한 상태다. 영구 캐시하면
+      // 프로세스 재시작 전까지 Tapjoy 를 못 쓴다 (major-G).
+      error.reason == 'CONNECT_TIMEOUT';
 
   /// 실제 connect 실패 뒤 사용자 시도 한 건당 최대 한 번, 공유 재연결.
-  Future<void> _attemptReconnect() => _reconnect ??= _runReconnect();
+  ///
+  /// 쿨다운 거절은 [_runReconnect] 밖에서 끝낸다. 거절까지 catch 안에 두면
+  /// 탭마다 Timer 가 새로 시작돼 연타하는 사용자는 무기한 재연결이 막힌다.
+  Future<void> _attemptReconnect() {
+    if (_reconnectCooldown?.isActive ?? false) {
+      return Future<void>.error(
+        const TapjoySessionException('CONNECT_FAILED_COOLDOWN'),
+      );
+    }
+    return _reconnect ??= _runReconnect();
+  }
 
   Future<void> _runReconnect() async {
     try {
-      if (_reconnectCooldown?.isActive ?? false) {
-        throw const TapjoySessionException('CONNECT_FAILED_COOLDOWN');
-      }
       final sdkKey = _sdkKey;
       if (sdkKey == null) {
         throw const TapjoySessionException('CONNECT_NOT_STARTED');
@@ -481,7 +491,7 @@ class TapjoySession {
       );
       await _awaitConnected(allowReconnect: false);
     } catch (error) {
-      // 실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다.
+      // 실제로 connect 를 보낸 재연결이 실패했을 때만 쿨다운을 시작한다.
       _reconnectCooldown?.cancel();
       _reconnectCooldown = Timer(reconnectCooldown, () {});
       rethrow;
@@ -499,12 +509,16 @@ class TapjoySession {
           '${connectTimeout.inMilliseconds}ms',
         ),
       );
-    } catch (_) {
+    } on TapjoySessionException catch (error) {
       // timeout 직전에 연결이 끝났을 수 있다 — 네이티브에 마지막으로 한 번 더 묻는다.
       if (await _probeConnected()) {
         _markConnected(completer);
         return;
       }
+      // timeout 을 completer 의 명시적 terminal 상태로 소유한다. pending 인 채로
+      // 두면 다음 시도가 _connectWait 의 캐시된 오류만 되읽어 재연결 분기를
+      // 영영 타지 못한다 (major-G).
+      if (!completer.isCompleted) completer.completeError(error);
       rethrow;
     }
   }

@@ -511,12 +511,13 @@ void main() {
       await tester.pump(const Duration(seconds: 40));
     });
 
-    testWidgets('재연결 뒤 도착한 앞선 connect 의 늦은 성공이 사용자 확인을 건너뛰지 않는다', (
+    testWidgets('앞선 connect 의 늦은 성공이 현재 슬롯으로 들어와도 사용자 확인을 건너뛰지 않는다', (
       tester,
     ) async {
-      // connect 리스너도 static 단일 슬롯이라 늦은 이벤트가 새 세대의 closure 로
-      // 들어온다. 그래도 setUserID 성공 이벤트와 getUserID 대조를 거치지 않고는
-      // ready 가 되지 않아야 한다.
+      // connect 리스너도 static 단일 슬롯이다(TapjoyMethodCallHandler:84-87).
+      // 1세대 connect 의 늦은 네이티브 성공 이벤트는 **현재 등록된** 2세대
+      // closure 로 라우팅되므로 연결이 조기 확정될 수 있다. 그래도 setUserID
+      // 성공 이벤트와 getUserID 대조를 거치지 않고는 ready 가 되면 안 된다.
       var connectCalls = 0;
       final successHandles = <void Function()>[];
       final session = makeSession(
@@ -552,8 +553,8 @@ void main() {
       await tester.pump();
       expect(connectCalls, 2);
 
-      // 1세대 connect 의 늦은 성공 이벤트가 2세대 슬롯으로 들어온다.
-      successHandles.first();
+      // 1세대 connect 의 늦은 성공 이벤트가 현재(2세대) 슬롯으로 들어온다.
+      successHandles.last();
       await tester.pump();
 
       // 연결은 확정되더라도 사용자 ID 는 별도 확인을 거쳐야 한다.
@@ -639,14 +640,29 @@ void main() {
       expect(await pending, userA);
     });
 
-    testWidgets('연결도 이벤트도 없으면 두 번째 대기자가 15초를 또 지불하지 않는다', (tester) async {
+    /// major-G 이후 timeout 은 terminal 상태가 되어 다음 시도가 재연결을 한 번
+    /// 더 한다. 그 재연결까지 실패하면 쿨다운이 걸리므로, 연타하는 사용자가
+    /// 매번 15초씩 멈추지는 않는다는 원래의 보장은 여기서 고정한다.
+    testWidgets('연결도 이벤트도 없으면 연타가 쿨다운으로 즉시 거절된다', (tester) async {
+      var connectCalls = 0;
       final session = makeSession(
         currentUserId: () => userA,
-        connect: _silentConnector(),
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+            },
       );
       await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
       nativeConnected = false;
 
+      // 1차 — 15초 timeout.
       final first = session.ensureUserReady();
       final firstFailed = expectLater(
         first,
@@ -656,24 +672,39 @@ void main() {
       await tester.pump(const Duration(seconds: 16));
       await firstFailed;
 
-      var secondSettled = false;
+      // 2차 — 재연결을 한 번 더 시도하고 그것도 timeout 한다.
       final second = session.ensureUserReady();
+      final secondFailed = expectLater(
+        second,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await secondFailed;
+      expect(connectCalls, 2);
+
+      // 3차 연타 — 쿨다운이라 15초를 다시 지불하지 않고 즉시 거절돼야 한다.
+      var thirdSettled = false;
+      final third = session.ensureUserReady();
       unawaited(
-        second.then(
-          (_) => secondSettled = true,
-          onError: (Object _) => secondSettled = true,
+        third.then(
+          (_) => thirdSettled = true,
+          onError: (Object _) => thirdSettled = true,
         ),
       );
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
 
       expect(
-        secondSettled,
+        thirdSettled,
         isTrue,
-        reason: 'waiter 마다 connect timeout 을 새로 시작하면 탭마다 15초씩 멈춘다',
+        reason: '실패 확정 뒤 연타마다 15초를 다시 기다리면 사용자가 매번 멈춘다',
       );
-      await expectLater(second, throwsA(isA<TapjoySessionException>()));
+      await expectLater(third, throwsA(isA<TapjoySessionException>()));
+      expect(connectCalls, 2);
       expect(countOf('setUserID'), 0);
+
+      await tester.pump(const Duration(seconds: 40));
     });
   });
 }

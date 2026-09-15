@@ -109,8 +109,26 @@ class TapjoyPlatform extends AdPlatform {
     try {
       final placement = await TJPlacement.getPlacement(
         placementName: placementName,
-        onRequestSuccess: (placement) {
+        onRequestSuccess: (placement) async {
           logInfo('플레이스먼트 요청 성공');
+          // 요청이 성공해도 내려줄 오퍼가 없을 수 있다(정상 no-fill). 그 경우
+          // onContentReady·show·dismiss 가 오지 않으므로 여기가 이 요청의
+          // terminal 이다. 패키지 예제(home_widget.dart:161)도 같은 분기를 쓴다.
+          bool available;
+          try {
+            available = await placement.isContentAvailable();
+          } catch (error) {
+            // 확인 자체가 실패하면 더 기다릴 근거가 없다 — no-fill 로 종결한다.
+            logWarning('isContentAvailable 확인 실패 — no-fill 로 종결', error: error);
+            available = false;
+          }
+          if (available) return;
+
+          logInfo('표시할 오퍼가 없어 이 요청을 종료한다');
+          release();
+          if (isLive()) {
+            _handleAdFailure('no_content');
+          }
         },
         onRequestFailure: (placement, error) {
           release();
