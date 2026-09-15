@@ -29,6 +29,30 @@ class _ProbePlatform extends TapjoyPlatform {
 
   int placementRequests = 0;
 
+  /// 사용자에게 뜬 다이얼로그 수.
+  ///
+  /// `logAdLoadFailure` 는 로그 전용이 아니라 항상 다이얼로그를 띄운다 —
+  /// no-fill 이면 `_showNoFillDialog`, 그 외에는 일반 오류 다이얼로그다
+  /// (ad_platform.dart:459,478). `handleAdFailure` 도 하나 띄운다. 둘 다
+  /// 부르면 같은 실패에 두 개가 쌓인다.
+  int dialogs = 0;
+
+  @override
+  void logAdLoadFailure(
+    String platform,
+    dynamic error,
+    String adId,
+    String message,
+    StackTrace? stackTrace,
+  ) {
+    dialogs++;
+  }
+
+  @override
+  void handleAdFailure(String? error) {
+    dialogs++;
+  }
+
   @override
   Future<void> requestTapjoyPlacement() async {
     placementRequests++;
@@ -49,6 +73,8 @@ void main() {
 
   setUp(() async {
     initTestColors();
+    // 소유권 가드는 static 이다 — 테스트 간 누수를 막는다.
+    TapjoyPlatform.resetUserIdGuardForTest();
     channelCalls = <String>[];
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
@@ -153,6 +179,11 @@ void main() {
     await showing;
 
     expect(platform.placementRequests, 0);
+    expect(
+      platform.dialogs,
+      1,
+      reason: '실패 한 건에 다이얼로그는 한 개여야 한다',
+    );
     // 30초 안전장치 타이머와 버튼 애니메이션을 정리한다 — pending timer 검사는
     // 본문이 끝나는 시점에 돌아서 tearDown 으로는 늦다.
     platform.dispose();
@@ -172,8 +203,51 @@ void main() {
     await showing;
 
     expect(platform.placementRequests, 0);
+
+    // 소유권을 놓지 않는다. 놓으면 다음 요청이 리스너 슬롯을 덮어써, 늦게
+    // 도착한 앞선 시도의 결과가 새 시도의 결과로 둔갑한다 — 계정이 바뀐
+    // 사이라면 적립이 다른 사용자에게 귀속된다.
+    channelCalls.clear();
+    final retry = platform.showAd();
+    await drain(tester);
+    await retry;
+
+    expect(
+      channelCalls.where((c) => c == 'setUserID'),
+      isEmpty,
+      reason: 'terminal 이벤트 전에는 새 setUserID 를 보내면 안 된다',
+    );
+    expect(platform.placementRequests, 0);
+
     // 30초 안전장치 타이머와 버튼 애니메이션을 정리한다 — pending timer 검사는
     // 본문이 끝나는 시점에 돌아서 tearDown 으로는 늦다.
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('늦게 도착한 실패 이벤트는 소유권을 돌려준다', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await tester.pump(const Duration(seconds: 11));
+    await drain(tester);
+    await showing;
+
+    // 뒤늦게 terminal 이벤트가 도착하면 그때 소유권이 풀린다.
+    await deliver('TapjoyOnSetUserIDFailure', 'late failure');
+    await drain(tester);
+
+    channelCalls.clear();
+    final retry = platform.showAd();
+    await drain(tester);
+    expect(channelCalls, contains('setUserID'));
+
+    await deliver('TapjoyOnSetUserIDSuccess');
+    await drain(tester);
+    await retry;
+
+    expect(platform.placementRequests, 1);
     platform.dispose();
     await pumpAndIgnoreErrors(tester);
   });

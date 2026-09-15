@@ -12,9 +12,24 @@ class TapjoyPlatform extends AdPlatform {
   /// 실패가 애니메이션 강제 중지보다 먼저 사용자에게 드러나게 한다.
   static const Duration _userIdTimeout = Duration(seconds: 10);
 
+  /// 종료되지 않은 `setUserID` 시도가 있는가.
+  ///
+  /// **static 인 이유**: 플러그인의 성공·실패 리스너는 Dart 쪽 static 단일
+  /// 슬롯이고(TapjoyMethodCallHandler:102-110) 콜백에 요청을 식별할 값이 없다.
+  /// 그래서 A 가 timeout 된 뒤 B 를 보내면 슬롯이 B 로 바뀌고, **늦게 도착한 A
+  /// 의 결과가 B 의 결과로 처리된다.** A 와 B 사이에 계정이 바뀌었다면 SDK 는
+  /// A 를 들고 있는데 B 로 오퍼월을 열어 적립이 다른 계정에 귀속된다.
+  ///
+  /// 인스턴스 필드로는 화면을 다시 만든 경우를 못 막으므로 static 이어야 한다.
+  /// terminal 이벤트가 올 때까지 새 요청을 보내지 않는다 — 그동안 오퍼월은
+  /// 열리지 않는다(앱 재시작으로 해제). 적립이 엉키는 것보다 낫다.
+  static bool _userIdPending = false;
+
+  @visibleForTesting
+  static void resetUserIdGuardForTest() => _userIdPending = false;
+
   Timer? _safetyTimer;
   bool _isInitialized = false;
-  bool _userIdInFlight = false;
   TJPlacement? _currentPlacement;
 
   TapjoyPlatform(super.ref, super.context, super.id,
@@ -68,23 +83,25 @@ class TapjoyPlatform extends AdPlatform {
   Future<bool> _setupTapjoyUser() async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null || userId.isEmpty) {
-      logAdLoadFailure('Tapjoy', '로그인 사용자 없음', 'mission', '로그인 사용자 없음',
-          StackTrace.current);
-      _handleAdFailure('no authenticated user');
+      _reportUserSetupFailure('로그인 사용자 없음');
       return false;
     }
 
-    // 플러그인의 성공·실패 리스너는 static 단일 슬롯이라(tapjoy 14.6.0) 요청이
-    // 겹치면 앞선 시도의 Completer 가 영원히 완료되지 않는다. 연타를 막는다.
-    if (_userIdInFlight) {
-      logWarning('사용자 ID 설정이 이미 진행 중 — 중복 요청 무시');
+    if (_userIdPending) {
+      _reportUserSetupFailure('앞선 setUserID 가 아직 종료되지 않음');
       return false;
     }
-    _userIdInFlight = true;
+    _userIdPending = true;
 
     startPerformanceLog('사용자 설정');
     final settled = Completer<bool>();
-    void settle(bool ok) {
+    var failureReason = '${_userIdTimeout.inSeconds}s 안에 응답이 오지 않음';
+
+    // terminal 이벤트가 왔다는 것이 소유권 해제 조건이다. timeout 은 해제하지
+    // 않는다 — 해제하면 늦은 이벤트가 다음 시도의 결과로 둔갑한다.
+    void settle(bool ok, [String? reason]) {
+      _userIdPending = false;
+      if (reason != null) failureReason = reason;
       if (!settled.isCompleted) settled.complete(ok);
     }
 
@@ -96,31 +113,33 @@ class TapjoyPlatform extends AdPlatform {
           endPerformanceLog('사용자 설정');
           settle(true);
         },
-        onSetUserIDFailure: (error) {
-          logAdLoadFailure(
-              'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
-          settle(false);
-        },
+        onSetUserIDFailure: (error) =>
+            settle(false, error?.toString() ?? 'setUserID 실패'),
       );
-    } catch (error, stackTrace) {
-      logAdLoadFailure(
-          'Tapjoy', error, 'mission', error.toString(), stackTrace);
-      settle(false);
+    } catch (error) {
+      // 채널 호출 자체가 실패했다 — 네이티브가 실행되지 않았다고 보고 소유권을
+      // 놓는다. 여기서 붙잡으면 올 수 없는 이벤트를 기다리며 영구히 잠긴다.
+      settle(false, error.toString());
     }
 
     final ok = await settled.future.timeout(
       _userIdTimeout,
-      onTimeout: () {
-        logAdLoadFailure('Tapjoy', '사용자 ID 설정 응답 없음', 'mission',
-            '${_userIdTimeout.inSeconds}s 안에 terminal 이벤트가 오지 않음',
-            StackTrace.current);
-        return false;
-      },
+      onTimeout: () => false,
     );
-    _userIdInFlight = false;
-
-    if (!ok) _handleAdFailure('set user id failed');
+    if (!ok) _reportUserSetupFailure(failureReason);
     return ok;
+  }
+
+  /// 사용자 ID 확정 실패를 한 번만 알린다.
+  ///
+  /// `logAdLoadFailure` 가 이미 다이얼로그를 띄운다(ad_platform.dart:459,478).
+  /// 여기서 `handleAdFailure` 를 또 부르면 같은 실패에 다이얼로그가 두 번
+  /// 쌓인다. 애니메이션 정리만 직접 한다.
+  void _reportUserSetupFailure(String reason) {
+    logAdLoadFailure('Tapjoy', reason, 'mission', reason, StackTrace.current);
+    if (context.mounted && !isDisposed) {
+      stopAllAnimations();
+    }
   }
 
   /// 오퍼 요청. 테스트가 배선을 고정할 수 있도록 override 가능하게 둔다 —
@@ -136,7 +155,7 @@ class TapjoyPlatform extends AdPlatform {
       onRequestFailure: (placement, error) {
         logAdLoadFailure(
             'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
-        _handleAdFailure(error);
+        handleAdFailure(error);
       },
       onContentReady: (placement) {
         logInfo('콘텐츠 준비 완료');
@@ -165,7 +184,10 @@ class TapjoyPlatform extends AdPlatform {
     }
   }
 
-  void _handleAdFailure(String? error) {
+  /// 광고 실패 안내. 테스트가 "실패 한 건에 다이얼로그 한 개" 를 고정할 수
+  /// 있도록 override 가능하게 둔다.
+  @visibleForTesting
+  void handleAdFailure(String? error) {
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
       showSimpleDialog(
