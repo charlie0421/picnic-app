@@ -247,6 +247,16 @@ void main() {
     await _settleFor(tester, const Duration(seconds: 8));
     debugPrint('PICNIC2695 dialog opened, inset=${_keyboardInset(tester)}');
 
+    // 키보드가 내려간 상태에서는 X 가 반드시 있어야 한다. 키보드가 올라오면
+    // 본문 예산이 줄어 기기에 따라 X 가 양보할 수 있으므로(PICNIC-2694 가 확보한
+    // 조작부 보장이 우선), 그 경우는 배리어 케이스가 따로 검증한다.
+    final closeTarget = find.byKey(kLargePopupTopCloseKey);
+    debugPrint(
+      'PICNIC2695 close targets (keyboard down): '
+      '${closeTarget.evaluate().length}',
+    );
+    expect(closeTarget, findsOneWidget, reason: '키보드가 없으면 우상단 X 가 있어야 한다');
+
     // 금액 입력을 눌러 실제 숫자 키패드를 올린다.
     final input = find.byType(TextFormField);
     expect(input, findsOneWidget);
@@ -258,12 +268,21 @@ void main() {
     debugPrint('PICNIC2695 HOLD keyboard-up inset=$insetWithKeyboard');
     await _settleFor(tester, const Duration(seconds: 8));
 
-    // 우상단 X 를 찾아 누른다.
-    final closeTarget = find.byKey(kLargePopupTopCloseKey);
+    // 키패드를 내린 뒤 X 로 닫는다. 키보드가 올라온 동안 X 가 양보했다면
+    // 여기서 돌아와 있어야 한다.
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    await _settleFor(tester, const Duration(seconds: 2));
+    if (find.byType(VotingDialog).evaluate().isEmpty) {
+      // 배리어 탭이 팝업까지 닫았다면 다시 연다.
+      await tester.tap(find.text('open-voting-dialog'));
+      await tester.pumpAndSettle();
+    }
     debugPrint(
-      'PICNIC2695 close targets found: ${closeTarget.evaluate().length}',
+      'PICNIC2695 close targets (keyboard back down): '
+      '${closeTarget.evaluate().length}',
     );
-    expect(closeTarget, findsOneWidget, reason: '우상단 X 가 렌더링되어야 한다');
+    expect(closeTarget, findsOneWidget, reason: '키패드를 내리면 X 가 돌아와야 한다');
     await tester.tap(closeTarget);
     await tester.pumpAndSettle();
     await _settleFor(tester, const Duration(seconds: 2));

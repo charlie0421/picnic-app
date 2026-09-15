@@ -380,19 +380,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                           context,
                           contentWidth: contentWidth,
                           isKeyboardVisible: isKeyboardVisible,
-                        ) +
-                        // 키보드가 올라온 동안에는 보너스 안내까지 지켜야 한다.
-                        // 그때가 사용자가 금액을 넣는 순간이라 안내가 가장
-                        // 필요하고, PICNIC-2688 이 일반 폰에서 그것을 보장한다.
-                        // 키보드가 없으면 예산이 넉넉해 안내는 스크롤로 닿는다.
-                        (isKeyboardVisible
-                            ? PicnicUi.vertical(8) +
-                                  VotingBubbleInfo.preferredHeight(
-                                    context,
-                                    widget.voteModel,
-                                    maxWidth: contentWidth,
-                                  )
-                            : 0.0);
+                        );
                 final budget = math.max(
                   0.0,
                   available -

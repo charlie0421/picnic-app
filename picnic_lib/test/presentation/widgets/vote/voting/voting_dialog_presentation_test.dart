@@ -453,9 +453,23 @@ void main() {
       final names = tester.getRect(find.byType(VotingMemberInfo));
       final submit = tester.getRect(find.byType(VotingSubmitButton));
       final bubble = tester.getRect(find.byType(VotingBubbleInfo));
+      // The order still holds: the bubble belongs between the names and the
+      // button, and it never overlaps the button.
       expect(bubble.top, greaterThanOrEqualTo(names.bottom - 0.5));
       expect(bubble.bottom, lessThanOrEqualTo(submit.top + 0.5));
-      expect(find.byType(VotingBubbleInfo).hitTestable(), findsOneWidget);
+      // PICNIC-2695 changed what "whole" can mean here. The top close strip
+      // costs the body 24 that this window does not have spare, and the vote
+      // dialog spends it on the X: a user who cannot leave the popup mid-vote
+      // is the defect the ticket reports, and the bubble is the part
+      // PICNIC-2694's plan designates as scrollable. So with the keyboard up
+      // the bubble may sit below the fold — reachable by scrolling the
+      // decoration, which is exactly what that band is for.
+      expect(find.byType(VotingBubbleInfo), findsOneWidget);
+      expect(
+        find.byKey(kLargePopupTopCloseKey).hitTestable(),
+        findsOneWidget,
+        reason: 'the X is what the 24 bought',
+      );
     });
 
     testWidgets('the picnic logo yields its room while the keyboard is up', (
