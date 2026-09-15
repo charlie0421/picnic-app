@@ -86,7 +86,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -469,11 +470,7 @@ void main() {
       await tester.pump(const Duration(seconds: 31));
       await drain(tester);
 
-      expect(
-        settled,
-        isTrue,
-        reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다',
-      );
+      expect(settled, isTrue, reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다');
       platform.dispose();
       await pumpAndIgnoreErrors(tester);
     });

@@ -65,17 +65,9 @@ void main() {
     });
 
     await tester.pump();
-    expect(
-      calls,
-      containsAll(privacyMethods),
-      reason: '네 설정 모두 전송돼야 한다',
-    );
+    expect(calls, containsAll(privacyMethods), reason: '네 설정 모두 전송돼야 한다');
 
-    expect(
-      applied,
-      isFalse,
-      reason: '적용 전에 완료되면 hook 이 성공으로 캐시돼 오퍼월이 먼저 열린다',
-    );
+    expect(applied, isFalse, reason: '적용 전에 완료되면 hook 이 성공으로 캐시돼 오퍼월이 먼저 열린다');
 
     gate.complete();
     await tester.pump();

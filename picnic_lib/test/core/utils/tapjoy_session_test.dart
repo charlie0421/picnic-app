@@ -56,41 +56,40 @@ void main() {
       messenger.setMockMethodCallHandler(channel, null);
     });
 
-    testWidgets(
-      '네이티브 메서드 반환만으로는 완료되지 않는다 — 성공 이벤트까지 기다린다',
-      (tester) async {
-        mockNative();
+    testWidgets('네이티브 메서드 반환만으로는 완료되지 않는다 — 성공 이벤트까지 기다린다', (tester) async {
+      mockNative();
 
-        var completed = false;
-        final pending = sendTapjoyUserId(uid).terminal.then((_) {
-          completed = true;
-        });
+      var completed = false;
+      final pending = sendTapjoyUserId(uid).terminal.then((_) {
+        completed = true;
+      });
 
-        await tester.pump();
-        expect(
-          calls.map((c) => c.method),
-          contains('setUserID'),
-          reason: 'setUserID 자체는 즉시 나가야 한다',
-        );
-        expect(
-          calls.firstWhere((c) => c.method == 'setUserID').arguments,
-          {'userId': uid},
-        );
-        // 여기서 완료되면 오퍼월 요청이 기기 ID 상태에서 나간다 (PICNIC-2682).
-        expect(completed, isFalse);
+      await tester.pump();
+      expect(
+        calls.map((c) => c.method),
+        contains('setUserID'),
+        reason: 'setUserID 자체는 즉시 나가야 한다',
+      );
+      expect(calls.firstWhere((c) => c.method == 'setUserID').arguments, {
+        'userId': uid,
+      });
+      // 여기서 완료되면 오퍼월 요청이 기기 ID 상태에서 나간다 (PICNIC-2682).
+      expect(completed, isFalse);
 
-        await deliverSdkEvent('TapjoyOnSetUserIDSuccess');
-        await tester.pump();
-        await pending;
-        expect(completed, isTrue);
-      },
-    );
+      await deliverSdkEvent('TapjoyOnSetUserIDSuccess');
+      await tester.pump();
+      await pending;
+      expect(completed, isTrue);
+    });
 
     testWidgets('실패 이벤트는 Future 실패로 전파된다', (tester) async {
       mockNative();
 
       final pending = sendTapjoyUserId(uid).terminal;
-      final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
+      final matcher = expectLater(
+        pending,
+        throwsA(isA<TapjoySessionException>()),
+      );
 
       await tester.pump();
       await deliverSdkEvent('TapjoyOnSetUserIDFailure', 'bad user id');
@@ -100,7 +99,8 @@ void main() {
 
     testWidgets('채널 예외도 Future 실패로 전파된다', (tester) async {
       mockNative(
-        reply: (_) => throw PlatformException(code: 'ERROR', message: 'no activity'),
+        reply: (_) =>
+            throw PlatformException(code: 'ERROR', message: 'no activity'),
       );
 
       // 채널 호출은 실패해도 리스너가 이미 등록돼 있으므로 attempt 는 반환되고,
@@ -152,9 +152,7 @@ void main() {
 
     test('connect 성공 이벤트 전에는 setUserID 를 보내지 않는다', () async {
       final connectSuccess = Completer<void>();
-      final session = makeSession(
-        connect: _deferredConnector(connectSuccess),
-      );
+      final session = makeSession(connect: _deferredConnector(connectSuccess));
       await session.connect(sdkKey: 'sdk-key');
 
       var ready = false;
@@ -177,8 +175,10 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
-              required void Function(int code, String? message) onConnectWarning,
+              required void Function(int code, String? message)
+              onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
             }) async {
               seenOptions = options;
               onConnectSuccess();
@@ -199,8 +199,10 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
-              required void Function(int code, String? message) onConnectWarning,
+              required void Function(int code, String? message)
+              onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
             }) async {
               seenOptions = options;
               onConnectSuccess();
@@ -267,10 +269,15 @@ void main() {
 
       var bodyRuns = 0;
       final pending = session.runOfferwall((_) async => bodyRuns++);
-      final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
+      final matcher = expectLater(
+        pending,
+        throwsA(isA<TapjoySessionException>()),
+      );
 
       await pumpEventQueue();
-      gates.single.completeError(const TapjoySessionException('SET_USER_ID_FAILED'));
+      gates.single.completeError(
+        const TapjoySessionException('SET_USER_ID_FAILED'),
+      );
       await matcher;
 
       expect(bodyRuns, 0, reason: 'ID 설정 실패 뒤 오퍼월을 열면 기기 ID 로 오퍼가 생성된다');
@@ -282,7 +289,10 @@ void main() {
 
       var bodyRuns = 0;
       final pending = session.runOfferwall((_) async => bodyRuns++);
-      final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
+      final matcher = expectLater(
+        pending,
+        throwsA(isA<TapjoySessionException>()),
+      );
 
       await pumpEventQueue();
       // setUserID 성공 이벤트를 기다리는 사이 계정이 바뀐 상황.

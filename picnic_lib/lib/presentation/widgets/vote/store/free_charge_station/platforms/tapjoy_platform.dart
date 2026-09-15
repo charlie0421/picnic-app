@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/services.dart' show MissingPluginException;
 import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -18,6 +19,10 @@ class TapjoyPlatform extends AdPlatform {
   /// 무료충전소 미션 오퍼월의 placement 이름.
   static const String placementName = 'mission';
 
+  /// placement 채널 호출(getPlacement·requestContent·showContent)의 상한.
+  /// 응답이 오지 않으면 세션의 직렬화 큐가 영구 pending 이 된다 (blocker-3).
+  static const Duration dispatchTimeout = Duration(seconds: 15);
+
   Timer? _safetyTimer;
   bool _isInitialized = false;
 
@@ -26,9 +31,12 @@ class TapjoyPlatform extends AdPlatform {
   /// 않으므로 [TapjoyPlacementGate] 가 함께 필요하다.
   final TapjoyAttemptGuard _attemptGuard = TapjoyAttemptGuard();
 
-
-  TapjoyPlatform(super.ref, super.context, super.id,
-      [super.animationController]);
+  TapjoyPlatform(
+    super.ref,
+    super.context,
+    super.id, [
+    super.animationController,
+  ]);
 
   @override
   Future<void> initialize() async {
@@ -60,8 +68,25 @@ class TapjoyPlatform extends AdPlatform {
   /// 테스트하게 된다 — 그러면 `showAd()` 가 세션을 **거치지 않도록** 바뀌어도
   /// 테스트가 통과한다.
   @visibleForTesting
-  Future<void> runTapjoyOfferwall() =>
-      TapjoySession.instance.runOfferwall(requestPlacement);
+  Future<void> runTapjoyOfferwall() async {
+    // 거절될 탭이 전역 SDK 사용자 ID 를 바꾸지 않도록, ID 동기화보다 게이트를
+    // 먼저 본다. 최종 판정은 requestPlacement 의 tryEnter 가 한다 (blocker-2).
+    if (TapjoyPlacementGate.isActive(placementName)) {
+      logInfo('$placementName 오퍼월이 이미 열려 있어 중복 요청을 무시한다');
+      stopAllAnimations();
+      return;
+    }
+    await TapjoySession.instance.runOfferwall(requestPlacement);
+  }
+
+  /// 채널 예외가 "네이티브에 전달되지 않았다"는 **증거**인가.
+  ///
+  /// [MissingPluginException] 만 확실하다 — 플러그인이 없으면 요청이 네이티브에
+  /// 도달할 수 없고 늦은 콜백도 오지 않는다. 그 밖의 채널 실패는 네이티브가
+  /// 이미 요청을 실행한 뒤 응답 전달만 실패한 경우일 수 있으므로
+  /// (TapjoyOfferwallPlugin.kt:374-378, .swift:449-452) 미전달의 증거가 아니다.
+  static bool _isCertainlyUndelivered(Object error) =>
+      error is MissingPluginException;
 
   void _setupSafetyTimer() {
     _safetyTimer?.cancel();
@@ -87,6 +112,8 @@ class TapjoyPlatform extends AdPlatform {
 
     startPerformanceLog('플레이스먼트 요청');
     final attempt = _attemptGuard.begin();
+    // 계정이 A→B→A 로 되돌아와도 이 시도가 되살아나지 않게 세대를 캡처한다.
+    final authGeneration = TapjoySession.instance.authGeneration;
 
     // 게이트는 **네이티브 terminal 이벤트로만** 푼다. dispose 나 타이머로 풀면
     // 이 요청의 늦은 콜백이 새 owner 의 closure·토큰·Auth 를 통과해 남의 화면을
@@ -104,64 +131,107 @@ class TapjoyPlatform extends AdPlatform {
         _attemptGuard.isCurrent(attempt) &&
         !isDisposed &&
         context.mounted &&
+        TapjoySession.instance.authGeneration == authGeneration &&
         TapjoySession.instance.currentUserId == userId;
 
     try {
-      final placement = await TJPlacement.getPlacement(
-        placementName: placementName,
-        onRequestSuccess: (placement) async {
-          logInfo('플레이스먼트 요청 성공');
-          // 요청이 성공해도 내려줄 오퍼가 없을 수 있다(정상 no-fill). 그 경우
-          // onContentReady·show·dismiss 가 오지 않으므로 여기가 이 요청의
-          // terminal 이다. 패키지 예제(home_widget.dart:161)도 같은 분기를 쓴다.
-          bool available;
-          try {
-            available = await placement.isContentAvailable();
-          } catch (error) {
-            // 확인 자체가 실패하면 더 기다릴 근거가 없다 — no-fill 로 종결한다.
-            logWarning('isContentAvailable 확인 실패 — no-fill 로 종결', error: error);
-            available = false;
-          }
-          if (available) return;
+      final placement = await _withDispatchTimeout(
+        'getPlacement',
+        () => TJPlacement.getPlacement(
+          placementName: placementName,
+          onRequestSuccess: (placement) async {
+            logInfo('플레이스먼트 요청 성공');
+            // 요청이 성공해도 내려줄 오퍼가 없을 수 있다(정상 no-fill). 그 경우
+            // onContentReady·show·dismiss 가 오지 않으므로 여기가 이 요청의
+            // terminal 이다. 패키지 예제(home_widget.dart:161)도 같은 분기를 쓴다.
+            bool available;
+            try {
+              available = await placement.isContentAvailable().timeout(
+                dispatchTimeout,
+                onTimeout: () => throw TimeoutException(
+                  'isContentAvailable',
+                  dispatchTimeout,
+                ),
+              );
+            } catch (error) {
+              // 조회가 실패했을 뿐 "오퍼가 없다"는 증거는 아니다. 늦은
+              // onContentReady 가 아직 올 수 있으므로 terminal 까지 격리한다.
+              if (_isCertainlyUndelivered(error)) {
+                logWarning('isContentAvailable 미전달 — 게이트를 놓는다', error: error);
+                release();
+              } else {
+                logWarning(
+                  'isContentAvailable 확인 실패 — terminal 까지 격리',
+                  error: error,
+                );
+              }
+              if (isLive()) _handleAdFailure('content_check_failed');
+              return;
+            }
+            if (available) return;
 
-          logInfo('표시할 오퍼가 없어 이 요청을 종료한다');
-          release();
-          if (isLive()) {
-            _handleAdFailure('no_content');
-          }
-        },
-        onRequestFailure: (placement, error) {
-          release();
-          if (!isLive()) return;
-          logAdLoadFailure('Tapjoy', error, placementName, error.toString(),
-              StackTrace.current);
-          _handleAdFailure(error);
-        },
-        onContentReady: (placement) {
-          if (!isLive()) {
-            // 화면이 사라진 뒤 도착한 준비 콜백. 이 요청의 수명은 여기서 끝난다
-            // — showContent 를 부르지 않는 한 show/dismiss 는 오지 않으므로,
-            // 이 시점이 이 요청의 마지막 네이티브 이벤트다.
-            logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않고 게이트를 놓는다');
+            logInfo('표시할 오퍼가 없어 이 요청을 종료한다');
             release();
-            return;
-          }
-          logInfo('콘텐츠 준비 완료');
-          placement.showContent();
-          stopAllAnimations();
-        },
-        onContentShow: (placement) {
-          logInfo('콘텐츠 표시 시작');
-        },
-        onContentDismiss: (placement) {
-          logInfo('콘텐츠 닫힘');
-          release();
-          if (context.mounted && !isDisposed) {
+            if (isLive()) {
+              _handleAdFailure('no_content');
+            }
+          },
+          onRequestFailure: (placement, error) {
+            release();
+            if (!isLive()) return;
+            logAdLoadFailure(
+              'Tapjoy',
+              error,
+              placementName,
+              error.toString(),
+              StackTrace.current,
+            );
+            _handleAdFailure(error);
+          },
+          onContentReady: (placement) async {
+            if (!isLive()) {
+              // 화면이 사라졌거나 계정이 바뀐 뒤 도착한 준비 콜백. 이 요청의
+              // 수명은 여기서 끝난다 — showContent 를 부르지 않는 한 show/dismiss
+              // 는 오지 않으므로, 이 시점이 이 요청의 마지막 네이티브 이벤트다.
+              logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않고 게이트를 놓는다');
+              release();
+              return;
+            }
+
+            // 표시 직전 전역 SDK 사용자 ID 가 이 시도의 UUID 그대로인지 다시
+            // 확인한다. 다른 탭이 ID 를 바꿔 놨다면 이 오퍼는 남의 것이 된다.
+            bool matches;
+            try {
+              matches = await TapjoySession.instance.nativeUserIdMatches(
+                userId,
+              );
+            } catch (error) {
+              logWarning('표시 직전 사용자 ID 확인 실패 — 표시하지 않는다', error: error);
+              matches = false;
+            }
+            if (!matches || !isLive()) {
+              logWarning('표시 직전 SDK 사용자 ID 불일치 — 표시하지 않는다');
+              release();
+              return;
+            }
+
+            logInfo('콘텐츠 준비 완료');
+            await placement.showContent();
             stopAllAnimations();
-            commonUtils.refreshUserProfile();
-          }
-          endPerformanceLog('플레이스먼트 요청');
-        },
+          },
+          onContentShow: (placement) {
+            logInfo('콘텐츠 표시 시작');
+          },
+          onContentDismiss: (placement) {
+            logInfo('콘텐츠 닫힘');
+            release();
+            if (context.mounted && !isDisposed) {
+              stopAllAnimations();
+              commonUtils.refreshUserProfile();
+            }
+            endPerformanceLog('플레이스먼트 요청');
+          },
+        ),
       );
 
       if (!isLive()) {
@@ -171,20 +241,37 @@ class TapjoyPlatform extends AdPlatform {
       }
 
       placement.setEntryPoint(TJEntryPoint.entryPointStore);
-      await placement.requestContent();
+      await _withDispatchTimeout(
+        'requestContent',
+        () => placement.requestContent(),
+      );
     } catch (error) {
-      // 요청을 못 보냈으면 게이트를 물고 있을 이유가 없다.
-      release();
+      // 네이티브는 요청을 먼저 실행하고 응답을 나중에 돌려준다. 채널 실패나
+      // timeout 은 "전달되지 않았다"는 증거가 아니므로, 확실한 미전달일 때만
+      // 게이트를 놓고 나머지는 terminal 까지 격리한다 (blocker-1).
+      if (_isCertainlyUndelivered(error)) {
+        release();
+      } else {
+        logWarning('placement 요청 전달 여부 불명 — terminal 까지 게이트 유지', error: error);
+      }
       rethrow;
     }
   }
+
+  /// 채널 호출에 상한을 건다. 응답이 오지 않아도 세션의 직렬화 큐는 끝난다.
+  Future<T> _withDispatchTimeout<T>(String name, Future<T> Function() call) =>
+      call().timeout(
+        dispatchTimeout,
+        onTimeout: () => throw TimeoutException(name, dispatchTimeout),
+      );
 
   void _handleAdFailure(String? error) {
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
       showSimpleDialog(
-          content: AppLocalizations.of(context).label_ads_load_fail,
-          type: DialogType.error);
+        content: AppLocalizations.of(context).label_ads_load_fail,
+        type: DialogType.error,
+      );
     }
   }
 
@@ -194,8 +281,9 @@ class TapjoyPlatform extends AdPlatform {
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
       showSimpleDialog(
-          content: AppLocalizations.of(context).label_ads_load_fail,
-          type: DialogType.error);
+        content: AppLocalizations.of(context).label_ads_load_fail,
+        type: DialogType.error,
+      );
     }
   }
 

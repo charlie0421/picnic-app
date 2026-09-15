@@ -61,8 +61,7 @@ void main() {
           // 로컬 TJUser.setUserId 를 먼저 실행한다. 따라서 setUserID 를 보낸
           // 직후부터 getUserID 는 그 값을 돌려준다 — 네이티브 ID 조회만으로는
           // "누구의 성공 이벤트인지"를 증명할 수 없다.
-          nativeUserId =
-              (call.arguments as Map)['userId'] as String?;
+          nativeUserId = (call.arguments as Map)['userId'] as String?;
           return null;
         case 'getUserID':
           if (getUserIdHangs) return Completer<Object?>().future;
@@ -94,8 +93,7 @@ void main() {
     return delivered.future;
   }
 
-  int countOf(String method) =>
-      calls.where((c) => c.method == method).length;
+  int countOf(String method) => calls.where((c) => c.method == method).length;
 
   TapjoySession makeSession({
     required String? Function() currentUserId,
@@ -115,10 +113,7 @@ void main() {
 
         // 1) 계정 A 의 setUserID — 성공 이벤트가 오지 않아 10초 뒤 timeout.
         final a = session.ensureUserReady();
-        final aFailed = expectLater(
-          a,
-          throwsA(isA<TapjoySessionException>()),
-        );
+        final aFailed = expectLater(a, throwsA(isA<TapjoySessionException>()));
         await tester.pump();
         expect(countOf('setUserID'), 1);
         await tester.pump(const Duration(seconds: 11));
@@ -248,8 +243,8 @@ void main() {
       // 채널은 실패했지만 리스너는 살아 있어 네이티브 terminal 이벤트가 올 수
       // 있다. 격리 없이 새 요청을 보내면 그 늦은 이벤트가 새 시도로 샌다.
       setUserIdChannelBehavior = null;
-    getUserIdHangs = false;
-    isConnectedHangs = false;
+      getUserIdHangs = false;
+      isConnectedHangs = false;
       currentUser = userB;
       final second = session.ensureUserReady();
       final secondFailed = expectLater(
@@ -282,8 +277,8 @@ void main() {
 
       // 네이티브가 뒤늦게 실패를 통보해 소유권이 정리된다.
       setUserIdChannelBehavior = null;
-    getUserIdHangs = false;
-    isConnectedHangs = false;
+      getUserIdHangs = false;
+      isConnectedHangs = false;
       await deliver('TapjoyOnSetUserIDFailure', 'activity was null');
       await tester.pump();
 
@@ -312,11 +307,7 @@ void main() {
       await tester.pump();
       await tester.pump(const Duration(seconds: 11));
 
-      expect(
-        settled,
-        isTrue,
-        reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다',
-      );
+      expect(settled, isTrue, reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다');
       await expectLater(pending, throwsA(isA<TapjoySessionException>()));
 
       // 소유권은 유지돼야 한다 — 다음 시도는 격리된다.
@@ -440,11 +431,7 @@ void main() {
 
       // 이 hook 이 앱 안에서 Tapjoy GDPR·user consent·age·US privacy 를 설정하는
       // 유일한 지점이다(app_initializer.dart 의 _onTapjoyConnectSuccess).
-      expect(
-        hookCalls,
-        1,
-        reason: 'fallback 으로 오퍼월만 열고 개인정보 설정을 건너뛰면 안 된다',
-      );
+      expect(hookCalls, 1, reason: 'fallback 으로 오퍼월만 열고 개인정보 설정을 건너뛰면 안 된다');
 
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
@@ -470,7 +457,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -517,7 +505,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -551,16 +540,8 @@ void main() {
       await tester.pump(const Duration(seconds: 20));
       await secondFailed;
 
-      expect(
-        callsAfterFirst,
-        2,
-        reason: '진짜 실패 뒤 첫 사용자 시도는 한 번 재연결해야 한다',
-      );
-      expect(
-        connectCalls,
-        2,
-        reason: '실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다',
-      );
+      expect(callsAfterFirst, 2, reason: '진짜 실패 뒤 첫 사용자 시도는 한 번 재연결해야 한다');
+      expect(connectCalls, 2, reason: '실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다');
 
       // 쿨다운 타이머를 소진해 pending timer 없이 끝낸다.
       await tester.pump(const Duration(seconds: 40));
@@ -578,7 +559,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -647,7 +629,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -706,7 +689,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -782,7 +766,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {
@@ -831,7 +816,8 @@ void main() {
               required String sdkKey,
               required Map<String, dynamic> options,
               required void Function() onConnectSuccess,
-              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectFailure,
               required void Function(int code, String? message)
               onConnectWarning,
             }) async {

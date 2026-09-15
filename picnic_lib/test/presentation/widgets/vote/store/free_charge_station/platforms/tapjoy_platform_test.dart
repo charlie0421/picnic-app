@@ -35,7 +35,6 @@ class _ProbePlatform extends TapjoyPlatform {
   }
 
   final List<Object?> handledErrors = <Object?>[];
-
 }
 
 void main() {

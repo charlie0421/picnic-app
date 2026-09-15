@@ -178,6 +178,7 @@ class TapjoySession {
     this.userIdTimeout = const Duration(seconds: 10),
     this.connectTimeout = const Duration(seconds: 15),
     this.reconnectCooldown = const Duration(seconds: 30),
+    this.probeTimeout = const Duration(seconds: 5),
   }) : _sendUserId = setUserIdAndWait ?? sendTapjoyUserId,
        _currentUserId = currentUserId ?? _defaultCurrentUserId,
        _connect = connect ?? _defaultConnect,
@@ -217,6 +218,11 @@ class TapjoySession {
   final Duration userIdTimeout;
   final Duration connectTimeout;
   final Duration reconnectCooldown;
+
+  /// 네이티브 상태 조회(`isConnected`/`getUserID`)의 상한. 채널 응답이 오지
+  /// 않으면 connectTimeout·userIdTimeout 밖에서 기다려 전역 직렬화 큐가 영구
+  /// pending 이 된다 (blocker-3).
+  final Duration probeTimeout;
 
   /// connect 성공 이벤트로만 완료된다. 실패/채널 예외는 오류로 완료한다.
   Completer<void>? _connectReady;
@@ -315,10 +321,22 @@ class TapjoySession {
     }
   }
 
+  /// 로그아웃·계정 전환 때마다 증가하는 단조 세대 번호.
+  ///
+  /// 오퍼월 시도가 이 값을 캡처해 두면, 계정이 A→B→A 로 되돌아와도 앞선 시도의
+  /// 늦은 콜백을 문자열 일치만으로 되살리지 않는다 (blocker-2).
+  int get authGeneration => _authGeneration;
+  int _authGeneration = 0;
+
   /// 로그아웃·계정 전환·dispose 로 SDK 사용자 상태를 더는 신뢰할 수 없을 때.
   void invalidateUser() {
     _readyUserId = null;
+    _authGeneration++;
   }
+
+  /// 네이티브 SDK 가 지금 [userId] 를 들고 있는가. 확인 실패는 던진다.
+  Future<bool> nativeUserIdMatches(String userId) =>
+      _nativeUserIdMatches(userId);
 
   /// SDK 가 현재 로그인 사용자의 UUID 를 확인할 때까지 기다린다.
   ///
@@ -438,23 +456,27 @@ class TapjoySession {
   /// 네이티브 terminal 이벤트를 아직 못 받은 시도를 격리한다.
   void _quarantine(TapjoyUserIdAttempt attempt) {
     _orphanedAttempt = attempt;
-    logger.w(
-      '[Tapjoy] setUserID terminal 이벤트 대기 중 — 새 요청을 보류한다',
+    logger.w('[Tapjoy] setUserID terminal 이벤트 대기 중 — 새 요청을 보류한다');
+    attempt.terminal.then<void>((_) {}, onError: (Object _) {}).whenComplete(
+      () {
+        if (identical(_orphanedAttempt, attempt)) {
+          _orphanedAttempt = null;
+          logger.i('[Tapjoy] setUserID 소유권 정리 완료 — 보류 해제');
+        }
+      },
     );
-    attempt.terminal
-        .then<void>((_) {}, onError: (Object _) {})
-        .whenComplete(() {
-          if (identical(_orphanedAttempt, attempt)) {
-            _orphanedAttempt = null;
-            logger.i('[Tapjoy] setUserID 소유권 정리 완료 — 보류 해제');
-          }
-        });
   }
 
   /// 네이티브 SDK 가 [userId] 를 들고 있는가. 확인 자체가 실패하면 던진다.
   Future<bool> _nativeUserIdMatches(String userId) async {
     try {
-      final native = await _nativeUserId();
+      final native = await _nativeUserId().timeout(
+        probeTimeout,
+        onTimeout: () => throw TapjoySessionException(
+          'USER_ID_PROBE_TIMEOUT',
+          '${probeTimeout.inMilliseconds}ms',
+        ),
+      );
       if (native == null) return false;
       // UUID 는 hex 라 표기 차이만 흡수하면 된다. 기기 ID(64 hex)는 이래도 안 맞는다.
       return native.trim().toLowerCase() == userId.trim().toLowerCase();
@@ -466,7 +488,11 @@ class TapjoySession {
 
   Future<bool> _probeConnected() async {
     try {
-      return await _nativeConnected();
+      // 응답이 오지 않는 probe 를 무한정 기다리면 큐 전체가 멈춘다.
+      return await _nativeConnected().timeout(
+        probeTimeout,
+        onTimeout: () => false,
+      );
     } catch (error) {
       logger.w('[Tapjoy] isConnected probe failed: $error');
       return false;
