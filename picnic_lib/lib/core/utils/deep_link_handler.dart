@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
+import 'package:picnic_lib/core/utils/deep_link_navigation_plan.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/enums.dart';
@@ -102,18 +103,20 @@ class DeepLinkHandler {
         targetPage = const VoteListPage();
         break;
       case 'detail':
-        if (uri.pathSegments.length >= 3) {
-          final voteId = uri.pathSegments[2];
-          final type = uri.queryParameters['type'];
-          if (type == 'achieve') {
-            targetPage = VoteDetailAchievePage(voteId: int.parse(voteId));
-          } else {
-            targetPage = VoteDetailPage(voteId: int.parse(voteId));
-          }
-        } else {
+        if (uri.pathSegments.length < 3) {
           logger.w('Invalid vote detail URL: $longUrl (missing voteId)');
           return;
         }
+        // Vote ids are positive; anything else is a malformed or hostile link
+        // and must not reach a page that would query it.
+        final voteId = int.tryParse(uri.pathSegments[2]);
+        if (voteId == null || voteId <= 0) {
+          logger.w('Invalid vote detail URL: $longUrl (bad voteId)');
+          return;
+        }
+        targetPage = uri.queryParameters['type'] == 'achieve'
+            ? VoteDetailAchievePage(voteId: voteId)
+            : VoteDetailPage(voteId: voteId);
         break;
       default:
         return;
@@ -225,8 +228,10 @@ class DeepLinkHandler {
   // --- Navigation helpers ---
 
   /// Pushes [targetPage] into the current portal's page stack.
-  /// If the current portal doesn't support direct page setting,
-  /// switches to [fallbackPortal] and sets the page on the next frame.
+  ///
+  /// When the link points outside the current portal we switch to
+  /// [fallbackPortal] first; the push then happens in the same turn, so the
+  /// portal's home page is never shown on its own (PICNIC-2693).
   static void _pushToCurrentPortal(
     WidgetRef ref,
     NavigationInfo navigationNotifier,
@@ -234,22 +239,28 @@ class DeepLinkHandler {
     required PortalType fallbackPortal,
     bool usePushKeepScreen = false,
   }) {
-    final currentPortal = ref.read(navigationInfoProvider).portalType;
-    if (currentPortal == PortalType.community) {
-      navigationNotifier.setCommunityCurrentPage(targetPage);
-    } else if (currentPortal == PortalType.pic) {
-      navigationNotifier.setPicCurrentPage(targetPage);
-    } else if (currentPortal == PortalType.novel) {
-      navigationNotifier.setNovelCurrentPage(targetPage);
-    } else {
-      navigationNotifier.setPortal(fallbackPortal);
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (usePushKeepScreen) {
-          navigationNotifier.pushVotePageKeepScreen(targetPage);
-        } else {
-          navigationNotifier.setCurrentPage(targetPage);
-        }
-      });
+    final plan = DeepLinkNavigationPlanner.plan(
+      currentPortal: ref.read(navigationInfoProvider).portalType,
+      fallbackPortal: fallbackPortal,
+      usePushKeepScreen: usePushKeepScreen,
+    );
+
+    final switchToPortal = plan.switchToPortal;
+    if (switchToPortal != null) {
+      navigationNotifier.setPortal(switchToPortal);
+    }
+
+    switch (plan.push) {
+      case DeepLinkPushTarget.community:
+        navigationNotifier.setCommunityCurrentPage(targetPage);
+      case DeepLinkPushTarget.pic:
+        navigationNotifier.setPicCurrentPage(targetPage);
+      case DeepLinkPushTarget.novel:
+        navigationNotifier.setNovelCurrentPage(targetPage);
+      case DeepLinkPushTarget.voteKeepScreen:
+        navigationNotifier.pushVotePageKeepScreen(targetPage);
+      case DeepLinkPushTarget.vote:
+        navigationNotifier.setCurrentPage(targetPage);
     }
   }
 

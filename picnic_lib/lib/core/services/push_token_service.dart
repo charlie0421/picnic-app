@@ -3,12 +3,12 @@ import 'dart:async';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/push_token_helper.dart';
 import 'package:picnic_lib/core/services/push_token_initialization_coordinator.dart';
 import 'package:picnic_lib/services/locale_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -25,6 +25,11 @@ class PushTokenService {
   static PushTokenInitializationCoordinator Function()?
   _debugCoordinatorFactory;
   static int _ownerGeneration = 0;
+  static final List<_PendingTap> _pendingTaps = <_PendingTap>[];
+  static bool _launchPayloadConsumed = false;
+  static Future<void>? _launchNotificationRead;
+  static LaunchPayloadReader? _debugLaunchPayloadReader;
+  static PushMessageSources? _debugMessageSources;
 
   static Future<void> initialize({
     Function(RemoteMessage)? onNotificationTap,
@@ -33,10 +38,82 @@ class PushTokenService {
     _onNotificationTap = onNotificationTap;
     _onActionUrlTap = onActionUrlTap;
     if (kIsWeb) return; // Web handled in Next.js app
+    // Destinations that arrived before the callbacks existed are replayed
+    // first, so a tap consumed during a cold start is never lost.
+    _flushPendingTaps();
     _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
-    await _coordinator!.initialize();
+    // Started side by side, never chained: the coordinator's permission step
+    // is an OS sheet and can wait on the user indefinitely, and the launch
+    // destination must not queue behind it. The platform answers the launch
+    // read from state captured before Dart ran - the Android launch Intent
+    // and the iOS pre-`initialized` response - so it needs nothing from the
+    // coordinator to be correct (PICNIC-2693).
+    final coordinatorReady = _coordinator!.initialize();
+    final launchNotification = _consumeLaunchNotification();
+    await Future.wait([coordinatorReady, launchNotification]);
   }
 
+  /// Recovers the destination of a local notification that was tapped while
+  /// the app was not running. FCM does not report those, so without this read
+  /// the tap silently lands on the start screen (PICNIC-2693).
+  ///
+  /// Read once per process, but only a *successful* read counts: a platform
+  /// read that throws (plugin not ready yet, Phoenix remount mid-read) leaves
+  /// the destination readable so the next [initialize] retries it. Concurrent
+  /// initializes share one in-flight read.
+  static Future<void> _consumeLaunchNotification() {
+    if (_launchPayloadConsumed) return Future<void>.value();
+    final inFlight = _launchNotificationRead;
+    if (inFlight != null) return inFlight;
+
+    late final Future<void> attempt;
+    attempt = () async {
+      try {
+        final reader = _debugLaunchPayloadReader ?? _readLaunchPayload;
+        final details = await reader();
+        // Latched only now: everything above can still fail and be retried.
+        _launchPayloadConsumed = true;
+        final actionUrl = PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: details.didNotificationLaunchApp,
+          payload: details.payload,
+        );
+        if (actionUrl == null) return;
+        logger.i('[FCM] App launched from a local notification');
+        _deliverActionUrl(actionUrl);
+      } catch (e, s) {
+        logger.e(
+          '[FCM] Could not read notification launch details; will retry',
+          error: e,
+          stackTrace: s,
+        );
+      } finally {
+        if (identical(_launchNotificationRead, attempt)) {
+          _launchNotificationRead = null;
+        }
+      }
+    }();
+    _launchNotificationRead = attempt;
+    return attempt;
+  }
+
+  static Future<({bool didNotificationLaunchApp, String? payload})>
+  _readLaunchPayload() async {
+    final details = await _localNotifications
+        .getNotificationAppLaunchDetails();
+    return (
+      didNotificationLaunchApp: details?.didNotificationLaunchApp ?? false,
+      payload: details?.notificationResponse?.payload,
+    );
+  }
+
+  /// Re-checks permission and token on every foreground.
+  ///
+  /// This is the only recovery path for a process whose background launch
+  /// never reached [initialize], so it still builds the coordinator lazily.
+  /// Installing the subscriptions here can consume the one-shot
+  /// `getInitialMessage()` before the navigation callbacks exist; the pending
+  /// queue holds that destination until [initialize] replays it
+  /// (PICNIC-2693).
   static Future<void> resume() async {
     if (kIsWeb) return;
     _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
@@ -49,6 +126,7 @@ class PushTokenService {
     _coordinator = null;
     _onNotificationTap = null;
     _onActionUrlTap = null;
+    _pendingTaps.clear();
     if (coordinator != null) await coordinator.dispose();
   }
 
@@ -104,9 +182,14 @@ class PushTokenService {
           if (userId == null) return Future<void>.value();
           return _registerToken(token, owner: owner, userId: userId);
         },
-        tokenRefreshes: _messaging.onTokenRefresh,
-        foregroundMessages: FirebaseMessaging.onMessage.cast<Object>(),
-        openedMessages: FirebaseMessaging.onMessageOpenedApp.cast<Object>(),
+        // `??` leaves the right-hand side unevaluated when a test supplies a
+        // source, so the real coordinator wiring can run without a Firebase app.
+        tokenRefreshes:
+            _debugMessageSources?.tokenRefreshes ?? _messaging.onTokenRefresh,
+        foregroundMessages: _debugMessageSources?.foregroundMessages ??
+            FirebaseMessaging.onMessage.cast<Object>(),
+        openedMessages: _debugMessageSources?.openedMessages ??
+            FirebaseMessaging.onMessageOpenedApp.cast<Object>(),
         authChanges: supabase.auth.onAuthStateChange.cast<Object>(),
         isSignedIn: () =>
             supabase.auth.currentSession?.accessToken.isNotEmpty == true,
@@ -116,15 +199,18 @@ class PushTokenService {
           if (owner != _ownerGeneration) return;
           await _handleForegroundMessage(message as RemoteMessage);
         },
+        // Delivered straight through: the tap handler owns the single
+        // frame-requesting dispatch. Wrapping it in a post-frame callback here
+        // too produced a nested `addPostFrameCallback`, and a callback added
+        // during the post-frame drain lands on a frame that nothing ever
+        // requests (PICNIC-2693).
         onOpenedMessage: (message) {
           if (owner != _ownerGeneration) return;
-          final remoteMessage = message as RemoteMessage;
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (owner != _ownerGeneration) return;
-            _handleNotificationTap(remoteMessage);
-          });
+          _handleNotificationTap(message as RemoteMessage);
         },
-        getInitialMessage: () => _messaging.getInitialMessage(),
+        getInitialMessage: () =>
+            _debugMessageSources?.getInitialMessage?.call() ??
+            _messaging.getInitialMessage(),
         onError: (error, stackTrace) {
           logger.e(
             'Push initialization step failed',
@@ -348,6 +434,27 @@ class PushTokenService {
   static int get debugOwnerGeneration => _ownerGeneration;
 
   @visibleForTesting
+  static int get debugPendingNotificationTapCount => _pendingTaps.length;
+
+  @visibleForTesting
+  static void debugHandleNotificationTap(RemoteMessage message) =>
+      _handleNotificationTap(message);
+
+  @visibleForTesting
+  static void debugHandleLocalNotificationResponse(String? payload) =>
+      _handleLocalNotificationResponse(payload);
+
+  @visibleForTesting
+  static void debugUseLaunchPayloadReader(LaunchPayloadReader reader) {
+    _debugLaunchPayloadReader = reader;
+  }
+
+  @visibleForTesting
+  static void debugUseMessageSources(PushMessageSources sources) {
+    _debugMessageSources = sources;
+  }
+
+  @visibleForTesting
   static bool debugIsRegistrationOwnerActive(int owner, String userId) =>
       _isRegistrationOwnerActive(owner, userId);
 
@@ -432,6 +539,10 @@ class PushTokenService {
   static Future<void> debugResetForTest() async {
     await dispose();
     _debugCoordinatorFactory = null;
+    _debugLaunchPayloadReader = null;
+    _debugMessageSources = null;
+    _launchPayloadConsumed = false;
+    _launchNotificationRead = null;
     _apnsWaited = false;
     _notificationsInitialized = false;
   }
@@ -454,42 +565,8 @@ class PushTokenService {
 
       await _localNotifications.initialize(
         initSettings,
-        onDidReceiveNotificationResponse: (NotificationResponse response) {
-          logger.i('[FCM] Local notification tapped: ${response.payload}');
-          // 로컬 알림 탭 처리 (포그라운드 알림)
-          // payload는 action_url이 포함된 문자열
-          if (response.payload != null && response.payload!.isNotEmpty) {
-            try {
-              // payload에서 action_url 추출 시도
-              // payload 형식: "{action_url: https://applink.picnic.fan/...}"
-              final payloadStr = response.payload!;
-              // 간단한 파싱: action_url이 포함되어 있으면 추출
-              if (payloadStr.contains('action_url')) {
-                final uriMatch = RegExp(
-                  r'https?://[^\s}]+',
-                ).firstMatch(payloadStr);
-                if (uriMatch != null) {
-                  final actionUrl = uriMatch.group(0);
-                  if (actionUrl != null && actionUrl.isNotEmpty) {
-                    logger.i(
-                      '[FCM] Extracted action_url from local notification: $actionUrl',
-                    );
-                    if (_onActionUrlTap != null) {
-                      _onActionUrlTap!(actionUrl);
-                    } else {
-                      logger.w('[FCM] onActionUrlTap callback not set');
-                    }
-                  }
-                }
-              }
-            } catch (e) {
-              logger.e(
-                '[FCM] Failed to parse local notification payload',
-                error: e,
-              );
-            }
-          }
-        },
+        onDidReceiveNotificationResponse: (NotificationResponse response) =>
+            _handleLocalNotificationResponse(response.payload),
       );
 
       // Android 알림 채널 생성
@@ -550,9 +627,7 @@ class PushTokenService {
       );
 
       // payload에 action_url 포함 (로컬 알림 탭 시 사용)
-      final payload = data != null && data.containsKey('action_url')
-          ? 'action_url: ${data['action_url']}'
-          : data?.toString();
+      final payload = PushTokenHelper.buildNotificationPayload(data);
 
       await _localNotifications.show(
         notificationId,
@@ -568,6 +643,66 @@ class PushTokenService {
     }
   }
 
+  /// Handles a tap on a local notification shown while the app was in the
+  /// foreground. [payload] is what [_showLocalNotification] stored.
+  static void _handleLocalNotificationResponse(String? payload) {
+    try {
+      final actionUrl = PushTokenHelper.extractActionUrl(payload);
+      if (actionUrl == null || actionUrl.isEmpty) return;
+      logger.i('[FCM] Local notification tapped with action_url: $actionUrl');
+      _deliverActionUrl(actionUrl);
+    } catch (e, s) {
+      logger.e(
+        '[FCM] Failed to handle local notification payload',
+        error: e,
+        stackTrace: s,
+      );
+    }
+  }
+
+  /// Routes a destination that has no [RemoteMessage] behind it, deferring it
+  /// when the navigation callbacks are not installed yet.
+  static void _deliverActionUrl(String actionUrl) {
+    if (_onActionUrlTap != null) {
+      _onActionUrlTap!(actionUrl);
+      return;
+    }
+    logger.w('[FCM] onActionUrlTap callback not set yet; deferring');
+    _enqueuePendingTap(_PendingTap(actionUrl: actionUrl));
+  }
+
+  /// Holds a destination until [initialize] installs the navigation
+  /// callbacks. Bounded so a callback that never arrives cannot grow the list.
+  static const int _maxPendingTaps = 5;
+
+  static void _enqueuePendingTap(_PendingTap tap) {
+    if (_pendingTaps.any((pending) => pending.actionUrl == tap.actionUrl)) {
+      return;
+    }
+    if (_pendingTaps.length >= _maxPendingTaps) _pendingTaps.removeAt(0);
+    _pendingTaps.add(tap);
+  }
+
+  /// Replays every deferred destination exactly once, oldest first.
+  static void _flushPendingTaps() {
+    if (_pendingTaps.isEmpty) return;
+    if (_onNotificationTap == null && _onActionUrlTap == null) return;
+    final pending = List<_PendingTap>.of(_pendingTaps);
+    _pendingTaps.clear();
+    for (final tap in pending) {
+      try {
+        final message = tap.message;
+        if (message != null && _onNotificationTap != null) {
+          _onNotificationTap!(message);
+        } else {
+          _onActionUrlTap?.call(tap.actionUrl);
+        }
+      } catch (e, s) {
+        logger.e('[FCM] Failed to replay deferred tap', error: e, stackTrace: s);
+      }
+    }
+  }
+
   /// 알림 탭 처리
   static void _handleNotificationTap(RemoteMessage msg) {
     try {
@@ -577,7 +712,8 @@ class PushTokenService {
         if (_onNotificationTap != null) {
           _onNotificationTap!(msg);
         } else {
-          logger.w('[FCM] onNotificationTap callback not set');
+          logger.w('[FCM] onNotificationTap callback not set yet; deferring');
+          _enqueuePendingTap(_PendingTap(actionUrl: actionUrl, message: msg));
         }
       } else {
         logger.i(
@@ -632,4 +768,36 @@ class PushTokenService {
       return 'en';
     }
   }
+}
+
+/// Test-only stand-ins for the Firebase message streams.
+///
+/// Supplying these lets a test drive the production coordinator wiring - the
+/// owner guard and the tap dispatch - without initializing a Firebase app.
+@visibleForTesting
+class PushMessageSources {
+  const PushMessageSources({
+    this.tokenRefreshes,
+    this.foregroundMessages,
+    this.openedMessages,
+    this.getInitialMessage,
+  });
+
+  final Stream<String>? tokenRefreshes;
+  final Stream<Object>? foregroundMessages;
+  final Stream<Object>? openedMessages;
+  final Future<Object?> Function()? getInitialMessage;
+}
+
+/// Reads whether a notification launched this process, and its payload.
+typedef LaunchPayloadReader
+    = Future<({bool didNotificationLaunchApp, String? payload})> Function();
+
+/// A notification destination that arrived before the navigation callbacks
+/// were installed.
+class _PendingTap {
+  const _PendingTap({required this.actionUrl, this.message});
+
+  final String actionUrl;
+  final RemoteMessage? message;
 }

@@ -54,6 +54,9 @@ Widget buildTestApp(
   // 타이머 탓에 pump 로도 에러 상태에 도달하지 못하거나, dispose 시
   // "disposed during loading state" 고아 에러가 테스트를 실패시킨다.
   Duration? Function(int, Object)? retry,
+  // `false` keeps the real NavigationInfo notifier — see
+  // [defaultProviderOverrides].
+  bool overrideNavigation = true,
 }) {
   return ProviderScope(
     retry: retry,
@@ -65,6 +68,7 @@ Widget buildTestApp(
         mediaQueryData: mediaQueryData,
         communityState: communityState,
         loggedIn: loggedIn,
+        overrideNavigation: overrideNavigation,
       ),
       ...extraOverrides,
     ],

@@ -652,32 +652,58 @@ class AppInitializer {
         preloadProducts: () => _loadProducts(ref),
         syncBadge: AppBadgeService.syncBadgeWithUnreadCount,
         initializePush: () => PushTokenService.initialize(
-          onNotificationTap: (RemoteMessage msg) {
-            if (!isActive()) return;
-            final actionUrl = msg.data['action_url'];
-            if (actionUrl != null &&
-                actionUrl is String &&
-                actionUrl.isNotEmpty) {
-              logger.i(
-                '[AppInitializer] Handling push notification tap: $actionUrl',
-              );
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (!isActive()) return;
-                handleDeepLink(ref, actionUrl);
-              });
-            }
-          },
-          onActionUrlTap: (String actionUrl) {
-            if (!isActive()) return;
-            logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!isActive()) return;
-              handleDeepLink(ref, actionUrl);
-            });
-          },
+          onNotificationTap: buildPushTapHandler(ref, isActive),
+          onActionUrlTap: buildActionUrlTapHandler(ref, isActive),
         ),
       );
     });
+  }
+
+  /// The handler [PushTokenService] calls for a tapped remote notification.
+  @visibleForTesting
+  static void Function(RemoteMessage) buildPushTapHandler(
+    WidgetRef ref,
+    bool Function() isActive,
+  ) {
+    return (RemoteMessage msg) {
+      if (!isActive()) return;
+      final actionUrl = msg.data['action_url'];
+      if (actionUrl is! String || actionUrl.isEmpty) return;
+      logger.i('[AppInitializer] Handling push notification tap: $actionUrl');
+      _navigateAfterFrame(ref, actionUrl, isActive);
+    };
+  }
+
+  /// The handler [PushTokenService] calls for a tapped local notification.
+  @visibleForTesting
+  static void Function(String) buildActionUrlTapHandler(
+    WidgetRef ref,
+    bool Function() isActive,
+  ) {
+    return (String actionUrl) {
+      if (!isActive()) return;
+      logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
+      _navigateAfterFrame(ref, actionUrl, isActive);
+    };
+  }
+
+  /// Defers the deep link past the current frame and **requests** that frame.
+  ///
+  /// `addPostFrameCallback` only appends to the callback list; it never asks
+  /// the engine for a frame. A tap that arrives while the app is idle - the
+  /// normal case for a cold or background launch - would otherwise sit in the
+  /// queue and the user would stay on the start screen (PICNIC-2693).
+  static void _navigateAfterFrame(
+    WidgetRef ref,
+    String actionUrl,
+    bool Function() isActive,
+  ) {
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      if (!isActive()) return;
+      handleDeepLink(ref, actionUrl);
+    });
+    binding.ensureVisualUpdate();
   }
 
   /// Starts optional startup work independently. In particular, an OS-owned
