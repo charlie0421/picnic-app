@@ -127,6 +127,9 @@ dev_dependencies:
   in_app_purchase_platform_interface: ^1.4.0
   # 타임아웃/백오프처럼 시간이 조건인 로직을 실시간 대기 없이 테스트한다.
   fake_async: ^1.3.1
+  # supabase_flutter 의 transitive 의존. JMA 투표 테스트가 동기 인코딩 isolate 를
+  # 주입하려고 직접 subclass 하므로 직접 의존으로 고정한다.
+  yet_another_json_isolate: ^2.1.0
 
 flutter_intl:
   enabled: true

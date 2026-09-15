@@ -11,9 +11,9 @@ import 'package:picnic_lib/l10n/app_localizations_my.dart';
 import 'package:picnic_lib/l10n/app_localizations_th.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -1014,38 +1014,35 @@ void main() {
       'ko': AppLocalizationsKo(),
     }.entries) {
       for (final scale in <double>[1.0, 2.0]) {
-        testWidgets(
-          'the vote button is the same height idle and active in '
-          '${locale.key} at ${scale}x',
-          (tester) async {
-            await pumpAt(
-              tester,
-              jmaDialog(),
-              viewport: const Size(280, 320),
-              textScale: scale,
-              locale: Locale(locale.key),
-            );
-            Finder button() => find
-                .ancestor(
-                  of: find.text(locale.value.label_button_vote),
-                  matching: find.byType(Container),
-                )
-                .first;
+        testWidgets('the vote button is the same height idle and active in '
+            '${locale.key} at ${scale}x', (tester) async {
+          await pumpAt(
+            tester,
+            jmaDialog(),
+            viewport: const Size(280, 320),
+            textScale: scale,
+            locale: Locale(locale.key),
+          );
+          Finder button() => find
+              .ancestor(
+                of: find.text(locale.value.label_button_vote),
+                matching: find.byType(Container),
+              )
+              .first;
 
-            final idle = tester.getSize(button()).height;
-            await tester.enterText(find.byType(TextFormField), '5');
-            await settleDialogState(tester);
-            expect(find.byIcon(Icons.how_to_vote), findsOneWidget);
+          final idle = tester.getSize(button()).height;
+          await tester.enterText(find.byType(TextFormField), '5');
+          await settleDialogState(tester);
+          expect(find.byIcon(Icons.how_to_vote), findsOneWidget);
 
-            expect(
-              tester.getSize(button()).height,
-              closeTo(idle, 0.5),
-              reason:
-                  'the active button changed height, so no single budget can '
-                  'be true for both states',
-            );
-          },
-        );
+          expect(
+            tester.getSize(button()).height,
+            closeTo(idle, 0.5),
+            reason:
+                'the active button changed height, so no single budget can '
+                'be true for both states',
+          );
+        });
       }
     }
 
@@ -1096,8 +1093,7 @@ void main() {
           expect(
             badgeTop(),
             lessThan(useAllTop()),
-            reason:
-                'the decoration belongs above the controls while they fit',
+            reason: 'the decoration belongs above the controls while they fit',
           );
           _expectControlsVisibleAtRest(
             tester,

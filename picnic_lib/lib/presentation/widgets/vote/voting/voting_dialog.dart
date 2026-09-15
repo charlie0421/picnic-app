@@ -173,11 +173,83 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return (userInfo?.starCandy ?? 0) + (userInfo?.starCandyBonus ?? 0);
   }
 
+  /// This dialog's own route, captured while the element is still attached so
+  /// every terminal path can address it after an await instead of guessing
+  /// from `context`.
+  ModalRoute<dynamic>? _dialogRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dialogRoute = ModalRoute.of(context);
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  /// Ends the amount field's editing session.
+  ///
+  /// The owned node, not `FocusScope.unfocus()`: by the time a terminal path
+  /// runs, focus may already have moved to another route, and clearing the
+  /// scope there would blur *that* input instead. Idempotent, so every exit
+  /// path can call it without checking who called it first.
+  void _unfocusVoteInput() => _focusNode.unfocus();
+
+  /// Whether this dialog's own route is still in the navigator.
+  ///
+  /// `mounted` does not answer this. After an imperative pop (an account
+  /// switch, host routing — anything that bypasses `PopScope`) the State stays
+  /// mounted for the whole reverse transition, so a preflight that completes
+  /// inside that window would walk on and submit a vote from a popup the user
+  /// is already watching leave, with no way left to report the outcome.
+  ///
+  /// `isActive`, not `isCurrent`: a dialog that is merely *covered* — an error
+  /// sheet pushed on top of it — is still the user's dialog and its vote must
+  /// still finish.
+  bool get _routeIsActive => mounted && (_dialogRoute?.isActive ?? false);
+
+  /// Removes *this dialog's* route, whatever is on top of it.
+  ///
+  /// `Navigator.of(context).pop()` pops the topmost route, which is this dialog
+  /// only while nothing covers it. Once something else is on top that call
+  /// closes the wrong route, and once this route has already gone it closes the
+  /// page underneath. Both are silent: the caller still believes it closed
+  /// itself.
+  void _dismissOwnRoute() {
+    final route = _dialogRoute;
+    if (route == null || !route.isActive) return;
+    final navigator = route.navigator;
+    if (navigator == null) return;
+    if (route.isCurrent) {
+      navigator.pop();
+      return;
+    }
+    // Covered by another route: pop would take that one instead, so take this
+    // route out of the stack where it sits. Leaving it there would strand an
+    // unlocked dialog the user can submit from again.
+    navigator.removeRoute(route);
+  }
+
+  /// The single user-initiated close.
+  ///
+  /// Re-reads [_isVoting] instead of trusting the state that was current when
+  /// the callback was captured: the close button hands this to the shared
+  /// popup, and a handler captured while idle must not become a way around the
+  /// in-flight guard. The terminal success/failure pops stay direct — routing
+  /// them through here would mean a vote that has already settled could never
+  /// close its own dialog.
+  void _requestClose() {
+    if (!mounted || _isVoting) return;
+    if (_dialogRoute?.isCurrent != true) return;
+    _unfocusVoteInput();
+    // A direct removal, not `maybePop`: the PopScope above vetoes every
+    // route-driven pop, so `maybePop` would come straight back into this method
+    // through `onPopInvokedWithResult` and recurse.
+    _dismissOwnRoute();
   }
 
   @override
@@ -231,7 +303,31 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // overlay already swallows barrier taps (it is a full-screen opaque entry
     // above this route); system back is the path that still gets through.
     return PopScope(
-      canPop: !_isVoting,
+      // Veto every route-driven pop and decide in [_requestClose] instead.
+      //
+      // `canPop: !_isVoting` cannot hold this line. PopScope copies `canPop`
+      // into the route's notifier only from `didUpdateWidget`
+      // (pop_scope.dart:205-208) and `ModalRoute.popDisposition` reads that
+      // notifier (routes.dart:2037-2044), so a back press or barrier tap that
+      // arrives in the submit tap's own frame — before the rebuild — still
+      // reads the pre-submit `true` and pops. The request is already on its
+      // way by then, which is exactly the double-charge window 7fbd2bec8
+      // closed. Vetoing unconditionally moves the decision to the moment of
+      // the request, where `_isVoting` is whatever `setState` just wrote.
+      //
+      // The cost is Android's predictive-back animation, which this dialog
+      // route does not use.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // An imperative pop (this dialog's own terminal paths, an account
+          // switch, host routing) already removed the route. Nothing to
+          // decide — just make sure no editing session outlives it.
+          _unfocusVoteInput();
+          return;
+        }
+        _requestClose();
+      },
       child: LoadingOverlayWithIcon(
         key: _loadingKey,
         iconAssetPath: 'assets/app_icon_128.png',
@@ -265,15 +361,32 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 final available = constraints.hasBoundedHeight
                     ? constraints.maxHeight
                     : MediaQuery.of(context).size.height;
-                final budget = math.max(
-                  0.0,
-                  available - largePopupHiddenChromeHeight(),
-                );
                 final contentWidth = _contentWidth(constraints.maxWidth);
                 final essential = _essentialHeight(
                   context,
                   contentWidth: contentWidth,
                   isKeyboardVisible: isKeyboardVisible,
+                );
+                // PICNIC-2695 의 X 는 숨김 strip 보다 24 비싸다. PICNIC-2694 가
+                // 조작부를 통째로 담아 주기로 한 가장 짧은 창들은 이미 라우트
+                // 여백을 하한까지 내준 상태라 그 24 를 낼 데가 없다. 그래서
+                // 닫기는 조작부를 밀어내지 않을 때만 자리를 얻는다. 못 얻으면
+                // 배리어 탭과 시스템 백이 그대로 나가는 길이고, 키보드를 내리는
+                // 순간 예산이 돌아오면서 X 도 돌아온다.
+                final showTopClose =
+                    available - largePopupTopCloseChromeHeight() >=
+                    essential +
+                        _decorationComfortHeight(
+                          context,
+                          contentWidth: contentWidth,
+                          isKeyboardVisible: isKeyboardVisible,
+                        );
+                final budget = math.max(
+                  0.0,
+                  available -
+                      (showTopClose
+                          ? largePopupTopCloseChromeHeight()
+                          : largePopupHiddenChromeHeight()),
                 );
                 // The logo is the first thing to give way: it keeps its place
                 // under the button only while the decoration above can still
@@ -300,7 +413,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 );
                 final mode = shape.mode;
                 return LargePopupWidget(
-                  showCloseButton: false,
+                  showCloseButton: showTopClose,
+                  closeButtonPlacement: LargePopupCloseButtonPlacement.topRight,
+                  // Disabled, not removed: the strip keeps its height so the
+                  // popup does not jump when the request starts, and the
+                  // callback re-checks the flag anyway.
+                  closeButtonEnabled: !_isVoting,
+                  onClose: _requestClose,
                   width: resolveVoteDialogWidth(),
                   cardBorderRadius: shape.cardBorderRadius,
                   content: ConstrainedBox(
@@ -556,9 +675,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   void _navigateToStore() {
+    // Same guard as the close button, and it runs *before* the provider writes:
+    // this path pops the dialog too, so mid-vote it would open the same
+    // double-charge window — and a refused close must leave the page underneath
+    // untouched as well.
+    if (!mounted || _isVoting) return;
+    if (_dialogRoute?.isCurrent != true) return;
+    _unfocusVoteInput();
     ref.read(navigationInfoProvider.notifier).setCurrentPage(const StorePage());
     ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
-    Navigator.pop(context);
+    _dismissOwnRoute();
   }
 
   void _toggleCheckAll() {
@@ -766,6 +892,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // 멱등성이 걸리지 않는다 - 한 번의 투표가 아니라 두 번의 차감이 된다.
     // 아래 조기 반환 경로들은 반드시 플래그를 되돌려야 한다.
     setState(() => _isVoting = true);
+    // Ahead of the validation branches below, not after them: those branches
+    // put an error dialog on top of a *still focused* field, and dismissing
+    // that dialog hands focus straight back to it — the keyboard comes back
+    // over a popup the user was trying to leave.
+    _unfocusVoteInput();
 
     final voteAmount = _getVoteAmount();
     final amount = BigInt.from(voteAmount);
@@ -777,7 +908,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     VotingDialogHelper.hasGeneralVoteBalance(wallet, amount),
               )
         : BigInt.from(myStarCandy) >= amount;
+    // `mounted` alone is not the guard here — it is only the half the analyzer
+    // can see. An imperative pop leaves the State mounted for the whole reverse
+    // transition, and a balance read that lands in that window would carry a
+    // leaving popup straight into a real submission.
     if (!mounted) return;
+    if (!_routeIsActive) return;
     if (voteAmount == 0 || !hasBalance) {
       setState(() => _isVoting = false);
       showSimpleDialog(
@@ -792,14 +928,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
-    FocusScope.of(context).unfocus();
-
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       if (mounted) setState(() => _isVoting = false);
       return;
     }
 
+    // Same window as above, and the wider of the two: the withdrawal check is
+    // a network round trip.
     if (!mounted) return;
+    if (!_routeIsActive) return;
 
     _loadingKey.currentState?.show();
 
@@ -975,7 +1112,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
       final navContext = navigatorKey.currentContext;
 
-      Navigator.of(context).pop();
+      // Idempotent belt-and-braces before the terminal pop: submission already
+      // blurred the field, but this is the pop the completion dialog replaces
+      // the route with, and it must not hand a live editing session over.
+      _unfocusVoteInput();
+      _dismissOwnRoute();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1004,8 +1145,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       }
 
       if (mounted) {
-        Navigator.of(context).pop();
+        _unfocusVoteInput();
       }
+      _dismissOwnRoute();
 
       // 복구(rollback/pop) 이후에 best-effort 텔레메트리. 절대 복구를 막지 않는다.
       _reportVoteFailure(e, afterInvoke: invokeSucceeded);

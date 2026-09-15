@@ -21,6 +21,7 @@ import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_helper.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
@@ -264,11 +265,72 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     }
   }
 
+  /// 이 다이얼로그 자신의 라우트. element 가 아직 붙어 있는 동안 잡아 두어
+  /// await 뒤에도 context 로 추측하지 않고 이 라우트를 직접 다룬다.
+  ModalRoute<dynamic>? _dialogRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dialogRoute = ModalRoute.of(context);
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  /// Ends the amount field's editing session.
+  ///
+  /// The owned node rather than the surrounding scope: by the time a terminal
+  /// path runs, focus may already belong to another route. Idempotent.
+  void _unfocusVoteInput() => _focusNode.unfocus();
+
+  /// 이 다이얼로그의 라우트가 아직 네비게이터에 남아 있는가.
+  ///
+  /// mounted 로는 답이 안 된다. PopScope 를 우회하는 명령형 pop 뒤에도 State 는
+  /// 역방향 전환 내내 mounted 이고, 그 창에서 끝난 preflight 는 이미 떠나는
+  /// 팝업에서 실제 투표를 출발시킨다 - 결과를 알릴 방법도 없이.
+  ///
+  /// isCurrent 가 아니라 isActive 다. 위에 오류 시트가 덮인 것뿐인 다이얼로그는
+  /// 여전히 사용자의 다이얼로그이고 그 투표는 끝나야 한다.
+  bool get _routeIsActive => mounted && (_dialogRoute?.isActive ?? false);
+
+  /// 위에 무엇이 덮여 있든 *이 다이얼로그의* 라우트를 걷어낸다.
+  ///
+  /// Navigator.of(context).pop() 은 최상단 라우트를 닫으므로, 아무것도 덮이지
+  /// 않았을 때만 이 다이얼로그를 닫는다. 다른 라우트가 위에 있으면 엉뚱한
+  /// 라우트를, 이 라우트가 이미 사라졌으면 아래 페이지를 닫는다. 둘 다 조용히
+  /// 일어나고 호출부는 자기를 닫았다고 믿는다.
+  void _dismissOwnRoute() {
+    final route = _dialogRoute;
+    if (route == null || !route.isActive) return;
+    final navigator = route.navigator;
+    if (navigator == null) return;
+    if (route.isCurrent) {
+      navigator.pop();
+      return;
+    }
+    // 덮여 있으면 pop 은 위 라우트를 가져간다. 스택에서 이 라우트만 빼낸다 -
+    // 그냥 두면 잠금이 풀린 다이얼로그가 남아 재제출이 가능해진다.
+    navigator.removeRoute(route);
+  }
+
+  /// The single user-initiated close.
+  ///
+  /// Re-reads [_isVoting] rather than trusting the state that was current when
+  /// the shared popup captured this callback, so a handler taken while idle is
+  /// not a way around the in-flight guard. The terminal pops below stay direct
+  /// — routing them through here would trap a vote that has already settled.
+  void _requestClose() {
+    if (!mounted || _isVoting) return;
+    if (_dialogRoute?.isCurrent != true) return;
+    _unfocusVoteInput();
+    // maybePop 이 아니라 직접 제거. 위 PopScope 가 라우트발 pop 을 모두 거부하므로
+    // maybePop 은 onPopInvokedWithResult 를 통해 이 메서드로 되돌아와 재귀한다.
+    _dismissOwnRoute();
   }
 
   @override
@@ -307,115 +369,175 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       ),
     );
 
-    return LoadingOverlayWithIcon(
-      key: _loadingKey,
-      iconAssetPath: 'assets/app_icon_128.png',
-      enableScale: true,
-      enableFade: true,
-      enableRotation: false,
-      minScale: 0.98,
-      maxScale: 1.02,
-      showProgressIndicator: false,
-      child: AlertDialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: verticalInset,
-        ),
-        contentPadding: EdgeInsets.zero,
-        content: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            // 스크롤 알림을 처리하여 더 나은 사용자 경험 제공
-            return false;
-          },
-          child: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
+    // 닫아도 jma-voting-v2 요청은 계속 진행된다. 사용자가 스피너를 닫고 다시
+    // 투표하면 두 번째 요청이 별도로 정산돼 이중 과금 창이 열린다. 일반 투표
+    // 팝업은 7fbd2bec8 에서 이 가드를 얻었지만 JMA 에는 없었다.
+    return PopScope(
+      // 라우트발 pop 은 모두 거부하고 판단은 _requestClose 에서 한다.
+      //
+      // canPop: !_isVoting 으로는 막지 못한다. PopScope 는 canPop 을
+      // didUpdateWidget 에서만 라우트의 notifier 에 복사하고
+      // (pop_scope.dart:205-208), ModalRoute.popDisposition 이 그 notifier 를
+      // 읽는다(routes.dart:2037-2044). 그래서 제출 탭과 같은 frame 에 들어온
+      // 백/배리어는 리빌드 전이라 제출 이전 값 true 를 보고 라우트를 닫는다.
+      // 그 시점엔 이미 요청이 출발했으므로 정확히 7fbd2bec8 이 막으려던
+      // 이중 과금 창이 다시 열린다. 무조건 거부하면 판단이 요청 시점으로
+      // 옮겨져 setState 가 방금 쓴 _isVoting 을 그대로 읽는다.
+      //
+      // 대가는 Android predictive back 애니메이션인데 이 다이얼로그 라우트는
+      // 쓰지 않는다.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // 명령형 pop(자신의 terminal 경로, 계정 전환, 상위 라우팅)으로 이미
+          // 라우트가 사라진 경우다. 편집 세션만 정리한다.
+          _unfocusVoteInput();
+          return;
+        }
+        _requestClose();
+      },
+      child: LoadingOverlayWithIcon(
+        key: _loadingKey,
+        iconAssetPath: 'assets/app_icon_128.png',
+        enableScale: true,
+        enableFade: true,
+        enableRotation: false,
+        minScale: 0.98,
+        maxScale: 1.02,
+        showProgressIndicator: false,
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: verticalInset,
+          ),
+          contentPadding: EdgeInsets.zero,
+          content: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              // 스크롤 알림을 처리하여 더 나은 사용자 경험 제공
+              return false;
             },
-            // 폭을 카드와 같은 값으로 고정해 둔다. AlertDialog 는 자식을
-            // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
-            // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
-            // 폭 제약이 그 질의를 여기서 끊는다.
-            child: SizedBox(
-              width: resolveVoteDialogWidth(),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final available = constraints.hasBoundedHeight
-                      ? constraints.maxHeight
-                      : MediaQuery.of(context).size.height;
-                  // 평소 모습(키보드 85% / 기본 75%)은 선호 높이로 그대로 두고,
-                  // 라우트가 실제로 남겨 준 높이에서 카드 테두리와 숨김 스트립을
-                  // 뺀 값을 상한으로 삼는다. 예전 계산은 카드 안쪽만 비율로
-                  // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
-                  final preferred =
-                      (MediaQuery.of(context).size.height - keyboardHeight) *
-                      (isKeyboardVisible
-                          ? _preferredHeightRatioWithKeyboard
-                          : _preferredHeightRatio);
-                  final fits = math.max(
-                    0.0,
-                    available - largePopupHiddenChromeHeight(),
-                  );
-                  // PICNIC-2694: 그 비율은 "평소 모습"일 뿐 조작부보다 우선하지
-                  // 않는다. 라우트가 조작부를 담을 높이를 남겼다면 비율 때문에
-                  // 입력·투표 버튼을 화면 밖으로 밀지 않는다.
-                  final contentWidth = _contentWidth(constraints.maxWidth);
-                  final essential = _essentialHeight(
-                    context,
-                    contentWidth: contentWidth,
-                  );
-                  final budget = math.min(math.max(preferred, essential), fits);
-                  // 로고는 가장 먼저 양보한다 — 버튼 아래 자리를 지키는 것은
-                  // 위쪽 초상화·잔액이 제 크기를 유지할 수 있을 때뿐이고,
-                  // 그렇지 않으면 스크롤되는 상단 영역으로 내려가 접근만
-                  // 유지한다.
-                  final logoInTail =
-                      !isKeyboardVisible &&
-                      essential +
-                              _tailLogoHeight() +
-                              _decorationComfortHeight(
-                                context,
-                                contentWidth: contentWidth,
-                                isKeyboardVisible: isKeyboardVisible,
-                              ) <=
-                          budget;
-                  final shape = resolveVoteDialogShape(
-                    bodyHeight: budget,
-                    essentialHeight:
-                        essential + (logoInTail ? _tailLogoHeight() : 0.0),
-                    horizontalContentInset:
-                        largePopupCardBorderWidth() + PicnicUi.horizontal(16),
-                  );
-                  return LargePopupWidget(
-                    showCloseButton: false,
-                    width: resolveVoteDialogWidth(),
-                    cardBorderRadius: shape.cardBorderRadius,
-                    content: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: budget,
-                        // 200 은 팝업이 찌부러지지 않게 지키는 하한이지만,
-                        // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
-                        // 에어리어) 있는 만큼으로 함께 내려야 한다.
-                        minHeight: math.min(_minimumDialogBudget, budget),
-                        maxWidth: resolveVoteDialogWidth(),
-                      ),
-                      child: VoteDialogBands(
-                        mode: shape.mode,
-                        decorationBuilder: (context, availableHeight) =>
-                            _buildDecoration(
-                              myStarCandy,
-                              isKeyboardVisible,
-                              availableHeight: availableHeight,
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              // 폭을 카드와 같은 값으로 고정해 둔다. AlertDialog 는 자식을
+              // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
+              // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
+              // 폭 제약이 그 질의를 여기서 끊는다.
+              child: SizedBox(
+                width: resolveVoteDialogWidth(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final available = constraints.hasBoundedHeight
+                        ? constraints.maxHeight
+                        : MediaQuery.of(context).size.height;
+                    // 평소 모습(키보드 85% / 기본 75%)은 선호 높이로 그대로 두고,
+                    // 라우트가 실제로 남겨 준 높이에서 카드 테두리와 숨김 스트립을
+                    // 뺀 값을 상한으로 삼는다. 예전 계산은 카드 안쪽만 비율로
+                    // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
+                    final preferred =
+                        (MediaQuery.of(context).size.height - keyboardHeight) *
+                        (isKeyboardVisible
+                            ? _preferredHeightRatioWithKeyboard
+                            : _preferredHeightRatio);
+                    final fitsWithClose = math.max(
+                      0.0,
+                      available - largePopupTopCloseChromeHeight(),
+                    );
+                    // PICNIC-2694: 그 비율은 "평소 모습"일 뿐 조작부보다 우선하지
+                    // 않는다. 라우트가 조작부를 담을 높이를 남겼다면 비율 때문에
+                    // 입력·투표 버튼을 화면 밖으로 밀지 않는다.
+                    final contentWidth = _contentWidth(constraints.maxWidth);
+                    final essential = _essentialHeight(
+                      context,
+                      contentWidth: contentWidth,
+                    );
+                    // 일반 팝업과 같은 규칙. 닫기 strip 은 숨김 strip 보다 24
+                    // 비싸므로, 그 24 를 내고도 조작부와 장식이 제 크기로
+                    // 들어갈 때만 자리를 얻는다. 그렇지 않으면 숨김 strip 으로
+                    // 되돌아간다 — PICNIC-2694 가 확보한 짧은 창의 여백과 밴드
+                    // 순서를 닫기 버튼이 밀어내지 않게 한다.
+                    final showTopClose =
+                        fitsWithClose >=
+                        essential +
+                            _decorationComfortHeight(
+                              context,
                               contentWidth: contentWidth,
-                              withLogo: !isKeyboardVisible && !logoInTail,
-                            ),
-                        actions: _buildActions(isKeyboardVisible),
-                        submit: _buildSubmit(userId, contentWidth: contentWidth),
-                        tail: _buildTail(withLogo: logoInTail),
+                              isKeyboardVisible: isKeyboardVisible,
+                            );
+                    final fits = showTopClose
+                        ? fitsWithClose
+                        : math.max(
+                            0.0,
+                            available - largePopupHiddenChromeHeight(),
+                          );
+                    final budget = math.min(
+                      math.max(preferred, essential),
+                      fits,
+                    );
+                    // 로고는 가장 먼저 양보한다 — 버튼 아래 자리를 지키는 것은
+                    // 위쪽 초상화·잔액이 제 크기를 유지할 수 있을 때뿐이고,
+                    // 그렇지 않으면 스크롤되는 상단 영역으로 내려가 접근만
+                    // 유지한다.
+                    final logoInTail =
+                        !isKeyboardVisible &&
+                        essential +
+                                _tailLogoHeight() +
+                                _decorationComfortHeight(
+                                  context,
+                                  contentWidth: contentWidth,
+                                  isKeyboardVisible: isKeyboardVisible,
+                                ) <=
+                            budget;
+                    final shape = resolveVoteDialogShape(
+                      bodyHeight: budget,
+                      essentialHeight:
+                          essential + (logoInTail ? _tailLogoHeight() : 0.0),
+                      horizontalContentInset:
+                          largePopupCardBorderWidth() + PicnicUi.horizontal(16),
+                    );
+                    return LargePopupWidget(
+                      showCloseButton: showTopClose,
+                      closeButtonPlacement:
+                          LargePopupCloseButtonPlacement.topRight,
+                      // 비활성이되 사라지지는 않는다. strip 높이를 유지해야 요청이
+                      // 시작될 때 팝업이 튀지 않고, 콜백도 최신 플래그를 다시
+                      // 확인한다.
+                      closeButtonEnabled: !_isVoting,
+                      onClose: _requestClose,
+                      width: resolveVoteDialogWidth(),
+                      cardBorderRadius: shape.cardBorderRadius,
+                      content: Container(
+                        constraints: BoxConstraints(
+                          maxHeight: budget,
+                          // 200 은 팝업이 찌부러지지 않게 지키는 하한이지만,
+                          // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
+                          // 에어리어) 있는 만큼으로 함께 내려야 한다.
+                          minHeight: math.min(_minimumDialogBudget, budget),
+                          maxWidth: resolveVoteDialogWidth(),
+                        ),
+                        child: VoteDialogBands(
+                          mode: shape.mode,
+                          decorationBuilder: (context, availableHeight) =>
+                              _buildDecoration(
+                                myStarCandy,
+                                isKeyboardVisible,
+                                availableHeight: availableHeight,
+                                contentWidth: contentWidth,
+                                withLogo: !isKeyboardVisible && !logoInTail,
+                              ),
+                          actions: _buildActions(isKeyboardVisible),
+                          submit: _buildSubmit(
+                            userId,
+                            contentWidth: contentWidth,
+                          ),
+                          tail: _buildTail(withLogo: logoInTail),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -1613,6 +1735,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
     if (_isVoting) return;
 
+    // 동기 검증 분기보다 앞에서 해제한다. 아래 검증 실패는 아직 포커스를 쥔
+    // 입력 위에 오류 팝업을 띄우고, 그 팝업을 닫으면 포커스가 그대로 돌아와
+    // 사용자가 빠져나오려던 팝업 위로 키보드가 다시 올라온다.
+    _unfocusVoteInput();
+
     final voteAmount = _getVoteAmount();
 
     if (voteAmount == 0) {
@@ -1634,14 +1761,25 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       return;
     }
 
-    FocusScope.of(context).unfocus();
+    // 가드는 첫 await 앞에서 세운다. 탈퇴 확인은 네트워크 왕복이고, 그 구간
+    // 동안 닫기 버튼이 살아 있으면 사용자가 라우트를 닫은 뒤 await 가 돌아와
+    // disposed State 에 setState 를 하거나, 다시 투표해 두 번 과금된다.
+    // 아래 조기 반환 경로는 반드시 플래그를 되돌린다.
+    setState(() => _isVoting = true);
 
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    final withdrawalBlocked = await showWithdrawalBlockedDialog(
+      context: context,
+      ref: ref,
+    );
+    // mounted 는 절반일 뿐이다. 명령형 pop 뒤 역방향 전환 구간에서도 State 는
+    // mounted 라, 그 사이에 끝난 탈퇴 확인이 떠나는 팝업을 그대로 실제 제출로
+    // 끌고 간다.
+    if (!mounted) return;
+    if (!_routeIsActive) return;
+    if (withdrawalBlocked) {
+      setState(() => _isVoting = false);
       return;
     }
-
-    // 투표 시작 - 버튼 비활성화
-    setState(() => _isVoting = true);
 
     _loadingKey.currentState?.show();
 
@@ -1810,14 +1948,37 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         ),
       );
 
-      await ref.read(userInfoProvider.notifier).getUserProfiles();
+      // 정산은 이미 끝났고 아래 둘은 부가 갱신이다. 그런데 닫기 가드는 이
+      // await 구간 내내 걸려 있고, RetryHttpClient 는 idempotent 요청을
+      // 3회까지 재시도하며 매 시도의 타임아웃이 30초다
+      // (retry_http_client.dart:30,139). 그대로 두면 서버가 200 을 준 뒤에도
+      // 사용자가 최대 2분 가까이 팝업에 갇힌다. 순서(갱신 → hide → pop →
+      // 결과 팝업)는 그대로 두고 각 갱신만 5초 bounded best-effort 로 감싼다 -
+      // 실패하거나 느려도 결과 팝업을 막지 못한다.
+      await VotingDialogHelper.bestEffortWalletRefresh(
+        () => ref.read(userInfoProvider.notifier).getUserProfiles(),
+        onError: (error, stackTrace) => logger.w(
+          'jma post-vote profile refresh failed',
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
+
+      if (!mounted) return;
 
       ref
           .read(asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier)
           .fetch(voteId: widget.voteModel.id);
 
       // 투표 성공 시 일일 카운트 새로고침
-      await _loadDailyVoteCount();
+      await VotingDialogHelper.bestEffortWalletRefresh(
+        _loadDailyVoteCount,
+        onError: (error, stackTrace) => logger.w(
+          'jma post-vote daily count refresh failed',
+          error: error,
+          stackTrace: stackTrace,
+        ),
+      );
 
       _loadingKey.currentState?.hide();
 
@@ -1826,7 +1987,10 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
       final navContext = navigatorKey.currentContext;
 
-      Navigator.of(context).pop();
+      // 멱등적 방어. 제출 시점에 이미 blur 했지만, 이 pop 이 결과 팝업으로
+      // 교체되는 지점이라 살아 있는 편집 세션을 넘겨서는 안 된다.
+      _unfocusVoteInput();
+      _dismissOwnRoute();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -1854,25 +2018,39 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       logger.e('error', error: e, stackTrace: s);
       _loadingKey.currentState?.hide();
 
-      // 투표 실패 시 버튼 다시 활성화
+      // 이 catch 는 async gap 뒤라 State 가 이미 사라졌을 수 있다. 계정 전환이나
+      // 상위 라우팅처럼 PopScope 를 우회하는 명령형 pop 으로 라우트가 먼저
+      // 제거된 뒤 요청이 실패하면, 예전 코드는 deactivated context 로
+      // Navigator.of 를 호출하고 dispose 된 FocusNode 를 건드려 예외를 던졌다.
+      // 그 예외가 실패 안내마저 삼켰다. 소유 자원 정리는 mounted 일 때만 하고,
+      // 라우트 제거는 _dismissOwnRoute 가 생존·최상단 여부를 판단한다 - 덮인
+      // 경우까지 skip 하면 잠금이 풀린 다이얼로그가 스택에 남는다. 실패 안내는
+      // 루트 네비게이터 context 로 별도 판단한다. 순서(팝업 닫기 → 실패 안내)는
+      // 그대로다.
       if (mounted) {
         setState(() => _isVoting = false);
+        _unfocusVoteInput();
       }
-
-      Navigator.of(context).pop();
+      _dismissOwnRoute();
 
       _showVotingFailDialog();
     }
   }
 
   void _showVotingFailDialog() {
+    // 이 다이얼로그 라우트는 방금 pop 됐을 수 있으므로 State.context 가 아니라
+    // Localizations 가 살아 있는 루트 네비게이터 context 로 문구를 조회한다
+    // (일반 투표 팝업의 _voteFailMessage 와 같은 이유).
+    final navContext = navigatorKey.currentContext;
+    if (navContext == null || !navContext.mounted) return;
+
     showSimpleDialog(
       type: DialogType.error,
-      content: AppLocalizations.of(context).dialog_title_vote_fail,
+      content: AppLocalizations.of(navContext).dialog_title_vote_fail,
       onOk: () {
-        final navContext = navigatorKey.currentContext;
-        if (navContext != null && navContext.mounted) {
-          Navigator.of(navContext).pop();
+        final okContext = navigatorKey.currentContext;
+        if (okContext != null && okContext.mounted) {
+          Navigator.of(okContext).pop();
         }
       },
     );

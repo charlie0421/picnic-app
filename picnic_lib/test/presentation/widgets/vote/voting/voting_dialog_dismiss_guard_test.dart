@@ -1,13 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote_transaction.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/data/repositories/vote_transaction_repository.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
+import 'package:picnic_lib/l10n/app_localizations_ko.dart';
+import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
@@ -47,6 +52,22 @@ class _HangingVoteRepository extends VoteTransactionRepository {
   ) async {
     await gate;
     throw StateError('gate released without a scripted outcome');
+  }
+}
+
+/// Counts submissions and never answers, so a request that should never have
+/// started is still observable after it starts.
+class _CountingVoteRepository extends VoteTransactionRepository {
+  _CountingVoteRepository(super.client);
+
+  int calls = 0;
+
+  @override
+  Future<VoteTransactionResultModel> performGeneralVote(
+    VoteTransactionRequest request,
+  ) {
+    calls++;
+    return Completer<VoteTransactionResultModel>().future;
   }
 }
 
@@ -108,12 +129,113 @@ Future<void> _openDialog(
   expect(find.byType(VotingDialog), findsOneWidget);
 }
 
+/// Opens the dialog against an authenticated mock, so the withdrawal preflight
+/// actually issues its `user_profiles` read and `tableResponseDelays` can hold
+/// that read open.
+Future<_CountingVoteRepository> _openDialogWithProfileGate(
+  WidgetTester tester, {
+  required Duration profileReadDelay,
+}) async {
+  tester.view.physicalSize = const Size(1125, 3600);
+  tester.view.devicePixelRatio = 3.0;
+  addTearDown(tester.view.resetPhysicalSize);
+  addTearDown(tester.view.resetDevicePixelRatio);
+
+  await setupMockSupabaseWithAuth(<String, dynamic>{
+    'user_profiles': [
+      <String, dynamic>{
+        'id': 'test-user-id',
+        'nickname': 'TestUser',
+        'star_candy': 1000,
+        'star_candy_bonus': 0,
+        'deleted_at': null,
+      },
+    ],
+  }, userId: 'test-user-id');
+
+  final repository = _CountingVoteRepository(supabase);
+
+  await tester.pumpWidget(
+    buildTestApp(
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () => showDialog<void>(
+            context: context,
+            barrierDismissible: true,
+            builder: (_) => VotingDialog(
+              voteModel: MockData.vote(),
+              voteItemModel: MockData.voteItem(),
+              portalType: VotePortal.vote,
+            ),
+          ),
+          child: const Text('open-voting-dialog'),
+        ),
+      ),
+      userProfile: MockData.userProfile(starCandy: 1000, starCandyBonus: 0),
+      extraOverrides: [
+        walletSummaryProvider.overrideWith(_StaticWalletSummary.new),
+        voteTransactionRepositoryProvider.overrideWithValue(repository),
+      ],
+    ),
+  );
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('open-voting-dialog'));
+  await tester.pumpAndSettle();
+  expect(find.byType(VotingDialog), findsOneWidget);
+
+  tableResponseDelays['user_profiles'] = profileReadDelay;
+  addTearDown(() => tableResponseDelays.remove('user_profiles'));
+  return repository;
+}
+
 /// Presses the Android system back button.
 Future<void> _pressSystemBack(WidgetTester tester) async {
   await tester.binding.handlePopRoute();
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 300));
 }
+
+/// Types an amount with the keyboard up and hands back the input's own focus
+/// node.
+///
+/// The node is the observable, not `FocusManager.primaryFocus`: a scope can own
+/// the primary focus while no editable does, so only "this field still holds
+/// focus" distinguishes a leaked keyboard from a clean handover.
+Future<FocusNode> _focusAmountInput(WidgetTester tester) async {
+  final field = find.byType(TextFormField);
+  await tester.showKeyboard(field);
+  await tester.enterText(field, '5');
+  await tester.pump();
+
+  final node = tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+  expect(node.hasPrimaryFocus, isTrue);
+  expect(tester.testTextInput.hasAnyClients, isTrue);
+  return node;
+}
+
+/// Asserts the editing session is over *while the route is still leaving*.
+///
+/// Waiting for the dialog to finish unmounting proves nothing: `dispose` tears
+/// the connection down on its own, so the assertion has to land in the window
+/// where the popup is still on screen.
+void _expectEditingReleased(WidgetTester tester, FocusNode node) {
+  expect(
+    node.hasFocus,
+    isFalse,
+    reason: 'the amount field still held focus while the dialog was leaving',
+  );
+  expect(FocusManager.instance.primaryFocus, isNot(same(node)));
+  expect(
+    tester.testTextInput.hasAnyClients,
+    isFalse,
+    reason: 'the text input connection outlived the dismissal',
+  );
+}
+
+Finder _topClose() => find.byKey(kLargePopupTopCloseKey);
+
+LargePopupWidget _popup(WidgetTester tester) =>
+    tester.widget<LargePopupWidget>(find.byType(LargePopupWidget));
 
 void main() {
   setUpAll(() {
@@ -128,8 +250,55 @@ void main() {
     tearDownMockSupabase();
   });
 
-  testWidgets('system back cannot dismiss the dialog while a vote is in flight',
-      (tester) async {
+  testWidgets(
+    'system back cannot dismiss the dialog while a vote is in flight',
+    (tester) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VotingSubmitButton));
+      // The loading overlay animates forever, so never settle mid-vote.
+      await pumpAndIgnoreErrors(tester);
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(
+        find.descendant(
+          of: find.byType(VotingSubmitButton),
+          matching: find.byType(SmallPulseLoadingIndicator),
+        ),
+        findsOneWidget,
+        reason:
+            'the vote must still be in flight for this test to mean anything',
+      );
+
+      await _pressSystemBack(tester);
+
+      expect(
+        find.byType(VotingDialog),
+        findsOneWidget,
+        reason:
+            'dismissing mid-vote leaves the request running and lets the user '
+            'submit a second request_id, which is charged separately',
+      );
+    },
+  );
+
+  testWidgets('system back cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    // `PopScope` copies `canPop` into the route's `canPopNotifier` only from
+    // `didUpdateWidget` (pop_scope.dart:205-208), and `ModalRoute`
+    // .popDisposition reads that notifier (routes.dart:2037-2044). So between
+    // `setState(_isVoting = true)` and the frame that rebuilds the PopScope,
+    // the route still answers "can pop" — and the request is already on its
+    // way. No pump between the tap and the back press is what puts the test
+    // inside that window.
     final voteGate = Completer<void>();
     addTearDown(() {
       if (!voteGate.isCompleted) voteGate.complete();
@@ -140,29 +309,125 @@ void main() {
     await tester.enterText(find.byType(TextFormField), '5');
     await tester.pumpAndSettle();
     await tester.tap(find.byType(VotingSubmitButton));
-    // The loading overlay animates forever, so never settle mid-vote.
+    await tester.binding.handlePopRoute();
     await pumpAndIgnoreErrors(tester);
-    await tester.pump(const Duration(milliseconds: 16));
-
-    expect(
-      find.descendant(
-        of: find.byType(VotingSubmitButton),
-        matching: find.byType(SmallPulseLoadingIndicator),
-      ),
-      findsOneWidget,
-      reason: 'the vote must still be in flight for this test to mean anything',
-    );
-
-    await _pressSystemBack(tester);
+    await tester.pump(const Duration(milliseconds: 400));
 
     expect(
       find.byType(VotingDialog),
       findsOneWidget,
       reason:
-          'dismissing mid-vote leaves the request running and lets the user '
-          'submit a second request_id, which is charged separately',
+          'the route closed inside the guard\'s rebuild gap, which reopens '
+          'the double-charge window 7fbd2bec8 closed',
     );
   });
+
+  testWidgets('a barrier tap cannot dismiss in the submit tap\'s own frame', (
+    tester,
+  ) async {
+    final voteGate = Completer<void>();
+    addTearDown(() {
+      if (!voteGate.isCompleted) voteGate.complete();
+    });
+
+    await _openDialog(tester, voteGate: voteGate);
+
+    await tester.enterText(find.byType(TextFormField), '5');
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(VotingSubmitButton));
+    await tester.tapAt(const Offset(4, 4));
+    await pumpAndIgnoreErrors(tester);
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.byType(VotingDialog), findsOneWidget);
+  });
+
+  testWidgets(
+    'a preflight that lands during the reverse transition must not submit',
+    (tester) async {
+      // An imperative pop (account switch, host routing) bypasses PopScope, so
+      // the route can leave while a preflight await is still outstanding.
+      // `mounted` alone does not cover that window: the State is still mounted
+      // for the whole reverse transition, so a preflight that completes inside
+      // it walks straight on into the request — from a popup the user is
+      // already watching leave.
+      final repository = await _openDialogWithProfileGate(
+        tester,
+        profileReadDelay: const Duration(milliseconds: 100),
+      );
+
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VotingSubmitButton));
+      await tester.pump(const Duration(milliseconds: 16));
+
+      // Leave while the withdrawal read is still outstanding.
+      navigatorKey.currentState!.pop();
+      await tester.pump();
+      // Stay inside the 150ms reverse transition while the read lands.
+      await tester.pump(const Duration(milliseconds: 60));
+      await tester.pump(const Duration(milliseconds: 60));
+
+      expect(
+        repository.calls,
+        0,
+        reason:
+            'a dialog that is already leaving must not start a vote it can '
+            'never report the outcome of',
+      );
+
+      await tester.pumpAndSettle();
+      expect(repository.calls, 0);
+    },
+  );
+
+  testWidgets(
+    'a terminal failure removes its own route, not the one covering it',
+    (tester) async {
+      // `Navigator.of(context).pop()` closes whatever is on top. While the
+      // request runs, that need not be this dialog any more — and then the
+      // terminal path closes a stranger's route and leaves an unlocked voting
+      // dialog behind, which the user can submit from a second time.
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VotingSubmitButton));
+      await pumpAndIgnoreErrors(tester);
+      await tester.pump(const Duration(milliseconds: 16));
+
+      navigatorKey.currentState!.push(
+        MaterialPageRoute<void>(
+          builder: (_) => const Scaffold(body: Text('covering-route')),
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('covering-route'), findsOneWidget);
+
+      // The gated repository throws once released.
+      voteGate.complete();
+      for (var i = 0; i < 4; i++) {
+        await pumpAndIgnoreErrors(tester);
+        await tester.pump(const Duration(milliseconds: 200));
+      }
+
+      expect(
+        find.byType(VotingDialog),
+        findsNothing,
+        reason: 'the failing dialog must take its own route out of the stack',
+      );
+      expect(
+        find.text('covering-route'),
+        findsOneWidget,
+        reason: 'the route that happened to be on top must survive',
+      );
+    },
+  );
 
   testWidgets('system back still dismisses the dialog before a vote starts', (
     tester,
@@ -182,5 +447,198 @@ void main() {
       findsNothing,
       reason: 'the guard must only cover the in-flight window',
     );
+  });
+
+  group('dismissing with the keyboard up (PICNIC-2695)', () {
+    final l10n = AppLocalizationsKo();
+
+    testWidgets('a barrier tap releases the amount field as the route leaves', (
+      tester,
+    ) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      final node = await _focusAmountInput(tester);
+
+      // Outside the popup: the harness centres a 345 wide capsule in a 375
+      // viewport, so the top-left corner is barrier.
+      await tester.tapAt(const Offset(4, 4));
+      await tester.pump();
+      await tester.pump();
+
+      expect(
+        find.byType(VotingDialog),
+        findsOneWidget,
+        reason: 'the reverse transition must still be running here',
+      );
+      _expectEditingReleased(tester, node);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(VotingDialog), findsNothing);
+      expect(find.text('open-voting-dialog'), findsOneWidget);
+    });
+
+    testWidgets('system back releases the amount field as the route leaves', (
+      tester,
+    ) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      final node = await _focusAmountInput(tester);
+
+      await tester.binding.handlePopRoute();
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(VotingDialog), findsOneWidget);
+      _expectEditingReleased(tester, node);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(VotingDialog), findsNothing);
+    });
+
+    testWidgets('the top-right close leaves the dialog and the keyboard', (
+      tester,
+    ) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      final node = await _focusAmountInput(tester);
+
+      expect(_topClose(), findsOneWidget);
+      final close = tester.getRect(_topClose());
+      final popup = tester.getRect(find.byType(LargePopupWidget));
+      expect(close.width, greaterThanOrEqualTo(48));
+      expect(close.height, greaterThanOrEqualTo(48));
+      expect(close.center.dx, greaterThan(popup.center.dx));
+      expect(_topClose().hitTestable(), findsOneWidget);
+
+      await tester.tap(_topClose());
+      await tester.pump();
+      await tester.pump();
+
+      _expectEditingReleased(tester, node);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(VotingDialog), findsNothing);
+      expect(
+        find.text('open-voting-dialog'),
+        findsOneWidget,
+        reason: 'exactly one route may leave',
+      );
+    });
+
+    testWidgets(
+      'the close cannot dismiss an in-flight vote, even through a stale callback',
+      (tester) async {
+        final voteGate = Completer<void>();
+        addTearDown(() {
+          if (!voteGate.isCompleted) voteGate.complete();
+        });
+
+        await _openDialog(tester, voteGate: voteGate);
+        // Captured while idle, the way a rebuild-stale handler would be.
+        final idleClose = _popup(tester).onClose!;
+        expect(_popup(tester).closeButtonEnabled, isTrue);
+
+        await tester.enterText(find.byType(TextFormField), '5');
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(VotingSubmitButton));
+        await pumpAndIgnoreErrors(tester);
+        await tester.pump(const Duration(milliseconds: 16));
+
+        expect(
+          find.descendant(
+            of: find.byType(VotingSubmitButton),
+            matching: find.byType(SmallPulseLoadingIndicator),
+          ),
+          findsOneWidget,
+          reason: 'the vote must be in flight for this test to mean anything',
+        );
+
+        expect(
+          _popup(tester).closeButtonEnabled,
+          isFalse,
+          reason: 'the X must lock while the request is running',
+        );
+
+        await tester.tap(_topClose(), warnIfMissed: false);
+        await tester.pump(const Duration(milliseconds: 16));
+        idleClose();
+        await tester.pump(const Duration(milliseconds: 16));
+
+        expect(
+          find.byType(VotingDialog),
+          findsOneWidget,
+          reason:
+              'closing mid-vote leaves the request running and lets a second '
+              'request_id be charged separately',
+        );
+      },
+    );
+
+    testWidgets('leaving for the store releases the amount field first', (
+      tester,
+    ) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      final node = await _focusAmountInput(tester);
+
+      await tester.tap(find.text(l10n.label_button_recharge));
+      await tester.pump();
+      await tester.pump();
+
+      _expectEditingReleased(tester, node);
+
+      await tester.pumpAndSettle();
+      expect(find.byType(VotingDialog), findsNothing);
+    });
+
+    testWidgets('a mid-vote store navigation is refused', (tester) async {
+      final voteGate = Completer<void>();
+      addTearDown(() {
+        if (!voteGate.isCompleted) voteGate.complete();
+      });
+
+      await _openDialog(tester, voteGate: voteGate);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(VotingDialog)),
+      );
+      final screenBefore = container.read(navigationInfoProvider).currentScreen;
+
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(VotingSubmitButton));
+      await pumpAndIgnoreErrors(tester);
+      await tester.pump(const Duration(milliseconds: 16));
+
+      // The recharge control is behind the loading overlay, so drive the
+      // handler the way a stale captured callback would.
+      final recharge = tester
+          .widget<VotingStarCandyInfo>(find.byType(VotingStarCandyInfo))
+          .onRecharge;
+      recharge();
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(find.byType(VotingDialog), findsOneWidget);
+      expect(
+        container.read(navigationInfoProvider).currentScreen,
+        same(screenBefore),
+        reason: 'a refused close must not change the page underneath either',
+      );
+    });
   });
 }

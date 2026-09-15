@@ -194,6 +194,69 @@ void main() {
     });
 
     testWidgets(
+      'the top close fits the 320x568 budget with the keyboard down',
+      (tester) async {
+        // PICNIC-2695: the close strip is chrome the body has to pay for. Where
+        // the body can pay, the X is there — inside the window, a full tap
+        // target, and clear of the capsule it sits above.
+        await pumpCompactDialog(tester);
+        expect(tester.takeException(), isNull);
+
+        final close = tester.getRect(find.byKey(kLargePopupTopCloseKey));
+        final popup = tester.getRect(find.byType(LargePopupWidget));
+
+        expect(close.top, greaterThanOrEqualTo(-0.5));
+        expect(close.bottom, lessThanOrEqualTo(_compactHeight + 0.5));
+        expect(
+          close.height,
+          greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+        );
+        expect(
+          close.width,
+          greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+        );
+        expect(close.right, lessThanOrEqualTo(popup.right + 0.5));
+        expect(
+          find.byKey(kLargePopupTopCloseKey).hitTestable(),
+          findsOneWidget,
+          reason: 'the X must be reachable without scrolling the popup',
+        );
+      },
+    );
+
+    testWidgets('the top close yields when the keyboard leaves it no room', (
+      tester,
+    ) async {
+      // 320x568 with a 300 keyboard is the budget PICNIC-2688 pinned the
+      // portrait on and PICNIC-2694 had already spent down to its floor. The
+      // strip costs 24 more than the hidden one, and there is no 24 here, so
+      // the affordance yields rather than push the decoration out. The barrier
+      // and system back still close the dialog, and lowering the keyboard
+      // brings both the room and the X back.
+      await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(kLargePopupTopCloseKey), findsNothing);
+    });
+
+    testWidgets('the close strip keeps its geometry when a vote starts', (
+      tester,
+    ) async {
+      await pumpCompactDialog(tester);
+      final before = tester.getRect(find.byKey(kLargePopupTopCloseKey));
+      final popupBefore = tester.getRect(find.byType(LargePopupWidget));
+
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pump();
+      await tester.tap(find.byType(VotingSubmitButton));
+      // Not pumpAndSettle: the loading overlay animates forever.
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(tester.getRect(find.byKey(kLargePopupTopCloseKey)), before);
+      expect(tester.getRect(find.byType(LargePopupWidget)), popupBefore);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
       'the amount input and submit scroll into the visible area with the keyboard up',
       (tester) async {
         await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
@@ -390,9 +453,23 @@ void main() {
       final names = tester.getRect(find.byType(VotingMemberInfo));
       final submit = tester.getRect(find.byType(VotingSubmitButton));
       final bubble = tester.getRect(find.byType(VotingBubbleInfo));
+      // The order still holds: the bubble belongs between the names and the
+      // button, and it never overlaps the button.
       expect(bubble.top, greaterThanOrEqualTo(names.bottom - 0.5));
       expect(bubble.bottom, lessThanOrEqualTo(submit.top + 0.5));
-      expect(find.byType(VotingBubbleInfo).hitTestable(), findsOneWidget);
+      // PICNIC-2695 changed what "whole" can mean here. The top close strip
+      // costs the body 24 that this window does not have spare, and the vote
+      // dialog spends it on the X: a user who cannot leave the popup mid-vote
+      // is the defect the ticket reports, and the bubble is the part
+      // PICNIC-2694's plan designates as scrollable. So with the keyboard up
+      // the bubble may sit below the fold — reachable by scrolling the
+      // decoration, which is exactly what that band is for.
+      expect(find.byType(VotingBubbleInfo), findsOneWidget);
+      expect(
+        find.byKey(kLargePopupTopCloseKey).hitTestable(),
+        findsOneWidget,
+        reason: 'the X is what the 24 bought',
+      );
     });
 
     testWidgets('the picnic logo yields its room while the keyboard is up', (

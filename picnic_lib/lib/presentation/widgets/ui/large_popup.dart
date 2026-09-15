@@ -15,6 +15,28 @@ import 'package:picnic_lib/ui/style.dart';
 /// budget for it too.
 const double kLargePopupHiddenCloseStripHeight = 24;
 
+/// The extent the *leading* strip takes in
+/// [LargePopupCloseButtonPlacement.topRight], which is one full tap target and
+/// nothing else. It is public for the same reason the hidden strip is: a caller
+/// that bounds the body itself has to budget for it.
+const double kLargePopupTopCloseStripHeight = PicnicUi.minimumTapTarget;
+
+/// Identifies the top-right close control so a caller's regression test can
+/// measure and tap exactly it, instead of guessing at an icon or a label that
+/// the localized bottom row also carries.
+const Key kLargePopupTopCloseKey = ValueKey('largePopupTopClose');
+
+/// Where [LargePopupWidget] puts its close affordance.
+enum LargePopupCloseButtonPlacement {
+  /// The historical row under the card: trailing "닫기" text plus the cancel
+  /// icon. Every existing caller keeps this.
+  bottom,
+
+  /// A single 48x48 X in a strip above the card, for popups the user has to be
+  /// able to leave while an input inside them holds the keyboard.
+  topRight,
+}
+
 /// The popup card's default width.
 ///
 /// Exposed so a caller that bounds the dialog above [LargePopupWidget] can use
@@ -34,6 +56,20 @@ double largePopupCardBorderWidth() => 2.r;
 double largePopupHiddenChromeHeight() =>
     kLargePopupHiddenCloseStripHeight + largePopupCardBorderWidth() * 2;
 
+/// The same budget for [LargePopupCloseButtonPlacement.topRight]: the card
+/// border on both edges plus the 48 close strip, which replaces the trailing
+/// strip rather than adding to it.
+///
+/// This is 24 more than [largePopupHiddenChromeHeight], and on the shortest
+/// viewports PICNIC-2694 guarantees there is no 24 to give — it had already
+/// yielded the route margin to its floor. A caller that cannot afford this
+/// passes `showCloseButton: false` and pays the hidden strip instead; see
+/// the vote dialogs. Overlaying the control on the card was tried and is
+/// worse: the balance row's recharge button scrolls under it and the overlay
+/// wins the hit test, and reserving a clear band costs 63-83 rather than 24.
+double largePopupTopCloseChromeHeight() =>
+    kLargePopupTopCloseStripHeight + largePopupCardBorderWidth() * 2;
+
 class LargePopupWidget extends StatelessWidget {
   final Widget? titleWidget;
   final Widget content;
@@ -41,6 +77,20 @@ class LargePopupWidget extends StatelessWidget {
   final Color? backgroundColor;
   final double? width;
   final bool showCloseButton;
+
+  /// Which side of the card the close affordance sits on. Defaults to the
+  /// historical [LargePopupCloseButtonPlacement.bottom] row.
+  final LargePopupCloseButtonPlacement closeButtonPlacement;
+
+  /// Whether the close affordance may actually be used. A disabled affordance
+  /// keeps its geometry — the popup must not jump when it locks — but stops
+  /// being interactive at all, so no ancestor can pop in its place.
+  final bool closeButtonEnabled;
+
+  /// Runs *instead of* this widget's own `Navigator.pop`, so a caller that has
+  /// to check its own state before leaving (a vote in flight, for instance)
+  /// owns the whole decision. Exactly one of the two ever runs.
+  final VoidCallback? onClose;
 
   /// The card's corner radius.
   ///
@@ -58,38 +108,106 @@ class LargePopupWidget extends StatelessWidget {
     this.backgroundColor,
     this.width,
     this.showCloseButton = true,
+    this.closeButtonPlacement = LargePopupCloseButtonPlacement.bottom,
+    this.closeButtonEnabled = true,
+    this.onClose,
+
     this.cardBorderRadius,
   });
 
+  bool get _usesTopClose =>
+      showCloseButton &&
+      closeButtonPlacement == LargePopupCloseButtonPlacement.topRight;
+
   @override
   Widget build(BuildContext context) {
+    final card = Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          width: width ?? defaultLargePopupWidth(),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: backgroundColor ?? AppColors.grey00,
+            border: Border.all(
+              color: AppColors.secondary500,
+              width: largePopupCardBorderWidth(),
+            ),
+            borderRadius: cardBorderRadius ?? BorderRadius.circular(120.r),
+          ),
+          child: content,
+        ),
+        if (titleWidget != null) _buildTitleOverlay(),
+      ],
+    );
+
     return KeyboardDismissOnTap(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: width ?? defaultLargePopupWidth(),
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: backgroundColor ?? AppColors.grey00,
-                  border: Border.all(
-                    color: AppColors.secondary500,
-                    width: largePopupCardBorderWidth(),
-                  ),
-                  borderRadius:
-                      cardBorderRadius ?? BorderRadius.circular(120.r),
-                ),
-                child: content,
+        children: _usesTopClose
+            // One strip, above the card. Keeping the trailing strip as well
+            // would spend 72 of the body's budget on chrome.
+            ? [_buildTopCloseStrip(context), card]
+            : [card, _buildCloseAffordance(context)],
+      ),
+    );
+  }
+
+  /// Runs the caller's [onClose] when it has one, and this widget's own pop
+  /// otherwise — never both.
+  void _handleClose(BuildContext context) {
+    final callback = onClose;
+    if (callback != null) {
+      callback();
+      return;
+    }
+    Navigator.pop(context);
+  }
+
+  Widget _buildTopCloseStrip(BuildContext context) {
+    final icon = SvgPicture.asset(
+      package: 'picnic_lib',
+      'assets/icons/cancel_style=line.svg',
+      width: 24.w,
+      height: 24,
+      colorFilter: ColorFilter.mode(
+        closeButtonEnabled
+            ? AppColors.grey00
+            : AppColors.grey00.withValues(alpha: 0.4),
+        BlendMode.srcIn,
+      ),
+    );
+
+    return SizedBox(
+      width: width ?? defaultLargePopupWidth(),
+      height: kLargePopupTopCloseStripHeight,
+      child: Align(
+        alignment: Alignment.centerRight,
+        child: Padding(
+          padding: EdgeInsets.only(right: 16.w),
+          child: Semantics(
+            button: true,
+            enabled: closeButtonEnabled,
+            label: MaterialLocalizations.of(context).closeButtonLabel,
+            child: GestureDetector(
+              key: kLargePopupTopCloseKey,
+              behavior: HitTestBehavior.opaque,
+              // Disabled means *not interactive*, not "interactive but
+              // ignored": with no handler this detector never enters the
+              // gesture arena, so nothing behind it inherits the dismissal.
+              onTap: closeButtonEnabled ? () => _handleClose(context) : null,
+              child: SizedBox(
+                width: PicnicUi.minimumTapTarget,
+                height: PicnicUi.minimumTapTarget,
+                // A caller-supplied child is decoration inside the slot; the
+                // strip owns the interaction so a nested handler can never add
+                // a second pop.
+                child: IgnorePointer(child: Center(child: closeButton ?? icon)),
               ),
-              if (titleWidget != null) _buildTitleOverlay(),
-            ],
+            ),
           ),
-          _buildCloseAffordance(context),
-        ],
+        ),
       ),
     );
   }
@@ -125,14 +243,11 @@ class LargePopupWidget extends StatelessWidget {
     // that end up in the shared vote image. A custom button on the *visible*
     // branch still gets the full tap target.
     final hasAffordance = showCloseButton;
+    final interactive = showCloseButton && closeButtonEnabled;
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (showCloseButton) {
-          Navigator.pop(context);
-        }
-      },
+      onTap: interactive ? () => _handleClose(context) : null,
       child: Container(
         constraints: hasAffordance
             ? const BoxConstraints(minHeight: PicnicUi.minimumTapTarget)
