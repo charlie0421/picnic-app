@@ -194,6 +194,63 @@ void main() {
     await pumpAndIgnoreErrors(tester);
   });
 
+  testWidgets('dispose 후 새 화면이 같은 placement 를 가져가 A 의 늦은 콘텐츠를 열지 않는다', (
+    tester,
+  ) async {
+    final a = await buildPlatform(tester);
+
+    final firstShow = a.showAd();
+    await completeUserId(tester);
+    await firstShow;
+    expect(countOf('getPlacement'), 1);
+
+    // 사용자가 화면을 떠난다. 네이티브 요청은 아직 살아 있고 SDK 의
+    // _placementMap['mission'] 에는 A 의 콜백이 그대로 걸려 있다.
+    a.dispose();
+
+    // 새 화면 B 가 같은 mission placement 를 잡으려 한다.
+    final b = await buildPlatform(tester);
+    final secondShow = b.showAd();
+    await completeUserId(tester);
+    await secondShow;
+
+    // A 요청의 늦은 콘텐츠 준비 이벤트가 도착한다.
+    await deliver('onContentReady', 'mission');
+    await drain(tester);
+
+    expect(
+      countOf('showContent'),
+      0,
+      reason: 'A 요청의 offer 를 B 화면에서 열면 계정 전환 시 오적립·미적립이 된다',
+    );
+    b.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('종료 콜백 없이 오래 지나도 게이트를 임의로 풀지 않는다', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final show = platform.showAd();
+    await completeUserId(tester);
+    await show;
+    expect(countOf('getPlacement'), 1);
+
+    // request failure 도 content dismiss 도 오지 않은 채 시간만 흐른다.
+    await tester.pump(const Duration(minutes: 4));
+
+    final second = platform.showAd();
+    await completeUserId(tester);
+    await second;
+
+    expect(
+      countOf('getPlacement'),
+      1,
+      reason: 'native terminal 이벤트 없이 풀면 앞 요청의 늦은 콜백이 새 시도로 샌다',
+    );
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
   testWidgets('dispose 뒤 도착한 콘텐츠 준비 콜백은 화면을 열지 않는다', (tester) async {
     final platform = await buildPlatform(tester);
 

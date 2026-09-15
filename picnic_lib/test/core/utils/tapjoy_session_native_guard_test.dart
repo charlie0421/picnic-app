@@ -37,6 +37,14 @@ void main() {
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
       switch (call.method) {
+        case 'setUserID':
+          // Android SDK 14.6.0 의 TJUser.setUserIdRequest 는 HTTP 검증 **이전에**
+          // 로컬 TJUser.setUserId 를 먼저 실행한다. 따라서 setUserID 를 보낸
+          // 직후부터 getUserID 는 그 값을 돌려준다 — 네이티브 ID 조회만으로는
+          // "누구의 성공 이벤트인지"를 증명할 수 없다.
+          nativeUserId =
+              (call.arguments as Map)['userId'] as String?;
+          return null;
         case 'getUserID':
           return nativeUserId;
         case 'isConnected':
@@ -104,17 +112,86 @@ void main() {
           reason: '네이티브가 아직 A 인데 B 를 ready 로 만들면 A 의 snuid 로 오퍼가 열린다',
         );
         await tester.pump();
-        expect(countOf('setUserID'), 2);
+        // blocker-A: 앞선 시도의 네이티브 terminal 이벤트를 아직 소비하지 못했다.
+        // 여기서 B 의 setUserID 를 보내면 static 단일 슬롯 리스너를 덮어써
+        // A 의 늦은 이벤트가 B 의 것으로 오인된다.
+        final callsAfterB = countOf('setUserID');
 
-        // 3) A 의 늦은 성공 이벤트가 도착한다. 네이티브 사용자 ID 는 아직 A.
-        nativeUserId = userA;
+        // 3) A 의 늦은 성공 이벤트가 도착한다. 이 시점 네이티브 ID 는 (실제
+        //    SDK 처럼) 마지막으로 보낸 setUserID 값이라 B 를 돌려준다.
         await deliver('TapjoyOnSetUserIDSuccess');
-        await tester.pump();
+        await tester.pump(const Duration(seconds: 11));
 
         await bSettled;
         expect(session.readyUserId, isNull);
+        expect(
+          callsAfterB,
+          1,
+          reason: 'A 의 terminal 이벤트를 소비하기 전에는 B 요청을 보내면 안 된다',
+        );
       },
     );
+
+    testWidgets('앞선 시도의 terminal 이벤트를 소비하면 격리가 풀리고 다시 설정할 수 있다', (
+      tester,
+    ) async {
+      var currentUser = userA;
+      final session = makeSession(currentUserId: () => currentUser);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      final a = session.ensureUserReady();
+      final aFailed = expectLater(a, throwsA(isA<TapjoySessionException>()));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+      await aFailed;
+
+      // A 의 진짜 terminal 이벤트가 뒤늦게 도착해 소유권이 정리된다.
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump();
+
+      currentUser = userB;
+      final b = session.ensureUserReady();
+      await tester.pump();
+      expect(
+        countOf('setUserID'),
+        2,
+        reason: '격리가 풀렸으면 새 계정의 ID 설정은 정상적으로 진행돼야 한다',
+      );
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump();
+      expect(await b, userB);
+    });
+
+    testWidgets('격리 중에는 앞선 시도의 늦은 실패도 새 시도로 새지 않는다', (tester) async {
+      var currentUser = userA;
+      final session = makeSession(currentUserId: () => currentUser);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      final a = session.ensureUserReady();
+      final aFailed = expectLater(a, throwsA(isA<TapjoySessionException>()));
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+      await aFailed;
+
+      currentUser = userB;
+      final b = session.ensureUserReady();
+      final bFailed = expectLater(b, throwsA(isA<TapjoySessionException>()));
+      await tester.pump(const Duration(seconds: 11));
+      await bFailed;
+
+      // A 의 늦은 **실패** 이벤트. 격리 해제에만 쓰이고 B 에는 영향이 없다.
+      await deliver('TapjoyOnSetUserIDFailure', 'late failure for A');
+      await tester.pump();
+      expect(session.readyUserId, isNull);
+
+      final retry = session.ensureUserReady();
+      await tester.pump();
+      final callsAfterRetry = countOf('setUserID');
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 11));
+      expect(await retry, userB);
+      expect(callsAfterRetry, 2);
+    });
 
     testWidgets('네이티브 ID 가 캡처한 UUID 와 같으면 정상적으로 ready 가 된다', (tester) async {
       final session = makeSession(currentUserId: () => userA);
@@ -122,7 +199,6 @@ void main() {
 
       final pending = session.ensureUserReady();
       await tester.pump();
-      nativeUserId = userA;
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
 
@@ -141,7 +217,6 @@ void main() {
 
       final first = session.ensureUserReady();
       await tester.pump();
-      nativeUserId = userA;
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
       expect(await first, userA);
@@ -158,10 +233,157 @@ void main() {
         reason: 'Dart 캐시만 보고 즉시 반환하면 기기 ID 로 오퍼가 열린다 (PICNIC-2682 재발)',
       );
 
-      nativeUserId = userA;
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
       expect(await second, userA);
+    });
+  });
+
+  group('major-C: connect fallback 의 privacy hook', () {
+    testWidgets('성공 이벤트가 유실되고 네이티브 probe 로 확정돼도 hook 이 정확히 한 번 실행된다', (
+      tester,
+    ) async {
+      var hookCalls = 0;
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect: _silentConnector(),
+      );
+      nativeConnected = true;
+
+      await session.connect(
+        sdkKey: 'sdk-key',
+        initialUserId: userA,
+        onConnected: () async => hookCalls++,
+      );
+
+      final pending = session.ensureUserReady();
+      await tester.pump();
+
+      // 이 hook 이 앱 안에서 Tapjoy GDPR·user consent·age·US privacy 를 설정하는
+      // 유일한 지점이다(app_initializer.dart 의 _onTapjoyConnectSuccess).
+      expect(
+        hookCalls,
+        1,
+        reason: 'fallback 으로 오퍼월만 열고 개인정보 설정을 건너뛰면 안 된다',
+      );
+
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump();
+      expect(await pending, userA);
+
+      // 두 번째 진입에서 다시 실행되면 안 된다.
+      final again = session.ensureUserReady();
+      await tester.pump();
+      await again;
+      expect(hookCalls, 1);
+    });
+  });
+
+  group('major-D: 실제 connect 실패 후 복구', () {
+    testWidgets('진짜 CONNECT_FAILED 뒤 다음 사용자 시도에서 한 번 재연결한다', (tester) async {
+      var connectCalls = 0;
+      void Function() fireSuccess = () {};
+      void Function(int, String?) fireFailure = (_, _) {};
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+              fireSuccess = onConnectSuccess;
+              fireFailure = onConnectFailure;
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      expect(connectCalls, 1);
+
+      // 네트워크 장애로 뒤늦게 진짜 실패가 도착한다.
+      fireFailure(1, 'network unavailable');
+      await tester.pump();
+      await expectLater(
+        session.ensureUserReady(),
+        throwsA(isA<TapjoySessionException>()),
+      );
+
+      // 네트워크가 정상화된 뒤 사용자가 다시 무료충전소를 누른다.
+      final retry = session.ensureUserReady();
+      final retrySettled = expectLater(retry, completion(userA));
+      await tester.pump();
+      final callsAfterRetry = connectCalls;
+
+      fireSuccess();
+      await tester.pump();
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 20));
+      await retrySettled;
+      expect(
+        callsAfterRetry,
+        2,
+        reason: '재연결 경로가 없으면 프로세스 재시작 전까지 Tapjoy 가 전면 차단된다',
+      );
+    });
+
+    testWidgets('재연결도 실패하면 쿨다운 동안 연타해도 다시 시도하지 않는다', (tester) async {
+      var connectCalls = 0;
+      void Function(int, String?) fireFailure = (_, _) {};
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+              fireFailure = onConnectFailure;
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      fireFailure(1, 'network unavailable');
+      await tester.pump();
+      await expectLater(
+        session.ensureUserReady(),
+        throwsA(isA<TapjoySessionException>()),
+      );
+
+      // 재연결 시도 — 이것도 실패한다.
+      final second = session.ensureUserReady();
+      final secondFailed = expectLater(
+        second,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      final callsAfterSecond = connectCalls;
+      fireFailure(1, 'still unavailable');
+      await tester.pump(const Duration(seconds: 20));
+      await secondFailed;
+
+      // 쿨다운 중의 연타는 새 connect 를 만들지 않는다.
+      final third = session.ensureUserReady();
+      final thirdFailed = expectLater(
+        third,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump(const Duration(seconds: 20));
+      await thirdFailed;
+
+      expect(callsAfterSecond, 2);
+      expect(
+        connectCalls,
+        2,
+        reason: '실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다',
+      );
     });
   });
 
@@ -184,7 +406,6 @@ void main() {
         1,
         reason: '연결돼 있는데도 오퍼월이 영구히 막히면 정상 사용자가 Tapjoy 를 못 쓴다',
       );
-      nativeUserId = userA;
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
       expect(await pending, userA);
@@ -232,7 +453,6 @@ void main() {
         1,
         reason: '낡은 실패 대기를 들고 있으면 재연결해도 영영 열리지 않는다',
       );
-      nativeUserId = userA;
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump();
       expect(await pending, userA);
