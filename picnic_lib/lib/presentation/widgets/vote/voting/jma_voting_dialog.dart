@@ -268,6 +268,25 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     super.dispose();
   }
 
+  /// Ends the amount field's editing session.
+  ///
+  /// The owned node rather than the surrounding scope: by the time a terminal
+  /// path runs, focus may already belong to another route. Idempotent.
+  void _unfocusVoteInput() => _focusNode.unfocus();
+
+  /// The single user-initiated close.
+  ///
+  /// Re-reads [_isVoting] rather than trusting the state that was current when
+  /// the shared popup captured this callback, so a handler taken while idle is
+  /// not a way around the in-flight guard. The terminal pops below stay direct
+  /// — routing them through here would trap a vote that has already settled.
+  void _requestClose() {
+    if (!mounted || _isVoting) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    _unfocusVoteInput();
+    unawaited(Navigator.of(context).maybePop());
+  }
+
   @override
   Widget build(BuildContext context) {
     final myStarCandy = _getMyStarCandy();
@@ -283,85 +302,104 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardVisible = keyboardHeight > 0;
 
-    return LoadingOverlayWithIcon(
-      key: _loadingKey,
-      iconAssetPath: 'assets/app_icon_128.png',
-      enableScale: true,
-      enableFade: true,
-      enableRotation: false,
-      minScale: 0.98,
-      maxScale: 1.02,
-      showProgressIndicator: false,
-      child: AlertDialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: isKeyboardVisible ? 20 : 40,
-        ),
-        contentPadding: EdgeInsets.zero,
-        content: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            // 스크롤 알림을 처리하여 더 나은 사용자 경험 제공
-            return false;
-          },
-          child: GestureDetector(
-            onTap: () {
-              FocusScope.of(context).unfocus();
+    // 닫아도 jma-voting-v2 요청은 계속 진행된다. 사용자가 스피너를 닫고 다시
+    // 투표하면 두 번째 요청이 별도로 정산돼 이중 과금 창이 열린다. 일반 투표
+    // 팝업은 7fbd2bec8 에서 이 가드를 얻었지만 JMA 에는 없었다.
+    return PopScope(
+      canPop: !_isVoting,
+      // pop 을 가로채는 게 아니라 이미 끝난 pop 의 통지다. 배리어·시스템 백이
+      // 역방향 전환 내내 살려 두던 입력 세션만 여기서 끝낸다. 여기서 다시
+      // pop 하지 않는다.
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) _unfocusVoteInput();
+      },
+      child: LoadingOverlayWithIcon(
+        key: _loadingKey,
+        iconAssetPath: 'assets/app_icon_128.png',
+        enableScale: true,
+        enableFade: true,
+        enableRotation: false,
+        minScale: 0.98,
+        maxScale: 1.02,
+        showProgressIndicator: false,
+        child: AlertDialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: isKeyboardVisible ? 20 : 40,
+          ),
+          contentPadding: EdgeInsets.zero,
+          content: NotificationListener<ScrollNotification>(
+            onNotification: (notification) {
+              // 스크롤 알림을 처리하여 더 나은 사용자 경험 제공
+              return false;
             },
-            // 폭을 카드와 같은 값으로 고정해 둔다. AlertDialog 는 자식을
-            // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
-            // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
-            // 폭 제약이 그 질의를 여기서 끊는다.
-            child: SizedBox(
-              width: defaultLargePopupWidth(),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final available = constraints.hasBoundedHeight
-                      ? constraints.maxHeight
-                      : MediaQuery.of(context).size.height;
-                  // 평소 모습(키보드 85% / 기본 75%)은 선호 높이로 그대로 두고,
-                  // 라우트가 실제로 남겨 준 높이에서 카드 테두리와 숨김 스트립을
-                  // 뺀 값을 상한으로 삼는다. 예전 계산은 카드 안쪽만 비율로
-                  // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
-                  final preferred =
-                      (MediaQuery.of(context).size.height - keyboardHeight) *
-                      (isKeyboardVisible ? 0.85 : 0.75);
-                  final fits = math.max(
-                    0.0,
-                    available - largePopupHiddenChromeHeight(),
-                  );
-                  final budget = math.min(preferred, fits);
-                  // 큰 글자나 아주 낮은 뷰포트에서는 고정 헤더/푸터만으로도
-                  // 예산을 넘길 수 있다. 그때만 전체를 한 번에 스크롤하고,
-                  // 평소에는 기존 고정 헤더 + 스크롤 본문 + 고정 푸터를 쓴다.
-                  final compactChrome =
-                      budget < _fixedChromeMinimumBudget ||
-                      MediaQuery.textScalerOf(context).scale(14) > 18.2;
-                  return LargePopupWidget(
-                    showCloseButton: false,
-                    content: Container(
-                      constraints: BoxConstraints(
-                        maxHeight: budget,
-                        // 200 은 팝업이 찌부러지지 않게 지키는 하한이지만,
-                        // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
-                        // 에어리어) 있는 만큼으로 함께 내려야 한다.
-                        minHeight: math.min(_minimumDialogBudget, budget),
-                        maxWidth: MediaQuery.of(context).size.width - 32.w,
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              // 폭을 카드와 같은 값으로 고정해 둔다. AlertDialog 는 자식을
+              // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
+              // 질문에 답할 수 없어(디버그 예외) 그대로는 쓸 수 없다. 타이트한
+              // 폭 제약이 그 질의를 여기서 끊는다.
+              child: SizedBox(
+                width: defaultLargePopupWidth(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final available = constraints.hasBoundedHeight
+                        ? constraints.maxHeight
+                        : MediaQuery.of(context).size.height;
+                    // 평소 모습(키보드 85% / 기본 75%)은 선호 높이로 그대로 두고,
+                    // 라우트가 실제로 남겨 준 높이에서 카드 테두리와 숨김 스트립을
+                    // 뺀 값을 상한으로 삼는다. 예전 계산은 카드 안쪽만 비율로
+                    // 잘라서 그 두 가지 만큼 통째로 넘쳤다.
+                    final preferred =
+                        (MediaQuery.of(context).size.height - keyboardHeight) *
+                        (isKeyboardVisible ? 0.85 : 0.75);
+                    final fits = math.max(
+                      0.0,
+                      available - largePopupTopCloseChromeHeight(),
+                    );
+                    final budget = math.min(preferred, fits);
+                    // 큰 글자나 아주 낮은 뷰포트에서는 고정 헤더/푸터만으로도
+                    // 예산을 넘길 수 있다. 그때만 전체를 한 번에 스크롤하고,
+                    // 평소에는 기존 고정 헤더 + 스크롤 본문 + 고정 푸터를 쓴다.
+                    final compactChrome =
+                        budget < _fixedChromeMinimumBudget ||
+                        MediaQuery.textScalerOf(context).scale(14) > 18.2;
+                    return LargePopupWidget(
+                      showCloseButton: true,
+                      closeButtonPlacement:
+                          LargePopupCloseButtonPlacement.topRight,
+                      // 비활성이되 사라지지는 않는다. strip 높이를 유지해야 요청이
+                      // 시작될 때 팝업이 튀지 않고, 콜백도 최신 플래그를 다시
+                      // 확인한다.
+                      closeButtonEnabled: !_isVoting,
+                      onClose: _requestClose,
+                      content: Container(
+                        constraints: BoxConstraints(
+                          maxHeight: budget,
+                          // 200 은 팝업이 찌부러지지 않게 지키는 하한이지만,
+                          // 라우트가 그만큼도 남기지 않았다면(짧은 부모·세이프
+                          // 에어리어) 있는 만큼으로 함께 내려야 한다.
+                          minHeight: math.min(_minimumDialogBudget, budget),
+                          maxWidth: MediaQuery.of(context).size.width - 32.w,
+                        ),
+                        child: compactChrome
+                            ? _buildAllScrollBody(
+                                myStarCandy,
+                                userId,
+                                isKeyboardVisible,
+                              )
+                            : _buildFixedChromeBody(
+                                myStarCandy,
+                                userId,
+                                isKeyboardVisible,
+                              ),
                       ),
-                      child: compactChrome
-                          ? _buildAllScrollBody(
-                              myStarCandy,
-                              userId,
-                              isKeyboardVisible,
-                            )
-                          : _buildFixedChromeBody(
-                              myStarCandy,
-                              userId,
-                              isKeyboardVisible,
-                            ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
           ),
@@ -1332,6 +1370,11 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     // 이미 투표 진행 중이면 무시 (중복 클릭 방지)
     if (_isVoting) return;
 
+    // 동기 검증 분기보다 앞에서 해제한다. 아래 검증 실패는 아직 포커스를 쥔
+    // 입력 위에 오류 팝업을 띄우고, 그 팝업을 닫으면 포커스가 그대로 돌아와
+    // 사용자가 빠져나오려던 팝업 위로 키보드가 다시 올라온다.
+    _unfocusVoteInput();
+
     final voteAmount = _getVoteAmount();
 
     if (voteAmount == 0) {
@@ -1353,14 +1396,21 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       return;
     }
 
-    FocusScope.of(context).unfocus();
+    // 가드는 첫 await 앞에서 세운다. 탈퇴 확인은 네트워크 왕복이고, 그 구간
+    // 동안 닫기 버튼이 살아 있으면 사용자가 라우트를 닫은 뒤 await 가 돌아와
+    // disposed State 에 setState 를 하거나, 다시 투표해 두 번 과금된다.
+    // 아래 조기 반환 경로는 반드시 플래그를 되돌린다.
+    setState(() => _isVoting = true);
 
-    if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
+    final withdrawalBlocked = await showWithdrawalBlockedDialog(
+      context: context,
+      ref: ref,
+    );
+    if (!mounted) return;
+    if (withdrawalBlocked) {
+      setState(() => _isVoting = false);
       return;
     }
-
-    // 투표 시작 - 버튼 비활성화
-    setState(() => _isVoting = true);
 
     _loadingKey.currentState?.show();
 
@@ -1545,6 +1595,9 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
       // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
       final navContext = navigatorKey.currentContext;
 
+      // 멱등적 방어. 제출 시점에 이미 blur 했지만, 이 pop 이 결과 팝업으로
+      // 교체되는 지점이라 살아 있는 편집 세션을 넘겨서는 안 된다.
+      _unfocusVoteInput();
       Navigator.of(context).pop();
 
       await Future.delayed(const Duration(milliseconds: 100));
@@ -1578,6 +1631,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         setState(() => _isVoting = false);
       }
 
+      _unfocusVoteInput();
       Navigator.of(context).pop();
 
       _showVotingFailDialog();

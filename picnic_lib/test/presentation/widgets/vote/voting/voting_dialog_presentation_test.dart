@@ -178,6 +178,55 @@ void main() {
       expect(popup.right, lessThanOrEqualTo(_compactWidth + 0.5));
     });
 
+    testWidgets('the top close fits the 320x568 keyboard budget', (
+      tester,
+    ) async {
+      // PICNIC-2695: the close strip is chrome the body has to pay for. It
+      // must be inside the space the keyboard leaves, tappable without
+      // scrolling, and clear of the capsule it sits above.
+      await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
+      expect(tester.takeException(), isNull);
+
+      final close = tester.getRect(find.byKey(kLargePopupTopCloseKey));
+      final popup = tester.getRect(find.byType(LargePopupWidget));
+      final visibleBottom = _compactHeight - _keyboardInset;
+
+      expect(close.top, greaterThanOrEqualTo(-0.5));
+      expect(close.bottom, lessThanOrEqualTo(visibleBottom + 0.5));
+      expect(
+        close.height,
+        greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+      );
+      expect(
+        close.width,
+        greaterThanOrEqualTo(PicnicUi.minimumTapTarget - 0.01),
+      );
+      expect(close.right, lessThanOrEqualTo(popup.right + 0.5));
+      expect(
+        find.byKey(kLargePopupTopCloseKey).hitTestable(),
+        findsOneWidget,
+        reason: 'the X must be reachable without scrolling the popup',
+      );
+    });
+
+    testWidgets('the close strip keeps its geometry when a vote starts', (
+      tester,
+    ) async {
+      await pumpCompactDialog(tester, keyboardInset: _keyboardInset);
+      final before = tester.getRect(find.byKey(kLargePopupTopCloseKey));
+      final popupBefore = tester.getRect(find.byType(LargePopupWidget));
+
+      await tester.enterText(find.byType(TextFormField), '5');
+      await tester.pump();
+      await tester.tap(find.byType(VotingSubmitButton));
+      // Not pumpAndSettle: the loading overlay animates forever.
+      await tester.pump(const Duration(milliseconds: 16));
+
+      expect(tester.getRect(find.byKey(kLargePopupTopCloseKey)), before);
+      expect(tester.getRect(find.byType(LargePopupWidget)), popupBefore);
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets(
       'the amount input and submit scroll into the visible area with the keyboard up',
       (tester) async {

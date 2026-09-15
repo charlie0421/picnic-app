@@ -102,6 +102,24 @@ class VotingDialog extends ConsumerStatefulWidget {
 class _VotingDialogState extends ConsumerState<VotingDialog> {
   static const int _maxVotingRetries = 2;
 
+  /// The dialog's outer breathing room with the keyboard down.
+  static const double _outerInsetVertical = 24;
+
+  /// The same room with the keyboard up, minus the exact extra the top close
+  /// strip takes from the body.
+  ///
+  /// PICNIC-2695 replaced a 24 hidden strip with a 48 close strip, so the body
+  /// budget lost 24. With the keyboard up on a 320x568 viewport that was the
+  /// whole margin PICNIC-2688's pinned portrait was living on — it dropped to
+  /// the all-scroll layout and the portrait scrolled out of the capsule again.
+  /// Handing the same 24 back across the two edges leaves the body budget
+  /// exactly where it was, which is why this is derived from the two strip
+  /// constants rather than picked. With the keyboard down the budget is not
+  /// tight, so the original inset stays.
+  static const double _keyboardOuterInsetVertical =
+      _outerInsetVertical -
+      (kLargePopupTopCloseStripHeight - kLargePopupHiddenCloseStripHeight) / 2;
+
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
   final GlobalKey _inputFieldKey = GlobalKey();
@@ -191,6 +209,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     super.dispose();
   }
 
+  /// Ends the amount field's editing session.
+  ///
+  /// The owned node, not `FocusScope.unfocus()`: by the time a terminal path
+  /// runs, focus may already have moved to another route, and clearing the
+  /// scope there would blur *that* input instead. Idempotent, so every exit
+  /// path can call it without checking who called it first.
+  void _unfocusVoteInput() => _focusNode.unfocus();
+
+  /// The single user-initiated close.
+  ///
+  /// Re-reads [_isVoting] instead of trusting the state that was current when
+  /// the callback was captured: the close button hands this to the shared
+  /// popup, and a handler captured while idle must not become a way around the
+  /// in-flight guard. The terminal success/failure pops stay direct — routing
+  /// them through here would mean a vote that has already settled could never
+  /// close its own dialog.
+  void _requestClose() {
+    if (!mounted || _isVoting) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    _unfocusVoteInput();
+    unawaited(Navigator.of(context).maybePop());
+  }
+
   @override
   Widget build(BuildContext context) {
     final myStarCandy = _getMyStarCandy();
@@ -221,6 +262,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // above this route); system back is the path that still gets through.
     return PopScope(
       canPop: !_isVoting,
+      // A notification, not an interception: the pop has already happened, so
+      // this only ends the editing session the barrier and the system back
+      // used to leave running into the reverse transition. Never pop here.
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) _unfocusVoteInput();
+      },
       child: LoadingOverlayWithIcon(
         key: _loadingKey,
         iconAssetPath: 'assets/app_icon_128.png',
@@ -232,7 +279,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         showProgressIndicator: false,
         child: AlertDialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: isKeyboardVisible
+                ? _keyboardOuterInsetVertical
+                : _outerInsetVertical,
+          ),
           contentPadding: EdgeInsets.zero,
           // 캡슐 자체는 뷰포트 안에 남고, 넘치는 것은 캡슐 "안쪽" 이 스크롤한다.
           //
@@ -253,10 +305,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     : MediaQuery.of(context).size.height;
                 final budget = math.max(
                   0.0,
-                  available - largePopupHiddenChromeHeight(),
+                  available - largePopupTopCloseChromeHeight(),
                 );
                 return LargePopupWidget(
-                  showCloseButton: false,
+                  showCloseButton: true,
+                  closeButtonPlacement: LargePopupCloseButtonPlacement.topRight,
+                  // Disabled, not removed: the strip keeps its height so the
+                  // popup does not jump when the request starts, and the
+                  // callback re-checks the flag anyway.
+                  closeButtonEnabled: !_isVoting,
+                  onClose: _requestClose,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
                     child: switch (_pinnedChromeFor(
@@ -526,6 +584,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   }
 
   void _navigateToStore() {
+    // Same guard as the close button, and it runs *before* the provider writes:
+    // this path pops the dialog too, so mid-vote it would open the same
+    // double-charge window — and a refused close must leave the page underneath
+    // untouched as well.
+    if (!mounted || _isVoting) return;
+    if (ModalRoute.of(context)?.isCurrent != true) return;
+    _unfocusVoteInput();
     ref.read(navigationInfoProvider.notifier).setCurrentPage(const StorePage());
     ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
     Navigator.pop(context);
@@ -736,6 +801,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // 멱등성이 걸리지 않는다 - 한 번의 투표가 아니라 두 번의 차감이 된다.
     // 아래 조기 반환 경로들은 반드시 플래그를 되돌려야 한다.
     setState(() => _isVoting = true);
+    // Ahead of the validation branches below, not after them: those branches
+    // put an error dialog on top of a *still focused* field, and dismissing
+    // that dialog hands focus straight back to it — the keyboard comes back
+    // over a popup the user was trying to leave.
+    _unfocusVoteInput();
 
     final voteAmount = _getVoteAmount();
     final amount = BigInt.from(voteAmount);
@@ -761,8 +831,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       );
       return;
     }
-
-    FocusScope.of(context).unfocus();
 
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       if (mounted) setState(() => _isVoting = false);
@@ -945,6 +1013,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
       final navContext = navigatorKey.currentContext;
 
+      // Idempotent belt-and-braces before the terminal pop: submission already
+      // blurred the field, but this is the pop the completion dialog replaces
+      // the route with, and it must not hand a live editing session over.
+      _unfocusVoteInput();
       Navigator.of(context).pop();
 
       await Future.delayed(const Duration(milliseconds: 100));
@@ -974,6 +1046,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       }
 
       if (mounted) {
+        _unfocusVoteInput();
         Navigator.of(context).pop();
       }
 
