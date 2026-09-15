@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -25,6 +27,30 @@ const double kLargePopupTopCloseStripHeight = PicnicUi.minimumTapTarget;
 /// measure and tap exactly it, instead of guessing at an icon or a label that
 /// the localized bottom row also carries.
 const Key kLargePopupTopCloseKey = ValueKey('largePopupTopClose');
+
+/// How far the overlaid top close sits in from the card's top and right edges.
+///
+/// The card clips to a rounded rect ([Clip.antiAlias]) whose radius PICNIC-2694
+/// resolves per body height, so a constant inset either floats in mid-card on a
+/// small radius or gets its corner bitten off on a 120 one. Solving the corner
+/// circle for the box's nearest point gives the exact edge distance that keeps
+/// a [PicnicUi.minimumTapTarget] box whole: the box corner is inside the arc
+/// only while `inset >= radius * (1 - 1/sqrt(2))`.
+double largePopupTopCloseInset(BorderRadius? cardBorderRadius) {
+  final radius = (cardBorderRadius ?? BorderRadius.circular(120.r)).topRight.x;
+  return math.max(8.0, radius * (1 - 1 / math.sqrt2));
+}
+
+/// The vertical room the overlaid top close covers, measured from the card's
+/// inner top edge.
+///
+/// A caller whose content puts anything interactive along the card's top right
+/// — the balance row's recharge button does exactly that once the decoration
+/// scrolls — has to keep it out of this band. The overlay wins the hit test
+/// (it is the later [Stack] child), so a control left underneath would close
+/// the popup instead of doing its own job.
+double largePopupTopCloseOverlayExtent(BorderRadius? cardBorderRadius) =>
+    largePopupTopCloseInset(cardBorderRadius) + PicnicUi.minimumTapTarget;
 
 /// Where [LargePopupWidget] puts its close affordance.
 enum LargePopupCloseButtonPlacement {
@@ -56,11 +82,15 @@ double largePopupCardBorderWidth() => 2.r;
 double largePopupHiddenChromeHeight() =>
     kLargePopupHiddenCloseStripHeight + largePopupCardBorderWidth() * 2;
 
-/// The same budget for [LargePopupCloseButtonPlacement.topRight]: the card
-/// border on both edges plus the 48 close strip, which replaces the trailing
-/// strip rather than adding to it.
-double largePopupTopCloseChromeHeight() =>
-    kLargePopupTopCloseStripHeight + largePopupCardBorderWidth() * 2;
+/// The same budget for [LargePopupCloseButtonPlacement.topRight].
+///
+/// The top close control is *overlaid on* the card's own top-right corner, not
+/// stacked above it, so it costs the body nothing: the chrome is the card
+/// border plus the same hidden strip every other popup pays. Laying it out as
+/// its own row instead took 24 more than the hidden strip, and PICNIC-2694 had
+/// already yielded the route margin down to its floor — that 24 came straight
+/// out of the body and broke four of its viewport guarantees.
+double largePopupTopCloseChromeHeight() => largePopupHiddenChromeHeight();
 
 class LargePopupWidget extends StatelessWidget {
   final Widget? titleWidget;
@@ -84,6 +114,14 @@ class LargePopupWidget extends StatelessWidget {
   /// owns the whole decision. Exactly one of the two ever runs.
   final VoidCallback? onClose;
 
+  /// The card's corner radius.
+  ///
+  /// Defaults to the design's `120.r` capsule. A caller that pins controls
+  /// against the card edges on a short body passes a smaller radius, because
+  /// the card really does clip ([Clip.antiAlias]) and a 120 radius on a 200
+  /// high card is most of its height.
+  final BorderRadius? cardBorderRadius;
+
   const LargePopupWidget({
     super.key,
     this.titleWidget,
@@ -95,6 +133,8 @@ class LargePopupWidget extends StatelessWidget {
     this.closeButtonPlacement = LargePopupCloseButtonPlacement.bottom,
     this.closeButtonEnabled = true,
     this.onClose,
+
+    this.cardBorderRadius,
   });
 
   bool get _usesTopClose =>
@@ -115,11 +155,12 @@ class LargePopupWidget extends StatelessWidget {
               color: AppColors.secondary500,
               width: largePopupCardBorderWidth(),
             ),
-            borderRadius: BorderRadius.circular(120.r),
+            borderRadius: cardBorderRadius ?? BorderRadius.circular(120.r),
           ),
           child: content,
         ),
         if (titleWidget != null) _buildTitleOverlay(),
+        if (_usesTopClose) _buildTopCloseOverlay(context),
       ],
     );
 
@@ -127,11 +168,7 @@ class LargePopupWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
-        children: _usesTopClose
-            // One strip, above the card. Keeping the trailing strip as well
-            // would spend 72 of the body's budget on chrome.
-            ? [_buildTopCloseStrip(context), card]
-            : [card, _buildCloseAffordance(context)],
+        children: [card, _buildCloseAffordance(context)],
       ),
     );
   }
@@ -147,7 +184,14 @@ class LargePopupWidget extends StatelessWidget {
     Navigator.pop(context);
   }
 
-  Widget _buildTopCloseStrip(BuildContext context) {
+  /// The X, laid over the card's own top-right corner.
+  ///
+  /// [Positioned] inside the card [Stack] rather than a sibling row: the
+  /// control has to be reachable without taking height from the body, which on
+  /// the shortest viewports is the whole margin the controls live on. The card
+  /// corner it covers is decoration — the portrait is centred and the names sit
+  /// below it — so nothing readable goes under it.
+  Widget _buildTopCloseOverlay(BuildContext context) {
     final icon = SvgPicture.asset(
       package: 'picnic_lib',
       'assets/icons/cancel_style=line.svg',
@@ -161,13 +205,13 @@ class LargePopupWidget extends StatelessWidget {
       ),
     );
 
-    return SizedBox(
-      width: width ?? defaultLargePopupWidth(),
-      height: kLargePopupTopCloseStripHeight,
+    return Positioned(
+      top: 0,
+      right: 0,
       child: Align(
-        alignment: Alignment.centerRight,
+        alignment: Alignment.topRight,
         child: Padding(
-          padding: EdgeInsets.only(right: 16.w),
+          padding: EdgeInsets.all(largePopupTopCloseInset(cardBorderRadius)),
           child: Semantics(
             button: true,
             enabled: closeButtonEnabled,
@@ -215,6 +259,12 @@ class LargePopupWidget extends StatelessWidget {
   }
 
   Widget _buildCloseAffordance(BuildContext context) {
+    // With the overlaid top close showing, the trailing row is not an
+    // affordance at all — it stays as the hidden strip so the card keeps the
+    // exact chrome every other popup budgets for.
+    if (_usesTopClose) {
+      return const SizedBox(height: kLargePopupHiddenCloseStripHeight);
+    }
     final custom = closeButton;
     // `showCloseButton` is the flag that makes this strip an affordance at
     // all — the tap handler below pops only for it, so a hidden strip is never

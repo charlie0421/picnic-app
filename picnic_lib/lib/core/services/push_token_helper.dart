@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart' show visibleForTesting;
-
 /// Pure helper utilities for PushTokenService.
 ///
 /// All methods are static, pure, and have no platform/Flutter/Supabase
-/// dependencies, making them easy to unit test independently.
-@visibleForTesting
+/// dependencies, making them easy to unit test independently. [PushTokenService]
+/// delegates its payload building and action-URL parsing here so both sides of
+/// a notification round-trip share one definition.
 class PushTokenHelper {
   // ---------------------------------------------------------------------------
   // Token validation
@@ -140,6 +139,22 @@ class PushTokenHelper {
     if (!payload.contains('action_url')) return null;
     final match = RegExp(r'https?://[^\s}]+').firstMatch(payload);
     return match?.group(0);
+  }
+
+  /// Resolves the destination of a notification that launched the app.
+  ///
+  /// `flutter_local_notifications` reports a tap on a notification left behind
+  /// by a terminated app through `getNotificationAppLaunchDetails()` rather
+  /// than through FCM, so that payload needs the same treatment.
+  ///
+  /// Returns `null` unless [didNotificationLaunchApp] is `true` and [payload]
+  /// carries an `action_url`.
+  static String? resolveLaunchActionUrl({
+    required bool didNotificationLaunchApp,
+    required String? payload,
+  }) {
+    if (!didNotificationLaunchApp) return null;
+    return extractActionUrl(payload);
   }
 
   // ---------------------------------------------------------------------------

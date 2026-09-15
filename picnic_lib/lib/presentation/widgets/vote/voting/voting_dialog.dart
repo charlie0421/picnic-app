@@ -27,6 +27,7 @@ import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart'
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
@@ -37,18 +38,6 @@ import 'package:picnic_lib/ui/style.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
-
-/// How much of the voting popup body stays pinned while the middle scrolls.
-enum _PinnedChrome {
-  /// Portrait and names pinned above, submit (and logo) pinned below.
-  full,
-
-  /// Portrait pinned above, submit pinned below; the names scroll.
-  compact,
-
-  /// Nothing pinned: the whole body scrolls.
-  none,
-}
 
 Future showVotingDialog({
   required BuildContext context,
@@ -101,24 +90,6 @@ class VotingDialog extends ConsumerStatefulWidget {
 
 class _VotingDialogState extends ConsumerState<VotingDialog> {
   static const int _maxVotingRetries = 2;
-
-  /// The dialog's outer breathing room with the keyboard down.
-  static const double _outerInsetVertical = 24;
-
-  /// The same room with the keyboard up, minus the exact extra the top close
-  /// strip takes from the body.
-  ///
-  /// PICNIC-2695 replaced a 24 hidden strip with a 48 close strip, so the body
-  /// budget lost 24. With the keyboard up on a 320x568 viewport that was the
-  /// whole margin PICNIC-2688's pinned portrait was living on — it dropped to
-  /// the all-scroll layout and the portrait scrolled out of the capsule again.
-  /// Handing the same 24 back across the two edges leaves the body budget
-  /// exactly where it was, which is why this is derived from the two strip
-  /// constants rather than picked. With the keyboard down the budget is not
-  /// tight, so the original inset stays.
-  static const double _keyboardOuterInsetVertical =
-      _outerInsetVertical -
-      (kLargePopupTopCloseStripHeight - kLargePopupHiddenCloseStripHeight) / 2;
 
   late TextEditingController _textEditingController;
   late FocusNode _focusNode;
@@ -301,7 +272,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
     // Read for the flag only; the height budget below comes from the layout
     // constraints, which already have this inset applied once by the Dialog.
-    final isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardVisible = mediaQuery.viewInsets.bottom > 0;
+
+    // PICNIC-2694: the designed 24 margin holds while the route can still hand
+    // the capsule its controls, and yields when it cannot — a 500 high window
+    // with a 280 keyboard left 172, four pixels short of the controls, and
+    // spent 48 of the window on empty margin.
+    final verticalInset = resolveVoteDialogVerticalInset(
+      preferredInset: 24,
+      availableHeight: math.max(
+        0.0,
+        mediaQuery.size.height -
+            mediaQuery.viewInsets.bottom -
+            mediaQuery.padding.vertical,
+      ),
+      requiredBodyHeight: voteDialogRequiredRouteHeight(
+        _essentialHeight(
+          context,
+          contentWidth: _contentWidth(resolveVoteDialogWidth()),
+          isKeyboardVisible: isKeyboardVisible,
+        ),
+      ),
+    );
 
     // Closing the dialog does not cancel the vote: the request keeps running
     // against the captured ProviderContainer. Reopening and voting again mints
@@ -348,9 +341,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           backgroundColor: Colors.transparent,
           insetPadding: EdgeInsets.symmetric(
             horizontal: 16.w,
-            vertical: isKeyboardVisible
-                ? _keyboardOuterInsetVertical
-                : _outerInsetVertical,
+            vertical: verticalInset,
           ),
           contentPadding: EdgeInsets.zero,
           // 캡슐 자체는 뷰포트 안에 남고, 넘치는 것은 캡슐 "안쪽" 이 스크롤한다.
@@ -359,7 +350,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           // IntrinsicWidth 로 감싸 intrinsic 폭을 묻는데 LayoutBuilder 는 그
           // 질문에 답할 수 없다. 타이트한 폭 제약이 그 질의를 여기서 끊는다.
           content: SizedBox(
-            width: defaultLargePopupWidth(),
+            width: resolveVoteDialogWidth(),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 // 이 제약이 곧 "라우트가 실제로 남겨 준 높이"다 — Dialog 가
@@ -374,6 +365,36 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   0.0,
                   available - largePopupTopCloseChromeHeight(),
                 );
+                final contentWidth = _contentWidth(constraints.maxWidth);
+                final essential = _essentialHeight(
+                  context,
+                  contentWidth: contentWidth,
+                  isKeyboardVisible: isKeyboardVisible,
+                );
+                // The logo is the first thing to give way: it keeps its place
+                // under the button only while the decoration above can still
+                // show the portrait, the names and the balance at their own
+                // size. Otherwise it moves into the scrolling decoration —
+                // out of the way, still reachable.
+                final logoInTail =
+                    !isKeyboardVisible &&
+                    essential +
+                            _tailLogoHeight() +
+                            _decorationComfortHeight(
+                              context,
+                              contentWidth: contentWidth,
+                              isKeyboardVisible: isKeyboardVisible,
+                            ) <=
+                        budget;
+                final pinned =
+                    essential + (logoInTail ? _tailLogoHeight() : 0.0);
+                final shape = resolveVoteDialogShape(
+                  bodyHeight: budget,
+                  essentialHeight: pinned,
+                  horizontalContentInset:
+                      largePopupCardBorderWidth() + voteDialogCardExtent(24),
+                );
+                final mode = shape.mode;
                 return LargePopupWidget(
                   showCloseButton: true,
                   closeButtonPlacement: LargePopupCloseButtonPlacement.topRight,
@@ -382,30 +403,32 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                   // callback re-checks the flag anyway.
                   closeButtonEnabled: !_isVoting,
                   onClose: _requestClose,
+                  width: resolveVoteDialogWidth(),
+                  cardBorderRadius: shape.cardBorderRadius,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
-                    child: switch (_pinnedChromeFor(
-                      context,
-                      budget: budget,
-                      width: constraints.maxWidth,
-                      isKeyboardVisible: isKeyboardVisible,
-                    )) {
-                      _PinnedChrome.none => _buildAllScrollBody(
-                        context,
-                        displayedBalance: displayedBalance,
+                    child: VoteDialogBands(
+                      mode: mode,
+                      decorationBuilder: (context, availableHeight) =>
+                          _buildDecoration(
+                            context,
+                            availableHeight: availableHeight,
+                            contentWidth: contentWidth,
+                            isKeyboardVisible: isKeyboardVisible,
+                            displayedBalance: displayedBalance,
+                            withLogo: !isKeyboardVisible && !logoInTail,
+                          ),
+                      actions: _buildActions(context, mode: mode),
+                      submit: _buildSubmit(
                         myStarCandy: myStarCandy,
                         userId: userId,
                         isKeyboardVisible: isKeyboardVisible,
                       ),
-                      final pinned => _buildFixedChromeBody(
-                        context,
-                        displayedBalance: displayedBalance,
-                        myStarCandy: myStarCandy,
-                        userId: userId,
+                      tail: _buildTail(
                         isKeyboardVisible: isKeyboardVisible,
-                        pinNames: pinned == _PinnedChrome.full,
+                        withLogo: logoInTail,
                       ),
-                    },
+                    ),
                   ),
                 );
               },
@@ -416,61 +439,68 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
   }
 
-  /// Which parts of the body the budget can afford to pin.
+  double _contentWidth(double width) => math.max(
+    0.0,
+    width - largePopupCardBorderWidth() * 2 - voteDialogCardExtent(24) * 2,
+  );
+
+  /// The height of everything the popup may not scroll away: "use all", the
+  /// amount input with its validation line, the vote button and the body's
+  /// bottom padding.
   ///
-  /// PICNIC-2688: with the keyboard up, a single scroll view centred the amount
-  /// input and pushed the artist portrait out of the capsule. Pinning the
-  /// portrait and the submit button keeps both in view and lets only the
-  /// balance/amount rows scroll. The names pin with the portrait when there is
-  /// room ([_PinnedChrome.full]); on a shorter budget they move into the
-  /// scrolling window so the portrait can stay pinned ([_PinnedChrome.compact]);
-  /// only a budget that cannot hold even portrait + submit + one 48 row (a
-  /// 320x568 viewport at 200% text with a 300 keyboard) scrolls the whole
-  /// body as before, so nothing overflows ([_PinnedChrome.none]).
-  ///
-  /// The pinned parts are measured, not assumed: the names wrap, so a fixed
-  /// threshold left a long name to overflow the pinned column. The estimate
-  /// mirrors each pinned widget's own geometry and carries a small margin so
-  /// a rounding difference can never turn into an overflow.
-  _PinnedChrome _pinnedChromeFor(
+  /// Measured, not assumed. At 200% text the input outgrows its 48 minimum
+  /// (scaled digit line plus the field padding and both borders) and so does
+  /// the button, and a policy built on the nominal 48/52 pinned a group it
+  /// could not actually fit — which is how a short viewport ended up showing
+  /// the "use all" row with no input under it.
+  double _essentialHeight(
     BuildContext context, {
-    required double budget,
-    required double width,
+    required double contentWidth,
     required bool isKeyboardVisible,
   }) {
-    final contentWidth =
-        width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(24) * 2;
-    if (contentWidth <= 0) return _PinnedChrome.none;
-
-    final portrait =
-        _headerTopPadding(isKeyboardVisible) +
-        VotingArtistImage.preferredHeight() +
-        _headerGap(isKeyboardVisible);
-    final names = VotingMemberInfo.preferredHeight(
-      context,
-      voteItemModel: widget.voteItemModel,
-      maxWidth: contentWidth,
-    );
-    final footer =
+    return VotingCheckAllOption.preferredHeight(
+          context,
+          maxWidth: contentWidth,
+        ) +
+        _amountInputPreferredHeight(context, contentWidth) +
+        PicnicUi.vertical(8) +
+        VotingErrorMessage.preferredHeight(
+          context,
+          canVote: _canVote,
+          hasValue: _hasValue,
+          maxWidth: contentWidth,
+        ) +
         _footerTopPadding(isKeyboardVisible) +
         VotingSubmitButton.preferredHeight(context) +
-        (isKeyboardVisible
-            ? 0
-            : PicnicUi.vertical(16) +
-                  VotingLogoImage.preferredHeight(widget.voteModel)) +
         _footerBottomPadding(isKeyboardVisible);
-    // The scrolling window has to show the amount input whole, and at a large
-    // text scale the input outgrows its 48 minimum (scaled line plus padding
-    // and border), so the window is sized from the input, not the minimum.
-    const margin = 8.0;
-    final window = _amountInputPreferredHeight(context, contentWidth) + margin;
-    if (budget >= portrait + names + footer + window) return _PinnedChrome.full;
-    if (budget >= portrait + footer + window) return _PinnedChrome.compact;
-    return _PinnedChrome.none;
   }
 
-  /// Mirrors the amount input built in [_buildVoteAmountInput]: the 48
-  /// minimum, or the scaled digit line plus the field padding and border.
+  /// What the logo adds under the button when it keeps its place there.
+  double _tailLogoHeight() =>
+      PicnicUi.vertical(16) + VotingLogoImage.preferredHeight(widget.voteModel);
+
+  /// The decoration the popup would rather not compress: the portrait at its
+  /// own size, the names and the balance. The benefit bubble is deliberately
+  /// left out — it is the part the plan allows to scroll.
+  double _decorationComfortHeight(
+    BuildContext context, {
+    required double contentWidth,
+    required bool isKeyboardVisible,
+  }) {
+    return _headerTopPadding(isKeyboardVisible) +
+        VotingArtistImage.preferredHeight() +
+        _headerGap(isKeyboardVisible) +
+        VotingMemberInfo.preferredHeight(
+          context,
+          voteItemModel: widget.voteItemModel,
+          maxWidth: contentWidth,
+        ) +
+        VotingStarCandyInfo.preferredHeight(context, maxWidth: contentWidth);
+  }
+
+  /// Mirrors the amount input built in [_buildVoteAmountInput]: the 48 clear
+  /// button that sets the row's floor, or the scaled digit line plus the field
+  /// padding — either way with the border on both edges on top.
   double _amountInputPreferredHeight(BuildContext context, double maxWidth) {
     final line = measureVotingTextHeight(
       context,
@@ -479,9 +509,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       maxWidth: maxWidth,
     );
     return math.max(
-      PicnicUi.minimumTapTarget,
-      line + _amountInputVerticalPadding() * 2 + _amountInputBorderWidth * 2,
-    );
+          PicnicUi.minimumTapTarget,
+          line + _amountInputVerticalPadding() * 2,
+        ) +
+        _amountInputBorderWidth * 2;
   }
 
   static const double _amountInputBorderWidth = 1;
@@ -490,80 +521,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       PicnicUi.text(size: 16, weight: FontWeight.w700);
 
   EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
-    left: PicnicUi.horizontal(24),
-    right: PicnicUi.horizontal(24),
+    left: voteDialogCardExtent(24),
+    right: voteDialogCardExtent(24),
   );
 
-  /// Pinned header + scrolling middle + pinned footer.
-  ///
-  /// `Flexible.loose` (not `Expanded`) so the middle takes only the height it
-  /// needs while everything fits and the capsule keeps its intrinsic height;
-  /// it grows a scroll bar only when the keyboard eats into the budget.
-  Widget _buildFixedChromeBody(
-    BuildContext context, {
-    required BigInt displayedBalance,
-    required int myStarCandy,
-    required String userId,
-    required bool isKeyboardVisible,
-    required bool pinNames,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        _buildHeader(isKeyboardVisible: isKeyboardVisible, withNames: pinNames),
-        Flexible(
-          fit: FlexFit.loose,
-          child: SingleChildScrollView(
-            child: _buildScrollableMiddle(
-              context,
-              displayedBalance,
-              pinned: true,
-              withNames: !pinNames,
-            ),
-          ),
-        ),
-        _buildFooter(
-          myStarCandy: myStarCandy,
-          userId: userId,
-          isKeyboardVisible: isKeyboardVisible,
-        ),
-      ],
-    );
-  }
-
-  /// The same pieces in the same order inside one scroll view, for a budget
-  /// too small to pin anything.
-  Widget _buildAllScrollBody(
-    BuildContext context, {
-    required BigInt displayedBalance,
-    required int myStarCandy,
-    required String userId,
-    required bool isKeyboardVisible,
-  }) {
-    return SingleChildScrollView(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildHeader(isKeyboardVisible: isKeyboardVisible, withNames: true),
-          _buildScrollableMiddle(
-            context,
-            displayedBalance,
-            pinned: false,
-            withNames: false,
-          ),
-          _buildFooter(
-            myStarCandy: myStarCandy,
-            userId: userId,
-            isKeyboardVisible: isKeyboardVisible,
-          ),
-        ],
-      ),
-    );
-  }
-
   // With the keyboard up the header and footer give up part of their
-  // breathing room (as the JMA dialog does), so the scrolling window between
-  // them keeps the bonus bubble whole on a phone instead of a sliver of it.
+  // breathing room (as the JMA dialog does), so the decoration around the
+  // controls keeps the bonus bubble whole on a phone instead of a sliver.
   double _headerTopPadding(bool isKeyboardVisible) =>
       PicnicUi.vertical(isKeyboardVisible ? 12 : 24);
   double _headerGap(bool isKeyboardVisible) =>
@@ -573,10 +537,34 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   double _footerBottomPadding(bool isKeyboardVisible) =>
       PicnicUi.vertical(isKeyboardVisible ? 12 : 16);
 
-  Widget _buildHeader({
+  /// Portrait, names, balance and the benefit bubble.
+  ///
+  /// This is the band that yields: it keeps its natural height while the body
+  /// can afford it and scrolls once it cannot, instead of pushing the controls
+  /// below the fold. The bubble moved up here from under the input so that
+  /// "use all" + input + submit are one contiguous group that can be laid out
+  /// before any of this.
+  Widget _buildDecoration(
+    BuildContext context, {
+    required double availableHeight,
+    required double contentWidth,
     required bool isKeyboardVisible,
-    required bool withNames,
+    required BigInt displayedBalance,
+    required bool withLogo,
   }) {
+    final portrait = resolveVoteDialogPortraitSide(
+      preferredSide: VotingArtistImage.preferredHeight(),
+      availableHeight: availableHeight,
+      reservedHeight:
+          _headerTopPadding(isKeyboardVisible) +
+          _headerGap(isKeyboardVisible) +
+          VotingMemberInfo.preferredHeight(
+            context,
+            voteItemModel: widget.voteItemModel,
+            maxWidth: contentWidth,
+          ) +
+          VotingStarCandyInfo.preferredHeight(context, maxWidth: contentWidth),
+    );
     return Padding(
       padding: _bodyHorizontalPadding().copyWith(
         top: _headerTopPadding(isKeyboardVisible),
@@ -584,9 +572,22 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          VotingArtistImage(voteItemModel: widget.voteItemModel),
+          VotingArtistImage(
+            voteItemModel: widget.voteItemModel,
+            logicalSize: portrait,
+          ),
           SizedBox(height: _headerGap(isKeyboardVisible)),
-          if (withNames) VotingMemberInfo(voteItemModel: widget.voteItemModel),
+          VotingMemberInfo(voteItemModel: widget.voteItemModel),
+          VotingStarCandyInfo(
+            myStarCandy: displayedBalance,
+            onRecharge: _navigateToStore,
+          ),
+          SizedBox(height: PicnicUi.vertical(8)),
+          _buildBubble(),
+          if (withLogo) ...[
+            SizedBox(height: PicnicUi.vertical(16)),
+            VotingLogoImage(voteModel: widget.voteModel),
+          ],
         ],
       ),
     );
@@ -595,35 +596,28 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   // The balance, use-all, amount and clear controls each carry a 48 tap
   // target now, so the gaps that used to separate 20 and 32 high rows moved
   // inside those controls.
-  Widget _buildScrollableMiddle(
-    BuildContext context,
-    BigInt displayedBalance, {
-    required bool pinned,
-    required bool withNames,
+  Widget _buildActions(
+    BuildContext context, {
+    required VoteDialogLayoutMode mode,
   }) {
     return Padding(
       padding: _bodyHorizontalPadding(),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (withNames) VotingMemberInfo(voteItemModel: widget.voteItemModel),
-          VotingStarCandyInfo(
-            myStarCandy: displayedBalance,
-            onRecharge: _navigateToStore,
-          ),
           VotingCheckAllOption(checkAll: _checkAll, onToggle: _toggleCheckAll),
-          _buildVoteAmountInput(context, pinned: pinned),
+          _buildVoteAmountInput(
+            context,
+            pinned: mode == VoteDialogLayoutMode.actionsPinned,
+          ),
           SizedBox(height: PicnicUi.vertical(8)),
           VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
-          _buildBubble(),
         ],
       ),
     );
   }
 
-  /// The submit button, and the partner/picnic logo only while the keyboard
-  /// is down: with it up the logo's row is better spent on the amount input.
-  Widget _buildFooter({
+  Widget _buildSubmit({
     required int myStarCandy,
     required String userId,
     required bool isKeyboardVisible,
@@ -631,17 +625,30 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return Padding(
       padding: _bodyHorizontalPadding().copyWith(
         top: _footerTopPadding(isKeyboardVisible),
+      ),
+      child: VotingSubmitButton(
+        canVote: _canVote,
+        isVoting: _isVoting,
+        onPressed: () => _handleVote(myStarCandy, userId),
+      ),
+    );
+  }
+
+  /// The partner/picnic logo under the button, and the body's bottom padding.
+  ///
+  /// The logo stays hidden while the keyboard is up — with it up that row is
+  /// better spent on the amount input — and moves into the scrolling
+  /// decoration when the remaining height cannot hold both it and the
+  /// portrait.
+  Widget _buildTail({required bool isKeyboardVisible, required bool withLogo}) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
         bottom: _footerBottomPadding(isKeyboardVisible),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          VotingSubmitButton(
-            canVote: _canVote,
-            isVoting: _isVoting,
-            onPressed: () => _handleVote(myStarCandy, userId),
-          ),
-          if (!isKeyboardVisible) ...[
+          if (withLogo) ...[
             SizedBox(height: PicnicUi.vertical(16)),
             VotingLogoImage(voteModel: widget.voteModel),
           ],

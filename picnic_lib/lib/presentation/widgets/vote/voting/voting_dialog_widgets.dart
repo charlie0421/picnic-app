@@ -10,6 +10,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
@@ -220,10 +221,27 @@ class _VoteDetailPortraitCachePlaceholderState
 class VotingArtistImage extends StatelessWidget {
   final VoteItemModel voteItemModel;
 
-  const VotingArtistImage({super.key, required this.voteItemModel});
+  /// Overrides the portrait's side, for a caller that has measured a shorter
+  /// budget than the default wants.
+  final double? logicalSize;
+
+  const VotingArtistImage({
+    super.key,
+    required this.voteItemModel,
+    this.logicalSize,
+  });
+
+  /// The default design side, 80, scaled down on a narrow viewport but never
+  /// up on a wide one — `.w` is the width factor and this is a vertical
+  /// extent too, so a 851 wide landscape window used to render it 173 high.
+  static const double defaultLogicalSize = 80;
 
   /// The height [build] lays out, for a caller that has to budget for it.
-  static double preferredHeight() => 80.w;
+  static double preferredHeight({double? logicalSize}) =>
+      logicalSize ?? voteDialogDecorationExtent(defaultLogicalSize);
+
+  double _side() =>
+      logicalSize ?? voteDialogDecorationExtent(defaultLogicalSize);
 
   @override
   Widget build(BuildContext context) {
@@ -234,9 +252,10 @@ class VotingArtistImage extends StatelessWidget {
       imageUrl = voteItemModel.artistGroup?.image;
     }
 
+    final side = _side();
     return Container(
-      width: 80.w,
-      height: 80.w,
+      width: side,
+      height: side,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         border: Border.all(color: AppColors.primary500, width: 2),
@@ -245,8 +264,8 @@ class VotingArtistImage extends StatelessWidget {
         child: imageUrl != null && imageUrl.isNotEmpty
             ? PicnicCachedNetworkImage(
                 imageUrl: imageUrl,
-                width: 80.w,
-                height: 80.w,
+                width: side,
+                height: side,
                 fit: BoxFit.cover,
                 placeholder: VoteDetailPortraitCachePlaceholder(
                   imageUrl: imageUrl,
@@ -255,13 +274,17 @@ class VotingArtistImage extends StatelessWidget {
                 priority: ImagePriority.high,
               )
             : Container(
-                width: 80.w,
-                height: 80.w,
+                width: side,
+                height: side,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   color: AppColors.grey200,
                 ),
-                child: Icon(Icons.person, size: 40.w, color: AppColors.grey500),
+                child: Icon(
+                  Icons.person,
+                  size: side / 2,
+                  color: AppColors.grey500,
+                ),
               ),
       ),
     );
@@ -383,14 +406,20 @@ class VotingLogoImage extends StatelessWidget {
         partner.isNotEmpty;
   }
 
+  /// The design side of the logo box: the partner logo is 100, the picnic
+  /// mark 60. Both are vertical extents written with `.w`, so they are capped
+  /// the same way the portrait is.
+  static double logicalSize(VoteModel voteModel) =>
+      voteDialogDecorationExtent(_showsPartner(voteModel) ? 100 : 60);
+
   /// The height [build] lays out, for a caller that has to budget for it.
-  static double preferredHeight(VoteModel voteModel) =>
-      _showsPartner(voteModel) ? 100.w : 60.w;
+  static double preferredHeight(VoteModel voteModel) => logicalSize(voteModel);
 
   @override
   Widget build(BuildContext context) {
     final partner = voteModel.partner;
 
+    final side = logicalSize(voteModel);
     if (_showsPartner(voteModel) && partner != null) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -398,13 +427,13 @@ class VotingLogoImage extends StatelessWidget {
           Image.asset(
             package: 'picnic_lib',
             'assets/images/partners/$partner.png',
-            width: 100.w,
-            height: 100.w,
+            width: side,
+            height: side,
             fit: BoxFit.contain,
             errorBuilder: (context, error, stackTrace) {
               return Container(
-                width: 100.w,
-                height: 100.w,
+                width: side,
+                height: side,
                 decoration: BoxDecoration(
                   color: AppColors.primary500,
                   borderRadius: BorderRadius.circular(4),
@@ -427,16 +456,16 @@ class VotingLogoImage extends StatelessWidget {
     }
 
     return SizedBox(
-      width: 60.w,
-      height: 60.w,
+      width: side,
+      height: side,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Image.asset(
             package: 'picnic_lib',
             'assets/images/logo.png',
-            width: 40.w,
-            height: 40.w,
+            width: side * 2 / 3,
+            height: side * 2 / 3,
             fit: BoxFit.contain,
           ),
         ],
@@ -492,6 +521,30 @@ class VotingStarCandyInfo extends StatelessWidget {
     required this.myStarCandy,
     required this.onRecharge,
   });
+
+  /// The height [build] lays out at [maxWidth]: the 32 icon, the balance and
+  /// the recharge button's 48 tap target, whichever is tallest.
+  static double preferredHeight(
+    BuildContext context, {
+    required double maxWidth,
+  }) {
+    final amount = measureVotingTextHeight(
+      context,
+      '0',
+      PicnicUi.text(size: 16, weight: FontWeight.w700),
+      maxWidth: maxWidth,
+    );
+    final recharge = measureVotingTextHeight(
+      context,
+      AppLocalizations.of(context).label_button_recharge,
+      PicnicUi.text(size: 14, weight: FontWeight.w700),
+      maxWidth: maxWidth,
+    );
+    return math.max(
+      PicnicUi.minimumTapTarget,
+      math.max(32, math.max(amount, recharge)),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -612,10 +665,14 @@ class VotingSubmitButton extends StatelessWidget {
       context,
       AppLocalizations.of(context).label_button_vote,
       _labelStyle(),
-      maxWidth: 172.w - PicnicUi.horizontal(12) * 2,
+      maxWidth: preferredWidth() - PicnicUi.horizontal(12) * 2,
     );
     return math.max(_minHeight, label + PicnicUi.vertical(4) * 2);
   }
+
+  /// The button box width — the design 172, shrunk with the card when a wide
+  /// window caps the capsule.
+  static double preferredWidth() => voteDialogCardExtent(172);
 
   @override
   Widget build(BuildContext context) {
@@ -625,7 +682,7 @@ class VotingSubmitButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        width: 172.w,
+        width: preferredWidth(),
         constraints: const BoxConstraints(minHeight: _minHeight),
         decoration: BoxDecoration(
           color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
@@ -667,6 +724,26 @@ class VotingCheckAllOption extends StatelessWidget {
     required this.onToggle,
   });
 
+  static const double _glyphSize = 20;
+
+  static TextStyle _labelStyle() =>
+      PicnicUi.text(size: 14, weight: FontWeight.w500);
+
+  /// The height [build] lays out at [maxWidth]: the 48 tap minimum, or the
+  /// wrapped label when a large text scale outgrows it.
+  static double preferredHeight(
+    BuildContext context, {
+    required double maxWidth,
+  }) {
+    final label = measureVotingTextHeight(
+      context,
+      AppLocalizations.of(context).label_checkbox_entire_use,
+      _labelStyle(),
+      maxWidth: maxWidth - _glyphSize.w - PicnicUi.horizontal(4),
+    );
+    return math.max(PicnicUi.minimumTapTarget, math.max(_glyphSize, label));
+  }
+
   @override
   Widget build(BuildContext context) {
     final foreground = checkAll ? PicnicUi.actionColor : PicnicUi.secondaryText;
@@ -690,11 +767,7 @@ class VotingCheckAllOption extends StatelessWidget {
             Flexible(
               child: Text(
                 AppLocalizations.of(context).label_checkbox_entire_use,
-                style: PicnicUi.text(
-                  size: 14,
-                  weight: FontWeight.w500,
-                  color: foreground,
-                ),
+                style: _labelStyle().copyWith(color: foreground),
               ),
             ),
           ],
@@ -715,6 +788,29 @@ class VotingErrorMessage extends StatelessWidget {
     required this.hasValue,
   });
 
+  static TextStyle _messageStyle() => PicnicUi.text(
+    size: 12,
+    weight: FontWeight.w600,
+    color: AppColors.statusError,
+  );
+
+  /// The height [build] lays out at [maxWidth] — zero while the message is
+  /// hidden, which is what the caller budgets for on the first frame.
+  static double preferredHeight(
+    BuildContext context, {
+    required bool canVote,
+    required bool hasValue,
+    required double maxWidth,
+  }) {
+    if (canVote || !hasValue) return 0;
+    return measureVotingTextHeight(
+      context,
+      AppLocalizations.of(context).text_need_recharge,
+      _messageStyle(),
+      maxWidth: maxWidth - PicnicUi.horizontal(24),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!canVote && hasValue) {
@@ -723,11 +819,7 @@ class VotingErrorMessage extends StatelessWidget {
         width: double.infinity,
         child: Text(
           AppLocalizations.of(context).text_need_recharge,
-          style: PicnicUi.text(
-            size: 12,
-            weight: FontWeight.w600,
-            color: AppColors.statusError,
-          ),
+          style: _messageStyle(),
           textAlign: TextAlign.left,
         ),
       );
