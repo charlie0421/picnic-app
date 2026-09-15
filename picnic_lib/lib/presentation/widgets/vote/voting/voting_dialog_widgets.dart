@@ -706,7 +706,40 @@ class VotingStarCandyInfo extends StatelessWidget {
   static TextStyle _rechargeStyle() =>
       PicnicUi.text(size: 14, weight: FontWeight.w700);
 
-  static double _columnAmountWidth(BuildContext context) =>
+  /// The 1px border the mint pill draws, which `BoxDecoration.padding` adds to
+  /// the pill's box on both edges — so any width maths about the pill has to
+  /// carry it.
+  static const double rechargePillBorderWidth = 1;
+
+  /// The width the pill takes when nothing squeezes it: its own label plus the
+  /// border, padding, gap and icon around it.
+  ///
+  /// This is the geometry the balance row had before the two-column work, and
+  /// it is what the one-column row hands the pill — a non-flex child sized to
+  /// its content, with the balance taking everything else.
+  static double rechargeContentWidth(
+    BuildContext context, {
+    bool columns = false,
+  }) {
+    final padding = columns ? 12.0 : voteDialogCardExtent(12);
+    final gap = columns ? 4.0 : voteDialogCardExtent(4);
+    final icon = columns ? 16.0 : voteDialogCardExtent(16);
+    return rechargePillBorderWidth * 2 +
+        padding * 2 +
+        measureVotingTextMinimumWidth(
+          context,
+          AppLocalizations.of(context).label_button_recharge,
+          _rechargeStyle(),
+          maxLines: columns ? 2 : 1,
+        ) +
+        gap +
+        icon;
+  }
+
+  /// The stable balance slot used by both column selection and one-column
+  /// pill yielding. It deliberately does not follow the live wallet value:
+  /// a refresh must not move the row or change the selected layout.
+  static double amountMinimumWidth(BuildContext context) =>
       measureVotingTextMinimumWidth(
         context,
         _columnAmountFixture,
@@ -715,17 +748,8 @@ class VotingStarCandyInfo extends StatelessWidget {
       );
 
   static double columnMinimumWidth(BuildContext context) {
-    final amount = _columnAmountWidth(context);
-    final recharge =
-        12 * 2 +
-        measureVotingTextMinimumWidth(
-          context,
-          AppLocalizations.of(context).label_button_recharge,
-          _rechargeStyle(),
-          maxLines: 2,
-        ) +
-        4 +
-        16;
+    final amount = amountMinimumWidth(context);
+    final recharge = rechargeContentWidth(context, columns: true);
     return 32 + 4 + amount + recharge;
   }
 
@@ -743,10 +767,11 @@ class VotingStarCandyInfo extends StatelessWidget {
       maxWidth: maxWidth,
     );
     if (columns) {
-      final amountWidth = _columnAmountWidth(context);
+      final amountWidth = amountMinimumWidth(context);
+      final pillBorder = rechargePillBorderWidth * 2;
       final rechargeLabelWidth = math.max(
         0.0,
-        maxWidth - 32 - 4 - amountWidth - 12 * 2 - 4 - 16,
+        maxWidth - 32 - 4 - amountWidth - pillBorder - 12 * 2 - 4 - 16,
       );
       final recharge = measureVotingTextHeight(
         context,
@@ -757,7 +782,7 @@ class VotingStarCandyInfo extends StatelessWidget {
       );
       return math.max(
         PicnicUi.minimumTapTarget,
-        math.max(32, math.max(amount, recharge)),
+        math.max(32, math.max(amount, recharge + pillBorder)),
       );
     }
     final recharge = measureVotingTextHeight(
@@ -788,39 +813,74 @@ class VotingStarCandyInfo extends StatelessWidget {
             style: _amountStyle().copyWith(color: PicnicUi.actionColor),
           );
     final recharge = _RechargeButton(onPressed: onRecharge, columns: columns);
-    return SizedBox(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: iconWidth,
-            height: 32,
-            alignment: Alignment.centerLeft,
-            child: Image.asset(
-              package: 'picnic_lib',
-              'assets/icons/store/star_100.png',
-              width: iconWidth,
-              height: 32,
-            ),
-          ),
-          SizedBox(width: columns ? 4 : PicnicUi.horizontal(4)),
-          if (columns) ...[
+    final gap = columns ? 4.0 : PicnicUi.horizontal(4);
+    final icon = Container(
+      width: iconWidth,
+      height: 32,
+      alignment: Alignment.centerLeft,
+      child: Image.asset(
+        package: 'picnic_lib',
+        'assets/icons/store/star_100.png',
+        width: iconWidth,
+        height: 32,
+      ),
+    );
+
+    if (columns) {
+      return SizedBox(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(width: gap),
             SizedBox(
               // Keep the neutral reserved geometry stable when a wallet
               // refresh changes the value. Balances beyond the supported
               // fixture are ellipsized rather than expanding into the 48px
               // recharge target or changing the selected column count.
-              width: _columnAmountWidth(context),
+              width: amountMinimumWidth(context),
               child: amount,
             ),
             Expanded(child: recharge),
-          ] else ...[
-            Expanded(child: amount),
-            Flexible(child: recharge),
           ],
-        ],
-      ),
+        ),
+      );
+    }
+
+    // The pill is given an explicit width rather than a flex share.
+    //
+    // A flex child cannot express "size to your content, but give way when
+    // there is no room": `Flexible` hands the pill half of what the icon and
+    // the gap leave whether it needs it or not, and `Align` does not
+    // shrink-wrap under a bounded width, so the shipped pill grew to about
+    // 1.8x its content and took that width off the balance beside it. A
+    // non-flex pill keeps the content width but overflows the row outright on
+    // the long locales at 200%.
+    //
+    // Measuring the content first resolves both: the pill asks for exactly
+    // what its label needs, and only past half of the remaining width does it
+    // start to give way — its label ellipsizes, and a digit cannot. The
+    // balance's Expanded then takes the rest, so nothing is left for
+    // `spaceBetween` to spread.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final room = math.max(0.0, constraints.maxWidth - iconWidth - gap);
+        final pillWidth = math.min(
+          rechargeContentWidth(context),
+          math.max(room / 2, room - amountMinimumWidth(context)),
+        );
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            icon,
+            SizedBox(width: gap),
+            Expanded(child: amount),
+            SizedBox(width: pillWidth, child: recharge),
+          ],
+        );
+      },
     );
   }
 }
@@ -837,7 +897,9 @@ class _RechargeButton extends StatelessWidget {
     final iconWidth = columns ? 16.0 : voteDialogCardExtent(16);
     final label = Text(
       AppLocalizations.of(context).label_button_recharge,
-      maxLines: 2,
+      // The one-column pill is sized to this label, so it never needs a second
+      // line — and VotingStarCandyInfo.preferredHeight budgets for one.
+      maxLines: columns ? 2 : 1,
       overflow: TextOverflow.ellipsis,
       style: VotingStarCandyInfo._rechargeStyle().copyWith(
         color: PicnicUi.actionColor,
@@ -863,7 +925,10 @@ class _RechargeButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.secondary500,
               borderRadius: BorderRadius.circular(20.r),
-              border: Border.all(color: PicnicUi.actionColor, width: 1),
+              border: Border.all(
+                color: PicnicUi.actionColor,
+                width: VotingStarCandyInfo.rechargePillBorderWidth,
+              ),
             ),
             child: LayoutBuilder(
               builder: (context, constraints) {

@@ -1,10 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
@@ -89,6 +91,54 @@ Finder _capsuleCard() => find
       ),
     )
     .first;
+
+/// The mint pill itself — the bordered box inside the balance row, not the
+/// 48 tap area around it.
+Finder _rechargePill() => find
+    .descendant(
+      of: find.byType(VotingStarCandyInfo),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Container &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration! as BoxDecoration).border != null,
+      ),
+    )
+    .first;
+
+/// Lets a test move `viewInsets` after the popup is already open.
+///
+/// The matrix above opens each combination with its inset already applied,
+/// which never exercises the frames where the inset is *changing* — and that
+/// is where `Dialog`'s `AnimatedPadding` hands the body less than the budget
+/// the columns were selected against.
+class _InsetHost extends StatefulWidget {
+  const _InsetHost({
+    super.key,
+    required this.initialInset,
+    required this.child,
+  });
+
+  final double initialInset;
+  final Widget child;
+
+  @override
+  State<_InsetHost> createState() => _InsetHostState();
+}
+
+class _InsetHostState extends State<_InsetHost> {
+  late double _inset = widget.initialInset;
+
+  void setInset(double value) => setState(() => _inset = value);
+
+  @override
+  Widget build(BuildContext context) => MediaQuery(
+    data: MediaQuery.of(
+      context,
+    ).copyWith(viewInsets: EdgeInsets.only(bottom: _inset)),
+    child: widget.child,
+  );
+}
 
 Finder _amountInputSurface() => find
     .ancestor(
@@ -401,6 +451,214 @@ void main() {
     }
   });
 
+  group('PICNIC-2697 recharge pill measurement contract', () {
+    testWidgets('column minimum width includes the rendered pill border', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        viewport: const Size(393, 852),
+        locale: const Locale('my'),
+        textScale: 2,
+        keyboard: 0,
+        dialog: Builder(
+          builder: (context) => Align(
+            alignment: Alignment.topLeft,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: VotingStarCandyInfo.columnMinimumWidth(context),
+                  child: VotingStarCandyInfo(
+                    myStarCandy: BigInt.from(550),
+                    onRecharge: () {},
+                    columns: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final context = tester.element(find.byType(VotingStarCandyInfo));
+      final label = find.text(
+        AppLocalizations.of(context).label_button_recharge,
+      );
+      final paragraph = tester.renderObject<RenderParagraph>(label);
+      expect(
+        paragraph.didExceedMaxLines,
+        isFalse,
+        reason:
+            'the minimum-width measurement must reserve both 1px border edges',
+      );
+    });
+
+    testWidgets('column preferred height includes the rendered pill border', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        viewport: const Size(393, 852),
+        locale: const Locale('my'),
+        textScale: 3,
+        keyboard: 0,
+        dialog: Builder(
+          builder: (context) => Align(
+            alignment: Alignment.topLeft,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: VotingStarCandyInfo.columnMinimumWidth(context),
+                  child: VotingStarCandyInfo(
+                    myStarCandy: BigInt.from(550),
+                    onRecharge: () {},
+                    columns: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final info = find.byType(VotingStarCandyInfo);
+      final width = tester.getSize(info).width;
+      final measured = VotingStarCandyInfo.preferredHeight(
+        tester.element(info),
+        maxWidth: width,
+        columns: true,
+      );
+      expect(
+        measured,
+        closeTo(tester.getSize(info).height, 0.1),
+        reason:
+            'the pre-layout height must include both 1px border edges rendered '
+            'by the recharge pill',
+      );
+    });
+  });
+
+  group('PICNIC-2697 lazy column width measurement', () {
+    testWidgets('keyboard fallback skips both column width measurements', (
+      tester,
+    ) async {
+      var leftCalls = 0;
+      var rightCalls = 0;
+
+      final layout = resolveVoteDialogColumnsLayout(
+        routeAvailableWidth: 800,
+        popupAvailableHeight: 300,
+        singleEssentialHeight: 200,
+        singleDecorationComfortHeight: 200,
+        singleTailLogoHeight: 40,
+        singleHorizontalContentInset: 24,
+        leftMinimumWidth: () {
+          leftCalls += 1;
+          return 200;
+        },
+        rightMinimumWidth: () {
+          rightCalls += 1;
+          return 300;
+        },
+        leftMinimumHeightForWidth: (_) => throw TestFailure(
+          'keyboard fallback must not measure the left column height',
+        ),
+        rightMinimumHeightForWidth: (_) => throw TestFailure(
+          'keyboard fallback must not measure the right column height',
+        ),
+        keyboardVisible: true,
+      );
+
+      expect(layout, isNull);
+      expect(leftCalls, 0);
+      expect(rightCalls, 0);
+    });
+
+    testWidgets('comfortable one-column layout skips both width measurements', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        viewport: const Size(851, 393),
+        locale: const Locale('ko'),
+        textScale: 1,
+        keyboard: 0,
+        dialog: const SizedBox(key: Key('screen-util-context')),
+      );
+      var leftCalls = 0;
+      var rightCalls = 0;
+
+      final layout = resolveVoteDialogColumnsLayout(
+        routeAvailableWidth: 800,
+        popupAvailableHeight: 600,
+        singleEssentialHeight: 100,
+        singleDecorationComfortHeight: 100,
+        singleTailLogoHeight: 40,
+        singleHorizontalContentInset: 24,
+        leftMinimumWidth: () {
+          leftCalls += 1;
+          return 200;
+        },
+        rightMinimumWidth: () {
+          rightCalls += 1;
+          return 300;
+        },
+        leftMinimumHeightForWidth: (_) => throw TestFailure(
+          'comfortable one-column layout must not measure the left height',
+        ),
+        rightMinimumHeightForWidth: (_) => throw TestFailure(
+          'comfortable one-column layout must not measure the right height',
+        ),
+        keyboardVisible: false,
+      );
+
+      expect(layout, isNull);
+      expect(leftCalls, 0);
+      expect(rightCalls, 0);
+    });
+
+    testWidgets('two-column resolution measures each minimum width once', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        viewport: const Size(851, 393),
+        locale: const Locale('ko'),
+        textScale: 1,
+        keyboard: 0,
+        dialog: const SizedBox(key: Key('screen-util-columns-context')),
+      );
+      var leftCalls = 0;
+      var rightCalls = 0;
+
+      final layout = resolveVoteDialogColumnsLayout(
+        routeAvailableWidth: 800,
+        popupAvailableHeight: 400,
+        singleEssentialHeight: 300,
+        singleDecorationComfortHeight: 200,
+        singleTailLogoHeight: 100,
+        singleHorizontalContentInset: 24,
+        leftMinimumWidth: () {
+          leftCalls += 1;
+          return 200;
+        },
+        rightMinimumWidth: () {
+          rightCalls += 1;
+          return 300;
+        },
+        leftMinimumHeightForWidth: (_) => 100,
+        rightMinimumHeightForWidth: (_) => 100,
+        keyboardVisible: false,
+      );
+
+      expect(layout, isNotNull);
+      expect(leftCalls, 1);
+      expect(rightCalls, 1);
+    });
+  });
+
   testWidgets(
     'PICNIC-2697 Burmese 2.0x ignores the input hint when selecting columns',
     (tester) async {
@@ -532,6 +790,314 @@ void main() {
 
       expect(tester.takeException(), isNull);
       _expectColumnCoreVisible(tester, 'long balance');
+    },
+  );
+
+  group('PICNIC-2697 inset and size transitions', () {
+    // `Dialog` applies `viewInsets + insetPadding` through an `AnimatedPadding`
+    // with a 100ms curve, so for the frames right after the keyboard closes or
+    // the window changes, the height the route actually hands the body is
+    // *smaller* than the budget the two-column candidate was resolved against.
+    // A body pinned to that budget overflowed the popup's own Column by up to
+    // 248px. None of the matrix combinations can see it: they open with a
+    // fixed inset and a single `pump(1s)` lands after the curve has settled.
+    Future<GlobalKey<_InsetHostState>> openWithInset(
+      WidgetTester tester, {
+      required Size viewport,
+      required double inset,
+    }) async {
+      tester.view.physicalSize = Size(viewport.width * 3, viewport.height * 3);
+      tester.view.devicePixelRatio = 3;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(suppressImageErrors());
+
+      final host = GlobalKey<_InsetHostState>();
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        buildTestApp(
+          _InsetHost(
+            key: host,
+            initialInset: inset,
+            child: VotingDialog(
+              voteModel: voteModel,
+              voteItemModel: voteItemModel,
+              portalType: VotePortal.vote,
+            ),
+          ),
+          locale: const Locale('ko'),
+          textScaler: TextScaler.linear(1),
+          designSize: kAppDesignSize,
+          splitScreenMode: kAppSplitScreenMode,
+          userProfile: MockData.userProfile(starCandy: 500, starCandyBonus: 50),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet),
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester, const Duration(seconds: 1));
+      drainExpectedImageErrors(tester);
+      return host;
+    }
+
+    // One frame at a time, so the inset animation is observed while it runs.
+    // `pumpAndIgnoreErrors` rethrows everything that is not an image/asset
+    // failure, so an overflow on any of these frames fails the test.
+    Future<void> stepFrames(WidgetTester tester, {int frames = 12}) async {
+      for (var frame = 0; frame < frames; frame += 1) {
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 16));
+      }
+    }
+
+    testWidgets('a keyboard dismissed in one step keeps the capsule inside '
+        'the route', (tester) async {
+      final host = await openWithInset(
+        tester,
+        viewport: const Size(851, 393),
+        inset: 280,
+      );
+      expect(
+        find.byType(VoteDialogColumns),
+        findsNothing,
+        reason: 'the keyboard must hold the one-column fallback',
+      );
+
+      host.currentState!.setInset(0);
+      await stepFrames(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(VoteDialogColumns), findsOneWidget);
+      _expectColumnCoreVisible(tester, 'after a one-step keyboard dismissal');
+    });
+
+    testWidgets('a keyboard dismissed over several frames keeps the capsule '
+        'inside the route', (tester) async {
+      final host = await openWithInset(
+        tester,
+        viewport: const Size(851, 393),
+        inset: 280,
+      );
+
+      for (final inset in const <double>[220, 160, 100, 40, 0]) {
+        host.currentState!.setInset(inset);
+        await stepFrames(tester, frames: 2);
+      }
+      await stepFrames(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(VoteDialogColumns), findsOneWidget);
+      _expectColumnCoreVisible(tester, 'after a gradual keyboard dismissal');
+    });
+
+    testWidgets('rotating into a two-column viewport keeps the capsule, amount '
+        'and focus', (tester) async {
+      final host = await openWithInset(
+        tester,
+        viewport: const Size(393, 852),
+        inset: 0,
+      );
+      expect(
+        find.byType(VoteDialogColumns),
+        findsNothing,
+        reason: 'a portrait phone stays one-column',
+      );
+
+      await tester.showKeyboard(find.byType(TextFormField));
+      await tester.enterText(find.byType(TextFormField), '123');
+      await pumpAndIgnoreErrors(tester);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).focusNode?.hasFocus,
+        isTrue,
+      );
+
+      tester.view.physicalSize = const Size(851 * 3, 393 * 3);
+      host.currentState!.setInset(0);
+      await stepFrames(tester);
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(VoteDialogColumns), findsOneWidget);
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.controller?.text, '123');
+      expect(field.focusNode?.hasFocus, isTrue);
+      _expectColumnCoreVisible(
+        tester,
+        'after a portrait to landscape rotation',
+      );
+    });
+  });
+
+  group('PICNIC-2697 the one-column recharge pill keeps its content width', () {
+    const viewports = <Size>[Size(393, 852), Size(375, 812), Size(412, 915)];
+    const locales = <Locale>[
+      Locale('ko'),
+      Locale('en'),
+      Locale('th'),
+      Locale('my'),
+    ];
+
+    for (final viewport in viewports) {
+      for (final locale in locales) {
+        for (final textScale in _textScales) {
+          testWidgets('${viewport.width.toInt()}x${viewport.height.toInt()} '
+              '${locale.languageCode} ${textScale}x resolves pill width from '
+              'content and the amount floor', (tester) async {
+            await pumpAt(
+              tester,
+              viewport: viewport,
+              locale: locale,
+              textScale: textScale,
+              keyboard: 0,
+            );
+            expect(
+              find.byType(VoteDialogColumns),
+              findsNothing,
+              reason: '$viewport must stay one-column',
+            );
+
+            final context = tester.element(find.byType(VotingStarCandyInfo));
+            final contentWidth = VotingStarCandyInfo.rechargeContentWidth(
+              context,
+            );
+            final amountMinimumWidth = VotingStarCandyInfo.amountMinimumWidth(
+              context,
+            );
+            final row = tester.getRect(find.byType(VotingStarCandyInfo));
+            final pill = tester.getRect(_rechargePill());
+            final room =
+                row.width - PicnicUi.horizontal(32) - PicnicUi.horizontal(4);
+
+            expect(tester.takeException(), isNull);
+            // The pill never grows beyond content merely to consume a flex
+            // share, which is the original B2 regression.
+            expect(pill.width, lessThanOrEqualTo(contentWidth + 1));
+            // Content keeps at least the available half share when it needs
+            // it, so a long locale is not collapsed below that floor.
+            expect(
+              pill.width,
+              greaterThanOrEqualTo(math.min(contentWidth, room / 2) - 1),
+            );
+            // The pill always remains contained by the balance row.
+            expect(pill.width, lessThanOrEqualTo(room + 0.5));
+            if (pill.width < contentWidth - 1 &&
+                amountMinimumWidth <= room / 2) {
+              // Yielding is justified only when it buys the fixed balance
+              // fixture its minimum readable slot. When that slot and the
+              // pill's half-share floor cannot both fit, the pill stops at
+              // its floor and the amount necessarily gets less.
+              expect(
+                room - pill.width,
+                greaterThanOrEqualTo(amountMinimumWidth - 1),
+              );
+            }
+            // When the row can fit both measured contents, the pill must keep
+            // its content width. Properties 1–4 alone also accepted the old
+            // half-share clamp, so this is what makes that regression RED.
+            if (contentWidth + amountMinimumWidth <= room + 0.5) {
+              expect(pill.width, closeTo(contentWidth, 1.0));
+            }
+            expect(
+              pill.right,
+              closeTo(row.right, 0.5),
+              reason: '$viewport ${locale.languageCode} ${textScale}x',
+            );
+          });
+        }
+      }
+    }
+  });
+
+  group('PICNIC-2697 a squeezed one-column pill shares scarce room', () {
+    for (final viewport in const <Size>[Size(851, 393), Size(844, 390)]) {
+      for (final locale in const <Locale>[Locale('th'), Locale('my')]) {
+        testWidgets('${viewport.width.toInt()}x${viewport.height.toInt()} '
+            '${locale.languageCode} 2.0x stays inside the row', (tester) async {
+          await pumpAt(
+            tester,
+            viewport: viewport,
+            locale: locale,
+            textScale: 2,
+            keyboard: 0,
+            dialog: Builder(
+              builder: (context) {
+                final oneColumnRowWidth =
+                    resolveVoteDialogWidth() -
+                    largePopupCardBorderWidth() * 2 -
+                    voteDialogCardExtent(24) * 2;
+                return Align(
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: oneColumnRowWidth,
+                        child: VotingStarCandyInfo(
+                          myStarCandy: BigInt.from(550),
+                          onRecharge: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          );
+
+          final context = tester.element(find.byType(VotingStarCandyInfo));
+          final row = tester.getRect(find.byType(VotingStarCandyInfo));
+          final pill = tester.getRect(_rechargePill());
+          final contentWidth = VotingStarCandyInfo.rechargeContentWidth(
+            context,
+          );
+          final amountMinimumWidth = VotingStarCandyInfo.amountMinimumWidth(
+            context,
+          );
+          final room =
+              row.width - PicnicUi.horizontal(32) - PicnicUi.horizontal(4);
+          final expectedWidth = math.min(
+            contentWidth,
+            math.max(room / 2, room - amountMinimumWidth),
+          );
+
+          expect(tester.takeException(), isNull);
+          expect(
+            contentWidth + amountMinimumWidth,
+            greaterThan(room),
+            reason: 'this probe must exercise the scarce-room branch',
+          );
+          expect(pill.width, closeTo(expectedWidth, 1.0));
+          expect(pill.width, greaterThanOrEqualTo(room / 2 - 0.5));
+          expect(pill.left, greaterThanOrEqualTo(row.left - 0.5));
+          expect(pill.right, lessThanOrEqualTo(row.right + 0.5));
+        });
+      }
+    }
+  });
+
+  testWidgets(
+    'PICNIC-2697 the two-column recharge pill keeps its 48 tap target',
+    (tester) async {
+      await pumpAt(
+        tester,
+        viewport: const Size(851, 393),
+        locale: const Locale('ko'),
+        textScale: 1,
+        keyboard: 0,
+      );
+      expect(find.byType(VoteDialogColumns), findsOneWidget);
+
+      final target = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(VotingStarCandyInfo),
+              matching: find.byType(GestureDetector),
+            )
+            .first,
+      );
+      expect(target.height, greaterThanOrEqualTo(PicnicUi.minimumTapTarget));
+      expect(target.width, greaterThanOrEqualTo(PicnicUi.minimumTapTarget));
+      expect(tester.getRect(_rechargePill()).height, greaterThanOrEqualTo(32));
     },
   );
 

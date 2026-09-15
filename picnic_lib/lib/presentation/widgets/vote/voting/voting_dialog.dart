@@ -392,8 +392,8 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
               singleTailLogoHeight: _tailLogoHeight(),
               singleHorizontalContentInset:
                   largePopupCardBorderWidth() + voteDialogCardExtent(24),
-              leftMinimumWidth: _columnsLeftMinimumWidth(context),
-              rightMinimumWidth: _columnsRightMinimumWidth(context),
+              leftMinimumWidth: () => _columnsLeftMinimumWidth(context),
+              rightMinimumWidth: () => _columnsRightMinimumWidth(context),
               leftMinimumHeightForWidth: (width) =>
                   _columnsLeftMinimumHeight(context, width),
               rightMinimumHeightForWidth: (width) =>
@@ -421,6 +421,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     if (columnsLayout != null) {
+                      // The budget the columns were selected against came from
+                      // the route's own constraints, above AlertDialog. This
+                      // one is what Dialog's AnimatedPadding is actually
+                      // handing out on this frame. They agree at rest and
+                      // disagree for ~100ms after the keyboard closes or the
+                      // window changes, so the body follows the smaller of the
+                      // two instead of overflowing the capsule.
+                      final columnsChrome = columnsLayout.showTopClose
+                          ? largePopupTopCloseChromeHeight()
+                          : largePopupHiddenChromeHeight();
                       return LargePopupWidget(
                         showCloseButton: columnsLayout.showTopClose,
                         closeButtonPlacement:
@@ -431,6 +441,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         cardBorderRadius: columnsLayout.shape.cardBorderRadius,
                         content: VoteDialogColumns(
                           layout: columnsLayout,
+                          renderedBodyHeight: constraints.hasBoundedHeight
+                              ? math.max(
+                                  0.0,
+                                  constraints.maxHeight - columnsChrome,
+                                )
+                              : null,
                           left: _buildColumnsLeft(
                             context,
                             displayedBalance: displayedBalance,

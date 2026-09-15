@@ -229,8 +229,8 @@ VoteDialogColumnsLayout? resolveVoteDialogColumnsLayout({
   required double singleDecorationComfortHeight,
   required double singleTailLogoHeight,
   required double singleHorizontalContentInset,
-  required double leftMinimumWidth,
-  required double rightMinimumWidth,
+  required double Function() leftMinimumWidth,
+  required double Function() rightMinimumWidth,
   required double Function(double width) leftMinimumHeightForWidth,
   required double Function(double width) rightMinimumHeightForWidth,
   required bool keyboardVisible,
@@ -269,17 +269,21 @@ VoteDialogColumnsLayout? resolveVoteDialogColumnsLayout({
           singleBodyHeight;
   if (!singleIsUnderPressure) return null;
 
+  final resolvedLeftMinimumWidth = leftMinimumWidth();
+  final resolvedRightMinimumWidth = rightMinimumWidth();
   final cardWidth = math.min(routeAvailableWidth, kVoteDialogColumnsMaxWidth);
   final fixedHorizontal =
       largePopupCardBorderWidth() * 2 +
       kVoteDialogColumnsHorizontalPadding * 2 +
       kVoteDialogColumnGap;
   final columnSpace = cardWidth - fixedHorizontal;
-  if (columnSpace < leftMinimumWidth + rightMinimumWidth) return null;
+  if (columnSpace < resolvedLeftMinimumWidth + resolvedRightMinimumWidth) {
+    return null;
+  }
 
-  final leftUpperBound = columnSpace - rightMinimumWidth;
+  final leftUpperBound = columnSpace - resolvedRightMinimumWidth;
   final leftWidth = (columnSpace * 0.4)
-      .clamp(leftMinimumWidth, leftUpperBound)
+      .clamp(resolvedLeftMinimumWidth, leftUpperBound)
       .toDouble();
   final rightWidth = columnSpace - leftWidth;
 
@@ -490,16 +494,36 @@ class VoteDialogColumns extends StatelessWidget {
     required this.layout,
     required this.left,
     required this.right,
+    this.renderedBodyHeight,
   });
 
   final VoteDialogColumnsLayout layout;
   final Widget left;
   final Widget right;
 
+  /// The height the route is handing the body *this* frame, when that is less
+  /// than the height the candidate was resolved against.
+  ///
+  /// [VoteDialogColumnsLayout.bodyHeight] is resolved above `AlertDialog`,
+  /// which then applies `viewInsets + insetPadding` through an
+  /// `AnimatedPadding` with a 100ms curve. The two agree at rest and disagree
+  /// for the frames right after the keyboard closes, the window rotates, or
+  /// the popup switches between one and two columns: there the real constraint
+  /// is the *smaller* one, and a body pinned to the resolved budget overflowed
+  /// the popup's own `Column` by up to 248px.
+  ///
+  /// Only what is painted yields. The selection keeps using the neutral budget,
+  /// so the rendered height never feeds back into how many columns were chosen.
+  final double? renderedBodyHeight;
+
   @override
   Widget build(BuildContext context) {
+    final bodyHeight = math.min(
+      layout.bodyHeight,
+      renderedBodyHeight ?? layout.bodyHeight,
+    );
     return SizedBox(
-      height: layout.bodyHeight,
+      height: bodyHeight,
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           kVoteDialogColumnsHorizontalPadding,
