@@ -46,23 +46,16 @@ void main() {
   late String? currentUser;
   late TapjoySession session;
 
-  /// 네이티브 SDK 가 들고 있는 사용자 ID. 성공 게이트가 열리면 반영된다.
+  /// 네이티브 SDK 가 들고 있는 사용자 ID.
   String? nativeUserId;
 
-  Future<void> fakeSetUserId(
-    String userId, {
-    Duration timeout = Duration.zero,
-  }) {
+  Future<TapjoyUserIdAttempt> fakeSetUserId(String userId) async {
     setCalls.add(userId);
     final gate = Completer<void>();
     gates.add(gate);
-    gate.future.then<void>(
-        (_) {
-          nativeUserId = userId;
-        },
-        onError: (Object _) {},
-      );
-    return gate.future;
+    // Android SDK 는 HTTP 검증 이전에 로컬 ID 를 먼저 반영한다.
+    nativeUserId = userId;
+    return TapjoyUserIdAttempt(userId, gate.future);
   }
 
   setUp(initTestColors);

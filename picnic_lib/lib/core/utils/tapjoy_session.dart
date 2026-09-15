@@ -22,9 +22,19 @@ class TapjoySessionException implements Exception {
       'TapjoySessionException($reason${detail == null ? '' : ': $detail'})';
 }
 
-/// `Tapjoy.setUserID` 를 호출하고 SDK 성공 이벤트까지 기다리는 자리.
-typedef TapjoyUserIdSetter =
-    Future<void> Function(String userId, {Duration timeout});
+/// 네이티브 `setUserID` 한 건의 소유권.
+///
+/// [terminal] 은 **SDK 의 terminal 이벤트로만** 끝난다. 호출자의 timeout 과
+/// 무관하게 살아 있어야 앞선 시도의 늦은 이벤트를 새 시도가 가로채지 않는다.
+class TapjoyUserIdAttempt {
+  TapjoyUserIdAttempt(this.userId, this.terminal);
+
+  final String userId;
+  final Future<void> terminal;
+}
+
+/// `Tapjoy.setUserID` 를 보내고 그 시도의 소유권을 돌려주는 자리.
+typedef TapjoyUserIdSetter = Future<TapjoyUserIdAttempt> Function(String userId);
 
 /// 현재 로그인 사용자의 UUID. 없으면 null.
 typedef TapjoyUserIdReader = String? Function();
@@ -45,21 +55,18 @@ typedef TapjoyConnector =
       required void Function(int code, String? message) onConnectWarning,
     });
 
-/// Tapjoy 사용자 ID 를 설정하고 **SDK 의 성공 이벤트까지** 기다린다.
+/// `Tapjoy.setUserID` 를 보내고 그 시도의 소유권을 돌려준다.
 ///
 /// tapjoy_offerwall 14.6.0 의 Android 플러그인은 `setUserID` 요청 직후
 /// `result.success(null)` 을 돌려주고(TapjoyOfferwallPlugin.kt:170), 실제
 /// 성공/실패는 `TapjoyOnSetUserIDSuccess` / `TapjoyOnSetUserIDFailure` 채널
 /// 이벤트로 나중에 보낸다(:160). 따라서 `await Tapjoy.setUserID(...)` 만으로는
-/// ID 가 SDK 에 반영됐다고 볼 수 없고, 그 사이에 오퍼월을 요청하면 기본 기기
-/// ID 로 오퍼가 만들어질 수 있다 (PICNIC-2682).
+/// ID 가 SDK 에 반영됐다고 볼 수 없다 (PICNIC-2682).
 ///
-/// 실패·timeout·채널 예외는 모두 [TapjoySessionException] 으로 전파해 호출자가
-/// 오퍼월 요청을 중단하게 한다.
-Future<void> setTapjoyUserIdAndWait(
-  String userId, {
-  Duration timeout = const Duration(seconds: 10),
-}) async {
+/// **timeout 을 여기서 걸지 않는다.** 리스너는 `TapjoyMethodCallHandler` 의
+/// static 단일 슬롯이라(:102-110) 호출자가 기다리기를 포기해도 네이티브 이벤트는
+/// 여전히 이 시도의 것이다. 그 소유권은 [TapjoySession] 이 관리한다.
+Future<TapjoyUserIdAttempt> sendTapjoyUserId(String userId) async {
   final completer = Completer<void>();
 
   try {
@@ -77,18 +84,12 @@ Future<void> setTapjoyUserIdAndWait(
       },
     );
   } catch (error) {
-    // 채널 호출 자체가 실패하면 성공 이벤트는 영영 오지 않는다.
+    // 채널 호출 자체가 실패하면 terminal 이벤트는 영영 오지 않는다.
     completer.future.ignore();
     throw TapjoySessionException('SET_USER_ID_CHANNEL_ERROR', error);
   }
 
-  return completer.future.timeout(
-    timeout,
-    onTimeout: () => throw TapjoySessionException(
-      'SET_USER_ID_TIMEOUT',
-      '${timeout.inMilliseconds}ms',
-    ),
-  );
+  return TapjoyUserIdAttempt(userId, completer.future);
 }
 
 /// 늦게 도착한 SDK 콜백이 지난 시도의 화면을 열지 못하게 막는 토큰.
@@ -162,7 +163,8 @@ class TapjoySession {
     TapjoyConnectedProbe? nativeConnected,
     this.userIdTimeout = const Duration(seconds: 10),
     this.connectTimeout = const Duration(seconds: 15),
-  }) : _setUserIdAndWait = setUserIdAndWait ?? setTapjoyUserIdAndWait,
+    this.reconnectCooldown = const Duration(seconds: 30),
+  }) : _sendUserId = setUserIdAndWait ?? sendTapjoyUserId,
        _currentUserId = currentUserId ?? _defaultCurrentUserId,
        _connect = connect ?? _defaultConnect,
        _nativeUserId = nativeUserId ?? Tapjoy.getUserID,
@@ -193,13 +195,14 @@ class TapjoySession {
     instance = session;
   }
 
-  final TapjoyUserIdSetter _setUserIdAndWait;
+  final TapjoyUserIdSetter _sendUserId;
   final TapjoyUserIdReader _currentUserId;
   final TapjoyConnector _connect;
   final TapjoyNativeUserIdProbe _nativeUserId;
   final TapjoyConnectedProbe _nativeConnected;
   final Duration userIdTimeout;
   final Duration connectTimeout;
+  final Duration reconnectCooldown;
 
   /// connect 성공 이벤트로만 완료된다. 실패/채널 예외는 오류로 완료한다.
   Completer<void>? _connectReady;
@@ -213,6 +216,31 @@ class TapjoySession {
 
   /// connect 성공 이벤트 대기는 waiter 마다 timeout 을 새로 시작하지 않는다.
   Future<void>? _connectWait;
+
+  /// 실제 connect 실패 뒤 재연결에 쓸 마지막 인자. MethodChannel 은 즉시
+  /// 반환하므로 startup stage 는 성공으로 캐시되고, 뒤늦게 오는 진짜
+  /// CONNECT_FAILED 는 앱에 재호출 경로가 없으면 프로세스 재시작 전까지
+  /// Tapjoy 를 전면 차단한다 (major-D).
+  String? _sdkKey;
+  Future<void> Function()? _onConnectedHook;
+
+  /// connect 가 확정된 뒤 정확히 한 번 실행되는 hook. 채널 성공 이벤트든
+  /// `isConnected()` fallback 이든 같은 경로를 탄다 (major-C).
+  Future<void>? _connectedHookRun;
+
+  /// 진행 중인 단일 재연결. 연타가 SDK 를 두들기지 않게 공유한다.
+  Future<void>? _reconnect;
+  Timer? _reconnectCooldown;
+
+  /// timeout 으로 Dart Future 는 끝냈지만 네이티브 terminal 이벤트를 아직
+  /// 소비하지 못한 setUserID 시도.
+  ///
+  /// blocker-A: 이게 살아 있는 동안 새 `setUserID` 를 보내면 SDK 의 static 단일
+  /// 슬롯 리스너를 덮어써, 앞선 시도의 늦은 이벤트가 새 시도의 Completer 를
+  /// 완료시킨다. Android SDK 14.6.0 은 HTTP 검증 **이전에** 로컬
+  /// `TJUser.setUserId` 를 실행하므로 `getUserID()` 대조로도 구별되지 않는다.
+  /// 그래서 소유권이 정리될 때까지 fail-closed 로 막는다.
+  TapjoyUserIdAttempt? _orphanedAttempt;
 
   /// SDK 사용자 ID 가 확인된 사용자. 확인 전이면 null.
   String? get readyUserId => _readyUserId;
@@ -235,6 +263,10 @@ class TapjoySession {
     // 재연결이면 앞선 연결의 공유 대기(실패했을 수도 있다)를 버린다.
     _connectWait = null;
     _readyUserId = null;
+    _sdkKey = sdkKey;
+    _onConnectedHook = onConnected;
+    // 새 네이티브 연결은 privacy 설정을 다시 적용해야 한다.
+    _connectedHookRun = null;
 
     final options = <String, dynamic>{
       if (initialUserId != null && initialUserId.isNotEmpty)
@@ -245,11 +277,7 @@ class TapjoySession {
       await _connect(
         sdkKey: sdkKey,
         options: options,
-        onConnectSuccess: () {
-          if (!completer.isCompleted) completer.complete();
-          final hook = onConnected;
-          if (hook != null) unawaited(hook());
-        },
+        onConnectSuccess: () => _markConnected(completer),
         onConnectFailure: (code, message) {
           logger.e('[Tapjoy] connect failed: $code, $message');
           _readyUserId = null;
@@ -312,13 +340,7 @@ class TapjoySession {
     }
 
     _readyUserId = null;
-    try {
-      await _setUserIdAndWait(userId, timeout: userIdTimeout);
-    } on TapjoySessionException {
-      rethrow;
-    } catch (error) {
-      throw TapjoySessionException('SET_USER_ID_FAILED', error);
-    }
+    await _sendUserIdOwned(userId);
 
     // 성공 이벤트를 기다리는 사이 로그아웃·계정 전환이 일어났을 수 있다.
     if (_currentUserId() != userId) {
@@ -334,6 +356,50 @@ class TapjoySession {
     }
     _readyUserId = userId;
     return userId;
+  }
+
+  /// `setUserID` 를 보내고 terminal 이벤트를 기다린다.
+  ///
+  /// timeout 은 Dart Future 만 끝내고 네이티브 소유권은 [_orphanedAttempt] 로
+  /// 유지한다. 소유권이 살아 있는 동안은 새 요청을 보내지 않는다 — 보내는 순간
+  /// static 단일 슬롯 리스너가 덮어써져 늦은 이벤트의 주인을 알 수 없게 된다.
+  Future<void> _sendUserIdOwned(String userId) async {
+    final orphan = _orphanedAttempt;
+    if (orphan != null) {
+      throw TapjoySessionException('SET_USER_ID_QUARANTINED', orphan.userId);
+    }
+
+    final attempt = await _sendUserId(userId);
+    try {
+      await attempt.terminal.timeout(
+        userIdTimeout,
+        onTimeout: () => throw TapjoySessionException(
+          'SET_USER_ID_TIMEOUT',
+          '${userIdTimeout.inMilliseconds}ms',
+        ),
+      );
+    } on TapjoySessionException catch (error) {
+      if (error.reason == 'SET_USER_ID_TIMEOUT') _quarantine(attempt);
+      rethrow;
+    } catch (error) {
+      throw TapjoySessionException('SET_USER_ID_FAILED', error);
+    }
+  }
+
+  /// 네이티브 terminal 이벤트를 아직 못 받은 시도를 격리한다.
+  void _quarantine(TapjoyUserIdAttempt attempt) {
+    _orphanedAttempt = attempt;
+    logger.w(
+      '[Tapjoy] setUserID terminal 이벤트 대기 중 — 새 요청을 보류한다',
+    );
+    attempt.terminal
+        .then<void>((_) {}, onError: (Object _) {})
+        .whenComplete(() {
+          if (identical(_orphanedAttempt, attempt)) {
+            _orphanedAttempt = null;
+            logger.i('[Tapjoy] setUserID 소유권 정리 완료 — 보류 해제');
+          }
+        });
   }
 
   /// 네이티브 SDK 가 [userId] 를 들고 있는가. 확인 자체가 실패하면 던진다.
@@ -358,25 +424,70 @@ class TapjoySession {
     }
   }
 
-  Future<void> _awaitConnected() async {
+  Future<void> _awaitConnected({bool allowReconnect = true}) async {
     final completer = _connectReady;
     if (completer == null) {
       throw const TapjoySessionException('CONNECT_NOT_STARTED');
     }
     if (completer.isCompleted) {
-      await completer.future;
-      return;
+      try {
+        await completer.future;
+        // 확정된 연결이라도 hook 이 아직이면(이벤트 유실 후 fallback) 실행한다.
+        await _runConnectedHook();
+        return;
+      } on TapjoySessionException catch (error) {
+        if (!allowReconnect || !_isRecoverableConnectFailure(error)) rethrow;
+        // 네트워크가 정상화돼도 앱에 재호출 경로가 없으면 프로세스 재시작
+        // 전까지 Tapjoy 가 막힌다 (major-D).
+        await _attemptReconnect();
+        return;
+      }
     }
 
     // connect 성공 채널 이벤트가 유실되면 completer 는 영구 pending 이다. SDK 가
     // 실제로 연결돼 있으면 정상 사용자를 앱 재시작 전까지 막을 이유가 없다.
     if (await _probeConnected()) {
       _markConnected(completer);
+      await _runConnectedHook();
       return;
     }
 
     // 대기는 공유한다. waiter 마다 timeout 을 새로 시작하면 탭마다 15초씩 멈춘다.
     await (_connectWait ??= _waitForConnectEvent(completer));
+    await _runConnectedHook();
+  }
+
+  static bool _isRecoverableConnectFailure(TapjoySessionException error) =>
+      error.reason == 'CONNECT_FAILED' ||
+      error.reason == 'CONNECT_CHANNEL_ERROR';
+
+  /// 실제 connect 실패 뒤 사용자 시도 한 건당 최대 한 번, 공유 재연결.
+  Future<void> _attemptReconnect() => _reconnect ??= _runReconnect();
+
+  Future<void> _runReconnect() async {
+    try {
+      if (_reconnectCooldown?.isActive ?? false) {
+        throw const TapjoySessionException('CONNECT_FAILED_COOLDOWN');
+      }
+      final sdkKey = _sdkKey;
+      if (sdkKey == null) {
+        throw const TapjoySessionException('CONNECT_NOT_STARTED');
+      }
+      logger.i('[Tapjoy] reconnecting after a failed connect');
+      await connect(
+        sdkKey: sdkKey,
+        initialUserId: _currentUserId(),
+        onConnected: _onConnectedHook,
+      );
+      await _awaitConnected(allowReconnect: false);
+    } catch (error) {
+      // 실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다.
+      _reconnectCooldown?.cancel();
+      _reconnectCooldown = Timer(reconnectCooldown, () {});
+      rethrow;
+    } finally {
+      _reconnect = null;
+    }
   }
 
   Future<void> _waitForConnectEvent(Completer<void> completer) async {
@@ -400,6 +511,27 @@ class TapjoySession {
 
   void _markConnected(Completer<void> completer) {
     if (!completer.isCompleted) completer.complete();
+    _runConnectedHook();
+  }
+
+  /// 앱 안에서 Tapjoy GDPR·user consent·age·US privacy 를 설정하는 유일한
+  /// 지점이다(app_initializer.dart 의 `_onTapjoyConnectSuccess`). 채널 성공
+  /// 이벤트가 유실돼 `isConnected()` fallback 으로 확정된 경우에도 반드시
+  /// 실행돼야 한다 (major-C).
+  Future<void> _runConnectedHook() {
+    final hook = _onConnectedHook;
+    if (hook == null) return Future<void>.value();
+    return _connectedHookRun ??= () async {
+      try {
+        await hook();
+      } catch (error, stackTrace) {
+        logger.e(
+          '[Tapjoy] connected hook failed',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
+    }();
   }
 
   Future<T> _serialized<T>(Future<T> Function() body) {

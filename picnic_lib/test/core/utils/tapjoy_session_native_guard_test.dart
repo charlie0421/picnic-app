@@ -304,15 +304,12 @@ void main() {
       await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
       expect(connectCalls, 1);
 
-      // 네트워크 장애로 뒤늦게 진짜 실패가 도착한다.
+      // MethodChannel 은 이미 반환해 startup stage 는 성공으로 캐시됐고,
+      // 진짜 실패는 뒤늦게 도착한다.
       fireFailure(1, 'network unavailable');
       await tester.pump();
-      await expectLater(
-        session.ensureUserReady(),
-        throwsA(isA<TapjoySessionException>()),
-      );
 
-      // 네트워크가 정상화된 뒤 사용자가 다시 무료충전소를 누른다.
+      // 네트워크가 정상화된 뒤 사용자가 무료충전소를 누른다.
       final retry = session.ensureUserReady();
       final retrySettled = expectLater(retry, completion(userA));
       await tester.pump();
@@ -323,6 +320,7 @@ void main() {
       await deliver('TapjoyOnSetUserIDSuccess');
       await tester.pump(const Duration(seconds: 20));
       await retrySettled;
+
       expect(
         callsAfterRetry,
         2,
@@ -352,38 +350,41 @@ void main() {
       await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
       fireFailure(1, 'network unavailable');
       await tester.pump();
-      await expectLater(
-        session.ensureUserReady(),
+
+      // 1차 시도 — 재연결이 일어나지만 그것도 실패한다.
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
         throwsA(isA<TapjoySessionException>()),
       );
+      await tester.pump();
+      final callsAfterFirst = connectCalls;
+      fireFailure(1, 'still unavailable');
+      await tester.pump(const Duration(seconds: 20));
+      await firstFailed;
 
-      // 재연결 시도 — 이것도 실패한다.
+      // 쿨다운 중의 연타는 새 connect 를 만들지 않는다.
       final second = session.ensureUserReady();
       final secondFailed = expectLater(
         second,
         throwsA(isA<TapjoySessionException>()),
       );
-      await tester.pump();
-      final callsAfterSecond = connectCalls;
-      fireFailure(1, 'still unavailable');
       await tester.pump(const Duration(seconds: 20));
       await secondFailed;
 
-      // 쿨다운 중의 연타는 새 connect 를 만들지 않는다.
-      final third = session.ensureUserReady();
-      final thirdFailed = expectLater(
-        third,
-        throwsA(isA<TapjoySessionException>()),
+      expect(
+        callsAfterFirst,
+        2,
+        reason: '진짜 실패 뒤 첫 사용자 시도는 한 번 재연결해야 한다',
       );
-      await tester.pump(const Duration(seconds: 20));
-      await thirdFailed;
-
-      expect(callsAfterSecond, 2);
       expect(
         connectCalls,
         2,
         reason: '실패한 재연결을 연타마다 반복하면 SDK 를 두들기게 된다',
       );
+
+      // 쿨다운 타이머를 소진해 pending timer 없이 끝낸다.
+      await tester.pump(const Duration(seconds: 40));
     });
   });
 

@@ -20,7 +20,7 @@ void main() {
   const uid = '00000000-0000-0000-0000-000000000001';
   const otherUid = '00000000-0000-0000-0000-000000000002';
 
-  group('setTapjoyUserIdAndWait', () {
+  group('sendTapjoyUserId', () {
     late List<MethodCall> calls;
     late TestDefaultBinaryMessenger messenger;
 
@@ -62,7 +62,9 @@ void main() {
         mockNative();
 
         var completed = false;
-        final pending = setTapjoyUserIdAndWait(uid).then((_) {
+        final pending = sendTapjoyUserId(
+          uid,
+        ).then((attempt) => attempt.terminal).then((_) {
           completed = true;
         });
 
@@ -89,26 +91,14 @@ void main() {
     testWidgets('실패 이벤트는 Future 실패로 전파된다', (tester) async {
       mockNative();
 
-      final pending = setTapjoyUserIdAndWait(uid);
+      final pending = sendTapjoyUserId(
+        uid,
+      ).then((attempt) => attempt.terminal);
       final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
 
       await tester.pump();
       await deliverSdkEvent('TapjoyOnSetUserIDFailure', 'bad user id');
       await tester.pump();
-      await matcher;
-    });
-
-    testWidgets('성공 이벤트가 오지 않으면 timeout 으로 실패한다', (tester) async {
-      mockNative();
-
-      final pending = setTapjoyUserIdAndWait(
-        uid,
-        timeout: const Duration(seconds: 5),
-      );
-      final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
-
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 6));
       await matcher;
     });
 
@@ -118,7 +108,7 @@ void main() {
       );
 
       await expectLater(
-        setTapjoyUserIdAndWait(uid),
+        sendTapjoyUserId(uid),
         throwsA(isA<TapjoySessionException>()),
       );
     });
@@ -133,18 +123,13 @@ void main() {
     /// 네이티브 SDK 가 들고 있는 사용자 ID. 성공 게이트가 열리면 반영된다.
     late String? nativeUserId;
 
-    Future<void> fakeSetUserId(String userId, {Duration timeout = Duration.zero}) {
+    Future<TapjoyUserIdAttempt> fakeSetUserId(String userId) async {
       setCalls.add(userId);
       final gate = Completer<void>();
       gates.add(gate);
-      // 실제 SDK 도 성공 이벤트 시점에는 그 ID 를 들고 있다.
-      gate.future.then<void>(
-        (_) {
-          nativeUserId = userId;
-        },
-        onError: (Object _) {},
-      );
-      return gate.future;
+      // Android SDK 는 HTTP 검증 이전에 로컬 ID 를 먼저 반영한다.
+      nativeUserId = userId;
+      return TapjoyUserIdAttempt(userId, gate.future);
     }
 
     setUp(() {

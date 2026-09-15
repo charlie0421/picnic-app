@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/foundation.dart' show VoidCallback, visibleForTesting;
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -18,10 +18,6 @@ class TapjoyPlatform extends AdPlatform {
   /// 무료충전소 미션 오퍼월의 placement 이름.
   static const String placementName = 'mission';
 
-  /// 오퍼가 열려 있어도 게이트를 영원히 물고 있지 않기 위한 상한.
-  /// dismiss 콜백이 끝내 오지 않는 단말에서도 다음 시도를 막지 않는다.
-  static const Duration placementLease = Duration(minutes: 3);
-
   Timer? _safetyTimer;
   bool _isInitialized = false;
 
@@ -30,9 +26,6 @@ class TapjoyPlatform extends AdPlatform {
   /// 않으므로 [TapjoyPlacementGate] 가 함께 필요하다.
   final TapjoyAttemptGuard _attemptGuard = TapjoyAttemptGuard();
 
-  /// 이 인스턴스가 잡고 있는 placement 게이트를 놓는 함수.
-  VoidCallback? _releasePlacement;
-  Timer? _placementLeaseTimer;
 
   TapjoyPlatform(super.ref, super.context, super.id,
       [super.animationController]);
@@ -95,21 +88,16 @@ class TapjoyPlatform extends AdPlatform {
     startPerformanceLog('플레이스먼트 요청');
     final attempt = _attemptGuard.begin();
 
+    // 게이트는 **네이티브 terminal 이벤트로만** 푼다. dispose 나 타이머로 풀면
+    // 이 요청의 늦은 콜백이 새 owner 의 closure·토큰·Auth 를 통과해 남의 화면을
+    // 연다(blocker-B). SDK 는 placement 이름 외에 correlation/cancel 을 주지
+    // 않으므로 Dart 에서 안전한 조기 해제 방법이 없다.
     var released = false;
     void release() {
       if (released) return;
       released = true;
-      _placementLeaseTimer?.cancel();
-      _placementLeaseTimer = null;
-      _releasePlacement = null;
       TapjoyPlacementGate.exit(placementName, this);
     }
-
-    _releasePlacement = release;
-    _placementLeaseTimer = Timer(placementLease, () {
-      logWarning('$placementName 오퍼월 종료 콜백이 오지 않아 게이트를 회수한다');
-      release();
-    });
 
     /// 이 콜백이 아직 이번 시도·이번 계정의 것인가.
     bool isLive() =>
@@ -133,7 +121,11 @@ class TapjoyPlatform extends AdPlatform {
         },
         onContentReady: (placement) {
           if (!isLive()) {
-            logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않음');
+            // 화면이 사라진 뒤 도착한 준비 콜백. 이 요청의 수명은 여기서 끝난다
+            // — showContent 를 부르지 않는 한 show/dismiss 는 오지 않으므로,
+            // 이 시점이 이 요청의 마지막 네이티브 이벤트다.
+            logWarning('지난 시도의 콘텐츠 준비 콜백 — 표시하지 않고 게이트를 놓는다');
+            release();
             return;
           }
           logInfo('콘텐츠 준비 완료');
@@ -193,8 +185,10 @@ class TapjoyPlatform extends AdPlatform {
   void dispose() {
     _safetyTimer?.cancel();
     _safetyTimer = null;
-    // 화면이 사라지면 이 인스턴스가 잡은 게이트도 놓는다.
-    _releasePlacement?.call();
+    // placement 게이트는 여기서 놓지 않는다. 네이티브 요청이 아직 살아 있고
+    // SDK 의 _placementMap['mission'] 에 이 인스턴스의 콜백이 그대로 걸려 있어,
+    // 지금 놓으면 새 화면이 같은 placement 를 가져가 이 요청의 늦은 콜백을
+    // 자기 것으로 받는다. 남은 콜백이 terminal 을 소비하며 스스로 놓는다.
     // 늦게 도착할 SDK 콜백이 이 화면을 되살리지 못하게 한다.
     _attemptGuard.cancel();
     super.dispose();
