@@ -559,7 +559,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "投票する",
+  "label_button_vote": "投票",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },

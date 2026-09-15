@@ -560,7 +560,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "ลงคะแนนเสียง",
+  "label_button_vote": "โหวต",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },

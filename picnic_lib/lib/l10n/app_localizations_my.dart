@@ -441,7 +441,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_button_view_policy => 'မူဝါဒကြည့်ပါ';
 
   @override
-  String get label_button_vote => 'မဲပေးပဲှ';
+  String get label_button_vote => 'မဲပေး';
 
   @override
   String get label_celeb_gallery => 'အနုပညာရှင်ပြခန်း';
