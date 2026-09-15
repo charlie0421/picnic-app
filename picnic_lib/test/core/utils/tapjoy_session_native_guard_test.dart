@@ -388,6 +388,186 @@ void main() {
     });
   });
 
+  group('major-F: 재연결 쿨다운은 탭마다 연장되지 않는다', () {
+    testWidgets('원 실패 기준 30초가 지나면 연타했더라도 다시 재연결한다', (tester) async {
+      var connectCalls = 0;
+      void Function(int, String?) fireFailure = (_, _) {};
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+              fireFailure = onConnectFailure;
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      fireFailure(1, 'network unavailable');
+      await tester.pump();
+
+      // t=0 재연결 시도 → 실패 → 쿨다운 30초 시작.
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      expect(connectCalls, 2);
+      fireFailure(1, 'still unavailable');
+      await tester.pump(const Duration(seconds: 1));
+      await firstFailed;
+
+      // t=10s 연타 — 거절돼야 하지만 쿨다운을 **연장하면 안 된다**.
+      await tester.pump(const Duration(seconds: 9));
+      final tap = session.ensureUserReady();
+      final tapFailed = expectLater(
+        tap,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await tapFailed;
+      expect(connectCalls, 2);
+
+      // t=31s — 원 실패 기준으로 쿨다운이 끝났으니 다시 시도해야 한다.
+      await tester.pump(const Duration(seconds: 21));
+      final after = session.ensureUserReady();
+      final afterSettled = expectLater(
+        after,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      final callsAfterCooldown = connectCalls;
+      fireFailure(1, 'still unavailable');
+      await tester.pump(const Duration(seconds: 1));
+      await afterSettled;
+
+      expect(
+        callsAfterCooldown,
+        3,
+        reason: '탭마다 쿨다운이 연장되면 연타하는 사용자는 무기한 재연결 불가다',
+      );
+      await tester.pump(const Duration(seconds: 40));
+    });
+  });
+
+  group('major-G: CONNECT_TIMEOUT 복구', () {
+    testWidgets('timeout 뒤 다음 사용자 시도에서 재연결한다', (tester) async {
+      var connectCalls = 0;
+      void Function() fireSuccess = () {};
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+              fireSuccess = onConnectSuccess;
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      nativeConnected = false;
+
+      // 성공·실패 이벤트가 모두 유실돼 15초 timeout.
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await firstFailed;
+      expect(connectCalls, 1);
+
+      // 다음 사용자 시도 — 캐시된 timeout 을 그대로 재사용하면 안 된다.
+      final retry = session.ensureUserReady();
+      final retrySettled = expectLater(retry, completion(userA));
+      await tester.pump();
+      final callsAfterRetry = connectCalls;
+
+      fireSuccess();
+      await tester.pump();
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 20));
+      await retrySettled;
+
+      expect(
+        callsAfterRetry,
+        2,
+        reason: 'timeout 을 영구 캐시하면 프로세스 재시작 전까지 복구할 수 없다',
+      );
+      await tester.pump(const Duration(seconds: 40));
+    });
+
+    testWidgets('재연결 뒤 도착한 앞선 connect 의 늦은 성공이 사용자 확인을 건너뛰지 않는다', (
+      tester,
+    ) async {
+      // connect 리스너도 static 단일 슬롯이라 늦은 이벤트가 새 세대의 closure 로
+      // 들어온다. 그래도 setUserID 성공 이벤트와 getUserID 대조를 거치지 않고는
+      // ready 가 되지 않아야 한다.
+      var connectCalls = 0;
+      final successHandles = <void Function()>[];
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect:
+            ({
+              required String sdkKey,
+              required Map<String, dynamic> options,
+              required void Function() onConnectSuccess,
+              required void Function(int code, String? message) onConnectFailure,
+              required void Function(int code, String? message)
+              onConnectWarning,
+            }) async {
+              connectCalls++;
+              successHandles.add(onConnectSuccess);
+            },
+      );
+
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      nativeConnected = false;
+
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 16));
+      await firstFailed;
+
+      final retry = session.ensureUserReady();
+      final retrySettled = expectLater(retry, completion(userA));
+      await tester.pump();
+      expect(connectCalls, 2);
+
+      // 1세대 connect 의 늦은 성공 이벤트가 2세대 슬롯으로 들어온다.
+      successHandles.first();
+      await tester.pump();
+
+      // 연결은 확정되더라도 사용자 ID 는 별도 확인을 거쳐야 한다.
+      expect(session.readyUserId, isNull);
+      expect(countOf('setUserID'), 1);
+
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 20));
+      await retrySettled;
+      expect(session.readyUserId, userA);
+      await tester.pump(const Duration(seconds: 40));
+    });
+  });
+
   group('major-3: connect 성공 이벤트 유실', () {
     testWidgets('이벤트가 유실돼도 네이티브가 연결돼 있으면 진행한다', (tester) async {
       final session = makeSession(

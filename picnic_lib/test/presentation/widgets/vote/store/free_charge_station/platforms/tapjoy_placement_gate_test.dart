@@ -34,11 +34,15 @@ void main() {
   late List<MethodCall> calls;
   String? nativeUserId;
 
+  /// 서버가 내려준 오퍼가 있는지. false 면 정상 no-fill 이다.
+  bool contentAvailable = true;
+
   setUp(initTestColors);
 
   setUp(() {
     calls = <MethodCall>[];
     nativeUserId = uid;
+    contentAvailable = true;
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
@@ -48,6 +52,9 @@ void main() {
           return nativeUserId;
         case 'isConnected':
           return true;
+        case 'isContentAvailable':
+        case 'isContentReady':
+          return contentAvailable;
         default:
           return null;
       }
@@ -227,7 +234,10 @@ void main() {
     await pumpAndIgnoreErrors(tester);
   });
 
-  testWidgets('종료 콜백 없이 오래 지나도 게이트를 임의로 풀지 않는다', (tester) async {
+  /// 네이티브가 **아무 콜백도 주지 않는** 경우. 정상 no-fill(onRequestSuccess 는
+  /// 오지만 오퍼가 없는 경우)은 아래 별도 테스트가 다룬다 — 그쪽은 terminal 이
+  /// 존재하므로 반드시 풀려야 한다.
+  testWidgets('어떤 콜백도 오지 않으면 게이트를 임의로 풀지 않는다', (tester) async {
     final platform = await buildPlatform(tester);
 
     final show = platform.showAd();
@@ -246,6 +256,60 @@ void main() {
       countOf('getPlacement'),
       1,
       reason: 'native terminal 이벤트 없이 풀면 앞 요청의 늦은 콜백이 새 시도로 샌다',
+    );
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('오퍼가 없는 정상 no-fill 응답은 그 요청의 terminal 로 보고 게이트를 놓는다', (
+    tester,
+  ) async {
+    final platform = await buildPlatform(tester);
+
+    final first = platform.showAd();
+    await completeUserId(tester);
+    await first;
+    expect(countOf('getPlacement'), 1);
+
+    // 서버 요청은 성공했지만 내려줄 오퍼가 없다. 이 경우 onContentReady·show·
+    // dismiss 는 오지 않으므로 onRequestSuccess 가 이 요청의 마지막 이벤트다.
+    // (패키지 예제 home_widget.dart:161 도 여기서 isContentAvailable 을 본다.)
+    contentAvailable = false;
+    await deliver('onRequestSuccess', 'mission');
+    await drain(tester);
+
+    final second = platform.showAd();
+    await completeUserId(tester);
+    await second;
+
+    expect(
+      countOf('getPlacement'),
+      2,
+      reason: '정상 no-fill 은 흔한 응답이다 — 이걸로 잠기면 앱 재시작 전까지 오퍼월을 못 연다',
+    );
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('오퍼가 있으면 no-fill 로 오인해 게이트를 놓지 않는다', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final first = platform.showAd();
+    await completeUserId(tester);
+    await first;
+
+    contentAvailable = true;
+    await deliver('onRequestSuccess', 'mission');
+    await drain(tester);
+
+    final second = platform.showAd();
+    await completeUserId(tester);
+    await second;
+
+    expect(
+      countOf('getPlacement'),
+      1,
+      reason: '오퍼가 있으면 content ready·dismiss 까지가 이 요청의 수명이다',
     );
     platform.dispose();
     await pumpAndIgnoreErrors(tester);
