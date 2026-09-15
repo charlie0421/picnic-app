@@ -54,6 +54,9 @@ void main() {
   });
 
   testWidgets('네 설정이 실제로 적용된 뒤에야 완료된다', (tester) async {
+    // 게이트는 테스트 본문 zone 에서 만든다 — setUp zone 의 Future 는
+    // FakeAsync 가 돌려주지 않아 pump 로 풀리지 않는다.
+    gate = Completer<void>();
     gatedMethod = 'setUSPrivacy';
 
     var applied = false;
@@ -67,6 +70,7 @@ void main() {
       containsAll(privacyMethods),
       reason: '네 설정 모두 전송돼야 한다',
     );
+
     expect(
       applied,
       isFalse,

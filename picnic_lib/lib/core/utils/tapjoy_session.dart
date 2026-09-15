@@ -27,14 +27,27 @@ class TapjoySessionException implements Exception {
 /// [terminal] 은 **SDK 의 terminal 이벤트로만** 끝난다. 호출자의 timeout 과
 /// 무관하게 살아 있어야 앞선 시도의 늦은 이벤트를 새 시도가 가로채지 않는다.
 class TapjoyUserIdAttempt {
-  TapjoyUserIdAttempt(this.userId, this.terminal);
+  TapjoyUserIdAttempt(
+    this.userId, {
+    required this.dispatch,
+    required this.terminal,
+  });
 
   final String userId;
+
+  /// MethodChannel 호출의 결과. 이게 실패해도 리스너는 이미 등록돼 있어
+  /// (tapjoy.dart:81-84) 네이티브 terminal 이벤트가 뒤늦게 올 수 있다.
+  final Future<void> dispatch;
+
+  /// SDK terminal 이벤트로만 끝난다.
   final Future<void> terminal;
 }
 
 /// `Tapjoy.setUserID` 를 보내고 그 시도의 소유권을 돌려주는 자리.
-typedef TapjoyUserIdSetter = Future<TapjoyUserIdAttempt> Function(String userId);
+///
+/// **동기**다. 채널 응답을 기다리지 않아야 응답이 오지 않는 단말에서 직렬화
+/// 큐가 무기한 멈추지 않는다.
+typedef TapjoyUserIdSetter = TapjoyUserIdAttempt Function(String userId);
 
 /// 현재 로그인 사용자의 UUID. 없으면 null.
 typedef TapjoyUserIdReader = String? Function();
@@ -66,30 +79,31 @@ typedef TapjoyConnector =
 /// **timeout 을 여기서 걸지 않는다.** 리스너는 `TapjoyMethodCallHandler` 의
 /// static 단일 슬롯이라(:102-110) 호출자가 기다리기를 포기해도 네이티브 이벤트는
 /// 여전히 이 시도의 것이다. 그 소유권은 [TapjoySession] 이 관리한다.
-Future<TapjoyUserIdAttempt> sendTapjoyUserId(String userId) async {
+TapjoyUserIdAttempt sendTapjoyUserId(String userId) {
   final completer = Completer<void>();
 
-  try {
-    await Tapjoy.setUserID(
-      userId: userId,
-      onSetUserIDSuccess: () {
-        if (!completer.isCompleted) completer.complete();
-      },
-      onSetUserIDFailure: (error) {
-        if (!completer.isCompleted) {
-          completer.completeError(
-            TapjoySessionException('SET_USER_ID_FAILED', error),
-          );
-        }
-      },
-    );
-  } catch (error) {
-    // 채널 호출 자체가 실패하면 terminal 이벤트는 영영 오지 않는다.
-    completer.future.ignore();
-    throw TapjoySessionException('SET_USER_ID_CHANNEL_ERROR', error);
-  }
+  // `Tapjoy.setUserID` 는 리스너를 등록한 **뒤** invokeMethod 한다
+  // (tapjoy.dart:81-84). 채널 호출을 await 하지 않고 시작만 시켜, 응답이
+  // 실패하거나 오지 않아도 이 시도의 소유권을 잃지 않는다.
+  final dispatch = Tapjoy.setUserID(
+    userId: userId,
+    onSetUserIDSuccess: () {
+      if (!completer.isCompleted) completer.complete();
+    },
+    onSetUserIDFailure: (error) {
+      if (!completer.isCompleted) {
+        completer.completeError(
+          TapjoySessionException('SET_USER_ID_FAILED', error),
+        );
+      }
+    },
+  );
 
-  return TapjoyUserIdAttempt(userId, completer.future);
+  return TapjoyUserIdAttempt(
+    userId,
+    dispatch: dispatch,
+    terminal: completer.future,
+  );
 }
 
 /// 늦게 도착한 SDK 콜백이 지난 시도의 화면을 열지 못하게 막는 토큰.
@@ -369,21 +383,56 @@ class TapjoySession {
       throw TapjoySessionException('SET_USER_ID_QUARANTINED', orphan.userId);
     }
 
-    final attempt = await _sendUserId(userId);
+    final attempt = _sendUserId(userId);
     try {
-      await attempt.terminal.timeout(
-        userIdTimeout,
-        onTimeout: () => throw TapjoySessionException(
-          'SET_USER_ID_TIMEOUT',
-          '${userIdTimeout.inMilliseconds}ms',
-        ),
-      );
+      await _awaitUserIdAttempt(attempt);
     } on TapjoySessionException catch (error) {
-      if (error.reason == 'SET_USER_ID_TIMEOUT') _quarantine(attempt);
+      // terminal 이벤트를 소비하지 못한 채 호출자 대기만 끝난 경우는 모두
+      // 격리한다. 채널이 실패했어도 리스너는 살아 있어 늦은 이벤트가 온다.
+      if (error.reason == 'SET_USER_ID_TIMEOUT' ||
+          error.reason == 'SET_USER_ID_CHANNEL_ERROR') {
+        _quarantine(attempt);
+      }
       rethrow;
     } catch (error) {
       throw TapjoySessionException('SET_USER_ID_FAILED', error);
     }
+  }
+
+  /// terminal 이벤트를 기다리되, 채널 실패와 timeout 으로 대기를 끝낸다.
+  /// 어느 쪽이든 [TapjoyUserIdAttempt.terminal] 은 살아 있어 소유권은 유지된다.
+  Future<void> _awaitUserIdAttempt(TapjoyUserIdAttempt attempt) {
+    final settled = Completer<void>();
+
+    attempt.terminal.then<void>(
+      (_) {
+        if (!settled.isCompleted) settled.complete();
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        if (!settled.isCompleted) settled.completeError(error, stackTrace);
+      },
+    );
+
+    // 채널 호출 자체가 실패하면 더 기다릴 근거가 없다. 다만 terminal 이벤트가
+    // 올 가능성은 남으므로 소유권은 호출자가 격리로 유지한다.
+    attempt.dispatch.then<void>(
+      (_) {},
+      onError: (Object error) {
+        if (!settled.isCompleted) {
+          settled.completeError(
+            TapjoySessionException('SET_USER_ID_CHANNEL_ERROR', error),
+          );
+        }
+      },
+    );
+
+    return settled.future.timeout(
+      userIdTimeout,
+      onTimeout: () => throw TapjoySessionException(
+        'SET_USER_ID_TIMEOUT',
+        '${userIdTimeout.inMilliseconds}ms',
+      ),
+    );
   }
 
   /// 네이티브 terminal 이벤트를 아직 못 받은 시도를 격리한다.

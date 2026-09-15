@@ -429,12 +429,46 @@ class AppInitializer {
 
   /// Tapjoy 개인정보 설정. 앱 안에서 GDPR·user consent·age·US privacy 를
   /// 지정하는 유일한 지점이다.
+  /// setter 는 모두 MethodChannel 호출이라 `await` 하지 않으면 적용 전에
+  /// 완료된 것으로 보이고 채널 오류도 호출자의 오류 처리를 빠져나간다.
+  ///
+  /// 실패해도 오퍼월을 막지는 않는다(기존 동작 유지). 대신 항목별로 삼켜
+  /// 로그를 남기고 나머지 설정은 계속 적용한다 — 하나가 실패했다고 남은 개인정보
+  /// 설정을 건너뛰면 더 나쁘다.
   @visibleForTesting
   static Future<void> applyTapjoyPrivacySettings() async {
-    Tapjoy.getPrivacyPolicy().setSubjectToGDPR(TJStatus.trueStatus);
-    Tapjoy.getPrivacyPolicy().setUserConsent(TJStatus.falseStatus);
-    Tapjoy.getPrivacyPolicy().setBelowConsentAge(TJStatus.unknownStatus);
-    Tapjoy.getPrivacyPolicy().setUSPrivacy('1---');
+    final privacy = Tapjoy.getPrivacyPolicy();
+    await _applyTapjoyPrivacySetting(
+      'setSubjectToGDPR',
+      () => privacy.setSubjectToGDPR(TJStatus.trueStatus),
+    );
+    await _applyTapjoyPrivacySetting(
+      'setUserConsent',
+      () => privacy.setUserConsent(TJStatus.falseStatus),
+    );
+    await _applyTapjoyPrivacySetting(
+      'setBelowConsentAge',
+      () => privacy.setBelowConsentAge(TJStatus.unknownStatus),
+    );
+    await _applyTapjoyPrivacySetting(
+      'setUSPrivacy',
+      () => privacy.setUSPrivacy('1---'),
+    );
+  }
+
+  static Future<void> _applyTapjoyPrivacySetting(
+    String name,
+    Future<void> Function() apply,
+  ) async {
+    try {
+      await apply();
+    } catch (error, stackTrace) {
+      logger.e(
+        '[Tapjoy] privacy $name 적용 실패',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
   }
 
   static Future<void> initializeAuth() async {

@@ -62,9 +62,7 @@ void main() {
         mockNative();
 
         var completed = false;
-        final pending = sendTapjoyUserId(
-          uid,
-        ).then((attempt) => attempt.terminal).then((_) {
+        final pending = sendTapjoyUserId(uid).terminal.then((_) {
           completed = true;
         });
 
@@ -91,9 +89,7 @@ void main() {
     testWidgets('실패 이벤트는 Future 실패로 전파된다', (tester) async {
       mockNative();
 
-      final pending = sendTapjoyUserId(
-        uid,
-      ).then((attempt) => attempt.terminal);
+      final pending = sendTapjoyUserId(uid).terminal;
       final matcher = expectLater(pending, throwsA(isA<TapjoySessionException>()));
 
       await tester.pump();
@@ -107,10 +103,11 @@ void main() {
         reply: (_) => throw PlatformException(code: 'ERROR', message: 'no activity'),
       );
 
-      await expectLater(
-        sendTapjoyUserId(uid),
-        throwsA(isA<TapjoySessionException>()),
-      );
+      // 채널 호출은 실패해도 리스너가 이미 등록돼 있으므로 attempt 는 반환되고,
+      // 실패는 dispatch 로 관찰된다.
+      final attempt = sendTapjoyUserId(uid);
+      await expectLater(attempt.dispatch, throwsA(isA<PlatformException>()));
+      attempt.terminal.ignore();
     });
   });
 
@@ -123,13 +120,17 @@ void main() {
     /// 네이티브 SDK 가 들고 있는 사용자 ID. 성공 게이트가 열리면 반영된다.
     late String? nativeUserId;
 
-    Future<TapjoyUserIdAttempt> fakeSetUserId(String userId) async {
+    TapjoyUserIdAttempt fakeSetUserId(String userId) {
       setCalls.add(userId);
       final gate = Completer<void>();
       gates.add(gate);
       // Android SDK 는 HTTP 검증 이전에 로컬 ID 를 먼저 반영한다.
       nativeUserId = userId;
-      return TapjoyUserIdAttempt(userId, gate.future);
+      return TapjoyUserIdAttempt(
+        userId,
+        dispatch: Future<void>.value(),
+        terminal: gate.future,
+      );
     }
 
     setUp(() {

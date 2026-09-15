@@ -49,13 +49,17 @@ void main() {
   /// 네이티브 SDK 가 들고 있는 사용자 ID.
   String? nativeUserId;
 
-  Future<TapjoyUserIdAttempt> fakeSetUserId(String userId) async {
+  TapjoyUserIdAttempt fakeSetUserId(String userId) {
     setCalls.add(userId);
     final gate = Completer<void>();
     gates.add(gate);
     // Android SDK 는 HTTP 검증 이전에 로컬 ID 를 먼저 반영한다.
     nativeUserId = userId;
-    return TapjoyUserIdAttempt(userId, gate.future);
+    return TapjoyUserIdAttempt(
+      userId,
+      dispatch: Future<void>.value(),
+      terminal: gate.future,
+    );
   }
 
   setUp(initTestColors);
