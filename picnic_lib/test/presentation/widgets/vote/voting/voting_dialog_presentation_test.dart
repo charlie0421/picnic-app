@@ -464,6 +464,14 @@ void main() {
       // PICNIC-2694's plan designates as scrollable. So with the keyboard up
       // the bubble may sit below the fold — reachable by scrolling the
       // decoration, which is exactly what that band is for.
+      //
+      // Spending the 24 the other way was tried and measured on hardware
+      // first. Requiring the bubble as well as the controls before the X may
+      // appear hid the X on a Galaxy S20 FE (360x800 logical) the moment the
+      // real keypad came up — inset 294 — which is exactly the "cannot leave
+      // mid-vote" report. `picnic_app/integration_test/device/
+      // vote_dialog_device_test.dart` is the harness that measured it; run it
+      // with `flutter test -d <device>` before changing this trade-off back.
       expect(find.byType(VotingBubbleInfo), findsOneWidget);
       expect(
         find.byKey(kLargePopupTopCloseKey).hitTestable(),
