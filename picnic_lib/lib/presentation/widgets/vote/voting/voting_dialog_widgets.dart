@@ -1089,7 +1089,10 @@ class VotingCheckAllOption extends StatelessWidget {
     required double maxWidth,
     bool columns = false,
   }) {
-    final glyph = columns ? _glyphSize : _glyphSize.w;
+    // The glyph is a square SVG pinned to a 20px height, so it always
+    // occupies 20 regardless of the width handed to it — a scaled width is
+    // silently ignored. Reserve the size it actually takes, on both paths.
+    const glyph = _glyphSize;
     final gap = columns ? 4.0 : PicnicUi.horizontal(4);
     final label = measureVotingTextHeight(
       context,
@@ -1126,8 +1129,8 @@ class VotingCheckAllOption extends StatelessWidget {
             SvgPicture.asset(
               package: 'picnic_lib',
               'assets/icons/check_style=line.svg',
-              width: columns ? 20 : 20.w,
-              height: 20,
+              width: _glyphSize,
+              height: _glyphSize,
               colorFilter: ColorFilter.mode(foreground, BlendMode.srcIn),
             ),
             SizedBox(width: columns ? 4 : PicnicUi.horizontal(4)),
