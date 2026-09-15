@@ -200,7 +200,29 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     );
     // Read for the flag only; the height budget below comes from the layout
     // constraints, which already have this inset applied once by the Dialog.
-    final isKeyboardVisible = MediaQuery.viewInsetsOf(context).bottom > 0;
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardVisible = mediaQuery.viewInsets.bottom > 0;
+
+    // PICNIC-2694: the designed 24 margin holds while the route can still hand
+    // the capsule its controls, and yields when it cannot — a 500 high window
+    // with a 280 keyboard left 172, four pixels short of the controls, and
+    // spent 48 of the window on empty margin.
+    final verticalInset = resolveVoteDialogVerticalInset(
+      preferredInset: 24,
+      availableHeight: math.max(
+        0.0,
+        mediaQuery.size.height -
+            mediaQuery.viewInsets.bottom -
+            mediaQuery.padding.vertical,
+      ),
+      requiredBodyHeight: voteDialogRequiredRouteHeight(
+        _essentialHeight(
+          context,
+          contentWidth: _contentWidth(resolveVoteDialogWidth()),
+          isKeyboardVisible: isKeyboardVisible,
+        ),
+      ),
+    );
 
     // Closing the dialog does not cancel the vote: the request keeps running
     // against the captured ProviderContainer. Reopening and voting again mints
@@ -221,7 +243,10 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         showProgressIndicator: false,
         child: AlertDialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+            vertical: verticalInset,
+          ),
           contentPadding: EdgeInsets.zero,
           // 캡슐 자체는 뷰포트 안에 남고, 넘치는 것은 캡슐 "안쪽" 이 스크롤한다.
           //
@@ -267,14 +292,17 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                         budget;
                 final pinned =
                     essential + (logoInTail ? _tailLogoHeight() : 0.0);
-                final mode = selectVoteDialogLayout(
+                final shape = resolveVoteDialogShape(
                   bodyHeight: budget,
                   essentialHeight: pinned,
+                  horizontalContentInset:
+                      largePopupCardBorderWidth() + voteDialogCardExtent(24),
                 );
+                final mode = shape.mode;
                 return LargePopupWidget(
                   showCloseButton: false,
                   width: resolveVoteDialogWidth(),
-                  cardBorderRadius: voteDialogCardBorderRadius(budget),
+                  cardBorderRadius: shape.cardBorderRadius,
                   content: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: budget),
                     child: VoteDialogBands(

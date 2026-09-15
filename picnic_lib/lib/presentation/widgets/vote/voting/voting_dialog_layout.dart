@@ -96,13 +96,112 @@ double resolveVoteDialogPortraitSide({
   );
 }
 
+/// The smallest gap the popup keeps between the capsule and the top and bottom
+/// edges of the window.
+///
+/// 40 (JMA) and 24 (vote) are the designed margins and they stay whenever the
+/// route can still hand the capsule its controls. On a 280 high window the JMA
+/// margin alone was 80 of the 280 — 29% of the screen spent on empty margin
+/// while the vote button hung below the capsule's bottom edge — so on a window
+/// that short the margin is what yields, not the button.
+///
+/// 8 is chosen against the plan's smallest acceptance size: 280x280 with a
+/// validation message showing needs 230 of body, and anything above 8 leaves
+/// less than that. It still reads as a margin — the capsule never touches the
+/// window edge.
+const double kVoteDialogMinimumVerticalInset = 8;
+
+/// What the capsule needs the route to leave it to open with its controls
+/// whole: the controls themselves, the popup's own chrome, and enough left over
+/// for the decoration band to show the portrait at its floor rather than a
+/// sliver of it.
+double voteDialogRequiredRouteHeight(double essentialHeight) =>
+    essentialHeight +
+    largePopupHiddenChromeHeight() +
+    kVoteDialogMinimumPortrait;
+
+/// The vertical inset the dialog route should use.
+///
+/// [availableHeight] is the height the window really offers — the screen less
+/// the keyboard and the system bars — and [requiredBodyHeight] is
+/// [voteDialogRequiredRouteHeight]. Returns [preferredInset] whenever both fit,
+/// and otherwise the largest inset that still leaves [requiredBodyHeight],
+/// floored at [kVoteDialogMinimumVerticalInset]: past that the window is simply
+/// too short and the body falls back to scrolling.
+double resolveVoteDialogVerticalInset({
+  required double preferredInset,
+  required double availableHeight,
+  required double requiredBodyHeight,
+}) {
+  if (!availableHeight.isFinite || availableHeight <= 0) return preferredInset;
+  final affordable = (availableHeight - requiredBodyHeight) / 2;
+  if (affordable >= preferredInset) return preferredInset;
+  return math.max(kVoteDialogMinimumVerticalInset, affordable.floorToDouble());
+}
+
 /// The capsule radius, clamped so a short card's corners cannot eat the
 /// controls pinned against its edges.
 ///
 /// The default `120.r` is a quarter of a comfortable popup's height; on a
 /// 190 high body it is most of it, and `Clip.antiAlias` really does cut there.
-BorderRadius voteDialogCardBorderRadius(double bodyHeight) =>
-    BorderRadius.circular(math.min(120.r, math.max(0.0, bodyHeight) / 4));
+double voteDialogCardRadius(double bodyHeight) =>
+    math.min(120.r, math.max(0.0, bodyHeight) / 4);
+
+/// How much vertical room a full-width control [horizontalInset] from the
+/// card's side needs before a [radius] corner stops cutting it.
+///
+/// A rectangular containment check does not see this: the control's bounding
+/// box is inside the card's box while the arc has already taken a bite out of
+/// its top left. Solving the corner circle for the control's x gives the exact
+/// clearance.
+double voteDialogCornerClearance({
+  required double radius,
+  required double horizontalInset,
+}) {
+  if (radius <= 0 || horizontalInset >= radius) return 0;
+  final dx = radius - horizontalInset;
+  return radius - math.sqrt(math.max(0.0, radius * radius - dx * dx));
+}
+
+/// The layout mode and the card radius, decided together.
+///
+/// They cannot be decided apart: the corner the card clips with is part of
+/// whether the controls fit, and what to do about it differs by mode. Pinned
+/// keeps the designed corner and is only chosen when the decoration band above
+/// the controls is at least as tall as the clearance, so the arc lands on the
+/// decoration. When everything scrolls, the controls sit against the card's own
+/// top edge and there is no height to spare, so the corner is clamped to where
+/// it can no longer reach them instead.
+class VoteDialogShape {
+  const VoteDialogShape({required this.mode, required this.cardBorderRadius});
+
+  final VoteDialogLayoutMode mode;
+  final BorderRadius cardBorderRadius;
+}
+
+VoteDialogShape resolveVoteDialogShape({
+  required double bodyHeight,
+  required double essentialHeight,
+  required double horizontalContentInset,
+}) {
+  final preferred = voteDialogCardRadius(bodyHeight);
+  final clearance = voteDialogCornerClearance(
+    radius: preferred,
+    horizontalInset: horizontalContentInset,
+  );
+  final mode = selectVoteDialogLayout(
+    bodyHeight: bodyHeight - clearance,
+    essentialHeight: essentialHeight,
+  );
+  return VoteDialogShape(
+    mode: mode,
+    cardBorderRadius: BorderRadius.circular(
+      mode == VoteDialogLayoutMode.actionsPinned
+          ? preferred
+          : math.min(preferred, horizontalContentInset),
+    ),
+  );
+}
 
 /// The popup body as bands with an explicit yielding order.
 ///

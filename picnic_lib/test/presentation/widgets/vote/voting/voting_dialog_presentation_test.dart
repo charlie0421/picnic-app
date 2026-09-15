@@ -61,6 +61,21 @@ Finder _amountInputSurface() => find
     )
     .first;
 
+/// The card the popup clips to.
+///
+/// [LargePopupWidget]'s own Rect also covers the 24 hidden close strip below
+/// the card, so using it as the clip box reads the keyboard boundary about 26px
+/// looser than the capsule really is.
+Finder _capsuleCard() => find
+    .descendant(
+      of: find.byType(LargePopupWidget),
+      matching: find.byWidgetPredicate(
+        (widget) =>
+            widget is Container && widget.clipBehavior == Clip.antiAlias,
+      ),
+    )
+    .first;
+
 void main() {
   final l10n = AppLocalizationsKo();
   late VoteModel voteModel;
@@ -497,7 +512,7 @@ void main() {
         final clip = tester.getRect(
           scrollAncestor.evaluate().isNotEmpty
               ? scrollAncestor.first
-              : find.byType(LargePopupWidget),
+              : _capsuleCard(),
         );
         final input = tester.getRect(_amountInputSurface());
         expect(

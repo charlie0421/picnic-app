@@ -283,8 +283,29 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     // 먼저 덜어낸 뒤 content 에 제약을 주므로, 아래 LayoutBuilder 가 받는
     // maxHeight 가 곧 "라우트가 실제로 남겨 준 높이"(세이프에어리어 포함)다.
     // 여기서 viewInsets 를 다시 빼면 키보드를 두 번 적용하게 된다.
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
     final isKeyboardVisible = keyboardHeight > 0;
+
+    // PICNIC-2694: 이 여백은 "라우트가 조작부를 담을 수 있는 동안"만 디자인
+    // 값(40/20)을 지킨다. 280 높이 창에서는 위아래 40 이 화면의 29% 를 빈
+    // 여백으로 쓰면서 투표 버튼을 캡슐 밖으로 밀어냈다. 그런 창에서는 버튼이
+    // 아니라 여백이 양보한다. 폭은 SizedBox 가 고정하므로 여기서 조작부
+    // 높이를 미리 잴 수 있다.
+    final routeHeight = math.max(
+      0.0,
+      mediaQuery.size.height - keyboardHeight - mediaQuery.padding.vertical,
+    );
+    final verticalInset = resolveVoteDialogVerticalInset(
+      preferredInset: isKeyboardVisible ? 20 : 40,
+      availableHeight: routeHeight,
+      requiredBodyHeight: voteDialogRequiredRouteHeight(
+        _essentialHeight(
+          context,
+          contentWidth: _contentWidth(resolveVoteDialogWidth()),
+        ),
+      ),
+    );
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -299,7 +320,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.symmetric(
           horizontal: 16.w,
-          vertical: isKeyboardVisible ? 20 : 40,
+          vertical: verticalInset,
         ),
         contentPadding: EdgeInsets.zero,
         content: NotificationListener<ScrollNotification>(
@@ -338,12 +359,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                   // PICNIC-2694: 그 비율은 "평소 모습"일 뿐 조작부보다 우선하지
                   // 않는다. 라우트가 조작부를 담을 높이를 남겼다면 비율 때문에
                   // 입력·투표 버튼을 화면 밖으로 밀지 않는다.
-                  final contentWidth = math.max(
-                    0.0,
-                    constraints.maxWidth -
-                        largePopupCardBorderWidth() * 2 -
-                        PicnicUi.horizontal(16) * 2,
-                  );
+                  final contentWidth = _contentWidth(constraints.maxWidth);
                   final essential = _essentialHeight(
                     context,
                     contentWidth: contentWidth,
@@ -363,15 +379,17 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                                 isKeyboardVisible: isKeyboardVisible,
                               ) <=
                           budget;
-                  final mode = selectVoteDialogLayout(
+                  final shape = resolveVoteDialogShape(
                     bodyHeight: budget,
                     essentialHeight:
                         essential + (logoInTail ? _tailLogoHeight() : 0.0),
+                    horizontalContentInset:
+                        largePopupCardBorderWidth() + PicnicUi.horizontal(16),
                   );
                   return LargePopupWidget(
                     showCloseButton: false,
                     width: resolveVoteDialogWidth(),
-                    cardBorderRadius: voteDialogCardBorderRadius(budget),
+                    cardBorderRadius: shape.cardBorderRadius,
                     content: Container(
                       constraints: BoxConstraints(
                         maxHeight: budget,
@@ -382,7 +400,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                         maxWidth: resolveVoteDialogWidth(),
                       ),
                       child: VoteDialogBands(
-                        mode: mode,
+                        mode: shape.mode,
                         decorationBuilder: (context, availableHeight) =>
                             _buildDecoration(
                               myStarCandy,
@@ -437,7 +455,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
               SizedBox(height: PicnicUi.vertical(8)),
               _buildDailyLimitInfo(),
               SizedBox(height: PicnicUi.vertical(8)),
-              _buildCalculationAndErrorSection(),
+              _buildCalculationSection(),
               _buildJmaInformation(),
               if (withLogo) ...[
                 SizedBox(height: PicnicUi.vertical(8)),
@@ -462,7 +480,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
           _buildCheckAllOption(),
           _buildVoteAmountInput(context, isKeyboardVisible),
           SizedBox(height: PicnicUi.vertical(4)),
-          _buildErrorMessage(),
+          _buildInputFeedback(),
         ],
       ),
     );
@@ -537,6 +555,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
         PicnicUi.minimumTapTarget;
   }
 
+  /// 카드 테두리와 좌우 여백을 뺀 조작부의 실제 폭.
+  double _contentWidth(double width) => math.max(
+    0.0,
+    width - largePopupCardBorderWidth() * 2 - PicnicUi.horizontal(16) * 2,
+  );
+
   /// 스크롤로 밀어낼 수 없는 조작부 높이 — 전체 사용 + 입력 + 안내 + 투표 버튼.
   ///
   /// 실제 자식 기준으로 잰다. 200% 글자에서 입력은 48 하한을, 버튼은 48 하한을
@@ -572,23 +596,80 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
             context,
             AppLocalizations.of(context).label_button_vote,
             PicnicUi.text(size: 18, weight: FontWeight.w700),
-            maxWidth: math.max(
-              0.0,
-              voteDialogCardExtent(172) - PicnicUi.horizontal(12) * 2,
-            ),
+            // 활성 상태의 폭으로 잰다. 활성 버튼만 20 아이콘과 그 뒤 간격을
+            // 라벨 앞에 두므로 라벨에 남는 폭이 더 좁고, 그래서 같은 문구가
+            // 한 줄 더 감긴다 — 태국어·버마어는 393 폭·기본 배율에서도 26~52
+            // 만큼 더 높았다. 비활성 폭으로 재면 그 상태를 과소 예산해
+            // actionsPinned 를 잘못 골라 RenderFlex 가 넘친다.
+            maxWidth: _submitLabelMaxWidth(),
           ) +
           PicnicUi.vertical(4) * 2,
     );
     return checkAll +
         input +
         PicnicUi.vertical(4) +
+        _inputFeedbackHeight(context, contentWidth: contentWidth) +
         PicnicUi.vertical(8) +
         button +
         PicnicUi.vertical(16);
   }
 
+  /// 활성 투표 버튼이 라벨에 남겨 주는 폭 — 버튼 안쪽에서 아이콘과 간격을 뺀 값.
+  double _submitLabelMaxWidth() => math.max(
+    0.0,
+    voteDialogCardExtent(172) -
+        PicnicUi.horizontal(12) * 2 -
+        _submitIconSide -
+        PicnicUi.horizontal(8),
+  );
+
+  /// 입력 바로 아래 한 줄의 높이 — 유효성 안내 또는 투표 예정 안내.
+  ///
+  /// 둘 다 조작부 밴드 안에 있어 스크롤로 밀려나지 않으므로, 예산에도 들어가야
+  /// 한다. 예전에는 이 줄이 장식 밴드에 있어 예산에서 빠졌고, 짧은 화면에서는
+  /// 아예 보이지 않았다.
+  double _inputFeedbackHeight(
+    BuildContext context, {
+    required double contentWidth,
+  }) {
+    if (_validationMessage.isNotEmpty) {
+      final textWidth = math.max(
+        0.0,
+        contentWidth -
+            PicnicUi.horizontal(12) * 2 -
+            _validationIconSide -
+            PicnicUi.horizontal(8),
+      );
+      return measureVotingTextHeight(
+            context,
+            _validationMessage,
+            PicnicUi.text(size: 12, weight: FontWeight.w500),
+            maxWidth: textWidth,
+          ) +
+          PicnicUi.vertical(8) * 2 +
+          _validationBorderWidth * 2;
+    }
+    final hint = _voteHintText();
+    if (hint == null) return 0;
+    return measureVotingTextHeight(
+      context,
+      hint,
+      PicnicUi.text(size: 12, weight: FontWeight.w600),
+      maxWidth: math.max(0.0, contentWidth - PicnicUi.horizontal(24)),
+    );
+  }
+
   /// 입력 테두리 폭 — 위아래 양쪽에서 높이에 더해진다.
   static const double _amountInputBorderWidth = 2;
+
+  /// 활성 투표 버튼이 라벨 앞에 두는 아이콘의 한 변.
+  static const double _submitIconSide = 20;
+
+  /// 유효성 안내 줄의 아이콘 박스 한 변 — 16 글리프에 좌우 2 패딩.
+  static const double _validationIconSide = 20;
+
+  /// 유효성 안내 줄의 테두리 폭.
+  static const double _validationBorderWidth = 1;
 
   Widget _buildJmaHeader() {
     return Container(
@@ -1169,56 +1250,12 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  Widget _buildCalculationAndErrorSection() {
+  /// 30:1 환산 안내. 유효성 안내는 PICNIC-2694 에서 입력 바로 아래 조작부
+  /// 밴드로 옮겼으므로 여기 남지 않는다 — 짧은 화면에서 이 패널은 장식과 함께
+  /// 스크롤 밖으로 나가고, 그때 입력이 왜 빨간지 설명할 것이 사라졌다.
+  Widget _buildCalculationSection() {
     final voteAmount = _getVoteAmount();
     if (voteAmount == 0 || _validationMessage.isNotEmpty) {
-      // 에러 메시지가 있거나 투표량이 0이면 계산 결과를 보여주지 않음
-      if (_validationMessage.isNotEmpty) {
-        return Container(
-          width: double.infinity,
-          margin: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(8)),
-          padding: EdgeInsets.symmetric(
-            horizontal: PicnicUi.horizontal(12),
-            vertical: PicnicUi.vertical(8),
-          ),
-          decoration: BoxDecoration(
-            color: AppColors.statusError.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(6),
-            border: Border.all(
-              color: AppColors.statusError.withValues(alpha: 0.2),
-              width: 1,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: AppColors.statusError.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-                child: const Icon(
-                  Icons.warning_rounded,
-                  size: 16,
-                  color: AppColors.statusError,
-                ),
-              ),
-              SizedBox(width: PicnicUi.horizontal(8)),
-              Expanded(
-                child: Text(
-                  _validationMessage,
-                  style: PicnicUi.text(
-                    size: 12,
-                    weight: FontWeight.w500,
-                    color: AppColors.statusError,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      }
       return const SizedBox.shrink();
     }
 
@@ -1394,28 +1431,98 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
     );
   }
 
-  Widget _buildErrorMessage() {
-    if (!_canVote && _hasValue && _validationMessage.isEmpty) {
-      // 투표 안내 메시지
-      final voteAmount = _getVoteAmount();
+  /// 입력값이 왜 투표로 이어지지 않는지 — 입력 바로 아래, 조작부 밴드 안.
+  ///
+  /// PICNIC-2694 이전에는 이 문구가 초상화·잔액·일일 한도 뒤의 장식 스크롤
+  /// 안에 있었다. 851x393 처럼 짧은 화면에서는 그 스크롤이 첫 화면 밖으로
+  /// 나가, 사용자는 빨간 테두리와 비활성 버튼만 보고 이유는 볼 수 없었다.
+  /// 입력의 [Scrollable.ensureVisible] 도 그 스크롤은 움직이지 못했다.
+  Widget _buildInputFeedback() {
+    if (_validationMessage.isNotEmpty) return _buildValidationMessage();
+    return _buildErrorMessage();
+  }
 
-      if (voteAmount > 0) {
-        return Container(
-          padding: EdgeInsets.only(left: PicnicUi.horizontal(24)),
-          width: double.infinity,
-          child: Text(
-            '${formatNumberWithComma(voteAmount)}개의 투표를 진행합니다.',
-            style: PicnicUi.text(
-              size: 12,
-              weight: FontWeight.w600,
-              color: PicnicUi.actionColor,
-            ),
-            textAlign: TextAlign.left,
+  /// 유효성 안내 줄.
+  ///
+  /// [Semantics.liveRegion] 으로 스크린 리더가 값이 바뀔 때 읽게 한다.
+  /// [InputDecoration.errorText] 를 쓰지 않는 이유는 이 입력이
+  /// `isCollapsed` + `InputBorder.none` 커스텀 프레임이라, errorText 가
+  /// 머티리얼 자체 에러 UI 를 필드 안에 하나 더 그려 높이 계산과 프레임 색이
+  /// 이중으로 갈리기 때문이다.
+  Widget _buildValidationMessage() {
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Container(
+        width: double.infinity,
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(8),
+        ),
+        decoration: BoxDecoration(
+          color: AppColors.statusError.withValues(alpha: 0.05),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(
+            color: AppColors.statusError.withValues(alpha: 0.2),
+            width: _validationBorderWidth,
           ),
-        );
-      }
-    }
-    return const SizedBox(height: 0);
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(2),
+              decoration: BoxDecoration(
+                color: AppColors.statusError.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(3),
+              ),
+              child: const Icon(
+                Icons.warning_rounded,
+                size: 16,
+                color: AppColors.statusError,
+              ),
+            ),
+            SizedBox(width: PicnicUi.horizontal(8)),
+            Expanded(
+              child: Text(
+                _validationMessage,
+                style: PicnicUi.text(
+                  size: 12,
+                  weight: FontWeight.w500,
+                  color: AppColors.statusError,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 투표 예정 안내 문구. 측정과 렌더가 같은 문자열을 쓰도록 한곳에 둔다.
+  String? _voteHintText() {
+    if (_canVote || !_hasValue || _validationMessage.isNotEmpty) return null;
+    final voteAmount = _getVoteAmount();
+    if (voteAmount <= 0) return null;
+    return '${formatNumberWithComma(voteAmount)}개의 투표를 진행합니다.';
+  }
+
+  Widget _buildErrorMessage() {
+    final hint = _voteHintText();
+    if (hint == null) return const SizedBox(height: 0);
+    return Container(
+      padding: EdgeInsets.only(left: PicnicUi.horizontal(24)),
+      width: double.infinity,
+      child: Text(
+        hint,
+        style: PicnicUi.text(
+          size: 12,
+          weight: FontWeight.w600,
+          color: PicnicUi.actionColor,
+        ),
+        textAlign: TextAlign.left,
+      ),
+    );
   }
 
   Widget _buildJmaVoteButton(String userId) {
@@ -1464,7 +1571,8 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                     Icon(
                       Icons.how_to_vote,
                       color: Colors.white,
-                      size: 20, // 18 → 20으로 복원
+                      // _submitLabelMaxWidth 가 빼는 폭과 같은 값이어야 한다.
+                      size: _submitIconSide,
                     ),
                     SizedBox(width: PicnicUi.horizontal(8)),
                   ],

@@ -1,9 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations_ko.dart';
+import 'package:picnic_lib/l10n/app_localizations_my.dart';
+import 'package:picnic_lib/l10n/app_localizations_th.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
@@ -58,6 +62,10 @@ const _viewports = <String, Size>{
   'stage manager window': Size(600, 500),
   'flip flex shortest': Size(412, 430),
   'narrow window edge': Size(280, 480),
+  // The plan's smallest acceptance size. 280 high leaves the JMA popup 200
+  // between its margins, and the review found the vote button hanging below
+  // the capsule at 200% text there.
+  'narrow short window': Size(280, 280),
 };
 
 const _scalers = <double>[1.0, 1.3, 2.0];
@@ -85,6 +93,55 @@ Finder _amountInputSurface() => find
 
 Finder _nearestGestureTarget(Finder child) =>
     find.ancestor(of: child, matching: find.byType(GestureDetector)).first;
+
+/// How far the worst corner of [inner] falls outside the capsule's *rounded*
+/// corner. Negative means unclipped.
+///
+/// A bounding-box check passes a control whose corner the `Clip.antiAlias`
+/// card has actually cut, which is how the 280x280 JMA popup looked fine to a
+/// rectangular assertion while its "use all" row lost 8.5px of its top left.
+double _capsuleCornerOverhang(WidgetTester tester, Rect inner) {
+  final capsule = tester.getRect(_capsuleCard());
+  final radius =
+      tester
+          .widget<LargePopupWidget>(find.byType(LargePopupWidget))
+          .cardBorderRadius
+          ?.topLeft
+          .x ??
+      0.0;
+  if (radius <= 0) return double.negativeInfinity;
+  var worst = double.negativeInfinity;
+  for (final corner in <Offset>[
+    inner.topLeft,
+    inner.topRight,
+    inner.bottomLeft,
+    inner.bottomRight,
+  ]) {
+    final onLeft = corner.dx < capsule.center.dx;
+    final onTop = corner.dy < capsule.center.dy;
+    final cx = onLeft ? capsule.left + radius : capsule.right - radius;
+    final cy = onTop ? capsule.top + radius : capsule.bottom - radius;
+    // Only the corner quadrants are rounded; the straight bands between them
+    // are already covered by the bounding-box check.
+    if (onLeft ? corner.dx >= cx : corner.dx <= cx) continue;
+    if (onTop ? corner.dy >= cy : corner.dy <= cy) continue;
+    final distance = math.sqrt(
+      math.pow(corner.dx - cx, 2) + math.pow(corner.dy - cy, 2),
+    );
+    worst = math.max(worst, distance - radius);
+  }
+  return worst;
+}
+
+/// Settles a state change inside the popup.
+///
+/// Two frames, not one: the popup sizes its own route inset from the controls it
+/// has to show, and `Dialog` runs that inset through a 100ms `AnimatedPadding`,
+/// so the frame that reacts to the input still carries the old margin.
+Future<void> settleDialogState(WidgetTester tester) async {
+  await tester.pump(const Duration(milliseconds: 400));
+  await tester.pump(const Duration(milliseconds: 400));
+}
 
 void _expectContained(Rect outer, Rect inner, String label) {
   expect(inner.left, greaterThanOrEqualTo(outer.left - 0.5), reason: label);
@@ -122,6 +179,11 @@ void _expectControlsVisibleAtRest(
     rects[entry.key] = rect;
     expect(rect.height, greaterThan(0), reason: reason);
     _expectContained(capsule, rect, reason);
+    expect(
+      _capsuleCornerOverhang(tester, rect),
+      lessThanOrEqualTo(0.5),
+      reason: '$reason cut by the capsule\'s rounded corner',
+    );
 
     final scrollAncestor = find.ancestor(
       of: entry.value,
@@ -172,6 +234,10 @@ void main() {
     Widget dialog, {
     required Size viewport,
     required double textScale,
+    double keyboard = 0,
+    EdgeInsets padding = EdgeInsets.zero,
+    Locale locale = const Locale('ko'),
+    double? parentHeight,
   }) async {
     tester.view.physicalSize = Size(viewport.width * 3, viewport.height * 3);
     tester.view.devicePixelRatio = 3.0;
@@ -184,10 +250,18 @@ void main() {
       buildTestApp(
         Builder(
           builder: (context) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(viewInsets: EdgeInsets.zero),
-            child: dialog,
+            data: MediaQuery.of(context).copyWith(
+              viewInsets: EdgeInsets.only(bottom: keyboard),
+              padding: padding,
+            ),
+            child: parentHeight == null
+                ? dialog
+                : Center(
+                    child: SizedBox(height: parentHeight, child: dialog),
+                  ),
           ),
         ),
+        locale: locale,
         textScaler: TextScaler.linear(textScale),
         designSize: kAppDesignSize,
         splitScreenMode: kAppSplitScreenMode,
@@ -202,6 +276,38 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     drainExpectedImageErrors(tester);
   }
+
+  /// The three controls the ticket is about, for the plain popup.
+  Map<String, Finder> plainControls() => <String, Finder>{
+    'amount input': _amountInputSurface(),
+    'use all': find.byType(VotingCheckAllOption),
+    'submit': find.byType(VotingSubmitButton),
+  };
+
+  /// The same three for the JMA popup, whose controls are private widgets.
+  Map<String, Finder> jmaControls(String voteLabel) => <String, Finder>{
+    'amount input': _amountInputSurface(),
+    'use all': _nearestGestureTarget(
+      find.byIcon(Icons.check_box_outline_blank),
+    ),
+    'submit': _nearestGestureTarget(find.text(voteLabel)),
+  };
+
+  Widget plainDialog({
+    VoteModel? vote,
+    VoteItemModel? item,
+    VotePortal portal = VotePortal.vote,
+  }) => VotingDialog(
+    voteModel: vote ?? voteModel,
+    voteItemModel: item ?? voteItemModel,
+    portalType: portal,
+  );
+
+  Widget jmaDialog({VotePortal portal = VotePortal.vote}) => JmaVotingDialog(
+    voteModel: voteModel,
+    voteItemModel: voteItemModel,
+    portalType: portal,
+  );
 
   VoteModel partnerVote() => VoteModel.fromJson({
     ...MockData.vote().toJson(),
@@ -226,11 +332,11 @@ void main() {
             textScale: scale,
           );
 
-          _expectControlsVisibleAtRest(tester, <String, Finder>{
-            'amount input': _amountInputSurface(),
-            'use all': find.byType(VotingCheckAllOption),
-            'submit': find.byType(VotingSubmitButton),
-          }, '${viewport.key} @ ${scale}x');
+          _expectControlsVisibleAtRest(
+            tester,
+            plainControls(),
+            '${viewport.key} @ ${scale}x',
+          );
         });
       }
     }
@@ -369,15 +475,493 @@ void main() {
             textScale: scale,
           );
 
-          _expectControlsVisibleAtRest(tester, <String, Finder>{
-            'amount input': _amountInputSurface(),
-            'use all': _nearestGestureTarget(
-              find.byIcon(Icons.check_box_outline_blank),
-            ),
-            'submit': _nearestGestureTarget(find.text(l10n.label_button_vote)),
-          }, 'JMA ${viewport.key} @ ${scale}x');
+          _expectControlsVisibleAtRest(
+            tester,
+            jmaControls(l10n.label_button_vote),
+            'JMA ${viewport.key} @ ${scale}x',
+          );
         });
       }
     }
+  });
+
+  group('the PIC portal variant shares the policy (PICNIC-2694)', () {
+    // The PIC portal spends the same popup on a different balance row, so the
+    // review is right that a matrix without it proves nothing about it.
+    for (final size in <Size>[Size(280, 280), Size(412, 430), Size(851, 393)]) {
+      for (final scale in <double>[1.0, 2.0]) {
+        testWidgets('the controls are visible at rest on PIC '
+            '${size.width.toInt()}x${size.height.toInt()} at ${scale}x', (
+          tester,
+        ) async {
+          await pumpAt(
+            tester,
+            plainDialog(portal: VotePortal.pic),
+            viewport: size,
+            textScale: scale,
+          );
+
+          _expectControlsVisibleAtRest(
+            tester,
+            plainControls(),
+            'PIC ${size.width.toInt()}x${size.height.toInt()} @ ${scale}x',
+          );
+        });
+      }
+    }
+  });
+
+  group('a real route and its safe area (PICNIC-2694)', () {
+    // Pumping the dialog widget directly skips `showDialog`, the route's
+    // barrier and the window padding. This is the same popup the app opens.
+    testWidgets('showJmaVotingDialog opens with its controls whole on a '
+        'landscape phone with a notch', (tester) async {
+      tester.view.physicalSize = const Size(851 * 3, 393 * 3);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(() => tester.view.resetPhysicalSize());
+      addTearDown(() => tester.view.resetDevicePixelRatio());
+      addTearDown(suppressImageErrors());
+
+      late BuildContext hostContext;
+      await pumpWidgetAndIgnoreErrors(
+        tester,
+        buildTestApp(
+          Builder(
+            builder: (context) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                viewInsets: EdgeInsets.zero,
+                padding: const EdgeInsets.only(top: 44, bottom: 34, left: 48),
+              ),
+              child: Builder(
+                builder: (context) {
+                  hostContext = context;
+                  return const SizedBox.expand();
+                },
+              ),
+            ),
+          ),
+          textScaler: const TextScaler.linear(2.0),
+          designSize: kAppDesignSize,
+          splitScreenMode: kAppSplitScreenMode,
+          userProfile: MockData.userProfile(
+            starCandy: 3000,
+            starCandyBonus: 50,
+          ),
+          extraOverrides: [
+            walletSummaryProvider.overrideWith(
+              () => _WalletSummaryOverride(_wallet),
+            ),
+          ],
+        ),
+      );
+
+      showJmaVotingDialog(
+        context: hostContext,
+        voteModel: voteModel,
+        voteItemModel: voteItemModel,
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      drainExpectedImageErrors(tester);
+
+      _expectControlsVisibleAtRest(
+        tester,
+        jmaControls(l10n.label_button_vote),
+        'JMA via showDialog with a notch',
+      );
+    });
+
+    // A parent that hands the popup less than the window — a host sheet, a
+    // hinge-aware pane — still may not clip the controls.
+    testWidgets('a parent shorter than the window keeps the controls inside '
+        'whatever clips them', (tester) async {
+      await pumpAt(
+        tester,
+        jmaDialog(),
+        viewport: const Size(412, 892),
+        textScale: 1.3,
+        parentHeight: 360,
+      );
+
+      expect(tester.takeException(), isNull);
+      final capsule = tester.getRect(_capsuleCard());
+      for (final entry in jmaControls(l10n.label_button_vote).entries) {
+        final rect = tester.getRect(entry.value);
+        final scrollAncestor = find.ancestor(
+          of: entry.value,
+          matching: find.byType(Scrollable),
+        );
+        _expectContained(
+          scrollAncestor.evaluate().isEmpty
+              ? capsule
+              : tester.getRect(scrollAncestor.first),
+          rect,
+          'partial parent / ${entry.key}',
+        );
+      }
+    });
+  });
+
+  group('with the keyboard up (PICNIC-2694)', () {
+    // A 280 keyboard is the inset the PICNIC-2688 tests use. Where the window
+    // still has room for the controls, they stay whole; the cases below that
+    // are listed separately because no layout can fit 48+48+48 of tap targets
+    // into 62 logical pixels.
+    for (final entry in <String, Size>{
+      'portrait phone': Size(393, 852),
+      'flip flex top half': Size(412, 500),
+    }.entries) {
+      testWidgets('the JMA controls survive a 280 keyboard on ${entry.key}', (
+        tester,
+      ) async {
+        await pumpAt(
+          tester,
+          jmaDialog(),
+          viewport: entry.value,
+          textScale: 1.0,
+          keyboard: 280,
+        );
+
+        _expectControlsVisibleAtRest(
+          tester,
+          jmaControls(l10n.label_button_vote),
+          'JMA K=280 ${entry.key}',
+        );
+      });
+
+      testWidgets('the plain controls survive a 280 keyboard on ${entry.key}', (
+        tester,
+      ) async {
+        await pumpAt(
+          tester,
+          plainDialog(),
+          viewport: entry.value,
+          textScale: 1.0,
+          keyboard: 280,
+        );
+
+        _expectControlsVisibleAtRest(
+          tester,
+          plainControls(),
+          'plain K=280 ${entry.key}',
+        );
+      });
+    }
+
+    // 393 high minus a 280 keyboard leaves 113, and the popup's own chrome and
+    // minimum margins take it down to about 62 — less than the input alone.
+    // What the popup still owes the user there is the scrolling fallback with
+    // the controls first, and no overflow.
+    for (final jma in <bool>[false, true]) {
+      testWidgets('a window too short for the controls scrolls them instead of '
+          'throwing (${jma ? "JMA" : "vote"})', (tester) async {
+        await pumpAt(
+          tester,
+          jma ? jmaDialog() : plainDialog(),
+          viewport: const Size(851, 393),
+          textScale: 2.0,
+          keyboard: 280,
+        );
+
+        expect(tester.takeException(), isNull);
+        final input = _amountInputSurface();
+        final scrollAncestor = find.ancestor(
+          of: input,
+          matching: find.byType(Scrollable),
+        );
+        expect(
+          scrollAncestor,
+          findsWidgets,
+          reason: 'the input has to be reachable by scrolling',
+        );
+        // Scrolling the input into view is exactly what the user can do, and
+        // it has to actually work.
+        await tester.ensureVisible(input);
+        await tester.pumpAndSettle();
+        // 393 less a 280 keyboard leaves the body about 62, and at 200% the
+        // input is taller than that, so "revealed" means as much of it as the
+        // window can hold — starting at its top edge.
+        final viewport = tester.getRect(scrollAncestor.first);
+        final revealed = viewport.intersect(tester.getRect(input));
+        expect(
+          revealed.height,
+          greaterThanOrEqualTo(
+            math.min(tester.getRect(input).height, viewport.height) - 0.5,
+          ),
+          reason: '${jma ? "JMA" : "vote"} input was not revealed by scrolling',
+        );
+        expect(
+          tester.getRect(input).top,
+          greaterThanOrEqualTo(viewport.top - 0.5),
+          reason: '${jma ? "JMA" : "vote"} input top still above the viewport',
+        );
+      });
+    }
+  });
+
+  group('JmaVotingDialog state transitions (PICNIC-2694)', () {
+    // Claim 2: the reason the input turned red used to live in the decoration
+    // scroll, behind the portrait, the balance and the daily limit, so a short
+    // window showed a red border, a dead button and no explanation.
+    for (final size in <Size>[Size(851, 393), Size(412, 430), Size(280, 280)]) {
+      testWidgets('an over-the-maximum amount explains itself on '
+          '${size.width.toInt()}x${size.height.toInt()}', (tester) async {
+        await pumpAt(tester, jmaDialog(), viewport: size, textScale: 1.0);
+
+        // 3000 star candy at 30:1 plus the 5 bonus votes the daily limit
+        // allows is 105, so 106 is the first rejected amount.
+        await tester.enterText(find.byType(TextFormField), '106');
+        await settleDialogState(tester);
+
+        final message = find.text(l10n.jma_voting_max_votes_exceeded(105));
+        expect(message, findsOneWidget);
+        _expectControlsVisibleAtRest(tester, <String, Finder>{
+          ...jmaControls(l10n.label_button_vote),
+          'validation': message,
+        }, 'JMA invalid ${size.width.toInt()}x${size.height.toInt()}');
+        // Right under the input, not somewhere in the decoration.
+        expect(
+          tester.getRect(message).top,
+          greaterThanOrEqualTo(
+            tester.getRect(_amountInputSurface()).bottom - 0.5,
+          ),
+        );
+        // The decoration has its own scroll view; the actions band does not.
+        // Sharing the input's scroll ancestry is what keeps the explanation
+        // from scrolling away on its own.
+        expect(
+          find
+              .ancestor(of: message, matching: find.byType(Scrollable))
+              .evaluate()
+              .map((element) => element.widget)
+              .toList(),
+          find
+              .ancestor(
+                of: _amountInputSurface(),
+                matching: find.byType(Scrollable),
+              )
+              .evaluate()
+              .map((element) => element.widget)
+              .toList(),
+          reason: 'the explanation may not live in the scrolling decoration',
+        );
+      });
+    }
+
+    testWidgets('the validation line is a live region so it is announced', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await pumpAt(
+        tester,
+        jmaDialog(),
+        viewport: const Size(851, 393),
+        textScale: 1.0,
+      );
+      await tester.enterText(find.byType(TextFormField), '106');
+      await settleDialogState(tester);
+
+      expect(
+        tester.getSemantics(
+          find
+              .ancestor(
+                of: find.text(l10n.jma_voting_max_votes_exceeded(105)),
+                matching: find.byType(Semantics),
+              )
+              .first,
+        ),
+        matchesSemantics(
+          isLiveRegion: true,
+          label: l10n.jma_voting_max_votes_exceeded(105),
+        ),
+      );
+      handle.dispose();
+    });
+
+    // Claim 3: the active button puts a 20 icon and its gap before the label,
+    // so the label wraps in a narrower box than the idle one. The budget used
+    // to be measured on the idle width, which under-reserves the state the
+    // user actually submits from.
+    for (final size in <Size>[
+      Size(280, 280),
+      Size(412, 430),
+      Size(851, 393),
+      Size(393, 852),
+    ]) {
+      for (final scale in <double>[1.0, 2.0]) {
+        testWidgets(
+          'a votable amount keeps the active button inside the capsule on '
+          '${size.width.toInt()}x${size.height.toInt()} at ${scale}x',
+          (tester) async {
+            await pumpAt(tester, jmaDialog(), viewport: size, textScale: scale);
+            await tester.enterText(find.byType(TextFormField), '5');
+            await settleDialogState(tester);
+
+            expect(
+              find.byIcon(Icons.how_to_vote),
+              findsOneWidget,
+              reason: 'the button has to be in its active state',
+            );
+            _expectControlsVisibleAtRest(
+              tester,
+              jmaControls(l10n.label_button_vote),
+              'JMA active ${size.width.toInt()}x${size.height.toInt()} '
+              '@ ${scale}x',
+            );
+          },
+        );
+      }
+    }
+
+    // The boundary the review describes: a window whose body clears the idle
+    // label but not the active one. Thai and Burmese are the longest vote
+    // labels the app ships, and at 280 wide the active box is 79.7 against the
+    // idle 105.4 — two extra wrapped lines, 52 logical pixels the old budget
+    // never reserved. 320 high is where that difference decided the mode.
+    for (final locale in <String, String>{
+      'th': AppLocalizationsTh().label_button_vote,
+      'my': AppLocalizationsMy().label_button_vote,
+    }.entries) {
+      testWidgets(
+        'the active label in ${locale.key} does not overflow the pinned '
+        'layout at the budget boundary',
+        (tester) async {
+          await pumpAt(
+            tester,
+            jmaDialog(),
+            viewport: const Size(280, 320),
+            textScale: 1.0,
+            locale: Locale(locale.key),
+          );
+          await tester.enterText(find.byType(TextFormField), '5');
+          await settleDialogState(tester);
+
+          expect(find.byIcon(Icons.how_to_vote), findsOneWidget);
+          _expectControlsVisibleAtRest(
+            tester,
+            jmaControls(locale.value),
+            'JMA active ${locale.key} 280x320',
+          );
+        },
+      );
+    }
+
+    // The budget is only sound if it is an upper bound on every state the
+    // button can render in — idle, active and voting. The shared button is the
+    // one whose states can be built directly, without firing a vote.
+    for (final scale in <double>[1.0, 2.0]) {
+      testWidgets('the submit budget covers every button state at ${scale}x', (
+        tester,
+      ) async {
+        tester.view.physicalSize = const Size(280 * 3, 430 * 3);
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(() => tester.view.resetPhysicalSize());
+        addTearDown(() => tester.view.resetDevicePixelRatio());
+
+        late double budget;
+        await tester.pumpWidget(
+          buildTestApp(
+            Builder(
+              builder: (context) {
+                budget = VotingSubmitButton.preferredHeight(context);
+                // The Thai label at 200% makes each button taller than a
+                // third of the window, so the harness scrolls rather than
+                // reporting its own overflow as a product defect.
+                return SingleChildScrollView(
+                  child: Column(
+                    children: const [
+                      VotingSubmitButton(
+                        key: Key('idle'),
+                        canVote: false,
+                        isVoting: false,
+                      ),
+                      VotingSubmitButton(
+                        key: Key('active'),
+                        canVote: true,
+                        isVoting: false,
+                      ),
+                      VotingSubmitButton(
+                        key: Key('voting'),
+                        canVote: true,
+                        isVoting: true,
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+            locale: const Locale('th'),
+            textScaler: TextScaler.linear(scale),
+            designSize: kAppDesignSize,
+            splitScreenMode: kAppSplitScreenMode,
+          ),
+        );
+
+        for (final state in <String>['idle', 'active', 'voting']) {
+          expect(
+            tester.getSize(find.byKey(Key(state))).height,
+            lessThanOrEqualTo(budget + 0.5),
+            reason: 'the $state button outgrew the height the budget reserved',
+          );
+        }
+      });
+    }
+
+    testWidgets('expanding the policy panel does not push the controls out', (
+      tester,
+    ) async {
+      await pumpAt(
+        tester,
+        jmaDialog(),
+        viewport: const Size(851, 393),
+        textScale: 1.3,
+      );
+      await tester.tap(find.text(l10n.label_button_view_policy));
+      await settleDialogState(tester);
+
+      _expectControlsVisibleAtRest(
+        tester,
+        jmaControls(l10n.label_button_vote),
+        'JMA policy expanded',
+      );
+    });
+
+    // An in-flight IME composition is state the popup must not drop when the
+    // layout mode changes under it. The amount formatter deliberately
+    // normalises the selection to a collapsed caret after the digits, so that
+    // — not the incoming range — is what has to hold.
+    testWidgets('an IME composition survives a rotation', (tester) async {
+      await pumpAt(
+        tester,
+        jmaDialog(),
+        viewport: const Size(393, 852),
+        textScale: 1.0,
+      );
+      await tester.tap(find.byType(TextFormField));
+      await tester.pump();
+      tester.testTextInput.updateEditingValue(
+        const TextEditingValue(
+          text: '123',
+          selection: TextSelection(baseOffset: 1, extentOffset: 3),
+          composing: TextRange(start: 1, end: 3),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+
+      tester.view.physicalSize = const Size(852 * 3, 393 * 3);
+      for (var i = 0; i < 3; i += 1) {
+        await tester.pump(const Duration(milliseconds: 400));
+      }
+
+      final field = tester.widget<TextField>(find.byType(TextField));
+      expect(field.controller?.text, '123');
+      expect(field.controller?.selection.isCollapsed, isTrue);
+      expect(field.controller?.selection.baseOffset, 3);
+      _expectControlsVisibleAtRest(
+        tester,
+        jmaControls(l10n.label_button_vote),
+        'JMA after rotation with a selection',
+      );
+    });
   });
 }
