@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PICNIC-2682 원인 분석 및 최소 수정 계획</title>
+<style>
+:root{color-scheme:light;--ink:#17243a;--sub:#526078;--line:#dce3ec;--accent:#1458a3}
+body{max-width:1100px;margin:40px auto;padding:0 24px 64px;font:16px/1.75 system-ui,-apple-system,"Noto Sans KR",sans-serif;color:var(--ink);background:#fff}
+h1{font-size:30px;line-height:1.35}h2{font-size:23px;margin-top:44px;border-bottom:2px solid var(--line);padding-bottom:9px}h3{font-size:18px;margin-top:25px}
+a{color:var(--accent);overflow-wrap:anywhere}code{font:13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}
+pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f6fa;border:1px solid var(--line);padding:16px;border-radius:7px}
+table{width:100%;border-collapse:collapse;margin:16px 0;font-size:14px}th,td{border:1px solid var(--line);padding:10px;text-align:left;vertical-align:top}th{background:#eef3f8}
+.note,.finding{padding:16px 20px;border-left:4px solid #e1a830;background:#fff8e8;margin:20px 0}.finding{border-color:#22825d;background:#eff9f3}.muted{color:var(--sub);font-size:14px}li{margin:7px 0}.badge{font-weight:700}
+@media print{body{max-width:none;margin:0;padding:0;font-size:11pt}pre,table{font-size:9pt}h2{break-after:avoid}tr{break-inside:avoid}a{color:inherit}}
+</style></head><body>
+<header><p class="muted">PICNIC-2682 · 계획자 읽기 전용 조사 · 2026-09-15 KST</p><h1>Tapjoy의 비 UUID 사용자 ID가 DB 오류와 반복 콜백을 만드는 경로</h1>
+<p><strong>목표:</strong> 잘못된 snuid를 UUID 컬럼에 전달하지 않고, 영구 처리 불가 콜백의 재시도를 멈추며, 앱이 사용자 ID 설정 완료 전에 오퍼월을 요청하지 않게 한다.</p>
+<p><strong>구성:</strong> Tapjoy 전용 서버 검증·응답 분류와 앱 SDK 준비 상태를 각각 수정한다. DB 스키마·지갑 지급 방식·네이티브 SDK 버전 변경은 이 계획의 최소 범위에 포함하지 않는다.</p>
+<p><strong>기술:</strong> Supabase Edge Functions / TypeScript / Deno, Flutter / Dart, tapjoy_offerwall 14.6.0. 요구사항: <a href="https://picnic-team.atlassian.net/browse/PICNIC-2682">PICNIC-2682</a> 및 코디네이터가 전달한 로그·7개 조사 항목. Jira 본문은 별도 조회하지 않았다.</p></header>
+<div class="finding"><strong>결론:</strong> DB 오류 경로와 앱의 비동기 완료 대기 결함은 소스로 확인했다. 해당 64자리 값이 Tapjoy의 기본 기기 ID에서 나온 것인지는 유력 가설이며, SHA-256 생성식이나 실제 문제 단말의 최초 오퍼월 진입 경위는 미확인이다.</div>
+<table><thead><tr><th>판정</th><th>근거 / 한계</th></tr></thead><tbody>
+<tr><td>확정: snuid가 UUID 조회로 직행</td><td>서버 extractParameters → verify → checkUserExists. UUID 검사가 없고, 서명 검증보다 사용자 조회가 먼저 실행된다.</td></tr>
+<tr><td>확정: 현재 앱은 SDK 완료를 기다리지 않음</td><td>Android 플러그인은 connect/setUserID 요청 직후 MethodChannel 결과를 반환하고 성공 이벤트를 나중에 전달한다. 앱은 MethodChannel Future만 await한다.</td></tr>
+<tr><td>유력: 초기 기기 ID로 오퍼월이 생성됨</td><td>connect 옵션에 사용자 ID가 없고, setUserID 성공 전 requestContent가 가능하다. 다만 해당 요청의 MD5 검증 결과·단말 버전·최초 요청 시점은 없다.</td></tr>
+<tr><td>확정 규약 / 높은 확신의 원인: 400이 재시도 유발</td><td>Tapjoy 공식 문서에서 중단 상태는 200/403이다. 같은 snuid·트랜잭션 3개가 반복된 관측과 부합한다.</td></tr>
+</tbody></table>
+<p class="muted">모든 소스 링크는 조사 시점의 로컬 파일이다. 서버 링크 기준 루트: <code>/Users/charlie.hyun/Repositories/picnic-supabase</code>. 앱 링크 기준 루트: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476</code>. SDK 링크 기준 루트: <code>/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0</code>. 파일 위치는 줄 번호로 표시했으며 배포 v101과 로컬 전체 의존성의 바이트 일치 검증은 수행하지 않았다.</p>
+
+<h2 id="scope">조사 범위와 전달 증거</h2>
+<p>두 저장소의 코드·설정·DB를 변경하지 않았고 Git 명령·프로덕션 조회·배포를 실행하지 않았다. 공개 공식 문서와 로컬 소스만 읽었다. 이 워커는 런타임 파일 시스템이 읽기 전용이므로, 코디네이터의 후속 지시에 따라 HTML 원문을 Orca 메시지로 전달하고 코디네이터가 지정 경로에 저장한다.</p>
+<table><thead><tr><th>코디네이터 제공 증거</th><th>해석</th></tr></thead><tbody>
+<tr><td>2026-09-15 00:24–00:39 UTC, REST user_profiles?select=id&amp;id=eq.64hex → 400 / Deno·service_role</td><td>앱 직접 호출이 아니라 Edge Function의 DB 조회.</td></tr>
+<tr><td>동시각 callback-tapjoy GET 400, function_id 52a7e8f7-356d-44bd-ad24-642fabadd188, 배포 v101</td><td>snuid가 동일한 64자리 값이며 내부 로그에 22P02가 존재.</td></tr>
+<tr><td>24시간 hex snuid 486회, snuid 1개, 트랜잭션 3개, 모두 Android</td><td>새 사용자 486명이 아니라 같은 지급 요청의 반복으로 설명된다.</td></tr>
+<tr><td>거래 ca0037e3-f018-43f4-94ec-e2ea20440501: currency=4, 241회<br>3a5d833d-4e72-47f7-ad70-913cafeedc8c: 4, 123회<br>57851b9f-376a-4950-8489-5ba6704f6760: 5, 122회</td><td>제공 로그의 시간 간격은 약 4분, 공식 규약은 5분. 정확한 재시도 스케줄까지 같은 것으로 단정하지 않는다.</td></tr>
+<tr><td>UUID snuid 400: iOS 8,868 + Android 8,753 = 17,621회; 200: 47회</td><td>별도 오류 집단. 중복 지급 요청 가설만 있으며, 400 원인별 분류는 미확인.</td></tr>
+</tbody></table>
+<p class="note">티켓 제목의 22P02 476건과 전달된 function_edge_logs 486건은 집계 소스·시간 창이 다르므로 동일 숫자로 합치지 않는다. 프로덕션 수치는 모두 코디네이터 제공값이며 이 워커가 재조회한 결과가 아니다.</p>
+
+<h2 id="server">1. 서버 경로, 서명 검증 순서, HTTP 상태</h2>
+<table><thead><tr><th>순서</th><th>파일·함수</th><th>확인한 동작</th></tr></thead><tbody>
+<tr><td>1</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:3</code></a> / <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/deno.json"><code>supabase/functions/callback-tapjoy/deno.json:7</code></a></td><td>@shared/는 ../_shared/를 가리킨다. 앱 저장소의 오래된 미러는 배포 수정 대상이 아니다.</td></tr>
+<tr><td>2</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:5</code></a> / <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/index.ts"><code>supabase/functions/_shared/ad/index.ts:18</code></a></td><td>TAPJOY_SECRET_KEY로 TapjoyService 생성. BaseAdService는 SUPABASE_URL·SUPABASE_SERVICE_ROLE_KEY로 클라이언트 생성(<a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/base-ad-service.ts"><code>supabase/functions/_shared/ad/base-ad-service.ts:20</code></a>).</td></tr>
+<tr><td>3</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:20</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:44</code></a></td><td>URL 파싱 후 extractParameters 호출. :49에서 user_id = snuid, :53에서 snuid도 그대로 보존.</td></tr>
+<tr><td>4</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:111</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:61</code></a></td><td>handleCallback → verify. :37–41의 validateParameters는 필수값·currency NaN만 확인하며 UUID 형식은 검사하지 않는다.</td></tr>
+<tr><td>5</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:67</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/base-ad-service.ts"><code>supabase/functions/_shared/ad/base-ad-service.ts:91</code></a></td><td>checkUserExists(user_id) → from('user_profiles').select('id').eq('id', userId).maybeSingle(). :98–99에서 PGRST116 이외 DB 오류를 throw.</td></tr>
+<tr><td>6</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:72</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/base-ad-service.ts"><code>supabase/functions/_shared/ad/base-ad-service.ts:59</code></a></td><td>사용자 존재 확인 뒤 transaction_tapjoy 중복 확인.</td></tr>
+<tr><td>7</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:77</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:9</code></a></td><td>그 다음 MD5(id:snuid:currency:secret) 비교. 즉 64hex가 DB에서 실패하면 서명 검사까지 도달하지 않는다.</td></tr>
+<tr><td>8</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:83</code></a> → <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:115</code></a></td><td>22P02를 verify의 catch가 isValid:false로 바꾸고 handleCallback이 400으로 반환. entrypoint의 :24–26은 그 상태를 그대로 응답한다.</td></tr>
+</tbody></table>
+<p>서명 키 선택: <code>TAPJOY_SECRET_KEY</code>가 비어 있으면 <code>platform.toLowerCase() === 'ios'</code>에 대해 <code>TAPJOY_SECRET_IOS</code>, 나머지는 <code>TAPJOY_SECRET_ANDROID</code>를 사용한다(<a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:13</code></a>). 키 미설정·MD5 불일치·검증 내부 예외 모두 현재 false이며 최종 HTTP 400이다. 실제 비밀값과 현재 배포 secrets 존재 여부는 확인하지 않았다.</p>
+<table><thead><tr><th>현재 조건</th><th>상태 / 본문</th><th>위치</th></tr></thead><tbody>
+<tr><td>필수값 누락·사용자 없음·중복·서명 실패·조회 예외(22P02 포함)</td><td>400 / {"success":false,"error":...}</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:63</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:118</code></a></td></tr>
+<tr><td>보상 처리 오류 / 바깥 핸들러 예외</td><td>500 / {"success":false,"error":...}</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:125</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:135</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:28</code></a></td></tr>
+<tr><td>성공 / OPTIONS</td><td>200 / {"success":true}; OPTIONS 204</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:134</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:15</code></a></td></tr>
+</tbody></table>
+<p class="note">현재 로그의 “Tapjoy parameters” 오류만으로는 콜백의 서명이 유효했다고 주장할 수 없다. 검증 전 DB 오류이므로 정상 Tapjoy 재시도 외에 잘못 구성된 콜백·직접 위조 요청도 아직 반증되지 않았다. getResponseCode(:107)는 이 HTTP 응답 경로에서 사용되지 않는다.</p>
+
+<h2 id="origin">2. 64 hex snuid의 출처와 앱 경합</h2>
+<h3>공식 문서로 확인한 범위</h3>
+<p><a href="https://docs.unity.com/en-us/grow/offerwall/monetization/virtual-currency/self-managed-currency#setting-the-user-id">Tapjoy Self-managed currency</a>는 사용자 ID가 snuid가 되며, 미설정 시 보통 Advertising ID 등 기기 ID로 대체된다고 설명한다. SDK·기기·OS에 따라 Android ID·udid·MAC 등도 가능하다. 연결 옵션으로 ID를 먼저 주거나, 직접 설정할 때 성공 콜백을 확인하라는 지침이다. <a href="https://docs.unity.com/en-us/grow/offerwall/android/advanced/user-properties">Android User properties</a>도 SDK의 자동 ID 생성과 self-managed currency의 명시적 ID 필요성을 확인한다.</p>
+<p><strong>미확인:</strong> 공식 문서에서 “Android 14.6.0 기본 snuid = 특정 값의 SHA-256 64hex”라는 규칙은 찾지 못했다. 64hex 모양은 해시와 양립하지만 알고리즘·입력·생성 주체를 특정하지 못한다. 로컬 SDK 캐시에는 14.6.0 바이너리가 있으나 이 보고서는 내부 난독화 코드로 생성식을 입증하지 않았다.</p>
+<h3>앱에서 해시를 setUserID에 넣는가</h3>
+<p><code>picnic_lib/lib</code> 전체의 Tapjoy.setUserID / setUserID / TJC_OPTION_USER_ID 검색 결과 Tapjoy 설정 호출은 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:48</code></a> 한 곳이고 입력은 <code>supabase.auth.currentUser!.id</code> 원문이다. 해시 변환은 없다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/core/utils/device_fingerprint_helper.dart"><code>picnic_lib/lib/core/utils/device_fingerprint_helper.dart:19</code></a>의 SHA-256 기기 해시, 업로드 서명·영수증 해시는 존재하지만 Tapjoy 설정 경로와 연결되지 않는다. 과거 앱·다른 바이너리·서버측 Tapjoy 설정까지 배제한 것은 아니다.</p>
+<h3>정확한 순서</h3>
+<ol>
+<li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/core/utils/main_initializer.dart"><code>picnic_lib/lib/core/utils/main_initializer.dart:164</code></a>에서 Supabase 등 Group 1 완료 후, :221–240에서 Auth와 Tapjoy를 포함한 non-auth 그룹을 시작한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/core/utils/startup_readiness.dart"><code>picnic_lib/lib/core/utils/startup_readiness.dart:210</code></a>은 두 작업을 병렬 시작하고 non-auth 대기를 제한한다. Auth 복원 완료가 Tapjoy connect보다 먼저라는 보장은 없다.</li>
+<li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/core/utils/app_initializer.dart"><code>picnic_lib/lib/core/utils/app_initializer.dart:390</code></a>의 connect 옵션은 빈 Map이다. :393에서 connect를 await하지만 :405 성공 콜백에서는 개인정보 옵션만 설정하고 사용자 ID는 설정하지 않는다.</li>
+<li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart:34</code></a>이 TapjoyPlatform을 만들고 :63에서 initialize한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:18</code></a>의 initialize는 bool만 설정한다. isPlatformAvailable(:95)는 SDK key 존재만 보며 연결 상태를 검사하지 않는다.</li>
+<li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/free_charge_station.dart:160</code></a> → showAd. 공통 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart:410</code></a>에서 로그인은 확인한다. 따라서 단순히 “비로그인 사용자를 제한하지 않음”이 원인인 것은 아니다.</li>
+<li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:31</code></a>의 _setupTapjoyUser를 await한 뒤 :32에서 _requestTapjoyPlacement를 호출한다. :48–61의 성공 콜백은 로그만 기록하고, 실패 콜백도 애니메이션을 멈출 뿐 Future 실패를 전달하지 않는다. :96에서 requestContent, :78에서 콘텐츠 표시.</li>
+</ol>
+<h3>await가 보장하지 않는 것 — 패키지 구현 증거</h3>
+<p>lockfile의 실제 버전은 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/pubspec.lock"><code>picnic_lib/pubspec.lock:2461</code></a> 및 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_app/pubspec.lock"><code>picnic_app/pubspec.lock:2499</code></a>의 <strong>14.6.0</strong>이다. 앱 pubspec은 ^14.6.0(<a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/pubspec.yaml"><code>picnic_lib/pubspec.yaml:101</code></a>). 다음은 해당 버전의 로컬 공식 패키지 코드다.</p>
+<table><thead><tr><th>파일</th><th>핵심 동작</th></tr></thead><tbody>
+<tr><td><a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0/lib/src/tapjoy.dart"><code>lib/src/tapjoy.dart:23</code></a></td><td>connect 성공·실패 리스너 등록 후 invokeMethod('connect') Future 반환.</td></tr>
+<tr><td><a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0/lib/src/tapjoy.dart"><code>lib/src/tapjoy.dart:78</code></a></td><td>setUserID 성공·실패 리스너 등록 후 invokeMethod('setUserID') Future 반환.</td></tr>
+<tr><td><a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0/android/src/main/kotlin/com/tapjoy/flutter/TapjoyOfferwallPlugin.kt"><code>android/src/main/kotlin/com/tapjoy/flutter/TapjoyOfferwallPlugin.kt:153</code></a></td><td>Tapjoy.connect(...) 다음 줄에서 result.success(null). 네이티브 연결 완료를 기다리지 않는다.</td></tr>
+<tr><td><a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0/android/src/main/kotlin/com/tapjoy/flutter/TapjoyOfferwallPlugin.kt"><code>android/src/main/kotlin/com/tapjoy/flutter/TapjoyOfferwallPlugin.kt:160</code></a></td><td>성공은 TapjoyOnSetUserIDSuccess, 실패는 TapjoyOnSetUserIDFailure 채널 이벤트. :170의 result.success(null)은 SDK 요청 직후 실행된다.</td></tr>
+<tr><td><a href="/Users/charlie.hyun/.pub-cache/hosted/pub.dev/tapjoy_offerwall-14.6.0/lib/src/tapjoy_method_call_handler.dart"><code>lib/src/tapjoy_method_call_handler.dart:102</code></a></td><td>사용자 ID 성공/실패 리스너는 static 단일 슬롯. 여러 호출을 겹치면 덮어쓸 수 있으므로 앱 수정 시 직렬화 필요.</td></tr>
+</tbody></table>
+<p><strong>확정한 결함:</strong> Dart 메서드 반환과 SDK 성공 이벤트 사이에 requestContent가 실행될 수 있다. 실패 이벤트가 오더라도 현재 제어 흐름은 이미 오퍼월 요청으로 진행할 수 있다. SDK 내부가 모든 요청을 항상 안전하게 정렬한다는 보장은 이 조사에서 확인되지 않았으며, 공식 가이드는 성공 확인을 요구한다.</p>
+<table><thead><tr><th>가설 우선순위</th><th>확신도</th><th>반증 / 추가 확인 조건</th></tr></thead><tbody>
+<tr><td>1. 사용자 ID 미설정 또는 성공 전 오퍼월 진입으로 Tapjoy 기기 ID가 고정됨</td><td>중간~높음(약 70%, 통계적 추정 아님). 현재 코드의 경합 존재 자체는 높음.</td><td>문제 거래의 최초 오퍼월 요청 전에 SDK getUserID가 Picnic UUID이고 setUserID 성공이 확인되었거나, 해당 64hex 요청의 MD5가 잘못된 것으로 확인되면 사고 원인 가설을 재검토한다.</td></tr>
+<tr><td>2. 구버전 앱·Tapjoy 외부 진입/잔존 오퍼·대시보드 설정이 기기 ID를 사용</td><td>미확인, 대안 가설</td><td>거래 최초 발생 시점의 앱/SDK 버전, Tapjoy 기기→publisher ID 이력 확인. 지금 앱을 패치해도 과거 거래 snuid가 바뀐다고 가정하지 않는다.</td></tr>
+<tr><td>3. 앱이 자체 SHA-256을 setUserID에 전달</td><td>현재 picnic_lib 소스에서는 근거 없음</td><td>다른 실제 배포 바이너리·이전 코드·네이티브 호출원 발견 시 재평가.</td></tr>
+<tr><td>4. 위조 또는 잘못된 콜백 재생</td><td>미확인</td><td>권한 있는 운영자가 로깅 없이 보관된 원시 파라미터와 올바른 키로 MD5를 오프라인 검증. 본 워커는 secrets·프로덕션에 접근하지 않았다.</td></tr>
+</tbody></table>
+
+<h2 id="retry">3. 재시도 규약과 응답 정책</h2>
+<p><a href="https://docs.unity.com/en-us/grow/offerwall/monetization/virtual-currency/self-managed-currency#server-response-requirements">Tapjoy 공식 Server response requirements</a>: <strong>200은 지급 완료, 403은 알 수 없는 snuid·잘못된 verifier·영구 실패</strong>다. 이외 상태는 5분 간격으로 최대 4일 재시도한다. 5초 초과 응답과 UTF-8이 아닌 응답도 재시도 원인이다. 본문에 오류를 적어도 HTTP 400이면 재시도를 멈추지 못한다.</p>
+<p>따라서 같은 3개 거래가 486회 반복된 현상은 현재의 400 정책으로 설명 가능하며 확신이 높다. 관측 간격 차이, 네트워크 응답 손실, Tapjoy 측 개별 설정은 미확인이다. 403 적용 뒤 기존 큐의 다음 1회 도착은 정상적인 종료 과정일 수 있다.</p>
+<table><thead><tr><th>조건</th><th>최소 권고 상태·UTF-8 JSON 본문</th><th>지급 / 재시도</th></tr></thead><tbody>
+<tr><td>비 UUID snuid</td><td>403 / {"success":false,"code":"INVALID_SNUID"}</td><td>DB 조회·지급 0회. 영구 중단.</td></tr>
+<tr><td>유효 서명 + UUID이나 실제 사용자 없음</td><td>403 / {"success":false,"code":"UNKNOWN_USER"}</td><td>지급 0회. 영구 중단. 조회 장애를 “없음”으로 처리하면 안 됨.</td></tr>
+<tr><td>키가 준비된 상태에서 MD5 불일치</td><td>403 / {"success":false,"code":"INVALID_SIGNATURE"}</td><td>DB 조회·지급 0회.</td></tr>
+<tr><td>키 누락·DB 연결/쿼리 장애·예상 밖 예외</td><td>500 / {"success":false,"code":"RETRYABLE_ERROR"}</td><td>운영 복구 가능. 403으로 바꿔 보상을 영구 폐기하지 않는다.</td></tr>
+<tr><td>정상 지급 완료</td><td>200 / {"success":true}</td><td>기존 지급 경로 유지.</td></tr>
+<tr><td>중복 거래</td><td>별도 티켓: 동일 사용자·금액·플랫폼·지급 완료를 확인한 재전송만 200 / {"success":true,"replayed":true}; 불일치 요청은 403.</td><td>이번 최소 변경에서 checkExistingTransaction bool만으로 중복을 성공 처리하지 않는다. 현행 중복 400을 명시적으로 남기고 후속 개선 대상으로 둔다.</td></tr>
+</tbody></table>
+<p><strong>UUID 17,621건 영향:</strong> 동일 Tapjoy verify/handleCallback 경로를 사용하므로 서명 실패·실제 사용자 없음은 이 계획의 403 변경 영향을 받는다. 중복이 대부분이라는 추정은 로그 원인 분류 전까지 확정할 수 없다. 최소안은 모든 isValid:false를 403으로 일괄 변경하지 않고 typed reason으로 분기해 중복 400은 유지한다. 추후 중복 ACK 정책을 바꾸면 반복량이 줄 수 있지만 거래 ID 존재만으로 동일 지급이 증명되지는 않는다. 사용자·금액·플랫폼·지갑 반영 확인과 독립 리뷰를 거친 별도 변경으로 다룬다.</p>
+<p class="note">403은 재시도를 영구 중단하므로 “로그만 줄이는 성공 응답”이 아니다. 매핑 불가능한 3개 거래의 보상 귀속은 이 수정으로 해결되지 않는다. 거래 ID와 거부 사유를 보존하고 정당한 사용자 연결 근거가 생기면 별도 보상 조사를 진행한다. 64hex를 임의 UUID로 바꾸거나 기존 사용자를 추정해 지급하지 않는다.</p>
+
+<h2 id="changes">4. 파일·함수 단위 최소 수정안</h2>
+<table><thead><tr><th>구분</th><th>파일·함수</th><th>변경 내용 / 완료 조건</th></tr></thead><tbody>
+<tr><td><strong>서버 · 방어 가드</strong></td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:37</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:61</code></a></td><td>순수 UUID 형식 검사 추가. 8-4-4-4-12 hex 형식(대소문자 허용, UUID 버전 제한 없음)만 통과시킨다. UUID를 가공하지 않고 원시 snuid를 서명 계산에 보존. 비 UUID는 INVALID_SNUID로 DB 전 종료.</td></tr>
+<tr><td><strong>서버 · 근본 원인 수정(오류 반복)</strong></td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:61</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:111</code></a></td><td>boolean+문자열 오류를 reason code로 분리. INVALID_SNUID/UNKNOWN_USER/INVALID_SIGNATURE → 403, DB/설정/내부 장애 → 500, 정상 → 200. DUPLICATE는 별도 분기로 현행 유지. 22P02를 일반 검증 실패 400으로 흘리지 않는다.</td></tr>
+<tr><td><strong>서버 · 방어 가드</strong></td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:9</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:61</code></a></td><td>필수값·UUID 같은 순수 검증 → 키/MD5 검증 → 사용자 존재 → 중복 → 지급. 서명을 DB보다 먼저 검증. 누락 키와 불일치 서명을 구별하고 키·expected verifier를 로그에 출력하지 않는다.</td></tr>
+<tr><td><strong>서버 · 관측성</strong></td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:111</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:24</code></a></td><td>콜백당 최종 JSON 로그 1줄: event, reason, http_status, transaction_id, platform, snuid_kind/length, signature_state, db_checked, duration_ms. Content-Type: application/json; charset=utf-8. 원시 params·verifier 덤프는 이 한 줄로 대체.</td></tr>
+<tr><td><strong>서버 · 테스트 배선</strong></td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:8</code></a></td><td>필요시 createTapjoyCallbackHandler(service) 내보내기와 import.meta.main 실행 가드로 테스트 import 시 서버 리스닝·환경 접근을 분리한다. 기존 shortform handler factory 관례를 따른다. BaseAdService의 전역 동작 변경은 필요하지 않다.</td></tr>
+<tr><td><strong>앱 · 근본 원인 수정(현재 경합)</strong></td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:46</code></a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:25</code></a></td><td>setUserID 성공 콜백에만 완료되는 Completer를 기다린다. 실패·timeout·채널 예외는 Future 실패로 전파해 오퍼월 요청을 중단한다. captured UUID와 현재 Auth/SDK getUserID를 요청 직전에 대조한다.</td></tr>
+<tr><td><strong>앱 · 근본 원인 수정(connect 준비)</strong></td><td><code>picnic_lib/lib/core/utils/main_initializer.dart:245</code>의 Auth 완료 후 동기화 배선과 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/core/utils/app_initializer.dart"><code>picnic_lib/lib/core/utils/app_initializer.dart:383</code></a> + 새 <code>picnic_lib/lib/core/utils/tapjoy_session.dart</code></td><td>connect 성공/실패 이벤트를 단일 공유 준비 상태로 관리한다. 이미 currentUser가 있으면 TapjoyConnectFlags.user_id로 UUID 전달. Auth가 늦으면 연결 후 현재 UUID를 성공 콜백까지 설정한다. 모든 앱 시작의 연결+Auth 준비 후 ID 동기화, 오퍼월에서도 재확인. 단순히 빈 옵션 Map에 currentUser!만 추가하지 않는다.</td></tr>
+<tr><td><strong>앱 · 방어 가드</strong></td><td>새 TapjoySession.ensureUserReady / <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:25</code></a> / <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart"><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart:76</code></a></td><td>로그아웃·계정 전환·dispose 시 준비 상태를 무효화한다. 전역 SDK 리스너에 동시 요청이 겹치지 않게 단일 in-flight 작업으로 직렬화한다. ID 실패 후 늦은 성공·콘텐츠 콜백이 화면을 열지 않게 시도 토큰과 mounted/계정 재확인. 30초 애니메이션 타이머를 인증 성공으로 간주하지 않는다.</td></tr>
+</tbody></table>
+<p>공유 BaseAdService의 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/base-ad-service.ts"><code>supabase/functions/_shared/ad/base-ad-service.ts:91</code></a>는 이번 최소안에서 읽기 대상이다. Tapjoy 입구에서 막으면 다른 광고 네트워크의 응답이나 DB 계약을 바꿀 필요가 없다. 변경 후에도 이 위치에서 22P02가 발생하면 guard 누락/잘못된 호출 경로로 경고하고 500 처리하되, 모든 22P02를 사용자 오류 403으로 덮지 않는다.</p>
+<h3>서버 로직의 목표 형태</h3>
+<pre><code>const UUID_SHAPE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+// 구현 시 Tapjoy 전용 검증 결과에 code를 추가한다.
+// 1. 필수값 확인
+// 2. !UUID_SHAPE.test(params.snuid) =&gt; INVALID_SNUID / 403 / DB 0회
+// 3. key 미설정 =&gt; RETRYABLE_ERROR / 500
+// 4. MD5 불일치 =&gt; INVALID_SIGNATURE / 403 / DB 0회
+// 5. checkUserExists: false =&gt; UNKNOWN_USER / 403; query error =&gt; 500
+// 6. duplicate =&gt; 별도 분기(이번 최소안은 기존 400)
+// 7. 기존 processTransaction 성공 =&gt; 200</code></pre>
+<h3>로그 한 줄 예</h3>
+<pre><code>{&quot;event&quot;:&quot;tapjoy_callback&quot;,&quot;reason&quot;:&quot;INVALID_SNUID&quot;,&quot;http_status&quot;:403,&quot;transaction_id&quot;:&quot;ca0037e3-f018-43f4-94ec-e2ea20440501&quot;,&quot;platform&quot;:&quot;android&quot;,&quot;snuid_kind&quot;:&quot;hex64&quot;,&quot;snuid_length&quot;:64,&quot;signature_state&quot;:&quot;not_checked&quot;,&quot;db_checked&quot;:false,&quot;duration_ms&quot;:1}</code></pre>
+<p class="muted">signature_state=not_checked는 순수 형식 가드에서 종료했음을 뜻한다. 원시 ID·서명을 반복 출력하지 않아도 거래 ID와 형식으로 원인을 식별할 수 있다. 서명 검증 통과 여부를 확정 로그와 혼동하지 않는다.</p>
+
+<h2 id="tests">5. 수정 전 실패·수정 후 통과를 증명할 테스트 계획</h2>
+<p><strong>실행 상태:</strong> 아래는 구현자가 수행할 테스트 설계와 초안이다. 읽기 전용 조사에서는 파일 생성·Deno/Flutter 테스트·로컬 DB 실행을 하지 않았다. 소스 정적 분석으로 예상한 RED를 실제 실행 결과로 표기하지 않는다.</p>
+<h3>5-A. 서버 — Deno 기존 관례와 재현</h3>
+<p>자동화 테스트가 없다는 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/CLAUDE.md"><code>CLAUDE.md:239</code></a>의 설명은 현재 트리와 다르다. 실제 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/package.json"><code>package.json:11</code></a>에 Deno 테스트 스크립트가 있고 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/tests/wallet/callback-admob.test.ts"><code>supabase/functions/tests/wallet/callback-admob.test.ts:52</code></a>는 handler factory·주입된 RPC·호출 배열을 사용한다. <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/tests/wallet/callback-ad-shortform-more.test.ts"><code>supabase/functions/tests/wallet/callback-ad-shortform-more.test.ts:36</code></a>도 같은 패턴이며, 해당 함수의 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-ad-shortform-more/index.ts"><code>supabase/functions/callback-ad-shortform-more/index.ts:137</code></a>는 import.meta.main으로 실행을 분리한다. Tapjoy 전용 테스트는 찾지 못했다.</p>
+<p><strong>새 테스트 경로:</strong> <code>/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/tests/wallet/callback-tapjoy.test.ts</code>. 핵심 재현은 실제 TapjoyService와 BaseAdService.checkUserExists 배선을 사용하고 DB 전송만 fake로 만든다. prod env 파일을 로드하지 않는다.</p>
+<pre><code>import { assertEquals } from &quot;jsr:@std/assert&quot;;
+import { TapjoyService } from &quot;../../_shared/ad/platforms/tapjoy-service.ts&quot;;
+
+Deno.test(&quot;hex snuid is rejected without a UUID query&quot;, async () =&gt; {
+  const savedUrl = Deno.env.get(&quot;SUPABASE_URL&quot;);
+  const savedKey = Deno.env.get(&quot;SUPABASE_SERVICE_ROLE_KEY&quot;);
+  Deno.env.set(&quot;SUPABASE_URL&quot;, &quot;http://127.0.0.1:54321&quot;);
+  Deno.env.set(&quot;SUPABASE_SERVICE_ROLE_KEY&quot;, &quot;unit-test-key&quot;);
+  let dbCalls = 0;
+  let grantCalls = 0;
+  const errorLogs: unknown[][] = [];
+  const previousError = console.error;
+  console.error = (...args: unknown[]) =&gt; { errorLogs.push(args); };
+  const query = {
+    select() { return this; },
+    eq() { return this; },
+    async maybeSingle() {
+      return {
+        data: null,
+        error: { code: &quot;22P02&quot;, message: &quot;invalid input syntax for type uuid&quot; },
+      };
+    },
+  };
+  class ProbeService extends TapjoyService {
+    constructor() {
+      super(&quot;unit-test-secret&quot;);
+      this.supabase = {
+        from: () =&gt; { dbCalls++; return query; },
+      } as any;
+    }
+    override async processTransaction(_params: any) { grantCalls++; }
+  }
+  try {
+    const service = new ProbeService();
+    const url = new URL(&quot;http://local/callback-tapjoy&quot;);
+    url.search = new URLSearchParams({
+      snuid: &quot;3a1db1ef7c9e117a20a19e513eff7939f31b323c33dd2eb687303879047d2929&quot;,
+      currency: &quot;4&quot;,
+      id: &quot;ca0037e3-f018-43f4-94ec-e2ea20440501&quot;,
+      platform: &quot;android&quot;,
+      verifier: &quot;fixture-signature-not-reached-for-invalid-shape&quot;,
+    }).toString();
+    const result = await service.handleCallback(service.extractParameters(url));
+    assertEquals(result.status, 403);
+    assertEquals(result.body.code, &quot;INVALID_SNUID&quot;);
+    assertEquals(dbCalls, 0);
+    assertEquals(grantCalls, 0);
+    assertEquals(JSON.stringify(errorLogs).includes(&quot;22P02&quot;), false);
+  } finally {
+    console.error = previousError;
+    if (savedUrl === undefined) Deno.env.delete(&quot;SUPABASE_URL&quot;);
+    else Deno.env.set(&quot;SUPABASE_URL&quot;, savedUrl);
+    if (savedKey === undefined) Deno.env.delete(&quot;SUPABASE_SERVICE_ROLE_KEY&quot;);
+    else Deno.env.set(&quot;SUPABASE_SERVICE_ROLE_KEY&quot;, savedKey);
+  }
+});</code></pre>
+<p><strong>RED 예상:</strong> 현재 코드는 fake DB를 1회 호출하고 fake 22P02를 로그에 기록한 뒤 400을 반환하므로 status=403·dbCalls=0 요구가 실패한다. <strong>GREEN:</strong> UUID 가드가 조회 전에 종료하고 403/INVALID_SNUID, DB·지급 0회, 22P02 로그 0회. 테스트의 verifier는 형식 가드에서 끝나므로 검증하지 않는다는 계약을 고정한다.</p>
+<p>이 초안은 변경 후 응답 union의 <code>code</code>를 전제로 한다. 기존 타입에서 body.code 접근이 컴파일 오류이면 테스트에서 body를 적절한 union/record로 좁혀 먼저 실행 가능한 RED를 만든다. import 오류나 미정의 함수만으로 실패한 것을 원인 재현으로 인정하지 않는다.</p>
+<table><thead><tr><th>추가 테스트 입력</th><th>기대 결과</th></tr></thead><tbody>
+<tr><td>64hex, 빈 snuid, 일반 문자열, UUID에 공백/접미사</td><td>DB 조회 전 403. 빈 필수값의 사유는 INVALID_PARAMETERS로 분리 가능. UUID 대문자는 유효하게 처리.</td></tr>
+<tr><td>UUID + 잘못된 MD5</td><td>INVALID_SIGNATURE 403, 사용자 조회 0. 테스트용 secret으로 정상 MD5 생성 후 1바이트 변경.</td></tr>
+<tr><td>정상 MD5 + UUID + data:null/error:null</td><td>UNKNOWN_USER 403, 보상 호출 0. 사용자 없음과 DB 실패를 구별.</td></tr>
+<tr><td>정상 MD5 + DB error(접속 실패/권한 오류)</td><td>500, 보상 호출 0, reason=RETRYABLE_ERROR. 잘못된 403 영구 폐기 방지.</td></tr>
+<tr><td>정상 요청 + 키 미설정</td><td>500 설정 오류. 403 서명 불일치로 둔갑시키지 않음.</td></tr>
+<tr><td>정상 UUID·MD5·사용자, 새 거래</td><td>기존 processTransaction 1회, 200. currency와 operation key 전달 계약 유지.</td></tr>
+<tr><td>이미 존재하는 거래</td><td>이번 최소안에서는 400·지급 0 유지. 별도 중복 ACK 변경 시 새로운 계약 테스트로 명시적으로 교체.</td></tr>
+<tr><td>핸들러 HTTP 응답</td><td>Request→extractParameters→service→Response 통합에서 403/JSON code와 Content-Type charset=utf-8 확인. OPTIONS 204 유지.</td></tr>
+</tbody></table>
+<p>검증 순서: (1) fake DB 재현 테스트 추가 → (2) 현재 코드로 실제 RED 출력 확인 → (3) Tapjoy 한정 가드·typed reason·검증 순서 수정 → (4) 핵심 및 인접 광고 Deno 테스트 실행 → (5) 서명과 지급 경계의 독립 리뷰. 구조·지급 경로에 변경이 생기면 추가 검증 범위를 다시 결정한다.</p>
+<pre><code>cd /Users/charlie.hyun/Repositories/picnic-supabase
+# 아래는 실행할 계획 명령이며 이번 조사에서는 실행하지 않았다.
+npm run guard:wallet:local
+deno test --node-modules-dir=auto --allow-env \
+  --config supabase/functions/callback-tapjoy/deno.json \
+  supabase/functions/tests/wallet/callback-tapjoy.test.ts
+# 런타임 네트워크는 허용하지 않는다. 모듈은 사전 준비된 캐시/lock 사용.
+# 통합 회귀는 저장소 표준 guarded 명령:
+npm run test:wallet:edge</code></pre>
+<p class="muted">현재 package 스크립트의 --allow-all을 그대로 공개 인터넷 테스트 권한으로 해석하지 않는다. guarded 환경에서만 실행하고, 네트워크/의존성 설치는 구현 세션의 허용 범위에서 별도로 준비한다. TapjoyService가 아닌 배포 entrypoint를 테스트 import하려면 현재 top-level 서비스 생성과 serve(handleRequest)를 먼저 테스트 가능한 경계로 분리한다.</p>
+
+<h3>5-B. 앱 — 성공 이벤트 지연을 실제 MethodChannel로 재현</h3>
+<p>기존 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/test/core/utils/main_initializer_test.dart"><code>picnic_lib/test/core/utils/main_initializer_test.dart:11</code></a>는 testWidgets·Completer·tester.pump로 시간 경계를 검증하고, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform_test.dart"><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform_test.dart:48</code></a>는 실제 production preflight의 선행 작업 완료를 검사한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_platform_test.dart"><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_platform_test.dart:18</code></a>도 구현을 복제한 mirror 테스트를 피하도록 설명한다.</p>
+<p><strong>새 경로:</strong> <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform_test.dart</code>, <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib/test/core/utils/tapjoy_session_test.dart</code>. 새 production 파일 <code>picnic_lib/lib/core/utils/tapjoy_session.dart</code>에 <code>Future&lt;void&gt; setTapjoyUserIdAndWait(String userId, {Duration timeout = const Duration(seconds: 10)})</code>를 두고, 실제 TapjoyPlatform._setupTapjoyUser가 이 함수를 호출하게 한다. 이름과 timeout은 이 계획의 제안값이며 SDK 보장 시간이 아니다.</p>
+<p><strong>RED 준비:</strong> 기존 setUserID 호출을 위 함수로 동작 변경 없이 옮겨 원래의 “채널 반환만 await”를 남긴 다음 아래 테스트를 실행한다. 현재 동작은 성공 이벤트 없이 requested=true가 되므로 실패해야 한다. 이후 성공 콜백 Completer·실패/timeout 전파를 적용해 GREEN을 확인한다. 새 helper 부재로 인한 컴파일 실패를 RED로 인정하지 않는다.</p>
+<pre><code>import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/utils/tapjoy_session.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('tapjoy_offerwall');
+  const uid = '00000000-0000-0000-0000-000000000001';
+
+  testWidgets('native method return cannot unlock placement before success',
+      (tester) async {
+    final calls = &lt;String&gt;[];
+    final messenger =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call.method);
+      if (call.method == 'getUserID') return uid;
+      return null; // Android result.success(null)을 즉시 재현.
+    });
+    addTearDown(() =&gt; messenger.setMockMethodCallHandler(channel, null));
+
+    var requested = false;
+    final pending = setTapjoyUserIdAndWait(uid).then((_) {
+      requested = true; // 실제 showAd에서도 이 완료 이후 requestContent를 호출.
+    });
+    await tester.pump();
+    expect(calls, contains('setUserID'));
+    expect(requested, isFalse);
+
+    final delivered = Completer&lt;void&gt;();
+    messenger.handlePlatformMessage(
+      'tapjoy_offerwall',
+      const StandardMethodCodec().encodeMethodCall(
+        const MethodCall('TapjoyOnSetUserIDSuccess'),
+      ),
+      (_) =&gt; delivered.complete(),
+    );
+    await delivered.future;
+    await tester.pump();
+    await pending;
+    expect(requested, isTrue);
+  });
+}</code></pre>
+<table><thead><tr><th>시나리오</th><th>필수 검증</th></tr></thead><tbody>
+<tr><td>setUserID 메서드 Future 즉시 완료, 성공 이벤트 지연</td><td>성공 전 getPlacement/requestContent/showContent 0회, 성공 후 올바른 UUID로 1회.</td></tr>
+<tr><td>setUserID 실패 이벤트 / 10초 timeout / 채널 예외</td><td>호출 Future 실패, requestContent 0회. 애니메이션 해제만 하고 진행하면 실패.</td></tr>
+<tr><td>connect 반환 즉시 완료, 성공 이벤트 지연</td><td>SDK 준비 상태는 pending. onConnectSuccess 이전에 setUserID·requestContent 없음. 실패하면 ready를 캐시하지 않는다.</td></tr>
+<tr><td>Auth 복원보다 connect가 빠름</td><td>사용자 없음 상태로 오퍼월 차단, Auth 완료 후 캡처한 UUID의 설정 성공을 확인하고 해제. 앱 시작 전체가 SDK 때문에 무한 대기하지 않음.</td></tr>
+<tr><td>로그아웃/계정 변경·dispose·중복 탭·늦은 이벤트</td><td>옛 계정·옛 시도의 성공/콘텐츠 이벤트가 다음 오퍼월을 열지 않음. 단일 SDK 리스너를 병렬 덮어쓰지 않음.</td></tr>
+<tr><td>정상 재실행/복귀</td><td>실제 UUID 동기화 재확인 후 미션 콘텐츠 표시. 타 광고 플랫폼 동작과 non-auth startup timeout 유지.</td></tr>
+</tbody></table>
+<p>helper 단위 테스트만으로 실제 showAd 배선을 증명하지 않는다. TapjoyPlatform의 production 준비 경계에 테스트용 SDK/요청 함수 주입을 허용하거나 실제 Widget harness를 구성하여 requestContent 호출 배열까지 검사한다. 메서드 body 문자열 검색 테스트로 대체하지 않는다. 연결·사용자 설정 후 실패한 콜백이 전역 슬롯을 덮는 문제는 별도 동시성 케이스로 검증한다.</p>
+<pre><code>cd /Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_lib
+flutter test test/core/utils/tapjoy_session_test.dart \
+  test/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform_test.dart \
+  test/core/utils/main_initializer_test.dart
+flutter analyze lib/core/utils/tapjoy_session.dart \
+  lib/core/utils/app_initializer.dart \
+  lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart</code></pre>
+<p>Android 실기기 재현은 구현 후 테스트 환경에서 진행한다. 신규 실행에서 setUserID 성공을 지연/실패시키고 오퍼월이 열리지 않는지, 성공 후 SDK getUserID가 Picnic UUID인지 확인한다. 실사용자의 기기 ID를 임의 추출하거나 프로덕션 지급 콜백을 재생하지 않는다.</p>
+
+<h2 id="deploy">6. 배포 경로, 선후관계, 독립성</h2>
+<h3>서버: picnic-supabase에서 callback-tapjoy만</h3>
+<p><a href="/Users/charlie.hyun/Repositories/picnic-supabase/CLAUDE.md"><code>CLAUDE.md:55</code></a>의 일반 명령은 <code>supabase functions deploy &lt;function-name&gt;</code>이다. 다만 현행 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/config.toml"><code>supabase/config.toml:1</code></a>은 local-only <code>project_id="picnic-local"</code>이며 프로덕션 ref가 아니다. :39–40의 callback-tapjoy <code>verify_jwt=false</code>를 유지해야 외부 콜백이 진입한다.</p>
+<p>프로덕션 예제는 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/.github/workflows/wallet-production-rollout.yml"><code>.github/workflows/wallet-production-rollout.yml:44</code></a>의 보호된 environment와 <code>PICNIC_PRODUCTION_SUPABASE_PROJECT_REF</code>·<code>SUPABASE_ACCESS_TOKEN</code>, :91의 명시적 <code>--project-ref</code>다. 현재 wallet 배포 allowlist(<a href="/Users/charlie.hyun/Repositories/picnic-supabase/ops/wallet/cotton-candy-v1-functions.txt"><code>ops/wallet/cotton-candy-v1-functions.txt:1</code></a>)에는 Tapjoy가 없고 그 workflow는 DB migration도 실행하므로 이 티켓을 위해 전체 wallet rollout을 실행하면 안 된다. Tapjoy 전용 자동 배포 workflow는 이 조사에서 찾지 못했다.</p>
+<pre><code># 향후 명시적 배포 승인과 대상 소스 검증 후, picnic-supabase checkout에서:
+cd /Users/charlie.hyun/Repositories/picnic-supabase
+supabase functions deploy callback-tapjoy --project-ref xtijtefcycoeqludlngc</code></pre>
+<p>위 ref는 코디네이터 제공 프로덕션과 <a href="/Users/charlie.hyun/Repositories/picnic-supabase/CLAUDE.md"><code>CLAUDE.md:200</code></a>의 SUPABASE_URL에 근거한다. 프로젝트 link를 바꿔 local guard를 우회하지 않고 검토된 배포 컨텍스트에서 명시적으로 지정한다. 실제 실행 시 <a href="https://supabase.com/docs/guides/functions/deploy">Supabase 공식 배포 문서</a>와 승인된 운영 절차를 적용한다. 이 계획은 배포 승인을 대신하지 않는다.</p>
+<table><thead><tr><th>환경값</th><th>실제 코드 근거 / 주의</th></tr></thead><tbody>
+<tr><td>SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/base-ad-service.ts"><code>supabase/functions/_shared/ad/base-ad-service.ts:20</code></a> 런타임 클라이언트. 값을 출력하거나 보고서에 복사하지 않는다.</td></tr>
+<tr><td>TAPJOY_SECRET_KEY 또는 플랫폼별 TAPJOY_SECRET_IOS / TAPJOY_SECRET_ANDROID</td><td><a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/callback-tapjoy/index.ts"><code>supabase/functions/callback-tapjoy/index.ts:5</code></a>, <a href="/Users/charlie.hyun/Repositories/picnic-supabase/supabase/functions/_shared/ad/platforms/tapjoy-service.ts"><code>supabase/functions/_shared/ad/platforms/tapjoy-service.ts:14</code></a>. 문서에 나오는 TAPJOY_API_KEY는 해당 verifier 코드가 읽는 이름이 아니다.</td></tr>
+<tr><td>SUPABASE_ACCESS_TOKEN / PICNIC_PRODUCTION_SUPABASE_PROJECT_REF</td><td>배포 실행 환경의 자격·대상 ref. 런타임 광고 서명 키와 다른 용도.</td></tr>
+</tbody></table>
+<p class="note">로컬 main의 shared 모듈을 새로 번들링하면 v101에 없던 다른 변경까지 배포될 수 있다. 특히 현재 BaseAdService.addRewardHistory(:43)는 wallet_credit_bonus를 호출한다. 배포 담당자는 승인된 v101 소스와 이번 번들 의존성 차이를 확인하고 보상 계약의 배포 일치성을 검토해야 한다. 이 워커의 프로덕션 접근 금지 때문에 배포 바이트 일치는 미확인이다.</p>
+<h3>앱: Dart만 바꾸면 Shorebird OTA 대상</h3>
+<p>사용자 공통 Flutter 정책(<code>/Users/charlie.hyun/.config/ai-agent-policies/flutter-release.md</code>)을 전체 읽었다. 이 계획의 Dart 완료 대기·옵션 전달 수정은 기존 네이티브 플러그인을 그대로 사용하므로 OTA 후보이며, 플러그인 업데이트/네이티브 수정이 필요해지면 새 바이너리 대상이다. OTA는 표시 버전·Build number를 유지하고 정확한 기존 release별로 적용한다.</p>
+<p><strong>프로젝트 예외를 우선:</strong> <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_app/scripts/shorebird-patch.sh"><code>picnic_app/scripts/shorebird-patch.sh:4</code></a>는 로컬 프로덕션 patch를 NO-GO로 종료하고 보호된 Codemagic을 지시한다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1128</code></a>의 <code>picnic-app-patch-ios</code> 및 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1303</code></a>의 <code>picnic-app-patch-android</code>가 있으며 exact-SHA 검증(<a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1145</code></a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1320</code></a>) 뒤 Shorebird patch를 수행한다. 따라서 공통 “로컬 OTA” 지침을 그대로 실행하지 않고 이 프로젝트 workflow를 따른다.</p>
+<p>패치 옵션은 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1213</code></a>와 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/codemagic.yaml"><code>codemagic.yaml:1404</code></a>의 ENVIRONMENT/PANGLE_ENVIRONMENT/PAYMENT_ENVIRONMENT=prod를 유지하고, Android는 기존 release의 split-debug-info 설정을 따른다. <code>--allow-native-diffs</code>가 네이티브 변경을 OTA로 전달한다는 뜻은 아니다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/picnic_app/shorebird.yaml"><code>picnic_app/shorebird.yaml:8</code></a>의 app_id를 대상으로, 배포 시점 pubspec 전체 버전·실제 release 존재·플랫폼·stable·rollback 상태를 검증한다. 조사 시점 pubspec 값만으로 실제 배포 버전/패치 가능성을 확정하지 않는다.</p>
+<ol>
+<li><strong>서버 가드 먼저:</strong> 테스트·서명/응답 경계 독립 리뷰 → callback-tapjoy 한정 배포. 기존 앱과 계약 호환이며 이미 쌓인 잘못된 거래의 재시도를 종료할 수 있다.</li>
+<li><strong>앱 완료 대기 다음:</strong> 테스트·Android 실제 이벤트 순서 확인 → 리뷰·승인 → 프로젝트 Codemagic Shorebird patch. 서버 배포와 독립적으로 진행 가능하지만 구형 snuid 거래를 소급 수정하지는 않는다.</li>
+<li><strong>관측:</strong> 첫 403 도착 이후 거래별 재시도 중단 및 정상 UUID 지급 상태를 확인. 과거 정상 보상 누락·UUID 중복 처리 문제는 별도 조사.</li>
+</ol>
+<p>서버만 고치면 DB 오류는 막아도 미래의 잘못된 ID 생성을 막지 못한다. 앱만 고치면 기존 64hex 거래의 서버 재시도가 남을 수 있다. 두 조치는 각각 효과가 있고 함께 적용해야 원인과 증폭을 모두 줄인다.</p>
+
+<h2 id="verify">7. 배포 후 검증 기준과 ClickHouse SQL 초안</h2>
+<p><strong>목표:</strong> 배포 후 24시간 <code>postgres 22P02 = 0</code>, <code>callback-tapjoy hex snuid의 반복 재시도 = 0</code>. 최초 거부 1회와 같은 거래의 추가 재시도를 구별한다. 기존 큐가 첫 403을 받는 동안 hex 요청 총수가 즉시 0이 아닐 수 있다. 최종 관측창은 큐 종료 확인 이후 연속 24시간으로 고정하고, 배포 직후 24시간 값도 함께 보존한다.</p>
+<p>또한 정상 UUID의 성공 지급과 5xx 비율이 악화되지 않아야 한다. 전역 22P02가 타 기능 때문에 남으면 해당 티켓 식별자/64hex 오류 0과 전역 잔여치를 구분해 보고하며, 전역 0이라는 목표를 달성한 것처럼 표기하지 않는다.</p>
+<p><a href="https://supabase.com/docs/guides/observability/advanced-log-filtering">Supabase ClickHouse 쿼리 가이드</a>와 <a href="https://supabase.com/docs/guides/observability/log-field-reference">필드 참조</a>를 사용했다. 공통 <code>logs</code> 테이블, <code>source</code>, 문자열 map <code>log_attributes</code>, <code>timestamp</code>가 기준이다. 오래된 저장소 문서의 BigQuery unnest 쿼리를 재사용하지 않는다. 본 초안은 프로덕션에서 실행하지 않았으므로 필드 값/권한/실행 계획은 미검증이다.</p>
+<h3>7-0. 먼저 스키마·시간 창·로그 유입 확인</h3>
+<p>운영자는 Logs Explorer에서 실제 배포/종료 시각 이후의 정확한 24시간을 선택한다. 아래 모든 쿼리에 동일한 UI 시간 범위를 적용한다. API를 쓰면 동일한 ISO 시작/끝(최대 24시간)을 전달한다. 빈 컬럼·로그 유입 공백을 0건 개선으로 판정하지 않는다.</p>
+<pre><code>SELECT source, count() AS rows_seen,
+       min(timestamp) AS first_seen, max(timestamp) AS last_seen
+FROM logs
+WHERE source IN ('postgres_logs', 'function_edge_logs', 'function_logs')
+GROUP BY source;
+
+SELECT timestamp,
+       log_attributes['function_id'] AS function_id,
+       log_attributes['request.path'] AS path,
+       log_attributes['request.url'] AS url,
+       log_attributes['request.search'] AS search,
+       log_attributes['response.status_code'] AS status
+FROM logs
+WHERE source = 'function_edge_logs'
+  AND (position(log_attributes['request.path'], 'callback-tapjoy') &gt; 0
+       OR log_attributes['function_id'] =
+          '52a7e8f7-356d-44bd-ad24-642fabadd188')
+ORDER BY timestamp DESC
+LIMIT 10;</code></pre>
+<p class="muted">두 번째 쿼리의 URL에는 원시 콜백 파라미터가 있으므로 운영 로그 화면에서만 확인하고 외부 보고서에 그대로 전재하지 않는다. 실제 function_id 키가 비어 있다면 확인된 request.path로만 필터한다.</p>
+<h3>7-1. Postgres 22P02 전체와 티켓 표식</h3>
+<pre><code>SELECT
+  count() AS all_22p02,
+  countIf(
+    position(event_message,
+      '3a1db1ef7c9e117a20a19e513eff7939f31b323c33dd2eb687303879047d2929') &gt; 0
+  ) AS known_tapjoy_snuid_22p02,
+  countIf(
+    position(event_message, 'invalid input syntax for type uuid') &gt; 0
+    AND match(event_message, '[0-9a-fA-F]{64}')
+  ) AS hex64_uuid_22p02
+FROM logs
+WHERE source = 'postgres_logs'
+  AND log_attributes['parsed.sql_state_code'] = '22P02';</code></pre>
+<p>SQLSTATE 필드는 <a href="https://supabase.com/docs/guides/troubleshooting/how-to-interpret-and-explore-the-postgres-logs-OuCIOj">공식 Postgres 로그 설명</a>에 근거한다. message의 64hex 검색은 후보 집계이며 user_profiles 테이블 귀속을 단독 증명하지 않는다. 필요시 edge_logs의 REST 조회와 동일 시간대에 대조한다.</p>
+<h3>7-2. hex snuid 응답별 집계와 반복량</h3>
+<pre><code>WITH callbacks AS (
+  SELECT timestamp,
+         decodeURLComponent(extractURLParameter(
+           log_attributes['request.url'], 'snuid')) AS snuid,
+         extractURLParameter(log_attributes['request.url'], 'id') AS tx,
+         extractURLParameter(log_attributes['request.url'], 'platform') AS platform,
+         toInt32OrZero(log_attributes['response.status_code']) AS status
+  FROM logs
+  WHERE source = 'function_edge_logs'
+    AND position(log_attributes['request.path'], 'callback-tapjoy') &gt; 0
+)
+SELECT platform, status, count() AS requests,
+       uniqExact(snuid) AS snuids, uniqExact(tx) AS transactions
+FROM callbacks
+WHERE match(snuid, '^[0-9a-fA-F]{64}$')
+GROUP BY platform, status
+ORDER BY platform, status;</code></pre>
+<pre><code>WITH callbacks AS (
+  SELECT timestamp,
+         decodeURLComponent(extractURLParameter(
+           log_attributes['request.url'], 'snuid')) AS snuid,
+         extractURLParameter(log_attributes['request.url'], 'id') AS tx,
+         toInt32OrZero(log_attributes['response.status_code']) AS status
+  FROM logs
+  WHERE source = 'function_edge_logs'
+    AND position(log_attributes['request.path'], 'callback-tapjoy') &gt; 0
+)
+SELECT tx, min(timestamp) AS first_seen, max(timestamp) AS last_seen,
+       count() AS attempts,
+       count() - 1 AS repeated_attempts,
+       countIf(status = 403) AS terminal_responses,
+       countIf(status NOT IN (200, 403)) AS retryable_responses
+FROM callbacks
+WHERE match(snuid, '^[0-9a-fA-F]{64}$') AND tx != ''
+GROUP BY tx
+ORDER BY attempts DESC;</code></pre>
+<p>안정된 24시간 창에서 repeated_attempts=0, retryable_responses=0이 목표다. 기존 3개 거래는 첫 403 뒤 더 들어오지 않아야 한다. URL 필드가 비어 있고 search만 있다면 <code>concat('https://local/', log_attributes['request.search'])</code>를 추출 입력으로 대체한 후 샘플 결과를 검증한다.</p>
+<h3>7-3. 403 이후에도 재시도하는 거래 찾기</h3>
+<pre><code>WITH callbacks AS (
+  SELECT timestamp,
+         decodeURLComponent(extractURLParameter(
+           log_attributes['request.url'], 'snuid')) AS snuid,
+         extractURLParameter(log_attributes['request.url'], 'id') AS tx,
+         toInt32OrZero(log_attributes['response.status_code']) AS status
+  FROM logs
+  WHERE source = 'function_edge_logs'
+    AND position(log_attributes['request.path'], 'callback-tapjoy') &gt; 0
+),
+terminals AS (
+  SELECT tx, min(timestamp) AS first_403
+  FROM callbacks
+  WHERE match(snuid, '^[0-9a-fA-F]{64}$') AND status = 403 AND tx != ''
+  GROUP BY tx
+)
+SELECT c.tx, t.first_403, count() AS requests_after_403,
+       max(c.timestamp) AS last_seen
+FROM callbacks AS c
+INNER JOIN terminals AS t ON c.tx = t.tx
+WHERE c.timestamp &gt; t.first_403
+  AND match(c.snuid, '^[0-9a-fA-F]{64}$')
+GROUP BY c.tx, t.first_403
+ORDER BY requests_after_403 DESC;</code></pre>
+<p>기대 결과는 0행. 처음 403이 관측창 밖이면 이 쿼리만으로 판단할 수 없으므로 첫 403이 포함된 배포 초기 창과 이후 24시간 창을 각각 보존한다. 경계 동시 요청·로그 전달 지연이 있으면 실제 응답 전송/5초 제한을 조사하고 window를 임의로 줄여 성공 처리하지 않는다.</p>
+<h3>7-4. 원인별 구조화 로그와 UUID 회귀 확인</h3>
+<pre><code>SELECT JSONExtractString(event_message, 'reason') AS reason,
+       JSONExtractInt(event_message, 'http_status') AS status,
+       count() AS callbacks
+FROM logs
+WHERE source = 'function_logs'
+  AND log_attributes['function_id'] =
+      '52a7e8f7-356d-44bd-ad24-642fabadd188'
+  AND JSONExtractString(event_message, 'event') = 'tapjoy_callback'
+GROUP BY reason, status
+ORDER BY callbacks DESC;
+
+WITH callbacks AS (
+  SELECT decodeURLComponent(extractURLParameter(
+           log_attributes['request.url'], 'snuid')) AS snuid,
+         extractURLParameter(log_attributes['request.url'], 'platform') AS platform,
+         toInt32OrZero(log_attributes['response.status_code']) AS status
+  FROM logs
+  WHERE source = 'function_edge_logs'
+    AND position(log_attributes['request.path'], 'callback-tapjoy') &gt; 0
+)
+SELECT platform, status, count() AS callbacks
+FROM callbacks
+WHERE match(snuid,
+  '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+GROUP BY platform, status
+ORDER BY platform, status;</code></pre>
+<p>구조화 로그 쿼리는 console.log(JSON.stringify(...))가 event_message에 JSON만 기록되는지를 샘플로 확인한 뒤 사용한다. runtime이 prefix를 붙이면 파서 입력을 그 형식에 맞춘다. UUID 400의 감소만으로 정상 지급이 늘었다고 결론내리지 않고 지급 성공 로그/거래 결과와 교차 확인한다.</p>
+
+<h2 id="handoff">인계 체크리스트</h2>
+<ul>
+<li>☐ 서버 재현 테스트에서 현재 400·DB 조회 1회를 확인하고 guard 적용 뒤 403·DB 0회로 전환.</li>
+<li>☐ 앱 테스트에서 MethodChannel 반환과 SDK 성공을 분리하여 기존 경합을 재현.</li>
+<li>☐ TapjoyService 응답을 사유별로 분류; DB/설정 장애를 403으로 영구 폐기하지 않음.</li>
+<li>☐ 서명·보상 경계 변경은 독립 리뷰; UUID 중복 ACK 확대는 별도 결정.</li>
+<li>☐ 서버 배포 번들의 shared 의존성과 v101 차이, 실제 runtime secrets 존재, 배포 ref 확인.</li>
+<li>☐ 프로젝트 OTA 예외와 exact-SHA 보호 workflow 확인 후 대상별 승인.</li>
+<li>☐ 배포 후 24시간 오류·재시도 목표와 정상 지급 회귀를 로그로 검증.</li>
+</ul>
+<p><strong>미확인 목록:</strong> 64hex 생성 알고리즘·입력, 문제 단말의 앱/SDK 버전과 최초 오퍼월 진입, 샘플 콜백 MD5 유효성, Tapjoy 대시보드 설정, v101 전체 번들과 로컬 main의 일치, UUID 400의 세부 원인, 실제 프로덕션 secrets/배포 release, SQL 초안의 실환경 실행 결과. 이 항목을 사실로 승격하지 않는다.</p>
+<p class="muted">작성 방식: Superpowers systematic-debugging·writing-plans·verification-before-completion 및 Supabase 지침을 적용했다. 조사는 소스·공식 문서 교차 확인까지이며 구현·테스트 실행·커밋·배포는 하지 않았다. 최종 전달 경로: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476/docs/operations/picnic-2682-root-cause-plan.html</code>.</p>
+</body></html>

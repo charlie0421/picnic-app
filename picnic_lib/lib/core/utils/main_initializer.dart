@@ -242,6 +242,17 @@ class MainInitializer {
     );
     logger.i('SDK Group 2 splash gate 완료 (Auth + bounded non-auth)');
 
+    // PICNIC-2682: Auth 와 Tapjoy connect 는 위에서 병렬로 시작하므로 어느 쪽이
+    // 먼저 끝날지 보장이 없다. 둘 다 끝난 지금 SDK 사용자 ID 를 한 번 맞춰 둔다.
+    // best-effort 이며(실패해도 앱 시작을 막지 않는다) 오퍼월 진입에서 다시
+    // 확인한다.
+    unawaited(
+      _runBestEffortStartupStage(
+        'tapjoy-user-sync',
+        AppInitializer.syncTapjoyUserAfterAuth,
+      ),
+    );
+
     // Analytics 사용자 속성 설정 (Auth 완료 후).
     //
     // 여기서는 사용자 속성만 세팅하고 login 이벤트는 보내지 않는다.
