@@ -154,6 +154,7 @@ double _textHeight(
 final class _RightMeasurement {
   const _RightMeasurement({
     required this.general,
+    required this.generalNoHint,
     required this.jma,
     required this.combined,
     required this.controlling,
@@ -161,6 +162,7 @@ final class _RightMeasurement {
   });
 
   final double general;
+  final double generalNoHint;
   final double jma;
   final double combined;
   final String controlling;
@@ -168,6 +170,7 @@ final class _RightMeasurement {
 
   Map<String, Object> toJson() => <String, Object>{
     'general': _round(general),
+    'generalNoHint': _round(generalNoHint),
     'jma': _round(jma),
     'combined': _round(combined),
     'controlling': controlling,
@@ -219,6 +222,12 @@ _RightMeasurement _measureRight(
       PicnicUi.minimumTapTarget +
       h(24) * 2 +
       math.max(editableWidth, hintWidth);
+  // PICNIC-2697: the hint is a placeholder ("입력"); at a large scale in a long
+  // locale it, not the digits, decides the field's minimum width. Measure the
+  // digits-only variant too, so the design can tell an accidental constraint
+  // from a real one.
+  final generalInputNoHint =
+      2 + h(4) + PicnicUi.minimumTapTarget + h(24) * 2 + editableWidth;
   final jmaInput =
       4 + h(4) + PicnicUi.minimumTapTarget + h(24) * 2 + editableWidth;
 
@@ -253,12 +262,17 @@ _RightMeasurement _measureRight(
     'generalCheck': generalCheck,
     'jmaCheck': jmaCheck,
     'generalInput': generalInput,
+    'generalInputNoHint': generalInputNoHint,
     'jmaInput': jmaInput,
     'generalButton': generalButton,
     'jmaActiveButton': jmaActiveButton,
     'jmaHint': jmaHint,
   };
   final general = math.max(generalCheck, math.max(generalInput, generalButton));
+  final generalNoHint = math.max(
+    generalCheck,
+    math.max(generalInputNoHint, generalButton),
+  );
   final jma = <double>[
     jmaCheck,
     jmaInput,
@@ -270,6 +284,7 @@ _RightMeasurement _measureRight(
       .reduce((left, right) => left.value >= right.value ? left : right)
       .key;
   return _RightMeasurement(
+    generalNoHint: generalNoHint,
     general: general,
     jma: jma,
     combined: combined,
@@ -501,8 +516,25 @@ Map<String, double> _measureCards({
       largePopupCardBorderWidth() * 2 +
       horizontalPadding * 2 +
       math.max(left.generalFloor + right.general, left.jmaFloor + right.jma);
+  // PICNIC-2697: JMA is out of scope for now, so the general dialog alone
+  // decides the two-column minimum. Kept beside the combined figure so the
+  // two can be compared without re-running with a different harness.
+  final generalOnlyFixed =
+      largePopupCardBorderWidth() * 2 +
+      horizontalPadding * 2 +
+      left.generalFloor +
+      right.general;
   return <String, double>{
     for (final gap in _columnGaps) '${gap.toInt()}': fixed + gap,
+    for (final gap in _columnGaps)
+      'general${gap.toInt()}': generalOnlyFixed + gap,
+    for (final gap in _columnGaps)
+      'generalNoHint${gap.toInt()}':
+          largePopupCardBorderWidth() * 2 +
+          horizontalPadding * 2 +
+          left.generalFloor +
+          right.generalNoHint +
+          gap,
   };
 }
 
@@ -973,6 +1005,10 @@ void main() {
       'inheritedTwoLineShortGap16': 0,
       'localOneLineShortGap16': 0,
       'localTwoLineLongGap16': 0,
+      'generalOnlyTwoLineShortGap16': 0,
+      'generalOnlyTwoLineLongGap16': 0,
+      'generalOnlyOneLineShortGap16': 0,
+      'generalNoHintTwoLineShortGap16': 0,
     };
     _emit('WIDTH_SCHEMA', <String, Object>{
       'r': <String>[
@@ -1131,6 +1167,29 @@ void main() {
                 summary['localTwoLineLongGap16']!,
                 longCards['16']!,
               );
+            }
+
+            // PICNIC-2697: JMA is out of scope for now. Track the same three
+            // figures for the general dialog alone, so the two-column minimum
+            // can be read without the JMA panels that dominate it.
+            if (geometry == _HorizontalGeometry.local) {
+              final generalKey = lines == 2
+                  ? 'generalOnlyTwoLineShortGap16'
+                  : 'generalOnlyOneLineShortGap16';
+              summary[generalKey] = math.max(
+                summary[generalKey]!,
+                shortCards['general16']!,
+              );
+              if (lines == 2) {
+                summary['generalOnlyTwoLineLongGap16'] = math.max(
+                  summary['generalOnlyTwoLineLongGap16']!,
+                  longCards['general16']!,
+                );
+                summary['generalNoHintTwoLineShortGap16'] = math.max(
+                  summary['generalNoHintTwoLineShortGap16']!,
+                  shortCards['generalNoHint16']!,
+                );
+              }
             }
           }
         }
