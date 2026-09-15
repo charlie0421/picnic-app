@@ -25,6 +25,15 @@ import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 /// a new constant, not one of the design sizes.
 const double kVoteDialogMaxWidth = 560;
 
+/// The wider cap is considered only for the general dialog's two-column
+/// candidate. The one-column path continues to use [kVoteDialogMaxWidth].
+const double kVoteDialogColumnsMaxWidth = 800;
+
+/// Local logical-pixel geometry for the two-column candidate.
+const double kVoteDialogColumnGap = 16;
+const double kVoteDialogColumnsHorizontalPadding = 16;
+const double kVoteDialogColumnsVerticalPadding = 16;
+
 /// How the popup body arranges its bands inside the height the route left it.
 enum VoteDialogLayoutMode {
   /// The action group (use all + amount input + submit) is laid out first and
@@ -179,6 +188,192 @@ class VoteDialogShape {
   final BorderRadius cardBorderRadius;
 }
 
+/// A fully resolved two-column candidate.
+///
+/// It is deliberately immutable and derived only from the route constraints,
+/// neutral content measurements and current text/locale metrics. Input value,
+/// validation and loading state never feed back into this result.
+class VoteDialogColumnsLayout {
+  const VoteDialogColumnsLayout({
+    required this.cardWidth,
+    required this.bodyHeight,
+    required this.leftWidth,
+    required this.rightWidth,
+    required this.topInset,
+    required this.bottomInset,
+    required this.showTopClose,
+    required this.shape,
+  });
+
+  final double cardWidth;
+  final double bodyHeight;
+  final double leftWidth;
+  final double rightWidth;
+  final double topInset;
+  final double bottomInset;
+  final bool showTopClose;
+  final VoteDialogShape shape;
+}
+
+/// Resolves the general dialog's optional two-column presentation.
+///
+/// This contains no orientation, aspect-ratio or device branch. Columns are
+/// selected only when the neutral one-column candidate is under vertical
+/// pressure, the uncapped route width can hold both measured columns, and the
+/// actual column heights fit. The visible-close candidate is tried first; the
+/// hidden-close candidate is used only when the extra 24px chrome does not fit.
+VoteDialogColumnsLayout? resolveVoteDialogColumnsLayout({
+  required double routeAvailableWidth,
+  required double popupAvailableHeight,
+  required double singleEssentialHeight,
+  required double singleDecorationComfortHeight,
+  required double singleTailLogoHeight,
+  required double singleHorizontalContentInset,
+  required double Function() leftMinimumWidth,
+  required double Function() rightMinimumWidth,
+  required double Function(double width) leftMinimumHeightForWidth,
+  required double Function(double width) rightMinimumHeightForWidth,
+  required bool keyboardVisible,
+}) {
+  if (keyboardVisible ||
+      !routeAvailableWidth.isFinite ||
+      !popupAvailableHeight.isFinite ||
+      routeAvailableWidth <= 0 ||
+      popupAvailableHeight <= 0) {
+    return null;
+  }
+
+  final singleWidth = math.min(routeAvailableWidth, resolveVoteDialogWidth());
+  if (singleWidth <= 0) return null;
+
+  final singleCanShowTopClose =
+      popupAvailableHeight - largePopupTopCloseChromeHeight() >=
+      singleEssentialHeight + singleDecorationComfortHeight;
+  final singleBodyHeight = math.max(
+    0.0,
+    popupAvailableHeight -
+        (singleCanShowTopClose
+            ? largePopupTopCloseChromeHeight()
+            : largePopupHiddenChromeHeight()),
+  );
+  final singleRadius = voteDialogCardRadius(singleBodyHeight);
+  final singleCornerClearance = voteDialogCornerClearance(
+    radius: singleRadius,
+    horizontalInset: singleHorizontalContentInset,
+  );
+  final singleIsUnderPressure =
+      singleEssentialHeight + singleCornerClearance > singleBodyHeight ||
+      singleEssentialHeight +
+              singleDecorationComfortHeight +
+              singleTailLogoHeight >
+          singleBodyHeight;
+  if (!singleIsUnderPressure) return null;
+
+  final resolvedLeftMinimumWidth = leftMinimumWidth();
+  final resolvedRightMinimumWidth = rightMinimumWidth();
+  final cardWidth = math.min(routeAvailableWidth, kVoteDialogColumnsMaxWidth);
+  final fixedHorizontal =
+      largePopupCardBorderWidth() * 2 +
+      kVoteDialogColumnsHorizontalPadding * 2 +
+      kVoteDialogColumnGap;
+  final columnSpace = cardWidth - fixedHorizontal;
+  if (columnSpace < resolvedLeftMinimumWidth + resolvedRightMinimumWidth) {
+    return null;
+  }
+
+  final leftUpperBound = columnSpace - resolvedRightMinimumWidth;
+  final leftWidth = (columnSpace * 0.4)
+      .clamp(resolvedLeftMinimumWidth, leftUpperBound)
+      .toDouble();
+  final rightWidth = columnSpace - leftWidth;
+
+  VoteDialogColumnsLayout? candidate({
+    required bool showTopClose,
+    bool allowRadiusClamp = false,
+  }) {
+    final bodyHeight = math.max(
+      0.0,
+      popupAvailableHeight -
+          (showTopClose
+              ? largePopupTopCloseChromeHeight()
+              : largePopupHiddenChromeHeight()),
+    );
+    if (bodyHeight <= 0) return null;
+
+    final horizontalInset =
+        largePopupCardBorderWidth() + kVoteDialogColumnsHorizontalPadding;
+    final preferredRadius = voteDialogCardRadius(bodyHeight);
+    final cornerClearance = voteDialogCornerClearance(
+      radius: preferredRadius,
+      horizontalInset: horizontalInset,
+    );
+    final topInset = math.max(
+      kVoteDialogColumnsVerticalPadding,
+      cornerClearance,
+    );
+    final bottomInset = math.max(
+      kVoteDialogColumnsVerticalPadding,
+      cornerClearance,
+    );
+    final leftHeight = leftMinimumHeightForWidth(leftWidth);
+    final rightHeight = rightMinimumHeightForWidth(rightWidth);
+    final columnHeight = math.max(leftHeight, rightHeight);
+    final requiredHeight = topInset + columnHeight + bottomInset;
+    if (columnHeight + kVoteDialogColumnsVerticalPadding * 2 > bodyHeight) {
+      return null;
+    }
+    if (!allowRadiusClamp && requiredHeight > bodyHeight) return null;
+
+    // resolveVoteDialogShape performs the authoritative radius/mode solve. Its
+    // internal corner clearance plus this essential value equals the
+    // symmetric top/bottom clearance checked above. If neither chrome variant
+    // can keep the preferred radius, the hidden-close candidate may accept
+    // the solver's smaller radius rather than clip a control.
+    final shape = resolveVoteDialogShape(
+      bodyHeight: bodyHeight,
+      essentialHeight: columnHeight + topInset + bottomInset - cornerClearance,
+      horizontalContentInset: horizontalInset,
+    );
+    if (!allowRadiusClamp && shape.mode != VoteDialogLayoutMode.actionsPinned) {
+      return null;
+    }
+
+    final resolvedRadius = shape.cardBorderRadius.topLeft.x;
+    final resolvedTopInset = math.max(
+      kVoteDialogColumnsVerticalPadding,
+      voteDialogCornerClearance(
+        radius: resolvedRadius,
+        horizontalInset: horizontalInset,
+      ),
+    );
+    final resolvedBottomInset = math.max(
+      kVoteDialogColumnsVerticalPadding,
+      voteDialogCornerClearance(
+        radius: resolvedRadius,
+        horizontalInset: horizontalInset,
+      ),
+    );
+    if (resolvedTopInset + columnHeight + resolvedBottomInset > bodyHeight) {
+      return null;
+    }
+
+    return VoteDialogColumnsLayout(
+      cardWidth: cardWidth,
+      bodyHeight: bodyHeight,
+      leftWidth: leftWidth,
+      rightWidth: rightWidth,
+      topInset: resolvedTopInset,
+      bottomInset: resolvedBottomInset,
+      showTopClose: showTopClose,
+      shape: shape,
+    );
+  }
+
+  return candidate(showTopClose: true) ??
+      candidate(showTopClose: false) ??
+      candidate(showTopClose: false, allowRadiusClamp: true);
+}
+
 VoteDialogShape resolveVoteDialogShape({
   required double bodyHeight,
   required double essentialHeight,
@@ -283,6 +478,76 @@ class VoteDialogBands extends StatelessWidget {
         submit,
         tail,
       ],
+    );
+  }
+}
+
+/// Two independently scrolling columns with the critical content first.
+///
+/// The caller measures the identity/balance block and the complete action
+/// block before selecting this widget, so all of those controls are visible at
+/// offset zero. Optional details may continue below them inside their own
+/// column without changing the other column's geometry.
+class VoteDialogColumns extends StatelessWidget {
+  const VoteDialogColumns({
+    super.key,
+    required this.layout,
+    required this.left,
+    required this.right,
+    this.renderedBodyHeight,
+  });
+
+  final VoteDialogColumnsLayout layout;
+  final Widget left;
+  final Widget right;
+
+  /// The height the route is handing the body *this* frame, when that is less
+  /// than the height the candidate was resolved against.
+  ///
+  /// [VoteDialogColumnsLayout.bodyHeight] is resolved above `AlertDialog`,
+  /// which then applies `viewInsets + insetPadding` through an
+  /// `AnimatedPadding` with a 100ms curve. The two agree at rest and disagree
+  /// for the frames right after the keyboard closes, the window rotates, or
+  /// the popup switches between one and two columns: there the real constraint
+  /// is the *smaller* one, and a body pinned to the resolved budget overflowed
+  /// the popup's own `Column` by up to 248px.
+  ///
+  /// Only what is painted yields. The selection keeps using the neutral budget,
+  /// so the rendered height never feeds back into how many columns were chosen.
+  final double? renderedBodyHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final bodyHeight = math.min(
+      layout.bodyHeight,
+      renderedBodyHeight ?? layout.bodyHeight,
+    );
+    return SizedBox(
+      height: bodyHeight,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          kVoteDialogColumnsHorizontalPadding,
+          layout.topInset,
+          kVoteDialogColumnsHorizontalPadding,
+          layout.bottomInset,
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: layout.leftWidth,
+              height: double.infinity,
+              child: SingleChildScrollView(child: left),
+            ),
+            const SizedBox(width: kVoteDialogColumnGap),
+            SizedBox(
+              width: layout.rightWidth,
+              height: double.infinity,
+              child: SingleChildScrollView(child: right),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

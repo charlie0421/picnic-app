@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2697 일반 투표 팝업 조건부 2단 배치 구현 결과</title>
+  <style>
+    :root { color-scheme: light; --ink:#172033; --muted:#5d6778; --line:#d8deea; --bg:#f5f7fb; --card:#fff; --accent:#4b56d2; --good:#177245; --warn:#945c00; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",sans-serif; line-height:1.62; }
+    main { max-width:1080px; margin:0 auto; padding:36px 22px 64px; }
+    header, section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px; margin-bottom:18px; }
+    h1 { margin:0 0 8px; font-size:30px; line-height:1.25; }
+    h2 { margin:0 0 14px; font-size:22px; }
+    h3 { margin:22px 0 8px; font-size:17px; }
+    p { margin:8px 0; }
+    .muted { color:var(--muted); }
+    .summary { border-left:5px solid var(--accent); padding:12px 16px; background:#f0f2ff; }
+    .good { color:var(--good); font-weight:700; }
+    .warn { color:var(--warn); font-weight:700; }
+    code, pre { font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    code { background:#f0f2f6; padding:1px 5px; border-radius:4px; }
+    pre { margin:12px 0; padding:16px; overflow:auto; background:#141a27; color:#eaf0ff; border-radius:9px; line-height:1.5; }
+    pre code { background:transparent; padding:0; }
+    table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+    th, td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { background:#eef1f7; }
+    ul { margin:8px 0; padding-left:22px; }
+    .metric { display:inline-block; margin:4px 8px 4px 0; padding:5px 10px; border-radius:999px; background:#eef1ff; font-weight:650; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="muted">2026-09-15 · 브랜치 <code>feat/vote-dialog-landscape-columns</code></p>
+    <h1>PICNIC-2697 — 일반 투표 팝업 조건부 2단 배치</h1>
+    <div class="summary">
+      <p><strong>결과:</strong> 키보드가 없고, 중립 상태의 기존 1단이 장식 축소 또는 스크롤 압박을 받으며, 실제 좌·우 열 최소 폭과 반경 안전 높이가 모두 들어갈 때만 2단을 선택한다. 그 밖의 경우는 기존 560 상한의 1단으로 폴백한다.</p>
+      <p><span class="metric">신규 테스트 198개 통과</span><span class="metric">필수 테스트 795개 통과</span><span class="metric">2단 3개 뷰포트·34개 조합</span><span class="metric">JMA 소스 diff 0</span></p>
+    </div>
+  </header>
+
+  <section>
+    <h2>1. 구현 범위</h2>
+    <ul>
+      <li><code>voting_dialog_layout.dart</code>: 중립 1단 압박 판정, 실제 텍스트 기반 열 최소 폭·높이 적합성, 2단 전용 800 상한과 16 간격, 닫기 chrome 및 RRect 반경 안전 여백을 해석한다.</li>
+      <li><code>voting_dialog.dart</code>: 560 cap 바깥의 <code>LayoutBuilder</code>에서 라우트 가용 폭을 얻고, 일반 <code>VotingDialog</code>에만 좌열(초상화·이름·잔액)과 우열(전체 사용·입력·피드백·버튼)을 구성한다.</li>
+      <li><code>voting_dialog_widgets.dart</code>: 기존 생성자 호환을 유지한 선택적 <code>columns</code> 표현과 TextPainter 기반 최대 2줄 최소 폭/높이 측정을 추가했다. 입력은 1줄이며, 힌트는 최소 폭 계산에서 제외했다.</li>
+      <li>투표 수량·전체 사용 계산, 지갑 계산, 분석 이벤트, 요청/인증 로직은 변경하지 않았다. 네이티브·플러그인·에셋·<code>pubspec</code> 변경도 없다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>2. 최종 전환 조건</h2>
+    <pre><code>if (viewInsets.bottom &gt; 0) return oneColumn;
+
+singleWidth = min(routeAvailableWidth, 560);
+single = measureNeutralSingle(singleWidth); // 입력값·활성·로딩 무관
+singleUnderPressure =
+    single.essentialHeight + single.cornerClearance &gt; single.bodyHeight ||
+    single.essentialHeight + single.identityBalanceComfortHeight +
+        single.tailLogoHeight &gt; single.bodyHeight;
+if (!singleUnderPressure) return oneColumn;
+
+columnsWidth = min(routeAvailableWidth, 800);
+if (leftMinWidth + 16 + rightMinWidth + paddingAndBorders &gt; columnsWidth) {
+  return oneColumn;
+}
+
+// 실제 열 폭에서 이름·라벨 최대 2줄과 입력 1줄 높이를 다시 잰다.
+// 위쪽 닫기 표시 후보 → 숨김 후보 → 숨김+shape 반경 축소 후보 순서.
+for (candidate in closeCandidates) {
+  shape = resolveVoteDialogShape(candidate.bodyHeight, measuredColumnHeight);
+  safeInset = max(16, cornerClearance(shape.actualRadius));
+  if (safeInset + max(leftHeight, rightHeight) + safeInset
+      &lt;= candidate.bodyHeight) return twoColumns(candidate, shape);
+}
+return oneColumn;</code></pre>
+    <p>방향, 화면비, 기기명, 특정 viewport 크기는 프로덕션 선택식에 들어가지 않는다. 열 수와 라우트 여백은 오류가 표시될 수 있는 중립 높이를 예약해 빈 입력 → 유효 입력 → 오류 입력에서도 바뀌지 않는다. 열 경계는 렌더 결과를 다음 프레임 입력으로 되먹이지 않는 순수 제약 계산이므로 진동을 만들지 않는다.</p>
+  </section>
+
+  <section>
+    <h2>3. 2단 배치와 닫기 기하</h2>
+    <ul>
+      <li>카드 폭은 2단 후보에서만 <code>min(routeAvailableWidth, 800)</code>이다. 851 폭 표본은 실제 라우트 가용 폭인 약 781.71, 926 이상 표본은 800으로 제한된다. 1단의 560 상한은 유지된다.</li>
+      <li>두 열 간격은 16이고 40:60을 출발점으로 실제 최소 폭에 맞춰 clamp한다. 두 열은 같은 body 높이를 사용하되 서로 독립적으로 스크롤한다.</li>
+      <li>좌열 상단의 초상화·이름과 잔액, 우열의 전체 사용·입력·투표 버튼은 스크롤 offset 0에서 모두 캡슐과 모든 스크롤 viewport 안에 있고 hit-test 가능해야 2단 후보가 채택된다.</li>
+      <li>상수 120을 직접 사용하지 않고 <code>resolveVoteDialogShape</code>가 결정한 실제 반경으로 위·아래 여백을 대칭 계산한다. 이 여백으로 좌열의 48 충전 타깃과 우열 상·하단 조작부가 RRect 모서리에 잘리지 않는다.</li>
+      <li>851×393/ko/1.0은 위쪽 닫기가 표시되고, 851×270/ko/1.0은 높이 적합성 때문에 닫기 strip이 숨겨진 2단을 사용한다. 두 경우 모두 충전 타깃과 닫기 hit 영역이 겹치지 않는다.</li>
+      <li>닫기가 숨겨진 경우 사용자 탈출구는 기존과 동일하게 배리어 탭과 시스템 뒤로가기뿐이다. 투표 진행 중에는 기존 <code>PopScope</code> 가드가 두 경로를 차단한다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>4. 테스트 매트릭스</h2>
+    <table>
+      <thead><tr><th>범위</th><th>표본</th><th>검증</th><th>결과</th></tr></thead>
+      <tbody>
+        <tr><td>필수 행렬</td><td>8 viewport × 3 배율 × 4 locale(ko/en/th/my) × 키보드 0/280 = 192</td><td>열 선택, 560/800 상한, offset 0, hit test, 겹침, 모든 scroll viewport 포함, RRect clip, RenderFlex 예외</td><td class="good">192 통과</td></tr>
+        <tr><td>2단 선택</td><td>851×393, 926×428, 844×390의 K0</td><td>36개 후보 중 실제 높이가 부족한 851·844의 th/2.0 두 건만 1단 폴백</td><td class="good">3개 viewport, 34개 조합</td></tr>
+        <tr><td>키보드</td><td>행렬의 K280 96개</td><td>모두 기존 1단, 560 상한 및 기존 scroll 도달성</td><td class="good">96개 모두 1단</td></tr>
+        <tr><td>안정성</td><td>851×393, my/2.0</td><td>빈 입력 → 값 입력 → 오류 입력의 카드 Rect·열 수·수평 밴드 불변</td><td class="good">통과</td></tr>
+        <tr><td>힌트 독립</td><td>851×393, my/2.0</td><td>550px를 요구하던 버마어 힌트를 최소 폭에서 제외하고 편집 숫자 1줄 유지</td><td class="good">통과</td></tr>
+        <tr><td>닫기 두 상태</td><td>851×393, 851×270</td><td>표시/숨김, 48 hit target, 충전과 비겹침, 캡슐 RRect</td><td class="good">통과</td></tr>
+        <tr><td>장잔액</td><td>30자리 잔액</td><td>중립 예약 폭을 바꾸지 않고 1줄 ellipsis, 좌열/충전 타깃 overflow 없음</td><td class="good">통과</td></tr>
+        <tr><td>JMA 대조</td><td>4 locale × 3 배율 × 키보드 0/280 = 24</td><td>항상 기존 560 상한, 예외 없음</td><td class="good">24개 표본 통과</td></tr>
+      </tbody>
+    </table>
+    <p>신규 파일은 행렬 192개와 전용 회귀 6개로 총 198개다. Thai/2.0의 측정된 우열 높이 340.56은 851×393 및 844×390의 반경 안전 body에 들어가지 않으므로, “실제 열 높이를 수용할 때만”이라는 승인 조건에 따라 1단 폴백한다. 926×428에서는 같은 조합이 2단으로 열린다.</p>
+  </section>
+
+  <section>
+    <h2>5. RED 및 역변이 검증</h2>
+    <table>
+      <thead><tr><th>되돌리거나 깨뜨린 동작</th><th>관측한 RED</th><th>최종 GREEN</th></tr></thead>
+      <tbody>
+        <tr><td>구현 전 560 단일 열</td><td>851×393의 카드가 560이라 신규 2단 기대 실패</td><td>조건 충족 시 781.71</td></tr>
+        <tr><td>열 선택기를 강제로 비활성화</td><td>my/2.0 카드 기대 &gt;560.5, 실제 560</td><td>선택기 복원 후 통과</td></tr>
+        <tr><td>입력 힌트를 우열 최소 폭에 다시 포함</td><td>my/2.0 2단 선택 실패</td><td>편집 숫자 fixture만 최소 폭에 포함해 통과</td></tr>
+        <tr><td>키보드 명시 폴백 제거</td><td>1194×834, my/2.0, K280이 2단으로 바뀌어 1단 계약 실패</td><td><code>keyboardVisible</code> guard 복원 후 통과</td></tr>
+        <tr><td>실제 반경 clearance를 16 고정 여백으로 대체</td><td>신규 스위트 33건 실패(<code>+165 -33</code>)</td><td>shape 실제 반경의 대칭 clearance 복원 후 198 통과</td></tr>
+        <tr><td>실제 장잔액 자연폭을 그대로 사용</td><td>30자리 잔액에서 좌열 RenderFlex 우측 88px overflow</td><td>예약 슬롯 폭+ellipsis로 통과</td></tr>
+        <tr><td>좁아진 기존 충전 pill에서 고정 gap 유지</td><td>600×500/1.0에서 내부 Row 우측 2px overflow</td><td>공간이 없을 때 gap을 접고 아이콘을 제약 안에 맞춰 통과</td></tr>
+      </tbody>
+    </table>
+    <p>각 역변이는 <code>apply_patch</code>로 한 번에 하나만 적용해 해당 실패를 확인한 즉시 복원했다. 최종 소스에는 임시 변이 문자열이 없으며, 복원 뒤 신규 198개와 전체 투표 스위트를 다시 통과시켰다.</p>
+  </section>
+
+  <section>
+    <h2>6. 최종 검증 출력</h2>
+    <pre><code>$ cd picnic_lib &amp;&amp; flutter analyze
+Analyzing picnic_lib...
+521 issues found. (ran in 6.9s)
+
+$ flutter analyze --no-pub \
+    lib/presentation/widgets/vote/voting/voting_dialog_layout.dart \
+    lib/presentation/widgets/vote/voting/voting_dialog.dart \
+    lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart \
+    test/presentation/widgets/vote/voting/voting_dialog_columns_test.dart \
+    test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart
+Analyzing 5 items...
+No issues found! (ran in 8.5s)
+
+$ flutter test --no-pub test/presentation/widgets/vote/voting
+00:28 +750: All tests passed!
+
+$ flutter test --no-pub \
+    test/presentation/widgets/ui/large_popup_test.dart \
+    test/presentation/widgets/ui/large_popup_presentation_test.dart \
+    test/presentation/widgets/vote/store/common/usage_policy_dialog_test.dart \
+    test/presentation/pages/vote/vote_detail_page_tap_test.dart \
+    test/presentation/pages/vote/vote_detail_achieve_page_tap_test.dart
+00:08 +45: All tests passed!
+
+$ git diff --check
+# 출력 없음</code></pre>
+    <p><code>flutter analyze</code>의 521건은 저장소의 기존 진단이며 변경 5개 Dart 파일에는 신규 진단이 0건이다. 코디네이터가 알려 준 과거 부모 기준선은 522건이었지만, 동일 의존성 상태에서 <code>git archive HEAD:picnic_lib</code>로 재구성한 부모 스냅샷과 최종 트리를 machine 형식으로 대조하면 양쪽 모두 같은 521개 진단이었다. 따라서 겉보기 1건 감소는 이 diff의 특정 수정이 아니라 분석 환경/기준선 시점 차이이며, 재현 가능한 진단 집합에서 추가·제거된 항목은 각각 0개다.</p>
+  </section>
+
+  <section>
+    <h2>7. JMA 무변경 확인</h2>
+    <ul>
+      <li><code>git diff -- picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart</code> 출력이 없다.</li>
+      <li>확장한 공용 위젯의 실제 호출부를 검색하면 일반 <code>voting_dialog.dart</code>뿐이고 JMA는 자체 1단 위젯을 계속 사용한다. 새 매개변수는 모두 기본값을 둬 기존 호출과 호환된다.</li>
+      <li>신규 JMA 대조 24개 표본이 전부 560 이하임을 확인했고, 기존 viewport/presentation 자산 158개 및 전체 투표 디렉터리 750개도 통과했다.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>8. 계획 대비 편차와 근거</h2>
+    <table>
+      <thead><tr><th>편차</th><th>근거 및 처리</th></tr></thead>
+      <tbody>
+        <tr><td>inline 조작부를 추가하지 않음</td><td>확정 결정상 키보드 구간은 무조건 1단이다. 키보드가 없는 th/2.0의 두 짧은 표본도 입력·피드백 인접성과 48 타깃을 지킨 실제 높이에 들어가지 않아 1단 폴백이 더 안전하다.</td></tr>
+        <tr><td>숨김 닫기에서 반경 축소 후보 추가</td><td>열 자체 높이는 들어가지만 선호 반경 clearance만 부족한 경우 <code>resolveVoteDialogShape</code>가 푼 실제 반경을 받아들인다. 상수 120 또는 임의 반경을 쓰지 않고 모든 핵심 Rect를 RRect로 검증했다.</td></tr>
+        <tr><td>장잔액을 예약 폭으로 제한</td><td>리뷰에서 실제 잔액이 9,999,999 fixture보다 길 수 있는 경계를 발견했다. 네트워크 잔액 갱신으로 열 수가 흔들리거나 충전 48 타깃이 밀리지 않도록 1줄 ellipsis로 제한했고, 30자리 RED→GREEN을 추가했다.</td></tr>
+        <tr><td>기존 viewport 테스트 1건의 단언을 경로별로 분리</td><td>원래 851×393에서 무조건 ≤560을 요구해 승인된 2단 폭과 양립하지 않았다. 코디네이터의 명시적 예외 승인에 따라 이 단언만 <code>VoteDialogColumns</code> 여부로 나눠 1단 ≤560을 그대로 유지하고 2단만 ≤800을 검사했다. 다른 기존 테스트는 수정하지 않았다.</td></tr>
+        <tr><td>기존 1단 충전 pill의 극단 폭 방어</td><td>공용 위젯을 유연하게 만든 뒤 600×500에서 2px overflow를 회귀 테스트가 검출했다. 정상 폭의 card-scaled geometry는 유지하고, 내부 폭이 아이콘+gap보다 작을 때만 gap을 접고 아이콘을 제약에 맞춘다.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>9. 남은 위험</h2>
+    <ul>
+      <li>실제 이름이 두 줄을 넘거나 지원 범위를 벗어난 잔액이면 ellipsis가 적용된다. 원문은 Text semantics에는 남지만 시각적으로 전부 표시되지는 않는다.</li>
+      <li>851×393·844×390의 Thai 2.0은 실제 우열 높이 때문에 2단 이득을 주지 못하고 기존 1단 스크롤에 의존한다.</li>
+      <li>좌·우 열은 독립 스크롤이므로 한 열의 긴 부가 정보가 다른 열과 같은 세로 위치를 유지하지 않는다. 핵심 블록의 최초 offset 0만 보장한다.</li>
+      <li>전체 analyze의 기존 521건은 이번 범위 밖에 남아 있다. 변경 파일 단독 분석은 0건이며 전체 수는 늘지 않았다.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>
