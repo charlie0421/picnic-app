@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-// A transitive package, imported only to subclass its isolate for this test.
-// ignore: depend_on_referenced_packages
+// Pinned in dev_dependencies: this test subclasses the isolate so that
+// FunctionsClient.invoke encodes its body synchronously under the fake clock.
 import 'package:yet_another_json_isolate/yet_another_json_isolate.dart';
 
 import 'package:flutter/material.dart';
