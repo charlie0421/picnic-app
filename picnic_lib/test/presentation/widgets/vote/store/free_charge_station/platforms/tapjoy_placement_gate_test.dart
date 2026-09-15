@@ -7,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/tapjoy_session.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart';
 
 import '../../../../../../helpers/factories/user_factory.dart';
@@ -42,8 +43,12 @@ void main() {
   late String currentUser;
 
   /// 채널 메서드별 거동: 'throw'(PlatformException), 'missing'
-  /// (MissingPluginException), 'hang'(응답 없음). null 이면 정상.
+  /// (MissingPluginException), 'hang'(응답 없음), 'slow'(2초 지연),
+  /// 'gate'(테스트가 열 때까지 대기). null 이면 정상.
   final channelBehavior = <String, String>{};
+
+  /// 'gate' 거동이 기다리는 문. 테스트 본문 zone 에서 만든다.
+  late Completer<void> channelGate;
 
   setUp(initTestColors);
 
@@ -53,6 +58,7 @@ void main() {
     contentAvailable = true;
     currentUser = uid;
     channelBehavior.clear();
+    channelGate = Completer<void>();
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
@@ -65,6 +71,8 @@ void main() {
           throw MissingPluginException('No implementation for ${call.method}');
         case 'hang':
           return Completer<Object?>().future;
+        case 'gate':
+          await channelGate.future;
         case 'slow':
           // 상한 안쪽의 평범한 지연.
           await Future<void>.delayed(const Duration(seconds: 2));
@@ -131,6 +139,8 @@ void main() {
     }
   }
 
+  late WidgetRef lastRef;
+
   Future<TapjoyPlatform> buildPlatform(WidgetTester tester) async {
     // connect 는 테스트 본문 zone 에서 보낸다 — setUp zone 의 Future 는
     // FakeAsync 가 돌려 주지 않는다.
@@ -154,6 +164,7 @@ void main() {
     await pumpAndIgnoreErrors(tester);
     await pumpAndIgnoreErrors(tester);
     expect(capturedRef.read(userInfoProvider).value, isNotNull);
+    lastRef = capturedRef;
     final controller = AnimationController(
       vsync: const TestVSync(),
       duration: const Duration(milliseconds: 1),
@@ -447,6 +458,87 @@ void main() {
         countOf('getPlacement'),
         2,
         reason: '평범한 지연을 모호한 실패로 끊으면 게이트가 영구 격리된다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+  });
+
+  group('r4: 표시 직전 실패의 사용자 전달과 상한', () {
+    bool isLoading() => lastRef.read(adLoadingStateProvider)['tapjoy'] ?? false;
+
+    testWidgets('사용자가 보고 있는데 ID 확인이 실패하면 로딩을 끝낸다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+      expect(isLoading(), isTrue);
+
+      // 표시 직전 probe 가 실패한다. 표시를 막는 것은 맞지만, 여전히 화면을
+      // 보고 있는 사용자에게는 실패가 전달돼야 한다.
+      channelBehavior['getUserID'] = 'throw';
+      await deliver('onContentReady', 'mission');
+      await drain(tester);
+
+      expect(countOf('showContent'), 0);
+      expect(
+        isLoading(),
+        isFalse,
+        reason: '로딩이 남으면 사용자는 30초 안전 타이머까지 아무 안내도 못 받는다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+
+    testWidgets('timeout 뒤 늦게 도착한 no-fill 결과로 게이트를 놓는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+
+      // isContentAvailable 응답이 상한을 넘긴다.
+      channelBehavior['isContentAvailable'] = 'gate';
+      contentAvailable = false;
+      await deliver('onRequestSuccess', 'mission');
+      await tester.pump(const Duration(seconds: 16));
+      await drain(tester);
+
+      // 그 뒤 늦게 정상 결과(no-fill)가 도착한다 — 이게 이 요청의 terminal 이다.
+      channelGate.complete();
+      await drain(tester);
+
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        2,
+        reason: 'terminal 이 실제로 도착했는데도 잠가 두면 앱 재시작까지 못 연다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+
+    testWidgets('showContent 응답이 없어도 상한 안에 끝나고 사용자에게 알린다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+
+      channelBehavior['showContent'] = 'hang';
+      await deliver('onContentReady', 'mission');
+      await tester.pump(const Duration(seconds: 16));
+      await drain(tester);
+
+      expect(countOf('showContent'), 1);
+      expect(
+        isLoading(),
+        isFalse,
+        reason: 'showContent 가 응답하지 않으면 상한 뒤 실패로 처리해야 한다',
       );
       platform.dispose();
       await pumpAndIgnoreErrors(tester);
