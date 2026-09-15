@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2700 구현 결과</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; }
+    body { max-width: 1120px; margin: 0 auto; padding: 36px 28px 64px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    h1, h2, h3 { line-height: 1.3; margin: 1.6em 0 .55em; }
+    h1 { margin-top: 0; font-size: 30px; } h2 { border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 22px; }
+    h3 { font-size: 17px; } p, ul, ol { margin: .55em 0; }
+    code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre { overflow-x: auto; padding: 14px 16px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 13px; }
+    th, td { padding: 8px 9px; border: 1px solid var(--line); text-align: right; vertical-align: top; white-space: nowrap; }
+    th { background: var(--soft); } th:first-child, td:first-child, .left { text-align: left; }
+    .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+    .ok { color: var(--ok); font-weight: 700; } .warn { color: var(--warn); font-weight: 700; }
+    .note { color: var(--muted); } .wrap { white-space: normal; }
+  </style>
+</head>
+<body>
+  <h1>PICNIC-2700 긴 로케일 투표 버튼 구현 결과</h1>
+  <div class="summary">
+    <p><strong>상태:</strong> 커밋 2건 완료 — <code>cf8af1d59</code>(코드), <code>0750d6689</code>(번역). 전체 투표 스위트 <span class="ok">+1269 실패 0</span>, <code>analyze</code> 521(부모와 동일). 커밋 <code>03fa2387a</code> 는 적대적 리뷰가 찾은 회귀 수정이다.</p>
+    <p><strong>결론:</strong> 일반 <code>VotingDialog</code>의 1단 제출 버튼을 고정 172 토큰에서 캡슐 안의 실제 코너 안전 폭으로 넓히고, 측정과 렌더 모두 라벨을 최대 2줄·말줄임으로 제한했다. 태국어·미얀마어·일본어 라벨 축약은 구조 수정과 분리해 적용하며 원어민 검토가 남아 있다.</p>
+    <p><strong>범위:</strong> 일반 다이얼로그의 Dart 구현과 신규 전용 테스트를 변경했다. JMA Dart 파일은 읽기만 했고, 수량·전체 사용·지갑·분석·투표 요청 로직은 변경하지 않았다.</p>
+  </div>
+
+  <h2>1. 조사 결과</h2>
+  <h3>현재 소스의 폭·줄 수·높이 결정 지점</h3>
+  <ul>
+    <li><strong>일반:</strong> <code>voting_dialog_widgets.dart:970-1064</code>의 <code>VotingSubmitButton</code>은 부모 기준으로 <code>preferredWidth() =&gt; voteDialogCardExtent(172)</code>였고, 1단의 <code>preferredHeight</code>와 실제 <code>Text</code> 모두 줄 수가 무제한이었다. <code>voting_dialog.dart:468-556</code>은 높이를 그 고정 폭으로 측정하고 같은 위젯을 렌더했다.</li>
+    <li><strong>JMA:</strong> <code>jma_voting_dialog.dart:712-766</code>은 비활성 폭 172 토큰을 기준으로 하고 활성 상태에서는 아이콘+간격만큼 버튼을 넓혀 라벨 가용 폭을 동일하게 유지한다. <code>jma_voting_dialog.dart:1660-1729</code>의 실제 라벨과 높이 측정에는 여전히 <code>maxLines</code>가 없다.</li>
+    <li><strong>선행 결함:</strong> 부모 이력보다 앞선 <code>2e5ccdc20</code>에서도 일반·JMA 버튼은 <code>width: 172.w</code>와 무제한 라벨 조합이었다. 따라서 PICNIC-2694/2695/2697이 만든 회귀가 아니다.</li>
+  </ul>
+
+  <h3>측정 조건</h3>
+  <p>기존 <code>picnic_2697_measurement_test.dart</code>에 측정 코드를 일시적으로 얹어 280×480, 프로덕션 ScreenUtil 기하, 7개 로케일 × 1.0/1.3/2.0 배율을 실행했다. 측정 뒤 하네스 변경은 완전히 되돌렸으며 신규 하네스는 만들지 않았다.</p>
+  <p>카드 폭은 245.80px, 172 토큰 버튼 실폭은 122.54px였다. 일반 고정 버튼의 라벨 가용 폭은 105.45px, 카드 콘텐츠 폭을 쓰는 후보의 라벨 가용 폭은 191.65px였다. 아래 “줄”과 “높이”는 수정 전의 무제한 자연 배치를 뜻한다.</p>
+
+  <h3>7개 로케일 × 3개 배율 실측</h3>
+  <table>
+    <thead><tr><th>로케일</th><th>배율</th><th>현재 라벨</th><th>자연폭</th><th>일반 172<br>줄 / 높이</th><th>일반 콘텐츠폭<br>줄 / 높이</th><th>JMA 현재 활성<br>줄 / 높이</th></tr></thead>
+    <tbody>
+      <tr><td>ko</td><td>1.0</td><td class="left">투표</td><td>31.11</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>ko</td><td>1.3</td><td class="left">투표</td><td>40.45</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>ko</td><td>2.0</td><td class="left">투표</td><td>62.23</td><td>1 / 58.28</td><td>1 / 58.28</td><td>1 / 58.28</td></tr>
+      <tr><td>en</td><td>1.0</td><td class="left">Vote</td><td>38.54</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>en</td><td>1.3</td><td class="left">Vote</td><td>50.10</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>en</td><td>2.0</td><td class="left">Vote</td><td>77.08</td><td>1 / 58.28</td><td>1 / 58.28</td><td>1 / 58.28</td></tr>
+      <tr><td>th</td><td>1.0</td><td class="left">ลงคะแนนเสียง</td><td>216.00</td><td>3 / 84.28</td><td>2 / 58.28</td><td>3 / 84.28</td></tr>
+      <tr><td>th</td><td>1.3</td><td class="left">ลงคะแนนเสียง</td><td>280.80</td><td>5 / 176.28</td><td>2 / 74.28</td><td>5 / 176.28</td></tr>
+      <tr><td>th</td><td>2.0</td><td class="left">ลงคะแนนเสียง</td><td>432.00</td><td class="warn">7 / 370.28</td><td>3 / 162.28</td><td class="warn">7 / 370.28</td></tr>
+      <tr><td>my</td><td>1.0</td><td class="left">မဲပေးပဲှ</td><td>144.00</td><td>2 / 58.28</td><td>1 / 52.00</td><td>2 / 58.28</td></tr>
+      <tr><td>my</td><td>1.3</td><td class="left">မဲပေးပဲှ</td><td>187.20</td><td>3 / 108.28</td><td>1 / 52.00</td><td>3 / 108.28</td></tr>
+      <tr><td>my</td><td>2.0</td><td class="left">မဲပေးပဲှ</td><td>288.00</td><td>5 / 266.28</td><td>2 / 110.28</td><td>5 / 266.28</td></tr>
+      <tr><td>ja</td><td>1.0</td><td class="left">投票する</td><td>69.75</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>ja</td><td>1.3</td><td class="left">投票する</td><td>90.67</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>ja</td><td>2.0</td><td class="left">投票する</td><td>139.50</td><td>2 / 110.28</td><td>1 / 58.28</td><td>2 / 110.28</td></tr>
+      <tr><td>zh</td><td>1.0</td><td class="left">Vote</td><td>38.54</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>zh</td><td>1.3</td><td class="left">Vote</td><td>50.10</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>zh</td><td>2.0</td><td class="left">Vote</td><td>77.08</td><td>1 / 58.28</td><td>1 / 58.28</td><td>1 / 58.28</td></tr>
+      <tr><td>id</td><td>1.0</td><td class="left">Pilih</td><td>34.86</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>id</td><td>1.3</td><td class="left">Pilih</td><td>45.31</td><td>1 / 52.00</td><td>1 / 52.00</td><td>1 / 48.00</td></tr>
+      <tr><td>id</td><td>2.0</td><td class="left">Pilih</td><td>69.71</td><td>1 / 58.28</td><td>1 / 58.28</td><td>1 / 58.28</td></tr>
+    </tbody>
+  </table>
+  <p>실제 운영 일반 경로에서 태국어는 1.0배부터 3줄이며, 2.0배에서 7줄·370.28px가 된다. 미얀마어도 2.0배에서 5줄·266.28px다. 480px 화면에서 버튼 하나가 370px가 되는 결함이 수치로 재현됐다.</p>
+
+  <h3>짧은 라벨 후보 실측</h3>
+  <table>
+    <thead><tr><th>로케일</th><th>배율</th><th>후보</th><th>자연폭</th><th>172 라벨폭<br>줄 / 높이</th><th>콘텐츠 라벨폭<br>줄 / 높이</th></tr></thead>
+    <tbody>
+      <tr><td>th</td><td>1.0</td><td class="left">โหวต</td><td>72.00</td><td>1 / 52.00</td><td>1 / 52.00</td></tr>
+      <tr><td>th</td><td>1.3</td><td class="left">โหวต</td><td>93.60</td><td>1 / 52.00</td><td>1 / 52.00</td></tr>
+      <tr><td>th</td><td>2.0</td><td class="left">โหวต</td><td>144.00</td><td>2 / 110.28</td><td>1 / 58.28</td></tr>
+      <tr><td>my</td><td>1.0</td><td class="left">မဲပေး</td><td>90.00</td><td>1 / 52.00</td><td>1 / 52.00</td></tr>
+      <tr><td>my</td><td>1.3</td><td class="left">မဲပေး</td><td>117.00</td><td>2 / 74.28</td><td>1 / 52.00</td></tr>
+      <tr><td>my</td><td>2.0</td><td class="left">မဲပေး</td><td>180.00</td><td>3 / 162.28</td><td>1 / 58.28</td></tr>
+      <tr><td>ja</td><td>1.0</td><td class="left">投票</td><td>36.00</td><td>1 / 52.00</td><td>1 / 52.00</td></tr>
+      <tr><td>ja</td><td>1.3</td><td class="left">投票</td><td>46.80</td><td>1 / 52.00</td><td>1 / 52.00</td></tr>
+      <tr><td>ja</td><td>2.0</td><td class="left">投票</td><td>72.00</td><td>1 / 58.28</td><td>1 / 58.28</td></tr>
+    </tbody>
+  </table>
+  <p class="note">태국어 <code>โหวต</code>, 미얀마어 <code>မဲပေး</code>, 일본어 <code>投票</code>는 기하상 명확히 짧지만 언어 품질은 별개다. 세 문구 모두 원어민 검토가 필요하며, 미얀마어 기존 표기의 오타 여부는 의심일 뿐 확인된 사실로 취급하지 않는다.</p>
+
+  <h2>2. 설계 선택</h2>
+  <table>
+    <thead><tr><th>안</th><th class="left">실측 기반 판정</th></tr></thead>
+    <tbody>
+      <tr><td class="left">172 고정 + 2줄/말줄임</td><td class="left"><strong>배제.</strong> 높이는 막지만 태국어 1.0배부터 기존 문구가 잘리고, 2단이 이미 사용하는 더 넓은 폭 정책과도 맞지 않는다.</td></tr>
+      <tr><td class="left">콘텐츠 폭 + 무제한 줄</td><td class="left"><strong>배제.</strong> 태국어 2.0배를 7줄에서 3줄로 줄이지만 162.28px이며, 더 긴 미래 번역에는 상한이 없다.</td></tr>
+      <tr><td class="left">코너 안전 가용 폭 + 최대 2줄/말줄임</td><td class="left"><strong>선택.</strong> 고정 폭보다 넓혀 불필요한 줄바꿈을 줄이고, 2단 경로와 같은 2줄 상한으로 높이를 구조적으로 제한한다.</td></tr>
+      <tr><td class="left">번역 축약만</td><td class="left"><strong>단독 해결책으로 배제, 별도 완화책으로 선택.</strong> 현재 세 문구에는 효과가 크지만 미래 로케일을 보호하지 못하므로 구조 수정과 독립 커밋으로 둔다.</td></tr>
+    </tbody>
+  </table>
+  <p>일반 카드의 단순 콘텐츠 폭을 그대로 쓰는 첫 구현은 캡슐 하단 호를 침범했다. 기존 <code>voteDialogCornerClearance</code>와 <code>resolveVoteDialogShape</code>가 해결한 실제 반경을 재사용해, 버튼 하단에서 카드까지의 실제 거리로 좌우 안전 인셋을 구한다. AlertDialog가 카드보다 11.399px 넓은 제약을 줄 수 있으므로, 측정·안전 폭 계산·렌더 모두 명시된 카드 실폭을 같은 기준으로 사용한다.</p>
+  <table>
+    <thead><tr><th>전이 표본</th><th>반경</th><th>첫 가용 폭</th><th>기본 좌우 인셋</th><th>필요 좌우 인셋</th><th>코너 안전 폭</th></tr></thead>
+    <tbody>
+      <tr><td class="left">Flip flex 상단 절반</td><td>94.17</td><td>308.22</td><td>26.73</td><td>44.56</td><td>272.55</td></tr>
+      <tr><td class="left">태블릿 1/3 + 키보드</td><td>112.20</td><td>279.66</td><td>24.77</td><td>59.61</td><td>209.99</td></tr>
+      <tr><td class="left">280×480, 2.0배</td><td>85.50</td><td>208.75</td><td>18.52</td><td>38.64</td><td>168.51</td></tr>
+      <tr><td class="left">280×280, 2.0배</td><td>56.29</td><td>208.75</td><td>18.52</td><td>19.16</td><td>207.48</td></tr>
+    </tbody>
+  </table>
+  <p>짧은 본문에서는 반경 자체가 56.29px로 작아 거의 전체 폭을 쓸 수 있고, 높이가 넉넉해 반경이 큰 카드에서는 더 많은 좌우 여유가 필요했다. 따라서 고정 px를 빼지 않고 실제 해결 반경을 사용한다.</p>
+
+  <h2>3. TDD 및 추가 테스트</h2>
+  <p>신규 파일 <code>voting_dialog_submit_label_test.dart</code>에 기존 측정 하네스와 같은 7개 로케일 × 3개 배율의 운영 <code>VotingDialog</code> 테스트 21개와, 매우 좁은 라벨 슬롯의 2줄 상한 스트레스 테스트 1개를 추가했다.</p>
+  <ul>
+    <li>1단 운영 경로인지 확인한다.</li>
+    <li>버튼이 예전 172 토큰보다 넓되 조작부 폭을 넘지 않는지 확인한다.</li>
+    <li>버튼 사각형이 실제 캡슐 RRect를 침범하지 않는 성질을 확인한다.</li>
+    <li>렌더 라벨이 최대 2줄이고, 말줄임 여부가 실측 가능한지 확인한다.</li>
+    <li><code>preferredHeight(maxWidth: 실제 버튼 폭)</code>과 실제 렌더 높이가 같은지 확인한다.</li>
+  </ul>
+  <p><strong>최초 RED:</strong> 부모 프로덕션 코드에서 신규 22개가 모두 실패했다(<code>+0 -22</code>). 21개 매트릭스는 122.54px 고정 폭을, 스트레스 케이스는 무제한 7줄·370.28px 높이를 잡았다.</p>
+  <p><strong>하네스 교정:</strong> 스트레스 위젯을 폭만 제한한 <code>Align</code> 아래에서 곧바로 재면 480px 뷰포트 높이를 읽는 함정이 있었다. <code>Column(mainAxisSize: min)</code>으로 내재 높이를 재도록 고쳤다. 이는 PICNIC-2697에서 반복된 “재는 층과 그려지는 층 불일치”와 같은 종류다.</p>
+  <p><strong>코너 회귀 발견:</strong> 최초 폭 확장 뒤 신규 22개는 통과했지만 전체 투표 스위트가 캡슐 모서리 침범 68건을 찾아냈다. 실제 반경 기반 안전 폭을 적용한 뒤에도 AlertDialog 제약과 카드 실폭이 11.399px 달라 3.25px 호 침범이 남았고, 카드 실폭을 단일 기준으로 통일해 제거했다.</p>
+  <p><strong>되돌림 검증:</strong> 최종 프로덕션에서 폭·2줄 정책을 부모 동작으로 일시 되돌린 뒤 신규 테스트가 RED인지 확인하고 원복했다. 최종 수치는 검증 절에 기록한다.</p>
+
+  <h2>4. 번역 변경</h2>
+  <ul>
+    <li>태국어: <code>ลงคะแนนเสียง</code> → <code>โหวต</code></li>
+    <li>미얀마어: <code>မဲပေးပဲှ</code> → <code>မဲပေး</code></li>
+    <li>일본어: <code>投票する</code> → <code>投票</code></li>
+  </ul>
+  <p>구조 수정은 이전 번역으로도 GREEN이어야 하며, 번역 커밋은 독립적으로 되돌릴 수 있게 분리한다. 세 번역 모두 <span class="warn">원어민 검토 대기</span>다.</p>
+
+  <h2>5. JMA 처리 선택지</h2>
+  <p>JMA Dart 구현은 이번 티켓에서 변경하지 않았다. 다만 공유 <code>label_button_vote</code> 번역 축약은 현재 태국어·미얀마어·일본어의 JMA 높이도 완화한다. 구조적으로는 여전히 무제한 줄이므로 새로 긴 번역이 들어오면 같은 결함이 재발할 수 있다.</p>
+  <ol>
+    <li><strong>후속 티켓에서 JMA도 같은 구조 보장:</strong> 활성 아이콘 폭 정책을 보존하면서 측정과 렌더에 같은 2줄 상한·말줄임을 적용하고 JMA 전용 기하 테스트를 추가한다. <strong>권고안</strong>이다.</li>
+    <li><strong>현재처럼 번역 완화만 유지:</strong> 당장 수치는 좋아지지만 미래 번역에 대한 보장은 없다.</li>
+    <li><strong>172 계열 폭을 유지한 채 2줄만 제한:</strong> 현재 긴 문구가 잘리므로 배제한다.</li>
+  </ol>
+  <p>JMA 영역 소유자가 범위를 승인하기 전에는 1안을 이번 변경에 섞지 않는다.</p>
+
+  <h2>6. PICNIC-2697 조건부 2단 전환 전제의 이동</h2>
+  <p>전체 스위트가 926×428 태국어 2.0배 한 건에서 2697의 전환 전제와 충돌했다. 이 건은 전제 하나가 두 번 움직였다가 제자리로 돌아온 경우이므로 실측을 남긴다. 아래 값은 모두 같은 지점(<code>resolveVoteDialogColumnsLayout</code> 호출 직전)에서 계측했다.</p>
+  <table>
+    <thead><tr><th class="left">상태</th><th>1단 essential</th><th>팝업 가용 높이</th><th>쌓인 조작부 열</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td class="left">PICNIC-2697 (라벨 무제한)</td><td>약 573</td><td class="warn">380 초과</td><td>340.56</td><td>2단</td></tr>
+      <tr><td class="left">PICNIC-2700 코드만 (긴 라벨)</td><td>312.95</td><td>380.00</td><td>340.56</td><td class="warn">1단</td></tr>
+      <tr><td class="left">PICNIC-2700 코드 + <code>โหวต</code></td><td>260.95</td><td>380.00</td><td>288.56</td><td>2단</td></tr>
+    </tbody>
+  </table>
+  <p>라우트는 1단 본문이 밀어붙일 때만 선호 인셋 24를 내준다. 1단 제출 라벨을 2줄로 끊자 그 압력이 사라져 여백이 돌아왔고, 팝업 가용 높이가 380으로 줄면서 340.56짜리 2단 후보가 들어가지 못했다. 이어서 라벨을 축약하자 2단 열 자체가 52px 줄어 다시 들어간다. 즉 코드 변경과 번역 변경은 짝이며 한쪽만 되돌리면 이 전제도 함께 움직여야 한다. 근거 측정표는 <code>voting_dialog_columns_test.dart</code>의 <code>_expectsColumns</code> 주석에 그대로 남겼다.</p>
+  <p class="note">부수 관찰: “1단이 더 높으면 팝업이 더 커지고, 그래서 2단이 들어간다”는 비단조성은 2697의 여백 양보 기제에서 온 것이지 이번 변경이 만든 것이 아니다. 세 상태 모두 조작부 가시성 계약은 만족한다. 구조 정리는 후속 후보로만 남긴다.</p>
+  <p><strong>불필요해진 보수 폭 제거:</strong> 전환을 보존하려고 넣었던 별도 <code>transitionSubmitWidth</code>(1단 후보 측정에만 <code>preferredWidth()</code>를 쓰는 값)는 위 전제를 정리한 뒤 어떤 결과도 바꾸지 않음을 실험으로 확인하고 제거했다. 카드 실폭이라는 단일 기준을 두 번째 기준으로 흐리지 않기 위해서다.</p>
+
+  <h2>7. 검증</h2>
+  <table>
+    <thead><tr><th class="left">명령</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td class="left"><code>flutter analyze</code></td><td>521 (부모와 동일)</td></tr>
+      <tr><td class="left"><code>flutter test .../voting_dialog_submit_label_test.dart</code></td><td class="ok">+22</td></tr>
+      <tr><td class="left"><code>flutter test test/presentation/widgets/vote/voting</code></td><td class="ok">+1269 실패 0</td></tr>
+      <tr><td class="left">신규 <code>voting_dialog_overflow_test.dart</code></td><td class="ok">+448</td></tr>
+      <tr><td class="left">공유 회귀 5파일</td><td class="ok">+45</td></tr>
+      <tr><td class="left">부모 동작 되돌림 검증</td><td class="ok">4건 RED</td></tr>
+    </tbody>
+  </table>
+  <p>되돌림 검증은 프로덕션의 2줄 상한을 부모의 <code>columns ? 2 : null</code>로 되돌린 상태에서 신규 테스트를 실행해 확인했다. RED가 된 4건은 th 1.3배·th 2.0배·my 2.0배의 폭/예산 성질과 약 47px 라벨 슬롯 스트레스 케이스다. 나머지 18건은 해당 로케일·배율에서 원래 1줄이라 변이에 반응하지 않는 것이 정상이다. 확인 후 프로덕션을 원복하고 22건 GREEN을 재확인했다.</p>
+
+  <h2>8. 적대적 리뷰 대응</h2>
+  <p>Opus 독립 리뷰가 6건을 제기했다. 각 건을 코드와 실행으로 확인한 결과는 다음과 같다.</p>
+  <table>
+    <thead><tr><th>건</th><th class="left">지적</th><th class="left">판정</th></tr></thead>
+    <tbody>
+      <tr><td>F1</td><td class="left">고정 조작부 열이 넘쳐 조작부가 잘린다</td><td class="left"><span class="warn">수용 — 회귀 확정, 수정함.</span> 리뷰어보다 범위가 넓었다. 리뷰어는 1건만 회귀로 보고 th 2.6배는 기존 결함으로 분류했으나, 부모 커밋에서 같은 스윕을 돌려 <strong>330건 전부 통과</strong>함을 확인했다. 두 건 모두 이번 변경이 만든 회귀다.</td></tr>
+      <tr><td>F2</td><td class="left">두 커밋이 독립적으로 되돌려지지 않는다</td><td class="left"><span class="warn">수용 — 문서로 처리.</span> 출하되는 조합에서는 잘리는 라벨이 없음을 14개 로케일로 확인했다. 되돌림 경로의 위험은 커밋 메시지·테스트 주석·PR·Jira 네 곳에 명시했다.</td></tr>
+      <tr><td>F3</td><td class="left">키보드가 열리면 버튼 폭이 변한다</td><td class="left"><span class="warn">사실 확인 — 미수정, 결정 대기.</span> 393×852 에서 293.2 → 225.6 (23% 감소). 버튼이 바닥에 가까워지면 코너 여유가 더 필요해지는 기하상 정직한 결과지만, 키보드 전환 중 기본 CTA 가 크기를 바꾸는 것은 별개 문제다.</td></tr>
+      <tr><td>F4</td><td class="left">요구사항을 넘어 CTA 를 재설계했다</td><td class="left"><span class="warn">일부 수용 — 결정 대기.</span> 아래 실측 참조. 2.0배까지는 고정 172 로도 잘림이 없고, 2.0배를 넘어서야 폭 확장이 실제로 필요해진다.</td></tr>
+      <tr><td>F5</td><td class="left">라우트 여백 예산의 보수성 방향이 뒤집혔다</td><td class="left"><span class="left">수용 — 미수정, 기록.</span> 되돌리려면 제거한 두 번째 폭 기준을 되살려야 해 단일 기준 원칙과 충돌한다. 448 조합 실측에서 관측되지 않았고, 어긋나도 고정→스크롤로 완만히 저하한다.</td></tr>
+      <tr><td>F6</td><td class="left">테스트 축이 비어 있다</td><td class="left"><span class="ok">수용 — 테스트 추가.</span> 전 로케일·키보드·뷰포트 축을 여는 448건 회귀 테스트를 넣었고, 그 축이 실제로 F1 을 잡는다.</td></tr>
+    </tbody>
+  </table>
+  <p>리뷰어가 근거와 함께 기각한 항목도 기록한다. 코너 여유 기하는 <code>[0, R]</code> 위에서 자기역원이라 원형 모서리에 대해 정확하고, 4회 반복 루프는 폭이 단조 감소하며 목표가 4개 상태의 함수라 발산·진동이 불가능하다. <code>cardWidth</code> 통일은 2단 경로가 이 코드에 도달하기 전에 반환하므로 안전하다. <code>_expectsColumns</code> 의 <code>return</code> 식은 부모와 바이트 단위로 동일해 회귀를 가릴 수 없다.</p>
+
+  <h3>F4 판단 근거 — 고정 172 로 되돌리면 어디서 잘리는가</h3>
+  <p>축약 번역 적용 후, 버튼 폭을 예전 고정값(140.1px 실폭)으로 두고 2줄 상한만 적용했을 때 14개 로케일의 말줄임 여부를 실측했다.</p>
+  <table>
+    <thead><tr><th>배율</th><th class="left">고정 172 에서의 결과</th></tr></thead>
+    <tbody>
+      <tr><td>1.0 / 1.3</td><td class="left">전 로케일 1줄, 잘림 없음</td></tr>
+      <tr><td>2.0</td><td class="left">잘림 없음. fil·my·th·vi 가 2줄(110.3px)이 된다</td></tr>
+      <tr><td>2.6</td><td class="left"><span class="warn">my·vi 말줄임</span>. 나머지는 2줄(142.3px)</td></tr>
+    </tbody>
+  </table>
+  <p>즉 폭 확장이 실제로 막아 주는 것은 <strong>2.0배를 넘는 배율의 버마어·베트남어 잘림</strong>이다. 베트남어는 이번에 축약하지 않은 로케일이라 번역만으로는 닫히지 않는다. 그 대가는 기본 393×852 한국어 화면에서 버튼이 140.1 에서 293.2 로 넓어져 가운데 알약이 거의 전폭 바가 되는 것, 그리고 F3 의 키보드 전환 시 크기 변화다.</p>
+  <p>이 맞바꿈은 엔지니어링이 아니라 디자인 결정이다. 되돌리는 비용은 낮다 — <code>_buildFooter</code> 가 넘기는 <code>width</code> 를 <code>VotingSubmitButton.preferredWidth()</code> 로 바꾸면 되고, 그러면 2.0배 이하에서는 잘림 없이 예전 모양이 돌아오며 2.6배의 버마어·베트남어만 말줄임된다. 제3안은 말줄임 대신 자동 축소(<code>FittedBox</code>)를 넣어 고정 폭을 유지하는 것이다.</p>
+
+  <h2>9. 남은 위험과 확인사항</h2>
+  <ul>
+    <li>세 축약 번역은 기하 검증과 별개로 원어민 의미·톤 검토가 필요하다.</li>
+    <li>JMA의 무제한 줄 구조는 남아 있다. 공유 번역 축약은 완화일 뿐 구조 보장이 아니다.</li>
+    <li>일반 1단 잔액 라벨의 <code>maxLines</code>/<code>ellipsis</code>는 명시적으로 이번 범위 밖이며 별도 후속 후보다.</li>
+    <li>실기기 폰트 폴백은 테스트 폰트와 글리프 폭이 다를 수 있으나, 최대 2줄 상한은 높이 폭주를 독립적으로 막는다.</li>
+    <li><strong>CTA 폭 확장과 키보드 전환 시 크기 변화(F3·F4)는 디자인 확인이 필요하다.</strong> 8절의 실측과 되돌림 경로 참조.</li>
+    <li>라우트 여백 예산의 보수성 방향 뒤집힘(F5)은 남겨 뒀다. 448 조합에서 관측되지 않았으나 구조적 보장은 아니다.</li>
+    <li><code>_expectsColumns</code>는 번역 문자열 길이에 의존하는 정적 기대표다. 이번처럼 라벨이 바뀌면 함께 움직인다. 전환 자체를 성질로 검증하는 축은 아직 없다.</li>
+  </ul>
+</body>
+</html>

@@ -431,7 +431,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_button_view_policy => 'ดูนโยบาย';
 
   @override
-  String get label_button_vote => 'ลงคะแนนเสียง';
+  String get label_button_vote => 'โหวต';
 
   @override
   String get label_celeb_gallery => 'แกลเลอรีศิลปิน';

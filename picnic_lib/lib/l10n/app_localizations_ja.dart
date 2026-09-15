@@ -423,7 +423,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_button_view_policy => 'ポリシーを見る';
 
   @override
-  String get label_button_vote => '投票する';
+  String get label_button_vote => '投票';
 
   @override
   String get label_celeb_gallery => 'アーティストギャラリー';
