@@ -29,6 +29,7 @@ import '../../../../../../helpers/test_environment.dart';
 void main() {
   const channel = MethodChannel('tapjoy_offerwall');
   const uid = 'test-user-id-001'; // UserFactory.create() 의 기본 id
+  const otherUid = 'other-user-id-002';
 
   late TestDefaultBinaryMessenger messenger;
   late List<MethodCall> calls;
@@ -37,16 +38,34 @@ void main() {
   /// 서버가 내려준 오퍼가 있는지. false 면 정상 no-fill 이다.
   bool contentAvailable = true;
 
+  /// 현재 로그인 사용자. 계정 전환 반례에서 바꾼다.
+  late String currentUser;
+
+  /// 채널 메서드별 거동: 'throw'(PlatformException), 'missing'
+  /// (MissingPluginException), 'hang'(응답 없음). null 이면 정상.
+  final channelBehavior = <String, String>{};
+
   setUp(initTestColors);
 
   setUp(() {
     calls = <MethodCall>[];
     nativeUserId = uid;
     contentAvailable = true;
+    currentUser = uid;
+    channelBehavior.clear();
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
+      switch (channelBehavior[call.method]) {
+        case 'throw':
+          throw PlatformException(code: 'ERROR', message: 'channel failed');
+        case 'missing':
+          // 플러그인 자체가 없어 요청이 네이티브에 도달하지 못한 경우.
+          throw MissingPluginException('No implementation for ${call.method}');
+        case 'hang':
+          return Completer<Object?>().future;
+      }
       switch (call.method) {
         case 'getUserID':
           return nativeUserId;
@@ -61,7 +80,7 @@ void main() {
     });
     TapjoySession.setInstanceForTest(
       TapjoySession(
-        currentUserId: () => uid,
+        currentUserId: () => currentUser,
         connect:
             ({
               required String sdkKey,
@@ -313,6 +332,182 @@ void main() {
     );
     platform.dispose();
     await pumpAndIgnoreErrors(tester);
+  });
+
+  group('blocker-1: 네이티브 terminal 확인 없는 해제', () {
+    testWidgets('isContentAvailable 조회 예외는 게이트를 놓지 않는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+      expect(countOf('getPlacement'), 1);
+
+      // 조회가 실패했을 뿐 오퍼가 없다는 증거는 아니다. 늦은 onContentReady 가
+      // 아직 올 수 있으므로 게이트를 놓으면 그 이벤트가 새 시도로 샌다.
+      channelBehavior['isContentAvailable'] = 'throw';
+      await deliver('onRequestSuccess', 'mission');
+      await drain(tester);
+
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        1,
+        reason: '조회 예외는 no-fill 이 아니다 — terminal 까지 격리해야 한다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+
+    testWidgets('requestContent 의 모호한 채널 실패는 게이트를 놓지 않는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      // 네이티브는 requestContent 를 먼저 실행하고 result 를 나중에 돌려준다
+      // (TapjoyOfferwallPlugin.kt:374-378). 채널 실패는 미전달의 증거가 아니다.
+      channelBehavior['requestContent'] = 'throw';
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+      expect(countOf('getPlacement'), 1);
+
+      channelBehavior.remove('requestContent');
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        1,
+        reason: '전달 여부가 모호하면 늦은 콜백이 새 시도로 샐 수 있다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+
+    testWidgets('MissingPluginException 은 명확한 미전달이라 게이트를 놓는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      channelBehavior['requestContent'] = 'missing';
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+      expect(countOf('getPlacement'), 1);
+
+      channelBehavior.remove('requestContent');
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        2,
+        reason: '플러그인이 없으면 네이티브에 도달할 수 없어 늦은 콜백도 없다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+  });
+
+  group('blocker-2: 계정 A→B→A 회귀', () {
+    testWidgets('A 의 늦은 콘텐츠는 계정이 한 번이라도 바뀌면 열리지 않는다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final first = platform.showAd();
+      await completeUserId(tester);
+      await first;
+      expect(countOf('getPlacement'), 1);
+
+      // 계정 B 로 전환 — auth listener 가 하는 일과 같다.
+      currentUser = otherUid;
+      TapjoySession.instance.invalidateUser();
+
+      // B 가 탭한다. 게이트가 A 의 것이라 거절돼야 하고, 거절될 탭이 전역 SDK
+      // 사용자 ID 를 B 로 바꾸면 안 된다.
+      final tap = platform.showAd();
+      await completeUserId(tester);
+      await tap;
+      expect(
+        nativeUserId,
+        uid,
+        reason: '거절될 탭이 전역 SDK ID 를 바꾸면 A 의 오퍼가 B 로 귀속된다',
+      );
+
+      // 다시 A 로 돌아온다.
+      currentUser = uid;
+      TapjoySession.instance.invalidateUser();
+
+      await deliver('onContentReady', 'mission');
+      await drain(tester);
+
+      expect(
+        countOf('showContent'),
+        0,
+        reason: '계정이 바뀐 뒤의 시도는 문자열 일치만으로 되살아나면 안 된다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+  });
+
+  group('blocker-3: placement dispatch 무응답', () {
+    testWidgets('getPlacement 응답이 없어도 큐가 끝나고 게이트는 유지된다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      channelBehavior['getPlacement'] = 'hang';
+      var settled = false;
+      final first = platform.showAd();
+      unawaited(
+        first.then(
+          (_) => settled = true,
+          onError: (Object _) => settled = true,
+        ),
+      );
+      await completeUserId(tester);
+      await tester.pump(const Duration(seconds: 31));
+      await drain(tester);
+
+      expect(
+        settled,
+        isTrue,
+        reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+
+    testWidgets('requestContent 응답이 없어도 큐가 끝나고 게이트는 유지된다', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      channelBehavior['requestContent'] = 'hang';
+      var settled = false;
+      final first = platform.showAd();
+      unawaited(
+        first.then(
+          (_) => settled = true,
+          onError: (Object _) => settled = true,
+        ),
+      );
+      await completeUserId(tester);
+      await tester.pump(const Duration(seconds: 31));
+      await drain(tester);
+      expect(settled, isTrue);
+
+      channelBehavior.remove('requestContent');
+      final second = platform.showAd();
+      await completeUserId(tester);
+      await second;
+
+      expect(
+        countOf('getPlacement'),
+        1,
+        reason: '전달 여부가 모호한 timeout 에서는 게이트 소유권을 유지해야 한다',
+      );
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
   });
 
   testWidgets('dispose 뒤 도착한 콘텐츠 준비 콜백은 화면을 열지 않는다', (tester) async {

@@ -32,11 +32,17 @@ void main() {
   /// 'throw' 는 PlatformException, 'hang' 은 응답이 영영 오지 않는 경우다.
   String? setUserIdChannelBehavior;
 
+  /// getUserID / isConnected 채널 응답이 오지 않는 경우.
+  bool getUserIdHangs = false;
+  bool isConnectedHangs = false;
+
   setUp(() {
     calls = <MethodCall>[];
     nativeUserId = null;
     nativeConnected = false;
     setUserIdChannelBehavior = null;
+    getUserIdHangs = false;
+    isConnectedHangs = false;
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
@@ -59,8 +65,10 @@ void main() {
               (call.arguments as Map)['userId'] as String?;
           return null;
         case 'getUserID':
+          if (getUserIdHangs) return Completer<Object?>().future;
           return nativeUserId;
         case 'isConnected':
+          if (isConnectedHangs) return Completer<Object?>().future;
           return nativeConnected;
         default:
           // Android 플러그인의 result.success(null) 을 그대로 재현한다.
@@ -240,6 +248,8 @@ void main() {
       // 채널은 실패했지만 리스너는 살아 있어 네이티브 terminal 이벤트가 올 수
       // 있다. 격리 없이 새 요청을 보내면 그 늦은 이벤트가 새 시도로 샌다.
       setUserIdChannelBehavior = null;
+    getUserIdHangs = false;
+    isConnectedHangs = false;
       currentUser = userB;
       final second = session.ensureUserReady();
       final secondFailed = expectLater(
@@ -272,6 +282,8 @@ void main() {
 
       // 네이티브가 뒤늦게 실패를 통보해 소유권이 정리된다.
       setUserIdChannelBehavior = null;
+    getUserIdHangs = false;
+    isConnectedHangs = false;
       await deliver('TapjoyOnSetUserIDFailure', 'activity was null');
       await tester.pump();
 
@@ -316,6 +328,62 @@ void main() {
       await tester.pump(const Duration(seconds: 11));
       await nextFailed;
       expect(countOf('setUserID'), 1);
+    });
+  });
+
+  group('blocker-3: 네이티브 probe 무응답', () {
+    testWidgets('isConnected 응답이 없어도 큐가 끝난다', (tester) async {
+      final session = makeSession(
+        currentUserId: () => userA,
+        connect: _silentConnector(),
+      );
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+      isConnectedHangs = true;
+
+      var settled = false;
+      final pending = session.ensureUserReady();
+      unawaited(
+        pending.then(
+          (_) => settled = true,
+          onError: (Object _) => settled = true,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 40));
+
+      expect(
+        settled,
+        isTrue,
+        reason: 'probe 가 connectTimeout 밖에서 기다리면 전역 큐가 영구 pending 이 된다',
+      );
+      await expectLater(pending, throwsA(isA<TapjoySessionException>()));
+      await tester.pump(const Duration(seconds: 40));
+    });
+
+    testWidgets('getUserID 응답이 없어도 큐가 끝난다', (tester) async {
+      final session = makeSession(currentUserId: () => userA);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      getUserIdHangs = true;
+      var settled = false;
+      final pending = session.ensureUserReady();
+      unawaited(
+        pending.then(
+          (_) => settled = true,
+          onError: (Object _) => settled = true,
+        ),
+      );
+      await tester.pump();
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 40));
+
+      expect(
+        settled,
+        isTrue,
+        reason: 'probe 가 userIdTimeout 밖에서 기다리면 전역 큐가 영구 pending 이 된다',
+      );
+      await expectLater(pending, throwsA(isA<TapjoySessionException>()));
+      await tester.pump(const Duration(seconds: 40));
     });
   });
 
