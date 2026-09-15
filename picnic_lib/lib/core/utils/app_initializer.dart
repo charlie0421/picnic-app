@@ -423,11 +423,18 @@ class AppInitializer {
 
   static Future<void> _onTapjoyConnectSuccess() async {
     logger.i('Tapjoy connected');
+    await applyTapjoyPrivacySettings();
+    logger.i(Tapjoy.getPluginVersion());
+  }
+
+  /// Tapjoy 개인정보 설정. 앱 안에서 GDPR·user consent·age·US privacy 를
+  /// 지정하는 유일한 지점이다.
+  @visibleForTesting
+  static Future<void> applyTapjoyPrivacySettings() async {
     Tapjoy.getPrivacyPolicy().setSubjectToGDPR(TJStatus.trueStatus);
     Tapjoy.getPrivacyPolicy().setUserConsent(TJStatus.falseStatus);
     Tapjoy.getPrivacyPolicy().setBelowConsentAge(TJStatus.unknownStatus);
     Tapjoy.getPrivacyPolicy().setUSPrivacy('1---');
-    logger.i(Tapjoy.getPluginVersion());
   }
 
   static Future<void> initializeAuth() async {

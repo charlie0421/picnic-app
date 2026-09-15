@@ -28,16 +28,29 @@ void main() {
   /// `Tapjoy.isConnected()` 가 돌려줄 값.
   bool nativeConnected = false;
 
+  /// setUserID 채널 호출의 거동. null 이면 정상(result.success(null)).
+  /// 'throw' 는 PlatformException, 'hang' 은 응답이 영영 오지 않는 경우다.
+  String? setUserIdChannelBehavior;
+
   setUp(() {
     calls = <MethodCall>[];
     nativeUserId = null;
     nativeConnected = false;
+    setUserIdChannelBehavior = null;
     messenger =
         TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
     messenger.setMockMethodCallHandler(channel, (call) async {
       calls.add(call);
       switch (call.method) {
         case 'setUserID':
+          if (setUserIdChannelBehavior == 'throw') {
+            // 리스너는 invokeMethod 이전에 이미 등록됐다(tapjoy.dart:81-84).
+            throw PlatformException(code: 'ERROR', message: 'Activity is null');
+          }
+          if (setUserIdChannelBehavior == 'hang') {
+            // 채널 응답이 영영 오지 않는 경우.
+            return Completer<Object?>().future;
+          }
           // Android SDK 14.6.0 의 TJUser.setUserIdRequest 는 HTTP 검증 **이전에**
           // 로컬 TJUser.setUserId 를 먼저 실행한다. 따라서 setUserID 를 보낸
           // 직후부터 getUserID 는 그 값을 돌려준다 — 네이티브 ID 조회만으로는
@@ -205,6 +218,104 @@ void main() {
       expect(await pending, userA);
       expect(session.readyUserId, userA);
       expect(countOf('getUserID'), greaterThanOrEqualTo(1));
+    });
+  });
+
+  group('blocker-H: 채널 예외·무응답에서의 소유권과 유계 대기', () {
+    testWidgets('채널 예외가 나도 다음 setUserID 는 격리된다', (tester) async {
+      var currentUser = userA;
+      final session = makeSession(currentUserId: () => currentUser);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      setUserIdChannelBehavior = 'throw';
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await firstFailed;
+      expect(countOf('setUserID'), 1);
+
+      // 채널은 실패했지만 리스너는 살아 있어 네이티브 terminal 이벤트가 올 수
+      // 있다. 격리 없이 새 요청을 보내면 그 늦은 이벤트가 새 시도로 샌다.
+      setUserIdChannelBehavior = null;
+      currentUser = userB;
+      final second = session.ensureUserReady();
+      final secondFailed = expectLater(
+        second,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump(const Duration(seconds: 11));
+      await secondFailed;
+
+      expect(
+        countOf('setUserID'),
+        1,
+        reason: '채널 예외도 소유권이 정리되지 않은 상태다 — 새 요청을 보내면 안 된다',
+      );
+      expect(session.readyUserId, isNull);
+    });
+
+    testWidgets('채널 예외 뒤 terminal 이벤트가 도착하면 격리가 풀린다', (tester) async {
+      final session = makeSession(currentUserId: () => userA);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      setUserIdChannelBehavior = 'throw';
+      final first = session.ensureUserReady();
+      final firstFailed = expectLater(
+        first,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump();
+      await firstFailed;
+
+      // 네이티브가 뒤늦게 실패를 통보해 소유권이 정리된다.
+      setUserIdChannelBehavior = null;
+      await deliver('TapjoyOnSetUserIDFailure', 'activity was null');
+      await tester.pump();
+
+      final retry = session.ensureUserReady();
+      final retrySettled = expectLater(retry, completion(userA));
+      await tester.pump();
+      expect(countOf('setUserID'), 2);
+      await deliver('TapjoyOnSetUserIDSuccess');
+      await tester.pump(const Duration(seconds: 11));
+      await retrySettled;
+    });
+
+    testWidgets('채널 응답이 오지 않아도 직렬화 큐가 무기한 멈추지 않는다', (tester) async {
+      final session = makeSession(currentUserId: () => userA);
+      await session.connect(sdkKey: 'sdk-key', initialUserId: userA);
+
+      setUserIdChannelBehavior = 'hang';
+      var settled = false;
+      final pending = session.ensureUserReady();
+      unawaited(
+        pending.then(
+          (_) => settled = true,
+          onError: (Object _) => settled = true,
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 11));
+
+      expect(
+        settled,
+        isTrue,
+        reason: '채널 응답을 무한정 기다리면 이후 모든 오퍼월 시도가 큐에서 멈춘다',
+      );
+      await expectLater(pending, throwsA(isA<TapjoySessionException>()));
+
+      // 소유권은 유지돼야 한다 — 다음 시도는 격리된다.
+      final next = session.ensureUserReady();
+      final nextFailed = expectLater(
+        next,
+        throwsA(isA<TapjoySessionException>()),
+      );
+      await tester.pump(const Duration(seconds: 11));
+      await nextFailed;
+      expect(countOf('setUserID'), 1);
     });
   });
 
