@@ -73,13 +73,15 @@ bool _expectsColumns({
 }) {
   if (keyboard > 0 || !_columnViewports.contains(viewport)) return false;
 
-  // At Thai 2.0x the measured stacked action column is 340.56px tall. The
-  // 851x393 and 844x390 hidden-close bodies cannot hold that plus their
-  // radius-safe insets, so the actual-height condition intentionally rejects
-  // those two candidates. The 926x428 body can still use columns.
-  return !(locale.languageCode == 'th' &&
-      textScale == 2 &&
-      viewport != const Size(926, 428));
+  // PICNIC-2697 measured the Thai 2.0x stacked action column at 340.56px,
+  // which only the 926x428 body could still hold, so the two shorter wide
+  // bodies were the only rejected candidates. PICNIC-2700 caps the one-column
+  // submit label at two lines and ellipsises the rest, so that same column now
+  // measures 231.39px. Every wide body absorbs it in one column, and none of
+  // them needs the split any more. The rejected cases are still held to the
+  // one-column contract below, which is the stronger outcome: the controls stay
+  // visible at offset 0 without spending the width of a second column.
+  return !(locale.languageCode == 'th' && textScale == 2);
 }
 
 Finder _capsuleCard() => find

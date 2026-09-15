@@ -973,15 +973,20 @@ class VotingSubmitButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool columns;
 
+  /// The one-column box width supplied by the caller's layout budget.
+  final double? width;
+
   const VotingSubmitButton({
     super.key,
     required this.canVote,
     required this.isVoting,
     this.onPressed,
     this.columns = false,
+    this.width,
   });
 
   static const double _minHeight = 52;
+  static const int _maxLabelLines = 2;
 
   static TextStyle _labelStyle({Color? color}) =>
       PicnicUi.text(size: 18, weight: FontWeight.w600, color: color);
@@ -999,7 +1004,7 @@ class VotingSubmitButton extends StatelessWidget {
       AppLocalizations.of(context).label_button_vote,
       _labelStyle(),
       maxWidth: (maxWidth ?? preferredWidth()) - horizontalPadding * 2,
-      maxLines: columns ? 2 : null,
+      maxLines: _maxLabelLines,
     );
     final verticalPadding = columns ? 4.0 : PicnicUi.vertical(4);
     return math.max(_minHeight, label + verticalPadding * 2);
@@ -1011,11 +1016,11 @@ class VotingSubmitButton extends StatelessWidget {
         context,
         AppLocalizations.of(context).label_button_vote,
         _labelStyle(),
-        maxLines: 2,
+        maxLines: _maxLabelLines,
       );
 
-  /// The button box width — the design 172, shrunk with the card when a wide
-  /// window caps the capsule.
+  /// The fallback box width for standalone callers — the design 172, shrunk
+  /// with the card when a wide window caps the capsule.
   static double preferredWidth() => voteDialogCardExtent(172);
 
   @override
@@ -1026,7 +1031,7 @@ class VotingSubmitButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        width: columns ? double.infinity : preferredWidth(),
+        width: columns ? double.infinity : width ?? preferredWidth(),
         constraints: const BoxConstraints(minHeight: _minHeight),
         decoration: BoxDecoration(
           color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
@@ -1045,8 +1050,8 @@ class VotingSubmitButton extends StatelessWidget {
               )
             : Text(
                 AppLocalizations.of(context).label_button_vote,
-                maxLines: columns ? 2 : null,
-                overflow: columns ? TextOverflow.ellipsis : null,
+                maxLines: _maxLabelLines,
+                overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: _labelStyle(
                   color: isActive
