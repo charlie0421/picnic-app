@@ -33,8 +33,8 @@ class _ProbePlatform extends TapjoyPlatform {
   ///
   /// `logAdLoadFailure` 는 로그 전용이 아니라 항상 다이얼로그를 띄운다 —
   /// no-fill 이면 `_showNoFillDialog`, 그 외에는 일반 오류 다이얼로그다
-  /// (ad_platform.dart:459,478). `handleAdFailure` 도 하나 띄운다. 둘 다
-  /// 부르면 같은 실패에 두 개가 쌓인다.
+  /// (ad_platform.dart:459,478). 이 클래스의 모든 실패 경로가 이걸 거치므로
+  /// 호출 수가 곧 다이얼로그 수다.
   int dialogs = 0;
 
   @override
@@ -45,11 +45,6 @@ class _ProbePlatform extends TapjoyPlatform {
     String message,
     StackTrace? stackTrace,
   ) {
-    dialogs++;
-  }
-
-  @override
-  void handleAdFailure(String? error) {
     dialogs++;
   }
 
@@ -204,23 +199,54 @@ void main() {
 
     expect(platform.placementRequests, 0);
 
-    // 소유권을 놓지 않는다. 놓으면 다음 요청이 리스너 슬롯을 덮어써, 늦게
-    // 도착한 앞선 시도의 결과가 새 시도의 결과로 둔갑한다 — 계정이 바뀐
-    // 사이라면 적립이 다른 사용자에게 귀속된다.
+    // 같은 계정이면 재시도를 허용한다. 늦은 이벤트가 새 시도의 결과로 처리돼도
+    // SDK 가 든 값과 우리가 믿는 값이 같아서 귀속이 엉키지 않는다. 무응답 한
+    // 번에 앱 재시작까지 오퍼월이 죽으면 안 된다.
     channelCalls.clear();
     final retry = platform.showAd();
     await drain(tester);
+    expect(
+      channelCalls,
+      contains('setUserID'),
+      reason: '같은 계정 재시도까지 막으면 세션 내내 오퍼월이 죽는다',
+    );
+
+    await deliver('TapjoyOnSetUserIDSuccess');
+    await drain(tester);
     await retry;
+    expect(platform.placementRequests, 1);
+
+    // 30초 안전장치 타이머와 버튼 애니메이션을 정리한다 — pending timer 검사는
+    // 본문이 끝나는 시점에 돌아서 tearDown 으로는 늦다.
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('미종료 상태에서 계정이 바뀌면 새 setUserID 를 보내지 않는다', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await tester.pump(const Duration(seconds: 11));
+    await drain(tester);
+    await showing;
+
+    // terminal 이벤트를 못 받은 채 계정이 바뀌었다. 여기서 새 요청을 보내면
+    // 리스너 슬롯이 바뀌어, 늦게 도착한 앞 계정의 결과가 이 시도의 결과로
+    // 둔갑한다 — 적립이 앞 계정에 귀속된다.
+    await setupMockSupabaseWithAuth(<String, dynamic>{}, userId: 'other-user');
+    channelCalls.clear();
+    final switched = platform.showAd();
+    await drain(tester);
+    await switched;
 
     expect(
       channelCalls.where((c) => c == 'setUserID'),
       isEmpty,
-      reason: 'terminal 이벤트 전에는 새 setUserID 를 보내면 안 된다',
+      reason: '앞 계정의 시도가 종료되기 전에는 다른 계정으로 보내면 안 된다',
     );
     expect(platform.placementRequests, 0);
 
-    // 30초 안전장치 타이머와 버튼 애니메이션을 정리한다 — pending timer 검사는
-    // 본문이 끝나는 시점에 돌아서 tearDown 으로는 늦다.
     platform.dispose();
     await pumpAndIgnoreErrors(tester);
   });

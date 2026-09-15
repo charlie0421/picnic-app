@@ -12,21 +12,29 @@ class TapjoyPlatform extends AdPlatform {
   /// 실패가 애니메이션 강제 중지보다 먼저 사용자에게 드러나게 한다.
   static const Duration _userIdTimeout = Duration(seconds: 10);
 
-  /// 종료되지 않은 `setUserID` 시도가 있는가.
+  /// terminal 이벤트를 받지 못한 시도의 user id. 없으면 null.
   ///
   /// **static 인 이유**: 플러그인의 성공·실패 리스너는 Dart 쪽 static 단일
   /// 슬롯이고(TapjoyMethodCallHandler:102-110) 콜백에 요청을 식별할 값이 없다.
-  /// 그래서 A 가 timeout 된 뒤 B 를 보내면 슬롯이 B 로 바뀌고, **늦게 도착한 A
-  /// 의 결과가 B 의 결과로 처리된다.** A 와 B 사이에 계정이 바뀌었다면 SDK 는
-  /// A 를 들고 있는데 B 로 오퍼월을 열어 적립이 다른 계정에 귀속된다.
+  /// A 가 timeout 된 뒤 B 를 보내면 슬롯이 B 로 바뀌어, **늦게 도착한 A 의
+  /// 결과가 B 의 결과로 처리된다.** 인스턴스 필드로는 화면을 다시 만든 경우를
+  /// 못 막으므로 static 이어야 한다.
   ///
-  /// 인스턴스 필드로는 화면을 다시 만든 경우를 못 막으므로 static 이어야 한다.
-  /// terminal 이벤트가 올 때까지 새 요청을 보내지 않는다 — 그동안 오퍼월은
-  /// 열리지 않는다(앱 재시작으로 해제). 적립이 엉키는 것보다 낫다.
-  static bool _userIdPending = false;
+  /// 값을 기억하는 이유: 위험한 것은 "늦은 이벤트" 자체가 아니라 **그 사이에
+  /// 계정이 바뀌는 것**이다. 같은 user id 로 다시 시도하면 늦은 이벤트가 새
+  /// 시도의 결과로 처리돼도 SDK 가 들고 있는 값과 우리가 믿는 값이 같다.
+  /// 그래서 같은 계정의 재시도는 허용하고, 다른 계정만 막는다. 무응답 한 번에
+  /// 앱 재시작까지 오퍼월이 죽는 것을 피하면서 귀속 안전성은 유지한다.
+  static String? _unresolvedUserId;
+
+  /// 지금 결과를 기다리는 시도가 있는가. 연타로 리스너 슬롯이 덮이는 것을 막는다.
+  static bool _awaitingUserId = false;
 
   @visibleForTesting
-  static void resetUserIdGuardForTest() => _userIdPending = false;
+  static void resetUserIdGuardForTest() {
+    _unresolvedUserId = null;
+    _awaitingUserId = false;
+  }
 
   Timer? _safetyTimer;
   bool _isInitialized = false;
@@ -87,20 +95,27 @@ class TapjoyPlatform extends AdPlatform {
       return false;
     }
 
-    if (_userIdPending) {
-      _reportUserSetupFailure('앞선 setUserID 가 아직 종료되지 않음');
+    if (_awaitingUserId) {
+      _reportUserSetupFailure('setUserID 가 이미 진행 중');
       return false;
     }
-    _userIdPending = true;
+    // 다른 계정의 시도가 종료되지 않았다면 새 요청을 보내지 않는다. 보내면
+    // 늦은 그 결과가 이 시도의 결과로 둔갑해 적립이 엉킨다.
+    if (_unresolvedUserId != null && _unresolvedUserId != userId) {
+      _reportUserSetupFailure('다른 계정의 setUserID 가 아직 종료되지 않음');
+      return false;
+    }
+    _unresolvedUserId = userId;
+    _awaitingUserId = true;
 
     startPerformanceLog('사용자 설정');
     final settled = Completer<bool>();
     var failureReason = '${_userIdTimeout.inSeconds}s 안에 응답이 오지 않음';
 
     // terminal 이벤트가 왔다는 것이 소유권 해제 조건이다. timeout 은 해제하지
-    // 않는다 — 해제하면 늦은 이벤트가 다음 시도의 결과로 둔갑한다.
+    // 않는다 — 해제하면 다른 계정으로 바뀐 뒤의 시도가 늦은 결과를 물려받는다.
     void settle(bool ok, [String? reason]) {
-      _userIdPending = false;
+      _unresolvedUserId = null;
       if (reason != null) failureReason = reason;
       if (!settled.isCompleted) settled.complete(ok);
     }
@@ -126,6 +141,7 @@ class TapjoyPlatform extends AdPlatform {
       _userIdTimeout,
       onTimeout: () => false,
     );
+    _awaitingUserId = false;
     if (!ok) _reportUserSetupFailure(failureReason);
     return ok;
   }
@@ -133,8 +149,8 @@ class TapjoyPlatform extends AdPlatform {
   /// 사용자 ID 확정 실패를 한 번만 알린다.
   ///
   /// `logAdLoadFailure` 가 이미 다이얼로그를 띄운다(ad_platform.dart:459,478).
-  /// 여기서 `handleAdFailure` 를 또 부르면 같은 실패에 다이얼로그가 두 번
-  /// 쌓인다. 애니메이션 정리만 직접 한다.
+  /// 그래서 여기서 다이얼로그를 또 띄우지 않는다 — 같은 실패에 두 개가 쌓인다.
+  /// 애니메이션 정리만 직접 한다.
   void _reportUserSetupFailure(String reason) {
     logAdLoadFailure('Tapjoy', reason, 'mission', reason, StackTrace.current);
     if (context.mounted && !isDisposed) {
@@ -153,9 +169,13 @@ class TapjoyPlatform extends AdPlatform {
         logInfo('플레이스먼트 요청 성공');
       },
       onRequestFailure: (placement, error) {
+        // `logAdLoadFailure` 가 이미 다이얼로그를 띄운다. 여기서 또 띄우면 두
+        // 개가 쌓인다 — main 에 있던 기존 결함이다. 애니메이션 정리만 한다.
         logAdLoadFailure(
             'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
-        handleAdFailure(error);
+        if (context.mounted && !isDisposed) {
+          stopAllAnimations();
+        }
       },
       onContentReady: (placement) {
         logInfo('콘텐츠 준비 완료');
@@ -181,18 +201,6 @@ class TapjoyPlatform extends AdPlatform {
     } else {
       logAdLoadFailure('Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패',
           StackTrace.current);
-    }
-  }
-
-  /// 광고 실패 안내. 테스트가 "실패 한 건에 다이얼로그 한 개" 를 고정할 수
-  /// 있도록 override 가능하게 둔다.
-  @visibleForTesting
-  void handleAdFailure(String? error) {
-    if (context.mounted && !isDisposed) {
-      stopAllAnimations();
-      showSimpleDialog(
-          content: AppLocalizations.of(context).label_ads_load_fail,
-          type: DialogType.error);
     }
   }
 
