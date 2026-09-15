@@ -84,20 +84,34 @@ class _MockCommunityStateInfo extends CommunityStateInfo {
   CommunityState build() => const CommunityState();
 }
 
+WalletSummaryModel _walletWith(int star) => WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.from(star),
+      bonus: BigInt.zero,
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026, 9, 15),
+    );
+
+/// 마지막으로 만들어진 지갑 노티파이어. 잔액 부족 분기를 재현할 때 테스트가
+/// 프레임 경계 없이 상태를 낮추려고 잡아 둔다.
+_StaticWalletSummary? _lastWallet;
+
 class _StaticWalletSummary extends WalletSummary {
   @override
-  Future<WalletSummaryModel> build() async => WalletSummaryModel(
-        contractVersion: 'wallet.v1',
-        star: BigInt.from(1000),
-        bonus: BigInt.zero,
-        cotton: BigInt.zero,
-        cottonExpiringAmount: BigInt.zero,
-        cottonNextExpiresAt: null,
-        snapshotAt: DateTime.utc(2026, 9, 15),
-      );
+  Future<WalletSummaryModel> build() async {
+    _lastWallet = this;
+    return _walletWith(1000);
+  }
 
   @override
   Future<void> refresh() async {}
+
+  /// 서버가 더 적은 잔액을 돌려준 상황. 프레임을 돌리지 않고 부르면 제출
+  /// 버튼은 직전 빌드 기준으로 아직 활성인 채 제출 경로만 잔액 부족을 본다 —
+  /// 이슈의 "간간히" 에 해당하는 경합이다.
+  void drainTo(int star) => state = AsyncData(_walletWith(star));
 }
 
 VoteModel _vote() => VoteModel.fromJson({
@@ -273,6 +287,81 @@ void main() {
       lessThan(1),
       reason: '팝업이 닫히면 실제 소프트 키보드도 내려가야 한다 (인셋 ≈ 0)',
     );
+  });
+
+  // 이슈가 말한 "투표 중간에 취소" 에 가장 가까운 경로. 금액을 채우고 키패드를
+  // 올린 상태에서 제출을 누르는 순간 서버 잔액이 모자라면, 아직 포커스가 살아
+  // 있는 입력 위로 오류 팝업이 뜬다. 그 뒤 팝업들을 닫을 때 키패드가 남는지 본다.
+  testWidgets('잔액 부족 오류 팝업이 뜬 뒤에도 키패드가 정리된다', (tester) async {
+    tester.testTextInput.unregister();
+    addTearDown(tester.testTextInput.register);
+
+    await tester.pumpWidget(_harness());
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('open-voting-dialog'));
+    await tester.pumpAndSettle();
+
+    // 전체 사용으로 먼저 금액을 채운다. 이 순서라야 한다 — 전체 사용은 스스로
+    // 포커스를 해제하므로 키패드를 올린 뒤에 누르면 키패드가 사라진다.
+    final checkAll = find.byType(Checkbox);
+    if (checkAll.evaluate().isNotEmpty) {
+      await tester.tap(checkAll.first);
+    } else {
+      await tester.tap(find.textContaining('전체').first);
+    }
+    await tester.pumpAndSettle();
+    debugPrint('PICNIC2695 insufficient: amount filled');
+
+    // 이제 입력을 눌러 실제 키패드를 올린다.
+    await tester.tap(find.byType(TextFormField));
+    await tester.pumpAndSettle();
+    await _settleFor(tester, const Duration(seconds: 2));
+    final insetWithKeyboard = _keyboardInset(tester);
+    debugPrint('PICNIC2695 insufficient: keyboard up inset=$insetWithKeyboard');
+
+    // 프레임을 돌리지 않고 잔액을 떨어뜨린 뒤 제출을 누른다.
+    _lastWallet!.drainTo(0);
+    await tester.tap(find.text('투표'));
+    await tester.pumpAndSettle();
+    await _settleFor(tester, const Duration(seconds: 2));
+
+    final insetWithError = _keyboardInset(tester);
+    debugPrint('PICNIC2695 HOLD error-dialog inset=$insetWithError');
+    await _settleFor(tester, const Duration(seconds: 8));
+
+    // 오류 팝업을 배리어로 닫는다 (확인 버튼은 자동으로 pop 하지 않는다).
+    await tester.tapAt(const Offset(10, 10));
+    await tester.pumpAndSettle();
+    await _settleFor(tester, const Duration(seconds: 2));
+    final insetAfterError = _keyboardInset(tester);
+    debugPrint(
+      'PICNIC2695 HOLD after-error-close inset=$insetAfterError '
+      'votingDialogs=${find.byType(VotingDialog).evaluate().length}',
+    );
+    await _settleFor(tester, const Duration(seconds: 8));
+
+    // 마지막으로 투표 팝업 자체를 닫는다.
+    if (find.byType(VotingDialog).evaluate().isNotEmpty) {
+      await tester.tapAt(const Offset(10, 10));
+      await tester.pumpAndSettle();
+      await _settleFor(tester, const Duration(seconds: 2));
+    }
+    final insetFinal = _keyboardInset(tester);
+    debugPrint('PICNIC2695 insufficient: final inset=$insetFinal');
+
+    expect(insetWithKeyboard, greaterThan(0), reason: '먼저 실제 키패드가 올라와야 한다');
+    expect(
+      insetWithError,
+      lessThan(1),
+      reason: '오류 팝업이 뜬 시점에 이미 키패드가 내려가 있어야 한다',
+    );
+    expect(
+      insetAfterError,
+      lessThan(1),
+      reason: '오류 팝업을 닫아도 키패드가 입력으로 되돌아오면 안 된다 — 사용자에게는 '
+          '"취소했는데 숫자 키패드가 사라지지 않는" 증상으로 보인다',
+    );
+    expect(insetFinal, lessThan(1), reason: '모두 닫은 뒤 키패드가 남아 있으면 안 된다');
   });
 
   testWidgets('키보드를 올린 뒤 배리어를 탭해 닫아도 키보드가 내려간다', (tester) async {
