@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>투표 팝업 뷰포트 대응 핸드오프 (2026-09-16)</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; --bad:#b42318; }
+    body { max-width: 1160px; margin: 0 auto; padding: 36px 28px 72px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    h1, h2, h3 { line-height: 1.3; margin: 1.7em 0 .55em; }
+    h1 { margin-top: 0; font-size: 30px; } h2 { border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 22px; }
+    h3 { font-size: 17px; } p, ul, ol { margin: .55em 0; }
+    code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre { overflow-x: auto; padding: 14px 16px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 13px; }
+    th, td { padding: 8px 9px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--soft); } td.num, th.num { text-align: right; white-space: nowrap; }
+    .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+    .danger { padding: 14px 16px; border-left: 5px solid var(--bad); background: #fff5f4; margin: 14px 0; }
+    .ok { color: var(--ok); font-weight: 700; } .warn { color: var(--warn); font-weight: 700; } .bad { color: var(--bad); font-weight: 700; }
+    .note { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <h1>투표 팝업 뷰포트 대응 핸드오프</h1>
+  <p class="note">2026-09-16 · 워크트리 <code>~/orca/workspaces/picnic-app/picnic-2694</code> · PICNIC-2694 / 2695 / 2697 / 2699 / 2700</p>
+
+  <div class="summary">
+    <p><strong>한 줄 요약:</strong> 투표 입력 팝업과 완료 팝업이 짧은·가로형 화면과 큰 글자 배율에서 잘리던 문제를 다섯 티켓으로 나눠 처리했다. 네 개는 <code>main</code> 에 들어갔고, PICNIC-2699 는 PR <a href="https://github.com/charlie0421/picnic-app/pull/241">#241</a> 에서 리뷰 대기 중이다.</p>
+    <p><strong>인계받는 사람이 가장 먼저 할 일:</strong> ① PR #241 의 Codex 리뷰 결과 확인 후 머지 ② 배포 (아래 3절 — <span class="warn">기존 계획과 달라졌다</span>) ③ 번역 원어민 확인 ④ CTA 폭 디자인 확인.</p>
+  </div>
+
+  <h2>1. 무엇이 문제였나 — 하나의 원인, 다섯 티켓</h2>
+  <p>다섯 티켓은 전부 같은 구조적 결함의 발현이다. <strong>재는 값과 그려지는 값이 다른 층에서 결정된다.</strong> 레이아웃을 고르는 코드가 쓰는 숫자와 실제로 그려질 때 쓰이는 숫자가 달라서, 특정 화면 비율이나 글자 배율에서만 어긋나 잘린다.</p>
+  <table>
+    <thead><tr><th>티켓</th><th>증상</th><th>실제 원인</th><th>상태</th></tr></thead>
+    <tbody>
+      <tr><td><strong>2694</strong> 갤럭시 플립</td><td>짧은·가로 화면에서 금액 입력칸이 안 보이고 "전체 사용" 만 보인다</td><td>세로 치수에 <code>.w</code>(가로 배율)를 써서 짧은 화면에서 높이 예산이 틀어진다</td><td class="ok">머지 c83a3ee1d</td></tr>
+      <tr><td><strong>2695</strong> 닫기 버튼</td><td>우상단 X 가 사라지고, 닫아도 키패드가 남는다</td><td>2694 가 고정 영역을 정리하며 X 자리를 함께 없앴다</td><td class="ok">머지 0819c3a92, dde223cc4</td></tr>
+      <tr><td><strong>2697</strong> 가로형 2단</td><td>폭은 남는데 세로가 모자란 화면에서 세로형 UI 를 그대로 쓴다</td><td>가로형 전용 배치가 없었다</td><td class="ok">머지 706f7853e</td></tr>
+      <tr><td><strong>2700</strong> 긴 번역</td><td>타이어·버마어에서 투표 버튼이 무한정 줄바꿈된다 (2.0배 7줄 370px)</td><td>줄 수 상한이 측정과 렌더에서 다르고, 버튼 폭이 172 로 고정이다</td><td class="ok">머지 65889f57e</td></tr>
+      <tr><td><strong>2699</strong> 완료 팝업</td><td>짧은 화면에서 위아래가 잘린다</td><td>고정 픽셀 높이와 폭 제약 없는 텍스트. <strong>가로로도 넘친다</strong></td><td class="warn">PR #241 리뷰 중</td></tr>
+    </tbody>
+  </table>
+
+  <h2>2. 다음 사람이 반드시 알아야 할 것 다섯 가지</h2>
+
+  <h3>2.1 완료 팝업의 공유 이미지는 화면 전체 스냅샷이다</h3>
+  <p><code>ShareUtils._captureContent</code> 가 잡는 <code>RepaintBoundary</code> 는 <code>Dialog</code> 위에 있어 <strong>화면 전체</strong>를 덮는다. 393×852 기기의 공유 이미지는 786×1704 이고 팝업은 그 가운데 놓인다. 결과적으로 두 가지가 따라온다.</p>
+  <ul>
+    <li><strong>완료 팝업에는 스크롤을 쓸 수 없다.</strong> 스크롤 뷰는 화면에 있는 것만 렌더하므로 밀려난 부분이 이미지에서 사라진다. 2694 에서 쓴 해법을 여기 그대로 가져오면 안 된다.</li>
+    <li><strong>수정 전에는 공유 이미지 자체가 잘려 있었다.</strong> 가로 화면에서 팝업 437px, 캡처 영역 393px 로 44px 이 이미지에서 사라졌다. 표시만의 문제가 아니었다.</li>
+  </ul>
+
+  <h3>2.2 <code>.w</code> 를 세로 치수에 쓰지 말 것</h3>
+  <p><code>flutter_screenutil</code> 의 <code>.w</code> 는 가로 배율이다. 2694 의 근본 원인이 <code>VotingArtistImage.preferredHeight() =&gt; 80.w</code> 였다. 세로에는 <code>.h</code>, 비율 보존에는 <code>.r</code>.</p>
+
+  <h3>2.3 위젯이 내가 준 크기를 안 쓸 수 있다</h3>
+  <p>2700 의 회귀는 <code>SvgPicture</code> 가 <strong><code>width</code> 인자를 무시</strong>해서 생겼다. 높이 20 에 고정된 정사각 SVG 는 폭을 12 를 줘도 30 을 줘도 항상 20 을 그린다. 측정 쪽은 <code>20.w</code>(320폭에서 16.28)를 예약했고 3.72px 이 어긋나 고정 열이 넘쳤다. <strong>기하를 재는 대상이 SVG·이미지면 인자가 아니라 <code>tester.getSize</code> 로 실측해 확인할 것.</strong></p>
+
+  <h3>2.4 높이를 줄이는 변경도 회귀 검사 범위는 전체다</h3>
+  <p>2700 에서 제출 버튼 높이를 55px 줄이자, 스크롤로 처리되던 두 조합이 <strong>고정 배치 경로로 옮겨왔고</strong> 거기 잠복해 있던 결함이 그제야 드러났다. "더 작게 만드는 변경이니 안전하다" 는 성립하지 않는다.</p>
+
+  <h3>2.5 <code>IntrinsicHeight</code> 아래에 <code>LayoutBuilder</code> 가 있으면 터진다</h3>
+  <p>2699 가 완료 팝업의 두 칸을 <code>IntrinsicHeight</code> 로 묶었다. <code>PicnicCachedNetworkImage</code> 안에 <code>LayoutBuilder</code> 가 있어 내재 크기 질의에 답하지 못한다. 고정 크기 <code>SizedBox(60,60)</code> 가 하위로 내려가지 않고 60 을 답해 질의를 멈춘다. <strong>그 상자는 장식이 아니라 필수다.</strong> 이 행 아래에 <code>LayoutBuilder</code> 를 새로 넣으면 디버그에서 즉시 단언 실패한다.</p>
+
+  <h2>3. 배포 — 계획이 바뀌었다</h2>
+  <div class="danger">
+    <p><strong>세션 중 <code>main</code> 의 앱 버전이 <code>1.3.4+130403</code> 에서 <code>1.3.4+130404</code> 로 올라갔다</strong> (<code>8a24928ed</code>, PR #240). <code>release-ota</code> 워크트리도 <code>7ffa50c68 chore(release): bump picnic to 1.3.4+130404</code> 에 있다.</p>
+    <p>따라서 이 작업들은 <strong>+130403 에 대한 OTA 패치</strong>가 아니라 <strong>+130404 신규 바이너리에 탑승</strong>할 가능성이 크다. 어느 쪽인지는 릴리스 담당이 확정해야 한다. 아래 커밋 목록은 "무엇이 들어가야 하는가" 이지 "어떻게 나가는가" 가 아니다.</p>
+  </div>
+  <table>
+    <thead><tr><th>티켓</th><th>커밋</th><th class="num">비고</th></tr></thead>
+    <tbody>
+      <tr><td>2693</td><td><code>67f6bb163</code></td><td class="num">1차 묶음</td></tr>
+      <tr><td>2694</td><td><code>c83a3ee1d</code></td><td class="num">1차 묶음</td></tr>
+      <tr><td>2695</td><td><code>0819c3a92</code>, <code>dde223cc4</code></td><td class="num">1차 묶음</td></tr>
+      <tr><td>2697</td><td><code>706f7853e</code></td><td class="num">후속</td></tr>
+      <tr><td>2700</td><td><code>65889f57e</code></td><td class="num">후속</td></tr>
+      <tr><td>2699</td><td class="warn">미머지 (PR #241)</td><td class="num">리뷰 후</td></tr>
+    </tbody>
+  </table>
+  <p>모두 Dart 전용이라 OTA 범위 자체는 만족한다. Shorebird <code>app_id</code> 는 <code>571d432c-155d-4f6e-b74f-2ecef3e6f680</code>, 설정은 <code>picnic_app/shorebird.yaml</code>. 절차는 <code>~/.config/ai-agent-policies/flutter-release.md</code> 를 처음부터 읽고 따를 것. <strong>배포는 <code>release-ota</code> 세션 소관이며 다른 세션이 실행하지 않는다.</strong></p>
+
+  <h2>4. 열려 있는 결정 세 가지</h2>
+
+  <h3>4.1 번역 원어민 확인 — PICNIC-2700</h3>
+  <table>
+    <thead><tr><th>로케일</th><th>이전</th><th>이후</th></tr></thead>
+    <tbody>
+      <tr><td>ja</td><td>投票する</td><td>投票 <span class="note">(zh_CN·zh_TW 가 이미 쓰는 표기)</span></td></tr>
+      <tr><td>th</td><td>ลงคะแนนเสียง</td><td>โหวต</td></tr>
+      <tr><td>my</td><td>မဲပေးပဲှ</td><td>မဲပေး <span class="note">(기존 값은 표기 자체가 의심스러움)</span></td></tr>
+    </tbody>
+  </table>
+  <div class="danger">
+    <p><strong>되돌릴 때 주의.</strong> 번역 커밋 <code>0750d6689</code> 만 되돌리면 PICNIC-2697 의 조건부 2단 테스트가 깨진다. 926×428 타이어 2.0배에서 쌓인 조작부 열이 288.56 에서 340.56 으로 돌아가 2단 후보가 탈락하고 1단이 된다. <strong>코드 커밋과 번역 커밋은 짝이다.</strong> 근거 측정표는 <code>voting_dialog_columns_test.dart</code> 의 <code>_expectsColumns</code> 주석에 있다.</p>
+  </div>
+
+  <h3>4.2 CTA 폭 디자인 확인 — PICNIC-2700</h3>
+  <p>2700 은 높이 상한을 넘어 <strong>버튼 폭 정책까지 바꿨다.</strong> 기본 393×852 한국어 화면에서 140.1 → 293.2 로 넓어져 가운데 알약이 거의 전폭 바가 되고, 키보드가 열리면 293.2 → 225.6 (23%) 줄어든다.</p>
+  <p>폭 확장이 실제로 막아 주는 것을 재봤다. 축약 번역 적용 후 고정 172 로 두고 2줄 상한만 적용했을 때:</p>
+  <table>
+    <thead><tr><th class="num">배율</th><th>고정 172 에서의 결과</th></tr></thead>
+    <tbody>
+      <tr><td class="num">1.0 / 1.3</td><td>전 로케일 1줄, 잘림 없음</td></tr>
+      <tr><td class="num">2.0</td><td>잘림 없음. fil·my·th·vi 가 2줄</td></tr>
+      <tr><td class="num">2.6</td><td><span class="warn">my·vi 말줄임</span>. 나머지 2줄</td></tr>
+    </tbody>
+  </table>
+  <p>즉 <strong>2.0배를 넘는 배율의 버마어·베트남어 잘림만</strong> 막아 준다. 베트남어는 축약하지 않은 로케일이라 번역만으로는 닫히지 않는다. 되돌리는 비용은 낮다 — <code>_buildFooter</code> 의 <code>width</code> 를 <code>preferredWidth()</code> 로 바꾸면 2.0배 이하는 예전 모양 그대로다. 제3안은 말줄임 대신 자동 축소(<code>FittedBox</code>)다. 엔지니어링이 아니라 디자인 판단이라 손대지 않았다.</p>
+
+  <h3>4.3 공유 이미지가 대부분 흰 여백 — 새 티켓 후보</h3>
+  <p>캡처 경계가 화면 전체라 공유 이미지는 흰 바탕 가운데 작은 카드가 놓인 형태이고, 가로 화면에서는 가로로 긴 흰 이미지가 된다. 경계를 카드로 좁히면 해결되지만 공유 이미지가 완전히 달라지므로 디자인 결정이 필요하다. <strong>아직 티켓을 만들지 않았다.</strong></p>
+
+  <h2>5. 테스트 자산 — 레이아웃을 건드리면 여기부터</h2>
+  <table>
+    <thead><tr><th>파일</th><th class="num">건수</th><th>지키는 것</th></tr></thead>
+    <tbody>
+      <tr><td><code>voting_dialog_overflow_test.dart</code></td><td class="num">448</td><td>전 로케일 14 × 뷰포트 4 × 키보드 2 × 배율 4 에서 레이아웃이 아무것도 던지지 않는다. <strong>입력 팝업의 최소 방어선.</strong></td></tr>
+      <tr><td><code>voting_complete_viewport_test.dart</code></td><td class="num">74</td><td>완료 팝업이 6개 뷰포트 × 3배율에서 넘치지 않고, 창 안에 있고, 조작부가 적중하고, <strong>캡처 영역이 카드를 포함한다.</strong></td></tr>
+      <tr><td><code>voting_dialog_submit_label_test.dart</code></td><td class="num">22</td><td>제출 라벨이 2줄을 넘지 않고 버튼이 캡슐 모서리를 침범하지 않는다</td></tr>
+      <tr><td><code>voting_dialog_columns_test.dart</code></td><td class="num">—</td><td>조건부 2단 전환. <code>_expectsColumns</code> 는 <strong>번역 문자열 길이에 의존하는 정적 기대표</strong>라 라벨이 바뀌면 함께 움직인다</td></tr>
+      <tr><td><code>voting_dialog_viewport_test.dart</code></td><td class="num">—</td><td>2694 의 뷰포트 계약</td></tr>
+    </tbody>
+  </table>
+  <p class="warn">주의: 기존 <code>voting_complete_test.dart</code> 는 <code>overflowed</code> 오류를 명시적으로 무시한다. 그래서 11건이 통과하는 동안 2699 의 결함 다섯 개가 한 번도 보이지 않았다. 신규 파일이 그 축을 덮으므로 남겨 뒀으나, 억제를 걷어내는 것은 후속 정리 후보다.</p>
+  <p><strong>검증 명령</strong> (<code>picnic_lib</code> 에서):</p>
+  <pre>flutter test test/presentation/widgets/vote/voting   # 기대 +1343 실패 0 (2699 머지 후)
+flutter analyze                                      # 기대 521 — 부모와 동일해야 한다</pre>
+
+  <h2>6. 작업 방식에서 배운 것</h2>
+  <ul>
+    <li><strong>부모 커밋에서 같은 검사를 돌려 보기 전에는 "기존 결함" 이라 단정하지 말 것.</strong> 2700 리뷰에서 리뷰어가 기존 결함으로 분류한 1건이 실제로는 회귀였다. 부모에서 330건 전부 통과하는 것을 확인해 밝혔다.</li>
+    <li><strong>주석에 추측을 쓰지 말 것.</strong> 2700 에서 전환 전제가 움직인 이유를 두 번 틀리게 적었다가 계측으로 바로잡았다. 인셋이 원인이라고 썼는데 실측해 보니 양쪽 다 24 로 같았다.</li>
+    <li><strong>테스트 하네스가 뷰포트 높이를 재는 함정.</strong> 이 세션에서만 세 번 걸렸다. 내재 높이를 재려면 <code>Column(mainAxisSize: min)</code> 이나 <code>IntrinsicHeight</code> 로 감쌀 것.</li>
+    <li><strong>되돌림 변이로 테스트 판별력을 확인할 것.</strong> 수정을 부모 동작으로 되돌려 실제로 RED 가 되는지 매번 확인했다. 2700 에서 22건 중 4건, 2699 에서 <code>+0 -1</code>.</li>
+    <li><code>git stash</code> 는 워크트리 전체가 공유하므로 쓰지 말 것. 파일 복사나 별도 워크트리를 쓸 것. 이 세션에서 stash 가 백그라운드 명령과 얽혀 작업본이 잠깐 사라졌다.</li>
+    <li>macOS 에는 <code>timeout</code> 이 없다. 긴 명령은 백그라운드 + 출력 파일 폴링으로 처리할 것.</li>
+  </ul>
+
+  <h2>7. 산출물</h2>
+  <table>
+    <thead><tr><th>문서</th><th>내용</th></tr></thead>
+    <tbody>
+      <tr><td><code>docs/01-plan/features/picnic-2694-vote-dialog-viewport-plan.html</code></td><td>2694 설계 근거</td></tr>
+      <tr><td><code>docs/01-plan/features/picnic-2697-vote-dialog-landscape-columns-plan.html</code></td><td>2697 설계 근거</td></tr>
+      <tr><td><code>docs/01-plan/features/picnic-2697-measurements.html</code></td><td>2697 실측</td></tr>
+      <tr><td><code>docs/operations/picnic-2694-implementation-result.html</code> 외 리뷰 4건</td><td>2694 구현·리뷰·재검</td></tr>
+      <tr><td><code>docs/operations/picnic-2694-captures/</code></td><td>에뮬레이터 전후 캡처 12장</td></tr>
+      <tr><td><code>docs/operations/picnic-2700-implementation-result.html</code></td><td>2700 구현 + 적대적 리뷰 6건 대응 + F4 판단 근거</td></tr>
+      <tr><td><code>docs/operations/picnic-2699-implementation-result.html</code></td><td>2699 구현 + 캡처 경로 실측</td></tr>
+    </tbody>
+  </table>
+</body>
+</html>
