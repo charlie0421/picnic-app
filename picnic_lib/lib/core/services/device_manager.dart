@@ -95,10 +95,17 @@ class DeviceManager {
     try {
       final deviceId = await getDeviceId();
       final now = DateTime.now().toIso8601String();
+      final packageInfo = await PackageInfo.fromPlatform();
 
       await supabase
           .from('devices')
-          .update(DeviceManagerHelper.buildLastSeenUpdate(now))
+          .update(
+            DeviceManagerHelper.buildActivityUpdate(
+              now,
+              appVersion: packageInfo.version,
+              buildNumber: packageInfo.buildNumber,
+            ),
+          )
           .eq('device_id', deviceId);
     } catch (e, s) {
       logger.e('Error updating last seen', error: e, stackTrace: s);

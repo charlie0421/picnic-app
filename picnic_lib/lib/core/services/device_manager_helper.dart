@@ -123,10 +123,20 @@ class DeviceManagerHelper {
     return result['unbanned_at'] == null;
   }
 
-  /// Build the update payload for marking a device as last seen now.
+  /// Build the lightweight activity payload used when an authenticated app
+  /// session is restored or refreshed.
   @visibleForTesting
-  static Map<String, dynamic> buildLastSeenUpdate(String nowIso8601) {
-    return {'last_seen': nowIso8601};
+  static Map<String, dynamic> buildActivityUpdate(
+    String nowIso8601, {
+    required String appVersion,
+    required String buildNumber,
+  }) {
+    return {
+      'last_seen': nowIso8601,
+      'app_version': appVersion,
+      'app_build_number': buildNumber,
+      'last_updated': nowIso8601,
+    };
   }
 
   /// Parse an IP address string from the edge function response data.
