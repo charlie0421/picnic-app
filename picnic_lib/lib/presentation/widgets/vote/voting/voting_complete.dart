@@ -23,6 +23,15 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete_help
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/ui/style.dart';
 
+/// Lines an artist or group name may take in the completion popup.
+///
+/// Names come from the server with no length limit, and the popup is scaled
+/// down as a whole to fit its natural height, so an unbounded name used to
+/// shrink everything with it — the save button was drawn at about 14x8 px for
+/// a 96-character name. Capping the lines caps the natural height, which puts
+/// a floor under the scale.
+const int _kNameMaxLines = 2;
+
 Future showVotingCompleteDialog({
   required BuildContext context,
   required VoteModel voteModel,
@@ -511,6 +520,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         getLocaleTextFromJson(artist.name),
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         textAlign: TextAlign.center,
+        maxLines: _kNameMaxLines,
+        overflow: TextOverflow.ellipsis,
       ),
       // artistGroup이 null인 경우를 안전하게 처리
       if (artist.artistGroup?.name != null)
@@ -521,6 +532,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
             AppColors.grey600,
           ).copyWith(height: .8),
           textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
     ];
   }
@@ -543,12 +556,15 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           height: 60,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(60.r),
+            // ArtistGroupModel.image is nullable. The artist branch already
+            // hands an empty URL to the image widget, which shows its
+            // placeholder; the group branch force-unwrapped and threw.
             child: PicnicCachedNetworkImage(
-              imageUrl: group.image!,
+              imageUrl: group.image ?? '',
               width: 60,
               height: 60,
               placeholder: VoteDetailPortraitCachePlaceholder(
-                imageUrl: group.image!,
+                imageUrl: group.image ?? '',
               ),
               lazyLoadingStrategy: LazyLoadingStrategy.none,
               priority: ImagePriority.high,
@@ -560,6 +576,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
         getLocaleTextFromJson(group.name),
         style: getTextStyle(AppTypo.body16B, AppColors.grey900),
         textAlign: TextAlign.center,
+        maxLines: _kNameMaxLines,
+        overflow: TextOverflow.ellipsis,
       ),
       Text(
         getLocaleTextFromJson(group.name),
@@ -568,6 +586,8 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
           AppColors.grey600,
         ).copyWith(height: .8),
         textAlign: TextAlign.center,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
     ];
   }
