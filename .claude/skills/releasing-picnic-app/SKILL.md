@@ -25,16 +25,23 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 
 ## 절차
 
-0. **실을 내용 확인** — `git fetch origin main --tags && git log --oneline "$(git describe --tags --abbrev=0 --match 'picnic-v*' origin/main)"..origin/main`.
-   직전 릴리스 태그 이후 커밋이 곧 이번 릴리스 내용이다. 사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다
+0. **최신 코드 받기** — 항상 여기서 시작한다. 이전 세션의 브랜치·로컬 `main`·기억 속 SHA 를 믿지 않는다.
+   ```bash
+   git fetch origin main --tags --prune
+   git log --oneline "$(git describe --tags --abbrev=0 --match 'picnic-v*' origin/main)"..origin/main
+   ```
+   출력(직전 릴리스 태그 이후 커밋)이 곧 이번 릴리스 내용이다 — 사용자에게 보여준다.
+   사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다
 1. **버전 결정** — `scripts/release_picnic.sh next <patch|build>` (직접 지정이면 생략)
 2. **브랜치** — `git switch -c chore/release-<M>-<m>-<P>[-build-<BB>] origin/main --no-track`
-   (워크트리 안에서만. 메인 폴더에서는 워크트리를 먼저 만든다)
+   (워크트리 안에서만. 메인 폴더에서는 워크트리를 먼저 만든다.) 기존 릴리스 브랜치를 재사용하지 않고
+   방금 받은 `origin/main` 에서 새로 만든다 — 아니면 `bump` 가 거부한다
 3. **범프** — `scripts/release_picnic.sh bump <버전>` → 변경은 `picnic_app/pubspec.yaml` 한 줄이어야 한다
 4. **가드 테스트** — `cd picnic_app && flutter test`. 끝난 뒤 `git status --short` 로 `pubspec.lock` 이 안 바뀌었는지 본다
 5. **커밋·PR** — `chore(release): bump picnic to <버전>`. PR 본문에 0의 목록(직전 릴리스 태그 이후 PR)을 적는다
 6. **머지** — squash. 한 줄 범프라 교차 리뷰는 생략한다
-7. **태그 dry-run** — `scripts/release_picnic.sh tag [--skip-tests]` 가 태그·버전·대상 커밋을 출력한다
+7. **태그 dry-run** — `scripts/release_picnic.sh tag [--skip-tests]` 가 다시 fetch 한 뒤 태그·버전·대상 커밋을 출력한다.
+   대상 커밋이 6의 머지 커밋이 아니면(그 사이 다른 PR 이 머지됨) 추가된 커밋을 사용자에게 알린다
 8. **사용자 승인** — 7의 출력을 보여주고 *전체 테스트 / `-skip-tests` / 보류* 중 고르게 한다. **"릴리즈 해줘" 는 이 승인이 아니다**
 9. **푸시** — 승인된 옵션 그대로 `scripts/release_picnic.sh tag [--skip-tests] --push`
 10. **시작 확인** — `scripts/release_picnic.sh status <tag>` 에 `picnic-app-ios`·`picnic-app-android` 가 둘 다 보여야 한다

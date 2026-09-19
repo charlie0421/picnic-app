@@ -59,6 +59,9 @@ cmd_bump() {
   local new="${1:?새 버전}" cur
   parse "$new" >/dev/null
   cur=$(main_version)
+  # 낡은 브랜치에서 범프하면 최신 main 의 변경이 빠진 채 릴리스된다.
+  git merge-base --is-ancestor origin/main HEAD \
+    || die "현재 브랜치가 최신 origin/main($(git rev-parse --short origin/main)) 위에 있지 않다 — origin/main 에서 새 브랜치를 만들어라"
   [ "${new#*+}" -gt "${cur#*+}" ] || die "빌드 번호는 origin/main($cur) 보다 커야 한다"
   sed -i '' "s/^version:.*/version: $new/" "$PUBSPEC"
   echo "$cur → $new"
