@@ -54,6 +54,28 @@ void main() {
     expect(request.decodeHeight, 400);
   });
 
+  testWidgets('cdnTransform false requests the untransformed original', (
+    tester,
+  ) async {
+    final context = await _pumpContext(tester, devicePixelRatio: 3);
+
+    final request = PicnicImageRequest.resolve(
+      context: context,
+      imageUrl: '/reward/1.png',
+      width: 1000,
+      maxResolutionMultiplierCap: 1,
+      cdnTransform: false,
+    );
+
+    expect(Uri.parse(request.url).hasQuery, isFalse);
+    expect(request.url, endsWith('/reward/1.png'));
+    expect(request.requestWidth, isNull);
+    expect(request.requestHeight, isNull);
+    // 디코드 크기는 CDN 변형 여부와 무관하게 요청한 크기로 제한한다.
+    expect(request.decodeWidth, 1000);
+    expect(request.decodeHeight, 2000);
+  });
+
   testWidgets('resolution cap accepts only finite positive values', (
     tester,
   ) async {

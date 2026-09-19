@@ -50,10 +50,10 @@ void main() {
   }
 
   group('RewardDialog CDN variant', () {
-    // 리워드 원본은 1000px 로 업로드된다. CDN 리사이저는 (w,h,q) 조합마다 별도
-    // 캐시 객체를 만들고 새 조합의 첫 요청은 1.7MB PNG 기준 5~10초가 걸린다
-    // (2026-09-14 실측). 기기 폭·DPR 로 키가 갈리면 기기마다 콜드 리사이즈를
-    // 맞으므로, 다이얼로그 이미지는 기기와 무관한 고정 변형 하나만 요청해야 한다.
+    // 리워드 원본은 1000px 로 업로드된다. CDN 은 query 가 하나라도 붙으면
+    // 리사이저를 거치고, 이미지별 첫 요청이 8~12초 걸린다(2026-09-19 실측 —
+    // 고정 변형 w=1000&q=80 도 배포 5일 뒤까지 아무도 만들지 않아 콜드였다).
+    // 원본은 0.1~0.3초라 다이얼로그 이미지는 변환 없는 원본을 요청해야 한다.
     List<String> collectRequestUrls(WidgetTester tester) {
       return tester
           .widgetList<PicnicCachedNetworkImage>(
@@ -87,7 +87,7 @@ void main() {
       },
     );
 
-    testWidgets('every image pins one width-only variant at the source size', (
+    testWidgets('every image requests the untransformed original', (
       tester,
     ) async {
       await pumpAndDrain(
@@ -98,16 +98,29 @@ void main() {
       final urls = collectRequestUrls(tester);
       expect(urls, hasLength(6));
       for (final url in urls) {
-        expect(
-          url,
-          endsWith(
-            "?q=80&w=${RewardDialogConstants.imageRequestWidth.toInt()}",
-          ),
-          reason: url,
-        );
-        expect(url, isNot(contains('&h=')), reason: url);
+        expect(url, endsWith('.png'), reason: url);
+        expect(Uri.parse(url).hasQuery, isFalse, reason: url);
       }
-      expect(RewardDialogConstants.imageRequestWidth, 1000);
+    });
+
+    testWidgets('decode stays bounded to the source size', (tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(RewardDialog(data: makeFullReward())),
+      );
+
+      final requests = tester
+          .widgetList<PicnicCachedNetworkImage>(
+            find.descendant(
+              of: find.byType(RewardDialog),
+              matching: find.byType(PicnicCachedNetworkImage),
+            ),
+          )
+          .map((widget) => widget.imageRequest!);
+      for (final request in requests) {
+        expect(request.decodeWidth, 1000, reason: request.url);
+      }
+      expect(RewardDialogConstants.imageDecodeWidth, 1000);
     });
 
     testWidgets('variant key does not change with device pixel ratio', (

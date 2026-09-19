@@ -274,4 +274,45 @@ void main() {
       );
     });
   });
+
+  group('resolveOriginal', () {
+    // CDN 은 query 가 하나라도 붙으면(q 만이라도) 리사이저 경로로 302 하고, 새
+    // 변형의 첫 요청은 1000px PNG 기준 8~12초가 걸린다(2026-09-19 실측).
+    // 원본 요청은 리사이저를 거치지 않아야 한다.
+    test('CDN relative path는 base URL에 결합하고 query를 붙이지 않는다', () {
+      expect(
+        resolver.resolveOriginal('/reward/1.png'),
+        'https://test-cdn.example.com/reward/1.png',
+      );
+    });
+
+    test('CDN relative path에 섞인 query도 제거한다', () {
+      expect(
+        resolver.resolveOriginal('reward/1.png?q=80#frag'),
+        'https://test-cdn.example.com/reward/1.png#frag',
+      );
+    });
+
+    test('CDN absolute URL의 기존 query를 제거하고 fragment는 보존한다', () {
+      expect(
+        resolver.resolveOriginal(
+          ' https://test-cdn.example.com/reward/1.png?q=80&w=1000#frag ',
+        ),
+        'https://test-cdn.example.com/reward/1.png#frag',
+      );
+    });
+
+    test('외부 signed URL은 query와 문자열 표기를 그대로 보존한다', () {
+      const signedUrl =
+          'HTTPS://images.example.com/photo.jpg?X-Amz-Signature=abc%2F123';
+      expect(resolver.resolveOriginal('  $signedUrl  '), signedUrl);
+    });
+
+    test('protocol-relative 외부 URL은 https로 승격만 한다', () {
+      expect(
+        resolver.resolveOriginal('//images.example.com/a.jpg?t=1'),
+        'https://images.example.com/a.jpg?t=1',
+      );
+    });
+  });
 }

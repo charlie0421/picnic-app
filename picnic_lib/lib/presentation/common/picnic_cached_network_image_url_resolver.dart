@@ -55,6 +55,46 @@ final class PicnicCachedNetworkImageUrlResolver {
     return _resolveVariants(uri, width, height, variants);
   }
 
+  /// Resolves [imageUrl] to the untransformed source URL.
+  ///
+  /// The CDN routes any query — even a lone `q` — through its resizer, whose
+  /// first request per new variant is slow. CDN URLs therefore lose their
+  /// query here; external URLs keep it so signed queries remain valid.
+  String resolveOriginal(String imageUrl) {
+    final normalizedImageUrl = imageUrl.trim();
+    final classified = _classifyImageKey(normalizedImageUrl);
+
+    if (classified.isAbsolute) {
+      final uri = classified.uri!;
+      if (!_isCdnUrl(uri)) {
+        return normalizedImageUrl.startsWith('//')
+            ? uri.toString()
+            : normalizedImageUrl;
+      }
+      return _withoutQuery(uri).toString();
+    }
+
+    final cdnUrl = this.cdnUrl;
+    if (cdnUrl == null) {
+      throw StateError('CDN URL is required for relative image URLs.');
+    }
+    final uri = Uri.parse(
+      '$cdnUrl/${normalizedImageUrl.startsWith('/') ? normalizedImageUrl.substring(1) : normalizedImageUrl}',
+    );
+    return _withoutQuery(uri).toString();
+  }
+
+  Uri _withoutQuery(Uri uri) {
+    return Uri(
+      scheme: uri.scheme,
+      userInfo: uri.userInfo,
+      host: uri.host,
+      port: uri.hasPort ? uri.port : null,
+      path: uri.path,
+      fragment: uri.hasFragment ? uri.fragment : null,
+    );
+  }
+
   List<String> _resolveVariants(
     Uri uri,
     double? width,
