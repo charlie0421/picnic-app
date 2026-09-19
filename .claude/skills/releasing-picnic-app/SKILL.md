@@ -12,21 +12,22 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 
 ## 모드
 
-| 인자 | 뜻 | 다음 버전 |
+| 호출 | 뜻 | 버전 |
 |---|---|---|
-| `build` | **빌드 번호만** 올린다 — 같은 표시 버전 재빌드, 실패한 빌드 재시도 | `next build` (1.3.5+130501 → 1.3.5+130502) |
-| `patch` (기본) · `minor` · `major` | 새 표시 버전 | `next patch` 등 (BB 는 01 로 초기화) |
-| `1.3.5+130501` 처럼 명시 | 사용자가 준 값을 그대로 쓴다 | `bump` 가 형식·증가 여부를 검증 |
+| `patch` (기본) | **새로운 버전** — 패치 버전만 올린다 | `next patch` · 1.3.5+130501 → 1.3.6+130601 |
+| `build` | **현재 버전의 새 바이너리** — 빌드 번호만 올린다 (재빌드, 실패한 빌드 재시도) | `next build` · 1.3.5+130501 → 1.3.5+130502 |
+| `<M.m.P+MmPPBB>` | **직접 지정** — minor·major 증가도 여기로 | 사용자 값 그대로 · 예 `1.4.0+140001` |
 
-사용자가 버전을 말했으면 `next` 결과와 달라도 사용자 값을 쓰고, `bump` 가 거부할 때만 되묻는다.
-`build` 모드도 절차는 아래와 동일하다 — 범프 PR 을 생략하지 않는다(태그는 pubspec 과 일치해야 하고,
-커밋 하나에는 릴리스 태그가 하나만 붙을 수 있다).
+- 인자가 없고 요청 문장으로도 모드가 갈리지 않으면 `patch` 다.
+- 직접 지정은 `next` 를 건너뛰고 1번에서 그 값을 쓴다. `bump` 가 형식·MmPPBB 접두·증가 여부를 검증하며, 거부될 때만 되묻는다.
+- 세 모드 모두 아래 절차는 동일하다. `build` 도 범프 PR 을 생략하지 않는다(태그는 pubspec 과 일치해야 하고,
+  커밋 하나에는 릴리스 태그가 하나만 붙을 수 있다).
 
 ## 절차
 
 0. **실을 내용 확인** — `git fetch origin main --tags && git log --oneline "$(git describe --tags --abbrev=0 --match 'picnic-v*' origin/main)"..origin/main`.
    직전 릴리스 태그 이후 커밋이 곧 이번 릴리스 내용이다. 사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다
-1. **버전 결정** — `scripts/release_picnic.sh next <build|patch|minor|major>`
+1. **버전 결정** — `scripts/release_picnic.sh next <patch|build>` (직접 지정이면 생략)
 2. **브랜치** — `git switch -c chore/release-<M>-<m>-<P>[-build-<BB>] origin/main --no-track`
    (워크트리 안에서만. 메인 폴더에서는 워크트리를 먼저 만든다)
 3. **범프** — `scripts/release_picnic.sh bump <버전>` → 변경은 `picnic_app/pubspec.yaml` 한 줄이어야 한다

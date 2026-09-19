@@ -3,7 +3,7 @@
 # picnic_app 신규 바이너리 릴리스의 기계적 단계(버전 계산·범프·태그 사전검증)를 맡는다.
 # 절차와 승인 게이트는 .claude/skills/releasing-picnic-app/SKILL.md 가 소유한다.
 #
-#   next <build|patch|minor|major>   origin/main 기준 다음 전체 버전을 출력
+#   next <patch|build>               origin/main 기준 다음 전체 버전을 출력 (minor·major 는 bump 에 직접 지정)
 #   bump <M.m.P+MmPPBB>              picnic_app/pubspec.yaml 의 version 을 교체
 #   tag [--skip-tests] [--push]      origin/main 에 붙일 태그를 검증. --push 가 있어야 실제 생성·푸시
 #   status <tag>                     태그 커밋의 Codemagic 체크 상태
@@ -36,7 +36,7 @@ main_version() {
 }
 
 cmd_next() {
-  local kind="${1:?build|patch|minor|major}" M m P BB
+  local kind="${1:?patch|build}" M m P BB
   read -r M m P BB <<<"$(parse "$(main_version)")"
   case "$kind" in
     build)
@@ -48,11 +48,9 @@ cmd_next() {
       [ -n "$tagmax" ] && [ "$((10#$tagmax))" -gt "$BB" ] && BB=$((10#$tagmax))
       BB=$((BB + 1)) ;;
     patch) P=$((P + 1)); BB=1 ;;
-    minor) m=$((m + 1)); P=0; BB=1 ;;
-    major) M=$((M + 1)); m=0; P=0; BB=1 ;;
-    *) die "알 수 없는 종류: $kind" ;;
+    *) die "알 수 없는 종류: $kind (patch|build — 그 외는 bump 에 버전을 직접 지정)" ;;
   esac
-  [ "$M" -le 9 ] && [ "$m" -le 9 ] && [ "$P" -le 99 ] && [ "$BB" -le 99 ] \
+  [ "$P" -le 99 ] && [ "$BB" -le 99 ] \
     || die "MmPPBB 범위 초과 — 새 체계로 마이그레이션이 필요하다"
   fmt "$M" "$m" "$P" "$BB"
 }
