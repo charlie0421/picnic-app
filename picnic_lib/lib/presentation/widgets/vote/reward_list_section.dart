@@ -30,9 +30,10 @@ class RewardListSection extends ConsumerStatefulWidget {
   /// 크기를 지정하지 않으면 레이아웃 폭×DPR 로 요청해 기기마다 CDN 캐시 키가
   /// 갈리고, 새 키마다 리사이저 콜드(1000px PNG 기준 1.5~3.5초)를 맞는다.
   /// 홈은 조회가 많으므로 기기와 무관한 키 하나로 모으면 전역 첫 요청만 콜드다.
-  /// 720 은 폰 카드(~180pt × 3x)를 덮고 태블릿(~390pt × 2x)에서도 거의 원본
-  /// 해상도다. 높이는 보내지 않는다(비율 유지, BoxFit.cover 가 잘라 낸다).
-  static const double imageRequestWidth = 720;
+  /// 1000 은 리워드 원본 폭이라 큰 태블릿(카드 ~488pt × 2x ≈ 976px)에서도
+  /// 확대되지 않는다. 원본보다 큰 값은 CDN 이 원본 크기로 클램프한다. 높이는
+  /// 보내지 않는다(비율 유지, BoxFit.cover 가 잘라 낸다).
+  static const double imageRequestWidth = 1000;
 
   @override
   ConsumerState<RewardListSection> createState() => _RewardListSectionState();

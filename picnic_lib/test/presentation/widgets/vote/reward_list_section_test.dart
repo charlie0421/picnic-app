@@ -77,7 +77,7 @@ void main() {
       for (final mq in const [
         MediaQueryData(size: Size(393, 852), devicePixelRatio: 3),
         MediaQueryData(size: Size(360, 780), devicePixelRatio: 2),
-        MediaQueryData(size: Size(820, 1180), devicePixelRatio: 2),
+        MediaQueryData(size: Size(1024, 1366), devicePixelRatio: 2),
       ]) {
         tester.view.physicalSize = mq.size * mq.devicePixelRatio;
         tester.view.devicePixelRatio = mq.devicePixelRatio;
@@ -90,6 +90,8 @@ void main() {
       addTearDown(tester.view.reset);
 
       expect(urls.toSet(), hasLength(1), reason: urls.join('\n'));
+      // 큰 태블릿 카드(~976 물리 px)도 확대 없이 덮어야 한다.
+      expect(RewardListSection.imageRequestWidth, greaterThanOrEqualTo(976));
       expect(Uri.parse(urls.first).queryParameters, {
         'q': '80',
         'w': '${RewardListSection.imageRequestWidth.toInt()}',
