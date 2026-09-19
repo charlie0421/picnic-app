@@ -1,6 +1,7 @@
 ---
-name: releasing-picnic-app
-description: Use when asked to release, ship, or upload a new picnic_app store binary (새 버전 릴리스·업로드, "1.3.x 릴리즈 해줘"), to rebuild the same version with only the build number raised (빌드넘버만 올려서 재빌드·재태그, 실패한 Codemagic 빌드 재시도), or to push a picnic-v* release tag. Not for Shorebird OTA patches or ttja_app.
+name: picnic-release
+description: picnic_app 스토어 신규 바이너리를 릴리스할 때 사용한다 — "릴리즈 해줘", "새 버전 업로드", "빌드넘버만 올려서 다시 빌드", "실패한 Codemagic 빌드 재시도", "picnic-v 태그 푸시". 인자는 patch(기본, 새 버전) · build(현재 버전의 새 바이너리) · M.m.P+MmPPBB(직접 지정). Shorebird OTA 패치, 스테이징 빌드, ttja_app 에는 쓰지 않는다.
+argument-hint: "[patch | build | <M.m.P+MmPPBB>]"
 ---
 
 # picnic_app 신규 바이너리 릴리스

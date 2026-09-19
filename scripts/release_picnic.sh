@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # picnic_app 신규 바이너리 릴리스의 기계적 단계(버전 계산·범프·태그 사전검증)를 맡는다.
-# 절차와 승인 게이트는 .claude/skills/releasing-picnic-app/SKILL.md 가 소유한다.
+# 절차와 승인 게이트는 .claude/skills/picnic-release/SKILL.md 가 소유한다.
 #
 #   next <patch|build>               origin/main 기준 다음 전체 버전을 출력 (minor·major 는 bump 에 직접 지정)
 #   bump <M.m.P+MmPPBB>              picnic_app/pubspec.yaml 의 version 을 교체
