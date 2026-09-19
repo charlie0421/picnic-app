@@ -269,4 +269,89 @@ void main() {
       await settle(tester);
     });
   });
+
+  group('PICNIC-2699 follow-up: data the popup does not control', () {
+    // A group-only item whose group has no image. ArtistGroupModel.image is
+    // nullable and the artist branch already tolerates a missing URL; the
+    // group branch force-unwrapped it and threw.
+    testWidgets('a group with no image still renders', (tester) async {
+      voteItemModel = VoteItemModel.fromJson(<String, dynamic>{
+        'id': 1,
+        'vote_total': 1,
+        'vote_id': 1,
+        'artist': null,
+        'artist_group': <String, dynamic>{
+          'id': 22,
+          'name': <String, dynamic>{'ko': '그룹'},
+          'image': null,
+        },
+      });
+      final overflows = await pumpAt(
+        tester,
+        viewport: const Size(851, 393),
+        textScale: 2.0,
+      );
+      expect(tester.takeException(), isNull);
+      expect(overflows, isEmpty);
+      expect(find.byType(LargePopupWidget), findsOneWidget);
+      await settle(tester);
+    });
+
+    // Names come from the server and have no length limit. The popup scales
+    // to fit its natural height, so an unbounded name used to shrink the
+    // whole card with it: a 96-character name at 2.0x on a 280x480 window
+    // drew the save button's tap target at about 14x8 px. With the name lines
+    // capped, the name must not move the scale at all — a long name has to
+    // produce exactly the card a short one does.
+    Future<Rect> saveButtonRect(WidgetTester tester) async {
+      final overflows = await pumpAt(
+        tester,
+        viewport: const Size(280, 480),
+        textScale: 2.0,
+      );
+      expect(overflows, isEmpty);
+      return tester.getRect(
+        find
+            .descendant(
+              of: find.byType(ShareSection),
+              matching: find.byType(ElevatedButton),
+            )
+            .first,
+      );
+    }
+
+    for (final length in const [20, 96, 384]) {
+      testWidgets('a $length-character name does not shrink the card', (
+        tester,
+      ) async {
+        voteItemModel = MockData.voteItem(
+          artist: MockData.artist(artistGroup: MockData.artistGroup()),
+        );
+        final baseline = await saveButtonRect(tester);
+
+        voteItemModel = MockData.voteItem(
+          artist: MockData.artist(
+            nameKo: 'W' * length,
+            nameEn: 'W' * length,
+            artistGroup: MockData.artistGroup(
+              nameKo: 'G' * length,
+              nameEn: 'G' * length,
+            ),
+          ),
+        );
+        final long = await saveButtonRect(tester);
+
+        expect(
+          long.size.width,
+          closeTo(baseline.size.width, 0.5),
+          reason:
+              'length $length: the save button is ${long.size} against '
+              '${baseline.size} for a short name. A name must not be able to '
+              'scale the controls down.',
+        );
+        expect(long.size.height, closeTo(baseline.size.height, 0.5));
+        await settle(tester);
+      });
+    }
+  });
 }
