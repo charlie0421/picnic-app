@@ -42,26 +42,42 @@ class ShareSection extends StatelessWidget {
             // round. scaleDown shrinks only a label that is too wide for it —
             // Spanish, Bengali, Thai and others at larger text scales — and
             // leaves any label that already fits exactly as it was.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    saveButtonText,
-                    style: getTextStyle(AppTypo.body14B, AppColors.grey00),
-                    textAlign: TextAlign.center,
+            //
+            // The outer Row keeps the old geometry: it takes the button's full
+            // width and centres its content, exactly as the single Row did, so
+            // a label that fits lands on the same pixels. A bare FittedBox
+            // would shrink-wrap instead and let the button settle at its
+            // minimum width, 8px narrower under desktop visual density.
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          saveButtonText,
+                          style: getTextStyle(
+                            AppTypo.body14B,
+                            AppColors.grey00,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(width: 8.w),
+                        SvgPicture.asset(
+                          package: 'picnic_lib',
+                          'assets/icons/save_gallery.svg',
+                          width: 16.w,
+                          height: 16,
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(width: 8.w),
-                  SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/save_gallery.svg',
-                    width: 16.w,
-                    height: 16,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           SizedBox(width: 16.w),
@@ -79,25 +95,41 @@ class ShareSection extends StatelessWidget {
             // round. scaleDown shrinks only a label that is too wide for it —
             // Spanish, Bengali, Thai and others at larger text scales — and
             // leaves any label that already fits exactly as it was.
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    shareButtonText,
-                    style: getTextStyle(AppTypo.body14B, AppColors.grey00),
+            //
+            // The outer Row keeps the old geometry: it takes the button's full
+            // width and centres its content, exactly as the single Row did, so
+            // a label that fits lands on the same pixels. A bare FittedBox
+            // would shrink-wrap instead and let the button settle at its
+            // minimum width, 8px narrower under desktop visual density.
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          shareButtonText,
+                          style: getTextStyle(
+                            AppTypo.body14B,
+                            AppColors.grey00,
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        SvgPicture.asset(
+                          package: 'picnic_lib',
+                          'assets/icons/twitter_style=fill.svg',
+                          width: 16.w,
+                          height: 16,
+                        ),
+                      ],
+                    ),
                   ),
-                  SizedBox(width: 8.w),
-                  SvgPicture.asset(
-                    package: 'picnic_lib',
-                    'assets/icons/twitter_style=fill.svg',
-                    width: 16.w,
-                    height: 16,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
