@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>리워드 이미지 CDN 후속 과제 조사</title>
+<style>
+  :root { --fg:#1d1d1f; --muted:#6e6e73; --line:#e5e5ea; --bg:#fff; --code:#f5f5f7; --accent:#0a66c2; }
+  @media (prefers-color-scheme: dark) { :root { --fg:#f5f5f7; --muted:#a1a1a6; --line:#3a3a3c; --bg:#1c1c1e; --code:#2c2c2e; --accent:#64a8ff; } }
+  body { font: 15px/1.65 -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif; color:var(--fg); background:var(--bg); max-width: 880px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 24px; margin-bottom: 4px; } h2 { font-size: 19px; margin-top: 36px; border-bottom:1px solid var(--line); padding-bottom:6px; }
+  h3 { font-size: 16px; margin-top: 24px; }
+  .meta { color: var(--muted); font-size: 13px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 14px; display:block; overflow-x:auto; }
+  th, td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--code); }
+  code { background: var(--code); padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  pre { background: var(--code); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 13px; }
+  .key { border-left: 3px solid var(--accent); padding: 4px 12px; margin: 16px 0; }
+</style>
+</head>
+<body>
+<h1>리워드 이미지 CDN 후속 과제 조사</h1>
+<p class="meta">2026-09-19 · 관련 PR #243 (리워드 팝업 원본 요청) · 측정은 전부 프로덕션 <code>cdn.picnic.fan</code> 와 <code>s3://picnic-prod-cdn</code> 읽기로 수행</p>
+
+<div class="key">
+<strong>결론.</strong> 리사이저가 느린 근본 원인은 <strong>리워드 원본이 사진인데 PNG 로 저장된 것</strong>이다. 리사이저는 원본 확장자 포맷으로 다시 인코딩하므로, 사진 PNG 는 변형 1개 생성에 8~12초가 걸리고 같은 크기의 JPEG 원본은 0.7초다. 리워드 PNG 는 알파 채널이 있지만 전부 불투명(255)이라 PNG 일 이유가 없다. 두 번째 원인은 <strong>홈 리워드 그리드가 기기 레이아웃 크기로 요청</strong>해서 캐시 키가 기기마다 갈리는 것이다(썸네일 1장에 변형 375개).
+</div>
+
+<h2>1. 측정</h2>
+<h3>1.1 포맷별 콜드 변형 생성 시간</h3>
+<table>
+<tr><th>원본</th><th>원본 크기</th><th>요청</th><th>첫 요청 TTFB</th><th>결과 크기</th></tr>
+<tr><td>리워드 PNG (사진)</td><td>1000×1000, 1.5~1.7MB</td><td><code>w=1000&amp;q=80</code></td><td><strong>8~12초</strong></td><td>~0.5MB</td></tr>
+<tr><td>리워드 PNG</td><td>같음</td><td><code>q=80</code> 만</td><td>10.3초</td><td>0.47MB</td></tr>
+<tr><td>리워드 PNG</td><td>같음</td><td><code>w=500</code></td><td>3.3~3.9초</td><td>0.16MB</td></tr>
+<tr><td>리워드 PNG (홈 그리드 형태)</td><td>같음</td><td><code>w=743&amp;h=513&amp;q=85</code></td><td>3.4초</td><td>0.15MB</td></tr>
+<tr><td>아티스트 PNG</td><td>1000×1000, 1.5MB</td><td><code>w=997&amp;q=80</code></td><td>2.5초</td><td>0.48MB</td></tr>
+<tr><td><strong>갤러리 JPEG</strong></td><td>1500×1000, 0.9MB</td><td><code>w=1000&amp;q=80</code></td><td><strong>0.7초</strong></td><td>86KB</td></tr>
+<tr><td>원본 그대로 (query 없음)</td><td>—</td><td>—</td><td>0.1~0.35초</td><td>원본</td></tr>
+<tr><td>따뜻한 변형 (캐시 적중)</td><td>—</td><td>—</td><td>0.03~0.08초</td><td>—</td></tr>
+</table>
+<p>콜드 비용은 <em>출력 픽셀 수</em>와 <em>출력 포맷</em>에 비례한다. 캐시 키 <code>_f{format}_</code> 는 원본 확장자를 따르고 <code>fm</code> 파라미터는 무시된다(기존 실측).</p>
+
+<h3>1.2 리워드 원본 재인코딩 시뮬레이션 (reward 12 overview 1장)</h3>
+<table>
+<tr><th>포맷</th><th>바이트</th><th>비율</th></tr>
+<tr><td>현재 PNG (RGBA, 알파 전부 255)</td><td>1,721,704</td><td>100%</td></tr>
+<tr><td>JPEG q85</td><td>213,765</td><td>12%</td></tr>
+<tr><td>WebP q85</td><td>161,608</td><td>9%</td></tr>
+</table>
+
+<h3>1.3 캐시 변형 파편화 (<code>s3://picnic-prod-cdn/cache/picnic/reward/</code>)</h3>
+<ul>
+<li>변형 객체 총 2,136개. 원본 1장당 최대: <code>c7a997bc…</code>(리워드 11 썸네일) 445개, <code>2959edc5…</code>(리워드 12 썸네일) 375개.</li>
+<li><code>2959edc5…</code> 변형 375개 중 267개가 가로세로 1.45 비율·q85 — 홈 그리드(<code>GridTwoColumn(childAspectRatio: 1.45)</code>)가 만든 것. 폭이 기기마다 달라(<code>w743_h513</code>, <code>w436_h301</code>, <code>w718_h495</code>…) 사용자마다 1.5~3.5초 콜드를 맞는다.</li>
+<li>하루 신규 변형: 9/17 93개 → 9/18 220개 → 9/19 207개(오후 4시 기준).</li>
+<li>참고: 앱 전체로는 <code>cache/picnic/artist/</code> 220,982개(2.75GB), <code>vote/</code> 50,066개, <code>banner/</code> 17,123개 — 같은 파편화가 전역에 있다.</li>
+</ul>
+
+<h2>2. 원인별 위치</h2>
+<table>
+<tr><th>원인</th><th>위치</th></tr>
+<tr><td>업로드가 원본 바이트를 가공 없이 저장 (포맷·크기 무처리)</td><td><code>picnic-admin/app/api/upload/direct/route.ts</code> (<code>PutObjectCommand</code> 로 그대로), 업로드 컴포넌트는 5MB 상한 검사만</td></tr>
+<tr><td>홈 리워드 그리드가 크기 미지정 → 레이아웃 제약×DPR 로 요청</td><td><code>picnic_lib/lib/presentation/widgets/vote/reward_list_section.dart</code> <code>_rewardCard</code></td></tr>
+<tr><td>리사이저 PNG 인코딩이 느림</td><td>소스 미확보. 로컬 레포에 없음(<code>picnic-supabase/supabase/functions/image-resize</code> 는 키 형식이 다른 폐기본). 보유 AWS 자격증명(n8n-ec2-user)은 CloudFront·Lambda 조회 권한 없음</td></tr>
+</table>
+
+<h2>3. 대안 (효과 큰 순)</h2>
+<h3>A. 어드민 업로드 시 불투명 이미지를 JPEG 로 변환 — 권장</h3>
+<ul>
+<li><code>upload/direct</code> 라우트(nodejs 런타임)에서 <code>sharp</code> 로 알파가 전부 불투명이면 JPEG q85 로 변환, 긴 변 상한(예: 1500px)도 함께 적용. 확장자를 <code>.jpg</code> 로 저장해야 리사이저가 JPEG 로 출력한다.</li>
+<li>효과: 원본 1.7MB → ~0.2MB, 콜드 변형 8~12초 → ~0.7초. PR #243 의 원본 요청도 전송량 문제가 사라진다.</li>
+<li>투명 PNG(로고 등)는 그대로 둔다. 리워드 외 폴더(artist 등)에도 같은 이득이 있으나 범위는 폴더별로 결정.</li>
+<li>기존 리워드 PNG 111개는 새 키로 재업로드 + <code>reward</code> 행(12개) 경로 갱신이 필요 — 프로덕션 쓰기라 별도 승인·백업 필요.</li>
+</ul>
+<h3>B. 홈 리워드 그리드를 고정 변형으로 요청 — 앱, OTA 가능</h3>
+<ul>
+<li><code>_rewardCard</code> 가 기기와 무관한 폭 하나(예: <code>w=600</code>, 높이 미지정, <code>maxResolutionMultiplierCap</code> 으로 DPR 고정)만 요청. 홈은 조회가 많아 전역 첫 사용자 1명만 콜드를 맞고 이후 전원 캐시 적중.</li>
+<li>팝업과 달리 원본 요청은 부적합(카드 4장 이상 × 1.7MB). A 적용 후라면 원본 요청도 선택지.</li>
+</ul>
+<h3>C. 업로드 직후 고정 변형 사전 워밍 — 어드민</h3>
+<ul><li>B 처럼 키가 고정된 경우에만 의미가 있다. 저장 성공 후 해당 변형 URL 을 GET 1회. A 를 하면 콜드가 0.7초라 우선순위 낮음.</li></ul>
+<h3>D. 리사이저 자체 개선 — 인프라 담당 필요</h3>
+<ul><li>PNG 출력 압축 레벨/팔레트 설정 완화, <code>fm</code> 존중(webp 출력). 소스·권한이 없어 이번에 확인 불가.</li></ul>
+<h3>E. 앱 전역 요청 크기 버킷팅 — 별도 과제</h3>
+<ul><li><code>PicnicImageRequest</code> 가 요청 폭을 고정 단계(예: 128/256/512/768/1024)로 올림하면 artist 22만 개 수준의 파편화를 줄일 수 있다. 영향 범위가 앱 전체라 설계 검토가 먼저다.</li></ul>
+
+<h2>4. 참고: 기타</h2>
+<ul>
+<li>투표 상세의 28px 리워드 칩(<code>vote_detail_page.dart</code>)과 달성 사다리 50px 썸네일은 출력이 작아 콜드도 짧다(<code>w=512</code> 급도 0.5초). 우선순위 낮음.</li>
+<li>조사 중 생성된 CDN 변형(측정용 GET) 약 20개가 캐시에 남았다. 무해하다.</li>
+</ul>
+</body>
+</html>
