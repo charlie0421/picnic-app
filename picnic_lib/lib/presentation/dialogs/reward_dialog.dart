@@ -16,28 +16,26 @@ class RewardDialogConstants {
   static const double closeButtonSize = 48;
   static const Duration transitionDuration = Duration(milliseconds: 300);
 
-  /// 리워드 이미지가 CDN 에 요청하는 유일한 폭(물리 px).
-  ///
-  /// 리워드 원본은 운영자가 1000px 로 올린다. `cdn.picnic.fan` 리사이저는
-  /// (w,h,q) 조합마다 별도 캐시 객체를 만들고, 새 조합의 첫 요청은 원본 크기에
-  /// 비례해 느리다 — 1.7MB PNG 기준 5~10초(2026-09-14 실측), 이후 0.08초.
-  /// 기기 폭·DPR 로 키가 갈리면 기기 종류마다 첫 사용자가 그 콜드 리사이즈를
-  /// 맞으므로, 다이얼로그는 기기와 무관하게 이 폭 하나만 요청한다. 높이는
-  /// 보내지 않는다(비율 유지·크롭 없음, 위젯의 BoxFit 이 잘라 낸다).
-  static const double imageRequestWidth = 1000;
+  /// 리워드 이미지 디코드 폭 상한(물리 px). 운영자가 올리는 원본 크기다.
+  static const double imageDecodeWidth = 1000;
 }
 
-/// 다이얼로그의 모든 이미지가 공유하는 고정 CDN 변형 요청.
+/// 다이얼로그의 모든 이미지가 공유하는 원본 요청.
 ///
-/// `maxResolutionMultiplierCap: 1` 로 DPR 배율을 끄고 [imageRequestWidth] 를
-/// 그대로 물리 px 로 보낸다. 레이아웃 크기는 이 요청과 무관하게 위젯의
-/// width/height/제약이 정한다.
+/// `cdn.picnic.fan` 은 query 가 하나라도 붙으면(q 만이라도) 리사이저를 거치고,
+/// 새 변형의 첫 요청은 1000px PNG 기준 8~12초 걸린다 — 출력 픽셀에 비례해
+/// w=500 도 3~4초다(2026-09-19 실측). 리워드 이미지는 조회가 드물어 고정 변형
+/// (w=1000&q=80)조차 배포 5일 뒤까지 아무도 만들지 않은 콜드 상태였다. 원본은
+/// 1000px 라 축소 이득도 없으므로 변환 없이 원본(TTFB 0.1~0.3초)을 받는다.
+/// 디코드는 [RewardDialogConstants.imageDecodeWidth] 로 제한하고, 레이아웃
+/// 크기는 위젯의 width/height/제약이 정한다.
 PicnicImageRequest rewardImageRequest(BuildContext context, String imageUrl) {
   return PicnicImageRequest.resolve(
     context: context,
     imageUrl: imageUrl,
-    width: RewardDialogConstants.imageRequestWidth,
+    width: RewardDialogConstants.imageDecodeWidth,
     maxResolutionMultiplierCap: 1,
+    cdnTransform: false,
   );
 }
 

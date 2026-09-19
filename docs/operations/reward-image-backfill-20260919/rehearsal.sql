@@ -1,0 +1,89 @@
+-- 리워드 PNG→JPEG 백필 (2026-09-19). 경로 문자열만 치환, 원본 PNG 객체는 S3 에 그대로 둔다.
+DO $$
+DECLARE m record; n int; png_left int; opt int; bad int;
+BEGIN
+  FOR m IN SELECT * FROM (VALUES
+    ('reward/1/l1.png','reward/1/l1-opt.jpg'),
+    ('reward/1/s1.png','reward/1/s1-opt.jpg'),
+    ('reward/2/l1.png','reward/2/l1-opt.jpg'),
+    ('reward/2/o2.png','reward/2/o2-opt.jpg'),
+    ('reward/2/o3.png','reward/2/o3-opt.jpg'),
+    ('reward/2/s1.png','reward/2/s1-opt.jpg'),
+    ('reward/2/s2.png','reward/2/s2-opt.jpg'),
+    ('reward/3/l1.png','reward/3/l1-opt.jpg'),
+    ('reward/3/s1.png','reward/3/s1-opt.jpg'),
+    ('reward/3/s2.png','reward/3/s2-opt.jpg'),
+    ('reward/4/o1.png','reward/4/o1-opt.jpg'),
+    ('reward/4/o2.png','reward/4/o2-opt.jpg'),
+    ('reward/4/o3.png','reward/4/o3-opt.jpg'),
+    ('reward/4/s1.png','reward/4/s1-opt.jpg'),
+    ('reward/4/s2.png','reward/4/s2-opt.jpg'),
+    ('reward/4/s3.png','reward/4/s3-opt.jpg'),
+    ('reward/5/l1.png','reward/5/l1-opt.jpg'),
+    ('reward/5/o1.png','reward/5/o1-opt.jpg'),
+    ('reward/5/o2.png','reward/5/o2-opt.jpg'),
+    ('reward/5/o3.png','reward/5/o3-opt.jpg'),
+    ('reward/5/s1.png','reward/5/s1-opt.jpg'),
+    ('reward/6/l1.png','reward/6/l1-opt.jpg'),
+    ('reward/7/l1.png','reward/7/l1-opt.jpg'),
+    ('reward/7/o1.png','reward/7/o1-opt.jpg'),
+    ('reward/7/s1.png','reward/7/s1-opt.jpg'),
+    ('reward/7/s2.png','reward/7/s2-opt.jpg'),
+    ('reward/7/s3.png','reward/7/s3-opt.jpg'),
+    ('reward/7/t1.png','reward/7/t1-opt.jpg'),
+    ('reward/8/l1.png','reward/8/l1-opt.jpg'),
+    ('reward/8/o1.png','reward/8/o1-opt.jpg'),
+    ('reward/8/o2.png','reward/8/o2-opt.jpg'),
+    ('reward/8/o3.png','reward/8/o3-opt.jpg'),
+    ('reward/8/s1.png','reward/8/s1-opt.jpg'),
+    ('reward/8/t1.png','reward/8/t1-opt.jpg'),
+    ('reward/38865a70-40be-49dc-ac9e-def5073c2d8c.png','reward/38865a70-40be-49dc-ac9e-def5073c2d8c-opt.jpg'),
+    ('reward/49fb5305-a4b0-4f92-92b3-c820d81142ef.png','reward/49fb5305-a4b0-4f92-92b3-c820d81142ef-opt.jpg'),
+    ('reward/5642aca3-f6ce-4de2-9427-302aa4422059.png','reward/5642aca3-f6ce-4de2-9427-302aa4422059-opt.jpg'),
+    ('reward/d5768454-b1ef-47ec-9965-28310d1be2c7.png','reward/d5768454-b1ef-47ec-9965-28310d1be2c7-opt.jpg'),
+    ('reward/a189f340-04bb-42da-8c42-7cabbad12a49.png','reward/a189f340-04bb-42da-8c42-7cabbad12a49-opt.jpg'),
+    ('reward/c7a997bc-7255-46b0-a6a2-3952ed75ecc2.png','reward/c7a997bc-7255-46b0-a6a2-3952ed75ecc2-opt.jpg'),
+    ('reward/d6cf7d67-33b5-4f19-ab2a-18f8833424d1.png','reward/d6cf7d67-33b5-4f19-ab2a-18f8833424d1-opt.jpg'),
+    ('reward/0823730d-dc80-4556-ba98-24a93c002df2.png','reward/0823730d-dc80-4556-ba98-24a93c002df2-opt.jpg'),
+    ('reward/0b8f0973-a257-470a-81fc-071cdfdb2e55.png','reward/0b8f0973-a257-470a-81fc-071cdfdb2e55-opt.jpg'),
+    ('reward/123642a6-679e-4e60-9dcc-8e7720131ec9.png','reward/123642a6-679e-4e60-9dcc-8e7720131ec9-opt.jpg'),
+    ('reward/17574701-e689-43b3-82db-de99e1f5688d.png','reward/17574701-e689-43b3-82db-de99e1f5688d-opt.jpg'),
+    ('reward/23ee5421-8ae5-4a96-84be-4f453bfceaa8.png','reward/23ee5421-8ae5-4a96-84be-4f453bfceaa8-opt.jpg'),
+    ('reward/2530a274-4d14-4cef-a00d-4e61193096a9.png','reward/2530a274-4d14-4cef-a00d-4e61193096a9-opt.jpg'),
+    ('reward/290d0610-8f4d-4f70-8add-4f58faea1663.png','reward/290d0610-8f4d-4f70-8add-4f58faea1663-opt.jpg'),
+    ('reward/2959edc5-ff98-4916-9c1c-77d82c96c9b6.png','reward/2959edc5-ff98-4916-9c1c-77d82c96c9b6-opt.jpg'),
+    ('reward/31b51b7c-f271-431b-85ce-e0fb3ab9f975.png','reward/31b51b7c-f271-431b-85ce-e0fb3ab9f975-opt.jpg'),
+    ('reward/4a9f758d-a951-4a75-820c-3a21dab57a63.png','reward/4a9f758d-a951-4a75-820c-3a21dab57a63-opt.jpg'),
+    ('reward/5248daad-e136-47d6-8f2d-e28ecdc14beb.png','reward/5248daad-e136-47d6-8f2d-e28ecdc14beb-opt.jpg'),
+    ('reward/55b7ccfe-377b-443b-b562-d48bf49d58fc.png','reward/55b7ccfe-377b-443b-b562-d48bf49d58fc-opt.jpg'),
+    ('reward/5a69c9ad-ad8b-49d5-96db-79618c0a15cc.png','reward/5a69c9ad-ad8b-49d5-96db-79618c0a15cc-opt.jpg'),
+    ('reward/6668206f-c1a8-4c2b-852e-4eeb283d729b.png','reward/6668206f-c1a8-4c2b-852e-4eeb283d729b-opt.jpg'),
+    ('reward/738950d3-a4a7-4c6a-ab95-92f2bddcc4ac.png','reward/738950d3-a4a7-4c6a-ab95-92f2bddcc4ac-opt.jpg'),
+    ('reward/73dfd4d2-255e-430b-94c8-aa6206e87727.png','reward/73dfd4d2-255e-430b-94c8-aa6206e87727-opt.jpg'),
+    ('reward/75e66a1e-bd7f-47c5-a329-9e64e8c1b269.png','reward/75e66a1e-bd7f-47c5-a329-9e64e8c1b269-opt.jpg'),
+    ('reward/85fc77e8-2d24-46a2-bf26-1ddcee0c570f.png','reward/85fc77e8-2d24-46a2-bf26-1ddcee0c570f-opt.jpg'),
+    ('reward/a5ee444a-397b-47b1-b95d-66d22917d88f.png','reward/a5ee444a-397b-47b1-b95d-66d22917d88f-opt.jpg'),
+    ('reward/adff684c-74e3-45e6-8efc-b177fc692898.png','reward/adff684c-74e3-45e6-8efc-b177fc692898-opt.jpg'),
+    ('reward/af5179fc-fef6-4023-a7ab-c726ad6d0971.png','reward/af5179fc-fef6-4023-a7ab-c726ad6d0971-opt.jpg'),
+    ('reward/d7599639-e3f7-4e70-94b3-d95d8b145c65.png','reward/d7599639-e3f7-4e70-94b3-d95d8b145c65-opt.jpg'),
+    ('reward/dc412f7a-a70c-4b42-b2fa-0481256f488c.png','reward/dc412f7a-a70c-4b42-b2fa-0481256f488c-opt.jpg'),
+    ('reward/fb634989-8c31-40bc-a7c9-0f93e79e19f3.png','reward/fb634989-8c31-40bc-a7c9-0f93e79e19f3-opt.jpg'),
+    ('reward/feba827c-f785-4422-b4f3-6e3a0b2e8d90.png','reward/feba827c-f785-4422-b4f3-6e3a0b2e8d90-opt.jpg'),
+    ('reward/b6fd6617-19f0-4d55-9c3c-177c881b830d.png','reward/b6fd6617-19f0-4d55-9c3c-177c881b830d-opt.jpg')
+  ) AS t(old_path, new_path) LOOP
+    UPDATE reward SET
+      thumbnail = replace(thumbnail, m.old_path, m.new_path),
+      overview_images = replace(overview_images::text, m.old_path, m.new_path)::varchar[],
+      location_images = replace(location_images::text, m.old_path, m.new_path)::varchar[],
+      size_guide_images = replace(size_guide_images::text, m.old_path, m.new_path)::varchar[],
+      location = replace(location::text, m.old_path, m.new_path)::jsonb,
+      size_guide = replace(size_guide::text, m.old_path, m.new_path)::jsonb
+    WHERE to_jsonb(reward)::text LIKE '%' || m.old_path || '%';
+    GET DIAGNOSTICS n = ROW_COUNT;
+    IF n = 0 THEN RAISE EXCEPTION 'no row references %', m.old_path; END IF;
+  END LOOP;
+  SELECT count(*) INTO png_left FROM reward r, regexp_matches(to_jsonb(r)::text, 'reward/[^"]*\.png', 'g');
+  SELECT count(*) INTO opt FROM reward r, regexp_matches(to_jsonb(r)::text, 'reward/[^"]*-opt\.jpg', 'g');
+  SELECT count(*) INTO bad FROM reward WHERE overview_images IS NULL AND id IN (1,2,3,4,5,6,7,8,10,11,12);
+  RAISE EXCEPTION 'REHEARSAL png_left=% opt_refs=% null_overview=%', png_left, opt, bad;
+END $$;

@@ -18,6 +18,7 @@ final class PicnicImageRequest {
     int? memCacheHeight,
     int? maxQualityOverride,
     double? maxResolutionMultiplierCap,
+    bool cdnTransform = true,
   }) {
     final logicalWidth = _validLogicalDimension(width);
     final logicalHeight = _validLogicalDimension(height);
@@ -42,11 +43,16 @@ final class PicnicImageRequest {
       logicalHeight,
       maxQualityOverride,
     );
+    final resolver = PicnicCachedNetworkImageUrlResolver(
+      cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
+    );
+    // cdnTransform: false 는 CDN 리사이저를 거치지 않는 원본을 받는다. 계산한
+    // 요청 크기는 디코드 크기 제한에만 쓴다.
     final url = imageUrl.trim().isEmpty
         ? ''
-        : PicnicCachedNetworkImageUrlResolver(
-                cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
-              )
+        : !cdnTransform
+        ? resolver.resolveOriginal(imageUrl)
+        : resolver
               .resolve(
                 imageUrl: imageUrl,
                 width: requestSize.width?.toDouble(),
@@ -69,8 +75,8 @@ final class PicnicImageRequest {
     return PicnicImageRequest._(
       imageUrl: imageUrl,
       url: url,
-      requestWidth: requestSize.width,
-      requestHeight: requestSize.height,
+      requestWidth: cdnTransform ? requestSize.width : null,
+      requestHeight: cdnTransform ? requestSize.height : null,
       decodeWidth: decodeSize.width,
       decodeHeight: decodeSize.height,
       provider: provider,
