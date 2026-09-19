@@ -7,6 +7,7 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/grid_two_column.dart';
@@ -23,6 +24,15 @@ import 'package:shimmer/shimmer.dart';
 /// 스크롤 흔들림 없이 여러 줄을 노출한다.
 class RewardListSection extends ConsumerStatefulWidget {
   const RewardListSection({super.key});
+
+  /// 카드 이미지가 CDN 에 요청하는 유일한 폭(물리 px).
+  ///
+  /// 크기를 지정하지 않으면 레이아웃 폭×DPR 로 요청해 기기마다 CDN 캐시 키가
+  /// 갈리고, 새 키마다 리사이저 콜드(1000px PNG 기준 1.5~3.5초)를 맞는다.
+  /// 홈은 조회가 많으므로 기기와 무관한 키 하나로 모으면 전역 첫 요청만 콜드다.
+  /// 720 은 폰 카드(~180pt × 3x)를 덮고 태블릿(~390pt × 2x)에서도 거의 원본
+  /// 해상도다. 높이는 보내지 않는다(비율 유지, BoxFit.cover 가 잘라 낸다).
+  static const double imageRequestWidth = 720;
 
   @override
   ConsumerState<RewardListSection> createState() => _RewardListSectionState();
@@ -130,6 +140,12 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
             PicnicCachedNetworkImage(
               key: ValueKey('reward_${reward.id}'),
               imageUrl: reward.thumbnail ?? '',
+              imageRequest: PicnicImageRequest.resolve(
+                context: context,
+                imageUrl: reward.thumbnail ?? '',
+                width: RewardListSection.imageRequestWidth,
+                maxResolutionMultiplierCap: 1,
+              ),
               fit: BoxFit.cover,
               priority: isHighPriority
                   ? ImagePriority.high
