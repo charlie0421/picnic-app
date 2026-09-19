@@ -86,7 +86,19 @@
 <h3>E. 앱 전역 요청 크기 버킷팅 — 별도 과제</h3>
 <ul><li><code>PicnicImageRequest</code> 가 요청 폭을 고정 단계(예: 128/256/512/768/1024)로 올림하면 artist 22만 개 수준의 파편화를 줄일 수 있다. 영향 범위가 앱 전체라 설계 검토가 먼저다.</li></ul>
 
-<h2>4. 참고: 기타</h2>
+<h2>4. 실행 결과 (2026-09-19)</h2>
+<table>
+<tr><th>항목</th><th>결과</th></tr>
+<tr><td>A. 어드민 업로드 변환</td><td>picnic-admin PR #48 — <code>reward</code> 폴더의 불투명 PNG(실제 포맷 검사) → 같은 크기 JPEG q85. 머지·배포 전.</td></tr>
+<tr><td>B. 홈 그리드 고정 변형</td><td>picnic-app PR #243 — <code>_rewardCard</code> 가 <code>?q=80&amp;w=1000</code> 하나만 요청(원본 폭, 큰 태블릿 카드 ~976px 도 확대 없음). 팝업의 기존 앱 요청 키와 같다.</td></tr>
+<tr><td>기존 이미지 백필</td><td>참조 PNG 86개 중 <strong>67개 변환</strong>(53.3MB → 6.3MB), 투명 픽셀이 있는 18개는 PNG 유지, <code>reward/1/s2.png</code> 는 원래부터 S3 에 없는 깨진 참조(리워드 2)라 그대로 둠.</td></tr>
+<tr><td>S3</td><td>새 키 <code>picnic/&lt;원래경로&gt;-opt.jpg</code> 67개 업로드(<code>reward/1/s1.jpg</code> 가 이미 있어 같은 이름 <code>.jpg</code> 는 충돌 → 접미사 사용). CDN 200·image/jpeg·바이트 일치 67/67. 원본 PNG 는 삭제하지 않음.</td></tr>
+<tr><td>DB</td><td><code>reward</code> 행 경로 문자열 치환(단일 DO 블록, <code>updated_at</code> 미변경). 리허설(예외로 강제 롤백) 결과와 실제 결과 일치: 남은 PNG 참조 42(투명 유지분) · 새 참조 147. SQL: <code>docs/operations/reward-image-backfill-20260919/</code></td></tr>
+<tr><td>효과</td><td>새 JPEG 원본의 <code>?q=80&amp;w=1000</code> 콜드 생성 <strong>평균 0.39초·최대 0.72초</strong>(기존 8~12초), 캐시 적중 0.03~0.07초. 67개 모두 미리 생성해 둠.</td></tr>
+<tr><td>되돌리기</td><td><code>rollback.sql</code> 1회 실행(새 경로 → 원래 경로 역치환). <code>-opt.jpg</code> 는 실행 전 S3·DB 어디에도 없었으므로 정확히 복원된다.</td></tr>
+</table>
+
+<h2>5. 참고: 기타</h2>
 <ul>
 <li>투표 상세의 28px 리워드 칩(<code>vote_detail_page.dart</code>)과 달성 사다리 50px 썸네일은 출력이 작아 콜드도 짧다(<code>w=512</code> 급도 0.5초). 우선순위 낮음.</li>
 <li>조사 중 생성된 CDN 변형(측정용 GET) 약 20개가 캐시에 남았다. 무해하다.</li>
