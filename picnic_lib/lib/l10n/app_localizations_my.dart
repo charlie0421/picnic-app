@@ -937,13 +937,13 @@ class AppLocalizationsMy extends AppLocalizations {
   String get reward => 'ဆုလာဘ်';
 
   @override
-  String get save => 'ကယ်ဆယ်';
+  String get save => 'Save';
 
   @override
   String get seconds => 'စက္ကန့်';
 
   @override
-  String get share => 'ခဲှဝေ';
+  String get share => 'Share';
 
   @override
   String get text_community_board_search => 'အနုပညာရှင်ဘုတ်ရှာဖွေခြင်း';

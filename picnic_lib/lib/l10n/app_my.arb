@@ -1198,7 +1198,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "ကယ်ဆယ်",
+  "save": "Save",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -1206,7 +1206,7 @@
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
   },
-  "share": "ခဲှဝေ",
+  "share": "Share",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
   },

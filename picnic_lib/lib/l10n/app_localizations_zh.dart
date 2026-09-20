@@ -2886,7 +2886,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get reward => '奖励';
 
   @override
-  String get save => '节省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒钟';
@@ -4877,7 +4877,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reward => '獎勵';
 
   @override
-  String get save => '節省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒鐘';
