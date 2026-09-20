@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>고정 크기 상자 속 번역 문자열 전수 조사 (PICNIC-2738)</title>
+<style>
+  :root { --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; --bad:#b42318; }
+  body { max-width: 1240px; margin: 0 auto; padding: 36px 28px 80px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  h1 { font-size: 30px; margin: 0 0 6px; } h2 { font-size: 22px; margin: 2em 0 .5em; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+  p, ul { margin: .55em 0; }
+  code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .9em ui-monospace, Menlo, monospace; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+  th, td { padding: 7px 9px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: var(--soft); } td.num { text-align: right; white-space: nowrap; }
+  .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+  .caveat { padding: 14px 16px; border-left: 5px solid var(--warn); background: #fff8e6; margin: 14px 0; }
+  .hi { color: var(--bad); font-weight: 700; } .mid { color: var(--warn); font-weight: 700; } .lo { color: var(--ok); font-weight: 700; }
+  .note { color: var(--muted); font-size: 13.5px; }
+</style>
+</head>
+<body>
+<h1>고정 크기 상자 속 번역 문자열 전수 조사</h1>
+<p class="note">2026-09-21 · PICNIC-2738 · 대상 <code>picnic_lib/lib/presentation/**</code> · 미운영 영역(커뮤니티·pic·운세·궁합) 제외</p>
+
+<div class="summary">
+  <p><strong>왜 이 모양을 찾는가.</strong> PICNIC-2694·2697·2699·2700·2727 의 결함 10여 건이 전부 같은 모양이었다 — 번역 문자열(또는 서버가 주는 이름)이 <strong>고정 폭·고정 높이 상자</strong> 안에 들어간다. 자유롭게 늘어나는 글자는 넘치지 않는다. 그래서 이 목록이 곧 위험 지도다.</p>
+  <p><strong>결과:</strong> <span class="hi">HIGH 13</span> · <span class="mid">MEDIUM 20</span> · <span class="lo">LOW 34</span>(이미 보호됨).</p>
+</div>
+
+<div class="caveat">
+  <p><strong>핵심 발견 — 고정 높이 넘침은 예외를 던지지 않는다.</strong> 가로 넘침(<code>Row</code>)은 <code>RenderFlex overflowed</code> 를 던져 테스트가 잡을 수 있다. 그러나 고정 높이 상자에서 <code>Text</code> 가 넘치면 <strong>예외 없이 조용히 잘리거나 상자 밖에 그려진다.</strong> HIGH 13건 중 10건이 이 경우다. 어떤 로케일로 돌려도 "예외 0" 단언으로는 잡히지 않는다. 그려진 글자의 크기와 상자 크기를 직접 비교하는 기하 단언이 필요하다.</p>
+</div>
+
+<h2>HIGH — 보호 없음 + 사용 빈도 높은 운영 화면</h2>
+<table>
+<thead><tr><th>위치</th><th>문자열</th><th>크기를 묶는 것</th><th>넘치는 축</th><th>기존 테스트</th></tr></thead>
+<tbody>
+<tr><td><code>pages/vote/vote_home_page.dart:214</code></td><td><code>label_vote_screen_title</code></td><td><code>Row</code> 안 24px 아이콘 옆 맨 <code>Text</code></td><td>가로</td><td>없음</td></tr>
+<tr><td><code>widgets/vote/list/countdown_timer.dart:133</code></td><td><code>label_vote_upcoming</code></td><td><code>Container(height: 20)</code></td><td>세로</td><td>없음</td></tr>
+<tr><td><code>widgets/vote/list/vote_info_card_achieve.dart:108</code></td><td><code>reward</code> + 순번</td><td><code>SizedBox(width: 50)</code>, 260 높이 <code>Clip.hardEdge</code> 조상</td><td>세로</td><td>없음 (관련 테스트가 <code>overflowed</code> 를 삼킨다)</td></tr>
+<tr><td><code>widgets/vote/list/vote_info_card_achieve.dart:41</code></td><td><code>achieve</code>!</td><td><code>SizedBox(width: 50, height: barHeight)</code> 안 <code>Positioned</code></td><td>세로</td><td>없음</td></tr>
+<tr><td><code>pages/vote/vote_detail_achieve_page.dart:1158</code></td><td><code>reward</code> + 순번</td><td><code>SizedBox(height: 50)</code>. 바로 옆 형제는 <code>maxLines:1</code>+말줄임이 있는데 이쪽만 없다</td><td>세로</td><td>en·ja 렌더만, 배율 없음</td></tr>
+<tr><td><code>pages/vote/vote_detail_page.dart:1820</code></td><td><code>vote_item_request_button</code></td><td><code>Container(height: 30)</code>, 글자 12.sp</td><td>세로</td><td>en·ja 렌더만</td></tr>
+<tr><td><code>pages/vote/vote_detail_page.dart:1670</code></td><td><code>weekly_vote_info_link</code></td><td><code>Row(min)</code> 안 16px 아이콘 옆 맨 자식</td><td>가로</td><td>en·ja 렌더만</td></tr>
+<tr><td><code>dialogs/reward_dialog.dart:112</code></td><td>서버 리워드 이름</td><td><code>Container(height: 48)</code> 이 <code>VoteCommonTitle</code> 의 <code>minHeight</code> 성장 규칙을 무력화, <code>maxLines</code> 없음</td><td>세로</td><td>없음</td></tr>
+<tr><td><code>pages/signup/login_page.dart:347</code></td><td><code>button_login</code></td><td><code>SizedBox(height: 48)</code>, 글자 18SB</td><td>세로</td><td>en·ja·zh 렌더만</td></tr>
+<tr><td><code>pages/my_page/my_page.dart:382</code></td><td><code>label_mypage_my_artist</code></td><td><code>SizedBox(height: 48)</code> + <code>Row</code> 안 비-flex <code>Column</code></td><td>양쪽</td><td>2.0배 테스트가 있으나 닉네임만 단언</td></tr>
+<tr><td><code>pages/my_page/my_page.dart:407</code></td><td><code>label_mypage_no_artist</code></td><td><code>SizedBox(height: 80)</code>, 글자 18 w700</td><td>세로</td><td>위와 같음</td></tr>
+<tr><td><code>pages/my_page/my_profile.dart:485</code></td><td><code>nickname_validation_error</code></td><td><code>Container(height: 32)</code>, 좌우 마진 57.w</td><td>세로</td><td>en·ja 렌더만</td></tr>
+<tr><td><code>pages/my_page/setting_page.dart:315</code> · <code>:319</code></td><td>패치 상태 제목·값</td><td><code>Row</code> 에 <code>Spacer</code> 만 있고 두 <code>Text</code> 가 맨 자식</td><td>가로</td><td>ko·en 렌더만</td></tr>
+</tbody>
+</table>
+
+<h2>MEDIUM — 운영 화면만 추림</h2>
+<p class="note">조사 결과 20건 중 커뮤니티 글쓰기·댓글 계열 6건은 미운영 영역이라 뺐다.</p>
+<table>
+<thead><tr><th>위치</th><th>문자열</th><th>크기를 묶는 것</th><th>보호 상태</th><th>축</th></tr></thead>
+<tbody>
+<tr><td><code>pages/vote/vote_home_page.dart:376</code></td><td>서버 리워드 이름</td><td><code>Container(width: 120, height: 30)</code></td><td>폭만 보호(<code>maxLines:1</code>+말줄임). 같은 위젯의 고친 쌍둥이 <code>reward_list_section.dart:167</code> 은 <code>minHeight: 30</code></td><td>세로</td></tr>
+<tr><td><code>pages/vote/vote_detail_achieve_page.dart:935</code>·<code>:946</code></td><td>아티스트·그룹 이름</td><td><code>Container(height: 80)</code></td><td>말줄임은 있으나 <code>maxLines</code> 없음</td><td>세로</td></tr>
+<tr><td><code>pages/my_page/my_profile.dart:526</code></td><td><code>hint_nickname_input</code></td><td><code>Container(height: 48, width: 200.w)</code></td><td>없음</td><td>세로</td></tr>
+<tr><td><code>pages/my_page/my_page.dart:672</code></td><td>언어 이름</td><td>격자 <code>childAspectRatio: 3.8</code></td><td>폭만(<code>Flexible</code>)</td><td>세로, 폭 480 초과 화면만</td></tr>
+<tr><td><code>widgets/vote/vote_no_item.dart:35</code></td><td><code>message_noitem_vote_*</code></td><td><code>Container(height: 100)</code></td><td>없음</td><td>세로</td></tr>
+<tr><td><code>widgets/error.dart:39</code></td><td><code>label_retry</code></td><td><code>SizedBox(width: 200)</code> 버튼</td><td>없음</td><td>가로(2줄로 접힘)</td></tr>
+<tr><td><code>pages/signup/agreement_terms_page.dart:57</code>·<code>:119</code></td><td>약관 머리말·동의 버튼</td><td><code>SizedBox(height: 48)</code>·<code>(height: 60)</code></td><td>없음</td><td>세로</td></tr>
+<tr><td><code>pages/signup/agreement_privacy_page.dart:64</code>·<code>:208</code></td><td>개인정보 머리말·동의 버튼</td><td>위와 같은 모양</td><td>없음</td><td>세로</td></tr>
+<tr><td><code>widgets/library/library_list.dart:43</code>·<code>:52</code></td><td><code>label_library_save</code>·<code>label_album_add</code></td><td><code>Row(spaceAround)</code> 의 맨 <code>Text</code> 둘</td><td>없음</td><td>가로</td></tr>
+<tr><td><code>widgets/search_list.dart:42</code></td><td><code>text_hint_search</code></td><td><code>Container(height: 40)</code></td><td>없음</td><td>세로</td></tr>
+<tr><td><code>widgets/vote/vote_item_request/search_result_action_button.dart:95</code>·<code>:158</code></td><td>신청 버튼·상태 칩</td><td><code>Row(min)</code> 에 flex 자식 없음</td><td>없음</td><td>가로</td></tr>
+</tbody>
+</table>
+
+<h2>LOW — 이미 보호된 곳 (참고할 수정 패턴)</h2>
+<table>
+<thead><tr><th>파일</th><th class="num">건수</th><th>보호 방식</th></tr></thead>
+<tbody>
+<tr><td><code>common/share_section.dart</code></td><td class="num">2</td><td>고정 크기 버튼 + <code>Flexible</code> → <code>FittedBox(scaleDown)</code> (PICNIC-2727)</td></tr>
+<tr><td><code>common/picnic_list_item.dart</code></td><td class="num">1 (호출 14곳)</td><td><code>minHeight: 61</code> + 글자 배율이 크면 세로로 쌓는 전환</td></tr>
+<tr><td><code>widgets/vote/voting/voting_dialog_widgets.dart</code></td><td class="num">12</td><td>측정 후 크기 결정, 한 줄 높이 고정 + <code>FittedBox</code></td></tr>
+<tr><td><code>widgets/vote/store/**</code></td><td class="num">5</td><td><code>TextPainter</code> 측정, <code>minHeight</code>, <code>FittedBox</code>, 안 맞으면 쌓기</td></tr>
+<tr><td><code>widgets/vote/list/vote_info_card*.dart</code> · <code>vote_card_layout.dart</code></td><td class="num">5</td><td>타일 높이를 실제 글자 배율로 측정, <code>maxLines</code>+말줄임</td></tr>
+<tr><td><code>widgets/vote/list/vote_detail_title.dart</code></td><td class="num">1</td><td><code>minHeight</code> + <code>Expanded</code></td></tr>
+<tr><td><code>widgets/vote/home_featured_vote_card.dart</code></td><td class="num">2</td><td><code>TextPainter</code> 로 한 줄/두 줄 결정</td></tr>
+<tr><td><code>widgets/vote/voting/voting_complete.dart</code></td><td class="num">3</td><td>고정 높이 → <code>minHeight</code> (PICNIC-2699)</td></tr>
+<tr><td>그 외 5개 파일</td><td class="num">5</td><td><code>minHeight</code>, <code>maxLines</code>+말줄임, <code>IntrinsicHeight</code></td></tr>
+</tbody>
+</table>
+<p>세 가지 패턴이 반복된다. <strong>고정 높이 → <code>BoxConstraints(minHeight:)</code></strong>, <strong>맨 <code>Row</code> 자식 → <code>Expanded</code>/<code>Flexible</code> + 말줄임</strong>, <strong>크기를 바꿀 수 없는 상자 → <code>FittedBox(scaleDown)</code></strong>. HIGH 13건은 거의 전부 이 셋 중 하나로 고쳐진다.</p>
+
+<h2>테스트 축 — 결정된 범위</h2>
+<p>언어는 <strong>ko·en·id·vi</strong>(최근 30일 활성 사용자의 98.8%)와 <strong>최장 문자열 가상 로케일</strong> 하나. 가상 로케일은 번역 키마다 14개 언어 중 가장 긴 값을 고르는 테스트 전용 장치로, 14개를 다 돌리지 않고도 길이 문제를 전부 잡는다. 글자 배율은 1.0·1.3·2.0. 단언은 "예외 0" <strong>그리고</strong> "그려진 글자가 상자 안에 있다".</p>
+<div class="caveat"><p><strong>측정의 한계와 그에 따른 결정.</strong> 테스트는 Pretendard 만 로드한다. 타이어·버마어·벵골어는 결합 문자까지 모든 코드 포인트가 1em 인 상자 폰트로 그려져 실제보다 훨씬 넓게 재진다. 이 셋을 후보에 넣었더니 623개 키 중 582개가 그 세 언어에서 뽑혀, "최장 문자열" 이 아니라 "상자 폰트" 를 시험하는 셈이 됐다. 그래서 <strong>가상 로케일의 후보에서 기본적으로 뺐다</strong>(필리핀어 250 · 스페인어 143 · 인도네시아어 83 · 베트남어 57 · 영어 48 · 일본어 33 · 한국어 9). <code>scripts/i18n/gen_longest_l10n.py --include-box-scripts</code> 로 더 엄격한 변형을 만들 수 있다. 세 언어의 최근 30일 활성 사용자는 22명·0명·0명이다.</p></div>
+
+<h2>도구</h2>
+<ul>
+  <li><code>scripts/i18n/gen_longest_l10n.py</code> — arb 에서 <code>test/helpers/longest_app_localizations.dart</code> 를 생성한다. arb 를 바꾸면 다시 돌린다.</li>
+  <li><code>test/helpers/l10n_layout_matrix.dart</code> — 언어 5종·배율 3종 상수, 넘침 수집기, <code>expectTextInsideBox</code>.</li>
+  <li><code>buildTestApp(longestStrings: true)</code> — 가상 로케일로 앱을 띄운다.</li>
+</ul>
+<p><strong><code>expectTextInsideBox</code> 가 보는 것.</strong> 그려진 사각형이 상자 안에 있는지만 봐서는 부족하다. 고정 높이 아래에 놓인 문단은 <strong>잘린 크기를 자기 크기로 보고한다</strong> — 20px 상자 속 29px 글자가 "20px" 라고 답하고 나머지는 상자 밖에 그린다. 그래서 문단이 받은 폭에서 실제로 필요로 하는 높이(<code>getMinIntrinsicHeight</code>)를 배치된 높이와 비교한다. 첫 구현은 이것이 없어 15건 전부 통과했고, 넣자 10건이 RED 가 됐다.</p>
+</body>
+</html>

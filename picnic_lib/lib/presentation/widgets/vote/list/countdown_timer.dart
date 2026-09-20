@@ -127,7 +127,9 @@ class _CountdownTimerState extends State<CountdownTimer> {
       children: [
         if (widget.status == VoteStatus.upcoming)
           Container(
-            height: 20,
+            // A minimum, not a fixed height: at 1.3x and above the label is
+            // taller than 20 and a fixed box clipped it in every language.
+            constraints: const BoxConstraints(minHeight: 20),
             margin: const EdgeInsets.only(bottom: 16),
             alignment: Alignment.center,
             child: Text(
