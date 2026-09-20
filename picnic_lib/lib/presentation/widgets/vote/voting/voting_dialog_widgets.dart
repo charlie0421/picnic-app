@@ -973,42 +973,63 @@ class VotingSubmitButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool columns;
 
-  /// The one-column box width supplied by the caller's layout budget.
-  final double? width;
-
   const VotingSubmitButton({
     super.key,
     required this.canVote,
     required this.isVoting,
     this.onPressed,
     this.columns = false,
-    this.width,
   });
 
   static const double _minHeight = 52;
-  static const int _maxLabelLines = 2;
+
+  /// The two-column button spans its column, so its label wraps: two lines,
+  /// then an ellipsis.
+  static const int _columnsMaxLabelLines = 2;
 
   static TextStyle _labelStyle({Color? color}) =>
       PicnicUi.text(size: 18, weight: FontWeight.w600, color: color);
 
   /// The height [build] lays out, for a caller that has to budget for it
   /// before the frame: the 52 minimum, or the scaled label plus padding.
+  ///
+  /// One column: the button is the design's fixed pill and its label is one
+  /// line, scaled down when it is wider than the pill. The height therefore
+  /// depends on the text scale only, never on the label's length or the
+  /// width — which is what keeps a long translation from growing the button
+  /// (PICNIC-2700) and keeps this budget equal to what [build] draws.
   static double preferredHeight(
     BuildContext context, {
     double? maxWidth,
     bool columns = false,
   }) {
-    final horizontalPadding = columns ? 12.0 : PicnicUi.horizontal(12);
+    if (!columns) {
+      return math.max(
+        _minHeight,
+        _oneLineLabelHeight(context) + PicnicUi.vertical(4) * 2,
+      );
+    }
     final label = measureVotingTextHeight(
       context,
       AppLocalizations.of(context).label_button_vote,
       _labelStyle(),
-      maxWidth: (maxWidth ?? preferredWidth()) - horizontalPadding * 2,
-      maxLines: _maxLabelLines,
+      maxWidth: (maxWidth ?? preferredWidth()) - 12.0 * 2,
+      maxLines: _columnsMaxLabelLines,
     );
-    final verticalPadding = columns ? 4.0 : PicnicUi.vertical(4);
-    return math.max(_minHeight, label + verticalPadding * 2);
+    return math.max(_minHeight, label + 4.0 * 2);
   }
+
+  /// The height of the one-column label's single line at the current text
+  /// scale. [build] pins the label box to exactly this, so the fit can shrink
+  /// the glyphs without the button's height following them.
+  static double _oneLineLabelHeight(BuildContext context) =>
+      measureVotingTextHeight(
+        context,
+        AppLocalizations.of(context).label_button_vote,
+        _labelStyle(),
+        maxWidth: double.infinity,
+        maxLines: 1,
+      );
 
   static double columnMinimumWidth(BuildContext context) =>
       12 * 2 +
@@ -1016,11 +1037,11 @@ class VotingSubmitButton extends StatelessWidget {
         context,
         AppLocalizations.of(context).label_button_vote,
         _labelStyle(),
-        maxLines: _maxLabelLines,
+        maxLines: _columnsMaxLabelLines,
       );
 
-  /// The fallback box width for standalone callers — the design 172, shrunk
-  /// with the card when a wide window caps the capsule.
+  /// The one-column box width — the design 172, shrunk with the card when a
+  /// wide window caps the capsule.
   static double preferredWidth() => voteDialogCardExtent(172);
 
   @override
@@ -1031,7 +1052,7 @@ class VotingSubmitButton extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: isEnabled ? onPressed : null,
       child: Container(
-        width: columns ? double.infinity : width ?? preferredWidth(),
+        width: columns ? double.infinity : preferredWidth(),
         constraints: const BoxConstraints(minHeight: _minHeight),
         decoration: BoxDecoration(
           color: isActive ? PicnicUi.actionColor : PicnicUi.disabledSurface,
@@ -1048,15 +1069,35 @@ class VotingSubmitButton extends StatelessWidget {
                 height: 24,
                 child: SmallPulseLoadingIndicator(),
               )
-            : Text(
+            : columns
+            ? Text(
                 AppLocalizations.of(context).label_button_vote,
-                maxLines: _maxLabelLines,
+                maxLines: _columnsMaxLabelLines,
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: _labelStyle(
                   color: isActive
                       ? PicnicUi.onActionColor
                       : PicnicUi.secondaryText,
+                ),
+              )
+            // One line, shrunk to the pill when it is wider. The box keeps the
+            // unshrunk line's height — the same number preferredHeight budgets
+            // — so shrinking the glyphs never changes the button's height.
+            : SizedBox(
+                height: _oneLineLabelHeight(context),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    AppLocalizations.of(context).label_button_vote,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
+                    style: _labelStyle(
+                      color: isActive
+                          ? PicnicUi.onActionColor
+                          : PicnicUi.secondaryText,
+                    ),
+                  ),
                 ),
               ),
       ),

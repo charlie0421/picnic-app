@@ -107,11 +107,30 @@ double _capsuleCornerOverhang(WidgetTester tester, Rect inner) {
   return worst;
 }
 
-void _expectAtMostTwoRenderedLines(RenderParagraph paragraph, String reason) {
+void _expectOneRenderedLine(RenderParagraph paragraph, String reason) {
   expect(
     paragraph.size.height,
-    lessThanOrEqualTo(paragraph.preferredLineHeight * 2 + 0.5),
+    lessThanOrEqualTo(paragraph.preferredLineHeight + 0.5),
     reason: reason,
+  );
+  expect(paragraph.didExceedMaxLines, isFalse, reason: '$reason (ellipsized)');
+}
+
+/// The label as it is *drawn*: inside the button on both sides, whatever scale
+/// the fit applied. getRect carries the transform, so a label that was laid out
+/// wider than the button but scaled to fit still has to land inside it.
+void _expectLabelDrawnInsideButton(
+  WidgetTester tester,
+  Finder label,
+  Finder button,
+  String reason,
+) {
+  final drawn = tester.getRect(label);
+  final box = tester.getRect(button).inflate(0.5);
+  expect(
+    drawn.left >= box.left && drawn.right <= box.right,
+    isTrue,
+    reason: '$reason: label $drawn is not inside button $box',
   );
 }
 
@@ -179,12 +198,17 @@ void main() {
     drainExpectedImageErrors(tester);
   }
 
-  group('PICNIC-2700 one-column submit label geometry', () {
+  // PICNIC-2700 first widened this button to the input's width. The design
+  // review (docs/operations/vote-ui-design-options) chose to keep the design's
+  // fixed pill instead and let a long label shrink to fit on one line: 94% of
+  // active users (ko, en) see the original design, the button no longer
+  // resizes while the keyboard animates, and no label is ever ellipsized.
+  group('PICNIC-2700 one-column submit button keeps its design width', () {
     for (final locale in _locales) {
       for (final textScale in _textScales) {
         final label = '${locale.languageCode} ${textScale}x';
 
-        testWidgets('$label uses a wider corner-safe width and a true budget', (
+        testWidgets('$label is a fixed pill with a one-line fitted label', (
           tester,
         ) async {
           await pumpDialog(tester, locale: locale, textScale: textScale);
@@ -198,16 +222,13 @@ void main() {
           final submitSize = tester.getSize(submit);
           final inputSize = tester.getSize(_amountInputSurface());
           final l10n = AppLocalizations.of(tester.element(submit));
-          final paragraph = tester.renderObject<RenderParagraph>(
-            _submitLabel(l10n.label_button_vote),
-          );
+          final labelFinder = _submitLabel(l10n.label_button_vote);
+          final paragraph = tester.renderObject<RenderParagraph>(labelFinder);
 
           expect(
             submitSize.width,
-            greaterThan(VotingSubmitButton.preferredWidth() + 0.5),
-            reason:
-                '$label: the production dialog must not fall back to the '
-                'legacy fixed-width button',
+            closeTo(VotingSubmitButton.preferredWidth(), 0.5),
+            reason: '$label: the button is the design pill, not a full bar',
           );
           expect(
             submitSize.width,
@@ -217,24 +238,22 @@ void main() {
           expect(
             _capsuleCornerOverhang(tester, tester.getRect(submit)),
             lessThanOrEqualTo(0.5),
-            reason: '$label: the wider button must stay inside the capsule arc',
+            reason: '$label: the button must stay inside the capsule arc',
           );
-          _expectAtMostTwoRenderedLines(
+          _expectOneRenderedLine(
             paragraph,
-            '$label: the submit label must not grow past two rendered lines',
+            '$label: the label is one line and never ellipsized',
           );
+          _expectLabelDrawnInsideButton(tester, labelFinder, submit, label);
           expect(
             submitSize.height,
             closeTo(
-              VotingSubmitButton.preferredHeight(
-                tester.element(submit),
-                maxWidth: submitSize.width,
-              ),
+              VotingSubmitButton.preferredHeight(tester.element(submit)),
               0.5,
             ),
             reason:
-                '$label: pre-layout budgeting and rendered width must describe '
-                'the same button height',
+                '$label: pre-layout budgeting and the rendered button must '
+                'describe the same height',
           );
           expect(tester.takeException(), isNull, reason: label);
         });
@@ -242,8 +261,43 @@ void main() {
     }
   });
 
-  testWidgets('PICNIC-2700 a roughly 47px label slot cannot make the button '
-      'taller than two lines', (tester) async {
+  group('PICNIC-2700 the submit button does not resize with the keyboard', () {
+    for (final locale in const [Locale('ko'), Locale('vi')]) {
+      for (final textScale in const [1.0, 2.0]) {
+        final label = '${locale.languageCode} ${textScale}x';
+        testWidgets(label, (tester) async {
+          await pumpDialog(
+            tester,
+            locale: locale,
+            textScale: textScale,
+            viewport: const Size(393, 852),
+          );
+          final idle = tester.getSize(find.byType(VotingSubmitButton));
+
+          await pumpDialog(
+            tester,
+            locale: locale,
+            textScale: textScale,
+            viewport: const Size(393, 852),
+            keyboard: 300,
+          );
+          final withKeyboard = tester.getSize(find.byType(VotingSubmitButton));
+
+          expect(
+            withKeyboard.width,
+            closeTo(idle.width, 0.01),
+            reason:
+                '$label: the primary button changed width when the keyboard '
+                'opened (${idle.width} -> ${withKeyboard.width})',
+          );
+          expect(tester.takeException(), isNull, reason: label);
+        });
+      }
+    }
+  });
+
+  testWidgets('PICNIC-2700 a roughly 47px label slot shrinks the label '
+      'instead of growing the button', (tester) async {
     tester.view.physicalSize = const Size(280 * 3, 480 * 3);
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
@@ -273,31 +327,19 @@ void main() {
     final submit = find.byType(VotingSubmitButton);
     final submitSize = tester.getSize(submit);
     final l10n = AppLocalizations.of(tester.element(submit));
-    final paragraph = tester.renderObject<RenderParagraph>(
-      _submitLabel(l10n.label_button_vote),
-    );
+    final labelFinder = _submitLabel(l10n.label_button_vote);
+    final paragraph = tester.renderObject<RenderParagraph>(labelFinder);
 
     expect(submitSize.width, closeTo(64, 0.5));
-    _expectAtMostTwoRenderedLines(
+    _expectOneRenderedLine(
       paragraph,
-      'the label slot is about 47px after padding and would otherwise grow',
+      'the label slot is about 47px after padding; the label must shrink',
     );
-    expect(paragraph.didExceedMaxLines, isTrue);
+    _expectLabelDrawnInsideButton(tester, labelFinder, submit, 'narrow slot');
     expect(
       submitSize.height,
-      lessThan(120),
-      reason: 'two 52px text lines plus padding fit below this measured bound',
-    );
-    expect(
-      submitSize.height,
-      closeTo(
-        VotingSubmitButton.preferredHeight(
-          tester.element(submit),
-          maxWidth: submitSize.width,
-        ),
-        0.5,
-      ),
-      reason: 'the narrow stress case must use the same two-line height budget',
+      closeTo(VotingSubmitButton.preferredHeight(tester.element(submit)), 0.5),
+      reason: 'the button height does not depend on the width it is given',
     );
     expect(tester.takeException(), isNull);
   });
