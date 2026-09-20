@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>투표 UI 디자인 시안과 로케일 테스트 범위 선택지</title>
+<style>
+  :root { --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; --bad:#b42318; }
+  body { max-width: 1240px; margin: 0 auto; padding: 36px 28px 80px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  h1 { font-size: 30px; margin: 0 0 6px; } h2 { font-size: 23px; margin: 2.2em 0 .5em; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 17px; margin: 1.6em 0 .4em; } p, ul { margin: .55em 0; }
+  code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .92em ui-monospace, Menlo, monospace; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13.5px; }
+  th, td { padding: 8px 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: var(--soft); } td.num, th.num { text-align: right; white-space: nowrap; }
+  .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+  .caveat { padding: 14px 16px; border-left: 5px solid var(--warn); background: #fff8e6; margin: 14px 0; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 12px 0 8px; }
+  .shots.two { grid-template-columns: repeat(2, 1fr); max-width: 840px; }
+  figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--soft); }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 9px 12px; font-size: 13px; border-top: 1px solid var(--line); background: #fff; }
+  figcaption b { display: block; font-size: 14px; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .tag.now { background: #ddf4ff; color: #0550ae; } .tag.rec { background: #dafbe1; color: var(--ok); }
+  .ok { color: var(--ok); font-weight: 700; } .warn { color: var(--warn); font-weight: 700; } .bad { color: var(--bad); font-weight: 700; }
+  .note { color: var(--muted); font-size: 13.5px; }
+  .pick { padding: 14px 16px; border: 2px solid var(--accent); border-radius: 10px; background: #fbf9ff; margin: 16px 0; }
+</style>
+</head>
+<body>
+<h1>투표 UI 디자인 시안과 로케일 테스트 범위 선택지</h1>
+<p class="note">2026-09-20 · 모든 이미지는 목업이 아니라 <strong>앱 코드를 실제로 렌더한 결과</strong>다(393×852, 프로덕션 폰트 Pretendard). 시안 A2·A3·B2 는 프로토타입 패치를 임시로 적용해 캡처한 뒤 되돌렸다.</p>
+
+<div class="summary">
+  <p><strong>정할 것은 세 가지다.</strong> ① 투표 버튼 폭(A1·A2·A3) ② 저장·공유 버튼 배치(B1·B2) ③ 로케일 테스트 범위(옵션 1·2·3). 각 절 끝의 보라색 상자에 권고를 적었다.</p>
+</div>
+
+<h2>먼저 — 판단 근거가 되는 실사용 데이터</h2>
+<p>운영 DB 의 <code>user_profiles.language</code> 를 최근 30일 로그인 기준으로 집계했다(읽기 전용, 2026-09-20).</p>
+<table>
+  <thead><tr><th>앱 언어</th><th class="num">전체 가입</th><th class="num">최근 30일</th><th class="num">비중</th><th>누적</th></tr></thead>
+  <tbody>
+    <tr><td>한국어 ko</td><td class="num">28,024</td><td class="num">5,836</td><td class="num">79.3%</td><td>79.3%</td></tr>
+    <tr><td>영어 en</td><td class="num">81,378</td><td class="num">1,113</td><td class="num">15.1%</td><td>94.4%</td></tr>
+    <tr><td>인도네시아어 id</td><td class="num">937</td><td class="num">201</td><td class="num">2.7%</td><td>97.1%</td></tr>
+    <tr><td>베트남어 vi</td><td class="num">317</td><td class="num">124</td><td class="num">1.7%</td><td><strong>98.8%</strong></td></tr>
+    <tr><td>타이어 th · 중국어 zh</td><td class="num">320</td><td class="num">44</td><td class="num">0.6%</td><td>99.4%</td></tr>
+    <tr><td>일본어 ja · 스페인어 es · zh-TW</td><td class="num">552</td><td class="num">39</td><td class="num">0.5%</td><td>99.9%</td></tr>
+    <tr><td>필리핀어 · <strong>버마어 my · 벵골어 bn</strong></td><td class="num">119</td><td class="num">1</td><td class="num">0.0%</td><td>100%</td></tr>
+  </tbody>
+</table>
+<p><strong>네 개 언어(ko·en·id·vi)가 활성 사용자의 98.8% 다.</strong> 이번에 가장 많은 공을 들인 버마어·벵골어는 최근 30일 활성 사용자가 <span class="bad">0명</span>이다.</p>
+
+<div class="caveat">
+  <p><strong>이번 세션 수치에 대한 주의.</strong> 테스트는 Pretendard 만 로드한다. 한글·라틴 문자는 실제 글리프로 재지만, <strong>타이어·버마어·벵골어는 테스트에서 "모든 글자가 정사각 상자" 인 대체 폰트로 재진다.</strong> 실제 기기에서는 결합 문자가 폭을 차지하지 않으므로 라벨이 더 좁다. 즉 앞서 보고한 "벵골어 0.569배" 같은 수치는 <strong>실제보다 나쁘게 나온 상한</strong>이다. 넘침을 막는 방향으로는 안전한 오차지만, 그 언어들의 글자 크기 수치를 그대로 믿으면 안 된다. 그래서 아래 시안은 실제 글리프로 그려지는 한국어·영어·베트남어·스페인어만 썼다.</p>
+</div>
+
+<h2>결정 ① 투표 버튼 폭 (PICNIC-2700)</h2>
+<p>PICNIC-2700 은 버튼이 7줄까지 자라던 결함을 고치면서 <strong>버튼 폭 정책까지 바꿨다.</strong> 세 시안 모두 "라벨은 최대 2줄" 이라는 안전장치는 같고, 폭과 긴 라벨 처리 방식만 다르다.</p>
+
+<h3>한국어 1.0배 — 사용자의 79% 가 보는 화면</h3>
+<div class="shots">
+  <figure><img src="A1_ko_1.0_idle.png" alt="A1 한국어"><figcaption><b>A1 넓은 버튼 <span class="tag now">현재 main</span></b>입력칸과 같은 폭의 바. 293px.</figcaption></figure>
+  <figure><img src="A2_ko_1.0_idle.png" alt="A2 한국어"><figcaption><b>A2 고정 폭 + 2줄 말줄임</b>원래 디자인의 가운데 알약. 140px.</figcaption></figure>
+  <figure><img src="A3_ko_1.0_idle.png" alt="A3 한국어"><figcaption><b>A3 고정 폭 + 자동 축소</b>한국어에서는 A2 와 완전히 같다.</figcaption></figure>
+</div>
+
+<h3>키보드가 열렸을 때</h3>
+<div class="shots">
+  <figure><img src="A1_ko_1.0_keyboard.png" alt="A1 키보드"><figcaption><b>A1</b>버튼이 293 → 226px 로 <span class="warn">23% 줄어든다.</span> 키보드 전환 중 크기가 변한다.</figcaption></figure>
+  <figure><img src="A2_ko_1.0_keyboard.png" alt="A2 키보드"><figcaption><b>A2</b>폭이 변하지 않는다.</figcaption></figure>
+  <figure><img src="A3_ko_1.0_keyboard.png" alt="A3 키보드"><figcaption><b>A3</b>폭이 변하지 않는다.</figcaption></figure>
+</div>
+
+<h3>긴 라벨 + 큰 글자 — 베트남어 2.6배 (최악 조건)</h3>
+<div class="shots">
+  <figure><img src="A1_vi_2.6_idle.png" alt="A1 베트남어"><figcaption><b>A1</b>한 줄에 들어간다.</figcaption></figure>
+  <figure><img src="A2_vi_2.6_idle.png" alt="A2 베트남어"><figcaption><b>A2</b>두 줄로 접힌다. 더 좁은 320폭 기기에서는 2.6배에 <span class="warn">말줄임</span>된다.</figcaption></figure>
+  <figure><img src="A3_vi_2.6_idle.png" alt="A3 베트남어"><figcaption><b>A3</b>한 줄로 두고 글자를 줄여 맞춘다. 잘리지 않는 대신 글자가 작아진다.</figcaption></figure>
+</div>
+<p class="note">베트남어 2.0배 비교는 <code>A1_vi_2.0_idle.png</code> · <code>A2_vi_2.0_idle.png</code> · <code>A3_vi_2.0_idle.png</code>, 영어는 <code>*_en_1.0_idle.png</code> 에 있다.</p>
+
+<table>
+  <thead><tr><th></th><th>A1 넓은 버튼 (현재)</th><th>A2 고정 + 말줄임</th><th>A3 고정 + 자동 축소</th></tr></thead>
+  <tbody>
+    <tr><td>원래 디자인과의 일치</td><td class="warn">다르다 (알약 → 바)</td><td class="ok">같다</td><td class="ok">같다</td></tr>
+    <tr><td>키보드 전환 시 크기 변화</td><td class="warn">23% 줄어듦</td><td class="ok">없음</td><td class="ok">없음</td></tr>
+    <tr><td>2.0배까지의 잘림</td><td class="ok">없음</td><td class="ok">없음 (4개 언어가 2줄)</td><td class="ok">없음</td></tr>
+    <tr><td>2.0배 초과 잘림</td><td class="ok">없음</td><td class="warn">my·vi 말줄임</td><td class="ok">없음 (대신 작아짐)</td></tr>
+    <tr><td>코드 복잡도</td><td class="warn">모서리 여유 계산 루프 필요</td><td class="ok">가장 단순</td><td>단순 + 축소 한 겹</td></tr>
+    <tr><td>되돌리는 비용</td><td>—</td><td>한 줄</td><td>몇 줄</td></tr>
+  </tbody>
+</table>
+<div class="pick"><strong>권고: A3.</strong> 사용자의 94% (ko·en) 에게는 원래 디자인 그대로이고 키보드 전환 때 버튼이 움직이지 않는다. 긴 라벨은 잘리지 않고 줄어든다. A1 이 지키는 것은 2.0배를 넘는 배율의 버마어(활성 0명)·베트남어(124명)뿐인데, A3 도 그 경우를 잘림 없이 처리한다.</div>
+
+<h2>결정 ② 저장·공유 버튼 배치</h2>
+<p>라벨이 고정 크기 버튼에 안 들어갈 때 어떻게 할지다. 라벨이 들어가는 언어(한국어·영어 등)는 <strong>두 시안이 완전히 같다.</strong></p>
+
+<h3>한국어 — 두 시안 동일</h3>
+<div class="shots two">
+  <figure><img src="B1_ko_393_1.0.png" alt="B1 한국어"><figcaption><b>B1 <span class="tag now">현재 main</span></b></figcaption></figure>
+  <figure><img src="B2_ko_393_1.0.png" alt="B2 한국어"><figcaption><b>B2</b>한국어에서는 B1 과 같다.</figcaption></figure>
+</div>
+
+<h3>스페인어 2.0배 — 라벨이 안 들어가는 경우</h3>
+<div class="shots two">
+  <figure><img src="B1_es_393_2.0.png" alt="B1 스페인어 2.0"><figcaption><b>B1 라벨을 줄여 맞춤</b>나란한 배치 유지. 큰 글자를 원한 사용자에게 라벨이 <span class="warn">오히려 작게</span> 보인다.</figcaption></figure>
+  <figure><img src="B2_es_393_2.0.png" alt="B2 스페인어 2.0"><figcaption><b>B2 세로로 쌓기</b>라벨이 요청한 크기 그대로. 팝업이 세로로 길어진다.</figcaption></figure>
+</div>
+
+<h3>가장 좁은 창 280×480, 2.0배</h3>
+<div class="shots two">
+  <figure><img src="B1_es_280x480_2.0.png" alt="B1 280"><figcaption><b>B1</b>팝업 전체 축소와 라벨 축소가 겹쳐 2.0배 라벨이 1.0배보다 작아진다.</figcaption></figure>
+  <figure><img src="B2_es_280x480_2.0.png" alt="B2 280"><figcaption><b>B2</b>라벨은 커지지만 팝업이 길어져 전체 축소율이 더 커진다.</figcaption></figure>
+</div>
+<p class="note">스페인어 1.0배 비교는 <code>B1_es_393_1.0.png</code> · <code>B2_es_393_1.0.png</code>.</p>
+
+<table>
+  <thead><tr><th></th><th>B1 라벨 축소 (현재)</th><th>B2 세로 쌓기</th></tr></thead>
+  <tbody>
+    <tr><td>ko·en·id·vi (98.8%) 에서의 모양</td><td class="ok">기존 그대로</td><td class="ok">기존 그대로</td></tr>
+    <tr><td>긴 라벨 가독성</td><td class="warn">작아진다</td><td class="ok">요청한 크기 그대로</td></tr>
+    <tr><td>공유 이미지 구도</td><td class="ok">일정</td><td class="warn">언어에 따라 팝업 높이가 달라진다</td></tr>
+    <tr><td>영향 범위</td><td class="ok">이미 적용됨</td><td class="warn">공용 위젯이라 여섯 화면 전부 재검증</td></tr>
+  </tbody>
+</table>
+<div class="pick"><strong>권고: B1 유지.</strong> B2 가 도와주는 언어(es·fil·bn·th 등)의 활성 사용자는 합쳐 1% 미만이고, 오역을 고친 뒤에는 실제로 줄어드는 폭도 작다. 여섯 화면을 다시 검증할 값어치가 지금은 없다. 해당 언어 사용자가 늘면 그때 B2 로 간다.</div>
+
+<div class="caveat">
+  <p><strong>시안을 만들다 보인 기존 결함.</strong> 위 스페인어 2.0배 이미지에서 머리말 "Votación completa" 가 <strong>단어 중간에서 끊겨 네 줄</strong>이 된다(<code>Vota / ción / com / pleta</code>). 머리말 알약 폭이 203 으로 고정이라서다. 시안 A 의 베트남어 2.6배 이미지에서는 충전 버튼이 <code>Tí…</code> 로 잘리고 안내 말풍선이 두 줄에서 끊긴다. 둘 다 이번 결정과 무관한 기존 문제이고 아직 티켓이 없다.</p>
+</div>
+
+<h2>결정 ③ 로케일 테스트 범위</h2>
+<p>PICNIC-2727 에서 129 조합 중 59 조합이 <strong>한 번도 검증되지 않은 채</strong> 있었다. 여러 화면의 테스트에 로케일 축이 아예 없기 때문이다. 메우는 방법은 "어떤 언어로" 와 "어느 화면까지" 두 축의 조합이다.</p>
+
+<table>
+  <thead><tr><th>옵션</th><th>언어</th><th>잡는 것</th><th>못 잡는 것</th><th class="num">테스트 증가</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. 사용자 기준</strong></td><td>ko·en·id·vi</td><td>활성 사용자 98.8% 가 실제로 보는 화면</td><td>앞으로 들어올 긴 번역</td><td class="num">기준 (×1)</td></tr>
+    <tr><td><strong>2. 사용자 기준 + 최장 문자열</strong> <span class="tag rec">권고</span></td><td>ko·en·id·vi + 가상의 "최장" 로케일 1개</td><td>옵션 1 전부 + <strong>어떤 언어든 가장 긴 번역이 들어왔을 때</strong></td><td>특정 문자 체계 고유의 문제(결합 문자 등)</td><td class="num">×1.25</td></tr>
+    <tr><td><strong>3. 전 로케일 14개</strong></td><td>arb 파일이 있는 전부</td><td>모든 언어 조합</td><td>— (단, 아래 주의 참고)</td><td class="num">×3.5</td></tr>
+  </tbody>
+</table>
+<p><strong>"최장 문자열 로케일" 이란</strong> 번역 키마다 14개 언어 중 가장 긴 값을 골라 모은 테스트 전용 가상 언어다. 실제 언어가 아니라 "최악의 길이" 를 한 번에 재는 장치다. 14개 언어를 다 돌리지 않고도 길이 문제는 전부 잡는다.</p>
+<div class="caveat">
+  <p><strong>옵션 3 의 함정.</strong> 위에서 밝힌 대로 타이어·버마어·벵골어는 테스트에서 상자 폰트로 재진다. 14개를 다 돌려도 그 언어들은 실제 글리프가 아니라 과대 측정된 상자를 재는 셈이다. 제대로 하려면 Noto 폰트 3종을 테스트 자산으로 추가해야 하고(수 MB), 그래도 활성 사용자는 1% 미만이다.</p>
+</div>
+
+<h3>어느 화면까지</h3>
+<table>
+  <thead><tr><th>범위</th><th>대상</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr><td><strong>가. 고정 크기 상자만</strong> <span class="tag rec">권고</span></td><td>번역 문자열이 <strong>고정 폭·고정 높이 상자</strong> 안에 들어가는 위젯을 먼저 전수 조사해 그것만</td><td>이번 세션의 결함 10여 건이 전부 이 형태였다. 자유롭게 늘어나는 텍스트는 넘치지 않는다</td></tr>
+    <tr><td>나. 핵심 화면</td><td>홈·투표 목록·투표 상세·투표 팝업 2종·상점</td><td>사용 빈도 기준. 조사 없이 바로 착수 가능</td></tr>
+    <tr><td>다. 전체</td><td>위젯 테스트가 있는 모든 화면</td><td>가장 넓지만 대부분은 넘칠 구조가 아니라 낭비가 크다</td></tr>
+  </tbody>
+</table>
+<div class="pick"><strong>권고: 옵션 2 × 범위 가.</strong> 먼저 "번역 문자열이 고정 크기 상자에 들어가는 곳" 을 전수 조사해 목록을 만든다. 그 목록이 곧 위험 지도다. 거기에만 ko·en·id·vi + 최장 문자열 축을 건다. 조사 결과 목록은 그 자체로 산출물이 되고, 범위가 예상보다 크면 그때 다시 정한다.</div>
+
+<h2>선택 방법</h2>
+<p>세 결정을 기호로 답하면 된다. 예: <code>A3, B1, 옵션 2 × 가</code>. 권고대로라면 "권고대로" 한마디면 된다.</p>
+</body>
+</html>
