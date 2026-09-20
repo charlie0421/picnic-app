@@ -343,4 +343,56 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
+
+  // The loading indicator is a fixed 24px while the label grows with the text
+  // scale, so swapping one for the other used to shrink the button the moment
+  // a vote was submitted: 7.6px at 2.0x, 23.6px at 2.6x. The dialog budgets
+  // the idle height, so the whole card jumped under the user's finger.
+  group('PICNIC-2700 the submit button keeps its height while voting', () {
+    for (final columns in const [false, true]) {
+      for (final textScale in const [1.0, 2.0, 2.6]) {
+        final label = '${columns ? "two-column" : "one-column"} ${textScale}x';
+        testWidgets(label, (tester) async {
+          Future<double> heightWhen({required bool isVoting}) async {
+            await tester.pumpWidget(
+              buildTestApp(
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 240,
+                        child: VotingSubmitButton(
+                          canVote: true,
+                          isVoting: isVoting,
+                          columns: columns,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                locale: const Locale('vi'),
+                textScaler: TextScaler.linear(textScale),
+                designSize: kAppDesignSize,
+                splitScreenMode: kAppSplitScreenMode,
+              ),
+            );
+            // The indicator animates forever; one frame is enough to lay out.
+            await tester.pump();
+            return tester.getSize(find.byType(VotingSubmitButton)).height;
+          }
+
+          final idle = await heightWhen(isVoting: false);
+          final voting = await heightWhen(isVoting: true);
+          expect(
+            voting,
+            closeTo(idle, 0.01),
+            reason: '$label: the button went from $idle to $voting on submit',
+          );
+          await tester.pumpWidget(const SizedBox.shrink());
+        });
+      }
+    }
+  });
 }

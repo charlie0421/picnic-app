@@ -1063,43 +1063,60 @@ class VotingSubmitButton extends StatelessWidget {
           horizontal: columns ? 12 : PicnicUi.horizontal(12),
           vertical: columns ? 4 : PicnicUi.vertical(4),
         ),
-        child: isVoting
-            ? const SizedBox(
+        // While a vote is in flight the label stays in the tree, hidden, and
+        // the indicator sits on top of it. Swapping the label for the fixed
+        // 24px indicator used to shrink the button at large text scales (7.6px
+        // at 2.0x, 23.6px at 2.6x) and the dialog, which budgets the idle
+        // height, jumped on submit. Keeping the label's box keeps the height
+        // without measuring anything.
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Visibility(
+              visible: !isVoting,
+              maintainSize: true,
+              maintainAnimation: true,
+              maintainState: true,
+              child: columns
+                  ? Text(
+                      AppLocalizations.of(context).label_button_vote,
+                      maxLines: _columnsMaxLabelLines,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: _labelStyle(
+                        color: isActive
+                            ? PicnicUi.onActionColor
+                            : PicnicUi.secondaryText,
+                      ),
+                    )
+                  // One line, shrunk to the pill when it is wider. The box keeps the
+                  // unshrunk line's height — the same number preferredHeight budgets
+                  // — so shrinking the glyphs never changes the button's height.
+                  : SizedBox(
+                      height: _oneLineLabelHeight(context),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          AppLocalizations.of(context).label_button_vote,
+                          maxLines: 1,
+                          textAlign: TextAlign.center,
+                          style: _labelStyle(
+                            color: isActive
+                                ? PicnicUi.onActionColor
+                                : PicnicUi.secondaryText,
+                          ),
+                        ),
+                      ),
+                    ),
+            ),
+            if (isVoting)
+              const SizedBox(
                 width: 24,
                 height: 24,
                 child: SmallPulseLoadingIndicator(),
-              )
-            : columns
-            ? Text(
-                AppLocalizations.of(context).label_button_vote,
-                maxLines: _columnsMaxLabelLines,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
-                style: _labelStyle(
-                  color: isActive
-                      ? PicnicUi.onActionColor
-                      : PicnicUi.secondaryText,
-                ),
-              )
-            // One line, shrunk to the pill when it is wider. The box keeps the
-            // unshrunk line's height — the same number preferredHeight budgets
-            // — so shrinking the glyphs never changes the button's height.
-            : SizedBox(
-                height: _oneLineLabelHeight(context),
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    AppLocalizations.of(context).label_button_vote,
-                    maxLines: 1,
-                    textAlign: TextAlign.center,
-                    style: _labelStyle(
-                      color: isActive
-                          ? PicnicUi.onActionColor
-                          : PicnicUi.secondaryText,
-                    ),
-                  ),
-                ),
               ),
+          ],
+        ),
       ),
     );
   }
