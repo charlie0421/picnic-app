@@ -941,7 +941,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reward => 'Recompensas';
 
   @override
-  String get save => 'Ahorrar';
+  String get save => 'Guardar';
 
   @override
   String get seconds => 'artículos de segunda clase';

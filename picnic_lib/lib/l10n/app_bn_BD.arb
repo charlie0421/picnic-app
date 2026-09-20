@@ -1194,7 +1194,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "সংরক্ষণ করুন",
+  "save": "সংরক্ষণ",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },

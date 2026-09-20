@@ -930,7 +930,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get reward => 'Phần thưởng';
 
   @override
-  String get save => 'Cứu';
+  String get save => 'Lưu';
 
   @override
   String get seconds => 'giây';

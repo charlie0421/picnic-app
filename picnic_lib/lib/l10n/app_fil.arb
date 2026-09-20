@@ -1193,7 +1193,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "I -save",
+  "save": "I-save",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },

@@ -1194,7 +1194,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "Cứu",
+  "save": "Lưu",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
