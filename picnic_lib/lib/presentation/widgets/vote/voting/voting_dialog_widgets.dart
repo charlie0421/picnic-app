@@ -1003,6 +1003,9 @@ class VotingSubmitButton extends StatelessWidget {
     double? maxWidth,
     bool columns = false,
   }) {
+    // The one-column height does not depend on the width, on purpose. A caller
+    // passing one has the wrong mental model of this button.
+    assert(columns || maxWidth == null, 'maxWidth only applies to columns');
     if (!columns) {
       return math.max(
         _minHeight,

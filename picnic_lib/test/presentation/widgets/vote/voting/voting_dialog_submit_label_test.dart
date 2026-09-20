@@ -41,6 +41,9 @@ final _wallet = WalletSummaryModel(
   snapshotAt: DateTime.utc(2026, 9, 15),
 );
 
+// vi, fil and es are here on purpose: they are the real-font labels the fit
+// shrinks most. th and my fall back to a box font in tests (only Pretendard is
+// loaded), so their widths are overestimates — useful as stress, not as truth.
 const _locales = <Locale>[
   Locale('ko'),
   Locale('en'),
@@ -49,8 +52,23 @@ const _locales = <Locale>[
   Locale('ja'),
   Locale('zh'),
   Locale('id'),
+  Locale('vi'),
+  Locale('fil'),
+  Locale('es'),
 ];
-const _textScales = <double>[1.0, 1.3, 2.0];
+// 2.6 is past the platform maximum; it is where the fit does most of its work.
+const _textScales = <double>[1.0, 1.3, 2.0, 2.6];
+
+/// Whether the label inside [button] is actually painted.
+///
+/// Every geometry assertion in this file still passes on a label that is laid
+/// out but never drawn — Visibility(maintainSize) keeps the size and the
+/// finders and only drops the paint. So the flag itself has to be asserted.
+bool _labelIsPainted(WidgetTester tester, Finder button) => tester
+    .widget<Visibility>(
+      find.descendant(of: button, matching: find.byType(Visibility)),
+    )
+    .visible;
 
 Finder _amountInputSurface() => find
     .ancestor(
@@ -246,6 +264,11 @@ void main() {
           );
           _expectLabelDrawnInsideButton(tester, labelFinder, submit, label);
           expect(
+            _labelIsPainted(tester, submit),
+            isTrue,
+            reason: '$label: an idle button has to show its label',
+          );
+          expect(
             submitSize.height,
             closeTo(
               VotingSubmitButton.preferredHeight(tester.element(submit)),
@@ -380,7 +403,25 @@ void main() {
             );
             // The indicator animates forever; one frame is enough to lay out.
             await tester.pump();
-            return tester.getSize(find.byType(VotingSubmitButton)).height;
+            final button = find.byType(VotingSubmitButton);
+            expect(
+              _labelIsPainted(tester, button),
+              !isVoting,
+              reason: '$label: the label is shown exactly when not voting',
+            );
+            expect(
+              tester.getSize(button).height,
+              closeTo(
+                VotingSubmitButton.preferredHeight(
+                  tester.element(button),
+                  maxWidth: columns ? 240 : null,
+                  columns: columns,
+                ),
+                0.01,
+              ),
+              reason: '$label: both states have to equal the budgeted height',
+            );
+            return tester.getSize(button).height;
           }
 
           final idle = await heightWhen(isVoting: false);
