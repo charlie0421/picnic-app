@@ -3027,7 +3027,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get reward => 'পুরষ্কার';
 
   @override
-  String get save => 'সংরক্ষণ করুন';
+  String get save => 'সংরক্ষণ';
 
   @override
   String get seconds => 'সেকেন্ড';

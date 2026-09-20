@@ -943,7 +943,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get reward => 'Gantimpala';
 
   @override
-  String get save => 'I -save';
+  String get save => 'I-save';
 
   @override
   String get seconds => 'Segundo';
