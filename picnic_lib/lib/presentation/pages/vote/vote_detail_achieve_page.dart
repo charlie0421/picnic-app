@@ -767,85 +767,93 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            FutureBuilder<List<VoteAchieve>?>(
-              future: achievementFuture,
-              builder: (context, snapshot) {
-                if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Container();
-                }
-
-                final achievements = snapshot.data!;
-
-                final mainMilestones = _generateMilestonesFromAchievements(
-                  achievements,
-                );
-
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (_canRunPoll(generation, voteId, votePortal)) {
-                    _checkMilestoneAchievement(data.voteTotal!, achievements);
+            // Flexible so the ladder gets a bounded width and its reward slots
+            // can give way on narrow screens (PICNIC-2746): the fixed parts
+            // add up to 280 + 28.w, which is 32px too wide at 320dp. On 360dp
+            // and wider nothing is short, so every rung keeps its 180.
+            Flexible(
+              child: FutureBuilder<List<VoteAchieve>?>(
+                future: achievementFuture,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const SizedBox.shrink();
                   }
-                });
 
-                final levels = _generateLevels(mainMilestones);
-                var rewardIndex = 0;
+                  final achievements = snapshot.data!;
 
-                return Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: List.generate(levels.length, (index) {
-                      final currentLevel = levels[index];
-                      final isAchieved = data.voteTotal! >= currentLevel;
-                      final isMainMilestone = mainMilestones.contains(
-                        currentLevel,
-                      );
+                  final mainMilestones = _generateMilestonesFromAchievements(
+                    achievements,
+                  );
 
-                      return Row(
-                        children: [
-                          if (isMainMilestone && currentLevel > 0)
-                            _buildRewardInfo(
-                              achievements,
-                              rewardIndex++,
-                              isAchieved,
-                            )
-                          else
-                            const SizedBox(width: _rewardRungWidth),
-                          SizedBox(width: 5.w),
-                          Container(
-                            width: 80,
-                            height: 50,
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                              currentLevel == 0
-                                  ? '0'
-                                  : formatNumberWithComma(
-                                      currentLevel.toString(),
-                                    ),
-                              style: getTextStyle(
-                                isMainMilestone
-                                    ? AppTypo.caption12B
-                                    : AppTypo.caption12R,
-                                isAchieved
-                                    ? AppColors.primary500
-                                    : AppColors.grey400,
-                              ),
-                              textAlign: TextAlign.right,
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (_canRunPoll(generation, voteId, votePortal)) {
+                      _checkMilestoneAchievement(data.voteTotal!, achievements);
+                    }
+                  });
+
+                  final levels = _generateLevels(mainMilestones);
+                  var rewardIndex = 0;
+
+                  return Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: List.generate(levels.length, (index) {
+                        final currentLevel = levels[index];
+                        final isAchieved = data.voteTotal! >= currentLevel;
+                        final isMainMilestone = mainMilestones.contains(
+                          currentLevel,
+                        );
+
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Flexible(
+                              child: isMainMilestone && currentLevel > 0
+                                  ? _buildRewardInfo(
+                                      achievements,
+                                      rewardIndex++,
+                                      isAchieved,
+                                    )
+                                  : const SizedBox(width: _rewardRungWidth),
                             ),
-                          ),
-                          SizedBox(width: 5.w),
-                          Container(
-                            width: 10.w,
-                            height: 2,
-                            color: isAchieved
-                                ? AppColors.primary500
-                                : AppColors.grey400,
-                          ),
-                        ],
-                      );
-                    }),
-                  ),
-                );
-              },
+                            SizedBox(width: 5.w),
+                            Container(
+                              width: 80,
+                              height: 50,
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                currentLevel == 0
+                                    ? '0'
+                                    : formatNumberWithComma(
+                                        currentLevel.toString(),
+                                      ),
+                                style: getTextStyle(
+                                  isMainMilestone
+                                      ? AppTypo.caption12B
+                                      : AppTypo.caption12R,
+                                  isAchieved
+                                      ? AppColors.primary500
+                                      : AppColors.grey400,
+                                ),
+                                textAlign: TextAlign.right,
+                              ),
+                            ),
+                            SizedBox(width: 5.w),
+                            Container(
+                              width: 10.w,
+                              height: 2,
+                              color: isAchieved
+                                  ? AppColors.primary500
+                                  : AppColors.grey400,
+                            ),
+                          ],
+                        );
+                      }),
+                    ),
+                  );
+                },
+              ),
             ),
             SizedBox(width: 8.w),
             FutureBuilder<List<VoteAchieve>?>(
@@ -1149,7 +1157,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);
       },
-      // PICNIC-2738. The rung is a fixed 50x180 on purpose: the progress bar
+      // PICNIC-2738. The rung is 50 tall and at most 180 wide on purpose (it
+      // only narrows on screens too small for 180, PICNIC-2746): the progress bar
       // beside the ladder is drawn as 50px per level, so a taller rung would
       // slide every level out of line with it (and the thumbnail below has
       // no height of its own — the 50 is what keeps it round). The text is

@@ -9,7 +9,7 @@ class AppLocalizationsVi extends AppLocalizations {
   AppLocalizationsVi([String locale = 'vi']) : super(locale);
 
   @override
-  String get achieve => 'Thành tích';
+  String get achieve => 'Đã đạt';
 
   @override
   String get ads_available_time => 'Thời gian tiếp theo để xem quảng cáo';

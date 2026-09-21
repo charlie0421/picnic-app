@@ -188,7 +188,13 @@ Map<String, dynamic> _achieveVoteAchieveRow({
 /// review found this suite's "false positives" were not false.
 final _pageCases = <(double, Size)>[
   for (final textScale in l10nLayoutTextScales)
-    for (final viewport in const [Size(393, 852), Size(360, 800)])
+    // 320 is the narrowest screen still in use (iPhone SE 1st gen, small
+    // Androids); PICNIC-2746 found the achieve ladder 32px too wide there.
+    for (final viewport in const [
+      Size(393, 852),
+      Size(360, 800),
+      Size(320, 640),
+    ])
       (textScale, viewport),
 ];
 
@@ -334,6 +340,24 @@ void main() {
                 .first,
             reason: label,
           );
+          // The 48 became a minimum (PICNIC-2746); at 1.0x it must still be
+          // exactly the old 48.
+          if (textScale == 1.0) {
+            expect(
+              tester
+                  .getSize(
+                    find
+                        .ancestor(
+                          of: text,
+                          matching: find.byType(ElevatedButton),
+                        )
+                        .first,
+                  )
+                  .height,
+              48,
+              reason: label,
+            );
+          }
         });
       }
     }
