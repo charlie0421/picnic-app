@@ -1,9 +1,12 @@
 import 'dart:io';
 
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:in_app_purchase_android/in_app_purchase_android.dart';
+import 'package:in_app_purchase_android/in_app_purchase_android.dart'
+    hide kIAPSource;
 import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart';
+import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:picnic_lib/core/services/receipt_format_helper.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 
 /// What one enumeration of the store's unfinished transactions found.
@@ -161,51 +164,55 @@ class AndroidPastPurchaseSource implements UnfinishedPurchaseSource {
   }
 }
 
-/// StoreKit: the transactions still sitting in `SKPaymentQueue` because nothing
-/// has finished them.
+/// StoreKit: the transactions nothing has finished yet.
 ///
-/// This is the iOS half that did not exist. StoreKit re-delivers unfinished
-/// transactions through `purchaseStream` when the queue observer is installed
-/// (cold start), but it does nothing of the sort on a resume - so an Ask to Buy
-/// approval, or a settlement that failed while the app was in the foreground,
-/// had no path back until the next launch. Enumerating the queue gives that
-/// path.
+/// StoreKit re-delivers unfinished transactions through `purchaseStream` when
+/// the listener is installed (cold start), but it does nothing of the sort on
+/// a resume - so an Ask to Buy approval, or a settlement that failed while the
+/// app was in the foreground, had no path back until the next launch. This
+/// enumeration gives that path.
 ///
-/// Only `purchased` is swept, and each exclusion is deliberate:
+/// **What is settled comes from StoreKit 2 only.** The plugin
+/// (`in_app_purchase_storekit` 0.4.8+1) runs StoreKit 2 by default, so the live
+/// path sends each transaction's JWS (`jwsRepresentation`), and verify-receipt
+/// only accepts a three-part JWS. The previous revision swept the StoreKit 1
+/// queue and sent the *app receipt* (dot-less base64): every such request was
+/// answered 422 `APPLE_JWS_INVALID` and nothing was ever recovered
+/// (PICNIC-2743). `SK2Transaction.unfinishedTransactions()` wraps native
+/// `Transaction.unfinished`, which yields only *verified* transactions - the
+/// plugin drops unverified ones silently - each carrying its own JWS.
 ///
-/// - `purchasing` has no payment yet and StoreKit's own documentation forbids
-///   finishing it.
-/// - `deferred` is an Ask to Buy request still awaiting a guardian. It becomes
-///   `purchased` when approved, and only then is there money to settle.
-/// - `failed` is not a charge; `InAppPurchaseService._clearIosPendingTransactions`
-///   owns that cleanup.
-/// - `restored` is excluded because it would be a *new* credit path. The app
-///   receipt is scoped to the device, not to the signed-in account, so pushing
-///   a restored transaction through verification could ask the server to settle
-///   one account's purchase against whoever happens to be logged in now.
-///   Unfinished `purchased` transactions carry no such risk - StoreKit already
-///   re-delivers exactly those on cold start, so the sweep only closes the gap
-///   between launches rather than opening a new door. Restored transactions also
-///   never appear for consumables, which is everything we sell.
+/// A transaction is sent only when its JWS decodes to that same transaction
+/// id and the id is one `SK2Transaction.finish` can parse. Anything else is
+/// held in [UnfinishedPurchaseScan.unsettleableHeld] rather than dropped:
+/// sending a missing or foreign JWS gets a permanent rejection, and dropping it
+/// would make a queue that still holds a payment read as empty.
 ///
-/// The receipt is the app receipt, which is what StoreKit 1 puts in
-/// `serverVerificationData` for every purchase the plugin delivers - so a swept
-/// transaction reaches the server in exactly the shape a live one does. That is
-/// also why the receipt is read once, after the filter: it is the same bytes
-/// for every transaction, and reading it is a platform round trip.
+/// **The StoreKit 1 queue is read only for what StoreKit 2 cannot say.**
+/// `purchasing`/`deferred` are the "payment is live right now" signal
+/// (`liveInFlight`), which must survive so an empty settleable list is not read
+/// as "nothing is happening". A `purchased` SK1 transaction that StoreKit 2 did
+/// not return (an unverified one, typically) is held, for the same reason.
+/// Nothing is ever settled from the SK1 queue: its only verification payload is
+/// the device-scoped app receipt.
+///
+/// `restored` is never swept: it would be a *new* credit path that could
+/// settle one account's purchase against whoever is logged in now, and it
+/// never appears for consumables, which is everything we sell.
 class IosPaymentQueueSource implements UnfinishedPurchaseSource {
   IosPaymentQueueSource({
     Future<List<SKPaymentTransactionWrapper>> Function()? readTransactions,
-    Future<String> Function()? readReceipt,
+    Future<List<SK2Transaction>> Function()? readUnfinishedTransactions,
   }) : _readTransactions =
            readTransactions ?? SKPaymentQueueWrapper().transactions,
-       _readReceipt = readReceipt ?? SKReceiptManager.retrieveReceiptData;
+       _readUnfinishedTransactions =
+           readUnfinishedTransactions ?? SK2Transaction.unfinishedTransactions;
 
   final Future<List<SKPaymentTransactionWrapper>> Function() _readTransactions;
-  final Future<String> Function() _readReceipt;
+  final Future<List<SK2Transaction>> Function() _readUnfinishedTransactions;
 
   @override
-  String get label => 'iOS/SKPaymentQueue';
+  String get label => 'iOS/SK2Transaction.unfinished';
 
   /// `purchasing`/`deferred` are counted separately rather than dropped.
   ///
@@ -217,50 +224,93 @@ class IosPaymentQueueSource implements UnfinishedPurchaseSource {
       t.transactionState == SKPaymentTransactionStateWrapper.purchasing ||
       t.transactionState == SKPaymentTransactionStateWrapper.deferred;
 
+  /// Whether [jws] is a transaction JWS for exactly [transactionId].
+  ///
+  /// Decoding the payload (rather than only counting dots) is what stops a
+  /// transaction from being settled - and then finished - on another
+  /// transaction's evidence.
+  static bool _isJwsFor(String? jws, String transactionId) {
+    if (jws == null || jws.isEmpty) return false;
+    return ReceiptFormatHelper.appleTransactionIdFromJWS(jws) == transactionId;
+  }
+
   @override
   Future<UnfinishedPurchaseScan> scan() async {
-    final transactions = await _readTransactions();
-    final settleable = transactions
-        .where(
-          (t) =>
-              t.transactionState == SKPaymentTransactionStateWrapper.purchased,
-        )
-        .toList();
-    final liveInFlight = transactions.where(_isLiveInFlight).length;
+    // SK1 first: a payment that moves purchasing -> purchased between the two
+    // reads is then seen as live *and* as settleable - never as neither.
+    final List<SKPaymentTransactionWrapper> queue;
+    try {
+      queue = await _readTransactions();
+    } catch (e) {
+      return UnfinishedPurchaseScan(error: e);
+    }
+    final liveInFlight = queue.where(_isLiveInFlight).length;
 
-    if (settleable.isEmpty) {
-      if (transactions.isNotEmpty) {
-        logger.i(
-          'iOS 스윕: 큐에 ${transactions.length}건이 있으나 정산 대상(purchased)은 '
-          '없음 (진행 중 $liveInFlight건)',
-        );
-      }
-      return UnfinishedPurchaseScan(liveInFlight: liveInFlight);
+    final List<SK2Transaction> unfinished;
+    try {
+      unfinished = await _readUnfinishedTransactions();
+    } catch (e) {
+      // 조회 실패는 빈 큐가 아니다 - 다음 스윕이 다시 물어야 한다.
+      return UnfinishedPurchaseScan(error: e, liveInFlight: liveInFlight);
     }
 
-    final receipt = await _readReceipt();
-    if (receipt.isEmpty) {
-      // 영수증 없이 검증을 보내면 서버는 그것을 영구 거부(422)로 답할 수
-      // 있고, 그 판정이 큐에서 항목을 지운다. 모르는 상태로 남겨 다음
-      // 스윕이 다시 시도하게 한다.
-      return UnfinishedPurchaseScan(
-        error: StateError(
-          'iOS 앱 영수증을 읽을 수 없어 ${settleable.length}건의 미완료 '
-          '트랜잭션을 검증에 보내지 않음',
+    final purchases = <PurchaseDetails>[];
+    var held = 0;
+    for (final t in unfinished) {
+      final id = int.tryParse(t.id);
+      final jws = t.receiptData;
+      if (id == null || id <= 0 || !_isJwsFor(jws, t.id)) {
+        held++;
+        // JWS 자체는 로그에 남기지 않는다 - 결제 증빙이다.
+        logger.w(
+          'iOS 스윕: 검증에 보낼 수 없는 미완료 거래 보존 '
+          '(${t.productId}, jws: ${jws == null || jws.isEmpty ? '없음' : '형식 불일치'})',
+        );
+        continue;
+      }
+      purchases.add(
+        SK2PurchaseDetails(
+          productID: t.productId,
+          purchaseID: t.id,
+          verificationData: PurchaseVerificationData(
+            localVerificationData: t.jsonRepresentation ?? '',
+            serverVerificationData: jws!,
+            source: kIAPSource,
+          ),
+          transactionDate: t.purchaseDate,
+          status: PurchaseStatus.purchased,
+          appAccountToken: t.appAccountToken,
         ),
-        liveInFlight: liveInFlight,
+      );
+    }
+
+    // SK2 가 돌려주지 않은 purchased(대개 unverified) 는 보낼 수도 지울 수도
+    // 없지만, 스토어가 들고 있으니 빈 큐가 아니다.
+    final sk2Ids = unfinished.map((t) => t.id).toSet();
+    final orphanedSk1 = queue
+        .where(
+          (t) =>
+              t.transactionState ==
+                  SKPaymentTransactionStateWrapper.purchased &&
+              !sk2Ids.contains(t.transactionIdentifier),
+        )
+        .length;
+    if (orphanedSk1 > 0) {
+      logger.w('iOS 스윕: StoreKit 2 가 돌려주지 않은 purchased 거래 $orphanedSk1건 보존');
+    }
+    held += orphanedSk1;
+
+    if (purchases.isEmpty && (queue.isNotEmpty || unfinished.isNotEmpty)) {
+      logger.i(
+        'iOS 스윕: 정산 대상 없음 (SK1 큐 ${queue.length}건, SK2 미완료 '
+        '${unfinished.length}건, 진행 중 $liveInFlight건, 보존 $held건)',
       );
     }
 
     return UnfinishedPurchaseScan(
-      purchases: settleable
-          .map(
-            (t) =>
-                AppStorePurchaseDetails.fromSKTransaction(t, receipt)
-                    as PurchaseDetails,
-          )
-          .toList(),
+      purchases: purchases,
       liveInFlight: liveInFlight,
+      unsettleableHeld: held,
     );
   }
 }
