@@ -107,6 +107,9 @@ class InAppPurchaseService {
   static const Duration _backgroundCleanupDelay = Duration(seconds: 5);
   static const Duration _pendingProcessTimeout = Duration(seconds: 2);
 
+  /// [finalizeSettledPurchase] 가 iOS finish 응답을 기다리는 상한.
+  static const Duration _finalizeTimeout = Duration(seconds: 10);
+
   // 🚨 타임아웃 콜백 추가
   void Function(String productId)? onPurchaseTimeout;
 
@@ -690,8 +693,20 @@ class InAppPurchaseService {
     }
     if (!Platform.isAndroid) {
       try {
-        await completePurchase(purchaseDetails);
+        // 고정 플러그인(0.4.8+1)의 StoreKit 2 finish 는 Transaction.all 에서
+        // 거래를 찾았을 때만 채널을 완료한다. 실시간 경로가 같은 거래를
+        // 먼저 finish 하면 여기서는 영원히 답이 오지 않고, 그대로 기다리면
+        // 스윕 진행 플래그가 풀리지 않아 구매 게이트가 재시작까지 멈춘다
+        // (PICNIC-2743). 완료를 확인하지 못한 것이므로 false - 거래는 보존으로
+        // 세고 다음 reconcile 이 다시 본다.
+        await completePurchase(purchaseDetails).timeout(_finalizeTimeout);
         return true;
+      } on TimeoutException {
+        logger.w(
+          '완료 처리 응답 없음(${_finalizeTimeout.inSeconds}s) - 보존으로 보고: '
+          '${purchaseDetails.productID}',
+        );
+        return false;
       } catch (e) {
         logger.w('완료 처리 실패(다음 reconcile 재시도): $e');
         return false;

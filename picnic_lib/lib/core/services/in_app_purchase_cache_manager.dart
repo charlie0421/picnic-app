@@ -420,15 +420,15 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
     logger.i('🔥 적극적 캐시 정리 시작');
 
     try {
-      if (Platform.isIOS) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
         // iOS: 더 적극적인 StoreKit 정리
         logger.i('📱 iOS: 적극적 StoreKit 정리');
 
-        // Purchase stream 완전 재시작
-        await _subscription?.cancel();
-        _streamInitialized = false;
-
-        // 100ms 대기 후 캐시 무효화
+        // 구매 스트림 구독은 건드리지 않는다 (PICNIC-2743). 플러그인 스트림은
+        // 리스너가 0이 되는 순간 네이티브 Transaction.updates 를 멈추므로,
+        // 여기서 cancel→재구독하면 그 틈에 도착한 거래 업데이트(Ask to Buy
+        // 승인, 다른 기기·이전 시도의 완료, 재전달)가 아무에게도 전달되지
+        // 않는다. 제품 캐시 무효화에는 구독이 필요 없다.
         await Future.delayed(Duration(milliseconds: 100));
 
         try {
@@ -442,9 +442,6 @@ extension InAppPurchaseCacheManager on InAppPurchaseService {
         } catch (e) {
           logger.w('⚠️ iOS 캐시 정리 일부 실패 (무시): $e');
         }
-
-        // Purchase stream 재초기화
-        _initializePurchaseStream();
       } else {
         // Android: Billing 캐시 정리
         logger.i('🤖 Android: Billing 캐시 정리');

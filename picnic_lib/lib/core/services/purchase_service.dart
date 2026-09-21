@@ -14,6 +14,7 @@ import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/core/services/purchase_diagnostics.dart';
 import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
@@ -587,6 +588,12 @@ class PurchaseService {
       return {'success': true, 'wasCancelled': false, 'errorMessage': null};
     } catch (e, s) {
       logger.e('Error during purchase initiation: $e', stackTrace: s);
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.initiation,
+        productId: productId,
+        userId: currentUser.id,
+        error: e,
+      );
       _processingProducts.remove(productId);
       duplicatePreventionService.completePurchase(
         productId,
@@ -609,6 +616,12 @@ class PurchaseService {
   ) async {
     final error = purchaseDetails.error;
     logger.e('❌ 구매 에러: ${error?.message}, code: ${error?.code}');
+    PurchaseDiagnostics.reportFailure(
+      stage: PurchaseFailureStage.storeError,
+      productId: purchaseDetails.productID,
+      userId: _signedInUserIdOrNull(),
+      storeErrorCode: error?.code ?? 'unknown',
+    );
 
     // 🔥 에러 시에도 진행 상태에서 제거
     _processingProducts.remove(purchaseDetails.productID);
@@ -707,6 +720,10 @@ class PurchaseService {
     Future<void> Function()? onAlreadySettled,
   }) async {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
+    // 실패 보고의 주인은 검증을 시작한 계정이다 - 검증이 도는 동안 로그아웃·
+    // 계정 전환이 일어나도 보고가 다른 계정으로 옮겨 가지 않게 첫 await 전에
+    // 잡아 둔다.
+    final attemptUserId = _signedInUserIdOrNull();
     logger.i('🎯 실제 구매 처리 시작 ($platform) - 영수증 검증');
     logger.i('  - Product ID: ${purchaseDetails.productID}');
     logger.i('  - Transaction ID: ${purchaseDetails.purchaseID}');
@@ -788,6 +805,13 @@ class PurchaseService {
         return true;
       }
 
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.unconfirmedDuplicate,
+        productId: purchaseDetails.productID,
+        userId: attemptUserId,
+        error: e,
+      );
+
       // 🛡️ 중복 방지 서비스에 실패 알림
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
@@ -813,6 +837,12 @@ class PurchaseService {
       return false;
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.settlement,
+        productId: purchaseDetails.productID,
+        userId: attemptUserId,
+        error: e,
+      );
       _processingProducts.remove(purchaseDetails.productID);
 
       // 🛡️ 중복 방지 서비스에 실패 알림
@@ -850,6 +880,16 @@ class PurchaseService {
     _processingProducts.remove(purchaseDetails.productID);
 
     logger.i('✅ 복원된 구매 무시 완료');
+  }
+
+  /// 지금 로그인한 계정 id. 부팅 직후 Supabase 초기화 전이면 `supabase`
+  /// 게터가 던지므로 null 로 본다.
+  String? _signedInUserIdOrNull() {
+    try {
+      return supabase.auth.currentUser?.id;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// 사용자 인증 검증 (단순화 - 타임아웃 제거)
@@ -1567,10 +1607,25 @@ class PurchaseService {
         logger.i('⏭️ 미완료 구매 스윕 중단(조건 변경) - 남은 항목 보존');
         break;
       }
+      // 스윕을 시작한 계정이 아직 로그인해 있는지 매 항목 전에 확인한다.
+      // 로그아웃·계정 전환 뒤의 항목을 이전 계정 id 로 정산하면 남의 결제가
+      // 엉뚱한 계정에 적립된다. 남은 항목은 손대지 않고 보존한다.
+      if (supabase.auth.currentUser?.id != currentUser.id) {
+        aborted = true;
+        preserved += scan.purchases.length - i;
+        logger.w('⏭️ 스윕 도중 로그인 계정이 바뀜 - 남은 미완료 구매 보존');
+        break;
+      }
       final p = scan.purchases[i];
       final receipt = p.verificationData.serverVerificationData;
-      if (receipt.isEmpty) continue;
       found++;
+      if (receipt.isEmpty) {
+        // 빈 영수증은 서버가 영구 거부한다 - 보내지 않는다. 그렇다고 건너뛰면
+        // 스토어가 들고 있는 거래가 "빈 큐"로 보고된다.
+        preserved++;
+        logger.w('미완료 구매에 검증 데이터가 없어 보존: ${p.productID}');
+        continue;
+      }
 
       // 서버는 트랜잭션(구매 토큰 / 트랜잭션 ID) 기준으로 멱등하므로 직접
       // 재검증한다. (verifyReceipt가 내부에서 큐 적재→성공 시 제거를
@@ -1617,10 +1672,22 @@ class PurchaseService {
         } else {
           preserved++;
           logger.w('미완료 구매 중복이나 지급 미확인 - 완료 처리 보류: ${p.productID}');
+          PurchaseDiagnostics.reportFailure(
+            stage: PurchaseFailureStage.sweepVerification,
+            productId: p.productID,
+            userId: currentUser.id,
+            error: e,
+          );
         }
       } catch (e) {
         preserved++;
         logger.w('미완료 구매 재검증 실패(트랜잭션·큐 유지): ${p.productID} ($e)');
+        PurchaseDiagnostics.reportFailure(
+          stage: PurchaseFailureStage.sweepVerification,
+          productId: p.productID,
+          userId: currentUser.id,
+          error: e,
+        );
       }
     }
 

@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/analytics/auth_analytics_reporter.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/account_deletion_handler.dart';
+import 'package:picnic_lib/core/services/purchase_diagnostics.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
@@ -132,6 +133,10 @@ class AppInitializer {
           AppInitializerHelper.reportSilentFlutterErrors;
 
       options.beforeSend = (event, hint) {
+        // 결제 실패 보고는 네이티브 보강(LoadContextsIntegration) 뒤인 여기서
+        // 계약(브레드크럼 없음·보고 시점 계정)을 다시 적용한다. 다른 이벤트는
+        // 그대로 통과한다.
+        event = PurchaseDiagnostics.sanitizeForSend(event, hint);
         final exception = event.exceptions?.firstOrNull;
         final exceptionValue = exception?.value ?? '';
         final exceptionType = exception?.type ?? '';
@@ -916,12 +921,10 @@ class AppInitializer {
     _authListenerSubscription = supabase.auth.onAuthStateChange.listen((
       data,
     ) async {
+      // Sentry scope 의 계정 id 를 이벤트 순서대로 **첫 await 전에** 맞춘다.
+      // 로그아웃이면 지우고, 계정 전환이면 새 계정으로 바꾼다 (PICNIC-2743).
+      unawaited(PurchaseDiagnostics.bindUserFromAuthState(data));
       try {
-        final session = data.session;
-        if (session != null) {
-          logger.i('jwtToken: ${session.accessToken}');
-        }
-
         if (data.event == AuthChangeEvent.signedIn) {
           await handleSignedIn(
             data,
@@ -959,6 +962,11 @@ class AppInitializer {
       } catch (e, s) {
         logger.e('인증 상태 변경 처리 중 오류:', error: e, stackTrace: s);
       }
+    }, onError: (Object e, StackTrace s) {
+      // 토큰 갱신 실패 등은 스트림 오류로 온다. 처리하지 않으면 미처리 비동기
+      // 예외로 새고, 구독도 계속 살아 있어야 다음 로그아웃이 Sentry 계정을
+      // 지운다. 원문에는 토큰이 섞일 수 있어 타입만 남긴다.
+      logger.w('인증 상태 스트림 오류: ${e.runtimeType}');
     });
 
     // 필요한 경우 나중에 구독 취소 로직 추가

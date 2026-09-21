@@ -1,12 +1,18 @@
+// ignore_for_file: invalid_use_of_internal_member
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_storekit/in_app_purchase_storekit.dart'
+    show SK2PurchaseDetails;
+import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:mockito/mockito.dart';
 import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/analytics/ga4_sink.dart';
@@ -24,6 +30,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_se
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_analytics_dedup.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_processor.dart';
 import 'package:picnic_lib/services/duplicate_prevention_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -562,6 +569,278 @@ void main() {
               '루프를 끊는 유일한 지점이다');
     });
 
+    // PICNIC-2743: iOS 스윕이 보내는 것은 StoreKit 2 트랜잭션 JWS 여야 하고,
+    // 완료 처리는 SK2 경로(SK2PurchaseDetails -> SK2Transaction.finish)로
+    // 가야 한다. 검증이 먼저, 완료는 서버 확인 뒤에만.
+    testWidgets(
+        'an SK2 transaction reaches verification as its exact JWS and is '
+        'finished as SK2 only after the server confirms', (tester) async {
+      const jws = 'eyJhbGciOiJFUzI1NiJ9.eyJ0cmFuc2FjdGlvbklkIjoiMjAwMDAwMDAwMSJ9.c2ln';
+      final recording = _RecordingVerification();
+      await buildWithSource(
+        tester,
+        recording,
+        UnfinishedPurchaseScan(
+          purchases: [
+            SK2PurchaseDetails(
+              productID: productId,
+              purchaseID: '2000000001',
+              verificationData: PurchaseVerificationData(
+                localVerificationData: '{}',
+                serverVerificationData: jws,
+                source: 'app_store',
+              ),
+              transactionDate: '2026-09-20T12:00:00Z',
+              status: PurchaseStatus.purchased,
+            ),
+          ],
+        ),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(recording.receipts, [jws]);
+      expect(recording.userIds, [userId]);
+      expect(report.settled, 1);
+      expect(plugin.finalizedPurchases.single, isA<SK2PurchaseDetails>());
+      expect(plugin.finalizedPurchases.single.purchaseID, '2000000001');
+    });
+
+    testWidgets(
+        'a purchase with no verification payload is preserved, never skipped '
+        'into a verified-empty report', (tester) async {
+      final recording = _RecordingVerification();
+      final blank = PurchaseDetails(
+        purchaseID: '2000000001',
+        productID: productId,
+        verificationData: PurchaseVerificationData(
+          localVerificationData: '',
+          serverVerificationData: '',
+          source: 'app_store',
+        ),
+        transactionDate: '1785228000000',
+        status: PurchaseStatus.purchased,
+      );
+      await buildWithSource(
+        tester,
+        recording,
+        UnfinishedPurchaseScan(purchases: [blank]),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(recording.receipts, isEmpty, reason: '빈 영수증은 영구 거부된다');
+      expect(plugin.finalized, 0);
+      expect(report.found, 1);
+      expect(report.preserved, 1);
+      expect(
+        report.verifiedEmpty,
+        isFalse,
+        reason: '스토어가 들고 있는 거래를 조용히 건너뛰면 "큐가 비었다"로 '
+            '보고돼 90초 억제 판정이 진행 중인 결제를 지운다',
+      );
+    });
+
+    testWidgets(
+        'a sign-out in the middle of a sweep stops it before the next item is '
+        'settled against the old account', (tester) async {
+      final recording = _RecordingVerification(
+        onVerify: () => setupMockSupabase(const {}),
+      );
+      await buildWithSource(
+        tester,
+        recording,
+        UnfinishedPurchaseScan(
+          purchases: [unfinished(id: 'tx-1'), unfinished(id: 'tx-2')],
+        ),
+      );
+
+      final report = await service.sweepUnfinishedPurchases(
+        trigger: PurchaseSweepTrigger.manual,
+      );
+
+      expect(
+        recording.receipts,
+        hasLength(1),
+        reason: '로그아웃 이후의 거래를 이전 계정으로 정산하면 안 된다',
+      );
+      expect(report.preserved, greaterThanOrEqualTo(1));
+      expect(report.verifiedEmpty, isFalse);
+      expect(
+        plugin.finalizedPurchases.map((p) => p.purchaseID),
+        isNot(contains('tx-2')),
+      );
+    });
+
+    // PICNIC-2743 리뷰 MAJOR: 고정 플러그인의 SK2 finish 는 거래를 못 찾으면
+    // 채널을 영원히 완료하지 않는다(실시간 경로가 먼저 finish 한 경우). 실제
+    // InAppPurchaseService.finalizeSettledPurchase 를 그대로 태워, 스윕이
+    // 보존으로 끝나고 진행 플래그가 풀려 다음 스윕이 돈다는 것을 고정한다.
+    testWidgets(
+        'a store finish that never answers leaves the sweep preserved and '
+        'releases the in-flight guard', (tester) async {
+      // 패키지 싱글턴이 네이티브 구현을 등록하지 않게 만든 뒤 페이크를 건다.
+      final platform = _NeverFinishingPlatform();
+      debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+      InAppPurchasePlatform.instance = platform;
+      InAppPurchase.instance;
+      debugDefaultTargetPlatformOverride = null;
+      InAppPurchasePlatform.instance = platform;
+      final realPlugin = InAppPurchaseService();
+      addTearDown(realPlugin.dispose);
+
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+      final sweeping = PurchaseService(
+        container: container,
+        inAppPurchaseService: realPlugin,
+        receiptVerificationService: verification,
+        analyticsService: _hermeticAnalyticsService(),
+        duplicatePreventionService: duplicates,
+        onPurchaseUpdate: (_) {},
+        unfinishedPurchaseSource: source,
+        clock: () => now,
+        sweepOnStart: false,
+      );
+
+      PurchaseSweepReport? report;
+      unawaited(
+        sweeping
+            .sweepUnfinishedPurchases(trigger: PurchaseSweepTrigger.manual)
+            .then((r) => report = r),
+      );
+      for (var i = 0; i < 12 && report == null; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+
+      expect(report, isNotNull,
+          reason: '멈춘 finish 를 무한정 기다리면 스윕이 끝나지 않는다');
+      expect(report!.settled, 0);
+      expect(report!.preserved, 1);
+      expect(report!.verifiedEmpty, isFalse);
+      expect(platform.finishCalls, 1);
+
+      PurchaseSweepReport? next;
+      unawaited(
+        sweeping
+            .sweepUnfinishedPurchases(trigger: PurchaseSweepTrigger.manual)
+            .then((r) => next = r),
+      );
+      for (var i = 0; i < 12 && next == null; i++) {
+        await tester.pump(const Duration(seconds: 1));
+      }
+      expect(next?.outcome, isNot(PurchaseSweepOutcome.concurrent),
+          reason: '진행 플래그가 풀려야 다음 스윕이 실제로 돈다');
+      expect(source.scans, 2);
+      // PurchaseService 생성자의 시작 정리(1s 지연 + 2s 스트림 대기)를 흘려보낸다.
+      await tester.pump(const Duration(seconds: 5));
+    });
+
+    // 리뷰 F4: 스윕의 "지급 미확정 중복" 은 보존만 되고 보고되지 않았다 -
+    // 실시간 경로의 같은 분기는 보고한다.
+    testWidgets(
+        'a sweep duplicate without a confirmed grant is preserved and '
+        'reported', (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          ReusedPurchaseException(message: 'reused app-receipt'),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final events = <SentryEvent>[];
+      late PurchaseSweepReport report;
+      await tester.runAsync(() async {
+        await Sentry.init(
+          (o) => o.debug = false,
+          options: SentryFlutterOptions()
+            ..dsn = 'https://public@o0.ingest.sentry.io/0'
+            ..automatedTestMode = true
+            ..transport = _NullTransport()
+            ..autoInitializeNativeSdk = false
+            ..enableDartSymbolication = false
+            ..beforeSend = (event, hint) {
+              events.add(event);
+              return event;
+            },
+        );
+        try {
+          report = await service.sweepUnfinishedPurchases(
+            trigger: PurchaseSweepTrigger.manual,
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+        } finally {
+          await Sentry.close();
+        }
+      });
+
+      expect(report.preserved, 1);
+      expect(plugin.finalized, 0, reason: '지급 미확정이면 finish 하지 않는다');
+      expect(events, hasLength(1));
+      expect(events.single.user?.id, userId);
+      expect(events.single.tags?['purchase.stage'], 'sweepVerification');
+      expect(events.single.tags?['purchase.code'], 'reused_unconfirmed');
+      expect(events.single.toJson().toString(), isNot(contains('app-receipt')));
+    });
+
+    // PICNIC-2743 C-2: 스윕 422 가 Sentry 에 아무 흔적도 남기지 않아 미지급
+    // 후보를 가릴 수 없었다. 보고는 스윕을 시작한 계정으로, 코드만 담는다.
+    testWidgets(
+        'a sweep verification failure is reported for the sweep account with '
+        'a code and no receipt', (tester) async {
+      await buildWithSource(
+        tester,
+        _ThrowingVerification(
+          FunctionException(
+            status: 422,
+            details: {'error': 'APPLE_JWS_INVALID', 'retryable': false},
+          ),
+        ),
+        UnfinishedPurchaseScan(purchases: [unfinished()]),
+      );
+
+      final events = <SentryEvent>[];
+      await tester.runAsync(() async {
+        await Sentry.init(
+          (o) => o.debug = false,
+          options: SentryFlutterOptions()
+            ..dsn = 'https://public@o0.ingest.sentry.io/0'
+            ..automatedTestMode = true
+            ..transport = _NullTransport()
+            ..autoInitializeNativeSdk = false
+            ..enableDartSymbolication = false
+            ..beforeSend = (event, hint) {
+              events.add(event);
+              return event;
+            },
+        );
+        try {
+          await service.sweepUnfinishedPurchases(
+            trigger: PurchaseSweepTrigger.manual,
+          );
+          await Future<void>.delayed(const Duration(milliseconds: 300));
+        } finally {
+          await Sentry.close();
+        }
+      });
+
+      expect(events, hasLength(1));
+      final event = events.single;
+      expect(event.user?.id, userId);
+      expect(event.tags?['purchase.stage'], 'sweepVerification');
+      expect(event.tags?['purchase.code'], 'http_422:APPLE_JWS_INVALID');
+      expect(event.toJson().toString(), isNot(contains('app-receipt')));
+      expect(plugin.finalized, 0);
+    });
+
     // Codex Frontier 리뷰 지적 (PR #137): 서버 정산(verifyReceipt)은
     // 성공했는데 스토어 쪽 완료 처리(consume/acknowledge)가 실패하면, 그
     // 실패를 삼키고도 settled++ 로 세서 preserved==0인 "completed" 를
@@ -1097,55 +1376,80 @@ void main() {
           transactionTimeStamp: 1785228000,
         );
 
-    test('only purchased transactions are swept', () async {
+    String b64(Object json) =>
+        base64Url.encode(utf8.encode(jsonEncode(json))).replaceAll('=', '');
+    String jwsFor(String id) =>
+        '${b64({'alg': 'ES256'})}.${b64({'transactionId': id})}.sig';
+
+    SK2Transaction sk2(String id) => SK2Transaction(
+          id: id,
+          originalId: id,
+          productId: productId,
+          purchaseDate: '2026-09-20T12:00:00Z',
+          appAccountToken: null,
+          receiptData: jwsFor(id),
+        );
+
+    // PICNIC-2743: 예전 스윕은 SK1 큐의 purchased 를 앱 영수증과 함께 보냈고,
+    // 서버는 그걸 매번 422 APPLE_JWS_INVALID 로 거부했다. 정산 대상은 이제
+    // StoreKit 2 미완료 거래와 그 JWS 다.
+    test('only StoreKit 2 unfinished transactions are swept, with their JWS',
+        () async {
       final scanned = await IosPaymentQueueSource(
         readTransactions: () async => [
           txn(SKPaymentTransactionStateWrapper.purchasing),
           txn(SKPaymentTransactionStateWrapper.deferred),
           txn(SKPaymentTransactionStateWrapper.failed),
           txn(SKPaymentTransactionStateWrapper.restored, id: 'restored-1'),
-          txn(SKPaymentTransactionStateWrapper.purchased, id: 'paid-1'),
+          txn(SKPaymentTransactionStateWrapper.purchased, id: '2000000001'),
         ],
-        readReceipt: () async => 'base64-app-receipt',
+        readUnfinishedTransactions: () async => [sk2('2000000001')],
       ).scan();
 
       expect(
         scanned.purchases.map((p) => p.purchaseID),
-        ['paid-1'],
+        ['2000000001'],
         reason: 'purchasing 은 아직 돈이 아니고 StoreKit 이 finish 를 금지한다; '
             'deferred(Ask to Buy 대기) 는 승인되면 purchased 로 다시 온다; '
-            'failed 는 과금이 아니다; restored 는 기기 단위 앱 영수증으로 '
-            '남의 결제를 지금 로그인한 계정에 정산시킬 수 있어 제외한다',
+            'failed 는 과금이 아니다; restored 는 남의 결제를 지금 로그인한 '
+            '계정에 정산시킬 수 있어 제외한다',
       );
       expect(
         scanned.purchases.single.verificationData.serverVerificationData,
-        'base64-app-receipt',
+        jwsFor('2000000001'),
         reason: '스윕된 트랜잭션은 실시간 구매와 **같은 모양**으로 서버에 '
-            '도착해야 한다 - StoreKit 1 의 serverVerificationData 는 앱 '
-            '영수증이다',
+            '도착해야 한다 - StoreKit 2 의 serverVerificationData 는 '
+            '트랜잭션 JWS 다',
       );
+      expect(scanned.liveInFlight, 2);
       expect(scanned.error, isNull);
     });
 
-    test('an unreadable app receipt is reported instead of sent', () async {
+    test('a transaction without a usable JWS is held instead of sent',
+        () async {
       final scanned = await IosPaymentQueueSource(
-        readTransactions: () async => [
-          txn(SKPaymentTransactionStateWrapper.purchased, id: 'paid-1'),
+        readTransactions: () async => [],
+        readUnfinishedTransactions: () async => [
+          SK2Transaction(
+            id: '2000000001',
+            originalId: '2000000001',
+            productId: productId,
+            purchaseDate: '2026-09-20T12:00:00Z',
+            appAccountToken: null,
+          ),
         ],
-        readReceipt: () async => '',
       ).scan();
 
       expect(scanned.purchases, isEmpty);
-      expect(scanned.error, isNotNull,
-          reason: '빈 영수증을 검증에 보내면 서버가 영구 거부(422)로 답할 수 '
-              '있고, 그 판정이 되돌릴 수 없다. 모른다고 남겨 다음 스윕이 '
-              '다시 시도해야 한다');
+      expect(scanned.unsettleableHeld, 1,
+          reason: '빈 영수증을 검증에 보내면 서버가 영구 거부(422)로 답한다. '
+              '보내지도 버리지도 않고 보존으로 세야 빈 큐로 오독되지 않는다');
     });
 
     test('an empty queue is an empty scan, not an error', () async {
       final scanned = await IosPaymentQueueSource(
         readTransactions: () async => [],
-        readReceipt: () async => fail('영수증은 정산 대상이 있을 때만 읽는다'),
+        readUnfinishedTransactions: () async => [],
       ).scan();
 
       expect(scanned.isEmpty, isTrue);
@@ -1289,11 +1593,59 @@ class _CountingPlugin extends Mock implements InAppPurchaseService {
     completed++;
   }
 
+  final List<PurchaseDetails> finalizedPurchases = [];
+
   @override
   Future<bool> finalizeSettledPurchase(PurchaseDetails purchaseDetails) async {
     if (!finalizeSucceeds) return false;
     finalized++;
+    finalizedPurchases.add(purchaseDetails);
     return true;
+  }
+}
+
+/// The pinned plugin's SK2 `finish`: when the transaction is no longer in
+/// `Transaction.all`, the channel never answers.
+class _NeverFinishingPlatform extends InAppPurchasePlatform {
+  int finishCalls = 0;
+  final _stream = StreamController<List<PurchaseDetails>>.broadcast();
+
+  @override
+  Stream<List<PurchaseDetails>> get purchaseStream => _stream.stream;
+
+  @override
+  Future<void> completePurchase(PurchaseDetails purchase) {
+    finishCalls++;
+    return Completer<void>().future;
+  }
+}
+
+class _NullTransport implements Transport {
+  @override
+  Future<SentryId?> send(SentryEnvelope envelope) async =>
+      envelope.header.eventId;
+}
+
+/// 검증에 무엇이 누구 이름으로 갔는지 기록하고 정상 정산으로 답하는 스텁.
+class _RecordingVerification extends _SettledVerification {
+  _RecordingVerification({this.onVerify});
+
+  final void Function()? onVerify;
+  final List<String> receipts = [];
+  final List<String> userIds = [];
+
+  @override
+  Future<PurchaseSettlementResultModel> verifyReceipt(
+    String receipt,
+    String productId,
+    String userId,
+    String environment, {
+    String? clientObservedCurrency,
+  }) {
+    receipts.add(receipt);
+    userIds.add(userId);
+    onVerify?.call();
+    return super.verifyReceipt(receipt, productId, userId, environment);
   }
 }
 
