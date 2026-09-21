@@ -611,4 +611,171 @@ void main() {
       expect(result[0].reward.id, 10);
     });
   });
+  group('PICNIC-2748 - request shape (query cost)', () {
+    late ProviderContainer container;
+
+    const narrowedItemColumns =
+        'id,vote_id,vote_total,artist(id,name,image,artist_group(id,name,image)),artist_group(id,name,image)';
+
+    final voteRow = {
+      'id': 1,
+      'title': {'ko': '주간 투표'},
+      'vote_category': 'idol',
+      'main_image': null,
+      'wait_image': null,
+      'result_image': null,
+      'vote_content': null,
+      'start_at': '2025-01-01T00:00:00Z',
+      'stop_at': '2099-12-31T23:59:59Z',
+      'visible_at': '2025-01-01T00:00:00Z',
+      'created_at': '2025-01-01T00:00:00Z',
+      'is_partnership': false,
+      'partner': null,
+      'reward': [],
+    };
+
+    String? selectOf(String table) {
+      final uri = capturedMockRequests.lastWhere(
+        (u) => u.path.endsWith('/rest/v1/$table'),
+      );
+      return uri.queryParameters['select'];
+    }
+
+    Uri requestOf(String table) => capturedMockRequests.lastWhere(
+      (u) => u.path.endsWith('/rest/v1/$table'),
+    );
+
+    setUp(() {
+      setupMockSupabase({
+        'vote': [voteRow],
+        'pic_vote': [voteRow],
+        'vote_item': [],
+        'pic_vote_item': [],
+      });
+      container = ProviderContainer();
+    });
+
+    tearDown(() {
+      container.dispose();
+      tearDownMockSupabase();
+    });
+
+    test('item list selects only the columns the UI reads', () async {
+      await container.read(asyncVoteItemListProvider(voteId: 1).future);
+      final select = selectOf('vote_item')!;
+      expect(select, narrowedItemColumns);
+      expect(select, isNot(contains('artist(*')));
+      expect(select, isNot(contains('artist_group(*')));
+      final uri = requestOf('vote_item');
+      expect(uri.queryParameters['deleted_at'], 'is.null');
+      expect(uri.queryParameters['order'], 'vote_total.desc.nullslast');
+    });
+
+    test('item list narrowing also applies to the pic portal', () async {
+      await container.read(
+        asyncVoteItemListProvider(voteId: 1, votePortal: VotePortal.pic).future,
+      );
+      expect(selectOf('pic_vote_item'), narrowedItemColumns);
+    });
+
+    test('models deserialize from narrowed columns only', () async {
+      tearDownMockSupabase();
+      container.dispose();
+      setupMockSupabase({
+        'vote_item': [
+          {
+            'id': 10,
+            'vote_id': 1,
+            'vote_total': 7,
+            'artist': {
+              'id': 5,
+              'name': {'ko': '아티스트'},
+              'image': 'a.png',
+              'artist_group': {
+                'id': 2,
+                'name': {'ko': '그룹'},
+                'image': 'g.png',
+              },
+            },
+            'artist_group': {
+              'id': 2,
+              'name': {'ko': '그룹'},
+              'image': 'g.png',
+            },
+          },
+        ],
+      });
+      container = ProviderContainer();
+      final items = await container.read(
+        asyncVoteItemListProvider(voteId: 1).future,
+      );
+      expect(items, hasLength(1));
+      expect(items.first!.artist!.name['ko'], '아티스트');
+      expect(items.first!.artist!.image, 'a.png');
+      expect(items.first!.artist!.artistGroup!.name['ko'], '그룹');
+      expect(items.first!.artistGroup!.image, 'g.png');
+    });
+
+    test('detail page path (default) does not fetch vote items', () async {
+      final result = await container.read(
+        asyncVoteDetailProvider(voteId: 1).future,
+      );
+      final select = selectOf('vote')!;
+      expect(select, isNot(contains('vote_item')));
+      expect(select, contains('reward(*)'));
+      expect(result, isNotNull);
+      expect(result!.id, 1);
+      expect(result.voteItem, isNull);
+    });
+
+    test('card path embeds only the top 3 non-deleted items', () async {
+      await container.read(
+        asyncVoteDetailProvider(
+          voteId: 1,
+          items: VoteDetailItems.top3,
+        ).future,
+      );
+      final uri = requestOf('vote');
+      final select = uri.queryParameters['select']!;
+      expect(select, contains('vote_item($narrowedItemColumns)'));
+      expect(select, isNot(contains('vote_item(*')));
+      expect(uri.queryParameters['vote_item.order'], 'vote_total.desc.nullslast');
+      expect(uri.queryParameters['vote_item.limit'], '3');
+      expect(uri.queryParameters['vote_item.deleted_at'], 'is.null');
+    });
+
+    // NOTE: `all` is currently only reachable programmatically (VoteInfoCard
+    // wires refresh for active only) — this is request-shape coverage, not UI.
+    test('upcoming card path embeds all items, narrowed and unlimited',
+        () async {
+      await container.read(
+        asyncVoteDetailProvider(
+          voteId: 1,
+          items: VoteDetailItems.all,
+        ).future,
+      );
+      final uri = requestOf('vote');
+      final select = uri.queryParameters['select']!;
+      expect(select, contains('vote_item($narrowedItemColumns)'));
+      expect(select, isNot(contains('vote_item(*')));
+      expect(uri.queryParameters.containsKey('vote_item.limit'), isFalse);
+      expect(uri.queryParameters['vote_item.order'], 'vote_total.desc.nullslast');
+      expect(uri.queryParameters['vote_item.deleted_at'], 'is.null');
+    });
+
+    test('pic portal card path uses pic_vote_item', () async {
+      await container.read(
+        asyncVoteDetailProvider(
+          voteId: 1,
+          votePortal: VotePortal.pic,
+          items: VoteDetailItems.top3,
+        ).future,
+      );
+      final uri = requestOf('pic_vote');
+      expect(uri.queryParameters['select'],
+          contains('pic_vote_item($narrowedItemColumns)'));
+      expect(uri.queryParameters['pic_vote_item.limit'], '3');
+      expect(uri.queryParameters['pic_vote_item.order'], 'vote_total.desc.nullslast');
+    });
+  });
 }

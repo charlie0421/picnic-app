@@ -148,6 +148,11 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
         asyncVoteDetailProvider(
           voteId: widget.vote.id,
           votePortal: widget.votePortal,
+          // 카드가 그리는 만큼만 받는다: upcoming 은 썸네일 그리드용 전체,
+          // 그 외는 상위 3개 (VoteInfoCardHelper.prepareVoteItems 와 동일).
+          items: widget.status == VoteStatus.upcoming
+              ? VoteDetailItems.all
+              : VoteDetailItems.top3,
         ).future,
       );
       if (mounted && refreshed != null) {
