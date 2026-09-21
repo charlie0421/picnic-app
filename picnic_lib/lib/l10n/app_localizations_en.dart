@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time => 'Next available time to watch ads';

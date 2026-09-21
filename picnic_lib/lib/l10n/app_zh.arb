@@ -162,7 +162,7 @@
   "@goonghap_login_button": {
     "description": "Login button text on goonghap page"
   },
-  "achieve": "Achievements",
+  "achieve": "Achieved",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },

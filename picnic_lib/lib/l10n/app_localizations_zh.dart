@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time => '下次可观看广告时间';

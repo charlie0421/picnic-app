@@ -26,7 +26,7 @@ class LongestAppLocalizations extends AppLocalizations {
   static final _vi = AppLocalizationsVi();
 
   @override
-  String get achieve => _en.achieve;
+  String get achieve => _id.achieve;
 
   @override
   String get ads_available_time => _fil.ads_available_time;
