@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -43,6 +44,91 @@ class CountdownTimer extends StatefulWidget {
   /// 우회를 회귀로 잡을 수 있다.
   @visibleForTesting
   static Key digitKey(int index) => ValueKey('countdown_timer.digit.$index');
+
+  /// Space the "upcoming" label keeps under itself, above the digits.
+  static const double upcomingLabelGap = 16;
+
+  /// The "upcoming" label's box never gets shorter than this.
+  static const double upcomingLabelMinHeight = 20;
+
+  static TextStyle get digitStyle =>
+      getTextStyle(AppTypo.caption12M, AppColors.grey900);
+
+  static TextStyle upcomingStyle(Color color) =>
+      getTextStyle(AppTypo.caption12B, color);
+
+  static TextStyle get endStyle => getTextStyle(
+    AppTypo.body14B,
+    AppColors.primary500,
+  ).copyWith(decoration: TextDecoration.underline);
+
+  /// Height of [text] as a `Text` with [style] would lay it out here.
+  ///
+  /// `Text` paints its style on top of the ambient [DefaultTextStyle], which
+  /// can bring its own line height; measuring [style] alone came out 5px
+  /// short at 2.0x. So the ambient style, text scaler and height behaviour are
+  /// all taken from [context], exactly as the widget will get them.
+  static double _textHeight(
+    BuildContext context,
+    String text,
+    TextStyle style, {
+    double maxWidth = double.infinity,
+  }) {
+    final ambient = DefaultTextStyle.of(context);
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: ambient.style.merge(style)),
+      textDirection: Directionality.maybeOf(context) ?? TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+      textHeightBehavior: ambient.textHeightBehavior,
+    )..layout(maxWidth: maxWidth);
+    final height = painter.height;
+    painter.dispose();
+    return height;
+  }
+
+  /// The digit tile's height: the design's 18, or the digit's own line when
+  /// the user's text scale makes that taller.
+  ///
+  /// The tile used to be a fixed 18x18. The digit paints inside a paragraph
+  /// that clips itself to the height it gets, so from 1.2x its line was cut,
+  /// and from about 1.5x the glyphs lost their bottom — at 2.0x nearly half of
+  /// every digit was gone. The app does not clamp text scaling.
+  ///
+  /// Only the height follows the text. The width stays [digitSize]: one digit
+  /// is narrower than that even at 2.6x, and the row's width is the budget
+  /// the 320dp home card is tested against.
+  static double digitTileHeight(BuildContext context) =>
+      math.max(digitSize, _textHeight(context, '0', digitStyle).ceilToDouble());
+
+  /// The height this widget lays out at for [status] in [maxWidth].
+  ///
+  /// Callers that budget a card before layout must use this rather than
+  /// [digitSize]: the build below reads the very same numbers, so what is
+  /// budgeted is what is drawn.
+  static double preferredHeight(
+    BuildContext context, {
+    required VoteStatus status,
+    required double maxWidth,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    if (status == VoteStatus.end) {
+      return _textHeight(
+        context,
+        l10n.label_vote_end,
+        endStyle,
+        maxWidth: maxWidth,
+      );
+    }
+    final digits = digitTileHeight(context);
+    if (status != VoteStatus.upcoming) return digits;
+    final label = _textHeight(
+      context,
+      l10n.label_vote_upcoming,
+      upcomingStyle(AppColors.secondary500),
+      maxWidth: maxWidth,
+    );
+    return math.max(upcomingLabelMinHeight, label) + upcomingLabelGap + digits;
+  }
 
   @override
   State<CountdownTimer> createState() => _CountdownTimerState();
@@ -114,11 +200,12 @@ class _CountdownTimerState extends State<CountdownTimer> {
     // 타일 키는 행 전체에서 왼쪽부터 이어진다 — 일(日)이 세 자리가 되어도
     // 번호가 밀리지 않게 한 카운터로 센다.
     var digitIndex = 0;
+    final tileHeight = CountdownTimer.digitTileHeight(context);
     List<Widget> unit(int value, [String? label]) {
       final digits = value.toString().padLeft(2, '0');
       return <Widget>[
         for (var i = 0; i < digits.length; i++)
-          _buildTimeCircle(digits[i], digitIndex++),
+          _buildTimeCircle(digits[i], digitIndex++, tileHeight),
         if (label != null) _buildSeparator(label),
       ];
     }
@@ -129,25 +216,26 @@ class _CountdownTimerState extends State<CountdownTimer> {
           Container(
             // A minimum, not a fixed height: at 1.3x and above the label is
             // taller than 20 and a fixed box clipped it in every language.
-            constraints: const BoxConstraints(minHeight: 20),
-            margin: const EdgeInsets.only(bottom: 16),
+            constraints: const BoxConstraints(
+              minHeight: CountdownTimer.upcomingLabelMinHeight,
+            ),
+            margin: const EdgeInsets.only(
+              bottom: CountdownTimer.upcomingLabelGap,
+            ),
             alignment: Alignment.center,
             child: Text(
               AppLocalizations.of(context).label_vote_upcoming,
-              style: getTextStyle(AppTypo.caption12B, _color),
+              style: CountdownTimer.upcomingStyle(_color),
             ),
           ),
         if (widget.status == VoteStatus.end)
           Text(
             AppLocalizations.of(context).label_vote_end,
-            style: getTextStyle(
-              AppTypo.body14B,
-              AppColors.primary500,
-            ).copyWith(decoration: TextDecoration.underline),
+            style: CountdownTimer.endStyle,
           ),
         if (widget.status != VoteStatus.end)
           SizedBox(
-            height: CountdownTimer.digitSize,
+            height: tileHeight,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -176,23 +264,18 @@ class _CountdownTimerState extends State<CountdownTimer> {
     );
   }
 
-  Widget _buildTimeCircle(String time, int index) {
+  Widget _buildTimeCircle(String time, int index, double height) {
     return Container(
       key: CountdownTimer.digitKey(index),
       width: CountdownTimer.digitSize,
-      height: CountdownTimer.digitSize,
+      height: height,
       alignment: Alignment.center,
-      margin: const EdgeInsets.symmetric(
-        horizontal: CountdownTimer.digitGap,
-      ),
+      margin: const EdgeInsets.symmetric(horizontal: CountdownTimer.digitGap),
       decoration: BoxDecoration(
         color: _color,
         borderRadius: BorderRadius.circular(4),
       ),
-      child: Text(
-        time,
-        style: getTextStyle(AppTypo.caption12M, AppColors.grey900),
-      ),
+      child: Text(time, style: CountdownTimer.digitStyle),
     );
   }
 }

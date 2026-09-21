@@ -87,4 +87,52 @@ void main() {
       }
     }
   });
+
+  // The digit tiles are pinned at 18x18 and each digit paints inside its own
+  // paragraph, which clips itself to the height it is given. From 1.2x the
+  // digit's line is taller than 18; from about 1.5x the glyphs visibly lose
+  // their bottom, and at 2.0x almost half of each digit is gone. Digits are not
+  // translated, so the l10n audit missed them; the preview screenshots found
+  // them. Scales go past 2.0 on purpose: the app does not clamp text scaling.
+  group('CountdownTimer digit tiles', () {
+    for (final textScale in const [1.0, 1.3, 1.5, 2.0, 2.6]) {
+      final label = 'digits ${textScale}x';
+      testWidgets(label, (tester) async {
+        final overflows = await pumpCase(
+          tester,
+          CountdownTimer(
+            endTime: DateTime.now().toUtc().add(
+              const Duration(days: 12, hours: 3),
+            ),
+            status: VoteStatus.active,
+          ),
+          l10n: l10nLayoutCases.first,
+          textScale: textScale,
+        );
+        expect(overflows, isEmpty, reason: label);
+
+        for (var i = 0; i < 8; i++) {
+          final tile = find.byKey(CountdownTimer.digitKey(i));
+          expect(
+            tester.getSize(tile).width,
+            // The keyed box includes the tile's 1px side margins.
+            closeTo(
+              CountdownTimer.digitSize + CountdownTimer.digitGap * 2,
+              0.01,
+            ),
+            reason:
+                '$label tile $i: the width is the row\'s budget on a 320dp '
+                'card and must not grow',
+          );
+          expectTextInsideBox(
+            tester,
+            text: find.descendant(of: tile, matching: find.byType(Text)),
+            box: tile,
+            reason: '$label tile $i',
+          );
+        }
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  });
 }
