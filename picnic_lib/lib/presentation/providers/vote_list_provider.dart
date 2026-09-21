@@ -102,6 +102,11 @@ class AsyncVoteList extends _$AsyncVoteList {
 
       query = query.filter('deleted_at', 'is', null);
 
+      // 삭제된 후보는 서버에서 제외한다. 임베드 order/limit 보다 먼저 걸려야
+      // 상위 3개가 "삭제되지 않은 후보 중" 상위 3개가 된다(카드 갱신 경로
+      // AsyncVoteDetail 과 동일한 규칙, PICNIC-2748).
+      query = query.filter('$voteItemTable.deleted_at', 'is', null);
+
       // 카테고리 직접 선택 시 우선 적용 (디버그 제외)
       if (category != 'all' && status != VoteStatus.debug) {
         query = query.eq('vote_category', category);

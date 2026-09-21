@@ -744,6 +744,8 @@ void main() {
       expect(uri.queryParameters['vote_item.deleted_at'], 'is.null');
     });
 
+    // NOTE: `all` is currently only reachable programmatically (VoteInfoCard
+    // wires refresh for active only) — this is request-shape coverage, not UI.
     test('upcoming card path embeds all items, narrowed and unlimited',
         () async {
       await container.read(
