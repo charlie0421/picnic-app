@@ -609,7 +609,14 @@ class _MyPageState extends ConsumerState<MyPage>
                                       handleSelect,
                                     ),
                                   );
+                                  // GridView applied the vertical safe-area
+                                  // inset on its own; a plain scroll view
+                                  // does not, and the sheet does not avoid the
+                                  // bottom inset, so keep it explicitly.
                                   return SingleChildScrollView(
+                                    padding: MediaQuery.paddingOf(
+                                      context,
+                                    ).copyWith(left: 0, right: 0),
                                     child: Column(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [

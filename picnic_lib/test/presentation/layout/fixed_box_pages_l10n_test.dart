@@ -1028,6 +1028,47 @@ void main() {
         'artist_user_bookmark': <dynamic>[],
       }, userId: 'test-user-id');
     });
+    // A review caught the grid → rows change dropping GridView's automatic
+    // safe-area padding: the last language slid under the home indicator.
+    testWidgets('last option clears a 34px bottom inset', (tester) async {
+      tester.view.padding = const FakeViewPadding(bottom: 34 * 3);
+      addTearDown(tester.view.resetPadding);
+      await pumpPage(
+        tester,
+        const MyPage(),
+        l10n: l10nLayoutCases.first,
+        textScale: 2.6,
+        viewport: const Size(600, 960),
+        extraOverrides: [
+          asyncBookmarkedArtistsProvider.overrideWith(_NoBookmarkedArtists.new),
+        ],
+        then: () async {
+          final selector = find.byWidgetPredicate(
+            (w) => w is Text && languageMap.values.contains(w.data),
+          );
+          await tester.ensureVisible(selector.first);
+          await tester.tap(selector.first);
+          await pumpAndIgnoreErrors(tester);
+          await pumpAndIgnoreErrors(tester, const Duration(seconds: 1));
+        },
+      );
+      final sheet = find.byType(BottomSheet);
+      await tester.drag(
+        find.descendant(of: sheet, matching: find.byType(Scrollable)).first,
+        const Offset(0, -3000),
+      );
+      await tester.pumpAndSettle();
+      final last = find.descendant(
+        of: sheet,
+        matching: find.text(languageMap.values.last),
+      );
+      expect(
+        tester.getRect(last).bottom,
+        lessThanOrEqualTo(960 - 34 + 0.5),
+        reason: 'the last language must not sit under the bottom inset',
+      );
+    });
+
     for (final textScale in l10nLayoutTextScales) {
       for (final viewport in const [
         Size(500, 900),
