@@ -648,15 +648,15 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get message_noitem_vote_active =>
-      'Hiện tại không có cuộc thăm dò hoạt động.';
+      'Hiện không có cuộc bình chọn nào đang diễn ra.';
 
   @override
   String get message_noitem_vote_end =>
-      'Hiện tại không có cuộc thăm dò khép kín.';
+      'Hiện không có cuộc bình chọn nào đã kết thúc.';
 
   @override
   String get message_noitem_vote_upcoming =>
-      'Hiện tại không có cuộc thăm dò sắp tới.';
+      'Hiện không có cuộc bình chọn nào sắp diễn ra.';
 
   @override
   String get message_pic_pic_save_fail => 'Lưu hình ảnh không thành công.';
@@ -1023,28 +1023,28 @@ class AppLocalizationsVi extends AppLocalizations {
   String get views => 'Quan điểm';
 
   @override
-  String get vote_item_request_can_apply => 'Có thể áp dụng';
+  String get vote_item_request_can_apply => 'Có thể đề xuất';
 
   @override
-  String get vote_item_request_search_artist => 'Nghệ sĩ tìm kiếm';
+  String get vote_item_request_search_artist => 'Tìm kiếm nghệ sĩ';
 
   @override
   String get vote_item_request_status => 'Trạng thái yêu cầu';
 
   @override
-  String get vote_item_request_status_approved => 'Tán thành';
+  String get vote_item_request_status_approved => 'Đã duyệt';
 
   @override
-  String get vote_item_request_status_pending => 'Chưa giải quyết';
+  String get vote_item_request_status_pending => 'Chờ duyệt';
 
   @override
-  String get vote_item_request_status_rejected => 'Vật bị loại bỏ';
+  String get vote_item_request_status_rejected => 'Bị từ chối';
 
   @override
-  String get vote_item_request_submit => 'Nộp';
+  String get vote_item_request_submit => 'Gửi yêu cầu';
 
   @override
-  String get vote_item_request_title => 'Bỏ phiếu yêu cầu nghệ sĩ';
+  String get vote_item_request_title => 'Yêu cầu thêm ứng viên bình chọn';
 
   @override
   String get vote_share_message => 'Bình chọn!';
@@ -1112,7 +1112,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get title_dialog_error => 'Lỗi';
 
   @override
-  String get vote_item_request_waiting => 'Chờ';
+  String get vote_item_request_waiting => 'Đang chờ';
 
   @override
   String get capture_failed => 'Bắt giữ thất bại';
@@ -1255,7 +1255,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bonus_candy_example_1_expire => '__Next_month__ 15th 00:00 (KST)';
 
   @override
-  String get vote_item_request_status_in_progress => 'Trong tiến trình';
+  String get vote_item_request_status_in_progress => 'Đang xử lý';
 
   @override
   String get bonus_candy_policy_2 =>
@@ -1315,7 +1315,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Xác minh biên lai không thành công.';
 
   @override
-  String get vote_item_request_status_cancelled => 'Bị hủy bỏ';
+  String get vote_item_request_status_cancelled => 'Đã hủy';
 
   @override
   String get post_write_board_post => 'Tạo một bài viết';
@@ -1498,7 +1498,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get vote_item_request_already_applied_artist =>
-      'Bạn đã áp dụng cho nghệ sĩ này.';
+      'Bạn đã gửi yêu cầu cho nghệ sĩ này rồi.';
 
   @override
   String get bonus_candy_expiration_policy_expiration_date => 'Ngày hết hạn';

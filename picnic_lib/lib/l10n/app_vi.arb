@@ -845,15 +845,15 @@
   "@message_error_occurred": {
     "description": "Auto-generated metadata for key 'message_error_occurred'."
   },
-  "message_noitem_vote_active": "Hiện tại không có cuộc thăm dò hoạt động.",
+  "message_noitem_vote_active": "Hiện không có cuộc bình chọn nào đang diễn ra.",
   "@message_noitem_vote_active": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_active'."
   },
-  "message_noitem_vote_end": "Hiện tại không có cuộc thăm dò khép kín.",
+  "message_noitem_vote_end": "Hiện không có cuộc bình chọn nào đã kết thúc.",
   "@message_noitem_vote_end": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_end'."
   },
-  "message_noitem_vote_upcoming": "Hiện tại không có cuộc thăm dò sắp tới.",
+  "message_noitem_vote_upcoming": "Hiện không có cuộc bình chọn nào sắp diễn ra.",
   "@message_noitem_vote_upcoming": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_upcoming'."
   },
@@ -1306,11 +1306,11 @@
   "@views": {
     "description": "Auto-generated metadata for key 'views'."
   },
-  "vote_item_request_can_apply": "Có thể áp dụng",
+  "vote_item_request_can_apply": "Có thể đề xuất",
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_search_artist": "Nghệ sĩ tìm kiếm",
+  "vote_item_request_search_artist": "Tìm kiếm nghệ sĩ",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
   },
@@ -1318,23 +1318,23 @@
   "@vote_item_request_status": {
     "description": "Auto-generated metadata for key 'vote_item_request_status'."
   },
-  "vote_item_request_status_approved": "Tán thành",
+  "vote_item_request_status_approved": "Đã duyệt",
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_pending": "Chưa giải quyết",
+  "vote_item_request_status_pending": "Chờ duyệt",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
   },
-  "vote_item_request_status_rejected": "Vật bị loại bỏ",
+  "vote_item_request_status_rejected": "Bị từ chối",
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
   },
-  "vote_item_request_submit": "Nộp",
+  "vote_item_request_submit": "Gửi yêu cầu",
   "@vote_item_request_submit": {
     "description": "Auto-generated metadata for key 'vote_item_request_submit'."
   },
-  "vote_item_request_title": "Bỏ phiếu yêu cầu nghệ sĩ",
+  "vote_item_request_title": "Yêu cầu thêm ứng viên bình chọn",
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
@@ -1430,7 +1430,7 @@
   "@title_dialog_error": {
     "description": "Auto-generated metadata for key 'title_dialog_error'."
   },
-  "vote_item_request_waiting": "Chờ",
+  "vote_item_request_waiting": "Đang chờ",
   "@vote_item_request_waiting": {
     "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
   },
@@ -1609,7 +1609,7 @@
   "@bonus_candy_example_1_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
   },
-  "vote_item_request_status_in_progress": "Trong tiến trình",
+  "vote_item_request_status_in_progress": "Đang xử lý",
   "@vote_item_request_status_in_progress": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_in_progress'."
   },
@@ -1678,7 +1678,7 @@
   "@error_receipt_verification_failed": {
     "description": "Auto-generated metadata for key 'error_receipt_verification_failed'."
   },
-  "vote_item_request_status_cancelled": "Bị hủy bỏ",
+  "vote_item_request_status_cancelled": "Đã hủy",
   "@vote_item_request_status_cancelled": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_cancelled'."
   },
@@ -1905,7 +1905,7 @@
   "@withdrawal_failed": {
     "description": "Shown when the account withdrawal request fails."
   },
-  "vote_item_request_already_applied_artist": "Bạn đã áp dụng cho nghệ sĩ này.",
+  "vote_item_request_already_applied_artist": "Bạn đã gửi yêu cầu cho nghệ sĩ này rồi.",
   "@vote_item_request_already_applied_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_already_applied_artist'."
   },

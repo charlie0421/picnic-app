@@ -19,7 +19,7 @@ import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/l10n/app_localizations_vi.dart';
 
 /// FNV-1a 32 of the arb files this was generated from.
-const int longestArbChecksum = 0x2CCDCC64;
+const int longestArbChecksum = 0xFA2456A1;
 
 class LongestAppLocalizations extends AppLocalizationsEn {
   LongestAppLocalizations() : super('en');
@@ -569,7 +569,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_error_occurred => _fil.message_error_occurred;
 
   @override
-  String get message_noitem_vote_active => _id.message_noitem_vote_active;
+  String get message_noitem_vote_active => _vi.message_noitem_vote_active;
 
   @override
   String get message_noitem_vote_end => _fil.message_noitem_vote_end;
@@ -905,13 +905,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_status_approved => _fil.vote_item_request_status_approved;
 
   @override
-  String get vote_item_request_status_pending => _vi.vote_item_request_status_pending;
+  String get vote_item_request_status_pending => _fil.vote_item_request_status_pending;
 
   @override
-  String get vote_item_request_status_rejected => _vi.vote_item_request_status_rejected;
+  String get vote_item_request_status_rejected => _ja.vote_item_request_status_rejected;
 
   @override
-  String get vote_item_request_submit => _es.vote_item_request_submit;
+  String get vote_item_request_submit => _vi.vote_item_request_submit;
 
   @override
   String get vote_item_request_title => _id.vote_item_request_title;
@@ -1103,7 +1103,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get bonus_candy_example_1_expire => _id.bonus_candy_example_1_expire;
 
   @override
-  String get vote_item_request_status_in_progress => _vi.vote_item_request_status_in_progress;
+  String get vote_item_request_status_in_progress => _id.vote_item_request_status_in_progress;
 
   @override
   String get bonus_candy_policy_2 => _fil.bonus_candy_policy_2;
