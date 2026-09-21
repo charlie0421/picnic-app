@@ -209,11 +209,15 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
       child: Container(
         padding: const EdgeInsets.only(left: 16),
         alignment: Alignment.centerLeft,
+        // Flexible so a long title wraps instead of pushing the arrow off a
+        // 360dp screen at 2.0x (PICNIC-2738).
         child: Row(
           children: [
-            Text(
-              AppLocalizations.of(context).label_vote_screen_title,
-              style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+            Flexible(
+              child: Text(
+                AppLocalizations.of(context).label_vote_screen_title,
+                style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+              ),
             ),
             SvgPicture.asset(
               package: 'picnic_lib',

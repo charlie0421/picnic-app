@@ -368,21 +368,26 @@ class _MyPageState extends ConsumerState<MyPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 48,
+          // A 48 minimum and a Flexible title (PICNIC-2738): at 2.0x on a 360dp
+          // screen the longest translation pushed the arrow off the row, and
+          // once it wraps it needs more than a fixed 48.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).label_mypage_my_artist,
-                      style: PicnicUi.text(size: 16, weight: FontWeight.w500),
-                    ),
-                  ],
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).label_mypage_my_artist,
+                        style: PicnicUi.text(size: 16, weight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
                 ),
                 SvgPicture.asset(
                   package: 'picnic_lib',
@@ -401,14 +406,26 @@ class _MyPageState extends ConsumerState<MyPage>
                   child: bookmarkedArtists.when(
                     data: (artists) {
                       if (artists.isEmpty) {
+                        // The slot is a fixed 80 because the artist list and
+                        // its shimmer scroll horizontally and need a bounded
+                        // height. The empty message shares it, so it stays on
+                        // one line and shrinks to fit when it would not:
+                        // wrapped to two lines it needed 104px at 2.0x in the
+                        // longest translations (PICNIC-2738).
                         return Container(
                           alignment: Alignment.center,
-                          child: Text(
-                            AppLocalizations.of(context).label_mypage_no_artist,
-                            style: PicnicUi.text(
-                              size: 18,
-                              weight: FontWeight.w700,
-                              color: PicnicUi.actionColor,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).label_mypage_no_artist,
+                              maxLines: 1,
+                              style: PicnicUi.text(
+                                size: 18,
+                                weight: FontWeight.w700,
+                                color: PicnicUi.actionColor,
+                              ),
                             ),
                           ),
                         );

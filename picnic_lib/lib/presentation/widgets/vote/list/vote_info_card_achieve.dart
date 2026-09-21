@@ -18,6 +18,25 @@ class VoteCardColumnAchieve extends StatelessWidget {
   final VoteAchieve rank;
   final Animation<double> opacityAnimation;
 
+  /// The bar the reward label is drawn on. Exposed so tests can check the
+  /// label stays on it: above the bar it is white text on a white card.
+  @visibleForTesting
+  static const barKey = ValueKey('vote_card_column_achieve.bar');
+
+  /// The slot the "achieved!" label is fitted into.
+  @visibleForTesting
+  static const achievedLabelKey = ValueKey(
+    'vote_card_column_achieve.achieved_label',
+  );
+
+  /// Width the "achieved!" label may use: the 50px bar plus a share of the
+  /// gaps. Five bars stand in a 321px row, so each has about 64px before it
+  /// reaches its neighbour's label.
+  static const double _achievedLabelWidth = 64;
+
+  /// Gap between the bar's foot and the reward label.
+  static const double _rewardLabelBottom = 10;
+
   @override
   Widget build(BuildContext context) {
     const width = 50.0;
@@ -32,16 +51,30 @@ class VoteCardColumnAchieve extends StatelessWidget {
           bottom: 0,
           width: width,
           height: barHeight,
-          child: Container(decoration: BoxDecoration(gradient: commonGradient)),
+          child: Container(
+            key: barKey,
+            decoration: BoxDecoration(gradient: commonGradient),
+          ),
         ),
         Positioned(
           bottom: (barHeight + width * .7),
           child: FadeTransition(
             opacity: opacityAnimation,
-            child: Text(
-              isAchieve ? '${AppLocalizations.of(context).achieve}!' : '',
-              style: getTextStyle(AppTypo.caption12B, AppColors.point900),
-              textAlign: TextAlign.center,
+            // One line, fitted to the bar's share of the row. Unbounded, the
+            // English label was 104px at 1.0x and ran over the next bars
+            // (PICNIC-2738).
+            child: SizedBox(
+              key: achievedLabelKey,
+              width: _achievedLabelWidth,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  isAchieve ? '${AppLocalizations.of(context).achieve}!' : '',
+                  maxLines: 1,
+                  style: getTextStyle(AppTypo.caption12B, AppColors.point900),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ),
           ),
         ),
@@ -98,19 +131,33 @@ class VoteCardColumnAchieve extends StatelessWidget {
           ),
         ),
         Positioned(
-          bottom: 10,
+          bottom: _rewardLabelBottom,
           child: FadeTransition(
             opacity: opacityAnimation,
+            // The label wraps inside the bar's width and keeps to the space
+            // between the bar's foot and the thumbnail that overlaps its top.
+            // Only when the wrapped text is taller than that is it scaled
+            // down; left alone it grew up past the bar at 2.0x, where white
+            // text on a white card simply disappears (PICNIC-2738).
             child: SizedBox(
               width: width,
-              child: Column(
-                children: [
-                  Text(
-                    '${AppLocalizations.of(context).reward} ${rank.order}',
-                    style: getTextStyle(AppTypo.caption10SB, AppColors.grey00),
-                    textAlign: TextAlign.center,
+              height: barHeight - width * .4 - _rewardLabelBottom,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: SizedBox(
+                    width: width,
+                    child: Text(
+                      '${AppLocalizations.of(context).reward} ${rank.order}',
+                      style: getTextStyle(
+                        AppTypo.caption10SB,
+                        AppColors.grey00,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
           ),

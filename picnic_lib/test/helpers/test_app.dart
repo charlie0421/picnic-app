@@ -11,6 +11,7 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 import 'mock_providers.dart';
 import 'host_app_asset_bundle.dart';
+import 'longest_app_localizations.dart';
 import 'test_environment.dart';
 
 /// 기존 테스트들이 기대해 온 하네스 기본 디자인 크기.
@@ -40,6 +41,10 @@ Widget buildTestApp(
   bool loggedIn = true,
   List<dynamic> extraOverrides = const [],
   Locale locale = const Locale('ko'),
+
+  /// Answer every l10n key with the longest shipped translation instead of
+  /// [locale]'s own. See `longest_app_localizations.dart`.
+  bool longestStrings = false,
   Size designSize = kLegacyTestDesignSize,
   bool splitScreenMode = false,
   // Installs a MediaQuery **above the Navigator**, so routes pushed by
@@ -88,8 +93,10 @@ Widget buildTestApp(
                   child: child!,
                 ),
         ),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
+        localizationsDelegates: [
+          longestStrings
+              ? const LongestAppLocalizationsDelegate()
+              : AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -125,6 +132,16 @@ Widget buildTestAppPage(
   bool loggedIn = true,
   List<dynamic> extraOverrides = const [],
   Locale locale = const Locale('ko'),
+
+  /// Answer every l10n key with the longest shipped translation instead of
+  /// [locale]'s own. See `longest_app_localizations.dart`.
+  bool longestStrings = false,
+
+  /// Defaults keep every existing caller on the historical 375x812 harness.
+  /// Layout tests pass the app's real design size and a text scale.
+  Size designSize = const Size(375, 812),
+  bool splitScreenMode = false,
+  TextScaler? textScaler,
 }) {
   return ProviderScope(
     overrides: [
@@ -139,15 +156,25 @@ Widget buildTestAppPage(
       ...extraOverrides,
     ],
     child: ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: designSize,
       minTextAdapt: true,
+      splitScreenMode: splitScreenMode,
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
-        builder: (context, child) =>
-            DefaultAssetBundle(bundle: hostAppAssetBundle, child: child!),
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
+        builder: (context, child) => DefaultAssetBundle(
+          bundle: hostAppAssetBundle,
+          child: textScaler == null
+              ? child!
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
+        ),
+        localizationsDelegates: [
+          longestStrings
+              ? const LongestAppLocalizationsDelegate()
+              : AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

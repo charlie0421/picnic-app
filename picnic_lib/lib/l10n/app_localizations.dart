@@ -122,7 +122,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'achieve'.
   ///
   /// In en, this message translates to:
-  /// **'Achievements'**
+  /// **'Achieved'**
   String get achieve;
 
   /// Auto-generated metadata for key 'ads_available_time'.

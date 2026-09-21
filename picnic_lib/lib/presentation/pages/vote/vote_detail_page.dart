@@ -1667,12 +1667,19 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               height: 16,
             ),
             const SizedBox(width: 6),
-            UnderlinedText(
-              text: AppLocalizations.of(context).weekly_vote_info_link,
-              textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              underlineColor: AppColors.primary500,
-              underlineHeight: 1,
-              underlineGap: 1,
+            // Flexible so the link wraps on a 360dp screen at 2.0x instead of
+            // running past it (PICNIC-2738).
+            Flexible(
+              child: UnderlinedText(
+                text: AppLocalizations.of(context).weekly_vote_info_link,
+                textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                underlineColor: AppColors.primary500,
+                underlineHeight: 1,
+                underlineGap: 1,
+                // UnderlinedText defaults to an ellipsis with no line limit,
+                // which cuts it to one line. Two lines is what wrapping needs.
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -1690,8 +1697,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
+          // A minimum, not a fixed height (PICNIC-2738): at 2.0x the label's
+          // line is taller than 30 and the fixed box clipped it in every
+          // language, Korean included.
           child: Container(
-            height: 30,
+            constraints: const BoxConstraints(minHeight: 30),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
@@ -1777,8 +1787,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           showRequireLoginDialog();
                         }
                       },
+                      // No minimum of its own: the outer box's minimum 30
+                      // already reaches here as 28 after the 1px border. A
+                      // second 30 made the pill 32 at 1.0x.
                       child: Container(
-                        height: 30,
                         padding: EdgeInsets.symmetric(horizontal: 12.w),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1809,40 +1821,47 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               },
                             ),
                             SizedBox(width: 8.w),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              duration: const Duration(milliseconds: 1200),
-                              curve: Curves.easeOutBack,
-                              builder: (context, textOpacity, child) {
-                                final safeOpacity = textOpacity.clamp(0.0, 1.0);
-                                return Opacity(
-                                  opacity: safeOpacity,
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    ).vote_item_request_button,
-                                    style:
-                                        getTextStyle(
-                                          AppTypo.body14B,
-                                          AppColors.grey00,
-                                        ).copyWith(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.3,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.3,
+                            // Flexible so the longest translation wraps instead of
+                            // running past the screen at 2.0x (PICNIC-2738).
+                            Flexible(
+                              child: TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 1200),
+                                curve: Curves.easeOutBack,
+                                builder: (context, textOpacity, child) {
+                                  final safeOpacity = textOpacity.clamp(
+                                    0.0,
+                                    1.0,
+                                  );
+                                  return Opacity(
+                                    opacity: safeOpacity,
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).vote_item_request_button,
+                                      style:
+                                          getTextStyle(
+                                            AppTypo.body14B,
+                                            AppColors.grey00,
+                                          ).copyWith(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.3,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                offset: const Offset(0, 1),
+                                                blurRadius: 2,
                                               ),
-                                              offset: const Offset(0, 1),
-                                              blurRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                );
-                              },
+                                            ],
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),

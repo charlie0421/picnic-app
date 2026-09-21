@@ -4,7 +4,6 @@ import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_card_layout.dart';
-import 'package:picnic_lib/ui/style.dart';
 
 class VoteCardInfoHeader extends StatelessWidget {
   const VoteCardInfoHeader({
@@ -32,14 +31,14 @@ class VoteCardInfoHeader extends StatelessWidget {
       ),
       maxLines: 2,
     );
-    final timerHeight = status == VoteStatus.end
-        ? VoteCardLayout.textHeight(
-            context,
-            'Ag',
-            getTextStyle(AppTypo.body14B, AppColors.primary500),
-            maxWidth: width,
-          )
-        : CountdownTimer.digitSize + (status == VoteStatus.upcoming ? 36 : 0);
+    // Ask the countdown for its own height. This used to assume 18 for the
+    // digits and 36 for the "upcoming" label, which stopped being true once
+    // both started following the text scale (PICNIC-2738).
+    final timerHeight = CountdownTimer.preferredHeight(
+      context,
+      status: status,
+      maxWidth: width,
+    );
     return titleHeight.clamp(
           status == VoteStatus.active ? 48 : 0,
           double.infinity,
