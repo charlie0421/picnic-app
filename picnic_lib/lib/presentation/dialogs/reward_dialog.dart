@@ -106,8 +106,11 @@ class _RewardDialogState extends State<RewardDialog> {
             bottom: 0,
             left: 0,
             right: 0,
+            // No fixed height here (PICNIC-2738). VoteCommonTitle keeps its
+            // own 48 minimum and grows for a long reward name; pinning it to 48
+            // clipped a real reward name at 1.0x and even "포토카드" at 2.0x.
+            // Anchored to the bottom, it grows upward over the image.
             child: Container(
-              height: 48,
               margin: EdgeInsets.symmetric(horizontal: 30.w),
               child: VoteCommonTitle(
                 // `title` 은 순수 nullable 컬럼(`RewardModel.title`)이라

@@ -8,6 +8,10 @@ import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/signup/login_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/patch_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/platform_info_provider.dart';
@@ -19,6 +23,166 @@ import '../../helpers/mock_data.dart';
 import '../../helpers/mock_supabase.dart';
 import '../../helpers/test_app.dart';
 import '../../helpers/test_environment.dart';
+
+Map<String, dynamic> _detailVoteRow({
+  String category = 'birthday',
+  int id = 1,
+  String titleKo = '테스트 투표',
+  bool isEnded = false,
+  bool isUpcoming = false,
+}) {
+  final now = DateTime.now().toUtc();
+  return {
+    'id': id,
+    'title': {'ko': titleKo, 'en': 'Test Vote'},
+    'vote_category': category,
+    'main_image': null,
+    'wait_image': null,
+    'result_image': null,
+    'vote_content': null,
+    'vote_item': [
+      {
+        'id': 1,
+        'vote_id': id,
+        'vote_total': 5000,
+        'artist': {
+          'id': 10,
+          'name': {'ko': '지민', 'en': 'Jimin'},
+          'image': null,
+          'artist_group': {
+            'id': 1,
+            'name': {'ko': 'BTS', 'en': 'BTS'},
+            'image': null,
+          },
+        },
+        'artist_group': null,
+      },
+      {
+        'id': 2,
+        'vote_id': id,
+        'vote_total': 3000,
+        'artist': {
+          'id': 11,
+          'name': {'ko': '정국', 'en': 'Jungkook'},
+          'image': null,
+          'artist_group': {
+            'id': 1,
+            'name': {'ko': 'BTS', 'en': 'BTS'},
+            'image': null,
+          },
+        },
+        'artist_group': null,
+      },
+    ],
+    'created_at': now.toIso8601String(),
+    'visible_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+    'start_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'stop_at': now.add(const Duration(days: 7)).toIso8601String(),
+    'is_ended': isEnded,
+    'is_upcoming': isUpcoming,
+    'is_partnership': false,
+    'partner': null,
+    'reward': null,
+  };
+}
+
+Map<String, dynamic> _detailVoteItemRow({
+  int id = 1,
+  int voteId = 1,
+  int voteTotal = 5000,
+  String artistNameKo = '지민',
+  int artistId = 10,
+}) {
+  return {
+    'id': id,
+    'vote_id': voteId,
+    'vote_total': voteTotal,
+    'artist': {
+      'id': artistId,
+      'name': {'ko': artistNameKo, 'en': artistNameKo},
+      'image': null,
+      'artist_group': {
+        'id': 1,
+        'name': {'ko': 'BTS', 'en': 'BTS'},
+        'image': null,
+      },
+    },
+    'artist_group': null,
+  };
+}
+
+Map<String, dynamic> _achieveVoteRow({int id = 1}) {
+  final now = DateTime.now().toUtc();
+  return {
+    'id': id,
+    'title': {'ko': '달성 투표', 'en': 'Achievement Vote'},
+    'vote_category': 'achieve',
+    'main_image': null,
+    'wait_image': null,
+    'result_image': null,
+    'vote_content': null,
+    'vote_item': null,
+    'created_at': now.toIso8601String(),
+    'visible_at': now.subtract(const Duration(days: 2)).toIso8601String(),
+    'start_at': now.subtract(const Duration(days: 1)).toIso8601String(),
+    'stop_at': now.add(const Duration(days: 7)).toIso8601String(),
+    'is_ended': false,
+    'is_upcoming': false,
+    'is_partnership': false,
+    'partner': null,
+    'reward': null,
+  };
+}
+
+Map<String, dynamic> _achieveVoteItemRow({
+  int id = 1,
+  int voteId = 1,
+  int voteTotal = 5000,
+  String artistNameKo = '지민',
+  int artistId = 10,
+}) {
+  return {
+    'id': id,
+    'vote_id': voteId,
+    'vote_total': voteTotal,
+    'artist': {
+      'id': artistId,
+      'name': {'ko': artistNameKo, 'en': artistNameKo},
+      'image': null,
+      'artist_group': {
+        'id': 1,
+        'name': {'ko': 'BTS', 'en': 'BTS'},
+        'image': null,
+      },
+    },
+    'artist_group': null,
+  };
+}
+
+/// [nullTitle] 은 운영자가 보상 제목을 비워둔 행을 재현한다.
+/// `RewardModel.title` 은 `thumbnail` 과 같은 순수 nullable 컬럼이다.
+Map<String, dynamic> _achieveVoteAchieveRow({
+  int id = 1,
+  int voteId = 1,
+  int rewardId = 1,
+  int order = 1,
+  int amount = 10000,
+  bool nullTitle = false,
+}) {
+  return {
+    'id': id,
+    'vote_id': voteId,
+    'reward_id': rewardId,
+    'order': order,
+    'amount': amount,
+    'reward': {
+      'id': rewardId,
+      'title': nullTitle ? null : {'ko': '포토카드'},
+      'thumbnail': null,
+    },
+    'vote': _achieveVoteRow(id: voteId),
+  };
+}
 
 class _PatchedPatchInfo extends PatchInfoNotifier {
   @override
@@ -266,6 +430,169 @@ void main() {
               reason: '$label "$value"',
             );
           }
+        });
+      }
+    }
+  });
+
+  group('VoteHomePage section title', () {
+    setUp(() {
+      tearDownMockSupabase();
+      setupMockSupabase({
+        'vote': <dynamic>[],
+        'pic_vote': <dynamic>[],
+        'banner': <dynamic>[],
+        'reward': <dynamic>[],
+      });
+    });
+
+    for (final l10n in l10nLayoutCases) {
+      for (final textScale in l10nLayoutTextScales) {
+        final label = '$l10n ${textScale}x';
+        testWidgets(label, (tester) async {
+          final overflows = await pumpPage(
+            tester,
+            const VoteHomePage(),
+            l10n: l10n,
+            textScale: textScale,
+            asPage: true,
+          );
+          expect(overflows, isEmpty, reason: label);
+
+          final text = find.text(
+            l10nOf(tester, VoteHomePage).label_vote_screen_title,
+          );
+          expectTextInsideBox(
+            tester,
+            text: text,
+            box: find.ancestor(of: text, matching: find.byType(Row)).first,
+            reason: label,
+          );
+        });
+      }
+    }
+  });
+
+  group('VoteDetailPage call-to-action', () {
+    for (final category in const ['birthday', 'weekly']) {
+      for (final l10n in l10nLayoutCases) {
+        for (final textScale in l10nLayoutTextScales) {
+          final label = '$category $l10n ${textScale}x';
+          testWidgets(label, (tester) async {
+            VisibilityDetectorController.instance.updateInterval =
+                Duration.zero;
+            tearDownMockSupabase();
+            setupMockSupabase({
+              'vote': [_detailVoteRow(category: category)],
+              'vote_item': [
+                _detailVoteItemRow(id: 1, artistId: 10),
+                _detailVoteItemRow(id: 2, artistId: 11, voteTotal: 3000),
+              ],
+            });
+            final overflows = await pumpPage(
+              tester,
+              const VoteDetailPage(voteId: 1),
+              l10n: l10n,
+              textScale: textScale,
+              asPage: true,
+              then: () async {
+                // The button fades and bounces in over 1.5s.
+                await pumpAndIgnoreErrors(tester, const Duration(seconds: 2));
+                drainExpectedImageErrors(tester);
+              },
+            );
+            expect(overflows, isEmpty, reason: label);
+
+            final l = l10nOf(tester, VoteDetailPage);
+            final text = find.text(
+              category == 'weekly'
+                  ? l.weekly_vote_info_link
+                  : l.vote_item_request_button,
+            );
+            await tester.scrollUntilVisible(
+              text,
+              200,
+              scrollable: find.byType(Scrollable).first,
+            );
+            expectTextInsideBox(
+              tester,
+              text: text,
+              box: category == 'weekly'
+                  ? find.ancestor(of: text, matching: find.byType(Row)).first
+                  : find
+                        .ancestor(of: text, matching: find.byType(Container))
+                        .first,
+              reason: label,
+            );
+          });
+        }
+      }
+    }
+  });
+
+  group('VoteDetailAchievePage reward rung', () {
+    for (final l10n in l10nLayoutCases) {
+      for (final textScale in l10nLayoutTextScales) {
+        final label = '$l10n ${textScale}x';
+        testWidgets(label, (tester) async {
+          VisibilityDetectorController.instance.updateInterval = Duration.zero;
+          tearDownMockSupabase();
+          setupMockSupabase({
+            'vote': [_achieveVoteRow()],
+            'vote_item': [
+              _achieveVoteItemRow(id: 1, voteTotal: 5000),
+              _achieveVoteItemRow(
+                id: 2,
+                voteTotal: 3000,
+                artistId: 11,
+                artistNameKo: '정국',
+              ),
+            ],
+            'vote_achieve': [
+              _achieveVoteAchieveRow(id: 1, order: 1, amount: 10000),
+              _achieveVoteAchieveRow(
+                id: 2,
+                order: 2,
+                rewardId: 2,
+                amount: 50000,
+              ),
+            ],
+          });
+          final overflows = await pumpPage(
+            tester,
+            const VoteDetailAchievePage(voteId: 1),
+            l10n: l10n,
+            textScale: textScale,
+            asPage: true,
+            then: () async {
+              for (var i = 0; i < 4; i++) {
+                await tester.pump(const Duration(milliseconds: 100));
+                drainExpectedImageErrors(tester);
+              }
+            },
+          );
+          expect(overflows, isEmpty, reason: label);
+
+          final l = l10nOf(tester, VoteDetailAchievePage);
+          final text = find.text('${l.reward}1');
+          await tester.scrollUntilVisible(
+            text,
+            200,
+            scrollable: find.byType(Scrollable).first,
+          );
+          final rung = find
+              .ancestor(of: text, matching: find.byType(Row))
+              .first;
+          expectTextInsideBox(tester, text: text, box: rung, reason: label);
+          // The progress bar beside the ladder is drawn as 50px per level; a
+          // rung of any other height slides the levels out of line with it.
+          expect(
+            tester.getSize(rung).height,
+            closeTo(50, 0.01),
+            reason: '$label: a reward rung must stay 50 tall',
+          );
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pump(const Duration(seconds: 30));
         });
       }
     }

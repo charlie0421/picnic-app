@@ -1690,8 +1690,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
+          // Minimums, not fixed heights (PICNIC-2738): at 2.0x the label's
+          // line is taller than 30 and both boxes clipped it in every
+          // language, Korean included.
           child: Container(
-            height: 30,
+            constraints: const BoxConstraints(minHeight: 30),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
@@ -1778,7 +1781,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                         }
                       },
                       child: Container(
-                        height: 30,
+                        constraints: const BoxConstraints(minHeight: 30),
                         padding: EdgeInsets.symmetric(horizontal: 12.w),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1809,40 +1812,47 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               },
                             ),
                             SizedBox(width: 8.w),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              duration: const Duration(milliseconds: 1200),
-                              curve: Curves.easeOutBack,
-                              builder: (context, textOpacity, child) {
-                                final safeOpacity = textOpacity.clamp(0.0, 1.0);
-                                return Opacity(
-                                  opacity: safeOpacity,
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    ).vote_item_request_button,
-                                    style:
-                                        getTextStyle(
-                                          AppTypo.body14B,
-                                          AppColors.grey00,
-                                        ).copyWith(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.3,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.3,
+                            // Flexible so the longest translation wraps instead of
+                            // running past the screen at 2.0x (PICNIC-2738).
+                            Flexible(
+                              child: TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 1200),
+                                curve: Curves.easeOutBack,
+                                builder: (context, textOpacity, child) {
+                                  final safeOpacity = textOpacity.clamp(
+                                    0.0,
+                                    1.0,
+                                  );
+                                  return Opacity(
+                                    opacity: safeOpacity,
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).vote_item_request_button,
+                                      style:
+                                          getTextStyle(
+                                            AppTypo.body14B,
+                                            AppColors.grey00,
+                                          ).copyWith(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.3,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                offset: const Offset(0, 1),
+                                                blurRadius: 2,
                                               ),
-                                              offset: const Offset(0, 1),
-                                              blurRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                );
-                              },
+                                            ],
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),

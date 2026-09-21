@@ -809,7 +809,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                               isAchieved,
                             )
                           else
-                            const SizedBox(width: 180),
+                            const SizedBox(width: _rewardRungWidth),
                           SizedBox(width: 5.w),
                           Container(
                             width: 80,
@@ -1136,6 +1136,10 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
     }
   }
 
+  /// Width of a ladder rung's reward slot. Rungs without a reward keep an
+  /// empty box of the same width so the level numbers line up.
+  static const double _rewardRungWidth = 180;
+
   Widget _buildRewardInfo(
     List<VoteAchieve> achievements,
     int rewardIndex,
@@ -1145,45 +1149,76 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);
       },
+      // PICNIC-2738. The rung is a fixed 50x180 on purpose: the progress bar
+      // beside the ladder is drawn as 50px per level, so a taller rung would
+      // slide every level out of line with it (and the thumbnail below has
+      // no height of its own — the 50 is what keeps it round). The text is
+      // what has to fit: the two caption lines are 36px at 1.0x but 68px at
+      // 2.0x, which overflowed the 50 in every language, and unbounded
+      // "Penghargaan1" pushed the ladder row 33px past the card. So the text
+      // is laid out at the width it has — the name ellipsizes, the number
+      // shrinks to fit — and only when the pair is taller than 50 do both
+      // shrink together. At 1.0x nothing moves.
       child: SizedBox(
         height: 50,
+        width: _rewardRungWidth,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
-            IntrinsicWidth(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    '${AppLocalizations.of(context).reward}${rewardIndex + 1}',
-                    style: getTextStyle(
-                      AppTypo.caption12B,
-                      isAchieved ? AppColors.primary500 : AppColors.grey400,
-                    ),
-                  ),
-                  Text(
-                    // thumbnail 과 같은 이유로 단언하지 않는다 — `title` 도 순수
-                    // nullable 컬럼(`RewardModel.title`)이라 운영자가 비워두면
-                    // 널이고, 여기서 터지면 마일스톤 사다리 전체가 에러 박스가
-                    // 된다. `getLocaleTextFromJson` 은 빈 맵을 '' 로 처리한다.
-                    getLocaleTextFromJson(
-                      achievements[rewardIndex].reward.title ?? const {},
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style:
-                        getTextStyle(
-                          AppTypo.caption12B,
-                          isAchieved ? AppColors.primary500 : AppColors.grey400,
-                        ).copyWith(
-                          decoration: TextDecoration.underline,
-                          decorationColor: isAchieved
-                              ? AppColors.primary500
-                              : AppColors.grey400,
+            Flexible(
+              child: LayoutBuilder(
+                builder: (context, constraints) => FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: SizedBox(
+                    width: constraints.maxWidth,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            '${AppLocalizations.of(context).reward}${rewardIndex + 1}',
+                            maxLines: 1,
+                            style: getTextStyle(
+                              AppTypo.caption12B,
+                              isAchieved
+                                  ? AppColors.primary500
+                                  : AppColors.grey400,
+                            ),
+                          ),
                         ),
+                        Text(
+                          // thumbnail 과 같은 이유로 단언하지 않는다 — `title` 도
+                          // 순수 nullable 컬럼(`RewardModel.title`)이라 운영자가
+                          // 비워두면 널이고, 여기서 터지면 마일스톤 사다리 전체가
+                          // 에러 박스가 된다. `getLocaleTextFromJson` 은 빈 맵을
+                          // '' 로 처리한다.
+                          getLocaleTextFromJson(
+                            achievements[rewardIndex].reward.title ?? const {},
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.right,
+                          style:
+                              getTextStyle(
+                                AppTypo.caption12B,
+                                isAchieved
+                                    ? AppColors.primary500
+                                    : AppColors.grey400,
+                              ).copyWith(
+                                decoration: TextDecoration.underline,
+                                decorationColor: isAchieved
+                                    ? AppColors.primary500
+                                    : AppColors.grey400,
+                              ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
+                ),
               ),
             ),
             SizedBox(width: 10.w),

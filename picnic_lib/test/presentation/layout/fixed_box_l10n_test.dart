@@ -4,7 +4,10 @@ import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
+import 'package:picnic_lib/data/models/reward.dart';
+import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
 
 import '../../helpers/ignore_image_errors.dart';
@@ -242,6 +245,47 @@ void main() {
             box: find.byKey(VoteCardColumnAchieve.barKey),
             reason: '$label reward label',
           );
+        });
+      }
+    }
+  });
+
+  // The reward name comes from the server, not the arb files, so the language
+  // axis does not lengthen it. Real reward names are sentences ("2026 시즌
+  // 한정 포토카드 세트 + 친필 사인 폴라로이드"); VoteCommonTitle grows for them,
+  // but the dialog pinned it inside a fixed 48px box.
+  group('RewardDialog title', () {
+    const names = <String, String>{
+      'short': '포토카드',
+      'long': '2026 시즌 한정 포토카드 세트 + 친필 사인 폴라로이드',
+    };
+    for (final name in names.entries) {
+      for (final textScale in l10nLayoutTextScales) {
+        final label = '${name.key} ${textScale}x';
+        testWidgets(label, (tester) async {
+          final restore = suppressImageErrors();
+          addTearDown(restore);
+          final overflows = await pumpCase(
+            tester,
+            RewardDialog(
+              data: RewardModel(
+                id: 1,
+                title: {'ko': name.value, 'en': name.value},
+                thumbnail: 'https://example.com/reward.jpg',
+              ),
+            ),
+            l10n: l10nLayoutCases.first,
+            textScale: textScale,
+          );
+          await tester.pump(const Duration(seconds: 1));
+          drainExpectedImageErrors(tester);
+          expect(overflows, isEmpty, reason: label);
+
+          final title = find.byType(VoteCommonTitle);
+          final text = find
+              .descendant(of: title, matching: find.text(name.value))
+              .last;
+          expectTextInsideBox(tester, text: text, box: title, reason: label);
         });
       }
     }
