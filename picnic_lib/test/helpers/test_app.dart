@@ -136,6 +136,12 @@ Widget buildTestAppPage(
   /// Answer every l10n key with the longest shipped translation instead of
   /// [locale]'s own. See `longest_app_localizations.dart`.
   bool longestStrings = false,
+
+  /// Defaults keep every existing caller on the historical 375x812 harness.
+  /// Layout tests pass the app's real design size and a text scale.
+  Size designSize = const Size(375, 812),
+  bool splitScreenMode = false,
+  TextScaler? textScaler,
 }) {
   return ProviderScope(
     overrides: [
@@ -150,13 +156,21 @@ Widget buildTestAppPage(
       ...extraOverrides,
     ],
     child: ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: designSize,
       minTextAdapt: true,
+      splitScreenMode: splitScreenMode,
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
-        builder: (context, child) =>
-            DefaultAssetBundle(bundle: hostAppAssetBundle, child: child!),
+        builder: (context, child) => DefaultAssetBundle(
+          bundle: hostAppAssetBundle,
+          child: textScaler == null
+              ? child!
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
+        ),
         localizationsDelegates: [
           longestStrings
               ? const LongestAppLocalizationsDelegate()

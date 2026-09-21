@@ -476,7 +476,11 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
   Container buildValidationMsg(BuildContext context) {
     return Container(
-      height: 32,
+      // A minimum, not a fixed height (PICNIC-2738). The sentence is two lines
+      // in English at 1.0x and a fixed 32 clipped it from 1.3x in every
+      // language but Korean. The empty slot still reserves 32 so the page
+      // does not jump when the message appears.
+      constraints: const BoxConstraints(minHeight: 32),
       alignment: Alignment.topLeft,
       padding: EdgeInsets.only(left: 16.w),
       margin: EdgeInsets.symmetric(horizontal: 57.w),

@@ -401,14 +401,26 @@ class _MyPageState extends ConsumerState<MyPage>
                   child: bookmarkedArtists.when(
                     data: (artists) {
                       if (artists.isEmpty) {
+                        // The slot is a fixed 80 because the artist list and
+                        // its shimmer scroll horizontally and need a bounded
+                        // height. The empty message shares it, so it stays on
+                        // one line and shrinks to fit when it would not:
+                        // wrapped to two lines it needed 104px at 2.0x in the
+                        // longest translations (PICNIC-2738).
                         return Container(
                           alignment: Alignment.center,
-                          child: Text(
-                            AppLocalizations.of(context).label_mypage_no_artist,
-                            style: PicnicUi.text(
-                              size: 18,
-                              weight: FontWeight.w700,
-                              color: PicnicUi.actionColor,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).label_mypage_no_artist,
+                              maxLines: 1,
+                              style: PicnicUi.text(
+                                size: 18,
+                                weight: FontWeight.w700,
+                                color: PicnicUi.actionColor,
+                              ),
                             ),
                           ),
                         );
