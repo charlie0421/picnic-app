@@ -184,6 +184,14 @@ Map<String, dynamic> _achieveVoteAchieveRow({
   };
 }
 
+/// 393 is a current iPhone; 360 is the most common Android width, and where a
+/// review found this suite's "false positives" were not false.
+final _pageCases = <(double, Size)>[
+  for (final textScale in l10nLayoutTextScales)
+    for (final viewport in const [Size(393, 852), Size(360, 800)])
+      (textScale, viewport),
+];
+
 class _PatchedPatchInfo extends PatchInfoNotifier {
   @override
   PatchInfo build() => const PatchInfo(currentPatch: 12);
@@ -265,14 +273,15 @@ void main() {
 
   group('MyProfilePage nickname validation message', () {
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           final overflows = await pumpPage(
             tester,
             const MyProfilePage(),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             then: () async {
               await tester.enterText(find.byType(TextFormField).first, '!@#');
               await pumpAndIgnoreErrors(tester);
@@ -302,14 +311,15 @@ void main() {
 
   group('LoginPage sign-in button', () {
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           final overflows = await pumpPage(
             tester,
             const LoginPage(),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             asPage: true,
             loggedIn: false,
           );
@@ -339,14 +349,15 @@ void main() {
     });
 
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           final overflows = await pumpPage(
             tester,
             const MyPage(),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             extraOverrides: [
               asyncBookmarkedArtistsProvider.overrideWith(
                 _NoBookmarkedArtists.new,
@@ -360,9 +371,7 @@ void main() {
           expectTextInsideBox(
             tester,
             text: title,
-            box: find
-                .ancestor(of: title, matching: find.byType(SizedBox))
-                .first,
+            box: find.ancestor(of: title, matching: find.byType(Row)).first,
             reason: '$label my artists title',
           );
 
@@ -388,14 +397,15 @@ void main() {
 
   group('SettingPage patch status row', () {
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           final overflows = await pumpPage(
             tester,
             const SettingPage(),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             asPage: true,
             extraOverrides: [
               checkUpdateProvider.overrideWith(
@@ -430,6 +440,19 @@ void main() {
               reason: '$label "$value"',
             );
           }
+          // The value is right-aligned to the row, as it was before the fix
+          // made it able to wrap. A review caught it drifting 98px left.
+          final value = find.text(
+            l.label_setting_patch_status_current_patch(12),
+          );
+          final row = find
+              .ancestor(of: value, matching: find.byType(Row))
+              .first;
+          expect(
+            tester.getRect(value).right,
+            closeTo(tester.getRect(row).right, 0.5),
+            reason: '$label: the patch value must sit at the row\'s right edge',
+          );
         });
       }
     }
@@ -447,14 +470,15 @@ void main() {
     });
 
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           final overflows = await pumpPage(
             tester,
             const VoteHomePage(),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             asPage: true,
           );
           expect(overflows, isEmpty, reason: label);
@@ -476,8 +500,9 @@ void main() {
   group('VoteDetailPage call-to-action', () {
     for (final category in const ['birthday', 'weekly']) {
       for (final l10n in l10nLayoutCases) {
-        for (final textScale in l10nLayoutTextScales) {
-          final label = '$category $l10n ${textScale}x';
+        for (final (textScale, viewport) in _pageCases) {
+          final label =
+              '$category $l10n ${textScale}x ${viewport.width.toInt()}w';
           testWidgets(label, (tester) async {
             VisibilityDetectorController.instance.updateInterval =
                 Duration.zero;
@@ -494,6 +519,7 @@ void main() {
               const VoteDetailPage(voteId: 1),
               l10n: l10n,
               textScale: textScale,
+              viewport: viewport,
               asPage: true,
               then: () async {
                 // The button fades and bounces in over 1.5s.
@@ -514,6 +540,19 @@ void main() {
               200,
               scrollable: find.byType(Scrollable).first,
             );
+            if (category != 'weekly' && textScale == 1.0) {
+              // The pill is 30 tall by design. A review caught an inner
+              // minimum plus the 1px border turning it into 32 and pushing the
+              // whole page down 2px.
+              final pill = find
+                  .ancestor(of: text, matching: find.byType(AnimatedContainer))
+                  .first;
+              expect(
+                tester.getSize(pill).height,
+                closeTo(30, 0.01),
+                reason: '$label: the request button must stay 30 tall',
+              );
+            }
             expectTextInsideBox(
               tester,
               text: text,
@@ -532,8 +571,8 @@ void main() {
 
   group('VoteDetailAchievePage reward rung', () {
     for (final l10n in l10nLayoutCases) {
-      for (final textScale in l10nLayoutTextScales) {
-        final label = '$l10n ${textScale}x';
+      for (final (textScale, viewport) in _pageCases) {
+        final label = '$l10n ${textScale}x ${viewport.width.toInt()}w';
         testWidgets(label, (tester) async {
           VisibilityDetectorController.instance.updateInterval = Duration.zero;
           tearDownMockSupabase();
@@ -563,6 +602,7 @@ void main() {
             const VoteDetailAchievePage(voteId: 1),
             l10n: l10n,
             textScale: textScale,
+            viewport: viewport,
             asPage: true,
             then: () async {
               for (var i = 0; i < 4; i++) {

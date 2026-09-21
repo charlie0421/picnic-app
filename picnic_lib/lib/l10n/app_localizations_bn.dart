@@ -9,7 +9,7 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time =>

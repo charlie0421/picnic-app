@@ -311,11 +311,15 @@ class _SettingPageState extends ConsumerState<SettingPage>
           padding: EdgeInsets.symmetric(vertical: 12.w),
           // Both texts used to be bare Row children around a Spacer, so at
           // 2.0x "Patch status" + "Current patch: 12" ran past the screen in
-          // every language but Korean (PICNIC-2738). The title takes the
-          // remaining width; the value wraps under itself if it has to.
+          // every language but Korean (PICNIC-2738). Both are Flexible now, so
+          // either can wrap, and spaceBetween keeps the title at the left edge
+          // and the value at the right one exactly as the Spacer did. (An
+          // Expanded title took half the row and left the value in the
+          // middle.)
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
+              Flexible(
                 child: Text(
                   l10n.label_setting_patch_section_title,
                   style: getTextStyle(AppTypo.body16M),

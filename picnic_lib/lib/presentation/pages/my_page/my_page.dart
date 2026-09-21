@@ -368,21 +368,26 @@ class _MyPageState extends ConsumerState<MyPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 48,
+          // A 48 minimum and a Flexible title (PICNIC-2738): at 2.0x on a 360dp
+          // screen the longest translation pushed the arrow off the row, and
+          // once it wraps it needs more than a fixed 48.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).label_mypage_my_artist,
-                      style: PicnicUi.text(size: 16, weight: FontWeight.w500),
-                    ),
-                  ],
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).label_mypage_my_artist,
+                        style: PicnicUi.text(size: 16, weight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
                 ),
                 SvgPicture.asset(
                   package: 'picnic_lib',

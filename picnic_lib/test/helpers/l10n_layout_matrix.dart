@@ -104,6 +104,20 @@ void expectTextInsideBox(
         'rest is clipped or painted over its neighbours',
   );
 
+  // The same question on the other axis. A single line that is not allowed to
+  // wrap (softWrap: false, no maxLines) is clipped at its right edge without
+  // ever exceeding a line limit, so neither check above sees it. textSize is
+  // the laid-out text before the paragraph clips it to its own size.
+  final laidOut = paragraph.textSize;
+  expect(
+    laidOut.width,
+    lessThanOrEqualTo(paragraph.size.width + tolerance),
+    reason:
+        '$reason: the text is ${laidOut.width.toStringAsFixed(1)}px wide but '
+        'its paragraph is ${paragraph.size.width.toStringAsFixed(1)}px — the '
+        'rest is cut off at the edge',
+  );
+
   if (!allowEllipsis) {
     expect(
       paragraph.didExceedMaxLines,

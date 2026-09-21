@@ -1667,12 +1667,19 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               height: 16,
             ),
             const SizedBox(width: 6),
-            UnderlinedText(
-              text: AppLocalizations.of(context).weekly_vote_info_link,
-              textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              underlineColor: AppColors.primary500,
-              underlineHeight: 1,
-              underlineGap: 1,
+            // Flexible so the link wraps on a 360dp screen at 2.0x instead of
+            // running past it (PICNIC-2738).
+            Flexible(
+              child: UnderlinedText(
+                text: AppLocalizations.of(context).weekly_vote_info_link,
+                textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                underlineColor: AppColors.primary500,
+                underlineHeight: 1,
+                underlineGap: 1,
+                // UnderlinedText defaults to an ellipsis with no line limit,
+                // which cuts it to one line. Two lines is what wrapping needs.
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -1690,8 +1697,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
-          // Minimums, not fixed heights (PICNIC-2738): at 2.0x the label's
-          // line is taller than 30 and both boxes clipped it in every
+          // A minimum, not a fixed height (PICNIC-2738): at 2.0x the label's
+          // line is taller than 30 and the fixed box clipped it in every
           // language, Korean included.
           child: Container(
             constraints: const BoxConstraints(minHeight: 30),
@@ -1780,8 +1787,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           showRequireLoginDialog();
                         }
                       },
+                      // No minimum of its own: the outer box's minimum 30
+                      // already reaches here as 28 after the 1px border. A
+                      // second 30 made the pill 32 at 1.0x.
                       child: Container(
-                        constraints: const BoxConstraints(minHeight: 30),
                         padding: EdgeInsets.symmetric(horizontal: 12.w),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

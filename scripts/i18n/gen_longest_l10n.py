@@ -19,6 +19,7 @@ them included, 582 of 623 keys came from those three locales. Pass
 --include-box-scripts to get that stricter variant anyway (for instance after
 adding Noto fonts to the test assets).
 """
+import glob
 import io
 import json
 import os
@@ -51,6 +52,18 @@ def wide(ch):
         or 0x1000 <= o <= 0x109F      # Myanmar
         or 0x0980 <= o <= 0x09FF      # Bengali
     )
+
+
+def arb_checksum():
+    """FNV-1a 32 over every arb file, in name order. The generated file records
+    it and a Dart test recomputes it, so a stale file fails a test instead of
+    silently checking layouts against old strings."""
+    h = 0x811C9DC5
+    for path in sorted(glob.glob(os.path.join(L10N, 'app_*.arb'))):
+        for b in os.path.basename(path).encode('utf-8') + open(path, 'rb').read():
+            h ^= b
+            h = (h * 0x01000193) & 0xFFFFFFFF
+    return h
 
 
 def width(text):
@@ -87,13 +100,17 @@ def main():
     used, body, counts = set(), [], {}
     for key in getters:
         loc = pick(key)
-        used.add(loc)
         counts[loc] = counts.get(loc, 0) + 1
+        if loc == 'en':
+            continue  # inherited from AppLocalizationsEn
+        used.add(loc)
         body.append(f'  @override\n  String get {key} => _{loc}.{key};\n')
     for key, params in methods:
         loc = pick(key)
-        used.add(loc)
         counts[loc] = counts.get(loc, 0) + 1
+        if loc == 'en':
+            continue
+        used.add(loc)
         params = ' '.join(params.split()).rstrip(',')
         names = [p.strip().split(' ')[-1] for p in params.split(',') if p.strip()]
         body.append(f'  @override\n  String {key}({params}) =>\n'
@@ -104,13 +121,20 @@ def main():
         '//\n',
         '// Every key answers with the translation that takes the most room among the\n',
         '// shipped locales. See the generator for how "most room" is estimated.\n',
+        '//\n',
+        '// It extends the English class, so a key added to the arb files after this\n',
+        '// was generated still compiles (it answers in English). A test compares\n',
+        '// [longestArbChecksum] with the arb files and asks for a regeneration.\n',
         '// ignore_for_file: non_constant_identifier_names\n\n',
         "import 'package:flutter/widgets.dart';\n",
         "import 'package:picnic_lib/l10n/app_localizations.dart';\n",
+        "import 'package:picnic_lib/l10n/app_localizations_en.dart';\n",
     ]
-    for f in sorted({LOCALES[l][1] for l in used}):
+    for f in sorted({LOCALES[l][1] for l in used} - {'en'}):
         out.append(f"import 'package:picnic_lib/l10n/app_localizations_{f}.dart';\n")
-    out.append('\nclass LongestAppLocalizations extends AppLocalizations {\n')
+    out.append(f'\n/// FNV-1a 32 of the arb files this was generated from.\n'
+               f'const int longestArbChecksum = 0x{arb_checksum():08X};\n')
+    out.append('\nclass LongestAppLocalizations extends AppLocalizationsEn {\n')
     out.append("  LongestAppLocalizations() : super('en');\n\n")
     for loc in sorted(used):
         out.append(f'  static final _{loc} = AppLocalizations{LOCALES[loc][0]}();\n')
