@@ -16,7 +16,8 @@ final class AsyncVoteDetailProvider
     extends $AsyncNotifierProvider<AsyncVoteDetail, VoteModel?> {
   const AsyncVoteDetailProvider._({
     required AsyncVoteDetailFamily super.from,
-    required ({int voteId, VotePortal votePortal}) super.argument,
+    required ({int voteId, VotePortal votePortal, VoteDetailItems items})
+    super.argument,
   }) : super(
          retry: null,
          name: r'asyncVoteDetailProvider',
@@ -50,7 +51,7 @@ final class AsyncVoteDetailProvider
   }
 }
 
-String _$asyncVoteDetailHash() => r'01adee04365f9a85c253a3056c3172f816d2b8a2';
+String _$asyncVoteDetailHash() => r'1b265a75675d732d3e056f1017b6b59b2dd5b5cd';
 
 final class AsyncVoteDetailFamily extends $Family
     with
@@ -59,7 +60,7 @@ final class AsyncVoteDetailFamily extends $Family
           AsyncValue<VoteModel?>,
           VoteModel?,
           FutureOr<VoteModel?>,
-          ({int voteId, VotePortal votePortal})
+          ({int voteId, VotePortal votePortal, VoteDetailItems items})
         > {
   const AsyncVoteDetailFamily._()
     : super(
@@ -73,8 +74,9 @@ final class AsyncVoteDetailFamily extends $Family
   AsyncVoteDetailProvider call({
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
+    VoteDetailItems items = VoteDetailItems.none,
   }) => AsyncVoteDetailProvider._(
-    argument: (voteId: voteId, votePortal: votePortal),
+    argument: (voteId: voteId, votePortal: votePortal, items: items),
     from: this,
   );
 
@@ -83,18 +85,25 @@ final class AsyncVoteDetailFamily extends $Family
 }
 
 abstract class _$AsyncVoteDetail extends $AsyncNotifier<VoteModel?> {
-  late final _$args = ref.$arg as ({int voteId, VotePortal votePortal});
+  late final _$args =
+      ref.$arg as ({int voteId, VotePortal votePortal, VoteDetailItems items});
   int get voteId => _$args.voteId;
   VotePortal get votePortal => _$args.votePortal;
+  VoteDetailItems get items => _$args.items;
 
   FutureOr<VoteModel?> build({
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
+    VoteDetailItems items = VoteDetailItems.none,
   });
   @$mustCallSuper
   @override
   void runBuild() {
-    final created = build(voteId: _$args.voteId, votePortal: _$args.votePortal);
+    final created = build(
+      voteId: _$args.voteId,
+      votePortal: _$args.votePortal,
+      items: _$args.items,
+    );
     final ref = this.ref as $Ref<AsyncValue<VoteModel?>, VoteModel?>;
     final element =
         ref.element
@@ -149,7 +158,7 @@ final class AsyncVoteItemListProvider
   }
 }
 
-String _$asyncVoteItemListHash() => r'ea42495305a971e4152e050e60f993117ba62f62';
+String _$asyncVoteItemListHash() => r'fd09c0a0974871e6c87f525346211938ec65a888';
 
 final class AsyncVoteItemListFamily extends $Family
     with
