@@ -1157,7 +1157,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);
       },
-      // PICNIC-2738. The rung is a fixed 50x180 on purpose: the progress bar
+      // PICNIC-2738. The rung is 50 tall and at most 180 wide on purpose (it
+      // only narrows on screens too small for 180, PICNIC-2746): the progress bar
       // beside the ladder is drawn as 50px per level, so a taller rung would
       // slide every level out of line with it (and the thumbnail below has
       // no height of its own — the 50 is what keeps it round). The text is
