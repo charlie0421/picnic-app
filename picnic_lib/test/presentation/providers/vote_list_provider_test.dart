@@ -682,6 +682,20 @@ void main() {
       });
     }
 
+    // 디버그 목록은 "모든 필터 제거" 가 계약이다. vote_item 은 !inner 임베드라 후보 필터를
+    // 걸면 후보가 전부 삭제된 투표가 목록에서 빠진다 — 디버그에서는 그러면 안 된다.
+    test('debug: no candidate filter is sent', () async {
+      await container.read(
+        asyncVoteListProvider(
+          1, 10, 'id', 'DESC', 'all',
+          status: VoteStatus.debug,
+          category: VoteCategory.all,
+        ).future,
+      );
+      final uri = requestOf('vote');
+      expect(uri.queryParameters.containsKey('vote_item.deleted_at'), isFalse);
+    });
+
     // 목록 쿼리는 포털과 무관하게 vote / vote_item 을 조회한다(pic 은 화면에서
     // 후처리로 거른다) — pic 포털로 불러도 같은 서버 필터가 걸려야 한다.
     test('pic portal: server excludes deleted candidates', () async {

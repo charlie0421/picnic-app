@@ -105,7 +105,11 @@ class AsyncVoteList extends _$AsyncVoteList {
       // 삭제된 후보는 서버에서 제외한다. 임베드 order/limit 보다 먼저 걸려야
       // 상위 3개가 "삭제되지 않은 후보 중" 상위 3개가 된다(카드 갱신 경로
       // AsyncVoteDetail 과 동일한 규칙, PICNIC-2748).
-      query = query.filter('$voteItemTable.deleted_at', 'is', null);
+      // vote_item 은 !inner 임베드라, 이 필터는 "후보가 전부 삭제된 투표" 를 목록에서도
+      // 뺀다(보여 줄 후보가 없는 카드). 디버그 목록은 모든 필터를 빼는 것이 계약이라 제외한다.
+      if (status != VoteStatus.debug) {
+        query = query.filter('$voteItemTable.deleted_at', 'is', null);
+      }
 
       // 카테고리 직접 선택 시 우선 적용 (디버그 제외)
       if (category != 'all' && status != VoteStatus.debug) {
