@@ -39,15 +39,25 @@ class CommonArtistWidget extends StatelessWidget {
 
     final displayGroupName =
         artist?.artistGroup != null && artist!.artistGroup!.name.isNotEmpty
-            ? ArtistNameUtils.getDisplayName(artist!.artistGroup!.name)
-            : (groupName?.isNotEmpty == true ? groupName! : '');
+        ? ArtistNameUtils.getDisplayName(artist!.artistGroup!.name)
+        : (groupName?.isNotEmpty == true ? groupName! : '');
 
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          _buildRow(displayName, displayGroupName, constraints.maxWidth / 2),
+    );
+  }
+
+  Widget _buildRow(
+    String displayName,
+    String displayGroupName,
+    double maxTrailingWidth,
+  ) {
     return Row(
       children: [
         // 아티스트 이미지 (더 작게)
         _buildArtistImage(),
         SizedBox(width: 8.w), // 간격 더 축소 (12.w -> 8.w)
-
         // 아티스트 정보
         Expanded(
           child: Column(
@@ -65,9 +75,15 @@ class CommonArtistWidget extends StatelessWidget {
         ),
 
         // 오른쪽 trailing 위젯 (상태 또는 버튼)
+        // Capped at half the row so a long status (id/vi, 2.0x+) cannot push
+        // past the card; the chip shrinks its label to fit instead. At 1.0x
+        // every chip is far narrower than this, so nothing moves.
         if (trailing != null) ...[
           SizedBox(width: 8.w),
-          trailing!,
+          ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxTrailingWidth),
+            child: trailing!,
+          ),
         ],
       ],
     );
@@ -93,7 +109,8 @@ class CommonArtistWidget extends StatelessWidget {
         child: artist?.image != null
             ? PicnicCachedNetworkImage(
                 key: ValueKey(
-                    'artist_${artist!.id}_${artist!.name}'), // ✅ 더 유니크한 키로 캐시 최적화
+                  'artist_${artist!.id}_${artist!.name}',
+                ), // ✅ 더 유니크한 키로 캐시 최적화
                 imageUrl: artist!.image!,
                 fit: BoxFit.cover,
                 width: width,

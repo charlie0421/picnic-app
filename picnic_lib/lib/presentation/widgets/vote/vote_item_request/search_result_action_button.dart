@@ -91,9 +91,14 @@ class SearchResultActionButton extends StatelessWidget {
                   children: [
                     Icon(Icons.add_rounded, size: 12.r),
                     SizedBox(width: 3.w),
-                    Text(
-                      AppLocalizations.of(context).vote_item_request_submit,
-                      style: getTextStyle(AppTypo.caption12B, Colors.white),
+                    Flexible(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          AppLocalizations.of(context).vote_item_request_submit,
+                          style: getTextStyle(AppTypo.caption12B, Colors.white),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -154,18 +159,25 @@ class SearchResultActionButton extends StatelessWidget {
               Icon(Icons.check_circle_rounded, size: 10.r, color: Colors.green),
               SizedBox(width: 3.w),
             ],
-            Text(
-              status,
-              style: getTextStyle(
-                AppTypo.caption12B,
-                isPending
-                    ? Colors.orange
-                    : status ==
-                          AppLocalizations.of(
-                            context,
-                          ).vote_item_request_status_approved
-                    ? Colors.green
-                    : AppColors.grey600,
+            // Shrinks to fit when the card caps the chip's width (see
+            // CommonArtistWidget) instead of running past the card.
+            Flexible(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  status,
+                  style: getTextStyle(
+                    AppTypo.caption12B,
+                    isPending
+                        ? Colors.orange
+                        : status ==
+                              AppLocalizations.of(
+                                context,
+                              ).vote_item_request_status_approved
+                        ? Colors.green
+                        : AppColors.grey600,
+                  ),
+                ),
               ),
             ),
           ],

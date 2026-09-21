@@ -587,25 +587,57 @@ class _MyPageState extends ConsumerState<MyPage>
                           horizontal: 8,
                           vertical: 8,
                         ),
+                        // Two columns on wide screens. The cells keep the
+                        // grid's old 3.8:1 size as a minimum but may grow:
+                        // a fixed aspect ratio cut the names from 2.0x on a
+                        // 500dp screen and at 2.6x on every width.
                         child: isWide
-                            ? GridView.builder(
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                      childAspectRatio: 3.8,
+                            ? LayoutBuilder(
+                                builder: (context, constraints) {
+                                  const spacing = 4.0;
+                                  final cellWidth =
+                                      (constraints.maxWidth - spacing) / 2;
+                                  Widget cell(int index) => ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minHeight: cellWidth / 3.8,
                                     ),
-                                itemCount: entries.length,
-                                itemBuilder: (context, index) {
-                                  final e = entries[index];
-                                  return _buildLanguageOptionItem(
-                                    context,
-                                    e.key,
-                                    e.value,
-                                    currentLanguage,
-                                    handleSelect,
+                                    child: _buildLanguageOptionItem(
+                                      context,
+                                      entries[index].key,
+                                      entries[index].value,
+                                      currentLanguage,
+                                      handleSelect,
+                                    ),
+                                  );
+                                  return SingleChildScrollView(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        for (
+                                          var i = 0;
+                                          i < entries.length;
+                                          i += 2
+                                        ) ...[
+                                          if (i > 0)
+                                            const SizedBox(height: spacing),
+                                          IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(child: cell(i)),
+                                                const SizedBox(width: spacing),
+                                                Expanded(
+                                                  child: i + 1 < entries.length
+                                                      ? cell(i + 1)
+                                                      : const SizedBox(),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   );
                                 },
                               )

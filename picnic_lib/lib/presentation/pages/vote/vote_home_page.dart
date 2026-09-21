@@ -362,9 +362,13 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
                           ),
                           Positioned(
                             bottom: 0,
+                            // A 30 minimum like its twin in
+                            // reward_list_section.dart: from 1.3x the name is
+                            // taller than 30 and its glyphs were cut. The
+                            // label grows upward over the thumbnail.
                             child: Container(
                               width: 120,
-                              height: 30,
+                              constraints: const BoxConstraints(minHeight: 30),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
                                   bottomLeft: const Radius.circular(8),

@@ -55,15 +55,26 @@ class _AgreementPrivacyPageState extends ConsumerState<AgreementPrivacyPage> {
 
     return Column(
       children: [
-        SizedBox(
-          height: 48,
+        // A 48 minimum, and the title kept clear of the back button (left 8,
+        // 42 wide) on both sides so it stays centred: a title that wrapped
+        // ran under the button, and past 48 it was cut.
+        ConstrainedBox(
+          constraints: const BoxConstraints(
+            minWidth: double.infinity,
+            minHeight: 48,
+          ),
           child: Stack(
-            fit: StackFit.expand,
             children: [
-              Text(
-                AppLocalizations.of(context).label_agreement_privacy,
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
-                textAlign: TextAlign.center,
+              SizedBox(
+                width: double.infinity,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 58),
+                  child: Text(
+                    AppLocalizations.of(context).label_agreement_privacy,
+                    style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
               Positioned(
                 left: 8,
