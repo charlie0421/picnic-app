@@ -468,106 +468,57 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     final available = constraints.hasBoundedHeight
                         ? constraints.maxHeight
                         : MediaQuery.of(context).size.height;
-                    // AlertDialog may offer more than the explicitly sized
-                    // capsule takes. Start every measurement and the corner
-                    // solve from the card's rendered width, not that looser
-                    // maximum, or the button receives a width it cannot use.
-                    final cardWidth = math.min(
-                      constraints.maxWidth,
-                      resolveVoteDialogWidth(),
-                    );
-                    final contentWidth = _contentWidth(cardWidth);
-                    final decorationComfortHeight = _decorationComfortHeight(
+                    final contentWidth = _contentWidth(constraints.maxWidth);
+                    final essential = _essentialHeight(
                       context,
                       contentWidth: contentWidth,
                       isKeyboardVisible: isKeyboardVisible,
                     );
-
-                    ({
-                      double essential,
-                      bool showTopClose,
-                      double budget,
-                      bool logoInTail,
-                      VoteDialogShape shape,
-                    })
-                    resolveLayout(double submitWidth) {
-                      final essential = _essentialHeight(
-                        context,
-                        contentWidth: contentWidth,
-                        submitWidth: submitWidth,
-                        isKeyboardVisible: isKeyboardVisible,
-                      );
-                      // PICNIC-2695 의 X 는 숨김 strip 보다 24 비싸다.
-                      final showTopClose =
-                          available - largePopupTopCloseChromeHeight() >=
-                          essential + decorationComfortHeight;
-                      final budget = math.max(
-                        0.0,
-                        available -
-                            (showTopClose
-                                ? largePopupTopCloseChromeHeight()
-                                : largePopupHiddenChromeHeight()),
-                      );
-                      // The logo is the first thing to give way: it keeps its
-                      // place under the button only while the decoration above
-                      // can still show its comfortable geometry.
-                      final logoInTail =
-                          !isKeyboardVisible &&
-                          essential +
-                                  _tailLogoHeight() +
-                                  decorationComfortHeight <=
-                              budget;
-                      final pinned =
-                          essential + (logoInTail ? _tailLogoHeight() : 0.0);
-                      return (
-                        essential: essential,
-                        showTopClose: showTopClose,
-                        budget: budget,
-                        logoInTail: logoInTail,
-                        shape: resolveVoteDialogShape(
-                          bodyHeight: budget,
-                          essentialHeight: pinned,
-                          horizontalContentInset:
-                              largePopupCardBorderWidth() +
-                              voteDialogCardExtent(24),
-                        ),
-                      );
-                    }
-
-                    var submitWidth = contentWidth;
-                    var layout = resolveLayout(submitWidth);
-                    // A wider one-column button can reach the capsule's lower
-                    // arc even though its rectangular bounds remain inside the
-                    // card. Narrow only as far as the actual resolved radius
-                    // requires. Re-resolving also makes the height budget use
-                    // the same width that is rendered when a label gains a line.
-                    for (var attempt = 0; attempt < 4; attempt += 1) {
-                      if (layout.shape.mode == VoteDialogLayoutMode.allScroll) {
-                        break;
-                      }
-                      final bottomInset =
+                    // PICNIC-2695 의 X 는 숨김 strip 보다 24 비싸다. PICNIC-2694 가
+                    // 조작부를 통째로 담아 주기로 한 가장 짧은 창들은 이미 라우트
+                    // 여백을 하한까지 내준 상태라 그 24 를 낼 데가 없다. 그래서
+                    // 닫기는 조작부를 밀어내지 않을 때만 자리를 얻는다. 못 얻으면
+                    // 배리어 탭과 시스템 백이 그대로 나가는 길이고, 키보드를 내리는
+                    // 순간 예산이 돌아오면서 X 도 돌아온다.
+                    final showTopClose =
+                        available - largePopupTopCloseChromeHeight() >=
+                        essential +
+                            _decorationComfortHeight(
+                              context,
+                              contentWidth: contentWidth,
+                              isKeyboardVisible: isKeyboardVisible,
+                            );
+                    final budget = math.max(
+                      0.0,
+                      available -
+                          (showTopClose
+                              ? largePopupTopCloseChromeHeight()
+                              : largePopupHiddenChromeHeight()),
+                    );
+                    // The logo is the first thing to give way: it keeps its place
+                    // under the button only while the decoration above can still
+                    // show the portrait, the names and the balance at their own
+                    // size. Otherwise it moves into the scrolling decoration —
+                    // out of the way, still reachable.
+                    final logoInTail =
+                        !isKeyboardVisible &&
+                        essential +
+                                _tailLogoHeight() +
+                                _decorationComfortHeight(
+                                  context,
+                                  contentWidth: contentWidth,
+                                  isKeyboardVisible: isKeyboardVisible,
+                                ) <=
+                            budget;
+                    final pinned =
+                        essential + (logoInTail ? _tailLogoHeight() : 0.0);
+                    final shape = resolveVoteDialogShape(
+                      bodyHeight: budget,
+                      essentialHeight: pinned,
+                      horizontalContentInset:
                           largePopupCardBorderWidth() +
-                          _footerBottomPadding(isKeyboardVisible) +
-                          (layout.logoInTail ? _tailLogoHeight() : 0.0);
-                      final requiredHorizontalInset = voteDialogCornerClearance(
-                        radius: layout.shape.cardBorderRadius.topLeft.x,
-                        // The corner is circular, so the helper's vertical
-                        // result is also the horizontal inset required by
-                        // this measured distance above the bottom edge.
-                        horizontalInset: bottomInset,
-                      );
-                      final cornerSafeWidth = math.min(
-                        contentWidth,
-                        math.max(0.0, cardWidth - requiredHorizontalInset * 2),
-                      );
-                      if (cornerSafeWidth >= submitWidth - 0.01) break;
-                      submitWidth = cornerSafeWidth;
-                      layout = resolveLayout(submitWidth);
-                    }
-                    final showTopClose = layout.showTopClose;
-                    final budget = layout.budget;
-                    final logoInTail = layout.logoInTail;
-                    final shape = layout.shape;
+                          voteDialogCardExtent(24),
+                    );
                     final mode = shape.mode;
                     return LargePopupWidget(
                       showCloseButton: showTopClose,
@@ -578,7 +529,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                       // callback re-checks the flag anyway.
                       closeButtonEnabled: !_isVoting,
                       onClose: _requestClose,
-                      width: cardWidth,
+                      width: resolveVoteDialogWidth(),
                       cardBorderRadius: shape.cardBorderRadius,
                       content: ConstrainedBox(
                         constraints: BoxConstraints(maxHeight: budget),
@@ -598,7 +549,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                             myStarCandy: myStarCandy,
                             userId: userId,
                             isKeyboardVisible: isKeyboardVisible,
-                            width: submitWidth,
                           ),
                           tail: _buildTail(
                             isKeyboardVisible: isKeyboardVisible,
@@ -634,7 +584,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   double _essentialHeight(
     BuildContext context, {
     required double contentWidth,
-    double? submitWidth,
     required bool isKeyboardVisible,
   }) {
     return VotingCheckAllOption.preferredHeight(
@@ -650,10 +599,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           maxWidth: contentWidth,
         ) +
         _footerTopPadding(isKeyboardVisible) +
-        VotingSubmitButton.preferredHeight(
-          context,
-          maxWidth: submitWidth ?? contentWidth,
-        ) +
+        VotingSubmitButton.preferredHeight(context) +
         _footerBottomPadding(isKeyboardVisible);
   }
 
@@ -679,11 +625,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
           maxWidth: contentWidth,
         ) +
         _footerTopPadding(isKeyboardVisible) +
-        // The candidate probe starts from the same width the render path
-        // starts from. If the corner solve later narrows the button, the
-        // render path re-resolves with that exact width; this probe only
-        // chooses which presentation to measure.
-        VotingSubmitButton.preferredHeight(context, maxWidth: contentWidth) +
+        VotingSubmitButton.preferredHeight(context) +
         _footerBottomPadding(isKeyboardVisible);
   }
 
@@ -995,7 +937,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     required int myStarCandy,
     required String userId,
     required bool isKeyboardVisible,
-    required double width,
   }) {
     return Padding(
       padding: _bodyHorizontalPadding().copyWith(
@@ -1004,7 +945,6 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       child: VotingSubmitButton(
         canVote: _canVote,
         isVoting: _isVoting,
-        width: width,
         onPressed: () => _handleVote(myStarCandy, userId),
       ),
     );

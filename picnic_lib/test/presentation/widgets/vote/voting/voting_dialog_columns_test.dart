@@ -78,20 +78,19 @@ bool _expectsColumns({
   // radius-safe insets, so the actual-height condition intentionally rejects
   // those two candidates. The 926x428 body can still use columns.
   //
-  // PICNIC-2700 moved this number and moved it back, so the two changes it
-  // made are a pair and neither reverts alone. Measured at 926x428, Thai 2.0x:
+  // This premise depends on the Thai label's length. Measured at 926x428,
+  // Thai 2.0x, with the route keeping its preferred 24 inset (popup height
+  // 380):
   //
-  //   PICNIC-2697, uncapped label   stacked column 340.56, popup height > 380
-  //   PICNIC-2700 code only         stacked column 340.56, popup height = 380
-  //   PICNIC-2700 code + โหวต      stacked column 288.56, popup height = 380
+  //   long label  ลงคะแนนเสียง   stacked column 340.56  -> does not fit, one column
+  //   short label โหวต          stacked column 288.56  -> fits, two columns
   //
-  // The popup height moved because the route only gives up its preferred 24
-  // inset while the one-column body is pressing on it. Capping the one-column
-  // submit label at two lines relieved that press, the margin came back, and
-  // the 340.56 column no longer fit — so the code change alone puts 926x428 on
-  // the one-column path. Shortening the label then took 52px off the stacked
-  // column itself and it fits again. Revert the shortened label without the
-  // cap, or the cap without the label, and this premise has to move with it.
+  // PICNIC-2700 shortened the label, which is what makes 926x428 a columns
+  // case here. The one-column button no longer takes part: it is a fixed pill
+  // with a single fitted line, so its height follows the text scale only and
+  // never presses on the route margin. Verified by reverting the Thai label
+  // alone: exactly this case (phone landscape wide, th 2.0x, no keyboard)
+  // fails. Change that label and this premise has to move with it.
   return !(locale.languageCode == 'th' &&
       textScale == 2 &&
       viewport != const Size(926, 428));
