@@ -9,7 +9,7 @@ class AppLocalizationsId extends AppLocalizations {
   AppLocalizationsId([String locale = 'id']) : super(locale);
 
   @override
-  String get achieve => 'Pencapaian';
+  String get achieve => 'Tercapai';
 
   @override
   String get ads_available_time => 'Waktu berikutnya untuk menonton iklan';

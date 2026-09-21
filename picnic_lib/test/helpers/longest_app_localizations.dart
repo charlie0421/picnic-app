@@ -19,7 +19,7 @@ import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/l10n/app_localizations_vi.dart';
 
 /// FNV-1a 32 of the arb files this was generated from.
-const int longestArbChecksum = 0x9C59013E;
+const int longestArbChecksum = 0x2CCDCC64;
 
 class LongestAppLocalizations extends AppLocalizationsEn {
   LongestAppLocalizations() : super('en');
@@ -30,9 +30,6 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   static final _ja = AppLocalizationsJa();
   static final _ko = AppLocalizationsKo();
   static final _vi = AppLocalizationsVi();
-
-  @override
-  String get achieve => _id.achieve;
 
   @override
   String get ads_available_time => _fil.ads_available_time;
@@ -80,12 +77,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get common_text_search_error => _vi.common_text_search_error;
 
   @override
-  String get common_text_search_recent_label =>
-      _fil.common_text_search_recent_label;
+  String get common_text_search_recent_label => _fil.common_text_search_recent_label;
 
   @override
-  String get common_text_search_result_label =>
-      _es.common_text_search_result_label;
+  String get common_text_search_result_label => _es.common_text_search_result_label;
 
   @override
   String get goonghap_activities_title => _fil.goonghap_activities_title;
@@ -115,8 +110,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get goonghap_couple_style => _fil.goonghap_couple_style;
 
   @override
-  String get goonghap_duplicate_data_title =>
-      _fil.goonghap_duplicate_data_title;
+  String get goonghap_duplicate_data_title => _fil.goonghap_duplicate_data_title;
 
   @override
   String get goonghap_gender => _id.goonghap_gender;
@@ -134,8 +128,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get goonghap_new => _fil.goonghap_new;
 
   @override
-  String get goonghap_purchase_confirm_message =>
-      _es.goonghap_purchase_confirm_message;
+  String get goonghap_purchase_confirm_message => _es.goonghap_purchase_confirm_message;
 
   @override
   String get goonghap_remain_star_candy => _es.goonghap_remain_star_candy;
@@ -150,8 +143,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get goonghap_snackbar_error => _fil.goonghap_snackbar_error;
 
   @override
-  String get goonghap_snackbar_need_gender =>
-      _fil.goonghap_snackbar_need_gender;
+  String get goonghap_snackbar_need_gender => _fil.goonghap_snackbar_need_gender;
 
   @override
   String get goonghap_snackbar_start => _fil.goonghap_snackbar_start;
@@ -193,19 +185,16 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get dialog_content_ads_exhausted => _es.dialog_content_ads_exhausted;
 
   @override
-  String get dialog_content_login_required =>
-      _fil.dialog_content_login_required;
+  String get dialog_content_login_required => _fil.dialog_content_login_required;
 
   @override
   String get dialog_message_can_resignup => _vi.dialog_message_can_resignup;
 
   @override
-  String get dialog_message_purchase_failed =>
-      _fil.dialog_message_purchase_failed;
+  String get dialog_message_purchase_failed => _fil.dialog_message_purchase_failed;
 
   @override
-  String get dialog_message_purchase_success =>
-      _vi.dialog_message_purchase_success;
+  String get dialog_message_purchase_success => _vi.dialog_message_purchase_success;
 
   @override
   String get dialog_title_ads_exhausted => _fil.dialog_title_ads_exhausted;
@@ -262,12 +251,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get fortune_honor => _fil.fortune_honor;
 
   @override
-  String get fortune_lack_of_star_candy_message =>
-      _fil.fortune_lack_of_star_candy_message;
+  String get fortune_lack_of_star_candy_message => _fil.fortune_lack_of_star_candy_message;
 
   @override
-  String get fortune_lack_of_star_candy_title =>
-      _es.fortune_lack_of_star_candy_title;
+  String get fortune_lack_of_star_candy_title => _es.fortune_lack_of_star_candy_title;
 
   @override
   String get fortune_lucky_color => _id.fortune_lucky_color;
@@ -351,8 +338,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_ads_load_fail => _es.label_ads_load_fail;
 
   @override
-  String get label_ads_temporarily_unavailable =>
-      _fil.label_ads_temporarily_unavailable;
+  String get label_ads_temporarily_unavailable => _fil.label_ads_temporarily_unavailable;
 
   @override
   String get label_ads_sdk_init_fail => _es.label_ads_sdk_init_fail;
@@ -448,8 +434,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_mission_get_star_candy => _fil.label_mission_get_star_candy;
 
   @override
-  String get label_mission_get_bonus_star_candy =>
-      _es.label_mission_get_bonus_star_candy;
+  String get label_mission_get_bonus_star_candy => _es.label_mission_get_bonus_star_candy;
 
   @override
   String get label_mission_short => _ja.label_mission_short;
@@ -518,15 +503,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_setting_appinfo => _es.label_setting_appinfo;
 
   @override
-  String get label_setting_current_version =>
-      _fil.label_setting_current_version;
+  String get label_setting_current_version => _fil.label_setting_current_version;
 
   @override
   String get label_setting_event_alarm => _es.label_setting_event_alarm;
 
   @override
-  String get label_setting_event_alarm_desc =>
-      _ja.label_setting_event_alarm_desc;
+  String get label_setting_event_alarm_desc => _ja.label_setting_event_alarm_desc;
 
   @override
   String get label_setting_language => _es.label_setting_language;
@@ -538,8 +521,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_setting_recent_version => _fil.label_setting_recent_version;
 
   @override
-  String get label_setting_recent_version_up_to_date =>
-      _fil.label_setting_recent_version_up_to_date;
+  String get label_setting_recent_version_up_to_date => _fil.label_setting_recent_version_up_to_date;
 
   @override
   String get label_setting_remove_cache => _fil.label_setting_remove_cache;
@@ -602,8 +584,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_pic_pic_save_success => _es.message_pic_pic_save_success;
 
   @override
-  String get message_store_products_load_failed =>
-      _es.message_store_products_load_failed;
+  String get message_store_products_load_failed => _es.message_store_products_load_failed;
 
   @override
   String get message_vote_is_ended => _vi.message_vote_is_ended;
@@ -639,12 +620,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get post_anonymous => _fil.post_anonymous;
 
   @override
-  String get post_board_create_request_complete =>
-      _fil.post_board_create_request_complete;
+  String get post_board_create_request_complete => _fil.post_board_create_request_complete;
 
   @override
-  String get post_board_create_request_condition =>
-      _fil.post_board_create_request_condition;
+  String get post_board_create_request_condition => _fil.post_board_create_request_condition;
 
   @override
   String get post_board_request_label => _fil.post_board_request_label;
@@ -662,8 +641,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get post_comment_deleted_comment => _id.post_comment_deleted_comment;
 
   @override
-  String get post_comment_like_processing_fail =>
-      _fil.post_comment_like_processing_fail;
+  String get post_comment_like_processing_fail => _fil.post_comment_like_processing_fail;
 
   @override
   String get post_comment_loading_fail => _fil.post_comment_loading_fail;
@@ -720,8 +698,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get post_minor_board_description => _fil.post_minor_board_description;
 
   @override
-  String get post_minor_board_description_input =>
-      _fil.post_minor_board_description_input;
+  String get post_minor_board_description_input => _fil.post_minor_board_description_input;
 
   @override
   String get post_minor_board_name => _fil.post_minor_board_name;
@@ -796,15 +773,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get purchase_confirm_title => _es.purchase_confirm_title;
 
   @override
-  String get previousTransactionPendingError =>
-      _fil.previousTransactionPendingError;
+  String get previousTransactionPendingError => _fil.previousTransactionPendingError;
 
   @override
   String get purchase_in_progress_message => _fil.purchase_in_progress_message;
 
   @override
-  String get purchase_initializing_message =>
-      _fil.purchase_initializing_message;
+  String get purchase_initializing_message => _fil.purchase_initializing_message;
 
   @override
   String get purchase_payment_amount => _fil.purchase_payment_amount;
@@ -921,23 +896,19 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_can_apply => _fil.vote_item_request_can_apply;
 
   @override
-  String get vote_item_request_search_artist =>
-      _es.vote_item_request_search_artist;
+  String get vote_item_request_search_artist => _es.vote_item_request_search_artist;
 
   @override
   String get vote_item_request_status => _fil.vote_item_request_status;
 
   @override
-  String get vote_item_request_status_approved =>
-      _fil.vote_item_request_status_approved;
+  String get vote_item_request_status_approved => _fil.vote_item_request_status_approved;
 
   @override
-  String get vote_item_request_status_pending =>
-      _vi.vote_item_request_status_pending;
+  String get vote_item_request_status_pending => _vi.vote_item_request_status_pending;
 
   @override
-  String get vote_item_request_status_rejected =>
-      _vi.vote_item_request_status_rejected;
+  String get vote_item_request_status_rejected => _vi.vote_item_request_status_rejected;
 
   @override
   String get vote_item_request_submit => _es.vote_item_request_submit;
@@ -982,16 +953,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get goonghap_empty_state_title => _fil.goonghap_empty_state_title;
 
   @override
-  String get goonghap_empty_state_subtitle =>
-      _fil.goonghap_empty_state_subtitle;
+  String get goonghap_empty_state_subtitle => _fil.goonghap_empty_state_subtitle;
 
   @override
-  String get goonghap_login_required_title =>
-      _fil.goonghap_login_required_title;
+  String get goonghap_login_required_title => _fil.goonghap_login_required_title;
 
   @override
-  String get goonghap_login_required_subtitle =>
-      _fil.goonghap_login_required_subtitle;
+  String get goonghap_login_required_subtitle => _fil.goonghap_login_required_subtitle;
 
   @override
   String get goonghap_login_button => _es.goonghap_login_button;
@@ -1048,8 +1016,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get update_required_message => _es.update_required_message;
 
   @override
-  String get vote_item_request_no_search_results =>
-      _fil.vote_item_request_no_search_results;
+  String get vote_item_request_no_search_results => _fil.vote_item_request_no_search_results;
 
   @override
   String get jma_voting_my_star_candy => _vi.jma_voting_my_star_candy;
@@ -1073,8 +1040,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get jma_voting_daily_limit_title => _fil.jma_voting_daily_limit_title;
 
   @override
-  String get jma_voting_exchange_failed_title =>
-      _es.jma_voting_exchange_failed_title;
+  String get jma_voting_exchange_failed_title => _es.jma_voting_exchange_failed_title;
 
   @override
   String get expiring_bonus_candy_guide => _fil.expiring_bonus_candy_guide;
@@ -1092,8 +1058,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get qna_submit_fail => _fil.qna_submit_fail;
 
   @override
-  String get qna_cannot_send_message_closed =>
-      _fil.qna_cannot_send_message_closed;
+  String get qna_cannot_send_message_closed => _fil.qna_cannot_send_message_closed;
 
   @override
   String get qna_message_sent_success => _fil.qna_message_sent_success;
@@ -1129,19 +1094,16 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get bonus_candy_example_earn_date => _id.bonus_candy_example_earn_date;
 
   @override
-  String get vote_item_request_status_unknown =>
-      _id.vote_item_request_status_unknown;
+  String get vote_item_request_status_unknown => _id.vote_item_request_status_unknown;
 
   @override
-  String get bonus_candy_expiration_policy_load_fail =>
-      _es.bonus_candy_expiration_policy_load_fail;
+  String get bonus_candy_expiration_policy_load_fail => _es.bonus_candy_expiration_policy_load_fail;
 
   @override
   String get bonus_candy_example_1_expire => _id.bonus_candy_example_1_expire;
 
   @override
-  String get vote_item_request_status_in_progress =>
-      _vi.vote_item_request_status_in_progress;
+  String get vote_item_request_status_in_progress => _vi.vote_item_request_status_in_progress;
 
   @override
   String get bonus_candy_policy_2 => _fil.bonus_candy_policy_2;
@@ -1156,8 +1118,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get expiring_soon_bonus_candy => _es.expiring_soon_bonus_candy;
 
   @override
-  String get bonus_candy_expiration_policy_earn_period =>
-      _es.bonus_candy_expiration_policy_earn_period;
+  String get bonus_candy_expiration_policy_earn_period => _es.bonus_candy_expiration_policy_earn_period;
 
   @override
   String get message_setting_remove_cache => _es.message_setting_remove_cache;
@@ -1169,16 +1130,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get purchase_timeout_message => _es.purchase_timeout_message;
 
   @override
-  String get purchase_payment_accepted_message =>
-      _es.purchase_payment_accepted_message;
+  String get purchase_payment_accepted_message => _es.purchase_payment_accepted_message;
 
   @override
-  String get purchase_payment_unconfirmed_message =>
-      _es.purchase_payment_unconfirmed_message;
+  String get purchase_payment_unconfirmed_message => _es.purchase_payment_unconfirmed_message;
 
   @override
-  String get purchase_payment_pending_message =>
-      _vi.purchase_payment_pending_message;
+  String get purchase_payment_pending_message => _vi.purchase_payment_pending_message;
 
   @override
   String get label_tabbar_vote_upcoming => _fil.label_tabbar_vote_upcoming;
@@ -1187,12 +1145,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get bonus_candy_example_1_earn => _id.bonus_candy_example_1_earn;
 
   @override
-  String get error_receipt_verification_failed =>
-      _vi.error_receipt_verification_failed;
+  String get error_receipt_verification_failed => _vi.error_receipt_verification_failed;
 
   @override
-  String get vote_item_request_status_cancelled =>
-      _ja.vote_item_request_status_cancelled;
+  String get vote_item_request_status_cancelled => _ja.vote_item_request_status_cancelled;
 
   @override
   String get post_write_board_post => _es.post_write_board_post;
@@ -1204,12 +1160,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_update_nickname_fail => _fil.message_update_nickname_fail;
 
   @override
-  String get bonus_candy_expiration_time_title =>
-      _es.bonus_candy_expiration_time_title;
+  String get bonus_candy_expiration_time_title => _es.bonus_candy_expiration_time_title;
 
   @override
-  String get post_comment_action_show_translation =>
-      _fil.post_comment_action_show_translation;
+  String get post_comment_action_show_translation => _fil.post_comment_action_show_translation;
 
   @override
   String get fortune_lucky_direction => _es.fortune_lucky_direction;
@@ -1227,30 +1181,25 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get bonus_candy_policy_title => _fil.bonus_candy_policy_title;
 
   @override
-  String get bonus_candy_example_expiration_date =>
-      _fil.bonus_candy_example_expiration_date;
+  String get bonus_candy_example_expiration_date => _fil.bonus_candy_example_expiration_date;
 
   @override
-  String get label_tab_free_charge_station =>
-      _fil.label_tab_free_charge_station;
+  String get label_tab_free_charge_station => _fil.label_tab_free_charge_station;
 
   @override
   String get error_user_not_authenticated => _fil.error_user_not_authenticated;
 
   @override
-  String get text_dialog_vote_amount_should_not_zero =>
-      _fil.text_dialog_vote_amount_should_not_zero;
+  String get text_dialog_vote_amount_should_not_zero => _fil.text_dialog_vote_amount_should_not_zero;
 
   @override
   String get message_agreement_success => _es.message_agreement_success;
 
   @override
-  String get bonus_candy_earn_period_1_to_14 =>
-      _ko.bonus_candy_earn_period_1_to_14;
+  String get bonus_candy_earn_period_1_to_14 => _ko.bonus_candy_earn_period_1_to_14;
 
   @override
-  String get goonghap_snackbar_need_birthday =>
-      _fil.goonghap_snackbar_need_birthday;
+  String get goonghap_snackbar_need_birthday => _fil.goonghap_snackbar_need_birthday;
 
   @override
   String get error_product_not_found => _id.error_product_not_found;
@@ -1262,31 +1211,25 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get jma_voting_info_text => _id.jma_voting_info_text;
 
   @override
-  String get vote_item_request_search_artist_hint =>
-      _fil.vote_item_request_search_artist_hint;
+  String get vote_item_request_search_artist_hint => _fil.vote_item_request_search_artist_hint;
 
   @override
-  String get bonus_candy_expiration_month_after_next =>
-      _fil.bonus_candy_expiration_month_after_next;
+  String get bonus_candy_expiration_month_after_next => _fil.bonus_candy_expiration_month_after_next;
 
   @override
-  String get post_comment_action_show_original =>
-      _fil.post_comment_action_show_original;
+  String get post_comment_action_show_original => _fil.post_comment_action_show_original;
 
   @override
-  String get goonghap_snackbar_need_profile_save_agree =>
-      _fil.goonghap_snackbar_need_profile_save_agree;
+  String get goonghap_snackbar_need_profile_save_agree => _fil.goonghap_snackbar_need_profile_save_agree;
 
   @override
   String get qna_content_min_length => _fil.qna_content_min_length;
 
   @override
-  String get post_ask_go_to_temporary_save_list =>
-      _fil.post_ask_go_to_temporary_save_list;
+  String get post_ask_go_to_temporary_save_list => _fil.post_ask_go_to_temporary_save_list;
 
   @override
-  String get label_pic_pic_synthesizing_image =>
-      _es.label_pic_pic_synthesizing_image;
+  String get label_pic_pic_synthesizing_image => _es.label_pic_pic_synthesizing_image;
 
   @override
   String get label_tab_buy_star_candy => _ja.label_tab_buy_star_candy;
@@ -1298,31 +1241,25 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get bonus_candy_example_title => _fil.bonus_candy_example_title;
 
   @override
-  String get label_pic_pic_initializing_camera =>
-      _id.label_pic_pic_initializing_camera;
+  String get label_pic_pic_initializing_camera => _id.label_pic_pic_initializing_camera;
 
   @override
-  String get post_write_post_recommend_write =>
-      _fil.post_write_post_recommend_write;
+  String get post_write_post_recommend_write => _fil.post_write_post_recommend_write;
 
   @override
-  String get jma_voting_daily_limit_exhausted =>
-      _fil.jma_voting_daily_limit_exhausted;
+  String get jma_voting_daily_limit_exhausted => _fil.jma_voting_daily_limit_exhausted;
 
   @override
   String get bonus_candy_policy_1 => _id.bonus_candy_policy_1;
 
   @override
-  String get goonghap_perfect_score_exists_title =>
-      _id.goonghap_perfect_score_exists_title;
+  String get goonghap_perfect_score_exists_title => _id.goonghap_perfect_score_exists_title;
 
   @override
-  String get goonghap_duplicate_data_message =>
-      _fil.goonghap_duplicate_data_message;
+  String get goonghap_duplicate_data_message => _fil.goonghap_duplicate_data_message;
 
   @override
-  String get bonus_candy_earn_period_15_to_end =>
-      _fil.bonus_candy_earn_period_15_to_end;
+  String get bonus_candy_earn_period_15_to_end => _fil.bonus_candy_earn_period_15_to_end;
 
   @override
   String get error_message_withdrawal => _fil.error_message_withdrawal;
@@ -1331,12 +1268,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get withdrawal_failed => _es.withdrawal_failed;
 
   @override
-  String get vote_item_request_already_applied_artist =>
-      _id.vote_item_request_already_applied_artist;
+  String get vote_item_request_already_applied_artist => _id.vote_item_request_already_applied_artist;
 
   @override
-  String get bonus_candy_expiration_policy_expiration_date =>
-      _fil.bonus_candy_expiration_policy_expiration_date;
+  String get bonus_candy_expiration_policy_expiration_date => _fil.bonus_candy_expiration_policy_expiration_date;
 
   @override
   String get bonus_candy_example_2_earn => _id.bonus_candy_example_2_earn;
@@ -1348,8 +1283,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_button => _fil.vote_item_request_button;
 
   @override
-  String get bonus_candy_expiration_next_month =>
-      _fil.bonus_candy_expiration_next_month;
+  String get bonus_candy_expiration_next_month => _fil.bonus_candy_expiration_next_month;
 
   @override
   String get error_delete_post => _fil.error_delete_post;
@@ -1358,8 +1292,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get qna_title_min_length => _fil.qna_title_min_length;
 
   @override
-  String get message_update_nickname_success =>
-      _vi.message_update_nickname_success;
+  String get message_update_nickname_success => _vi.message_update_nickname_success;
 
   @override
   String get goonghap_new_ask => _fil.goonghap_new_ask;
@@ -1368,36 +1301,28 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get button_pic_pic_save => _ja.button_pic_pic_save;
 
   @override
-  String get goonghap_perfect_score_exists =>
-      _fil.goonghap_perfect_score_exists;
+  String get goonghap_perfect_score_exists => _fil.goonghap_perfect_score_exists;
 
   @override
-  String get post_minor_board_create_request_message_input =>
-      _fil.post_minor_board_create_request_message_input;
+  String get post_minor_board_create_request_message_input => _fil.post_minor_board_create_request_message_input;
 
   @override
-  String get fortune_purchase_by_star_candy =>
-      _id.fortune_purchase_by_star_candy;
+  String get fortune_purchase_by_star_candy => _id.fortune_purchase_by_star_candy;
 
   @override
-  String get post_minor_board_create_request_message_condition =>
-      _fil.post_minor_board_create_request_message_condition;
+  String get post_minor_board_create_request_message_condition => _fil.post_minor_board_create_request_message_condition;
 
   @override
-  String get post_board_create_request_reviewing =>
-      _fil.post_board_create_request_reviewing;
+  String get post_board_create_request_reviewing => _fil.post_board_create_request_reviewing;
 
   @override
-  String get post_minor_board_create_request_message =>
-      _fil.post_minor_board_create_request_message;
+  String get post_minor_board_create_request_message => _fil.post_minor_board_create_request_message;
 
   @override
-  String get goonghap_purchase_confirm_title =>
-      _fil.goonghap_purchase_confirm_title;
+  String get goonghap_purchase_confirm_title => _fil.goonghap_purchase_confirm_title;
 
   @override
-  String get post_board_create_request_label =>
-      _fil.post_board_create_request_label;
+  String get post_board_create_request_label => _fil.post_board_create_request_label;
 
   @override
   String get qna_status_received => _vi.qna_status_received;
@@ -1427,44 +1352,34 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get weekly_vote_info_link => _es.weekly_vote_info_link;
 
   @override
-  String get label_setting_patch_status_restart_required =>
-      _fil.label_setting_patch_status_restart_required;
+  String get label_setting_patch_status_restart_required => _fil.label_setting_patch_status_restart_required;
 
   @override
-  String get label_setting_patch_status_downloaded =>
-      _ko.label_setting_patch_status_downloaded;
+  String get label_setting_patch_status_downloaded => _ko.label_setting_patch_status_downloaded;
 
   @override
-  String get message_setting_patch_restart_hint =>
-      _ja.message_setting_patch_restart_hint;
+  String get message_setting_patch_restart_hint => _ja.message_setting_patch_restart_hint;
 
   @override
-  String get message_setting_patch_restart_hint_ios =>
-      _es.message_setting_patch_restart_hint_ios;
+  String get message_setting_patch_restart_hint_ios => _es.message_setting_patch_restart_hint_ios;
 
   @override
-  String get message_setting_patch_update_available =>
-      _ko.message_setting_patch_update_available;
+  String get message_setting_patch_update_available => _ko.message_setting_patch_update_available;
 
   @override
-  String get message_setting_patch_update_success =>
-      _es.message_setting_patch_update_success;
+  String get message_setting_patch_update_success => _es.message_setting_patch_update_success;
 
   @override
-  String get message_setting_patch_restarting =>
-      _vi.message_setting_patch_restarting;
+  String get message_setting_patch_restarting => _vi.message_setting_patch_restarting;
 
   @override
-  String get message_setting_patch_status_unavailable =>
-      _ko.message_setting_patch_status_unavailable;
+  String get message_setting_patch_status_unavailable => _ko.message_setting_patch_status_unavailable;
 
   @override
-  String get message_setting_patch_up_to_date =>
-      _id.message_setting_patch_up_to_date;
+  String get message_setting_patch_up_to_date => _id.message_setting_patch_up_to_date;
 
   @override
-  String get message_patch_download_complete =>
-      _vi.message_patch_download_complete;
+  String get message_patch_download_complete => _vi.message_patch_download_complete;
 
   @override
   String get message_patch_applied => _vi.message_patch_applied;
@@ -1482,28 +1397,22 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get button_update => _ja.button_update;
 
   @override
-  String get notification_patch_update_ready_title =>
-      _vi.notification_patch_update_ready_title;
+  String get notification_patch_update_ready_title => _vi.notification_patch_update_ready_title;
 
   @override
-  String get notification_patch_update_ready_body =>
-      _es.notification_patch_update_ready_body;
+  String get notification_patch_update_ready_body => _es.notification_patch_update_ready_body;
 
   @override
-  String get notification_patch_downloaded_title =>
-      _ja.notification_patch_downloaded_title;
+  String get notification_patch_downloaded_title => _ja.notification_patch_downloaded_title;
 
   @override
-  String get notification_patch_downloaded_body =>
-      _es.notification_patch_downloaded_body;
+  String get notification_patch_downloaded_body => _es.notification_patch_downloaded_body;
 
   @override
-  String get vote_item_request_search_initial_guide =>
-      _ja.vote_item_request_search_initial_guide;
+  String get vote_item_request_search_initial_guide => _ja.vote_item_request_search_initial_guide;
 
   @override
-  String get vote_item_request_search_try_other_keyword =>
-      _fil.vote_item_request_search_try_other_keyword;
+  String get vote_item_request_search_try_other_keyword => _fil.vote_item_request_search_try_other_keyword;
 
   @override
   String get goong_hap_title => _ja.goong_hap_title;
@@ -1587,8 +1496,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get patch_button_ok => _ko.patch_button_ok;
 
   @override
-  String get patch_update_ios_message_detailed =>
-      _es.patch_update_ios_message_detailed;
+  String get patch_update_ios_message_detailed => _es.patch_update_ios_message_detailed;
 
   @override
   String get patch_ios_how_to_close_title => _es.patch_ios_how_to_close_title;
@@ -1621,20 +1529,16 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get error_anti_abuse_signup_title => _es.error_anti_abuse_signup_title;
 
   @override
-  String get error_anti_abuse_signup_message =>
-      _fil.error_anti_abuse_signup_message;
+  String get error_anti_abuse_signup_message => _fil.error_anti_abuse_signup_message;
 
   @override
-  String get error_anti_abuse_attendance_message =>
-      _es.error_anti_abuse_attendance_message;
+  String get error_anti_abuse_attendance_message => _es.error_anti_abuse_attendance_message;
 
   @override
-  String get error_anti_abuse_artist_request_title =>
-      _es.error_anti_abuse_artist_request_title;
+  String get error_anti_abuse_artist_request_title => _es.error_anti_abuse_artist_request_title;
 
   @override
-  String get error_anti_abuse_artist_request_message =>
-      _es.error_anti_abuse_artist_request_message;
+  String get error_anti_abuse_artist_request_message => _es.error_anti_abuse_artist_request_message;
 
   @override
   String get button_cs_inquiry => _fil.button_cs_inquiry;
@@ -1646,8 +1550,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get wallet_bonus_star_candy => _ja.wallet_bonus_star_candy;
 
   @override
-  String get bonus_star_candy_expiration_guide =>
-      _vi.bonus_star_candy_expiration_guide;
+  String get bonus_star_candy_expiration_guide => _vi.bonus_star_candy_expiration_guide;
 
   @override
   String get wallet_cotton_candy => _ja.wallet_cotton_candy;
@@ -1671,8 +1574,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get candy_boost_extra_bonus => _fil.candy_boost_extra_bonus;
 
   @override
-  String get candy_boost_late_purchase_explanation =>
-      _fil.candy_boost_late_purchase_explanation;
+  String get candy_boost_late_purchase_explanation => _fil.candy_boost_late_purchase_explanation;
 
   @override
   String get purchase_reward_base => _vi.purchase_reward_base;
@@ -1690,15 +1592,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get purchase_reward_event_bonus => _es.purchase_reward_event_bonus;
 
   @override
-  String get purchase_reward_expected_total =>
-      _fil.purchase_reward_expected_total;
+  String get purchase_reward_expected_total => _fil.purchase_reward_expected_total;
 
   @override
   String get purchase_reward_total_short => _fil.purchase_reward_total_short;
 
   @override
-  String get purchase_reward_estimate_note =>
-      _fil.purchase_reward_estimate_note;
+  String get purchase_reward_estimate_note => _fil.purchase_reward_estimate_note;
 
   @override
   String get ad_reward_pending => _vi.ad_reward_pending;
@@ -1716,12 +1616,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get candy_reward_receipt_confirm => _fil.candy_reward_receipt_confirm;
 
   @override
-  String get candy_reward_receipt_balance_unavailable =>
-      _fil.candy_reward_receipt_balance_unavailable;
+  String get candy_reward_receipt_balance_unavailable => _fil.candy_reward_receipt_balance_unavailable;
 
   @override
-  String get cotton_candy_daily_expiry_notice =>
-      _id.cotton_candy_daily_expiry_notice;
+  String get cotton_candy_daily_expiry_notice => _id.cotton_candy_daily_expiry_notice;
 
   @override
   String get expiry_quantity_currency => _id.expiry_quantity_currency;
@@ -1775,17 +1673,20 @@ class LongestAppLocalizations extends AppLocalizationsEn {
       _es.free_charge_mission_reward(reward);
 
   @override
-  String label_time_ago_day(int day) => _id.label_time_ago_day(day);
+  String label_time_ago_day(int day) =>
+      _id.label_time_ago_day(day);
 
   @override
-  String label_time_ago_hour(int hour) => _fil.label_time_ago_hour(hour);
+  String label_time_ago_hour(int hour) =>
+      _fil.label_time_ago_hour(hour);
 
   @override
   String text_vote_gap_behind_leader(String gap) =>
       _es.text_vote_gap_behind_leader(gap);
 
   @override
-  String text_vote_rank(int rank) => _vi.text_vote_rank(rank);
+  String text_vote_rank(int rank) =>
+      _vi.text_vote_rank(rank);
 
   @override
   String file_too_large_message(String fileName, int maxSize) =>
@@ -1812,7 +1713,8 @@ class LongestAppLocalizations extends AppLocalizationsEn {
       _es.jma_voting_daily_limit_remaining(remaining, max);
 
   @override
-  String label_time_ago_minute(int minute) => _id.label_time_ago_minute(minute);
+  String label_time_ago_minute(int minute) =>
+      _id.label_time_ago_minute(minute);
 
   @override
   String update_required_text(String version) =>
@@ -1823,7 +1725,8 @@ class LongestAppLocalizations extends AppLocalizationsEn {
       _fil.jma_voting_star_candy_shortage(shortage);
 
   @override
-  String text_achievement(int count) => _fil.text_achievement(count);
+  String text_achievement(int count) =>
+      _fil.text_achievement(count);
 
   @override
   String post_replying_comment(String nickname) =>
@@ -1874,20 +1777,12 @@ class LongestAppLocalizations extends AppLocalizationsEn {
       _fil.candy_reward_receipt_expiry(date);
 
   @override
-  String candy_reward_receipt_semantics(
-    String currency,
-    String granted,
-    String balance,
-  ) => _fil.candy_reward_receipt_semantics(currency, granted, balance);
+  String candy_reward_receipt_semantics(String currency, String granted, String balance) =>
+      _fil.candy_reward_receipt_semantics(currency, granted, balance);
 
   @override
-  String candy_reward_receipt_semantics_balance_unavailable(
-    String currency,
-    String granted,
-  ) => _fil.candy_reward_receipt_semantics_balance_unavailable(
-    currency,
-    granted,
-  );
+  String candy_reward_receipt_semantics_balance_unavailable(String currency, String granted) =>
+      _fil.candy_reward_receipt_semantics_balance_unavailable(currency, granted);
 
   @override
   String expiring_today_cotton_only(String cotton) =>

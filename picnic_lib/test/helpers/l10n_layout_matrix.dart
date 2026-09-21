@@ -29,8 +29,11 @@ const l10nLayoutCases = <L10nCase>[
   L10nCase('longest', Locale('en'), longest: true),
 ];
 
-/// 2.0 is Android's largest font setting on most devices.
-const l10nLayoutTextScales = <double>[1.0, 1.3, 2.0];
+/// 2.0 is Android's largest font setting on most devices; 2.6 covers the
+/// larger iOS accessibility sizes (PICNIC-2746). The app does not clamp the
+/// system text scale. iOS goes up to about 3.1, where the vote achieve page's
+/// fixed header alone outgrows a 640-tall screen — tracked separately.
+const l10nLayoutTextScales = <double>[1.0, 1.3, 2.0, 2.6];
 
 /// Runs [pump] and returns every `RenderFlex overflowed` it reported.
 ///
