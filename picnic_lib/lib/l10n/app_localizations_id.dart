@@ -226,15 +226,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get dialog_title_ads_exhausted => 'Habis semua iklan';
 
   @override
-  String get dialog_title_vote_fail => 'Pemungutan Suara Gagal';
+  String get dialog_title_vote_fail => 'Vote Gagal';
 
   @override
-  String get dialog_will_delete_star_candy =>
-      'Permen Bintang yang akan dihapus';
+  String get dialog_will_delete_star_candy => 'Star Candy yang akan dihapus';
 
   @override
   String get dialog_withdraw_message =>
-      'Jika Anda membatalkan keanggotaan Anda, permen bintang dan informasi akun Anda di Picnic akan segera dihapus, dan informasi serta data Anda yang ada tidak akan dipulihkan saat Anda bergabung kembali.';
+      'Jika Anda menghapus akun, Star Candy dan informasi akun Anda di Picnic akan segera dihapus, dan informasi serta data yang ada tidak dapat dipulihkan saat Anda mendaftar kembali.';
 
   @override
   String get dialog_withdraw_title => 'Apakah Anda yakin ingin pergi?';
@@ -366,11 +365,11 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_ads_get_star_candy => 'Dapatkan Permen Bintang dari Iklan';
 
   @override
-  String get label_ads_get_cotton_candy => 'Dapatkan Permen Kapas dari Iklan';
+  String get label_ads_get_cotton_candy => 'Dapatkan Cotton Candy dari Iklan';
 
   @override
   String free_charge_ads_reward(String reward) {
-    return '+Permen Kapas $reward diperoleh';
+    return '+Cotton Candy $reward diperoleh';
   }
 
   @override
@@ -426,16 +425,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_button_agreement => 'Menerima';
 
   @override
-  String get label_button_close => '닫기';
+  String get label_button_close => 'Tutup';
 
   @override
-  String get label_button_recharge => 'Pengisian daya';
+  String get label_button_recharge => 'Isi ulang';
 
   @override
   String get label_button_view_policy => 'Lihat Kebijakan';
 
   @override
-  String get label_button_vote => 'Pilih';
+  String get label_button_vote => 'Vote';
 
   @override
   String get label_celeb_gallery => 'Galeri Artis';
@@ -444,7 +443,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_celeb_recommend => 'Rekomendasi artis';
 
   @override
-  String get label_checkbox_entire_use => 'Penggunaan Penuh';
+  String get label_checkbox_entire_use => 'Gunakan Semua';
 
   @override
   String get label_draw_image => 'Kesempatan untuk memenangkan gambar acak';
@@ -465,7 +464,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_home_current_vote => 'Vote yang Sedang Berlangsung';
 
   @override
-  String get label_input_input => 'Masukan';
+  String get label_input_input => 'Masukkan';
 
   @override
   String get label_korean_recommendation => 'Pilihan Korea';
@@ -494,11 +493,11 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get label_mission_get_bonus_star_candy =>
-      'Dapatkan Permen Bintang Bonus dari Misi';
+      'Dapatkan Bonus Star Candy dari Misi';
 
   @override
   String free_charge_mission_reward(String reward) {
-    return '+Permen Bintang Bonus $reward diperoleh';
+    return '+Bonus Star Candy $reward diperoleh';
   }
 
   @override
@@ -514,7 +513,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_mypage_logout => 'Keluar';
 
   @override
-  String get label_mypage_my_artist => 'Seniman Saya';
+  String get label_mypage_my_artist => 'Artis Saya';
 
   @override
   String get label_mypage_no_artist => 'Tidak ada artis';
@@ -526,7 +525,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_mypage_notifications => 'Kotak Notifikasi';
 
   @override
-  String get label_mypage_picnic_id => 'ID';
+  String get label_mypage_picnic_id => 'ID Picnic';
 
   @override
   String get label_mypage_privacy_policy => 'Kebijakan Privasi';
@@ -541,10 +540,10 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_mypage_terms_of_use => 'Ketentuan Penggunaan';
 
   @override
-  String get label_mypage_vote_history => 'Riwayat Pemungutan Suara StarCandy';
+  String get label_mypage_vote_history => 'Riwayat Vote Star Candy';
 
   @override
-  String get label_mypage_withdrawal => 'Penarikan';
+  String get label_mypage_withdrawal => 'Hapus akun';
 
   @override
   String get label_no_celeb => 'Anda belum memiliki artis yang ditandai!';
@@ -562,7 +561,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_reply => 'Membalas balasan';
 
   @override
-  String get label_retry => 'Mencoba kembali';
+  String get label_retry => 'Coba lagi';
 
   @override
   String get label_setting_alarm => 'Pemberitahuan';
@@ -577,7 +576,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_setting_event_alarm => 'Pemberitahuan acara';
 
   @override
-  String get label_setting_event_alarm_desc => 'Peristiwa dan kejadian.';
+  String get label_setting_event_alarm_desc => 'Event dan kabar terbaru.';
 
   @override
   String get label_setting_language => 'Pengaturan bahasa';
@@ -598,22 +597,22 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_setting_storage => 'Mengelola penyimpanan';
 
   @override
-  String get label_star_candy_pouch => 'Kantong Permen Bintang';
+  String get label_star_candy_pouch => 'Kantong Star Candy';
 
   @override
   String get label_tabbar_vote_active => 'Sedang Berlangsung';
 
   @override
-  String get label_tabbar_vote_end => 'akhir';
+  String get label_tabbar_vote_end => 'Berakhir';
 
   @override
   String label_time_ago_day(int day) {
-    return '$day beberapa hari yang lalu';
+    return '$day hari yang lalu';
   }
 
   @override
   String label_time_ago_hour(int hour) {
-    return '$hour beberapa jam yang lalu';
+    return '$hour jam yang lalu';
   }
 
   @override
@@ -626,16 +625,16 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_unlimited_rewards => 'Hadiah tak terbatas';
 
   @override
-  String get label_vote_end => 'Tutup jajak pendapat';
+  String get label_vote_end => 'Vote Ditutup';
 
   @override
   String get label_vote_reward_list => 'Daftar hadiah';
 
   @override
-  String get label_vote_screen_title => 'Pemungutan suara';
+  String get label_vote_screen_title => 'Vote';
 
   @override
-  String get label_vote_upcoming => 'Sampai pemungutan suara dimulai';
+  String get label_vote_upcoming => 'Sampai vote dimulai';
 
   @override
   String get label_watch_ads_short => 'Menonton';
@@ -648,15 +647,15 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get message_noitem_vote_active =>
-      'Saat ini tidak ada jajak pendapat yang aktif.';
+      'Saat ini tidak ada vote yang sedang berlangsung.';
 
   @override
   String get message_noitem_vote_end =>
-      'Saat ini tidak ada jajak pendapat tertutup.';
+      'Saat ini tidak ada vote yang telah berakhir.';
 
   @override
   String get message_noitem_vote_upcoming =>
-      'Saat ini tidak ada jajak pendapat yang akan datang.';
+      'Saat ini tidak ada vote yang akan datang.';
 
   @override
   String get message_pic_pic_save_fail => 'Menyimpan gambar gagal.';
@@ -669,11 +668,10 @@ class AppLocalizationsId extends AppLocalizations {
       'Tidak dapat memuat daftar produk. Silakan coba lagi nanti.';
 
   @override
-  String get message_vote_is_ended => 'Jajak pendapat ditutup';
+  String get message_vote_is_ended => 'Vote Ditutup';
 
   @override
-  String get message_vote_is_upcoming =>
-      'Ini adalah pemungutan suara yang akan datang.';
+  String get message_vote_is_upcoming => 'Ini adalah vote yang akan datang.';
 
   @override
   String get my_info => 'Informasi Saya';
@@ -695,7 +693,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get page_title_post_write => 'Membuat postingan';
 
   @override
-  String get page_title_vote_detail => 'Pilih';
+  String get page_title_vote_detail => 'Vote';
 
   @override
   String get popup_label_delete => 'Menghapus';
@@ -892,7 +890,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get purchase_initializing_message =>
-      'Pembelian sedang berlangsung. Mohon tunggu sebentar.';
+      'Sedang menginisialisasi. Silakan coba lagi sebentar lagi.';
 
   @override
   String get purchase_cancelled_message => 'Pembelian telah dibatalkan.';
@@ -905,13 +903,13 @@ class AppLocalizationsId extends AppLocalizations {
       'Ini adalah jendela pembayaran bagi mereka yang tidak dapat membayar dengan aplikasi.\\n Harap salin ID acak terlebih dahulu.\\n Setelah menyalinnya, klik tombol di bawah ini untuk melanjutkan pembayaran.';
 
   @override
-  String get qna_content => 'Content';
+  String get qna_content => 'Isi';
 
   @override
-  String get qna_create_page_title => 'Buat Konsultasi';
+  String get qna_create_page_title => 'Buat Pertanyaan';
 
   @override
-  String get qna_no_inquiries => 'No inquiry history';
+  String get qna_no_inquiries => 'Tidak ada riwayat pertanyaan';
 
   @override
   String get qna_status_closed => 'Ditutup';
@@ -920,7 +918,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_status_open => 'Open';
 
   @override
-  String get qna_submit_button => 'Daftar Konsultasi';
+  String get qna_submit_button => 'Kirim Pertanyaan';
 
   @override
   String get qna_title => 'Judul';
@@ -929,7 +927,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get replies => 'Komentar';
 
   @override
-  String get reward => 'Penghargaan';
+  String get reward => 'Hadiah';
 
   @override
   String get save => 'Simpan';
@@ -968,7 +966,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Arahkan ke rumah artis yang dipilih.';
 
   @override
-  String get text_need_recharge => 'Membutuhkan pengisian daya.';
+  String get text_need_recharge => 'Perlu isi ulang.';
 
   @override
   String get text_no_search_result => 'Tidak ada hasil pencarian.';
@@ -977,7 +975,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get text_purchase_vat_included => '*Harga sudah termasuk PPN.';
 
   @override
-  String get text_vote_complete => 'Pemungutan suara selesai';
+  String get text_vote_complete => 'Vote selesai';
 
   @override
   String text_vote_gap_behind_leader(String gap) {
@@ -1009,7 +1007,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get toast_max_five_celeb =>
-      'Anda dapat menambahkan hingga lima artis Anda sendiri.';
+      'Anda dapat menambahkan hingga lima artis.';
 
   @override
   String get update_button => 'Memperbarui';
@@ -1028,7 +1026,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_item_request_can_apply => 'Dapat diajukan';
 
   @override
-  String get vote_item_request_search_artist => 'Cari Seniman';
+  String get vote_item_request_search_artist => 'Cari Artis';
 
   @override
   String get vote_item_request_status => 'Status permintaan';
@@ -1037,36 +1035,35 @@ class AppLocalizationsId extends AppLocalizations {
   String get vote_item_request_status_approved => 'Disetujui';
 
   @override
-  String get vote_item_request_status_pending => 'Menunggu';
+  String get vote_item_request_status_pending => 'Menunggu persetujuan';
 
   @override
   String get vote_item_request_status_rejected => 'Ditolak';
 
   @override
-  String get vote_item_request_submit => 'Kirim';
+  String get vote_item_request_submit => 'Ajukan';
 
   @override
-  String get vote_item_request_title =>
-      'Permintaan Pemungutan Suara untuk Seniman';
+  String get vote_item_request_title => 'Ajukan Kandidat Vote';
 
   @override
-  String get vote_share_message => 'Voted!';
+  String get vote_share_message => 'Sudah vote!';
 
   @override
-  String get vote_completed_message => 'Aku sudah memilih!';
+  String get vote_completed_message => 'Aku sudah vote!';
 
   @override
   String get voting_share_benefit_text =>
-      'Dapatkan 1 bonus permen bintang untuk setiap 100 suara!';
+      'Dapatkan 1 Bonus Star Candy untuk setiap 100 suara!';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'Batal';
 
   @override
-  String get confirm => 'Confirm';
+  String get confirm => 'Konfirmasi';
 
   @override
-  String get loading => 'Loading...';
+  String get loading => 'Memuat...';
 
   @override
   String get retry => 'Coba lagi';
@@ -1075,15 +1072,15 @@ class AppLocalizationsId extends AppLocalizations {
   String get update => 'Update';
 
   @override
-  String get ban_title => 'Akun Ditangguhkan';
+  String get ban_title => 'Penggunaan perangkat ditangguhkan sementara';
 
   @override
   String get ban_message =>
-      'Akun Anda telah ditangguhkan sementara karena aktivitas yang tidak semestinya.';
+      'Penggunaan perangkat ini ditangguhkan sementara karena terdeteksi pelanggaran kebijakan.';
 
   @override
   String get ban_contact =>
-      'Jika ada pertanyaan, silakan hubungi layanan pelanggan.';
+      'Jika Anda yakin ini adalah kesalahan, silakan hubungi layanan pelanggan.';
 
   @override
   String get goonghap_empty_state_title => 'Belum ada informasi Goong-Hap';
@@ -1102,13 +1099,13 @@ class AppLocalizationsId extends AppLocalizations {
   String get goonghap_login_button => 'Masuk';
 
   @override
-  String get network_error_title => 'Network Error';
+  String get network_error_title => 'Kesalahan jaringan';
 
   @override
-  String get network_error_message => 'Please check your internet connection.';
+  String get network_error_message => 'Silakan periksa koneksi internet Anda.';
 
   @override
-  String get notice_pinned => 'Pinned';
+  String get notice_pinned => 'Disematkan';
 
   @override
   String get title_dialog_error => 'Kesalahan';
@@ -1194,11 +1191,11 @@ class AppLocalizationsId extends AppLocalizations {
       'Silakan masukkan konten minimal 10 karakter.';
 
   @override
-  String get qna_attach_media => 'Attach Photo/Video';
+  String get qna_attach_media => 'Lampirkan Foto/Video';
 
   @override
   String file_too_large_message(String fileName, int maxSize) {
-    return '$fileName exceeds the ${maxSize}MB size limit.';
+    return 'Ukuran file $fileName tidak boleh melebihi ${maxSize}MB.';
   }
 
   @override
@@ -1211,7 +1208,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_cannot_send_message_closed =>
-      'Konsultasi ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.';
+      'Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.';
 
   @override
   String get qna_message_sent_success => 'Pesan berhasil dikirim.';
@@ -1226,7 +1223,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_add_media_tooltip => 'Tambahkan Media';
 
   @override
-  String get qna_load_fail_title => 'Gagal memuat konsultasi';
+  String get qna_load_fail_title => 'Gagal memuat riwayat pertanyaan';
 
   @override
   String get qna_category_label => 'Kategori';
@@ -1238,7 +1235,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get qna_message_hint => 'Masukkan pesan';
 
   @override
-  String get label_my_vote_history => 'Riwayat Voting Saya';
+  String get label_my_vote_history => 'Riwayat Vote Saya';
 
   @override
   String get bonus_candy_example_2_expire =>
@@ -1277,7 +1274,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get goonghap_time_slot_unknown => 'Tidak tahu';
 
   @override
-  String get label_popup_hide_7days => 'Don\'t view for 7 days';
+  String get label_popup_hide_7days => 'Jangan tampilkan selama 7 hari';
 
   @override
   String get expiring_soon_bonus_candy => 'Bonus Kedaluwarsa';
@@ -1347,7 +1344,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get error_message_login_failed => 'Terjadi kesalahan saat login.';
 
   @override
-  String get dialog_withdraw_button_ok => 'Berhenti berlangganan';
+  String get dialog_withdraw_button_ok => 'Hapus akun';
 
   @override
   String get goonghap_birthtime_subtitle => '(Opsional)';
@@ -1362,7 +1359,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get bonus_candy_example_expiration_date => 'Tanggal Kedaluwarsa';
 
   @override
-  String get label_tab_free_charge_station => 'Stasiun pengisian daya gratis';
+  String get label_tab_free_charge_station => 'Stasiun isi ulang gratis';
 
   @override
   String get error_user_not_authenticated =>
@@ -1393,7 +1390,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Kami tidak dapat menemukan produk yang dibeli.';
 
   @override
-  String get label_popup_close => 'close';
+  String get label_popup_close => 'Tutup';
 
   @override
   String get jma_voting_info_text =>
@@ -1414,7 +1411,7 @@ class AppLocalizationsId extends AppLocalizations {
       'Berikan persetujuan Anda untuk menyimpan profil Anda.';
 
   @override
-  String get qna_content_min_length => 'Isi konsultasi minimal 10 karakter';
+  String get qna_content_min_length => 'Isi pertanyaan minimal 10 karakter';
 
   @override
   String get post_ask_go_to_temporary_save_list => 'Ingin membuka daftar Draf?';
@@ -1423,7 +1420,7 @@ class AppLocalizationsId extends AppLocalizations {
   String get label_pic_pic_synthesizing_image => 'Mengkomposisikan gambar...';
 
   @override
-  String get label_tab_buy_star_candy => 'Beli permen bintang';
+  String get label_tab_buy_star_candy => 'Beli Star Candy';
 
   @override
   String jma_voting_max_votes_exceeded(int maxVotes) {
@@ -1465,7 +1462,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String label_time_ago_minute(int minute) {
-    return '$minute beberapa menit yang lalu';
+    return '$minute menit yang lalu';
   }
 
   @override
@@ -1483,8 +1480,7 @@ class AppLocalizationsId extends AppLocalizations {
       '15 00:00:00 ~ Akhir bulan 23:59:59 (KST)';
 
   @override
-  String get error_message_withdrawal =>
-      'Anggota yang telah berhenti berlangganan.';
+  String get error_message_withdrawal => 'Akun telah dihapus.';
 
   @override
   String text_achievement(int count) {
@@ -1492,7 +1488,7 @@ class AppLocalizationsId extends AppLocalizations {
   }
 
   @override
-  String get withdrawal_success => 'Berhenti berlangganan berhasil diproses.';
+  String get withdrawal_success => 'Penghapusan akun berhasil diproses.';
 
   @override
   String get withdrawal_failed =>
@@ -1511,7 +1507,8 @@ class AppLocalizationsId extends AppLocalizations {
       'Bulan __MONTH__ tgl 20, 14:00 (KST)';
 
   @override
-  String get message_agreement_fail => 'Terms agreement required';
+  String get message_agreement_fail =>
+      'Persetujuan terhadap ketentuan diperlukan';
 
   @override
   String get vote_item_request_button => 'Rekomendasikan Kandidat';
@@ -1573,7 +1570,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get qna_auto_close_after_14_days_notice =>
-      'Jika tidak ada percakapan tambahan selama 14 hari, konsultasi akan ditutup secara otomatis.';
+      'Jika tidak ada percakapan tambahan selama 14 hari, pertanyaan akan ditutup secara otomatis.';
 
   @override
   String get qna_status_received => 'Diterima';
@@ -1598,14 +1595,14 @@ class AppLocalizationsId extends AppLocalizations {
   String get ad_reward_success_message => 'Hadiah telah dikreditkan.';
 
   @override
-  String get weekly_vote_info_title => '🎖️ Panduan Pemungutan Suara Mingguan';
+  String get weekly_vote_info_title => '🎖️ Panduan Vote Mingguan';
 
   @override
   String get weekly_vote_info_body =>
-      'Hall of Fame Award Picnic dibuka setiap minggu!\n\nSetiap pemenang mingguan akan otomatis terdaftar sebagai kandidat \'Hall of Fame Award\' akhir tahun,\n\ndengan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Setelah seorang artis menang, ia tidak lagi menjadi kandidat voting mingguan pada tahun tersebut.)';
+      'Hall of Fame Picnic yang diadakan setiap minggu!\n\nSetiap artis pemenang mingguan akan otomatis terdaftar sebagai kandidat \'Hall of Fame\' akhir tahun,\n\ndan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Artis yang sudah menang sekali tidak akan menjadi kandidat Vote Mingguan pada tahun tersebut.)';
 
   @override
-  String get weekly_vote_info_link => 'Apa itu Weekly Vote?';
+  String get weekly_vote_info_link => 'Apa itu Vote Mingguan?';
 
   @override
   String get label_setting_patch_section_title => 'Patch status';
@@ -1636,11 +1633,12 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String label_setting_patch_status_current_patch(int patchNumber) {
-    return 'Current patch: $patchNumber';
+    return 'Patch saat ini: $patchNumber';
   }
 
   @override
-  String get label_setting_patch_status_none => 'No patch applied';
+  String get label_setting_patch_status_none =>
+      'Tidak ada patch yang diterapkan';
 
   @override
   String get message_setting_patch_restart_hint =>
@@ -1725,7 +1723,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get vote_item_request_search_initial_guide =>
-      'Cari artis untuk diajukan';
+      'Cari artis yang ingin diajukan';
 
   @override
   String get vote_item_request_search_try_other_keyword =>
@@ -1879,7 +1877,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get error_anti_abuse_signup_message =>
-      'Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi customer support.';
+      'Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi layanan pelanggan.';
 
   @override
   String get error_anti_abuse_attendance_title => 'Absensi';
@@ -1893,10 +1891,10 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get error_anti_abuse_artist_request_message =>
-      'Saat ini tidak bisa menambah permintaan artis. Silakan coba lagi nanti.';
+      'Saat ini tidak dapat mengajukan permintaan penambahan artis. Silakan coba lagi nanti.';
 
   @override
-  String get button_cs_inquiry => 'Hubungi Support';
+  String get button_cs_inquiry => 'Hubungi Layanan Pelanggan';
 
   @override
   String get wallet_star_candy => 'Star Candy';
