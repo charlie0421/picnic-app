@@ -260,7 +260,7 @@
   "@dialog_content_login_required": {
     "description": "Auto-generated metadata for key 'dialog_content_login_required'."
   },
-  "dialog_message_can_resignup": "Khi bạn có thể tham gia lại nếu bạn hủy bỏ tư cách thành viên của mình ngay bây giờ?",
+  "dialog_message_can_resignup": "Nếu hủy tài khoản bây giờ, khi nào tôi có thể đăng ký lại?",
   "@dialog_message_can_resignup": {
     "description": "Auto-generated metadata for key 'dialog_message_can_resignup'."
   },
@@ -276,15 +276,15 @@
   "@dialog_title_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
   },
-  "dialog_title_vote_fail": "Bỏ phiếu thất bại",
+  "dialog_title_vote_fail": "Bình chọn thất bại",
   "@dialog_title_vote_fail": {
     "description": "Auto-generated metadata for key 'dialog_title_vote_fail'."
   },
-  "dialog_will_delete_star_candy": "Star Star Candies bị xóa",
+  "dialog_will_delete_star_candy": "Star Candy sẽ bị xóa",
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_message": "Nếu bạn hủy tư cách thành viên của mình, thông tin về Candy và tài khoản ngôi sao của bạn trên Picnic sẽ bị xóa ngay lập tức và thông tin và dữ liệu hiện tại của bạn sẽ không được khôi phục khi bạn tham gia lại.",
+  "dialog_withdraw_message": "Nếu bạn hủy tài khoản, Star Candy và thông tin tài khoản Picnic sẽ bị xóa ngay lập tức; khi đăng ký lại, thông tin và dữ liệu trước đây sẽ không được khôi phục.",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
   },
@@ -456,11 +456,11 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_get_cotton_candy": "Nhận Kẹo Bông Gòn từ quảng cáo",
+  "label_ads_get_cotton_candy": "Nhận Cotton Candy từ quảng cáo",
   "@label_ads_get_cotton_candy": {
     "description": "Free charge station ads section title."
   },
-  "free_charge_ads_reward": "+Kẹo Bông Gòn {reward} đã nhận",
+  "free_charge_ads_reward": "+{reward} Cotton Candy đã nhận",
   "@free_charge_ads_reward": {
     "description": "Reward copy for an ad in the free charge station.",
     "placeholders": {
@@ -536,7 +536,7 @@
   "@label_article_comment_empty": {
     "description": "Auto-generated metadata for key 'label_article_comment_empty'."
   },
-  "label_asia_recommendation": "Châu Á chọn",
+  "label_asia_recommendation": "Lựa chọn châu Á",
   "@label_asia_recommendation": {
     "description": "Auto-generated metadata for key 'label_asia_recommendation'."
   },
@@ -552,7 +552,7 @@
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_recharge": "Tính phí",
+  "label_button_recharge": "Nạp",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
   },
@@ -560,7 +560,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "Bỏ phiếu",
+  "label_button_vote": "Bình chọn",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
@@ -572,7 +572,7 @@
   "@label_celeb_recommend": {
     "description": "Auto-generated metadata for key 'label_celeb_recommend'."
   },
-  "label_checkbox_entire_use": "Sử dụng đầy đủ",
+  "label_checkbox_entire_use": "Dùng tất cả",
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
@@ -600,7 +600,7 @@
   "@label_home_current_vote": {
     "description": "Auto-generated metadata for key 'label_home_current_vote'."
   },
-  "label_input_input": "Đầu vào",
+  "label_input_input": "Nhập",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
   },
@@ -636,11 +636,11 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
-  "label_mission_get_bonus_star_candy": "Nhận Kẹo Sao Thưởng từ nhiệm vụ",
+  "label_mission_get_bonus_star_candy": "Nhận Bonus Star Candy từ nhiệm vụ",
   "@label_mission_get_bonus_star_candy": {
     "description": "Free charge station missions section title."
   },
-  "free_charge_mission_reward": "+Kẹo Sao Thưởng {reward} đã nhận",
+  "free_charge_mission_reward": "+{reward} Bonus Star Candy đã nhận",
   "@free_charge_mission_reward": {
     "description": "Reward copy for a mission in the free charge station.",
     "placeholders": {
@@ -673,7 +673,7 @@
   "@label_mypage_no_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_no_artist'."
   },
-  "label_mypage_notice": "Để ý",
+  "label_mypage_notice": "Thông báo",
   "@label_mypage_notice": {
     "description": "Auto-generated metadata for key 'label_mypage_notice'."
   },
@@ -681,7 +681,7 @@
   "@label_mypage_notifications": {
     "description": "Auto-generated metadata for key 'label_mypage_notifications'."
   },
-  "label_mypage_picnic_id": "ID dã ngoại",
+  "label_mypage_picnic_id": "ID Picnic",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
   },
@@ -701,11 +701,11 @@
   "@label_mypage_terms_of_use": {
     "description": "Auto-generated metadata for key 'label_mypage_terms_of_use'."
   },
-  "label_mypage_vote_history": "Lịch sử bỏ phiếu của Starcandy",
+  "label_mypage_vote_history": "Lịch sử bình chọn bằng Star Candy",
   "@label_mypage_vote_history": {
     "description": "Auto-generated metadata for key 'label_mypage_vote_history'."
   },
-  "label_mypage_withdrawal": "Rút tiền",
+  "label_mypage_withdrawal": "Xóa tài khoản",
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
@@ -749,7 +749,7 @@
   "@label_setting_event_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm'."
   },
-  "label_setting_event_alarm_desc": "Sự kiện và sự kiện.",
+  "label_setting_event_alarm_desc": "Sự kiện và tin tức.",
   "@label_setting_event_alarm_desc": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm_desc'."
   },
@@ -757,7 +757,7 @@
   "@label_setting_language": {
     "description": "Auto-generated metadata for key 'label_setting_language'."
   },
-  "label_setting_push_alarm": "Đẩy thông báo",
+  "label_setting_push_alarm": "Thông báo đẩy",
   "@label_setting_push_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_push_alarm'."
   },
@@ -769,7 +769,7 @@
   "@label_setting_recent_version_up_to_date": {
     "description": "Auto-generated metadata for key 'label_setting_recent_version_up_to_date'."
   },
-  "label_setting_remove_cache": "Xóa bộ nhớ bộ nhớ cache",
+  "label_setting_remove_cache": "Xóa bộ nhớ đệm",
   "@label_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'label_setting_remove_cache'."
   },
@@ -777,15 +777,15 @@
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
   },
-  "label_star_candy_pouch": "Túi kẹo sao",
+  "label_star_candy_pouch": "Túi Star Candy",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
-  "label_tabbar_vote_active": "Trong tiến trình",
+  "label_tabbar_vote_active": "Đang diễn ra",
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_end": "Đóng",
+  "label_tabbar_vote_end": "Đã kết thúc",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
   },
@@ -817,7 +817,7 @@
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_vote_end": "Đóng cuộc thăm dò ý kiến",
+  "label_vote_end": "Kết thúc bình chọn",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
   },
@@ -825,15 +825,15 @@
   "@label_vote_reward_list": {
     "description": "Auto-generated metadata for key 'label_vote_reward_list'."
   },
-  "label_vote_screen_title": "Bỏ phiếu",
+  "label_vote_screen_title": "Bình chọn",
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_upcoming": "Cho đến khi bỏ phiếu bắt đầu",
+  "label_vote_upcoming": "Cho đến khi bình chọn bắt đầu",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
   },
-  "label_watch_ads_short": "Đồng hồ",
+  "label_watch_ads_short": "Xem",
   "@label_watch_ads_short": {
     "description": "Auto-generated metadata for key 'label_watch_ads_short'."
   },
@@ -866,11 +866,11 @@
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
   "message_store_products_load_failed": "Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.",
-  "message_vote_is_ended": "Cuộc thăm dò ý kiến ​​đóng cửa",
+  "message_vote_is_ended": "Bình chọn đã kết thúc",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
   },
-  "message_vote_is_upcoming": "Đây là một cuộc bỏ phiếu sắp tới.",
+  "message_vote_is_upcoming": "Đây là một cuộc bình chọn sắp tới.",
   "@message_vote_is_upcoming": {
     "description": "Auto-generated metadata for key 'message_vote_is_upcoming'."
   },
@@ -898,7 +898,7 @@
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_vote_detail": "Bỏ phiếu",
+  "page_title_vote_detail": "Bình chọn",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
   },
@@ -1130,7 +1130,7 @@
   "@purchase_confirm_message": {
     "description": "Auto-generated metadata for key 'purchase_confirm_message'."
   },
-  "purchase_confirm_title": "Mua xác nhận",
+  "purchase_confirm_title": "Xác nhận mua hàng",
   "@purchase_confirm_title": {
     "description": "Auto-generated metadata for key 'purchase_confirm_title'."
   },
@@ -1230,7 +1230,7 @@
   "@text_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'text_moveto_celeb_gallery'."
   },
-  "text_need_recharge": "Yêu cầu tính phí.",
+  "text_need_recharge": "Cần nạp thêm.",
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
@@ -1242,7 +1242,7 @@
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_vote_complete": "Bỏ phiếu hoàn thành",
+  "text_vote_complete": "Đã bình chọn",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
@@ -1266,7 +1266,7 @@
   "@text_vote_rank_in_reward": {
     "description": "Auto-generated metadata for key 'text_vote_rank_in_reward'."
   },
-  "text_vote_where_is_my_bias": "Yêu thích của tôi ở đâu?",
+  "text_vote_where_is_my_bias": "Nghệ sĩ yêu thích của tôi ở đâu?",
   "@text_vote_where_is_my_bias": {
     "description": "Auto-generated metadata for key 'text_vote_where_is_my_bias'."
   },
@@ -1286,7 +1286,7 @@
   "@toast_bookmark_removed": {
     "description": "Toast message when bookmark is removed successfully."
   },
-  "toast_max_five_celeb": "Bạn có thể thêm tối đa năm nghệ sĩ của riêng bạn.",
+  "toast_max_five_celeb": "Bạn có thể thêm tối đa 5 nghệ sĩ.",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
   },
@@ -1338,7 +1338,7 @@
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_share_message": "Bình chọn!",
+  "vote_share_message": "Đã bình chọn!",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
@@ -1346,7 +1346,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Nhận 1 Candy Star Bonus cho mỗi 100 phiếu bầu!",
+  "voting_share_benefit_text": "Nhận 1 Bonus Star Candy cho mỗi 100 lượt bình chọn!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1370,15 +1370,15 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Tài khoản bị đình chỉ",
+  "ban_title": "Việc sử dụng thiết bị đã tạm thời bị đình chỉ",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Tài khoản của bạn đã tạm thời bị đình chỉ do hoạt động không phù hợp.",
+  "ban_message": "Việc sử dụng thiết bị này đã tạm thời bị đình chỉ vì phát hiện vi phạm chính sách.",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Vui lòng liên hệ với dịch vụ khách hàng nếu bạn có bất kỳ câu hỏi.",
+  "ban_contact": "Nếu cho rằng đây là nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ.",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
@@ -1434,7 +1434,7 @@
   "@vote_item_request_waiting": {
     "description": "Auto-generated metadata for key 'vote_item_request_waiting'."
   },
-  "capture_failed": "Bắt giữ thất bại",
+  "capture_failed": "Chụp ảnh màn hình thất bại",
   "@capture_failed": {
     "description": "Auto-generated metadata for key 'capture_failed'."
   },
@@ -1446,39 +1446,39 @@
   "@qna_list_title": {
     "description": "Auto-generated metadata for key 'qna_list_title'."
   },
-  "starCandy100": "Candy 100 sao",
+  "starCandy100": "100 Star Candy",
   "@starCandy100": {
     "description": "Auto-generated metadata for key 'starCandy100'."
   },
-  "starCandy200": "Candy 200 sao",
+  "starCandy200": "200 Star Candy",
   "@starCandy200": {
     "description": "Auto-generated metadata for key 'starCandy200'."
   },
-  "starCandy600": "Kẹo 600 sao",
+  "starCandy600": "600 Star Candy",
   "@starCandy600": {
     "description": "Auto-generated metadata for key 'starCandy600'."
   },
-  "starCandy1000": "1.000 sao kẹo",
+  "starCandy1000": "1.000 Star Candy",
   "@starCandy1000": {
     "description": "Auto-generated metadata for key 'starCandy1000'."
   },
-  "starCandy2000": "2.000 sao kẹo",
+  "starCandy2000": "2.000 Star Candy",
   "@starCandy2000": {
     "description": "Auto-generated metadata for key 'starCandy2000'."
   },
-  "starCandy3000": "3.000 sao kẹo",
+  "starCandy3000": "3.000 Star Candy",
   "@starCandy3000": {
     "description": "Auto-generated metadata for key 'starCandy3000'."
   },
-  "starCandy4000": "4.000 sao kẹo",
+  "starCandy4000": "4.000 Star Candy",
   "@starCandy4000": {
     "description": "Auto-generated metadata for key 'starCandy4000'."
   },
-  "starCandy5000": "5.000 sao kẹo",
+  "starCandy5000": "5.000 Star Candy",
   "@starCandy5000": {
     "description": "Auto-generated metadata for key 'starCandy5000'."
   },
-  "update_required_message": "Yêu cầu cập nhật ứng dụng",
+  "update_required_message": "Cần cập nhật ứng dụng",
   "@update_required_message": {
     "description": "Auto-generated metadata for key 'update_required_message'."
   },
@@ -1545,11 +1545,11 @@
       }
     }
   },
-  "qna_submit_fail": "Không gửi câu hỏi",
+  "qna_submit_fail": "Không thể gửi câu hỏi.",
   "@qna_submit_fail": {
     "description": "Auto-generated metadata for key 'qna_submit_fail'."
   },
-  "qna_file_size_limit_notice": "Bạn có thể đính kèm các tệp lên đến {maxSize}mb.",
+  "qna_file_size_limit_notice": "Bạn có thể đính kèm các tệp lên đến {maxSize}MB.",
   "@qna_file_size_limit_notice": {
     "placeholders": {
       "maxSize": {
@@ -1585,15 +1585,15 @@
   "@qna_message_hint": {
     "description": "Auto-generated metadata for key 'qna_message_hint'."
   },
-  "label_my_vote_history": "Lịch sử phiếu bầu của tôi",
+  "label_my_vote_history": "Lịch sử bình chọn của tôi",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
-  "bonus_candy_example_2_expire": "__The_month_after_next__ 15th 00:00 (KST)",
+  "bonus_candy_example_2_expire": "15 tháng __THE_MONTH_AFTER_NEXT__, 00:00 (KST)",
   "@bonus_candy_example_2_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_expire'."
   },
-  "bonus_candy_example_earn_date": "Kiếm ngày",
+  "bonus_candy_example_earn_date": "Ngày tích lũy",
   "@bonus_candy_example_earn_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_earn_date'."
   },
@@ -1601,11 +1601,11 @@
   "@vote_item_request_status_unknown": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_unknown'."
   },
-  "bonus_candy_expiration_policy_load_fail": "Không tải thông tin tiền thưởng hết hạn.",
+  "bonus_candy_expiration_policy_load_fail": "Không thể tải thông tin Bonus Star Candy sắp hết hạn.",
   "@bonus_candy_expiration_policy_load_fail": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_load_fail'."
   },
-  "bonus_candy_example_1_expire": "__Next_month__ 15th 00:00 (KST)",
+  "bonus_candy_example_1_expire": "15 tháng __NEXT_MONTH__, 00:00 (KST)",
   "@bonus_candy_example_1_expire": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_expire'."
   },
@@ -1645,7 +1645,7 @@
   "@bonus_candy_expiration_policy_earn_period": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_earn_period'."
   },
-  "message_setting_remove_cache": "Xóa bộ nhớ bộ nhớ cache hoàn tất.",
+  "message_setting_remove_cache": "Đã xóa bộ nhớ đệm.",
   "@message_setting_remove_cache": {
     "description": "Auto-generated metadata for key 'message_setting_remove_cache'."
   },
@@ -1670,7 +1670,7 @@
   "@label_tabbar_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_upcoming'."
   },
-  "bonus_candy_example_1_earn": "__Month__ 10 14:00 (KST)",
+  "bonus_candy_example_1_earn": "10 tháng __MONTH__, 14:00 (KST)",
   "@bonus_candy_example_1_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_1_earn'."
   },
@@ -1690,7 +1690,7 @@
   "@bonus_candy_policy_3": {
     "description": "Auto-generated metadata for key 'bonus_candy_policy_3'."
   },
-  "message_update_nickname_fail": "Biệt danh thay đổi thất bại.\nVui lòng chọn một biệt danh khác.",
+  "message_update_nickname_fail": "Không thể thay đổi biệt danh.\nVui lòng chọn một biệt danh khác.",
   "@message_update_nickname_fail": {
     "description": "Auto-generated metadata for key 'message_update_nickname_fail'."
   },
@@ -1710,7 +1710,7 @@
   "@error_message_login_failed": {
     "description": "Auto-generated metadata for key 'error_message_login_failed'."
   },
-  "dialog_withdraw_button_ok": "Hủy đăng ký",
+  "dialog_withdraw_button_ok": "Xóa tài khoản",
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
@@ -1730,7 +1730,7 @@
   "@bonus_candy_example_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
   },
-  "label_tab_free_charge_station": "Trạm sạc miễn phí",
+  "label_tab_free_charge_station": "Trạm nạp miễn phí",
   "@label_tab_free_charge_station": {
     "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
   },
@@ -1742,7 +1742,7 @@
   "@text_dialog_vote_amount_should_not_zero": {
     "description": "Auto-generated metadata for key 'text_dialog_vote_amount_should_not_zero'."
   },
-  "message_agreement_success": "Chấp nhận các điều khoản là hoàn thành.",
+  "message_agreement_success": "Đã chấp nhận điều khoản.",
   "@message_agreement_success": {
     "description": "Auto-generated metadata for key 'message_agreement_success'."
   },
@@ -1802,7 +1802,7 @@
   "@label_pic_pic_synthesizing_image": {
     "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
   },
-  "label_tab_buy_star_candy": "Mua kẹo sao",
+  "label_tab_buy_star_candy": "Mua Star Candy",
   "@label_tab_buy_star_candy": {
     "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
   },
@@ -1885,11 +1885,11 @@
   "@bonus_candy_earn_period_15_to_end": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
-  "error_message_withdrawal": "Một thành viên đã không được đăng ký.",
+  "error_message_withdrawal": "Đây là tài khoản đã hủy.",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
-  "text_achievement": "Bạn đã đạt được mục tiêu {count} cho đến nay! 🎉",
+  "text_achievement": "🎉 Bạn đã đạt được {count} mục tiêu cho đến nay! 🎉",
   "@text_achievement": {
     "placeholders": {
       "count": {
@@ -1897,7 +1897,7 @@
       }
     }
   },
-  "withdrawal_success": "Việc hủy đăng ký đã được xử lý thành công.",
+  "withdrawal_success": "Việc xóa tài khoản đã được xử lý thành công.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
@@ -1913,11 +1913,11 @@
   "@bonus_candy_expiration_policy_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_expiration_policy_expiration_date'."
   },
-  "bonus_candy_example_2_earn": "__Month__ 20 14:00 (KST)",
+  "bonus_candy_example_2_earn": "20 tháng __MONTH__, 14:00 (KST)",
   "@bonus_candy_example_2_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
   },
-  "message_agreement_fail": "Điều khoản thỏa thuận cần thiết",
+  "message_agreement_fail": "Cần đồng ý với điều khoản",
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
@@ -2033,12 +2033,12 @@
   "@ad_reward_success_message": {
     "description": "Thông báo cộng phần thưởng xem quảng cáo"
   },
-  "weekly_vote_info_title": "🎖️ Hướng dẫn Bầu chọn Hàng tuần",
+  "weekly_vote_info_title": "🎖️ Hướng dẫn Bình chọn Hàng tuần",
   "@weekly_vote_info_title": {
     "description": "Tiêu đề popup thông tin bầu chọn hàng tuần"
   },
-  "weekly_vote_info_body": "Hall of Fame Award của Picnic mở ra mỗi tuần!\n\nMỗi nghệ sĩ chiến thắng hàng tuần sẽ tự động được đề cử vào 'Hall of Fame Award' cuối năm,\n\nvới tổng cộng 50 người chiến thắng hàng tuần được chọn mỗi năm.\n\n(※ Một khi nghệ sĩ đã chiến thắng, họ sẽ bị loại khỏi danh sách đề cử bầu chọn hàng tuần trong năm đó.)",
-  "label_setting_patch_section_title": "Patch status",
+  "weekly_vote_info_body": "Đại sảnh Danh vọng của Picnic diễn ra hằng tuần!\n\nNghệ sĩ chiến thắng mỗi tuần sẽ tự động được đề cử vào 'Đại sảnh Danh vọng' cuối năm,\n\ntổng cộng 50 nghệ sĩ chiến thắng hằng tuần sẽ được chọn trong năm.\n\n(※ Nghệ sĩ đã từng chiến thắng sẽ bị loại khỏi danh sách ứng viên Bình chọn Hàng tuần trong năm đó.)",
+  "label_setting_patch_section_title": "Trạng thái bản vá",
   "@label_setting_patch_section_title": {
     "description": "Title for the patch status section in Settings."
   },
@@ -2075,7 +2075,7 @@
   "@label_setting_patch_status_available": {
     "description": "Status label when a patch is available."
   },
-  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "label_setting_patch_status_current_patch": "Bản vá hiện tại: {patchNumber}",
   "@label_setting_patch_status_current_patch": {
     "description": "Status label showing the current patch number.",
     "placeholders": {
@@ -2084,7 +2084,7 @@
       }
     }
   },
-  "label_setting_patch_status_none": "No patch applied",
+  "label_setting_patch_status_none": "Chưa áp dụng bản vá",
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
@@ -2174,7 +2174,7 @@
   "@notification_patch_downloaded_body": {
     "description": "Local push notification body when a patch has been downloaded."
   },
-  "label_setting_patch_number": " / Patch: {patchNumber}",
+  "label_setting_patch_number": " / Bản vá: {patchNumber}",
   "@label_setting_patch_number": {
     "description": "Suffix appended to build information to show the current patch number.",
     "placeholders": {
@@ -2183,7 +2183,7 @@
       }
     }
   },
-  "vote_item_request_search_initial_guide": "Tìm kiếm nghệ sĩ để yêu cầu",
+  "vote_item_request_search_initial_guide": "Tìm kiếm nghệ sĩ để đề xuất",
   "@vote_item_request_search_initial_guide": {
     "description": "Guide text shown before user starts searching for artist"
   },
@@ -2191,7 +2191,7 @@
   "@vote_item_request_search_try_other_keyword": {
     "description": "Suggestion text when no search results are found"
   },
-  "weekly_vote_info_link": "Weekly Vote là gì?",
+  "weekly_vote_info_link": "Bình chọn Hàng tuần là gì?",
   "@weekly_vote_info_link": {
     "description": "Link label asking what weekly voting is"
   },
@@ -2344,7 +2344,7 @@
   "@patch_ios_how_to_close_title": {
     "description": "Title for iOS app close instructions"
   },
-  "patch_ios_how_to_close_step1": "1. Vuốt lên từ cuối màn hình",
+  "patch_ios_how_to_close_step1": "1. Vuốt lên từ cạnh dưới màn hình",
   "@patch_ios_how_to_close_step1": {
     "description": "Step 1 for closing app on iOS"
   },
@@ -2364,7 +2364,7 @@
   "@patch_button_understood": {
     "description": "Button to acknowledge iOS restart instructions"
   },
-  "notifications_mark_all_read": "Đọc tất cả",
+  "notifications_mark_all_read": "Đánh dấu đã đọc",
   "@notifications_mark_all_read": {
     "description": "Button to mark all notifications as read"
   },

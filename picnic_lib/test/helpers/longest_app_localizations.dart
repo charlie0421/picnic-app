@@ -19,7 +19,7 @@ import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/l10n/app_localizations_vi.dart';
 
 /// FNV-1a 32 of the arb files this was generated from.
-const int longestArbChecksum = 0xFA2456A1;
+const int longestArbChecksum = 0xEA8C4007;
 
 class LongestAppLocalizations extends AppLocalizationsEn {
   LongestAppLocalizations() : super('en');
@@ -188,7 +188,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get dialog_content_login_required => _fil.dialog_content_login_required;
 
   @override
-  String get dialog_message_can_resignup => _vi.dialog_message_can_resignup;
+  String get dialog_message_can_resignup => _id.dialog_message_can_resignup;
 
   @override
   String get dialog_message_purchase_failed => _fil.dialog_message_purchase_failed;
@@ -359,7 +359,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_article_comment_empty => _ja.label_article_comment_empty;
 
   @override
-  String get label_asia_recommendation => _ja.label_asia_recommendation;
+  String get label_asia_recommendation => _vi.label_asia_recommendation;
 
   @override
   String get label_bonus => _es.label_bonus;
@@ -479,6 +479,9 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_mypage_vote_history => _fil.label_mypage_vote_history;
 
   @override
+  String get label_mypage_withdrawal => _vi.label_mypage_withdrawal;
+
+  @override
   String get label_no_celeb => _vi.label_no_celeb;
 
   @override
@@ -536,7 +539,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_tabbar_vote_active => _id.label_tabbar_vote_active;
 
   @override
-  String get label_tabbar_vote_end => _es.label_tabbar_vote_end;
+  String get label_tabbar_vote_end => _vi.label_tabbar_vote_end;
 
   @override
   String get label_time_ago_right_now => _id.label_time_ago_right_now;
@@ -548,7 +551,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_unlimited_rewards => _fil.label_unlimited_rewards;
 
   @override
-  String get label_vote_end => _vi.label_vote_end;
+  String get label_vote_end => _id.label_vote_end;
 
   @override
   String get label_vote_reward_list => _fil.label_vote_reward_list;
@@ -587,7 +590,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_store_products_load_failed => _es.message_store_products_load_failed;
 
   @override
-  String get message_vote_is_ended => _vi.message_vote_is_ended;
+  String get message_vote_is_ended => _id.message_vote_is_ended;
 
   @override
   String get message_vote_is_upcoming => _id.message_vote_is_upcoming;
@@ -863,7 +866,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get text_vote_rank_in_reward => _id.text_vote_rank_in_reward;
 
   @override
-  String get text_vote_where_is_my_bias => _es.text_vote_where_is_my_bias;
+  String get text_vote_where_is_my_bias => _vi.text_vote_where_is_my_bias;
 
   @override
   String get title_dialog_library_add => _fil.title_dialog_library_add;
@@ -917,7 +920,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_title => _id.vote_item_request_title;
 
   @override
-  String get vote_share_message => _ko.vote_share_message;
+  String get vote_share_message => _vi.vote_share_message;
 
   @override
   String get vote_completed_message => _id.vote_completed_message;
@@ -941,7 +944,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get update => _es.update;
 
   @override
-  String get ban_title => _ko.ban_title;
+  String get ban_title => _vi.ban_title;
 
   @override
   String get ban_message => _fil.ban_message;
@@ -980,7 +983,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_waiting => _fil.vote_item_request_waiting;
 
   @override
-  String get capture_failed => _ja.capture_failed;
+  String get capture_failed => _vi.capture_failed;
 
   @override
   String get qna_submit_success => _fil.qna_submit_success;
@@ -1265,6 +1268,9 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get error_message_withdrawal => _fil.error_message_withdrawal;
 
   @override
+  String get withdrawal_success => _vi.withdrawal_success;
+
+  @override
   String get withdrawal_failed => _es.withdrawal_failed;
 
   @override
@@ -1349,13 +1355,19 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get weekly_vote_info_body => _fil.weekly_vote_info_body;
 
   @override
-  String get weekly_vote_info_link => _es.weekly_vote_info_link;
+  String get weekly_vote_info_link => _vi.weekly_vote_info_link;
+
+  @override
+  String get label_setting_patch_section_title => _vi.label_setting_patch_section_title;
 
   @override
   String get label_setting_patch_status_restart_required => _fil.label_setting_patch_status_restart_required;
 
   @override
   String get label_setting_patch_status_downloaded => _ko.label_setting_patch_status_downloaded;
+
+  @override
+  String get label_setting_patch_status_none => _vi.label_setting_patch_status_none;
 
   @override
   String get message_setting_patch_restart_hint => _ja.message_setting_patch_restart_hint;
@@ -1517,7 +1529,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get patch_button_understood => _fil.patch_button_understood;
 
   @override
-  String get notifications_mark_all_read => _fil.notifications_mark_all_read;
+  String get notifications_mark_all_read => _vi.notifications_mark_all_read;
 
   @override
   String get error_anti_abuse_ad_title => _fil.error_anti_abuse_ad_title;
@@ -1731,6 +1743,14 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   @override
   String post_replying_comment(String nickname) =>
       _es.post_replying_comment(nickname);
+
+  @override
+  String label_setting_patch_status_current_patch(int patchNumber) =>
+      _vi.label_setting_patch_status_current_patch(patchNumber);
+
+  @override
+  String label_setting_patch_number(int patchNumber) =>
+      _vi.label_setting_patch_number(patchNumber);
 
   @override
   String patch_auto_restart_countdown(int seconds) =>
