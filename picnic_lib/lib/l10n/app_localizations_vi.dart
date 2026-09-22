@@ -213,7 +213,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get dialog_message_can_resignup =>
-      'Khi bạn có thể tham gia lại nếu bạn hủy bỏ tư cách thành viên của mình ngay bây giờ?';
+      'Nếu hủy tài khoản bây giờ, khi nào tôi có thể đăng ký lại?';
 
   @override
   String get dialog_message_purchase_failed =>
@@ -227,14 +227,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get dialog_title_ads_exhausted => 'Đã cạn kiệt tất cả quảng cáo';
 
   @override
-  String get dialog_title_vote_fail => 'Bỏ phiếu thất bại';
+  String get dialog_title_vote_fail => 'Bình chọn thất bại';
 
   @override
-  String get dialog_will_delete_star_candy => 'Star Star Candies bị xóa';
+  String get dialog_will_delete_star_candy => 'Star Candy sẽ bị xóa';
 
   @override
   String get dialog_withdraw_message =>
-      'Nếu bạn hủy tư cách thành viên của mình, thông tin về Candy và tài khoản ngôi sao của bạn trên Picnic sẽ bị xóa ngay lập tức và thông tin và dữ liệu hiện tại của bạn sẽ không được khôi phục khi bạn tham gia lại.';
+      'Nếu bạn hủy tài khoản, Star Candy và thông tin tài khoản Picnic sẽ bị xóa ngay lập tức; khi đăng ký lại, thông tin và dữ liệu trước đây sẽ không được khôi phục.';
 
   @override
   String get dialog_withdraw_title => 'Bạn có chắc bạn muốn rời đi?';
@@ -368,11 +368,11 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_ads_get_star_candy => 'Lấy kẹo sao từ quảng cáo';
 
   @override
-  String get label_ads_get_cotton_candy => 'Nhận Kẹo Bông Gòn từ quảng cáo';
+  String get label_ads_get_cotton_candy => 'Nhận Cotton Candy từ quảng cáo';
 
   @override
   String free_charge_ads_reward(String reward) {
-    return '+Kẹo Bông Gòn $reward đã nhận';
+    return '+$reward Cotton Candy đã nhận';
   }
 
   @override
@@ -418,7 +418,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_article_comment_empty => 'Hãy là người đầu tiên bình luận!';
 
   @override
-  String get label_asia_recommendation => 'Châu Á chọn';
+  String get label_asia_recommendation => 'Lựa chọn châu Á';
 
   @override
   String get label_bonus => 'Tiền thưởng';
@@ -430,13 +430,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_button_close => 'Đóng';
 
   @override
-  String get label_button_recharge => 'Tính phí';
+  String get label_button_recharge => 'Nạp';
 
   @override
   String get label_button_view_policy => 'Xem chính sách';
 
   @override
-  String get label_button_vote => 'Bỏ phiếu';
+  String get label_button_vote => 'Bình chọn';
 
   @override
   String get label_celeb_gallery => 'Phòng trưng bày nghệ sĩ';
@@ -445,7 +445,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_celeb_recommend => 'Khuyến nghị của nghệ sĩ';
 
   @override
-  String get label_checkbox_entire_use => 'Sử dụng đầy đủ';
+  String get label_checkbox_entire_use => 'Dùng tất cả';
 
   @override
   String get label_draw_image => 'Cơ hội để giành được một hình ảnh ngẫu nhiên';
@@ -466,7 +466,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_home_current_vote => 'Bình chọn đang diễn ra';
 
   @override
-  String get label_input_input => 'Đầu vào';
+  String get label_input_input => 'Nhập';
 
   @override
   String get label_korean_recommendation => 'Hàn Quốc chọn';
@@ -494,11 +494,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get label_mission_get_bonus_star_candy =>
-      'Nhận Kẹo Sao Thưởng từ nhiệm vụ';
+      'Nhận Bonus Star Candy từ nhiệm vụ';
 
   @override
   String free_charge_mission_reward(String reward) {
-    return '+Kẹo Sao Thưởng $reward đã nhận';
+    return '+$reward Bonus Star Candy đã nhận';
   }
 
   @override
@@ -520,13 +520,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_mypage_no_artist => 'Không có nghệ sĩ';
 
   @override
-  String get label_mypage_notice => 'Để ý';
+  String get label_mypage_notice => 'Thông báo';
 
   @override
   String get label_mypage_notifications => 'Hộp thông báo';
 
   @override
-  String get label_mypage_picnic_id => 'ID dã ngoại';
+  String get label_mypage_picnic_id => 'ID Picnic';
 
   @override
   String get label_mypage_privacy_policy => 'Chính sách bảo mật';
@@ -541,10 +541,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_mypage_terms_of_use => 'Điều khoản sử dụng';
 
   @override
-  String get label_mypage_vote_history => 'Lịch sử bỏ phiếu của Starcandy';
+  String get label_mypage_vote_history => 'Lịch sử bình chọn bằng Star Candy';
 
   @override
-  String get label_mypage_withdrawal => 'Rút tiền';
+  String get label_mypage_withdrawal => 'Xóa tài khoản';
 
   @override
   String get label_no_celeb => 'Bạn chưa có bất kỳ nghệ sĩ nào được đánh dấu!';
@@ -577,13 +577,13 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_setting_event_alarm => 'Thông báo sự kiện';
 
   @override
-  String get label_setting_event_alarm_desc => 'Sự kiện và sự kiện.';
+  String get label_setting_event_alarm_desc => 'Sự kiện và tin tức.';
 
   @override
   String get label_setting_language => 'Cài đặt ngôn ngữ';
 
   @override
-  String get label_setting_push_alarm => 'Đẩy thông báo';
+  String get label_setting_push_alarm => 'Thông báo đẩy';
 
   @override
   String get label_setting_recent_version => 'Phiên bản mới nhất';
@@ -592,19 +592,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_setting_recent_version_up_to_date => 'Phiên bản mới nhất';
 
   @override
-  String get label_setting_remove_cache => 'Xóa bộ nhớ bộ nhớ cache';
+  String get label_setting_remove_cache => 'Xóa bộ nhớ đệm';
 
   @override
   String get label_setting_storage => 'Quản lý lưu trữ';
 
   @override
-  String get label_star_candy_pouch => 'Túi kẹo sao';
+  String get label_star_candy_pouch => 'Túi Star Candy';
 
   @override
-  String get label_tabbar_vote_active => 'Trong tiến trình';
+  String get label_tabbar_vote_active => 'Đang diễn ra';
 
   @override
-  String get label_tabbar_vote_end => 'Đóng';
+  String get label_tabbar_vote_end => 'Đã kết thúc';
 
   @override
   String label_time_ago_day(int day) {
@@ -626,19 +626,19 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_unlimited_rewards => 'Phần thưởng không giới hạn';
 
   @override
-  String get label_vote_end => 'Đóng cuộc thăm dò ý kiến';
+  String get label_vote_end => 'Kết thúc bình chọn';
 
   @override
   String get label_vote_reward_list => 'Danh sách phần thưởng';
 
   @override
-  String get label_vote_screen_title => 'Bỏ phiếu';
+  String get label_vote_screen_title => 'Bình chọn';
 
   @override
-  String get label_vote_upcoming => 'Cho đến khi bỏ phiếu bắt đầu';
+  String get label_vote_upcoming => 'Cho đến khi bình chọn bắt đầu';
 
   @override
-  String get label_watch_ads_short => 'Đồng hồ';
+  String get label_watch_ads_short => 'Xem';
 
   @override
   String get lable_my_celeb => 'Nghệ sĩ của tôi';
@@ -669,10 +669,10 @@ class AppLocalizationsVi extends AppLocalizations {
       'Không thể tải danh sách sản phẩm. Vui lòng thử lại sau.';
 
   @override
-  String get message_vote_is_ended => 'Cuộc thăm dò ý kiến ​​đóng cửa';
+  String get message_vote_is_ended => 'Bình chọn đã kết thúc';
 
   @override
-  String get message_vote_is_upcoming => 'Đây là một cuộc bỏ phiếu sắp tới.';
+  String get message_vote_is_upcoming => 'Đây là một cuộc bình chọn sắp tới.';
 
   @override
   String get my_info => 'Thông tin của tôi';
@@ -694,7 +694,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get page_title_post_write => 'Tạo một bài viết';
 
   @override
-  String get page_title_vote_detail => 'Bỏ phiếu';
+  String get page_title_vote_detail => 'Bình chọn';
 
   @override
   String get popup_label_delete => 'Xóa bỏ';
@@ -878,7 +878,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get purchase_confirm_message => 'Bạn có muốn mua mặt hàng sau không?';
 
   @override
-  String get purchase_confirm_title => 'Mua xác nhận';
+  String get purchase_confirm_title => 'Xác nhận mua hàng';
 
   @override
   String get previousTransactionPendingError =>
@@ -966,7 +966,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Điều hướng đến nhà của nghệ sĩ được chọn.';
 
   @override
-  String get text_need_recharge => 'Yêu cầu tính phí.';
+  String get text_need_recharge => 'Cần nạp thêm.';
 
   @override
   String get text_no_search_result => 'Không có kết quả tìm kiếm.';
@@ -975,7 +975,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get text_purchase_vat_included => '*Giá bao gồm VAT.';
 
   @override
-  String get text_vote_complete => 'Bỏ phiếu hoàn thành';
+  String get text_vote_complete => 'Đã bình chọn';
 
   @override
   String text_vote_gap_behind_leader(String gap) {
@@ -991,7 +991,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get text_vote_rank_in_reward => 'Xếp hạng trong phần thưởng';
 
   @override
-  String get text_vote_where_is_my_bias => 'Yêu thích của tôi ở đâu?';
+  String get text_vote_where_is_my_bias => 'Nghệ sĩ yêu thích của tôi ở đâu?';
 
   @override
   String get title_dialog_library_add => 'Thêm một album mới';
@@ -1006,8 +1006,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get toast_bookmark_removed => 'Đã xóa khỏi dấu trang.';
 
   @override
-  String get toast_max_five_celeb =>
-      'Bạn có thể thêm tối đa năm nghệ sĩ của riêng bạn.';
+  String get toast_max_five_celeb => 'Bạn có thể thêm tối đa 5 nghệ sĩ.';
 
   @override
   String get update_button => 'Cập nhật';
@@ -1047,14 +1046,14 @@ class AppLocalizationsVi extends AppLocalizations {
   String get vote_item_request_title => 'Yêu cầu thêm ứng viên bình chọn';
 
   @override
-  String get vote_share_message => 'Bình chọn!';
+  String get vote_share_message => 'Đã bình chọn!';
 
   @override
   String get vote_completed_message => 'Tôi đã bình chọn!';
 
   @override
   String get voting_share_benefit_text =>
-      'Nhận 1 Candy Star Bonus cho mỗi 100 phiếu bầu!';
+      'Nhận 1 Bonus Star Candy cho mỗi 100 lượt bình chọn!';
 
   @override
   String get cancel => 'Hủy bỏ';
@@ -1072,15 +1071,15 @@ class AppLocalizationsVi extends AppLocalizations {
   String get update => 'Cập nhật';
 
   @override
-  String get ban_title => 'Tài khoản bị đình chỉ';
+  String get ban_title => 'Việc sử dụng thiết bị đã tạm thời bị đình chỉ';
 
   @override
   String get ban_message =>
-      'Tài khoản của bạn đã tạm thời bị đình chỉ do hoạt động không phù hợp.';
+      'Việc sử dụng thiết bị này đã tạm thời bị đình chỉ vì phát hiện vi phạm chính sách.';
 
   @override
   String get ban_contact =>
-      'Vui lòng liên hệ với dịch vụ khách hàng nếu bạn có bất kỳ câu hỏi.';
+      'Nếu cho rằng đây là nhầm lẫn, vui lòng liên hệ bộ phận hỗ trợ.';
 
   @override
   String get goonghap_empty_state_title => 'Không có thông tin tương thích';
@@ -1115,7 +1114,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get vote_item_request_waiting => 'Đang chờ';
 
   @override
-  String get capture_failed => 'Bắt giữ thất bại';
+  String get capture_failed => 'Chụp ảnh màn hình thất bại';
 
   @override
   String get qna_submit_success => 'Yêu cầu của bạn đã được gửi thành công';
@@ -1124,31 +1123,31 @@ class AppLocalizationsVi extends AppLocalizations {
   String get qna_list_title => 'Yêu cầu của tôi';
 
   @override
-  String get starCandy100 => 'Candy 100 sao';
+  String get starCandy100 => '100 Star Candy';
 
   @override
-  String get starCandy200 => 'Candy 200 sao';
+  String get starCandy200 => '200 Star Candy';
 
   @override
-  String get starCandy600 => 'Kẹo 600 sao';
+  String get starCandy600 => '600 Star Candy';
 
   @override
-  String get starCandy1000 => '1.000 sao kẹo';
+  String get starCandy1000 => '1.000 Star Candy';
 
   @override
-  String get starCandy2000 => '2.000 sao kẹo';
+  String get starCandy2000 => '2.000 Star Candy';
 
   @override
-  String get starCandy3000 => '3.000 sao kẹo';
+  String get starCandy3000 => '3.000 Star Candy';
 
   @override
-  String get starCandy4000 => '4.000 sao kẹo';
+  String get starCandy4000 => '4.000 Star Candy';
 
   @override
-  String get starCandy5000 => '5.000 sao kẹo';
+  String get starCandy5000 => '5.000 Star Candy';
 
   @override
-  String get update_required_message => 'Yêu cầu cập nhật ứng dụng';
+  String get update_required_message => 'Cần cập nhật ứng dụng';
 
   @override
   String get vote_item_request_no_search_results => 'Không có kết quả tìm kiếm';
@@ -1199,11 +1198,11 @@ class AppLocalizationsVi extends AppLocalizations {
   }
 
   @override
-  String get qna_submit_fail => 'Không gửi câu hỏi';
+  String get qna_submit_fail => 'Không thể gửi câu hỏi.';
 
   @override
   String qna_file_size_limit_notice(int maxSize) {
-    return 'Bạn có thể đính kèm các tệp lên đến ${maxSize}mb.';
+    return 'Bạn có thể đính kèm các tệp lên đến ${maxSize}MB.';
   }
 
   @override
@@ -1235,24 +1234,25 @@ class AppLocalizationsVi extends AppLocalizations {
   String get qna_message_hint => 'Nhập tin nhắn';
 
   @override
-  String get label_my_vote_history => 'Lịch sử phiếu bầu của tôi';
+  String get label_my_vote_history => 'Lịch sử bình chọn của tôi';
 
   @override
   String get bonus_candy_example_2_expire =>
-      '__The_month_after_next__ 15th 00:00 (KST)';
+      '15 tháng __THE_MONTH_AFTER_NEXT__, 00:00 (KST)';
 
   @override
-  String get bonus_candy_example_earn_date => 'Kiếm ngày';
+  String get bonus_candy_example_earn_date => 'Ngày tích lũy';
 
   @override
   String get vote_item_request_status_unknown => 'Không xác định';
 
   @override
   String get bonus_candy_expiration_policy_load_fail =>
-      'Không tải thông tin tiền thưởng hết hạn.';
+      'Không thể tải thông tin Bonus Star Candy sắp hết hạn.';
 
   @override
-  String get bonus_candy_example_1_expire => '__Next_month__ 15th 00:00 (KST)';
+  String get bonus_candy_example_1_expire =>
+      '15 tháng __NEXT_MONTH__, 00:00 (KST)';
 
   @override
   String get vote_item_request_status_in_progress => 'Đang xử lý';
@@ -1282,8 +1282,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bonus_candy_expiration_policy_earn_period => 'Kiếm thời gian';
 
   @override
-  String get message_setting_remove_cache =>
-      'Xóa bộ nhớ bộ nhớ cache hoàn tất.';
+  String get message_setting_remove_cache => 'Đã xóa bộ nhớ đệm.';
 
   @override
   String get error_loading_more_comments => 'Có một lỗi tải bình luận.';
@@ -1308,7 +1307,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_tabbar_vote_upcoming => 'Sắp tới';
 
   @override
-  String get bonus_candy_example_1_earn => '__Month__ 10 14:00 (KST)';
+  String get bonus_candy_example_1_earn => '10 tháng __MONTH__, 14:00 (KST)';
 
   @override
   String get error_receipt_verification_failed =>
@@ -1326,7 +1325,7 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get message_update_nickname_fail =>
-      'Biệt danh thay đổi thất bại.\nVui lòng chọn một biệt danh khác.';
+      'Không thể thay đổi biệt danh.\nVui lòng chọn một biệt danh khác.';
 
   @override
   String get bonus_candy_expiration_time_title => 'Thời gian hết hạn';
@@ -1342,7 +1341,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Một lỗi đã xảy ra trong quá trình đăng nhập.';
 
   @override
-  String get dialog_withdraw_button_ok => 'Hủy đăng ký';
+  String get dialog_withdraw_button_ok => 'Xóa tài khoản';
 
   @override
   String get goonghap_birthtime_subtitle => '(Tùy chọn)';
@@ -1357,7 +1356,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bonus_candy_example_expiration_date => 'Ngày hết hạn';
 
   @override
-  String get label_tab_free_charge_station => 'Trạm sạc miễn phí';
+  String get label_tab_free_charge_station => 'Trạm nạp miễn phí';
 
   @override
   String get error_user_not_authenticated =>
@@ -1368,8 +1367,7 @@ class AppLocalizationsVi extends AppLocalizations {
       'Số lượng phiếu bầu không thể bằng không.';
 
   @override
-  String get message_agreement_success =>
-      'Chấp nhận các điều khoản là hoàn thành.';
+  String get message_agreement_success => 'Đã chấp nhận điều khoản.';
 
   @override
   String get bonus_candy_earn_period_1_to_14 =>
@@ -1422,7 +1420,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get label_pic_pic_synthesizing_image => 'Tổng hợp một hình ảnh ...';
 
   @override
-  String get label_tab_buy_star_candy => 'Mua kẹo sao';
+  String get label_tab_buy_star_candy => 'Mua Star Candy';
 
   @override
   String jma_voting_max_votes_exceeded(int maxVotes) {
@@ -1481,16 +1479,16 @@ class AppLocalizationsVi extends AppLocalizations {
       'Ngày 15 00:00:00 ~ Kết thúc tháng 23:59:59';
 
   @override
-  String get error_message_withdrawal =>
-      'Một thành viên đã không được đăng ký.';
+  String get error_message_withdrawal => 'Đây là tài khoản đã hủy.';
 
   @override
   String text_achievement(int count) {
-    return 'Bạn đã đạt được mục tiêu $count cho đến nay! 🎉';
+    return '🎉 Bạn đã đạt được $count mục tiêu cho đến nay! 🎉';
   }
 
   @override
-  String get withdrawal_success => 'Việc hủy đăng ký đã được xử lý thành công.';
+  String get withdrawal_success =>
+      'Việc xóa tài khoản đã được xử lý thành công.';
 
   @override
   String get withdrawal_failed =>
@@ -1504,10 +1502,10 @@ class AppLocalizationsVi extends AppLocalizations {
   String get bonus_candy_expiration_policy_expiration_date => 'Ngày hết hạn';
 
   @override
-  String get bonus_candy_example_2_earn => '__Month__ 20 14:00 (KST)';
+  String get bonus_candy_example_2_earn => '20 tháng __MONTH__, 14:00 (KST)';
 
   @override
-  String get message_agreement_fail => 'Điều khoản thỏa thuận cần thiết';
+  String get message_agreement_fail => 'Cần đồng ý với điều khoản';
 
   @override
   String get vote_item_request_button => 'Đề xuất ứng viên';
@@ -1592,17 +1590,17 @@ class AppLocalizationsVi extends AppLocalizations {
   String get ad_reward_success_message => 'Phần thưởng đã được cộng.';
 
   @override
-  String get weekly_vote_info_title => '🎖️ Hướng dẫn Bầu chọn Hàng tuần';
+  String get weekly_vote_info_title => '🎖️ Hướng dẫn Bình chọn Hàng tuần';
 
   @override
   String get weekly_vote_info_body =>
-      'Hall of Fame Award của Picnic mở ra mỗi tuần!\n\nMỗi nghệ sĩ chiến thắng hàng tuần sẽ tự động được đề cử vào \'Hall of Fame Award\' cuối năm,\n\nvới tổng cộng 50 người chiến thắng hàng tuần được chọn mỗi năm.\n\n(※ Một khi nghệ sĩ đã chiến thắng, họ sẽ bị loại khỏi danh sách đề cử bầu chọn hàng tuần trong năm đó.)';
+      'Đại sảnh Danh vọng của Picnic diễn ra hằng tuần!\n\nNghệ sĩ chiến thắng mỗi tuần sẽ tự động được đề cử vào \'Đại sảnh Danh vọng\' cuối năm,\n\ntổng cộng 50 nghệ sĩ chiến thắng hằng tuần sẽ được chọn trong năm.\n\n(※ Nghệ sĩ đã từng chiến thắng sẽ bị loại khỏi danh sách ứng viên Bình chọn Hàng tuần trong năm đó.)';
 
   @override
-  String get weekly_vote_info_link => 'Weekly Vote là gì?';
+  String get weekly_vote_info_link => 'Bình chọn Hàng tuần là gì?';
 
   @override
-  String get label_setting_patch_section_title => 'Patch status';
+  String get label_setting_patch_section_title => 'Trạng thái bản vá';
 
   @override
   String get label_setting_patch_check_button => 'Check for patches';
@@ -1630,11 +1628,11 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String label_setting_patch_status_current_patch(int patchNumber) {
-    return 'Current patch: $patchNumber';
+    return 'Bản vá hiện tại: $patchNumber';
   }
 
   @override
-  String get label_setting_patch_status_none => 'No patch applied';
+  String get label_setting_patch_status_none => 'Chưa áp dụng bản vá';
 
   @override
   String get message_setting_patch_restart_hint =>
@@ -1715,12 +1713,12 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String label_setting_patch_number(int patchNumber) {
-    return ' / Patch: $patchNumber';
+    return ' / Bản vá: $patchNumber';
   }
 
   @override
   String get vote_item_request_search_initial_guide =>
-      'Tìm kiếm nghệ sĩ để yêu cầu';
+      'Tìm kiếm nghệ sĩ để đề xuất';
 
   @override
   String get vote_item_request_search_try_other_keyword =>
@@ -1843,7 +1841,8 @@ class AppLocalizationsVi extends AppLocalizations {
   String get patch_ios_how_to_close_title => 'Cách đóng ứng dụng:';
 
   @override
-  String get patch_ios_how_to_close_step1 => '1. Vuốt lên từ cuối màn hình';
+  String get patch_ios_how_to_close_step1 =>
+      '1. Vuốt lên từ cạnh dưới màn hình';
 
   @override
   String get patch_ios_how_to_close_step2 =>
@@ -1860,7 +1859,7 @@ class AppLocalizationsVi extends AppLocalizations {
   String get patch_button_understood => 'Đã hiểu';
 
   @override
-  String get notifications_mark_all_read => 'Đọc tất cả';
+  String get notifications_mark_all_read => 'Đánh dấu đã đọc';
 
   @override
   String get error_anti_abuse_ad_title => 'Xem quảng cáo';
