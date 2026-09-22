@@ -18,7 +18,11 @@ typedef ResolvedPaymentBadgePromotion = ({
   int? extraBonusBps,
 });
 
-typedef PaymentBadgePromotionPeriod = ({DateTime startsAt, DateTime endsAt});
+typedef PaymentBadgePromotionPeriod = ({
+  DateTime startsAt,
+  DateTime endsAt,
+  List<int>? repeatIsoDows,
+});
 
 /// Returns only a settled resolver value for display.
 ///
@@ -155,7 +159,11 @@ final paymentBadgePromotionPeriodProvider =
             .where((item) => item.code == _candyBoostDayCode)
             .firstOrNull;
         if (item == null) return null;
-        return (startsAt: item.eventStartsAt, endsAt: item.eventEndsAt);
+        return (
+          startsAt: item.eventStartsAt,
+          endsAt: item.eventEndsAt,
+          repeatIsoDows: item.repeatIsoDows,
+        );
       }
 
       final v1 = await ref.watch(
@@ -165,7 +173,11 @@ final paymentBadgePromotionPeriodProvider =
           .where((item) => item.code == _candyBoostDayCode && item.showInStore)
           .firstOrNull;
       if (item == null) return null;
-      return (startsAt: item.windowStartsAt, endsAt: item.windowEndsAt);
+      return (
+        startsAt: item.windowStartsAt,
+        endsAt: item.windowEndsAt,
+        repeatIsoDows: null,
+      );
     });
 
 @riverpod
