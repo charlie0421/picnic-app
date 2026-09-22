@@ -19,7 +19,11 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_v2_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
@@ -292,10 +296,27 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
   }
 
+  // PICNIC-2760: the candy boost banner shows a bounded occurrence resolved
+  // from a server snapshot, not a live clock — an occurrence that ends while
+  // this screen stays open (or backgrounded) must not keep being advertised
+  // once the user is looking at the screen again. There is no periodic
+  // ticker here by design (minimal boundary-refresh strategy): resuming the
+  // app and pulling to refresh are the two points where the user is known
+  // to be actively looking at this screen, so a fresh server snapshot is
+  // fetched at both, invalidating the source read (never trusting a cached
+  // envelope) rather than the device clock.
+  void _refreshCandyBoostBoundary() {
+    ref.invalidate(
+      activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+    );
+    ref.invalidate(activePromotionCampaignProvider(PromotionSurface.store));
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _launchLifecycle.recordResumed();
+      _refreshCandyBoostBoundary();
       return;
     }
     // 비전면 전이는 "결제 시트가 실제로 열렸다"의 증거다 - 정리 후보 판정은
@@ -1448,6 +1469,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         .watch(paymentBadgePromotionPeriodProvider)
         .unwrapPrevious()
         .value;
+    // PICNIC-2760: a foreground timer for the boost's own server-relative
+    // expiry, so a screen that simply stays open past the occurrence's end
+    // stops advertising it without waiting for resume/pull-to-refresh. See
+    // candyBoostExpiryWatcherProvider's doc comment.
+    ref.watch(candyBoostExpiryWatcherProvider);
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -1466,6 +1492,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           // 파우치(별사탕 파우치)는 walletSummaryProvider 가 그린다. 프로필만
           // 다시 읽으면 파우치가 실패해 있을 때 화면을 당겨도 회복되지 않는다.
           await ref.read(walletSummaryProvider.notifier).refresh();
+          _refreshCandyBoostBoundary();
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -1490,7 +1517,6 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 CandyBoostPeriodBanner(
                   startsAt: promotionPeriod.startsAt,
                   endsAt: promotionPeriod.endsAt,
-                  repeatIsoDows: promotionPeriod.repeatIsoDows,
                   bonusPercent: displayedPromotion.multiplierTenths != null
                       ? (displayedPromotion.multiplierTenths! - 10) * 10
                       : (displayedPromotion.extraBonusBps ?? 0) ~/ 100,
