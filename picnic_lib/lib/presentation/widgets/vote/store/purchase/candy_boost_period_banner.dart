@@ -79,12 +79,6 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
     final repeatIsoDows = widget.repeatIsoDows;
     final String periodText;
     if (repeatIsoDows != null && repeatIsoDows.isNotEmpty) {
-      final weekdays = repeatIsoDows
-          .map(
-            (day) =>
-                DateFormat.E(locale).format(DateTime.utc(2026, 1, 5 + day - 1)),
-          )
-          .join('·');
       final inclusiveEnd =
           end.hour == 0 &&
               end.minute == 0 &&
@@ -92,9 +86,26 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
               end.millisecond == 0
           ? end.subtract(const Duration(days: 1))
           : end;
-      periodText =
-          '$weekdays · ${DateFormat.yMd(locale).format(start)} – '
-          '${DateFormat.Md(locale).format(inclusiveEnd)} KST';
+      final isSingleWeekCampaign =
+          end.difference(start) <= const Duration(days: 7);
+      if (isSingleWeekCampaign) {
+        final startDate = DateFormat.yMd(locale).format(start);
+        final startWeekday = DateFormat.E(locale).format(start);
+        final endDate = DateFormat.Md(locale).format(inclusiveEnd);
+        final endWeekday = DateFormat.E(locale).format(inclusiveEnd);
+        periodText = '$startDate ($startWeekday) – $endDate ($endWeekday) KST';
+      } else {
+        final weekdays = repeatIsoDows
+            .map(
+              (day) => DateFormat.E(
+                locale,
+              ).format(DateTime.utc(2026, 1, 5 + day - 1)),
+            )
+            .join('·');
+        periodText =
+            '$weekdays · ${DateFormat.yMd(locale).format(start)} – '
+            '${DateFormat.Md(locale).format(inclusiveEnd)} KST';
+      }
     } else {
       final startText = dateTime(start, includeYear: true);
       final endText = dateTime(end, includeYear: false);

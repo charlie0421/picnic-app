@@ -53,6 +53,24 @@ void main() {
     expect(find.text('월·화·수 · 2026. 9. 21. – 12. 31. KST'), findsOneWidget);
   });
 
+  testWidgets('shows concrete dates for a campaign limited to one week', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestApp(
+        CandyBoostPeriodBanner(
+          startsAt: DateTime.utc(2026, 9, 20, 15),
+          endsAt: DateTime.utc(2026, 9, 23, 15),
+          repeatIsoDows: const [1, 2, 3],
+          bonusPercent: 100,
+        ),
+        locale: const Locale('ko'),
+      ),
+    );
+
+    expect(find.text('2026. 9. 21. (월) – 9. 23. (수) KST'), findsOneWidget);
+  });
+
   testWidgets('disables decorative motion when reduced motion is requested', (
     tester,
   ) async {
