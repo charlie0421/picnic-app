@@ -173,6 +173,7 @@ Widget _app(Widget child, {Locale locale = const Locale('ko')}) =>
           (ref) async => (
             startsAt: DateTime.utc(2026, 9, 7, 15),
             endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+            repeatIsoDows: const [1, 2, 3],
           ),
         ),
       ],
