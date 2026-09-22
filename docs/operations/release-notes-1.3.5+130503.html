@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picnic 1.3.5+130503 릴리스 노트</title>
+<style>
+  :root { --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; --warn-bg:#fff8e1; }
+  body { max-width: 980px; margin: 0 auto; padding: 36px 28px 80px; color: var(--ink); font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Segoe UI", sans-serif; }
+  h1 { font-size: 30px; margin: 0 0 6px; }
+  h2 { font-size: 22px; margin: 2em 0 .5em; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 17px; margin: 1.5em 0 .4em; }
+  p, ul { margin: .55em 0; } li { margin: .3em 0; }
+  .meta { color: var(--muted); font-size: 13px; }
+  code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .9em ui-monospace, Menlo, monospace; }
+  pre { margin: .6em 0 1em; padding: 14px 16px; border-radius: 8px; background: var(--soft); border: 1px solid var(--line); white-space: pre-wrap; font: 14px/1.6 inherit; }
+  table { width: 100%; border-collapse: collapse; margin: .8em 0 1.2em; }
+  th, td { border: 1px solid var(--line); padding: 8px 11px; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 650; white-space: nowrap; }
+  .callout { margin: 1em 0; padding: 12px 15px; border-radius: 8px; background: var(--warn-bg); border: 1px solid #ecd28b; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; background: var(--soft); border: 1px solid var(--line); }
+  .tag.new { background: #efe7fb; border-color: #d5c3f3; color: var(--accent); }
+  a { color: var(--accent); }
+  @media (max-width: 720px) { table { display: block; overflow-x: auto; } }
+</style>
+</head>
+<body>
+
+<h1>Picnic 1.3.5+130503 릴리스 노트</h1>
+<p class="meta">작성 2026-09-22 · 갱신 2026-09-23 · 저장소 charlie0421/picnic-app · 대상 앱 picnic_app (iOS · Android)</p>
+
+<h2>릴리스 식별자</h2>
+<table>
+  <tr><th>버전</th><td><code>1.3.5+130503</code> — 표시 버전 1.3.5 의 세 번째 바이너리</td></tr>
+  <tr><th>태그</th><td><code>picnic-v1.3.5+130503-skip-tests</code> (annotated)</td></tr>
+  <tr><th>대상 커밋</th><td><code>7e1ed1d14</code> — <a href="https://github.com/charlie0421/picnic-app/pull/265">#265</a> chore(release): bump picnic to 1.3.5+130503</td></tr>
+  <tr><th>직전 바이너리</th><td><code>1.3.5+130502</code> (<code>9013bd1e3</code>, 2026-09-22) · <code>1.3.5+130501</code> (<code>ec83e4ec0</code>, 2026-09-20) — 둘 다 Codemagic iOS·Android finished</td></tr>
+  <tr><th>직전 표시 버전</th><td><code>1.3.4+130404</code></td></tr>
+  <tr><th>Codemagic</th><td><a href="https://codemagic.io/app/68495cbcc6cc31dc9e7fb247/build/6ab29e22688764aa17def542">iOS 빌드</a> · <a href="https://codemagic.io/app/68495cbcc6cc31dc9e7fb247/build/6ab29e22688764aa17def543">Android 빌드</a></td></tr>
+</table>
+
+<div class="callout">
+  <strong>작성 시점에 확인되지 않은 것.</strong> 130503 의 두 Codemagic 빌드는 <code>preparing</code> 까지만 확인했다. 빌드 성공,
+  App Store Connect · Google Play 업로드 수신, Shorebird <code>1.3.5+130503</code> release 생성은 미확인이다.
+  1.3.5 가 App Store 에 이미 출시된 상태라면 같은 표시 버전의 iOS 업로드가 거부될 수 있으며, 그 경우 1.3.6+130601 로 다시 낸다.
+</div>
+
+<h2>스토어 "새로운 기능" 문구</h2>
+<p>표시 버전 1.3.5 전체(1.3.4 대비)를 기준으로 썼다. 스토어 문구는 표시 버전 단위로 노출되기 때문이다.</p>
+
+<h3>한국어</h3>
+<pre>• 투표 완료 화면이 작은 화면과 큰 글자 설정에서도 잘리지 않도록 개선했어요.
+• 여러 언어에서 버튼과 안내 문구가 잘리거나 넘치던 부분을 바로잡았어요.
+• 저장 버튼과 투표 후보 신청 화면의 어색한 번역을 고쳤어요.
+• 투표 상세 화면과 리워드 이미지가 더 빠르게 열려요.
+• 결제가 중간에 끊겼을 때 구매 내역을 복구하는 과정을 더 안정적으로 만들었어요.
+• 캔디부스트 이벤트 기간이 이번 주 날짜로 정확하게 표시돼요.
+• 베트남어·인도네시아어 번역을 전체적으로 다듬었어요.</pre>
+
+<h3>English</h3>
+<pre>• The vote-complete screen no longer gets cut off on small screens or with large text.
+• Fixed buttons and labels that were clipped or overflowing in several languages.
+• Corrected awkward translations on the Save button and the candidate request screens.
+• Vote details and reward images now load faster.
+• Made recovery of interrupted purchases more reliable.
+• Candy Boost event dates now show the current week accurately.
+• Revised Vietnamese and Indonesian translations throughout the app.</pre>
+
+<h2>변경 내역</h2>
+<p><span class="tag new">130503</span> 은 이번 바이너리에서 처음 들어가는 변경, <span class="tag">130502</span>·<span class="tag">130501</span> 은 이전 바이너리에 이미 들어 있던 변경이다.</p>
+
+<h3>투표</h3>
+<table>
+  <tr><th>빌드</th><th>변경</th><th>PR · 이슈</th></tr>
+  <tr><td><span class="tag">130502</span></td><td>투표 버튼을 디자인의 고정 폭 알약으로 되돌렸다. 긴 번역 라벨은 말줄임 없이 한 줄로 줄어들어 맞춰지고, 키보드가 열려도 버튼 폭이 변하지 않는다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/251">#251</a> · PICNIC-2700</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>투표 상세 조회가 후보 전체를 두 번 내려받던 것을 없앴다. 후보 목록은 화면이 쓰는 컬럼만, 카드 갱신은 상위 3개만 요청한다. 삭제된 후보는 서버에서 제외된다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/254">#254</a> · PICNIC-2748</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>달성 투표 사다리가 320폭 화면에서 32px 넘치던 것을 고쳤다. 360폭 이상은 배치가 그대로다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/253">#253</a> · PICNIC-2746</td></tr>
+  <tr><td><span class="tag">130501</span></td><td>투표 완료 팝업이 짧은 화면·큰 글자에서 잘리던 것을 고쳤다. 팝업 전체를 한 배율로 줄이므로 화면에 보이는 것과 공유 이미지가 일치한다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/241">#241</a> · PICNIC-2699</td></tr>
+  <tr><td><span class="tag">130501</span></td><td>이미지 없는 그룹에 투표하면 완료 팝업이 크래시하던 것을 고쳤다. 매우 긴 이름이 팝업 전체를 작게 만들던 것도 이름을 2줄(보조 이름 1줄)로 제한해 막았다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/244">#244</a> · PICNIC-2699</td></tr>
+</table>
+
+<h3>다국어 표시 · 번역</h3>
+<table>
+  <tr><th>빌드</th><th>변경</th><th>PR · 이슈</th></tr>
+  <tr><td><span class="tag new">130503</span></td><td>베트남어 운영 화면 407개 키 전수 검수, 79건 수정 — 회원탈퇴 "Rút tiền"(출금)→"Xóa tài khoản", 충전 "Tính phí"(요금 부과)→"Nạp", 공지사항 "Để ý"(주의)→"Thông báo" 등. 재화는 영문 브랜드명(Star Candy 등), 팬 투표는 "bình chọn" 으로 통일.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/260">#260</a></td></tr>
+  <tr><td><span class="tag new">130503</span></td><td>인도네시아어 운영 화면 320개 키 전수 검수, 80건 수정 — 회원탈퇴 "Penarikan"(출금)→계정 삭제, 리워드 "Penghargaan"(표창)→"Hadiah", 한국어 "닫기"·영어 Cancel/Confirm 그대로 남은 문구 번역. 대기중(pending)과 대기 중(waiting)이 같은 "Menunggu" 라 코드가 상태를 구분하지 못하던 버그 수정.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/262">#262</a></td></tr>
+  <tr><td><span class="tag new">130503</span></td><td>시스템 글자 크기를 2.6배로 제한한다. iOS 손쉬운 사용은 약 3.1배까지 올라가 고정된 페이지 머리가 화면을 넘겼다. 2.6배 이하(Android 전부)는 그대로다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/261">#261</a> · PICNIC-2750</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>저장·공유 버튼의 라벨이 버튼 밖으로 넘치던 것을 고쳤다(완료 팝업·투표 상세·홈 추천 카드·투표 정보 카드·운세·궁합 여섯 화면 공통). 한국어 화면은 변화가 없다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/247">#247</a> · PICNIC-2727</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>저장 버튼 오역 수정 — es <code>Ahorrar→Guardar</code>, vi <code>Cứu→Lưu</code>, zh <code>节省→保存</code>, fil·bn_BD 표기 정리. 버마어는 맞는 표기를 확인할 때까지 영어 <code>Save</code>/<code>Share</code> 로 둔다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/248">#248</a> · <a href="https://github.com/charlie0421/picnic-app/pull/249">#249</a> · PICNIC-2729</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>번역 문자열이 고정 크기 상자에서 잘리던 곳을 고쳤다 — 카운트다운의 "예정" 라벨과 숫자 등 9곳, 그리고 닉네임 안내 문구·가입 약관/개인정보 제목·투표 홈 리워드 이름·빈 투표 안내·후보 신청 상태 칩·언어 선택 격자 6곳.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/252">#252</a> · <a href="https://github.com/charlie0421/picnic-app/pull/256">#256</a> · PICNIC-2738</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>로그인 버튼이 글자 크기 2.6배에서 모든 언어에서 잘리던 것을 고쳤다. id·vi 의 "달성" 문구를 명사형에서 완료형으로 바꿨다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/253">#253</a> · PICNIC-2746</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>베트남어 투표 후보 신청·빈 투표 안내의 기계 번역 오역 14건을 고쳤다(예: 거절됨 "Vật bị loại bỏ"→"Bị từ chối", 승인됨 "Tán thành"→"Đã duyệt").</td><td><a href="https://github.com/charlie0421/picnic-app/pull/257">#257</a> · PICNIC-2738</td></tr>
+</table>
+
+<h3>결제 · 프로모션</h3>
+<table>
+  <tr><th>빌드</th><th>변경</th><th>PR · 이슈</th></tr>
+  <tr><td><span class="tag new">130503</span></td><td>캔디부스트 이벤트 기간이 캠페인 전체 종료일 대신 현재 진행 중인 회차(KST)의 날짜로 표시된다. 반복 요일 일정도 함께 표시하고, 포그라운드 만료·앱 복귀·당겨서 새로고침 때 프로모션 정보를 다시 읽는다. 홈 배너 노출은 켜지 않았다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/263">#263</a> · <a href="https://github.com/charlie0421/picnic-app/pull/264">#264</a> · PICNIC-2760</td></tr>
+  <tr><td><span class="tag">130502</span></td><td>iOS 미완료 결제 복구가 서버에서 422 로 거부되던 것을 고쳤다. StoreKit 2 의 거래별 JWS 로 복구하며, 지급이 확인된 뒤에만 거래를 완료 처리한다. 백그라운드 캐시 정리 중에도 구매 스트림을 유지하고, 계정을 바꾸면 남은 복구를 중단한다. 결제 실패 분류와 사용자 ID 를 Sentry 에 기록한다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/255">#255</a> · PICNIC-2743</td></tr>
+</table>
+
+<h3>성능 · 계측</h3>
+<table>
+  <tr><th>빌드</th><th>변경</th><th>PR · 이슈</th></tr>
+  <tr><td><span class="tag">130501</span></td><td>리워드 팝업과 홈 리워드 그리드 이미지가 CDN 에서 매번 새로 리사이즈되며 8~12초 걸리던 것을 없앴다. 팝업은 원본을, 그리드는 기기와 무관한 한 가지 크기만 요청한다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/243">#243</a></td></tr>
+  <tr><td><span class="tag">130501</span></td><td>세션 복구·토큰 갱신 때 기기의 설치 앱 버전을 함께 기록한다. 업데이트 후 계속 로그인 상태인 사용자도 버전 채택률 집계에 반영된다.</td><td><a href="https://github.com/charlie0421/picnic-app/pull/242">#242</a> · PICNIC-2718</td></tr>
+</table>
+
+<h3>앱 동작에 영향 없는 변경</h3>
+<ul>
+  <li><a href="https://github.com/charlie0421/picnic-app/pull/246">#246</a> 릴리스 스킬 <code>picnic-release</code> 와 <code>scripts/release_picnic.sh</code></li>
+  <li><a href="https://github.com/charlie0421/picnic-app/pull/250">#250</a> 투표 버튼 폭·저장 공유 배치 시안 문서</li>
+  <li><a href="https://github.com/charlie0421/picnic-app/pull/245">#245</a> · <a href="https://github.com/charlie0421/picnic-app/pull/258">#258</a> · <a href="https://github.com/charlie0421/picnic-app/pull/265">#265</a> 버전 범프</li>
+</ul>
+
+<h2>QA 확인 포인트</h2>
+<ul>
+  <li><strong>캔디부스트 기간 (#263·#264)</strong> — 결제 화면 뱃지의 기간이 이번 주 회차 날짜(월~수)로 보이는지, 회차가 끝난 뒤 앱을 다시 열면 갱신되는지 본다. 홈 배너는 꺼져 있어야 한다.</li>
+  <li><strong>글자 크기 상한 (#261)</strong> — iOS 손쉬운 사용 글자 크기를 최대로 올려도 앱이 2.6배 이상 커지지 않고, 달성 투표 상세 머리가 화면 안에 있는지 본다.</li>
+  <li><strong>vi·id 번역 (#260·#262)</strong> — 마이페이지(회원탈퇴·충전·공지), 투표 후보 신청 상태, 이용 정지 안내를 두 언어로 본다.</li>
+  <li><strong>iOS 미완료 결제 복구 (#255)</strong> — PR 에 "실기기 결제 복구·운영 지급 확인은 남아 있음" 으로 적혀 있다. 결제 도중 앱을 종료한 뒤 재실행해 재화가 지급되고 거래가 한 번만 완료되는지 본다.</li>
+  <li><strong>투표 버튼 (#251)</strong> — 한국어·영어는 기존 디자인과 같아야 한다. es·vi·bn_BD 등 긴 라벨은 한 줄로 줄어들고 말줄임이 없어야 하며, 키보드를 열어도 버튼 폭이 같아야 한다.</li>
+  <li><strong>저장·공유 버튼 (#247~#249)</strong> — 여섯 화면 중 완료 팝업과 투표 상세에서 es·bn_BD·my 라벨이 버튼 안에 있는지 본다.</li>
+  <li><strong>큰 글자 설정 (#252·#253·#256)</strong> — 시스템 글자 크기를 최대로 하고 로그인 버튼, 닉네임 입력, 가입 약관 제목, 카운트다운을 본다.</li>
+  <li><strong>투표 상세 (#254)</strong> — 후보 목록·순위·득표수가 이전과 같고, 삭제된 후보가 보이지 않는지 본다.</li>
+  <li><strong>완료 팝업 (#241·#244)</strong> — 작은 기기에서 팝업이 잘리지 않고, 저장한 공유 이미지가 화면과 같은지 본다.</li>
+</ul>
+
+<h2>알려진 제한</h2>
+<ul>
+  <li>버마어 저장·공유 라벨은 임시로 영어다. 맞는 표기가 확인되면 <a href="https://github.com/charlie0421/picnic-app/pull/249">#249</a> 를 되돌린다 (PICNIC-2729).</li>
+  <li>#248 의 es·vi·fil·bn_BD 번역은 원어민 확인 전이다. 되돌려도 레이아웃은 #247 이 보장한다.</li>
+  <li>이 태그는 <code>-skip-tests</code> 라 Codemagic 에서 <code>picnic_lib</code> 의 긴 커버리지 테스트 단계를 건너뛴다. 릴리스 가드 테스트는 실행된다.</li>
+</ul>
+
+</body>
+</html>
