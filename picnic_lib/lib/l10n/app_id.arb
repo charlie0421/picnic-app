@@ -275,15 +275,15 @@
   "@dialog_title_ads_exhausted": {
     "description": "Auto-generated metadata for key 'dialog_title_ads_exhausted'."
   },
-  "dialog_title_vote_fail": "Pemungutan Suara Gagal",
+  "dialog_title_vote_fail": "Vote Gagal",
   "@dialog_title_vote_fail": {
     "description": "Auto-generated metadata for key 'dialog_title_vote_fail'."
   },
-  "dialog_will_delete_star_candy": "Permen Bintang yang akan dihapus",
+  "dialog_will_delete_star_candy": "Star Candy yang akan dihapus",
   "@dialog_will_delete_star_candy": {
     "description": "Auto-generated metadata for key 'dialog_will_delete_star_candy'."
   },
-  "dialog_withdraw_message": "Jika Anda membatalkan keanggotaan Anda, permen bintang dan informasi akun Anda di Picnic akan segera dihapus, dan informasi serta data Anda yang ada tidak akan dipulihkan saat Anda bergabung kembali.",
+  "dialog_withdraw_message": "Jika Anda menghapus akun, Star Candy dan informasi akun Anda di Picnic akan segera dihapus, dan informasi serta data yang ada tidak dapat dipulihkan saat Anda mendaftar kembali.",
   "@dialog_withdraw_message": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_message'."
   },
@@ -455,11 +455,11 @@
   "@label_ads_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_ads_get_star_candy'."
   },
-  "label_ads_get_cotton_candy": "Dapatkan Permen Kapas dari Iklan",
+  "label_ads_get_cotton_candy": "Dapatkan Cotton Candy dari Iklan",
   "@label_ads_get_cotton_candy": {
     "description": "Free charge station ads section title."
   },
-  "free_charge_ads_reward": "+Permen Kapas {reward} diperoleh",
+  "free_charge_ads_reward": "+Cotton Candy {reward} diperoleh",
   "@free_charge_ads_reward": {
     "description": "Reward copy for an ad in the free charge station.",
     "placeholders": {
@@ -547,11 +547,11 @@
   "@label_button_agreement": {
     "description": "Auto-generated metadata for key 'label_button_agreement'."
   },
-  "label_button_close": "닫기",
+  "label_button_close": "Tutup",
   "@label_button_close": {
     "description": "Auto-generated metadata for key 'label_button_close'."
   },
-  "label_button_recharge": "Pengisian daya",
+  "label_button_recharge": "Isi ulang",
   "@label_button_recharge": {
     "description": "Auto-generated metadata for key 'label_button_recharge'."
   },
@@ -559,7 +559,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "Pilih",
+  "label_button_vote": "Vote",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
@@ -571,7 +571,7 @@
   "@label_celeb_recommend": {
     "description": "Auto-generated metadata for key 'label_celeb_recommend'."
   },
-  "label_checkbox_entire_use": "Penggunaan Penuh",
+  "label_checkbox_entire_use": "Gunakan Semua",
   "@label_checkbox_entire_use": {
     "description": "Auto-generated metadata for key 'label_checkbox_entire_use'."
   },
@@ -599,7 +599,7 @@
   "@label_home_current_vote": {
     "description": "Auto-generated metadata for key 'label_home_current_vote'."
   },
-  "label_input_input": "Masukan",
+  "label_input_input": "Masukkan",
   "@label_input_input": {
     "description": "Auto-generated metadata for key 'label_input_input'."
   },
@@ -635,11 +635,11 @@
   "@label_mission_get_star_candy": {
     "description": "Auto-generated metadata for key 'label_mission_get_star_candy'."
   },
-  "label_mission_get_bonus_star_candy": "Dapatkan Permen Bintang Bonus dari Misi",
+  "label_mission_get_bonus_star_candy": "Dapatkan Bonus Star Candy dari Misi",
   "@label_mission_get_bonus_star_candy": {
     "description": "Free charge station missions section title."
   },
-  "free_charge_mission_reward": "+Permen Bintang Bonus {reward} diperoleh",
+  "free_charge_mission_reward": "+Bonus Star Candy {reward} diperoleh",
   "@free_charge_mission_reward": {
     "description": "Reward copy for a mission in the free charge station.",
     "placeholders": {
@@ -664,7 +664,7 @@
   "@label_mypage_logout": {
     "description": "Auto-generated metadata for key 'label_mypage_logout'."
   },
-  "label_mypage_my_artist": "Seniman Saya",
+  "label_mypage_my_artist": "Artis Saya",
   "@label_mypage_my_artist": {
     "description": "Auto-generated metadata for key 'label_mypage_my_artist'."
   },
@@ -680,7 +680,7 @@
   "@label_mypage_notifications": {
     "description": "Auto-generated metadata for key 'label_mypage_notifications'."
   },
-  "label_mypage_picnic_id": "ID",
+  "label_mypage_picnic_id": "ID Picnic",
   "@label_mypage_picnic_id": {
     "description": "Auto-generated metadata for key 'label_mypage_picnic_id'."
   },
@@ -700,11 +700,11 @@
   "@label_mypage_terms_of_use": {
     "description": "Auto-generated metadata for key 'label_mypage_terms_of_use'."
   },
-  "label_mypage_vote_history": "Riwayat Pemungutan Suara StarCandy",
+  "label_mypage_vote_history": "Riwayat Vote Star Candy",
   "@label_mypage_vote_history": {
     "description": "Auto-generated metadata for key 'label_mypage_vote_history'."
   },
-  "label_mypage_withdrawal": "Penarikan",
+  "label_mypage_withdrawal": "Hapus akun",
   "@label_mypage_withdrawal": {
     "description": "Auto-generated metadata for key 'label_mypage_withdrawal'."
   },
@@ -728,7 +728,7 @@
   "@label_reply": {
     "description": "Auto-generated metadata for key 'label_reply'."
   },
-  "label_retry": "Mencoba kembali",
+  "label_retry": "Coba lagi",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
   },
@@ -748,7 +748,7 @@
   "@label_setting_event_alarm": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm'."
   },
-  "label_setting_event_alarm_desc": "Peristiwa dan kejadian.",
+  "label_setting_event_alarm_desc": "Event dan kabar terbaru.",
   "@label_setting_event_alarm_desc": {
     "description": "Auto-generated metadata for key 'label_setting_event_alarm_desc'."
   },
@@ -776,7 +776,7 @@
   "@label_setting_storage": {
     "description": "Auto-generated metadata for key 'label_setting_storage'."
   },
-  "label_star_candy_pouch": "Kantong Permen Bintang",
+  "label_star_candy_pouch": "Kantong Star Candy",
   "@label_star_candy_pouch": {
     "description": "Auto-generated metadata for key 'label_star_candy_pouch'."
   },
@@ -784,11 +784,11 @@
   "@label_tabbar_vote_active": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_active'."
   },
-  "label_tabbar_vote_end": "akhir",
+  "label_tabbar_vote_end": "Berakhir",
   "@label_tabbar_vote_end": {
     "description": "Auto-generated metadata for key 'label_tabbar_vote_end'."
   },
-  "label_time_ago_day": "{day} beberapa hari yang lalu",
+  "label_time_ago_day": "{day} hari yang lalu",
   "@label_time_ago_day": {
     "placeholders": {
       "day": {
@@ -796,7 +796,7 @@
       }
     }
   },
-  "label_time_ago_hour": "{hour} beberapa jam yang lalu",
+  "label_time_ago_hour": "{hour} jam yang lalu",
   "@label_time_ago_hour": {
     "placeholders": {
       "hour": {
@@ -816,7 +816,7 @@
   "@label_unlimited_rewards": {
     "description": "Auto-generated metadata for key 'label_unlimited_rewards'."
   },
-  "label_vote_end": "Tutup jajak pendapat",
+  "label_vote_end": "Vote Ditutup",
   "@label_vote_end": {
     "description": "Auto-generated metadata for key 'label_vote_end'."
   },
@@ -824,11 +824,11 @@
   "@label_vote_reward_list": {
     "description": "Auto-generated metadata for key 'label_vote_reward_list'."
   },
-  "label_vote_screen_title": "Pemungutan suara",
+  "label_vote_screen_title": "Vote",
   "@label_vote_screen_title": {
     "description": "Auto-generated metadata for key 'label_vote_screen_title'."
   },
-  "label_vote_upcoming": "Sampai pemungutan suara dimulai",
+  "label_vote_upcoming": "Sampai vote dimulai",
   "@label_vote_upcoming": {
     "description": "Auto-generated metadata for key 'label_vote_upcoming'."
   },
@@ -844,15 +844,15 @@
   "@message_error_occurred": {
     "description": "Auto-generated metadata for key 'message_error_occurred'."
   },
-  "message_noitem_vote_active": "Saat ini tidak ada jajak pendapat yang aktif.",
+  "message_noitem_vote_active": "Saat ini tidak ada vote yang sedang berlangsung.",
   "@message_noitem_vote_active": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_active'."
   },
-  "message_noitem_vote_end": "Saat ini tidak ada jajak pendapat tertutup.",
+  "message_noitem_vote_end": "Saat ini tidak ada vote yang telah berakhir.",
   "@message_noitem_vote_end": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_end'."
   },
-  "message_noitem_vote_upcoming": "Saat ini tidak ada jajak pendapat yang akan datang.",
+  "message_noitem_vote_upcoming": "Saat ini tidak ada vote yang akan datang.",
   "@message_noitem_vote_upcoming": {
     "description": "Auto-generated metadata for key 'message_noitem_vote_upcoming'."
   },
@@ -865,11 +865,11 @@
     "description": "Auto-generated metadata for key 'message_pic_pic_save_success'."
   },
   "message_store_products_load_failed": "Tidak dapat memuat daftar produk. Silakan coba lagi nanti.",
-  "message_vote_is_ended": "Jajak pendapat ditutup",
+  "message_vote_is_ended": "Vote Ditutup",
   "@message_vote_is_ended": {
     "description": "Auto-generated metadata for key 'message_vote_is_ended'."
   },
-  "message_vote_is_upcoming": "Ini adalah pemungutan suara yang akan datang.",
+  "message_vote_is_upcoming": "Ini adalah vote yang akan datang.",
   "@message_vote_is_upcoming": {
     "description": "Auto-generated metadata for key 'message_vote_is_upcoming'."
   },
@@ -897,7 +897,7 @@
   "@page_title_post_write": {
     "description": "Auto-generated metadata for key 'page_title_post_write'."
   },
-  "page_title_vote_detail": "Pilih",
+  "page_title_vote_detail": "Vote",
   "@page_title_vote_detail": {
     "description": "Auto-generated metadata for key 'page_title_vote_detail'."
   },
@@ -1141,7 +1141,7 @@
   "@purchase_in_progress_message": {
     "description": "Auto-generated metadata for key 'purchase_in_progress_message'."
   },
-  "purchase_initializing_message": "Pembelian sedang berlangsung. Mohon tunggu sebentar.",
+  "purchase_initializing_message": "Sedang menginisialisasi. Silakan coba lagi sebentar lagi.",
   "@purchase_initializing_message": {
     "description": "Auto-generated metadata for key 'purchase_initializing_message'."
   },
@@ -1157,11 +1157,11 @@
   "@purchase_web_message": {
     "description": "Auto-generated metadata for key 'purchase_web_message'."
   },
-  "qna_content": "Content",
+  "qna_content": "Isi",
   "@qna_content": {
     "description": "Auto-generated metadata for key 'qna_content'."
   },
-  "qna_create_page_title": "Buat Konsultasi",
+  "qna_create_page_title": "Buat Pertanyaan",
   "@qna_create_page_title": {
     "description": "Auto-generated metadata for key 'qna_create_page_title'."
   },
@@ -1169,7 +1169,7 @@
   "@qna_no_answer_yet": {
     "description": "Auto-generated metadata for key 'qna_no_answer_yet'."
   },
-  "qna_no_inquiries": "No inquiry history",
+  "qna_no_inquiries": "Tidak ada riwayat pertanyaan",
   "@qna_no_inquiries": {
     "description": "Auto-generated metadata for key 'qna_no_inquiries'."
   },
@@ -1177,7 +1177,7 @@
   "@qna_status_closed": {
     "description": "Auto-generated metadata for key 'qna_status_closed'."
   },
-  "qna_submit_button": "Daftar Konsultasi",
+  "qna_submit_button": "Kirim Pertanyaan",
   "@qna_submit_button": {
     "description": "Auto-generated metadata for key 'qna_submit_button'."
   },
@@ -1189,7 +1189,7 @@
   "@replies": {
     "description": "Auto-generated metadata for key 'replies'."
   },
-  "reward": "Penghargaan",
+  "reward": "Hadiah",
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
@@ -1229,7 +1229,7 @@
   "@text_moveto_celeb_gallery": {
     "description": "Auto-generated metadata for key 'text_moveto_celeb_gallery'."
   },
-  "text_need_recharge": "Membutuhkan pengisian daya.",
+  "text_need_recharge": "Perlu isi ulang.",
   "@text_need_recharge": {
     "description": "Auto-generated metadata for key 'text_need_recharge'."
   },
@@ -1241,7 +1241,7 @@
   "@text_purchase_vat_included": {
     "description": "Auto-generated metadata for key 'text_purchase_vat_included'."
   },
-  "text_vote_complete": "Pemungutan suara selesai",
+  "text_vote_complete": "Vote selesai",
   "@text_vote_complete": {
     "description": "Auto-generated metadata for key 'text_vote_complete'."
   },
@@ -1285,7 +1285,7 @@
   "@toast_bookmark_removed": {
     "description": "Toast message when bookmark is removed successfully."
   },
-  "toast_max_five_celeb": "Anda dapat menambahkan hingga lima artis Anda sendiri.",
+  "toast_max_five_celeb": "Anda dapat menambahkan hingga lima artis.",
   "@toast_max_five_celeb": {
     "description": "Auto-generated metadata for key 'toast_max_five_celeb'."
   },
@@ -1309,7 +1309,7 @@
   "@vote_item_request_can_apply": {
     "description": "Auto-generated metadata for key 'vote_item_request_can_apply'."
   },
-  "vote_item_request_search_artist": "Cari Seniman",
+  "vote_item_request_search_artist": "Cari Artis",
   "@vote_item_request_search_artist": {
     "description": "Auto-generated metadata for key 'vote_item_request_search_artist'."
   },
@@ -1321,7 +1321,7 @@
   "@vote_item_request_status_approved": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_approved'."
   },
-  "vote_item_request_status_pending": "Menunggu",
+  "vote_item_request_status_pending": "Menunggu persetujuan",
   "@vote_item_request_status_pending": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_pending'."
   },
@@ -1329,23 +1329,23 @@
   "@vote_item_request_status_rejected": {
     "description": "Auto-generated metadata for key 'vote_item_request_status_rejected'."
   },
-  "vote_item_request_submit": "Kirim",
+  "vote_item_request_submit": "Ajukan",
   "@vote_item_request_submit": {
     "description": "Auto-generated metadata for key 'vote_item_request_submit'."
   },
-  "vote_item_request_title": "Permintaan Pemungutan Suara untuk Seniman",
+  "vote_item_request_title": "Ajukan Kandidat Vote",
   "@vote_item_request_title": {
     "description": "Auto-generated metadata for key 'vote_item_request_title'."
   },
-  "vote_share_message": "Voted!",
+  "vote_share_message": "Sudah vote!",
   "@vote_share_message": {
     "description": "Auto-generated metadata for key 'vote_share_message'."
   },
-  "vote_completed_message": "Aku sudah memilih!",
+  "vote_completed_message": "Aku sudah vote!",
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Dapatkan 1 bonus permen bintang untuk setiap 100 suara!",
+  "voting_share_benefit_text": "Dapatkan 1 Bonus Star Candy untuk setiap 100 suara!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1405,7 +1405,7 @@
       }
     }
   },
-  "qna_cannot_send_message_closed": "Konsultasi ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.",
+  "qna_cannot_send_message_closed": "Pertanyaan ini telah ditutup dan Anda tidak dapat lagi mengirim pesan.",
   "@qna_cannot_send_message_closed": {
     "description": "Auto-generated metadata for key 'qna_cannot_send_message_closed'."
   },
@@ -1421,7 +1421,7 @@
   "@qna_add_media_tooltip": {
     "description": "Auto-generated metadata for key 'qna_add_media_tooltip'."
   },
-  "qna_load_fail_title": "Gagal memuat konsultasi",
+  "qna_load_fail_title": "Gagal memuat riwayat pertanyaan",
   "@qna_load_fail_title": {
     "description": "Auto-generated metadata for key 'qna_load_fail_title'."
   },
@@ -1537,7 +1537,7 @@
   "@retry": {
     "description": "Auto-generated metadata for key 'retry'."
   },
-  "label_my_vote_history": "Riwayat Voting Saya",
+  "label_my_vote_history": "Riwayat Vote Saya",
   "@label_my_vote_history": {
     "description": "Auto-generated metadata for key 'label_my_vote_history'."
   },
@@ -1545,15 +1545,15 @@
   "@qna_status_open": {
     "description": "Auto-generated metadata for key 'qna_status_open'."
   },
-  "cancel": "Cancel",
+  "cancel": "Batal",
   "@cancel": {
     "description": "Auto-generated metadata for key 'cancel'."
   },
-  "confirm": "Confirm",
+  "confirm": "Konfirmasi",
   "@confirm": {
     "description": "Auto-generated metadata for key 'confirm'."
   },
-  "loading": "Loading...",
+  "loading": "Memuat...",
   "@loading": {
     "description": "Auto-generated metadata for key 'loading'."
   },
@@ -1561,15 +1561,15 @@
   "@update": {
     "description": "Auto-generated metadata for key 'update'."
   },
-  "ban_title": "Akun Ditangguhkan",
+  "ban_title": "Penggunaan perangkat ditangguhkan sementara",
   "@ban_title": {
     "description": "Auto-generated metadata for key 'ban_title'."
   },
-  "ban_message": "Akun Anda telah ditangguhkan sementara karena aktivitas yang tidak semestinya.",
+  "ban_message": "Penggunaan perangkat ini ditangguhkan sementara karena terdeteksi pelanggaran kebijakan.",
   "@ban_message": {
     "description": "Auto-generated metadata for key 'ban_message'."
   },
-  "ban_contact": "Jika ada pertanyaan, silakan hubungi layanan pelanggan.",
+  "ban_contact": "Jika Anda yakin ini adalah kesalahan, silakan hubungi layanan pelanggan.",
   "@ban_contact": {
     "description": "Auto-generated metadata for key 'ban_contact'."
   },
@@ -1605,15 +1605,15 @@
   "@goonghap_login_button": {
     "description": "Login button text on goonghap page"
   },
-  "network_error_title": "Network Error",
+  "network_error_title": "Kesalahan jaringan",
   "@network_error_title": {
     "description": "Auto-generated metadata for key 'network_error_title'."
   },
-  "network_error_message": "Please check your internet connection.",
+  "network_error_message": "Silakan periksa koneksi internet Anda.",
   "@network_error_message": {
     "description": "Auto-generated metadata for key 'network_error_message'."
   },
-  "notice_pinned": "Pinned",
+  "notice_pinned": "Disematkan",
   "@notice_pinned": {
     "description": "Auto-generated metadata for key 'notice_pinned'."
   },
@@ -1629,11 +1629,11 @@
   "@qna_list_empty_description": {
     "description": "Auto-generated metadata for key 'qna_list_empty_description'."
   },
-  "qna_attach_media": "Attach Photo/Video",
+  "qna_attach_media": "Lampirkan Foto/Video",
   "@qna_attach_media": {
     "description": "Auto-generated metadata for key 'qna_attach_media'."
   },
-  "file_too_large_message": "{fileName} exceeds the {maxSize}MB size limit.",
+  "file_too_large_message": "Ukuran file {fileName} tidak boleh melebihi {maxSize}MB.",
   "@file_too_large_message": {
     "placeholders": {
       "fileName": {
@@ -1689,7 +1689,7 @@
   "@goonghap_time_slot_unknown": {
     "description": "Auto-generated metadata for key 'goonghap_time_slot_unknown'."
   },
-  "label_popup_hide_7days": "Don't view for 7 days",
+  "label_popup_hide_7days": "Jangan tampilkan selama 7 hari",
   "@label_popup_hide_7days": {
     "description": "Auto-generated metadata for key 'label_popup_hide_7days'."
   },
@@ -1766,7 +1766,7 @@
   "@error_message_login_failed": {
     "description": "Auto-generated metadata for key 'error_message_login_failed'."
   },
-  "dialog_withdraw_button_ok": "Berhenti berlangganan",
+  "dialog_withdraw_button_ok": "Hapus akun",
   "@dialog_withdraw_button_ok": {
     "description": "Auto-generated metadata for key 'dialog_withdraw_button_ok'."
   },
@@ -1786,7 +1786,7 @@
   "@bonus_candy_example_expiration_date": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_expiration_date'."
   },
-  "label_tab_free_charge_station": "Stasiun pengisian daya gratis",
+  "label_tab_free_charge_station": "Stasiun isi ulang gratis",
   "@label_tab_free_charge_station": {
     "description": "Auto-generated metadata for key 'label_tab_free_charge_station'."
   },
@@ -1822,7 +1822,7 @@
   "@error_product_not_found": {
     "description": "Auto-generated metadata for key 'error_product_not_found'."
   },
-  "label_popup_close": "close",
+  "label_popup_close": "Tutup",
   "@label_popup_close": {
     "description": "Auto-generated metadata for key 'label_popup_close'."
   },
@@ -1846,7 +1846,7 @@
   "@goonghap_snackbar_need_profile_save_agree": {
     "description": "Auto-generated metadata for key 'goonghap_snackbar_need_profile_save_agree'."
   },
-  "qna_content_min_length": "Isi konsultasi minimal 10 karakter",
+  "qna_content_min_length": "Isi pertanyaan minimal 10 karakter",
   "@qna_content_min_length": {
     "description": "Auto-generated metadata for key 'qna_content_min_length'."
   },
@@ -1858,7 +1858,7 @@
   "@label_pic_pic_synthesizing_image": {
     "description": "Auto-generated metadata for key 'label_pic_pic_synthesizing_image'."
   },
-  "label_tab_buy_star_candy": "Beli permen bintang",
+  "label_tab_buy_star_candy": "Beli Star Candy",
   "@label_tab_buy_star_candy": {
     "description": "Auto-generated metadata for key 'label_tab_buy_star_candy'."
   },
@@ -1913,7 +1913,7 @@
   "@goonghap_duplicate_data_message": {
     "description": "Auto-generated metadata for key 'goonghap_duplicate_data_message'."
   },
-  "label_time_ago_minute": "{minute} beberapa menit yang lalu",
+  "label_time_ago_minute": "{minute} menit yang lalu",
   "@label_time_ago_minute": {
     "placeholders": {
       "minute": {
@@ -1941,7 +1941,7 @@
   "@bonus_candy_earn_period_15_to_end": {
     "description": "Auto-generated metadata for key 'bonus_candy_earn_period_15_to_end'."
   },
-  "error_message_withdrawal": "Anggota yang telah berhenti berlangganan.",
+  "error_message_withdrawal": "Akun telah dihapus.",
   "@error_message_withdrawal": {
     "description": "Auto-generated metadata for key 'error_message_withdrawal'."
   },
@@ -1953,7 +1953,7 @@
       }
     }
   },
-  "withdrawal_success": "Berhenti berlangganan berhasil diproses.",
+  "withdrawal_success": "Penghapusan akun berhasil diproses.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
   },
@@ -1973,7 +1973,7 @@
   "@bonus_candy_example_2_earn": {
     "description": "Auto-generated metadata for key 'bonus_candy_example_2_earn'."
   },
-  "message_agreement_fail": "Terms agreement required",
+  "message_agreement_fail": "Persetujuan terhadap ketentuan diperlukan",
   "@message_agreement_fail": {
     "description": "Auto-generated metadata for key 'message_agreement_fail'."
   },
@@ -2049,7 +2049,7 @@
   "@post_board_create_request_label": {
     "description": "Auto-generated metadata for key 'post_board_create_request_label'."
   },
-  "qna_auto_close_after_14_days_notice": "Jika tidak ada percakapan tambahan selama 14 hari, konsultasi akan ditutup secara otomatis.",
+  "qna_auto_close_after_14_days_notice": "Jika tidak ada percakapan tambahan selama 14 hari, pertanyaan akan ditutup secara otomatis.",
   "@qna_auto_close_after_14_days_notice": {
     "description": "Notice shown when the last message is from admin in QnA thread."
   },
@@ -2089,15 +2089,15 @@
   "@ad_reward_success_message": {
     "description": "Pesan sukses kredit hadiah dari iklan"
   },
-  "weekly_vote_info_title": "🎖️ Panduan Pemungutan Suara Mingguan",
+  "weekly_vote_info_title": "🎖️ Panduan Vote Mingguan",
   "@weekly_vote_info_title": {
     "description": "Judul popup panduan vote mingguan"
   },
-  "weekly_vote_info_body": "Hall of Fame Award Picnic dibuka setiap minggu!\n\nSetiap pemenang mingguan akan otomatis terdaftar sebagai kandidat 'Hall of Fame Award' akhir tahun,\n\ndengan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Setelah seorang artis menang, ia tidak lagi menjadi kandidat voting mingguan pada tahun tersebut.)",
+  "weekly_vote_info_body": "Hall of Fame Picnic yang diadakan setiap minggu!\n\nSetiap artis pemenang mingguan akan otomatis terdaftar sebagai kandidat 'Hall of Fame' akhir tahun,\n\ndan total 50 pemenang mingguan dipilih setiap tahun.\n\n(※ Artis yang sudah menang sekali tidak akan menjadi kandidat Vote Mingguan pada tahun tersebut.)",
   "@weekly_vote_info_link": {
     "description": "Label tautan untuk info voting mingguan"
   },
-  "weekly_vote_info_link": "Apa itu Weekly Vote?",
+  "weekly_vote_info_link": "Apa itu Vote Mingguan?",
   "label_setting_patch_section_title": "Patch status",
   "@label_setting_patch_section_title": {
     "description": "Title for the patch status section in Settings."
@@ -2135,7 +2135,7 @@
   "@label_setting_patch_status_available": {
     "description": "Status label when a patch is available."
   },
-  "label_setting_patch_status_current_patch": "Current patch: {patchNumber}",
+  "label_setting_patch_status_current_patch": "Patch saat ini: {patchNumber}",
   "@label_setting_patch_status_current_patch": {
     "description": "Status label showing the current patch number.",
     "placeholders": {
@@ -2144,7 +2144,7 @@
       }
     }
   },
-  "label_setting_patch_status_none": "No patch applied",
+  "label_setting_patch_status_none": "Tidak ada patch yang diterapkan",
   "@label_setting_patch_status_none": {
     "description": "Status label when no patch is applied."
   },
@@ -2243,7 +2243,7 @@
       }
     }
   },
-  "vote_item_request_search_initial_guide": "Cari artis untuk diajukan",
+  "vote_item_request_search_initial_guide": "Cari artis yang ingin diajukan",
   "@vote_item_request_search_initial_guide": {
     "description": "Guide text shown before user starts searching for artist"
   },
@@ -2436,7 +2436,7 @@
   "@error_anti_abuse_signup_title": {
     "description": "Anti-abuse rate-limited dialog title for signup channel"
   },
-  "error_anti_abuse_signup_message": "Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi customer support.",
+  "error_anti_abuse_signup_message": "Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi layanan pelanggan.",
   "@error_anti_abuse_signup_message": {
     "description": "Anti-abuse rate-limited dialog body for signup channel — partially explicit + CS link"
   },
@@ -2452,11 +2452,11 @@
   "@error_anti_abuse_artist_request_title": {
     "description": "Anti-abuse rate-limited dialog title for artist-request channel"
   },
-  "error_anti_abuse_artist_request_message": "Saat ini tidak bisa menambah permintaan artis. Silakan coba lagi nanti.",
+  "error_anti_abuse_artist_request_message": "Saat ini tidak dapat mengajukan permintaan penambahan artis. Silakan coba lagi nanti.",
   "@error_anti_abuse_artist_request_message": {
     "description": "Anti-abuse rate-limited dialog body for artist-request channel"
   },
-  "button_cs_inquiry": "Hubungi Support",
+  "button_cs_inquiry": "Hubungi Layanan Pelanggan",
   "@button_cs_inquiry": {
     "description": "Customer support inquiry button label"
   },

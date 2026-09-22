@@ -19,7 +19,7 @@ import 'package:picnic_lib/l10n/app_localizations_ko.dart';
 import 'package:picnic_lib/l10n/app_localizations_vi.dart';
 
 /// FNV-1a 32 of the arb files this was generated from.
-const int longestArbChecksum = 0xEA8C4007;
+const int longestArbChecksum = 0x76787B52;
 
 class LongestAppLocalizations extends AppLocalizationsEn {
   LongestAppLocalizations() : super('en');
@@ -200,7 +200,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get dialog_title_ads_exhausted => _fil.dialog_title_ads_exhausted;
 
   @override
-  String get dialog_title_vote_fail => _id.dialog_title_vote_fail;
+  String get dialog_title_vote_fail => _fil.dialog_title_vote_fail;
 
   @override
   String get dialog_will_delete_star_candy => _es.dialog_will_delete_star_candy;
@@ -386,7 +386,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_celeb_recommend => _es.label_celeb_recommend;
 
   @override
-  String get label_checkbox_entire_use => _id.label_checkbox_entire_use;
+  String get label_checkbox_entire_use => _fil.label_checkbox_entire_use;
 
   @override
   String get label_draw_image => _fil.label_draw_image;
@@ -533,7 +533,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_setting_storage => _es.label_setting_storage;
 
   @override
-  String get label_star_candy_pouch => _id.label_star_candy_pouch;
+  String get label_star_candy_pouch => _ja.label_star_candy_pouch;
 
   @override
   String get label_tabbar_vote_active => _id.label_tabbar_vote_active;
@@ -551,13 +551,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_unlimited_rewards => _fil.label_unlimited_rewards;
 
   @override
-  String get label_vote_end => _id.label_vote_end;
+  String get label_vote_end => _es.label_vote_end;
 
   @override
   String get label_vote_reward_list => _fil.label_vote_reward_list;
 
   @override
-  String get label_vote_screen_title => _id.label_vote_screen_title;
+  String get label_vote_screen_title => _vi.label_vote_screen_title;
 
   @override
   String get label_vote_upcoming => _fil.label_vote_upcoming;
@@ -572,13 +572,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_error_occurred => _fil.message_error_occurred;
 
   @override
-  String get message_noitem_vote_active => _vi.message_noitem_vote_active;
+  String get message_noitem_vote_active => _id.message_noitem_vote_active;
 
   @override
   String get message_noitem_vote_end => _fil.message_noitem_vote_end;
 
   @override
-  String get message_noitem_vote_upcoming => _id.message_noitem_vote_upcoming;
+  String get message_noitem_vote_upcoming => _fil.message_noitem_vote_upcoming;
 
   @override
   String get message_pic_pic_save_fail => _fil.message_pic_pic_save_fail;
@@ -590,10 +590,10 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get message_store_products_load_failed => _es.message_store_products_load_failed;
 
   @override
-  String get message_vote_is_ended => _id.message_vote_is_ended;
+  String get message_vote_is_ended => _vi.message_vote_is_ended;
 
   @override
-  String get message_vote_is_upcoming => _id.message_vote_is_upcoming;
+  String get message_vote_is_upcoming => _vi.message_vote_is_upcoming;
 
   @override
   String get my_info => _fil.my_info;
@@ -782,7 +782,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get purchase_in_progress_message => _fil.purchase_in_progress_message;
 
   @override
-  String get purchase_initializing_message => _fil.purchase_initializing_message;
+  String get purchase_initializing_message => _id.purchase_initializing_message;
 
   @override
   String get purchase_payment_amount => _fil.purchase_payment_amount;
@@ -860,7 +860,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get text_purchase_vat_included => _fil.text_purchase_vat_included;
 
   @override
-  String get text_vote_complete => _id.text_vote_complete;
+  String get text_vote_complete => _fil.text_vote_complete;
 
   @override
   String get text_vote_rank_in_reward => _id.text_vote_rank_in_reward;
@@ -908,7 +908,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_status_approved => _fil.vote_item_request_status_approved;
 
   @override
-  String get vote_item_request_status_pending => _fil.vote_item_request_status_pending;
+  String get vote_item_request_status_pending => _id.vote_item_request_status_pending;
 
   @override
   String get vote_item_request_status_rejected => _ja.vote_item_request_status_rejected;
@@ -917,13 +917,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get vote_item_request_submit => _vi.vote_item_request_submit;
 
   @override
-  String get vote_item_request_title => _id.vote_item_request_title;
+  String get vote_item_request_title => _vi.vote_item_request_title;
 
   @override
   String get vote_share_message => _vi.vote_share_message;
 
   @override
-  String get vote_completed_message => _id.vote_completed_message;
+  String get vote_completed_message => _vi.vote_completed_message;
 
   @override
   String get voting_share_benefit_text => _es.voting_share_benefit_text;
@@ -947,7 +947,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get ban_title => _vi.ban_title;
 
   @override
-  String get ban_message => _fil.ban_message;
+  String get ban_message => _id.ban_message;
 
   @override
   String get ban_contact => _fil.ban_contact;
@@ -968,13 +968,13 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get goonghap_login_button => _es.goonghap_login_button;
 
   @override
-  String get network_error_title => _fil.network_error_title;
+  String get network_error_title => _id.network_error_title;
 
   @override
   String get network_error_message => _fil.network_error_message;
 
   @override
-  String get notice_pinned => _fil.notice_pinned;
+  String get notice_pinned => _id.notice_pinned;
 
   @override
   String get title_dialog_error => _id.title_dialog_error;
@@ -1115,7 +1115,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_mypage_charge_history => _es.label_mypage_charge_history;
 
   @override
-  String get label_popup_hide_7days => _fil.label_popup_hide_7days;
+  String get label_popup_hide_7days => _id.label_popup_hide_7days;
 
   @override
   String get expiring_soon_bonus_candy => _es.expiring_soon_bonus_candy;
@@ -1349,7 +1349,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get ad_reward_success_message => _fil.ad_reward_success_message;
 
   @override
-  String get weekly_vote_info_title => _id.weekly_vote_info_title;
+  String get weekly_vote_info_title => _vi.weekly_vote_info_title;
 
   @override
   String get weekly_vote_info_body => _fil.weekly_vote_info_body;
@@ -1367,7 +1367,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get label_setting_patch_status_downloaded => _ko.label_setting_patch_status_downloaded;
 
   @override
-  String get label_setting_patch_status_none => _vi.label_setting_patch_status_none;
+  String get label_setting_patch_status_none => _id.label_setting_patch_status_none;
 
   @override
   String get message_setting_patch_restart_hint => _ja.message_setting_patch_restart_hint;
@@ -1550,7 +1550,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
   String get error_anti_abuse_artist_request_title => _es.error_anti_abuse_artist_request_title;
 
   @override
-  String get error_anti_abuse_artist_request_message => _es.error_anti_abuse_artist_request_message;
+  String get error_anti_abuse_artist_request_message => _id.error_anti_abuse_artist_request_message;
 
   @override
   String get button_cs_inquiry => _fil.button_cs_inquiry;
@@ -1686,7 +1686,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
 
   @override
   String label_time_ago_day(int day) =>
-      _id.label_time_ago_day(day);
+      _fil.label_time_ago_day(day);
 
   @override
   String label_time_ago_hour(int hour) =>
@@ -1726,7 +1726,7 @@ class LongestAppLocalizations extends AppLocalizationsEn {
 
   @override
   String label_time_ago_minute(int minute) =>
-      _id.label_time_ago_minute(minute);
+      _fil.label_time_ago_minute(minute);
 
   @override
   String update_required_text(String version) =>
