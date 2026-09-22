@@ -61,11 +61,12 @@ DateTime _kstDayStart(DateTime kstWallClock) =>
 /// Sunday/Monday or month/year boundary contiguous — each day is compared
 /// independently, with no special-casing of week/month/year edges.
 ///
-/// A campaign repeating on all 7 ISO weekdays has no "off" day, so this walk
-/// grows until it hits [eventStartsAt]/[eventEndsAt] on both sides: the
-/// envelope itself is already a finite bound, so an every-day campaign
-/// deliberately resolves to its whole (still finite) envelope rather than
-/// needing a separate "continuous campaign" representation.
+/// A campaign repeating on all 7 ISO weekdays has no "off" day to stop a
+/// day-by-day walk, so it is bounded differently: to the KST calendar week
+/// (Monday through the following Monday, exclusive) containing [snapshotAt],
+/// clipped to the envelope like any other run. This keeps the displayed
+/// window "this week" for an always-on campaign instead of ballooning to the
+/// campaign's entire, possibly months-long, envelope.
 ///
 /// The first/last day of the resolved run are clipped to the actual
 /// [eventStartsAt]/[eventEndsAt] instants, so a campaign that starts or ends
@@ -93,19 +94,38 @@ ActiveBoostOccurrence? resolveActiveBoostOccurrence({
       ? endKstDayStart.add(const Duration(days: 1))
       : endKstDayStart;
 
-  var streakStartDay = todayStart;
-  while (true) {
-    final candidate = streakStartDay.subtract(const Duration(days: 1));
-    if (candidate.isBefore(envelopeFirstDay)) break;
-    if (!repeatIsoDows.contains(candidate.weekday)) break;
-    streakStartDay = candidate;
-  }
+  final coversEveryWeekday = repeatIsoDows.toSet().containsAll(const [
+    1, 2, 3, 4, 5, 6, 7,
+  ]);
 
-  var streakEndDayExclusive = todayStart.add(const Duration(days: 1));
-  while (true) {
-    if (!streakEndDayExclusive.isBefore(envelopeExclusiveEndDay)) break;
-    if (!repeatIsoDows.contains(streakEndDayExclusive.weekday)) break;
-    streakEndDayExclusive = streakEndDayExclusive.add(const Duration(days: 1));
+  late final DateTime streakStartDay;
+  late final DateTime streakEndDayExclusive;
+  if (coversEveryWeekday) {
+    // No day is ever "off", so bound the run to the KST calendar week
+    // instead of walking (which would otherwise never stop short of the
+    // envelope). ISO weekday: Monday=1 .. Sunday=7.
+    final weekStartDay = todayStart.subtract(
+      Duration(days: todayStart.weekday - 1),
+    );
+    streakStartDay = weekStartDay;
+    streakEndDayExclusive = weekStartDay.add(const Duration(days: 7));
+  } else {
+    var startDay = todayStart;
+    while (true) {
+      final candidate = startDay.subtract(const Duration(days: 1));
+      if (candidate.isBefore(envelopeFirstDay)) break;
+      if (!repeatIsoDows.contains(candidate.weekday)) break;
+      startDay = candidate;
+    }
+    streakStartDay = startDay;
+
+    var endDayExclusive = todayStart.add(const Duration(days: 1));
+    while (true) {
+      if (!endDayExclusive.isBefore(envelopeExclusiveEndDay)) break;
+      if (!repeatIsoDows.contains(endDayExclusive.weekday)) break;
+      endDayExclusive = endDayExclusive.add(const Duration(days: 1));
+    }
+    streakEndDayExclusive = endDayExclusive;
   }
 
   final occurrenceStartKst = streakStartDay.isAfter(startKst)
@@ -289,6 +309,115 @@ final paymentBadgePromotionPeriodProvider =
       if (item == null) return null;
       return (startsAt: item.windowStartsAt, endsAt: item.windowEndsAt);
     });
+
+/// The V1 fallback's server-relative delay until its CANDY_BOOST_DAY window
+/// ends, or `null` when V1 has not settled yet or has no such item. Reading
+/// V1 through this helper (rather than inline) keeps every call site's
+/// `ref.watch` on the V1 source in exactly the branches that are meant to
+/// depend on it.
+Duration? _candyBoostV1Delay(Ref ref) {
+  final v1 = ref
+      .watch(activePromotionCampaignProvider(PromotionSurface.store))
+      .unwrapPrevious()
+      .value;
+  if (v1 == null) return null;
+  final item = v1.items
+      .where((item) => item.code == _candyBoostDayCode && item.showInStore)
+      .firstOrNull;
+  if (item == null) return null;
+  return item.windowEndsAt.difference(v1.snapshotAt);
+}
+
+/// Provider-owned foreground expiry timer for the candy boost display.
+///
+/// The period banner and the per-product bonus badge both derive from
+/// [paymentBadgePromotionProvider] / [paymentBadgePromotionPeriodProvider],
+/// which in turn read [activePromotionCampaignV2Provider] (paymentBadge
+/// surface) and [activePromotionCampaignProvider] (store surface). Resuming
+/// the app and pulling to refresh already invalidate those two source
+/// providers (see `_refreshCandyBoostBoundary` in the purchase screen), but
+/// neither covers a screen that simply stays open and foregrounded past the
+/// occurrence's end — the retained resolver value would keep advertising a
+/// bonus the purchase path no longer honors.
+///
+/// This provider watches only whichever source is actually authoritative —
+/// mirroring [paymentBadgePromotion]'s own V2-then-V1 precedence, down to
+/// [isEligibleV2FallbackError]'s exact classification of which V2 errors may
+/// fall back — and schedules a single [Timer], anchored to that source's own
+/// server `snapshot_at` (never [DateTime.now]), that invalidates both
+/// sources when it fires. Watching only the authoritative source (rather
+/// than both unconditionally) matters: if V2 is settled with items it is
+/// authoritative regardless of V1, so V1 is never `ref.watch`n in that
+/// branch at all — an unrelated, slower V1 read completing later cannot
+/// rebuild this provider and replace an already-scheduled, correctly-
+/// anchored timer with a new one whose delay is the same server-relative
+/// duration but now counted from a later wall clock "now", silently pushing
+/// the real deadline out (deadline drift). The same reasoning is why V1 is
+/// also not watched while V2 is merely loading, or has failed with a
+/// non-eligible (fatal) error: a fast V1 read finishing during a slow V2
+/// load must not schedule a timer against a source that V2 may turn out not
+/// to need at all once it settles.
+///
+/// A delay that is already zero or negative — the source's own snapshot
+/// already reports the boundary as past — is deliberately left unscheduled
+/// rather than fired as `Timer.zero`: if the source keeps handing back the
+/// same stale window on refetch (e.g. a query race), an immediate fire would
+/// invalidate, refetch the same stale answer, and fire again, spinning a
+/// tight loop. Resume/pull-to-refresh still recovers this case, and a
+/// genuinely fresh source update reschedules normally.
+///
+/// Invalidating the sources (rather than only the derived resolvers) makes
+/// every display surface fail closed during the resulting refetch —
+/// [paymentBadgePromotionForDisplay] already treats loading/error as "no
+/// value" — and re-fetching recomputes a fresh occurrence, which reschedules
+/// this same timer for the next boundary.
+///
+/// A single timer owner here (instead of one inside each derived resolver)
+/// avoids two timers racing to invalidate the same sources. Riverpod
+/// `autoDispose` cancels the pending timer as soon as nothing is watching
+/// this provider (e.g. the purchase screen is popped), so it must be
+/// `ref.watch`n by whatever surface displays the boost for the timer to run
+/// at all.
+final candyBoostExpiryWatcherProvider = Provider.autoDispose<void>((ref) {
+  final v2Async = ref
+      .watch(
+        activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+      )
+      .unwrapPrevious();
+
+  Duration? delay;
+  if (v2Async.hasValue) {
+    final v2 = v2Async.requireValue;
+    if (v2.items.isNotEmpty) {
+      // V2 is settled and has items: authoritative regardless of whether an
+      // occurrence is currently active, exactly like paymentBadgePromotion.
+      // V1 is deliberately never watched in this branch.
+      final active = _activeV2CandyBoost(v2);
+      if (active != null) {
+        delay = active.occurrence.end.difference(v2.snapshotAt);
+      }
+    } else {
+      // V2 settled with zero items: the same eligible fallback
+      // paymentBadgePromotion takes.
+      delay = _candyBoostV1Delay(ref);
+    }
+  } else if (v2Async.hasError && isEligibleV2FallbackError(v2Async.error!)) {
+    delay = _candyBoostV1Delay(ref);
+  }
+  // Otherwise V2 is still loading, or has failed with a non-eligible (fatal)
+  // error — nothing is displayed yet (or ever, for a fatal error), so V1 is
+  // deliberately left unwatched here.
+
+  if (delay == null || delay <= Duration.zero) return;
+
+  final timer = Timer(delay, () {
+    ref.invalidate(
+      activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+    );
+    ref.invalidate(activePromotionCampaignProvider(PromotionSurface.store));
+  });
+  ref.onDispose(timer.cancel);
+});
 
 @riverpod
 Future<HomePromotionResolution> homePromotionCampaign(

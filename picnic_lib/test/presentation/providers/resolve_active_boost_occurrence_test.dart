@@ -135,9 +135,12 @@ void main() {
     });
 
     test(
-      'all 7 ISO weekdays repeating: the occurrence is bounded by the '
-      'campaign envelope itself, not an unbounded run',
+      'all 7 ISO weekdays repeating: the occurrence is bounded to the '
+      'current KST Monday-to-next-Monday calendar week, not the whole '
+      'campaign envelope',
       () {
+        // 2026-06-15 is a Monday, so the containing week is exactly
+        // Jun15-Jun22 (exclusive) with no clipping needed.
         final result = resolveActiveBoostOccurrence(
           eventStartsAt: kst(2026, 1, 1),
           eventEndsAt: kst(2026, 12, 31),
@@ -145,8 +148,63 @@ void main() {
           snapshotAt: kst(2026, 6, 15, 10),
         );
         expect(result, isNotNull);
-        expect(result!.start, kst(2026, 1, 1));
-        expect(result.end, kst(2026, 12, 31));
+        expect(result!.start, kst(2026, 6, 15));
+        expect(result.end, kst(2026, 6, 22));
+      },
+    );
+
+    test(
+      'all 7 ISO weekdays repeating: a snapshot mid-week resolves to that '
+      "week's Monday-to-next-Monday bounds",
+      () {
+        // 2026-06-17 is a Wednesday; the containing week is Jun15-Jun22.
+        final result = resolveActiveBoostOccurrence(
+          eventStartsAt: kst(2026, 1, 1),
+          eventEndsAt: kst(2026, 12, 31),
+          repeatIsoDows: const [1, 2, 3, 4, 5, 6, 7],
+          snapshotAt: kst(2026, 6, 17, 10),
+        );
+        expect(result, isNotNull);
+        expect(result!.start, kst(2026, 6, 15));
+        expect(result.end, kst(2026, 6, 22));
+      },
+    );
+
+    test(
+      'all 7 ISO weekdays repeating: the first partial calendar week is '
+      'clipped to the actual campaign start',
+      () {
+        // 2026-06-17 (Wed) is in the Jun15-Jun22 calendar week, but the
+        // campaign only starts Jun17 15:00 KST, so the resolved start must
+        // not reach back to the Monday before the campaign existed.
+        final result = resolveActiveBoostOccurrence(
+          eventStartsAt: kst(2026, 6, 17, 15),
+          eventEndsAt: kst(2026, 12, 31),
+          repeatIsoDows: const [1, 2, 3, 4, 5, 6, 7],
+          snapshotAt: kst(2026, 6, 17, 20),
+        );
+        expect(result, isNotNull);
+        expect(result!.start, kst(2026, 6, 17, 15));
+        expect(result.end, kst(2026, 6, 22));
+      },
+    );
+
+    test(
+      'all 7 ISO weekdays repeating: the last partial calendar week is '
+      'clipped to the actual campaign end',
+      () {
+        // 2026-06-17 (Wed) is in the Jun15-Jun22 calendar week, but the
+        // campaign ends Jun18 12:00 KST, so the resolved end must not reach
+        // forward past the campaign's actual last instant.
+        final result = resolveActiveBoostOccurrence(
+          eventStartsAt: kst(2026, 1, 1),
+          eventEndsAt: kst(2026, 6, 18, 12),
+          repeatIsoDows: const [1, 2, 3, 4, 5, 6, 7],
+          snapshotAt: kst(2026, 6, 17, 10),
+        );
+        expect(result, isNotNull);
+        expect(result!.start, kst(2026, 6, 15));
+        expect(result.end, kst(2026, 6, 18, 12));
       },
     );
 

@@ -1469,6 +1469,11 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         .watch(paymentBadgePromotionPeriodProvider)
         .unwrapPrevious()
         .value;
+    // PICNIC-2760: a foreground timer for the boost's own server-relative
+    // expiry, so a screen that simply stays open past the occurrence's end
+    // stops advertising it without waiting for resume/pull-to-refresh. See
+    // candyBoostExpiryWatcherProvider's doc comment.
+    ref.watch(candyBoostExpiryWatcherProvider);
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,

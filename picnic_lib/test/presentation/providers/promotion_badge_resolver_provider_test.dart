@@ -5,6 +5,7 @@ import 'dart:io';
 // promotion display fails closed during real refresh/error transitions.
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -989,5 +990,620 @@ void main() {
         expect(paymentBadgePromotionForDisplay(state), isNull);
       }
     });
+  });
+
+  group('candyBoostExpiryWatcherProvider', () {
+    // A fixed, arbitrary "server now" reused across these fixtures so a
+    // fake-time delay elapsed from container creation lines up with the
+    // server-relative delay the watcher computes from snapshot_at.
+    final baseSnapshot = DateTime.utc(2026, 9, 7, 0, 10);
+
+    ActivePromotionCampaignsV2Model v2EndingIn(
+      Duration delay, {
+      DateTime? snapshotAt,
+    }) {
+      final snapshot = snapshotAt ?? baseSnapshot;
+      return ActivePromotionCampaignsV2Model.fromJson({
+        'items': [
+          {
+            'campaign_id': '55555555-5555-4555-8555-555555555555',
+            'campaign_version_id': '66666666-6666-4666-8666-666666666666',
+            'code': 'CANDY_BOOST_DAY',
+            'display_name': {'ko': '결제 배지 부스트', 'en': 'Payment Badge Boost'},
+            'multiplier_tenths': 15,
+            'event_starts_at': '2026-09-01T00:00:00Z',
+            'event_ends_at': snapshot.add(delay).toIso8601String(),
+            'repeat_iso_dows': [1, 2, 3, 4, 5, 6, 7],
+            'home_creative': null,
+          },
+        ],
+        'total_count': '1',
+        'next_cursor': null,
+        'snapshot_at': snapshot.toIso8601String(),
+        'campaign_owned_home_banner_ids': <int>[],
+      });
+    }
+
+    ActivePromotionCampaignsModel v1EndingIn(
+      Duration delay, {
+      DateTime? snapshotAt,
+    }) {
+      final snapshot = snapshotAt ?? baseSnapshot;
+      return ActivePromotionCampaignsModel.fromJson({
+        'items': [
+          {
+            'campaign_id': 'campaign-v1',
+            'campaign_version_id': 'version-v1',
+            'code': 'CANDY_BOOST_DAY',
+            'display_name': {'en': 'Candy Boost Day', 'ko': '캔디 부스트 데이'},
+            'extra_bonus_bps': 10000,
+            'window_starts_at': '2026-07-20T00:00:00Z',
+            'window_ends_at': snapshot.add(delay).toIso8601String(),
+            'show_in_store': true,
+            'show_home_banner': true,
+            'home_creative': null,
+          },
+        ],
+        'total_count': '1',
+        'next_cursor': null,
+        'snapshot_at': snapshot.toIso8601String(),
+        'campaign_owned_home_banner_ids': <int>[],
+      });
+    }
+
+    ActivePromotionCampaignsModel v1Empty({DateTime? snapshotAt}) =>
+        ActivePromotionCampaignsModel.fromJson({
+          'items': <Map<String, dynamic>>[],
+          'total_count': '0',
+          'next_cursor': null,
+          'snapshot_at': (snapshotAt ?? baseSnapshot).toIso8601String(),
+          'campaign_owned_home_banner_ids': <int>[],
+        });
+
+    test(
+      'a foreground expiry timer fires when the active V2 occurrence ends, '
+      'invalidating both sources so the badge fails closed without resume '
+      'or pull-to-refresh',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          var v1Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  return v2Calls == 1
+                      ? v2EndingIn(const Duration(seconds: 30))
+                      : _v2Badge();
+                }),
+            activePromotionCampaignProvider(PromotionSurface.store)
+                .overrideWith((ref) async {
+                  v1Calls++;
+                  return v1Empty();
+                }),
+          ]);
+          addTearDown(() {});
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+          final badgeSub = container.listen(
+            paymentBadgePromotionProvider,
+            (_, _) {},
+          );
+          addTearDown(badgeSub.close);
+
+          async.flushMicrotasks();
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNotNull,
+            reason: 'the occurrence is active before expiry',
+          );
+          expect(v2Calls, 1);
+          expect(
+            v1Calls,
+            0,
+            reason: 'V2 has an item, so V1 must never be read while it is '
+                'authoritative',
+          );
+
+          // Elapse past the 30s server-relative boundary.
+          async.elapse(const Duration(seconds: 31));
+
+          expect(
+            v2Calls,
+            2,
+            reason: 'the timer must invalidate and re-fetch the V2 source',
+          );
+          expect(
+            v1Calls,
+            greaterThanOrEqualTo(1),
+            reason: 'the timer must invalidate and re-fetch the V1 source '
+                'too, even though it was not the displayed source',
+          );
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNull,
+            reason: 'the badge must fail closed once the occurrence is over',
+          );
+        });
+      },
+    );
+
+    test(
+      'V1 fallback also expires on its own foreground timer, preventing a '
+      'stale cached V1 window from continuing to display',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          var v1Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  return _v2Badge(); // V2 never has the item: V1 is authoritative.
+                }),
+            activePromotionCampaignProvider(PromotionSurface.store)
+                .overrideWith((ref) async {
+                  v1Calls++;
+                  return v1Calls == 1
+                      ? v1EndingIn(const Duration(seconds: 20))
+                      : v1Empty();
+                }),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+          final badgeSub = container.listen(
+            paymentBadgePromotionProvider,
+            (_, _) {},
+          );
+          addTearDown(badgeSub.close);
+
+          async.flushMicrotasks();
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNotNull,
+            reason: 'the V1 window is active before expiry',
+          );
+          expect(v1Calls, 1);
+
+          async.elapse(const Duration(seconds: 21));
+
+          expect(
+            v1Calls,
+            2,
+            reason: 'the timer must invalidate and re-fetch V1',
+          );
+          expect(
+            v2Calls,
+            greaterThanOrEqualTo(2),
+            reason: 'the timer must invalidate V2 as well',
+          );
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNull,
+            reason:
+                'a stale, already-ended V1 window must not keep displaying',
+          );
+        });
+      },
+    );
+
+    test(
+      'a slower, unrelated V1 read completing after V2 is already active '
+      'does not reschedule (and thus does not drift) the V2-anchored timer',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          var v1Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  return v2Calls == 1
+                      ? v2EndingIn(const Duration(seconds: 30))
+                      : _v2Badge();
+                }),
+            // V1 must not be read while V2 is still authoritative (before
+            // the 30s boundary) — if the watcher watched it anyway, a slow
+            // read finishing here would rebuild the watcher and restart the
+            // same 30s delay from this later moment, pushing the real
+            // deadline out. Once V2's occurrence actually ends (after the
+            // boundary), consulting V1 as the fallback is legitimate.
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async {
+              v1Calls++;
+              return v1Empty();
+            }),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+          final badgeSub = container.listen(
+            paymentBadgePromotionProvider,
+            (_, _) {},
+          );
+          addTearDown(badgeSub.close);
+
+          async.flushMicrotasks();
+          expect(v2Calls, 1);
+          expect(v1Calls, 0);
+
+          // Simulate time passing without V2 changing — the timer must still
+          // fire at the original 30s boundary, not later.
+          async.elapse(const Duration(seconds: 29));
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNotNull,
+            reason: 'not yet at the 30s boundary',
+          );
+          expect(
+            v1Calls,
+            0,
+            reason: 'still before the 30s boundary - V2 remains '
+                'authoritative and V1 must stay unread',
+          );
+
+          async.elapse(const Duration(seconds: 2));
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNull,
+            reason: 'the original 30s-from-snapshot deadline must still be '
+                'honored, undrifted',
+          );
+        });
+      },
+    );
+
+    test(
+      'V1 is not watched while V2 is still loading, even if V1 itself '
+      'would resolve quickly, and only gets consulted once V2 settles empty',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          var v1Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  // A slow V2 read (10s): still loading at the 5s check
+                  // below, settled eligible-empty well before the 15s V1
+                  // window would end.
+                  await Future<void>.delayed(const Duration(seconds: 10));
+                  return _v2Badge();
+                }),
+            activePromotionCampaignProvider(PromotionSurface.store)
+                .overrideWith((ref) async {
+                  v1Calls++;
+                  return v1EndingIn(const Duration(seconds: 15));
+                }),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+
+          // V1 would resolve on the very next microtask if it were ever
+          // watched, but V2 is still (deliberately) stuck loading.
+          async.elapse(const Duration(seconds: 5));
+          expect(v2Calls, 1);
+          expect(
+            v1Calls,
+            0,
+            reason:
+                'V1 must not be read while V2 has not settled - watching it '
+                'here would let it resolve first and schedule a timer '
+                'against a source V2 may not even need once it settles',
+          );
+
+          // V2 finally settles as eligible-empty; only now is V1 consulted,
+          // anchored to a snapshot taken at this moment, not to whenever V1
+          // would otherwise have resolved.
+          async.elapse(const Duration(seconds: 6));
+          expect(v1Calls, 1);
+
+          async.elapse(const Duration(seconds: 16));
+          expect(
+            v1Calls,
+            2,
+            reason: 'the V1-anchored timer must still fire on its own 15s '
+                'boundary from the moment V1 was actually read',
+          );
+        });
+      },
+    );
+
+    test(
+      'a source that already reports a zero/past-end delay is left '
+      'unscheduled instead of spinning a Timer.zero invalidate loop',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          var v1Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  return _v2Badge();
+                }),
+            activePromotionCampaignProvider(PromotionSurface.store)
+                .overrideWith((ref) async {
+                  v1Calls++;
+                  // The window's own snapshot already reports it as over.
+                  return v1EndingIn(const Duration(seconds: -5));
+                }),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+
+          // A small elapse (not just a microtask flush) lets the full
+          // initial chain settle: V2 resolves empty, which is itself what
+          // first causes V1 to be read.
+          async.elapse(const Duration(seconds: 1));
+          final v2CallsAfterInitialBuild = v2Calls;
+          final callsAfterInitialBuild = v1Calls;
+          expect(
+            callsAfterInitialBuild,
+            1,
+            reason: 'sanity check: V1 has been read exactly once by now',
+          );
+
+          // If a Timer.zero loop were scheduled, elapsing any amount of time
+          // would keep re-invoking the override indefinitely.
+          async.elapse(const Duration(minutes: 5));
+
+          expect(
+            v2Calls,
+            v2CallsAfterInitialBuild,
+            reason:
+                'an unscheduled timer must not invalidate V2 either - '
+                'nothing should re-fetch at all',
+          );
+          expect(
+            v1Calls,
+            callsAfterInitialBuild,
+            reason:
+                'an already-past delay must not schedule an immediate-fire '
+                'timer that spins invalidate/refetch forever',
+          );
+        });
+      },
+    );
+
+    test(
+      'closing the last listener (screen dispose) cancels the pending '
+      'timer so it never fires',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  return v2EndingIn(const Duration(seconds: 30));
+                }),
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async => v1Empty()),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+
+          async.flushMicrotasks();
+          expect(v2Calls, 1);
+
+          watcherSub.close();
+          async.flushMicrotasks();
+
+          async.elapse(const Duration(seconds: 31));
+          expect(
+            v2Calls,
+            1,
+            reason:
+                'disposing the watcher (no more listeners) must cancel the '
+                'pending timer, not merely stop new scheduling',
+          );
+        });
+      },
+    );
+
+    test(
+      'a fresh, shorter occurrence reschedules the timer to the new '
+      'boundary instead of keeping the old one',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  // The first read reports 60s remaining; before that fires,
+                  // the surface is force-invalidated (e.g. by resume) and
+                  // the second read reports only 10s remaining from a later
+                  // snapshot. The rescheduled timer's own expiry then
+                  // triggers a third read, by which point the occurrence is
+                  // over.
+                  switch (v2Calls) {
+                    case 1:
+                      return v2EndingIn(const Duration(seconds: 60));
+                    case 2:
+                      return v2EndingIn(
+                        const Duration(seconds: 10),
+                        snapshotAt: baseSnapshot.add(const Duration(seconds: 5)),
+                      );
+                    default:
+                      return _v2Badge();
+                  }
+                }),
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async => v1Empty()),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+          final badgeSub = container.listen(
+            paymentBadgePromotionProvider,
+            (_, _) {},
+          );
+          addTearDown(badgeSub.close);
+
+          async.flushMicrotasks();
+          expect(v2Calls, 1);
+
+          // 5 real seconds pass, then something else forces a re-fetch that
+          // reveals a much sooner boundary (15s from the original snapshot,
+          // i.e. 10s from the new one).
+          async.elapse(const Duration(seconds: 5));
+          container.invalidate(
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+          );
+          // Force the now-dirty provider to rebuild eagerly, the way a
+          // widget's next `ref.watch` in `build()` would.
+          container.read(
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+          );
+          // Force the watcher itself (and the derived
+          // paymentBadgePromotionProvider) to rebuild against the freshly
+          // re-fetched source too.
+          container.read(candyBoostExpiryWatcherProvider);
+          container.read(paymentBadgePromotionProvider);
+          async.elapse(const Duration(seconds: 1));
+          expect(v2Calls, 2);
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNotNull,
+            reason: 'still active per the fresh, shorter occurrence',
+          );
+
+          // The fresh occurrence ends 15s after the original snapshot (10s
+          // after the new one); 9 more seconds lands just past that. The old
+          // 60s-from-first-snapshot deadline would still be far off here, so
+          // this only passes if the timer actually rescheduled to the new,
+          // sooner boundary.
+          async.elapse(const Duration(seconds: 9));
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNull,
+            reason:
+                'the timer must have rescheduled to the new, sooner boundary',
+          );
+          expect(
+            v2Calls,
+            3,
+            reason:
+                'the rescheduled (not the original) timer must be the one '
+                'that fired and triggered this third, expiry-revealing read',
+          );
+        });
+      },
+    );
+
+    test(
+      'resume/pull-to-refresh style invalidation still recovers the boost '
+      'when a new occurrence becomes active, independent of the timer',
+      () {
+        fakeAsync((async) {
+          var v2Calls = 0;
+          final container = _container([
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+                .overrideWith((ref) async {
+                  v2Calls++;
+                  // Not active on the first read (e.g. an off day); resume
+                  // invalidation later reveals it has become active.
+                  return v2Calls == 1
+                      ? _v2Badge(
+                          items: [
+                            _v2BadgeItem(repeatIsoDows: const [2, 4, 6]),
+                          ],
+                        )
+                      : v2EndingIn(const Duration(seconds: 30));
+                }),
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async => v1Empty()),
+          ]);
+          final watcherSub = container.listen(
+            candyBoostExpiryWatcherProvider,
+            (_, _) {},
+          );
+          addTearDown(watcherSub.close);
+          final badgeSub = container.listen(
+            paymentBadgePromotionProvider,
+            (_, _) {},
+          );
+          addTearDown(badgeSub.close);
+
+          async.flushMicrotasks();
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNull,
+            reason: 'not a repeat weekday on the first read',
+          );
+
+          // What `_refreshCandyBoostBoundary` (resume / pull-to-refresh)
+          // does: invalidate the V2 and V1 sources directly.
+          container.invalidate(
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+          );
+          container.invalidate(
+            activePromotionCampaignProvider(PromotionSurface.store),
+          );
+          // Force the now-dirty providers to rebuild eagerly, the way a
+          // widget's next `ref.watch` in `build()` would.
+          container.read(
+            activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+          );
+          container.read(activePromotionCampaignProvider(PromotionSurface.store));
+          // Let the derived paymentBadgePromotionProvider settle against the
+          // freshly re-fetched sources too.
+          async.elapse(const Duration(milliseconds: 1));
+
+          expect(v2Calls, 2);
+          expect(
+            paymentBadgePromotionForDisplay(
+              container.read(paymentBadgePromotionProvider),
+            ),
+            isNotNull,
+            reason:
+                'resume-style invalidation must reveal the now-active '
+                'occurrence without waiting for any timer',
+          );
+        });
+      },
+    );
   });
 }

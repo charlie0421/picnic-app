@@ -75,10 +75,8 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
         endRaw.hour == 0 &&
         endRaw.minute == 0 &&
         endRaw.second == 0 &&
-        endRaw.millisecond == 0;
-    final end = endIsMidnight
-        ? endRaw.subtract(const Duration(days: 1))
-        : endRaw;
+        endRaw.millisecond == 0 &&
+        endRaw.microsecond == 0;
     // All-day only when the boundary is a plain midnight-to-midnight range
     // with no partial-day clip on either side — a partial start or end
     // always carries a meaningful clock time, so it (and its counterpart,
@@ -88,7 +86,18 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
         start.minute == 0 &&
         start.second == 0 &&
         start.millisecond == 0 &&
+        start.microsecond == 0 &&
         endIsMidnight;
+    final prevDay = endRaw.subtract(const Duration(days: 1));
+    // When times are shown (not all-day), rolling the exclusive midnight
+    // back a day must land on 23:59 of that day, not on that day's own
+    // midnight — otherwise the display advertises a boundary almost a full
+    // day earlier than the range actually reaches.
+    final end = endIsMidnight
+        ? (isAllDay
+              ? prevDay
+              : DateTime.utc(prevDay.year, prevDay.month, prevDay.day, 23, 59))
+        : endRaw;
     final crossesYear = start.year != end.year;
 
     String formatSide(DateTime value, {required bool includeYear}) {
