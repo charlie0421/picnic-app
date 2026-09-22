@@ -19,6 +19,14 @@ const Size kAppDesignSize = Size(393, 892);
 /// 프로덕션 ScreenUtil `splitScreenMode`. [kAppDesignSize] 와 같은 이유로 공개한다.
 const bool kAppSplitScreenMode = true;
 
+/// 앱이 따르는 시스템 글자 크기의 상한 (PICNIC-2750).
+///
+/// 레이아웃은 2.6배까지 검증한다(`l10nLayoutTextScales`). iOS 손쉬운 사용 글자
+/// 크기는 약 3.1배까지 올라가는데, 그러면 달성 투표 상세처럼 고정된 페이지 머리가
+/// 작은 화면 높이를 넘긴다. 그보다 큰 설정은 2.6배로 그리고, 작은 설정(안드로이드는
+/// 전부)은 그대로 둔다.
+const double kAppMaxTextScaleFactor = 2.6;
+
 /// app.dart 파일에서 공통으로 사용되는 앱 빌드 로직을 담은 유틸리티 클래스
 ///
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
@@ -97,17 +105,24 @@ class AppBuilder {
     required List<Locale> supportedLocales,
     required Locale locale,
   }) {
-    return OverlaySupport.global(
-      child: _buildMaterialApp(
-        navigatorKey: navigatorKey,
-        scaffoldKey: scaffoldKey,
-        routes: routes,
-        title: title,
-        theme: theme,
-        home: home,
-        localizationsDelegates: localizationsDelegates,
-        supportedLocales: supportedLocales,
-        locale: locale,
+    // OverlaySupport 토스트는 MaterialApp 바깥 오버레이에 그려지므로, 글자 크기
+    // 상한은 그 위에 둔다. 앱·다이얼로그·토스트가 모두 같은 상한을 받는다.
+    return Builder(
+      builder: (context) => clampTextScale(
+        context,
+        OverlaySupport.global(
+          child: _buildMaterialApp(
+            navigatorKey: navigatorKey,
+            scaffoldKey: scaffoldKey,
+            routes: routes,
+            title: title,
+            theme: theme,
+            home: home,
+            localizationsDelegates: localizationsDelegates,
+            supportedLocales: supportedLocales,
+            locale: locale,
+          ),
+        ),
       ),
     );
   }
@@ -166,6 +181,17 @@ class AppBuilder {
         }
         return locale;
       },
+    );
+  }
+
+  /// [child] 아래의 시스템 글자 크기를 [kAppMaxTextScaleFactor] 로 제한한다.
+  ///
+  /// MaterialApp 과 OverlaySupport 보다 위에 두어야 push 되는 라우트,
+  /// 다이얼로그, 토스트까지 함께 제한된다.
+  static Widget clampTextScale(BuildContext context, Widget? child) {
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: kAppMaxTextScaleFactor,
+      child: child ?? const SizedBox.shrink(),
     );
   }
 
