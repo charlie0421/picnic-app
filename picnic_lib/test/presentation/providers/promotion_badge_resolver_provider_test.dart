@@ -63,6 +63,12 @@ ActivePromotionCampaignsV2Model _v2Home({
 Map<String, dynamic> _v2BadgeItem({
   String code = 'CANDY_BOOST_DAY',
   int multiplierTenths = 15,
+  // Every day active by default so these fixtures exercise code
+  // selection/fallback behavior without also depending on the envelope's
+  // `snapshot_at` (2026-09-07T00:10:00Z, a Monday) landing on an active
+  // weekday. Bounded-occurrence gating itself is covered by dedicated
+  // tests in the 'active occurrence gating' group below.
+  List<int> repeatIsoDows = const [1, 2, 3, 4, 5, 6, 7],
 }) => {
   'campaign_id': '55555555-5555-4555-8555-555555555555',
   'campaign_version_id': '66666666-6666-4666-8666-666666666666',
@@ -71,7 +77,7 @@ Map<String, dynamic> _v2BadgeItem({
   'multiplier_tenths': multiplierTenths,
   'event_starts_at': '2026-09-07T00:00:00+09:00',
   'event_ends_at': '2026-09-14T00:00:00+09:00',
-  'repeat_iso_dows': [2, 4, 6],
+  'repeat_iso_dows': repeatIsoDows,
   'home_creative': null,
 };
 
@@ -827,6 +833,72 @@ void main() {
       // value — it must not be silently swallowed into `null`.
       expect(error, isNotNull);
     });
+  });
+
+  group('paymentBadgePromotion / period active occurrence gating', () {
+    // The envelope's snapshot_at fixed above is 2026-09-07T00:10:00Z, which
+    // is 2026-09-07 09:10 KST — a Monday (ISO weekday 1).
+    test(
+      'badge and period both resolve to null when today is not a repeat '
+      'weekday, without falling back to V1',
+      () async {
+        final container = _container([
+          activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+              .overrideWith(
+                (ref) async => _v2Badge(
+                  items: [
+                    _v2BadgeItem(repeatIsoDows: const [2, 4, 6]), // Tue/Thu/Sat
+                  ],
+                ),
+              ),
+          activePromotionCampaignProvider(PromotionSurface.store).overrideWith(
+            (ref) async => throw StateError(
+              'V1 must not be read when V2 has an active-envelope item',
+            ),
+          ),
+        ]);
+        final resolved = await container.read(
+          paymentBadgePromotionProvider.future,
+        );
+        expect(resolved, isNull);
+        final period = await container.read(
+          paymentBadgePromotionPeriodProvider.future,
+        );
+        expect(period, isNull);
+      },
+    );
+
+    test(
+      'badge and period both resolve when today is a repeat weekday, '
+      'reporting only the bounded occurrence rather than the full envelope',
+      () async {
+        final container = _container([
+          activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge)
+              .overrideWith(
+                (ref) async => _v2Badge(
+                  items: [
+                    _v2BadgeItem(repeatIsoDows: const [1, 3, 5]), // Mon/Wed/Fri
+                  ],
+                ),
+              ),
+        ]);
+        final resolved = await container.read(
+          paymentBadgePromotionProvider.future,
+        );
+        expect(resolved, isNotNull);
+        expect(resolved!.code, 'CANDY_BOOST_DAY');
+        final period = await container.read(
+          paymentBadgePromotionPeriodProvider.future,
+        );
+        expect(period, isNotNull);
+        // Envelope is 2026-09-07T00:00:00+09:00..2026-09-14T00:00:00+09:00;
+        // Monday Sep7 is the only leading active day before Tuesday Sep8
+        // breaks the run, so the bounded occurrence is just that one day —
+        // not the full week-long envelope.
+        expect(period!.startsAt, DateTime.parse('2026-09-06T15:00:00Z'));
+        expect(period.endsAt, DateTime.parse('2026-09-07T15:00:00Z'));
+      },
+    );
   });
 
   group('localizedPromotionDisplayName', () {

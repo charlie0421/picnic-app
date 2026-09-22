@@ -9,13 +9,14 @@ class CandyBoostPeriodBanner extends StatefulWidget {
     super.key,
     required this.startsAt,
     required this.endsAt,
-    this.repeatIsoDows,
     required this.bonusPercent,
   });
 
+  /// The bounded, currently-active occurrence to display — never the full
+  /// recurring campaign envelope. Callers are responsible for resolving
+  /// this (see `resolveActiveBoostOccurrence`) before reaching this widget.
   final DateTime startsAt;
   final DateTime endsAt;
-  final List<int>? repeatIsoDows;
   final int bonusPercent;
 
   @override
@@ -66,51 +67,43 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final start = widget.startsAt.toUtc().add(const Duration(hours: 9));
-    final end = widget.endsAt.toUtc().add(const Duration(hours: 9));
-    String dateTime(DateTime value, {required bool includeYear}) {
+    final endRaw = widget.endsAt.toUtc().add(const Duration(hours: 9));
+    // A midnight end is exclusive (the boundary itself is not "active"), so
+    // the last day actually covered is the day before — display that day
+    // inclusively rather than showing a date the occurrence never reaches.
+    final endIsMidnight =
+        endRaw.hour == 0 &&
+        endRaw.minute == 0 &&
+        endRaw.second == 0 &&
+        endRaw.millisecond == 0;
+    final end = endIsMidnight
+        ? endRaw.subtract(const Duration(days: 1))
+        : endRaw;
+    // All-day only when the boundary is a plain midnight-to-midnight range
+    // with no partial-day clip on either side — a partial start or end
+    // always carries a meaningful clock time, so it (and its counterpart,
+    // for a legible single range) keeps showing time.
+    final isAllDay =
+        start.hour == 0 &&
+        start.minute == 0 &&
+        start.second == 0 &&
+        start.millisecond == 0 &&
+        endIsMidnight;
+    final crossesYear = start.year != end.year;
+
+    String formatSide(DateTime value, {required bool includeYear}) {
       final date = includeYear
           ? DateFormat.yMd(locale).format(value)
           : DateFormat.Md(locale).format(value);
       final weekday = DateFormat.E(locale).format(value);
+      if (isAllDay) return '$date ($weekday)';
       final time = DateFormat.Hm(locale).format(value);
       return '$date ($weekday) $time';
     }
 
-    final repeatIsoDows = widget.repeatIsoDows;
-    final String periodText;
-    if (repeatIsoDows != null && repeatIsoDows.isNotEmpty) {
-      final inclusiveEnd =
-          end.hour == 0 &&
-              end.minute == 0 &&
-              end.second == 0 &&
-              end.millisecond == 0
-          ? end.subtract(const Duration(days: 1))
-          : end;
-      final isSingleWeekCampaign =
-          end.difference(start) <= const Duration(days: 7);
-      if (isSingleWeekCampaign) {
-        final startDate = DateFormat.yMd(locale).format(start);
-        final startWeekday = DateFormat.E(locale).format(start);
-        final endDate = DateFormat.Md(locale).format(inclusiveEnd);
-        final endWeekday = DateFormat.E(locale).format(inclusiveEnd);
-        periodText = '$startDate ($startWeekday) – $endDate ($endWeekday) KST';
-      } else {
-        final weekdays = repeatIsoDows
-            .map(
-              (day) => DateFormat.E(
-                locale,
-              ).format(DateTime.utc(2026, 1, 5 + day - 1)),
-            )
-            .join('·');
-        periodText =
-            '$weekdays · ${DateFormat.yMd(locale).format(start)} – '
-            '${DateFormat.Md(locale).format(inclusiveEnd)} KST';
-      }
-    } else {
-      final startText = dateTime(start, includeYear: true);
-      final endText = dateTime(end, includeYear: false);
-      periodText = '$startText – $endText KST';
-    }
+    final startText = formatSide(start, includeYear: true);
+    final endText = formatSide(end, includeYear: crossesYear);
+    final periodText = '$startText – $endText KST';
 
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final content = Container(
