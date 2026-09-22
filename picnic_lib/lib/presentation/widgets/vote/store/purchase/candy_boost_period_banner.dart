@@ -9,11 +9,13 @@ class CandyBoostPeriodBanner extends StatefulWidget {
     super.key,
     required this.startsAt,
     required this.endsAt,
+    this.repeatIsoDows,
     required this.bonusPercent,
   });
 
   final DateTime startsAt;
   final DateTime endsAt;
+  final List<int>? repeatIsoDows;
   final int bonusPercent;
 
   @override
@@ -74,8 +76,41 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
       return '$date ($weekday) $time';
     }
 
-    final startText = dateTime(start, includeYear: true);
-    final endText = dateTime(end, includeYear: false);
+    final repeatIsoDows = widget.repeatIsoDows;
+    final String periodText;
+    if (repeatIsoDows != null && repeatIsoDows.isNotEmpty) {
+      final inclusiveEnd =
+          end.hour == 0 &&
+              end.minute == 0 &&
+              end.second == 0 &&
+              end.millisecond == 0
+          ? end.subtract(const Duration(days: 1))
+          : end;
+      final isSingleWeekCampaign =
+          end.difference(start) <= const Duration(days: 7);
+      if (isSingleWeekCampaign) {
+        final startDate = DateFormat.yMd(locale).format(start);
+        final startWeekday = DateFormat.E(locale).format(start);
+        final endDate = DateFormat.Md(locale).format(inclusiveEnd);
+        final endWeekday = DateFormat.E(locale).format(inclusiveEnd);
+        periodText = '$startDate ($startWeekday) – $endDate ($endWeekday) KST';
+      } else {
+        final weekdays = repeatIsoDows
+            .map(
+              (day) => DateFormat.E(
+                locale,
+              ).format(DateTime.utc(2026, 1, 5 + day - 1)),
+            )
+            .join('·');
+        periodText =
+            '$weekdays · ${DateFormat.yMd(locale).format(start)} – '
+            '${DateFormat.Md(locale).format(inclusiveEnd)} KST';
+      }
+    } else {
+      final startText = dateTime(start, includeYear: true);
+      final endText = dateTime(end, includeYear: false);
+      periodText = '$startText – $endText KST';
+    }
 
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final content = Container(
@@ -139,7 +174,7 @@ class _CandyBoostPeriodBannerState extends State<CandyBoostPeriodBanner>
                   fit: BoxFit.scaleDown,
                   alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    '$startText – $endText KST',
+                    periodText,
                     maxLines: 1,
                     style: getTextStyle(AppTypo.caption10SB, AppColors.grey600),
                   ),

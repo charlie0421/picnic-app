@@ -1490,6 +1490,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                 CandyBoostPeriodBanner(
                   startsAt: promotionPeriod.startsAt,
                   endsAt: promotionPeriod.endsAt,
+                  repeatIsoDows: promotionPeriod.repeatIsoDows,
                   bonusPercent: displayedPromotion.multiplierTenths != null
                       ? (displayedPromotion.multiplierTenths! - 10) * 10
                       : (displayedPromotion.extraBonusBps ?? 0) ~/ 100,
