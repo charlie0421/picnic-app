@@ -203,6 +203,8 @@ class VoteDialogColumnsLayout {
     required this.bottomInset,
     required this.showTopClose,
     required this.shape,
+    this.leftMinimumWidth = 0,
+    this.rightMinimumWidth = 0,
   });
 
   final double cardWidth;
@@ -213,6 +215,57 @@ class VoteDialogColumnsLayout {
   final double bottomInset;
   final bool showTopClose;
   final VoteDialogShape shape;
+
+  /// The measured widths each column's content needs; the selection only
+  /// picked columns because [leftWidth] and [rightWidth] are at least these.
+  final double leftMinimumWidth;
+  final double rightMinimumWidth;
+
+  /// Column and gap widths for a card that is [renderedCardWidth] wide on
+  /// this frame (PICNIC-2739).
+  ///
+  /// At rest the card gets exactly [cardWidth] and this returns the resolved
+  /// widths unchanged. For the first frames after the window shrinks in place
+  /// (folding a foldable, dragging a split-screen divider), Dialog's
+  /// AnimatedPadding hands out less, and a Row pinned to the resolved widths
+  /// overflowed by up to 29px. The shortfall is taken, in order, from the
+  /// slack each column has above its measured minimum, then from the gap,
+  /// and only then from the columns themselves in proportion — so a column
+  /// drops below the width its content was measured at only when nothing
+  /// else is left, and the row as a whole never overflows.
+  ({double left, double gap, double right}) renderedWidths(
+    double renderedCardWidth,
+  ) {
+    var deficit = math.max(0.0, cardWidth - renderedCardWidth);
+    if (deficit == 0) {
+      return (left: leftWidth, gap: kVoteDialogColumnGap, right: rightWidth);
+    }
+    var left = leftWidth;
+    var right = rightWidth;
+    var gap = kVoteDialogColumnGap;
+
+    final leftSlack = math.max(0.0, leftWidth - leftMinimumWidth);
+    final rightSlack = math.max(0.0, rightWidth - rightMinimumWidth);
+    final slack = leftSlack + rightSlack;
+    if (slack > 0) {
+      final take = math.min(deficit, slack);
+      left -= take * leftSlack / slack;
+      right -= take * rightSlack / slack;
+      deficit -= take;
+    }
+
+    final gapTake = math.min(deficit, gap);
+    gap -= gapTake;
+    deficit -= gapTake;
+
+    final columns = left + right;
+    if (deficit > 0 && columns > 0) {
+      final scale = math.max(0.0, columns - deficit) / columns;
+      left *= scale;
+      right *= scale;
+    }
+    return (left: left, gap: gap, right: right);
+  }
 }
 
 /// Resolves the general dialog's optional two-column presentation.
@@ -366,6 +419,8 @@ VoteDialogColumnsLayout? resolveVoteDialogColumnsLayout({
       bottomInset: resolvedBottomInset,
       showTopClose: showTopClose,
       shape: shape,
+      leftMinimumWidth: resolvedLeftMinimumWidth,
+      rightMinimumWidth: resolvedRightMinimumWidth,
     );
   }
 
@@ -495,6 +550,7 @@ class VoteDialogColumns extends StatelessWidget {
     required this.left,
     required this.right,
     this.renderedBodyHeight,
+    this.renderedCardWidth,
   });
 
   final VoteDialogColumnsLayout layout;
@@ -516,12 +572,17 @@ class VoteDialogColumns extends StatelessWidget {
   /// so the rendered height never feeds back into how many columns were chosen.
   final double? renderedBodyHeight;
 
+  /// The width twin of [renderedBodyHeight]: the card width the route is
+  /// handing out *this* frame. See [VoteDialogColumnsLayout.renderedWidths].
+  final double? renderedCardWidth;
+
   @override
   Widget build(BuildContext context) {
     final bodyHeight = math.min(
       layout.bodyHeight,
       renderedBodyHeight ?? layout.bodyHeight,
     );
+    final widths = layout.renderedWidths(renderedCardWidth ?? layout.cardWidth);
     return SizedBox(
       height: bodyHeight,
       child: Padding(
@@ -535,13 +596,13 @@ class VoteDialogColumns extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
-              width: layout.leftWidth,
+              width: widths.left,
               height: double.infinity,
               child: SingleChildScrollView(child: left),
             ),
-            const SizedBox(width: kVoteDialogColumnGap),
+            SizedBox(width: widths.gap),
             SizedBox(
-              width: layout.rightWidth,
+              width: widths.right,
               height: double.infinity,
               child: SingleChildScrollView(child: right),
             ),

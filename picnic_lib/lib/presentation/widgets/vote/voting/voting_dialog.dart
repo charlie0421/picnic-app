@@ -447,6 +447,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                                   constraints.maxHeight - columnsChrome,
                                 )
                               : null,
+                          renderedCardWidth: constraints.hasBoundedWidth
+                              ? constraints.maxWidth
+                              : null,
                           left: _buildColumnsLeft(
                             context,
                             displayedBalance: displayedBalance,
