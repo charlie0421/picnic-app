@@ -215,6 +215,237 @@ void main() {
     });
   }
 
+  testWidgets(
+    'a displayed background job frees its slot once while unclaimed work '
+    'stays at two',
+    (tester) async {
+      final harness = await ImageTestHarness.create();
+      const a = 'https://images.example.com/claimed-a.png';
+      const b = 'https://images.example.com/claimed-b.png';
+      const c = 'https://images.example.com/claimed-c.png';
+      const d = 'https://images.example.com/claimed-d.png';
+      const e = 'https://images.example.com/claimed-e.png';
+      const urls = [a, b, c, d, e];
+      final scope = PicnicImagePrefetchScope(maximumCandidates: 3);
+      final laterScope = PicnicImagePrefetchScope();
+      try {
+        await tester.runAsync(
+          () => Future.wait([
+            for (final url in urls) harness.respondPng(url, held: true),
+          ]),
+        );
+        final context = await _pumpContext(tester);
+        final requestA = _request(context, a);
+        scope.replace(context, [
+          requestA,
+          _request(context, b),
+          _request(context, c),
+        ]);
+        await _pumpUntil(tester, () => harness.activeRequests == 2);
+        expect(harness.requestsFor(c), 0);
+
+        final keyA = await requestA.obtainKey(
+          createLocalImageConfiguration(context),
+        );
+        PicnicImagePrefetchScope.releaseForDisplay(keyA);
+        PicnicImagePrefetchScope.releaseForDisplay(keyA);
+        await _pumpUntil(tester, () => harness.requestsFor(c) == 1);
+
+        laterScope.replace(context, [
+          _request(context, d),
+          _request(context, e),
+        ]);
+        PicnicImagePrefetchScope.releaseForDisplay(Object());
+        await _pumpAsyncWork(tester);
+        // B and C are the two unclaimed jobs; A is display work.
+        expect(harness.requestsFor(d), 0);
+
+        harness.release(a);
+        await _pumpUntil(
+          tester,
+          () =>
+              PaintingBinding.instance.imageCache.statusForKey(keyA).keepAlive,
+        );
+        await _pumpAsyncWork(tester);
+        // The claimed job finishing must not free a second slot.
+        expect(harness.requestsFor(d), 0);
+
+        harness.release(b);
+        await _pumpUntil(tester, () => harness.requestsFor(d) == 1);
+        expect(harness.requestsFor(e), 0);
+      } finally {
+        scope.dispose();
+        laterScope.dispose();
+        for (final url in urls) {
+          harness.release(url);
+        }
+        for (var attempt = 0; attempt < 150; attempt++) {
+          if (harness.activeRequests == 0 &&
+              PaintingBinding.instance.imageCache.pendingImageCount == 0) {
+            break;
+          }
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 2)),
+          );
+          await tester.pump();
+        }
+        await tester.runAsync(
+          () => harness.dispose().timeout(const Duration(seconds: 5)),
+        );
+      }
+    },
+  );
+
+  // Every swipe onto a card displays (claims) its prefetched downloads, which
+  // frees background slots. On a held network those claimed downloads never
+  // finish, so without a total bound each swipe would add more prefetch
+  // downloads forever.
+  testWidgets(
+    'repeated claims on a held network bound prefetch downloads, never start '
+    'stale generations, and resume draining',
+    (tester) async {
+      final harness = await ImageTestHarness.create();
+      String url(int card, int rank) =>
+          'https://images.example.com/held-claims-c$card-r$rank.png';
+      const cards = 8;
+      final swipeUrls = [
+        for (var card = 0; card < cards; card++)
+          for (var rank = 0; rank < 3; rank++) url(card, rank),
+      ];
+      // Held until the end to check the two-slot ceiling after draining.
+      final ceilingUrls = [
+        for (var rank = 0; rank < 3; rank++) url(cards, rank),
+      ];
+      final urls = [...swipeUrls, ...ceilingUrls];
+      final scope = PicnicImagePrefetchScope(maximumCandidates: 3);
+      try {
+        await tester.runAsync(
+          () => Future.wait([
+            for (final image in urls) harness.respondPng(image, held: true),
+          ]),
+        );
+        final context = await _pumpContext(tester);
+        final configuration = createLocalImageConfiguration(context);
+        final peak = <String, int>{'inFlight': 0, 'unclaimed': 0, 'queued': 0};
+        void sample() {
+          final state = PicnicImagePrefetchScope.schedulerStateForTest;
+          for (final (name, value) in [
+            ('inFlight', state.inFlight),
+            ('unclaimed', state.unclaimed),
+            ('queued', state.queued),
+          ]) {
+            if (value > peak[name]!) peak[name] = value;
+          }
+        }
+
+        Future<void> claimCard(int card) async {
+          for (var rank = 0; rank < 3; rank++) {
+            final key = await _request(
+              context,
+              url(card, rank),
+            ).obtainKey(configuration);
+            // Repeated claims for one download must release it only once.
+            PicnicImagePrefetchScope.releaseForDisplay(key);
+            PicnicImagePrefetchScope.releaseForDisplay(key);
+          }
+        }
+
+        for (var card = 0; card < cards; card++) {
+          scope.replace(context, [
+            for (var rank = 0; rank < 3; rank++)
+              _request(context, url(card, rank)),
+          ]);
+          await _pumpAsyncWork(tester);
+          sample();
+          // The user swipes onto the card; its displays claim whatever the
+          // scheduler started, including work started by earlier claims.
+          for (var claim = 0; claim < 3; claim++) {
+            await claimCard(card);
+            await _pumpAsyncWork(tester);
+            sample();
+          }
+        }
+
+        expect(peak['unclaimed'], lessThanOrEqualTo(2));
+        expect(peak['queued'], lessThanOrEqualTo(3));
+        expect(peak['inFlight'], lessThanOrEqualTo(8), reason: '$peak');
+        final started = [
+          for (var card = 0; card < cards; card++)
+            if (harness.requestsFor(url(card, 0)) > 0) card,
+        ];
+        expect(started, isNotEmpty);
+        final lastStarted = started.last;
+
+        for (final image in swipeUrls) {
+          harness.release(image);
+        }
+        await _pumpUntil(
+          tester,
+          () =>
+              PicnicImagePrefetchScope.schedulerStateForTest ==
+                  (inFlight: 0, unclaimed: 0, queued: 0) &&
+              harness.activeRequests == 0 &&
+              PaintingBinding.instance.imageCache.pendingImageCount == 0,
+        );
+
+        // Draining resumed with the current generation only: the final card
+        // loaded, and cards replaced while the bound held never started.
+        expect(
+          [
+            for (var rank = 0; rank < 3; rank++)
+              harness.requestsFor(url(cards - 1, rank)),
+          ],
+          [1, 1, 1],
+        );
+        for (var card = lastStarted + 1; card < cards - 1; card++) {
+          for (var rank = 0; rank < 3; rank++) {
+            expect(
+              harness.requestsFor(url(card, rank)),
+              0,
+              reason: 'card $card',
+            );
+          }
+        }
+        expect(
+          swipeUrls.every((image) => harness.requestsFor(image) <= 1),
+          isTrue,
+        );
+
+        // A released-twice job never freed a second slot: the ceiling is intact.
+        scope.replace(context, [
+          for (final image in ceilingUrls) _request(context, image),
+        ]);
+        await _pumpUntil(tester, () => harness.activeRequests == 2);
+        await _pumpAsyncWork(tester);
+        expect(harness.activeRequests, 2);
+        expect(PicnicImagePrefetchScope.schedulerStateForTest, (
+          inFlight: 2,
+          unclaimed: 2,
+          queued: 1,
+        ));
+        expect(harness.requestsFor(ceilingUrls.last), 0);
+      } finally {
+        scope.dispose();
+        for (final image in urls) {
+          harness.release(image);
+        }
+        for (var attempt = 0; attempt < 150; attempt++) {
+          if (harness.activeRequests == 0 &&
+              PaintingBinding.instance.imageCache.pendingImageCount == 0) {
+            break;
+          }
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 2)),
+          );
+          await tester.pump();
+        }
+        await tester.runAsync(
+          () => harness.dispose().timeout(const Duration(seconds: 5)),
+        );
+      }
+    },
+  );
+
   testWidgets('replace and dispose cancel queued work without gating display', (
     tester,
   ) async {

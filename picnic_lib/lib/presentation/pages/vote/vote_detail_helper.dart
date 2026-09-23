@@ -7,8 +7,12 @@ import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 
 const double voteDetailPortraitLogicalSize = 39;
 const int voteDetailPortraitDecodeSize = 78;
-const int voteDetailPortraitQuality = 55;
-const double voteDetailPortraitResolutionMultiplierCap = 2;
+
+/// The one CDN variant every device requests for a 39pt detail row portrait.
+const voteDetailPortraitCdnVariant = PicnicCdnImageVariant(
+  width: voteDetailPortraitDecodeSize,
+  quality: 55,
+);
 
 /// Resolves the exact request used by vote-detail row portraits.
 ///
@@ -26,8 +30,7 @@ PicnicImageRequest resolveVoteDetailPortraitImageRequest({
     height: voteDetailPortraitLogicalSize,
     memCacheWidth: voteDetailPortraitDecodeSize,
     memCacheHeight: voteDetailPortraitDecodeSize,
-    maxQualityOverride: voteDetailPortraitQuality,
-    maxResolutionMultiplierCap: voteDetailPortraitResolutionMultiplierCap,
+    cdnVariant: voteDetailPortraitCdnVariant,
   );
 }
 

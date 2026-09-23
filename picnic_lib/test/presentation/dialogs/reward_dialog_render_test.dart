@@ -50,10 +50,9 @@ void main() {
   }
 
   group('RewardDialog CDN variant', () {
-    // 리워드 원본은 1000px 로 업로드된다. CDN 은 query 가 하나라도 붙으면
-    // 리사이저를 거치고, 이미지별 첫 요청이 8~12초 걸린다(2026-09-19 실측 —
-    // 고정 변형 w=1000&q=80 도 배포 5일 뒤까지 아무도 만들지 않아 콜드였다).
-    // 원본은 0.1~0.3초라 다이얼로그 이미지는 변환 없는 원본을 요청해야 한다.
+    // 우리 CDN 이미지는 원본을 요청하지 않는다. 다이얼로그의 모든 이미지는 홈
+    // 리워드 그리드와 같은 고정 변형(q=80&w=1000)이라, 같은 파일이면 그리드가
+    // 받아 둔 캐시 키를 그대로 쓴다. 외부 서명 URL 만 원형을 유지한다.
     List<String> collectRequestUrls(WidgetTester tester) {
       return tester
           .widgetList<PicnicCachedNetworkImage>(
@@ -87,7 +86,7 @@ void main() {
       },
     );
 
-    testWidgets('every image requests the untransformed original', (
+    testWidgets('every first-party image requests the reward grid variant', (
       tester,
     ) async {
       await pumpAndDrain(
@@ -95,12 +94,34 @@ void main() {
         buildTestApp(RewardDialog(data: makeFullReward())),
       );
 
-      final urls = collectRequestUrls(tester);
-      expect(urls, hasLength(6));
-      for (final url in urls) {
-        expect(url, endsWith('.png'), reason: url);
-        expect(Uri.parse(url).hasQuery, isFalse, reason: url);
-      }
+      expect(collectRequestUrls(tester), [
+        for (final path in [
+          'thumb',
+          'overview-1',
+          'overview-2',
+          'map',
+          'location',
+          'size',
+        ])
+          'https://test-cdn.example.com/reward/$path.png?q=80&w=1000',
+      ]);
+    });
+
+    testWidgets('external signed images keep their URL verbatim', (
+      tester,
+    ) async {
+      const signedUrl =
+          'https://images.example.com/reward.png?X-Amz-Signature=a%2Bb&e=9';
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(
+            data: makeReward(thumbnail: signedUrl, overviewImages: [signedUrl]),
+          ),
+        ),
+      );
+
+      expect(collectRequestUrls(tester), [signedUrl, signedUrl]);
     });
 
     testWidgets('decode stays bounded to the source size', (tester) async {

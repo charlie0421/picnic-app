@@ -7,12 +7,15 @@ import 'package:flutter/scheduler.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/common/image_shimmer_loading.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 export 'package:picnic_lib/presentation/common/image_shimmer_loading.dart'
     show buildImageLoadingOverlay;
+export 'package:picnic_lib/presentation/common/picnic_image_request.dart'
+    show PicnicCdnImageVariant;
 
 /// 이미지 복잡도 레벨
 enum ImageComplexity {
@@ -33,7 +36,8 @@ enum LazyLoadingStrategy {
 enum ImagePriority { low, normal, high }
 
 /// 성공적으로 로딩된 이미지 URL을 추적하는 글로벌 Set
-/// 위젯이 재생성되더라도 이미 성공한 source는 lazy gate를 즉시 통과한다.
+/// 위젯이 재생성되어도 source의 성공 이력과 LRU 순서를 유지한다.
+/// 성공 이력은 화면 밖의 새 CDN 변형에 대한 lazy gate를 해제하지 않는다.
 ///
 /// Flutter의 PaintingBinding.imageCache 로 대체할 수 없다 — 그 캐시는
 /// ImageProvider(오브젝트) 를 키로 쓰는 반면 이 Set은 원본 imageUrl만으로
@@ -45,11 +49,11 @@ enum ImagePriority { low, normal, high }
 /// 기존 엔트리를 지웠다 다시 넣어 "가장 최근" 위치(LinkedHashSet 삽입 순서상
 /// 맨 뒤)로 옮긴다. 단순 FIFO(재사용해도 위치 갱신 없음)였다면, 인기 아티스트
 /// 이미지처럼 반복 재사용되는(hot) URL 도 최초 삽입 시점 기준으로만 밀려나
-/// 상한을 넘기는 즉시 스킵 대상에서 빠지고 shimmer/loading-overlay 경로를 다시
+/// 상한을 넘기는 즉시 재사용 이력에서 빠지고 shimmer/loading-overlay 경로를 다시
 /// 탄다 — 자주 쓰는 이미지일수록 먼저 밀려나는 역설이 생긴다.
 ///
 /// **상한 500 의 근거**: CDN 이미지 URL 은 보통
-/// `https://cdn.picnic.fan/.../<uuid>.jpg?w=400&h=400&q=85` 형태로 평균
+/// `https://cdn.picnic.fan/.../<uuid>.jpg?q=85&w=180` 형태로 평균
 /// 100~160자(여유 있게 150자로 계산). Dart String 은 UTF-16 저장이라 문자당
 /// 2바이트, 문자열 인스턴스/LinkedHashSet 노드 오버헤드를 넉넉히 문자당 1바이트
 /// 추가로 잡아도 항목당 대략 450바이트, 500개 전체로 ~220KB — 이 위젯이 이미
@@ -128,14 +132,15 @@ class PicnicCachedNetworkImage extends StatefulWidget {
   final Widget? errorWidget; // 커스텀 에러 위젯
   final bool showLoadingOverlay;
 
-  // C3: 리스트 전용 요청 가중치 축소(다른 화면 영향 없음 — 기본값 null = 현재 동작 유지).
-  // maxQualityOverride: 단일(저복잡도) URL 의 q 값을 이 값으로 제한.
-  // maxResolutionMultiplierCap: _getResolutionMultiplier 결과를 이 값으로 clamp.
-  final int? maxQualityOverride;
+  /// 로컬 디코드 해상도 배율(DPR 기반)의 상한. CDN URL 에는 영향이 없다.
   final double? maxResolutionMultiplierCap;
 
+  /// [imageRequest] 가 없을 때 이 위젯이 요청하는 고정 CDN 변형(용도별 상수).
+  final PicnicCdnImageVariant cdnVariant;
+
   /// Prefetch와 display가 정확히 같은 provider/key를 공유해야 할 때 전달한다.
-  /// null이면 현재 layout과 DPR로 request를 매 build마다 다시 계산한다.
+  /// 전달하면 [cdnVariant] 보다 우선한다. null이면 [cdnVariant] 로 요청하고,
+  /// 디코드 크기만 현재 layout과 DPR로 매 build마다 다시 계산한다.
   final PicnicImageRequest? imageRequest;
 
   // 기존 public API를 유지한다. 실제 scroll deferral은 Flutter Image가 내부의
@@ -162,8 +167,8 @@ class PicnicCachedNetworkImage extends StatefulWidget {
     this.priority = ImagePriority.normal,
     this.enableMemoryOptimization = true,
     this.enableProgressiveLoading = true,
-    this.maxQualityOverride,
     this.maxResolutionMultiplierCap,
+    this.cdnVariant = PicnicCdnImageVariant.thumbnail,
     this.imageRequest,
     this.deferDuringFastScroll = false,
   });
@@ -321,19 +326,10 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
 
   /// Lazy Loading 초기화
   void _initializeLazyLoading() {
-    // 이미 성공적으로 로딩된 이미지인지 확인
-    final isAlreadyLoaded = _successfullyLoadedImageUrls.contains(
-      widget.imageUrl,
-    );
-
-    if (isAlreadyLoaded) {
-      // Source 성공 이력은 lazy 진입만 앞당긴다. 캐시가 evict됐을 수 있으므로
-      // 실제 첫 frame 전에는 loaded/ready 상태로 간주하지 않는다.
-      _shouldLoadImage = true;
-      _isImageLoaded = false;
-      _loading = false;
+    // 같은 원본이 w180으로 성공했어도 화면 밖의 w1000 변형은 아직 cold일 수 있다.
+    // 성공 이력은 LRU만 갱신하고, lazy 로딩은 현재 위젯의 가시성에 맡긴다.
+    if (_successfullyLoadedImageUrls.contains(widget.imageUrl)) {
       _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
-      return;
     }
 
     _isImageLoaded = false;
@@ -438,9 +434,7 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
 
     if (oldWidget.imageUrl != widget.imageUrl) {
       _resetActiveRequest(incrementGeneration: true);
-      _shouldLoadImage =
-          widget.lazyLoadingStrategy == LazyLoadingStrategy.none ||
-          _successfullyLoadedImageUrls.contains(widget.imageUrl);
+      _shouldLoadImage = widget.lazyLoadingStrategy == LazyLoadingStrategy.none;
       if (_successfullyLoadedImageUrls.contains(widget.imageUrl)) {
         _rememberSuccessfullyLoadedImageUrl(widget.imageUrl);
       }
@@ -637,26 +631,27 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
   ) {
     final hasExplicitWidth = _isValidDimension(widget.width);
     final hasExplicitHeight = _isValidDimension(widget.height);
-    final double? requestWidth;
-    final double? requestHeight;
+    // Layout bounds only the local decode; the CDN URL is the fixed variant.
+    final double? decodeLogicalWidth;
+    final double? decodeLogicalHeight;
 
     if (hasExplicitWidth || hasExplicitHeight) {
-      requestWidth = hasExplicitWidth ? renderedWidth : null;
-      requestHeight = hasExplicitHeight ? renderedHeight : null;
+      decodeLogicalWidth = hasExplicitWidth ? renderedWidth : null;
+      decodeLogicalHeight = hasExplicitHeight ? renderedHeight : null;
     } else {
-      requestWidth = renderedWidth;
-      requestHeight = widget.fit == BoxFit.cover ? renderedHeight : null;
+      decodeLogicalWidth = renderedWidth;
+      decodeLogicalHeight = widget.fit == BoxFit.cover ? renderedHeight : null;
     }
 
     return PicnicImageRequest.resolve(
       context: context,
       imageUrl: widget.imageUrl,
-      width: requestWidth,
-      height: requestHeight,
+      width: decodeLogicalWidth,
+      height: decodeLogicalHeight,
       memCacheWidth: widget.memCacheWidth,
       memCacheHeight: widget.memCacheHeight,
-      maxQualityOverride: widget.maxQualityOverride,
       maxResolutionMultiplierCap: widget.maxResolutionMultiplierCap,
+      cdnVariant: widget.cdnVariant,
     );
   }
 
@@ -855,6 +850,8 @@ class _PicnicCachedNetworkImageState extends State<PicnicCachedNetworkImage> {
     }
 
     _attemptStartedFor = attempt;
+    // A prefetched download this display now consumes is foreground work.
+    PicnicImagePrefetchScope.releaseForDisplay(key);
     _loading = true;
     _hasError = false;
     _isImageLoaded = false;

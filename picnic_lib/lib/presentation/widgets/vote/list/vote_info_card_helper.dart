@@ -34,6 +34,18 @@ class VoteInfoCardHelper {
     return prepareVoteItems(items, status).take(maximumCandidates).toList();
   }
 
+  /// The one CDN variant every device requests for a 72pt rank portrait.
+  static const rankImageVariant = PicnicCdnImageVariant(
+    width: 180,
+    quality: 85,
+  );
+
+  /// The one CDN variant every device requests for a 56pt upcoming thumbnail.
+  static const thumbnailImageVariant = PicnicCdnImageVariant(
+    width: 140,
+    quality: 85,
+  );
+
   /// Builds the exact request shared by rank display and adjacent-card
   /// prefetch. The visible portrait slot is 72 logical pixels square.
   static PicnicImageRequest rankImageRequest(
@@ -45,6 +57,7 @@ class VoteInfoCardHelper {
       imageUrl: resolveVoteItemImageUrl(item),
       width: 72,
       height: 72,
+      cdnVariant: rankImageVariant,
     );
   }
 
@@ -59,6 +72,7 @@ class VoteInfoCardHelper {
       imageUrl: resolveVoteItemImageUrl(item),
       width: 56,
       height: 56,
+      cdnVariant: thumbnailImageVariant,
     );
   }
 

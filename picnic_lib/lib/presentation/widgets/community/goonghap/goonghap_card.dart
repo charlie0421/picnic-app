@@ -60,6 +60,7 @@ class GoonghapCard extends ConsumerWidget {
       imageUrl: imageUrl,
       width: 150.w,
       height: 150.w,
+      cdnVariant: PicnicCdnImageVariant.thumbnail,
       fit: BoxFit.cover,
       priority: ImagePriority.normal,
       lazyLoadingStrategy: LazyLoadingStrategy.none, // ❌

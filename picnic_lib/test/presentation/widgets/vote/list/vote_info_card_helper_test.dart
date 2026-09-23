@@ -4,6 +4,8 @@ import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_helper.dart';
 
+import '../../../../helpers/test_environment.dart';
+
 VoteItemModel _item({required int id, int voteTotal = 0, String? image}) {
   return VoteItemModel.fromJson({
     'id': id,
@@ -302,41 +304,61 @@ void main() {
       },
     );
 
-    testWidgets('rank and upcoming helpers keep their logical display axes', (
-      tester,
-    ) async {
-      late BuildContext context;
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (currentContext) {
-              context = currentContext;
-              return const SizedBox.shrink();
-            },
-          ),
-        ),
-      );
-      final item = VoteItemModel.fromJson({
-        'id': 1,
-        'vote_id': 1,
-        'vote_total': 0,
-        'artist': {
-          'id': 10,
-          'name': {'ko': 'Test'},
-          'image': 'https://images.example.com/artist.png',
-          'artist_group': null,
-        },
-        'artist_group': null,
-      });
+    // 72pt 순위 portrait 와 56pt 예정 썸네일은 기기와 무관한 CDN 변형 하나씩만
+    // 요청한다(72·56 × 2.5). 기기별 w/h 는 변형마다 콜드 리사이즈를 부른다.
+    testWidgets(
+      'rank and upcoming portraits request one fixed CDN width on every device',
+      (tester) async {
+        initTestColors();
+        final cdnItem = _item(id: 1, image: '/artist/1.png?fit=cover');
+        final externalItem = _item(
+          id: 2,
+          image: 'https://images.example.com/artist.png?token=signed',
+        );
+        final rankUrls = <String>{};
+        final thumbnailUrls = <String>{};
+        final decodeWidths = <int>{};
+        for (final device in const [
+          MediaQueryData(size: Size(393, 852), devicePixelRatio: 3),
+          MediaQueryData(size: Size(360, 780), devicePixelRatio: 2),
+          MediaQueryData(size: Size(1024, 1366), devicePixelRatio: 1),
+        ]) {
+          late BuildContext context;
+          await tester.pumpWidget(
+            MaterialApp(
+              home: MediaQuery(
+                data: device,
+                child: Builder(
+                  builder: (currentContext) {
+                    context = currentContext;
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            ),
+          );
 
-      final rank = VoteInfoCardHelper.rankImageRequest(context, item);
-      final thumbnail = VoteInfoCardHelper.thumbnailImageRequest(context, item);
+          final rank = VoteInfoCardHelper.rankImageRequest(context, cdnItem);
+          rankUrls.add(rank.url);
+          decodeWidths.add(rank.decodeWidth);
+          thumbnailUrls.add(
+            VoteInfoCardHelper.thumbnailImageRequest(context, cdnItem).url,
+          );
+          expect(
+            VoteInfoCardHelper.rankImageRequest(context, externalItem).url,
+            'https://images.example.com/artist.png?token=signed',
+          );
+        }
 
-      expect(rank.imageUrl, 'https://images.example.com/artist.png');
-      expect(rank.requestWidth, rank.requestHeight);
-      expect(thumbnail.imageUrl, rank.imageUrl);
-      expect(thumbnail.requestWidth, thumbnail.requestHeight);
-      expect(rank.requestWidth, greaterThan(thumbnail.requestWidth!));
-    });
+        expect(rankUrls, {
+          'https://test-cdn.example.com/artist/1.png?q=85&w=180',
+        });
+        expect(thumbnailUrls, {
+          'https://test-cdn.example.com/artist/1.png?q=85&w=140',
+        });
+        // Local decode still follows each device's resolution.
+        expect(decodeWidths, hasLength(3));
+      },
+    );
   });
 }

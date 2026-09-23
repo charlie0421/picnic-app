@@ -653,6 +653,7 @@ class _OptimizedSplashImageState extends ConsumerState<SplashImage> {
         if (scheduledSplashUrl != null)
           PicnicCachedNetworkImage(
             imageUrl: scheduledSplashUrl!,
+            cdnVariant: PicnicCdnImageVariant.fullscreen,
             fit: BoxFit.cover, // contain에서 cover로 변경
             showLoadingOverlay: false,
             placeholder: const SizedBox.shrink(),

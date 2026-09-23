@@ -18,6 +18,7 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/avatar_container.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -721,6 +722,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       borderRadius: 50.w,
                       width: 100.w,
                       height: 100.w,
+                      cdnVariant: PicnicCdnImageVariant.thumbnail,
                     ),
                   ),
                   Positioned(

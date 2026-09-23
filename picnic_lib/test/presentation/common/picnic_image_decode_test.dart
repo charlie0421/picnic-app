@@ -172,45 +172,48 @@ void main() {
     },
   );
 
-  testWidgets('implicit decode dimensions track DPR and bounded layout', (
-    tester,
-  ) async {
-    final harness = await ImageTestHarness.create();
-    addTearDown(harness.dispose);
-    const expectations = <(double, int, int)>[
-      (1, 96, 48),
-      (2, 192, 96),
-      (3, 200, 100),
-    ];
+  testWidgets(
+    'implicit decode tracks DPR and layout while the CDN URL stays fixed',
+    (tester) async {
+      final harness = await ImageTestHarness.create();
+      addTearDown(harness.dispose);
+      const expectations = <(double, int, int)>[
+        (1, 96, 48),
+        (2, 192, 96),
+        (3, 200, 100),
+      ];
 
-    for (final (dpr, expectedWidth, expectedHeight) in expectations) {
-      await tester.pumpWidget(
-        _app(
-          const SizedBox(
-            width: 80,
-            height: 40,
-            child: PicnicCachedNetworkImage(
-              imageUrl: 'https://test-cdn.example.com/inferred.png',
-              lazyLoadingStrategy: LazyLoadingStrategy.none,
-              showLoadingOverlay: false,
+      for (final (dpr, expectedWidth, expectedHeight) in expectations) {
+        await tester.pumpWidget(
+          _app(
+            const SizedBox(
+              width: 80,
+              height: 40,
+              child: PicnicCachedNetworkImage(
+                imageUrl: 'https://test-cdn.example.com/inferred.png',
+                lazyLoadingStrategy: LazyLoadingStrategy.none,
+                showLoadingOverlay: false,
+              ),
             ),
+            devicePixelRatio: dpr,
           ),
-          devicePixelRatio: dpr,
-        ),
-      );
-      await tester.pump();
+        );
+        await tester.pump();
 
-      final resize = _displayImage(tester).image as ResizeImage;
-      expect(resize.width, expectedWidth, reason: 'DPR $dpr width');
-      expect(resize.height, expectedHeight, reason: 'DPR $dpr height');
-      final query = Uri.parse(_networkProvider(resize).url).queryParameters;
-      expect(query['w'], '$expectedWidth');
-      expect(query['h'], '$expectedHeight');
-    }
-  });
+        final resize = _displayImage(tester).image as ResizeImage;
+        expect(resize.width, expectedWidth, reason: 'DPR $dpr width');
+        expect(resize.height, expectedHeight, reason: 'DPR $dpr height');
+        expect(
+          _networkProvider(resize).url,
+          'https://test-cdn.example.com/inferred.png?q=80&w=500',
+          reason: 'DPR $dpr must not create its own CDN variant',
+        );
+      }
+    },
+  );
 
   testWidgets(
-    'explicit memory pixels stay fixed while single-axis requests stay single',
+    'explicit memory pixels stay fixed while single-axis decode stays single',
     (tester) async {
       final harness = await ImageTestHarness.create();
       addTearDown(harness.dispose);
@@ -254,9 +257,10 @@ void main() {
       );
       await tester.pump();
       resize = _displayImage(tester).image as ResizeImage;
-      var query = Uri.parse(_networkProvider(resize).url).queryParameters;
-      expect(query['w'], '96');
-      expect(query, isNot(contains('h')));
+      expect(
+        _networkProvider(resize).url,
+        'https://test-cdn.example.com/width-only.png?q=80&w=500',
+      );
       expect((resize.width, resize.height), (96, 2000));
 
       await tester.pumpWidget(
@@ -275,9 +279,11 @@ void main() {
       );
       await tester.pump();
       resize = _displayImage(tester).image as ResizeImage;
-      query = Uri.parse(_networkProvider(resize).url).queryParameters;
-      expect(query['w'], '96');
-      expect(query, isNot(contains('h')));
+      expect(
+        _networkProvider(resize).url,
+        'https://test-cdn.example.com/contain.png?q=80&w=500',
+      );
+      expect((resize.width, resize.height), (96, 2000));
     },
   );
 

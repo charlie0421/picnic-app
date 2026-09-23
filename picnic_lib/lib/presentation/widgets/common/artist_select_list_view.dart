@@ -586,6 +586,7 @@ class _ArtistItemWidgetState extends ConsumerState<_ArtistItemWidget>
                 width: 48,
                 height: 48,
                 imageUrl: imageUrl,
+                cdnVariant: PicnicCdnImageVariant.avatar,
                 borderRadius: BorderRadius.circular(24),
                 // PicnicCachedNetworkImage 내부에서 이미 로딩된 이미지를 추적함
                 lazyLoadingStrategy: LazyLoadingStrategy.viewport,

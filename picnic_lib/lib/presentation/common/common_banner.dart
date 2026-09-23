@@ -20,6 +20,7 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 class CommonBanner extends ConsumerStatefulWidget {
   const CommonBanner(
@@ -59,10 +60,17 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   final _prefetchScope = PicnicImagePrefetchScope();
   String? _prefetchSignature;
   int _prefetchGeneration = 0;
+  List<PicnicImageRequest> _prefetchCandidates = const [];
+  final Key _visibilityKey = UniqueKey();
+  bool _isVisible = false;
 
   @override
   void initState() {
     super.initState();
+    // PicnicCachedNetworkImage 와 같은 설정이다. 이미지보다 먼저(로딩 중)
+    // 그려지는 이 감지기가 기본 500ms 타이머를 만들면 모든 가시성 콜백이
+    // 그 타이머를 기다린다.
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
     _swiperController = SwiperController();
   }
 
@@ -71,6 +79,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
     _cancelAutoplay();
     _prefetchGeneration++;
     _prefetchScope.dispose();
+    VisibilityDetectorController.instance.forget(_visibilityKey);
     _swiperController?.dispose();
     super.dispose();
   }
@@ -101,17 +110,46 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
   }
 
   void _schedulePrefetch(List<PicnicImageRequest> requests) {
+    _prefetchCandidates = requests;
+    _syncPrefetch(afterFrame: true);
+  }
+
+  void _onVisibilityChanged(VisibilityInfo info) {
+    if (!mounted) return;
+    final visible = info.visibleFraction > 0;
+    if (visible == _isVisible) return;
+    _isVisible = visible;
+    _syncPrefetch(afterFrame: false);
+  }
+
+  /// 배너가 실제로 보일 때만 다음 슬라이드를 데운다.
+  ///
+  /// 홈은 IndexedStack 에서 다른 페이지에 가려져도 mount·layout 된 채 남고
+  /// 자동재생도 계속 넘긴다. 가려지거나 스크롤로 벗어나면 대기 중인 후보를
+  /// 비우고 다시 보이면 되살린다. 이미 시작된 다운로드는 끝까지 받는다.
+  void _syncPrefetch({required bool afterFrame}) {
+    final requests = _isVisible
+        ? _prefetchCandidates
+        : const <PicnicImageRequest>[];
     final signature = requests
         .map((r) => '${r.url}:${r.decodeWidth}:${r.decodeHeight}')
         .join('|');
     if (_prefetchSignature == signature) return;
     _prefetchSignature = signature;
     final generation = ++_prefetchGeneration;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void apply() {
       if (mounted && generation == _prefetchGeneration) {
         _prefetchScope.replace(context, requests);
       }
-    });
+    }
+
+    // 빌드·레이아웃 중에는 프레임 뒤로 미루고, 가시성 콜백(프레임 밖)에서는
+    // 새 프레임 없이도 바로 반영한다.
+    if (afterFrame) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => apply());
+    } else {
+      apply();
+    }
   }
 
   PicnicImageRequest _request(String url, Size size) =>
@@ -120,6 +158,7 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
         imageUrl: url,
         width: size.width,
         height: size.height,
+        cdnVariant: PicnicCdnImageVariant.large,
       );
 
   void _startAutoplay() {
@@ -336,12 +375,15 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             key: ValueKey('banner_${item.id}'),
             imageUrl: imageUrl,
             imageRequest: request,
+            cdnVariant: PicnicCdnImageVariant.large,
             fit: BoxFit.cover,
             // 베너 최적화 설정
             priority: ImagePriority.high, // 베너는 높은 우선순위
             enableMemoryOptimization: true,
             enableProgressiveLoading: !isGif, // GIF가 아닌 경우만 점진적 로딩
-            lazyLoadingStrategy: LazyLoadingStrategy.none, // 베너는 즉시 로딩
+            // 보이는 슬라이드만 받는다. 가려진 홈에서 자동재생이 넘긴 슬라이드나
+            // 스크롤로 벗어난 배너는 다시 보일 때 받는다.
+            lazyLoadingStrategy: LazyLoadingStrategy.viewport,
             timeout: const Duration(seconds: 12), // 베너는 조금 더 긴 타임아웃
             maxRetries: 3, // 베너는 더 많은 재시도
             width: size.width,
@@ -383,6 +425,17 @@ class _CommonBannerState extends ConsumerState<CommonBanner> {
             ),
           )
         : null;
+    return VisibilityDetector(
+      key: _visibilityKey,
+      onVisibilityChanged: _onVisibilityChanged,
+      child: _buildState(asyncBannerListState, campaign),
+    );
+  }
+
+  Widget _buildState(
+    AsyncValue<List<BannerModel>> asyncBannerListState,
+    AsyncValue<HomePromotionResolution>? campaign,
+  ) {
     return asyncBannerListState.when(
       skipLoadingOnRefresh: false,
       skipError: false,

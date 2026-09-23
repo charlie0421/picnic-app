@@ -1,110 +1,87 @@
-/// A single CDN URL variant requested by [PicnicCachedNetworkImageUrlResolver].
-final class PicnicCachedNetworkImageUrlVariant {
-  const PicnicCachedNetworkImageUrlVariant({
-    required this.resolutionMultiplier,
-    required this.quality,
-  });
-
-  final double resolutionMultiplier;
-  final int quality;
-}
-
-/// Resolves image keys into the ordered URLs requested by
-/// `PicnicCachedNetworkImage`.
+/// Resolves image keys into the URL requested by `PicnicCachedNetworkImage`.
 ///
-/// Relative keys and absolute URLs on the configured CDN origin receive the
-/// CDN's `w`/`h`/`q` query. External HTTP(S) URLs are preserved so signed
+/// Relative keys and absolute URLs on the configured CDN origin are
+/// first-party: they are always requested at one fixed CDN width. Legacy
+/// `http://` URLs for the same CDN host on the default port are moved to the
+/// configured HTTPS origin first. External HTTP(S) URLs are preserved so signed
 /// queries remain valid, and protocol-relative URLs are promoted to HTTPS.
 final class PicnicCachedNetworkImageUrlResolver {
   const PicnicCachedNetworkImageUrlResolver({required this.cdnUrl});
 
   final String? cdnUrl;
 
-  List<String> resolve({
-    required String imageUrl,
-    required double? width,
-    required double? height,
-    required List<PicnicCachedNetworkImageUrlVariant> variants,
-  }) {
-    final normalizedImageUrl = imageUrl.trim();
-    final classified = _classifyImageKey(normalizedImageUrl);
-
-    if (classified.isAbsolute) {
-      final uri = classified.uri!;
-      if (!_isCdnUrl(uri)) {
-        // External HTTP(S) URLs must keep signed queries and their original
-        // spelling. A protocol-relative URL is the sole exception because it
-        // needs an HTTPS scheme before CachedNetworkImage can fetch it.
-        return [
-          normalizedImageUrl.startsWith('//')
-              ? uri.toString()
-              : normalizedImageUrl,
-        ];
-      }
-
-      return _resolveVariants(uri, width, height, variants);
-    }
-
-    final cdnUrl = this.cdnUrl;
-    if (cdnUrl == null) {
-      throw StateError('CDN URL is required for relative image URLs.');
-    }
-    final uri = Uri.parse(
-      '$cdnUrl/${normalizedImageUrl.startsWith('/') ? normalizedImageUrl.substring(1) : normalizedImageUrl}',
-    );
-    return _resolveVariants(uri, width, height, variants);
-  }
-
-  /// Resolves [imageUrl] to the untransformed source URL.
+  /// Resolves [imageUrl] to one fixed CDN variant: `q` then `w`, never `h`.
   ///
-  /// The CDN routes any query — even a lone `q` — through its resizer, whose
-  /// first request per new variant is slow. CDN URLs therefore lose their
-  /// query here; external URLs keep it so signed queries remain valid.
-  String resolveOriginal(String imageUrl) {
+  /// Every device must receive the same variant, so callers pass constants,
+  /// not layout- or DPR-derived pixels. Without a height the CDN keeps the
+  /// source ratio. External URLs are returned unchanged.
+  String resolveFixedWidth(
+    String imageUrl, {
+    required int width,
+    required int quality,
+  }) {
+    RangeError.checkValueInInterval(width, 1, 1 << 30, 'width');
+    RangeError.checkValueInInterval(quality, 1, 100, 'quality');
+    final firstParty = _firstPartyUri(imageUrl);
+    if (firstParty == null) return _preservedExternalUrl(imageUrl);
+
+    // replace intentionally drops every existing CDN query parameter. The
+    // production resizer contract uses only q/w/h; fragments remain intact.
+    return firstParty
+        .replace(queryParameters: {'q': '$quality', 'w': '$width'})
+        .toString();
+  }
+
+  /// The CDN URI for relative keys and same-origin absolute URLs, or null for
+  /// an external HTTP(S) URL.
+  Uri? _firstPartyUri(String imageUrl) {
     final normalizedImageUrl = imageUrl.trim();
     final classified = _classifyImageKey(normalizedImageUrl);
 
     if (classified.isAbsolute) {
       final uri = classified.uri!;
-      if (!_isCdnUrl(uri)) {
-        return normalizedImageUrl.startsWith('//')
-            ? uri.toString()
-            : normalizedImageUrl;
-      }
-      return _withoutQuery(uri).toString();
+      return _isCdnUrl(uri) ? uri : _legacyHttpCdnUri(uri);
     }
 
     final cdnUrl = this.cdnUrl;
     if (cdnUrl == null) {
       throw StateError('CDN URL is required for relative image URLs.');
     }
-    final uri = Uri.parse(
+    return Uri.parse(
       '$cdnUrl/${normalizedImageUrl.startsWith('/') ? normalizedImageUrl.substring(1) : normalizedImageUrl}',
     );
-    return _withoutQuery(uri).toString();
   }
 
-  Uri _withoutQuery(Uri uri) {
-    return Uri(
-      scheme: uri.scheme,
-      userInfo: uri.userInfo,
-      host: uri.host,
-      port: uri.hasPort ? uri.port : null,
-      path: uri.path,
-      fragment: uri.hasFragment ? uri.fragment : null,
+  /// The configured HTTPS origin for a legacy `http://` spelling of the same
+  /// CDN host on the default port, or null. Other ports stay separate origins,
+  /// and URLs carrying credentials are never rewritten.
+  Uri? _legacyHttpCdnUri(Uri uri) {
+    final cdnUrl = this.cdnUrl;
+    if (cdnUrl == null) return null;
+    final cdnUri = Uri.parse(cdnUrl);
+    if (uri.scheme.toLowerCase() != 'http' ||
+        cdnUri.scheme.toLowerCase() != 'https' ||
+        uri.port != 80 ||
+        cdnUri.port != 443 ||
+        uri.userInfo.isNotEmpty ||
+        _normalizeHost(uri.host) != _normalizeHost(cdnUri.host)) {
+      return null;
+    }
+    return uri.replace(
+      scheme: cdnUri.scheme,
+      host: cdnUri.host,
+      port: cdnUri.port,
     );
   }
 
-  List<String> _resolveVariants(
-    Uri uri,
-    double? width,
-    double? height,
-    List<PicnicCachedNetworkImageUrlVariant> variants,
-  ) {
-    return [
-      for (final variant in variants)
-        _withCdnQuery(uri, width, height, variant).toString(),
-    ];
+  String _preservedExternalUrl(String imageUrl) {
+    final normalizedImageUrl = imageUrl.trim();
+    // External HTTP(S) URLs must keep signed queries and their original
+    // spelling. A protocol-relative URL is the sole exception because it
+    // needs an HTTPS scheme before CachedNetworkImage can fetch it.
+    return normalizedImageUrl.startsWith('//')
+        ? _classifyImageKey(normalizedImageUrl).uri!.toString()
+        : normalizedImageUrl;
   }
 
   ({bool isAbsolute, Uri? uri}) _classifyImageKey(String normalizedImageUrl) {
@@ -137,7 +114,8 @@ final class PicnicCachedNetworkImageUrlResolver {
     final cdnUri = Uri.parse(cdnUrl);
     // The resize contract belongs to one origin, not every URL sharing its
     // host. Uri.port already normalizes omitted HTTP(S) default ports.
-    return uri.scheme.toLowerCase() == cdnUri.scheme.toLowerCase() &&
+    return uri.userInfo.isEmpty &&
+        uri.scheme.toLowerCase() == cdnUri.scheme.toLowerCase() &&
         _normalizeHost(uri.host) == _normalizeHost(cdnUri.host) &&
         uri.port == cdnUri.port;
   }
@@ -146,36 +124,5 @@ final class PicnicCachedNetworkImageUrlResolver {
     final lower = host.toLowerCase();
     // A trailing dot is only the DNS FQDN spelling of the same host.
     return lower.endsWith('.') ? lower.substring(0, lower.length - 1) : lower;
-  }
-
-  Uri _withCdnQuery(
-    Uri uri,
-    double? width,
-    double? height,
-    PicnicCachedNetworkImageUrlVariant variant,
-  ) {
-    // replace intentionally drops every existing CDN query parameter. The
-    // production resizer contract uses only q/w/h; fragments remain intact.
-    final queryParameters = <String, String>{'q': variant.quality.toString()};
-
-    if (width != null && width.isFinite) {
-      queryParameters['w'] = _roundPixels(
-        width,
-        variant.resolutionMultiplier,
-      ).toString();
-    }
-    if (height != null && height.isFinite) {
-      queryParameters['h'] = _roundPixels(
-        height,
-        variant.resolutionMultiplier,
-      ).toString();
-    }
-
-    return uri.replace(queryParameters: queryParameters);
-  }
-
-  int _roundPixels(double value, double multiplier) {
-    final computed = (value * multiplier).round();
-    return computed > 0 ? computed : 1;
   }
 }

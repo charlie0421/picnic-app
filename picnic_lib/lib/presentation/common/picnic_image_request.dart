@@ -7,8 +7,44 @@ import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image_url_resolver.dart';
 import 'package:universal_platform/universal_platform.dart';
 
+/// One first-party CDN transform shared by every device.
+///
+/// The CDN resizes a new variant slowly on its first request, so a variant is
+/// only worth requesting when many users share it. Declare variants as
+/// constants per use case; never derive [width] from layout, DPR, platform, or
+/// iPad detection.
+@immutable
+final class PicnicCdnImageVariant {
+  const PicnicCdnImageVariant({required this.width, required this.quality})
+    : assert(width > 0),
+      assert(quality > 0 && quality <= 100);
+
+  /// Avatars and portraits up to about 60 logical pixels.
+  static const avatar = PicnicCdnImageVariant(width: 180, quality: 85);
+
+  /// Cards, grid cells, and small thumbnails; the default use case.
+  static const thumbnail = PicnicCdnImageVariant(width: 500, quality: 80);
+
+  /// Banners, heroes, and content images as wide as the screen.
+  static const large = PicnicCdnImageVariant(width: 1000, quality: 80);
+
+  /// Full-screen viewers and the splash image.
+  static const fullscreen = PicnicCdnImageVariant(width: 1600, quality: 80);
+
+  /// Physical pixels. The CDN keeps the source ratio, so no height is sent.
+  final int width;
+  final int quality;
+}
+
 @immutable
 final class PicnicImageRequest {
+  /// Resolves the exact URL and provider shared by prefetch and display.
+  ///
+  /// First-party CDN images are always requested at the fixed [cdnVariant],
+  /// [PicnicCdnImageVariant.thumbnail] unless the use case names another;
+  /// external URLs are always kept verbatim. [width], [height], the
+  /// memory-cache sizes, and [maxResolutionMultiplierCap] only bound the local
+  /// decode, so they may follow layout and DPR.
   factory PicnicImageRequest.resolve({
     required BuildContext context,
     required String imageUrl,
@@ -16,55 +52,34 @@ final class PicnicImageRequest {
     double? height,
     int? memCacheWidth,
     int? memCacheHeight,
-    int? maxQualityOverride,
     double? maxResolutionMultiplierCap,
-    bool cdnTransform = true,
+    PicnicCdnImageVariant cdnVariant = PicnicCdnImageVariant.thumbnail,
   }) {
-    final logicalWidth = _validLogicalDimension(width);
-    final logicalHeight = _validLogicalDimension(height);
     final multiplier = _resolutionMultiplier(
       context,
       maxResolutionMultiplierCap,
     );
-    final requestSize = _physicalRequestSize(
-      logicalWidth,
-      logicalHeight,
+    final layoutPixels = _physicalLayoutSize(
+      _validLogicalDimension(width),
+      _validLogicalDimension(height),
       multiplier,
     );
     final decodeSize = _decodeSize(
-      requestWidth: requestSize.width,
-      requestHeight: requestSize.height,
+      layoutWidth: layoutPixels.width,
+      layoutHeight: layoutPixels.height,
       memCacheWidth: memCacheWidth,
       memCacheHeight: memCacheHeight,
-    );
-    final quality = _quality(
-      imageUrl,
-      logicalWidth,
-      logicalHeight,
-      maxQualityOverride,
     );
     final resolver = PicnicCachedNetworkImageUrlResolver(
       cdnUrl: Environment.isInitialized ? Environment.cdnUrl : null,
     );
-    // cdnTransform: false 는 CDN 리사이저를 거치지 않는 원본을 받는다. 계산한
-    // 요청 크기는 디코드 크기 제한에만 쓴다.
     final url = imageUrl.trim().isEmpty
         ? ''
-        : !cdnTransform
-        ? resolver.resolveOriginal(imageUrl)
-        : resolver
-              .resolve(
-                imageUrl: imageUrl,
-                width: requestSize.width?.toDouble(),
-                height: requestSize.height?.toDouble(),
-                variants: [
-                  PicnicCachedNetworkImageUrlVariant(
-                    resolutionMultiplier: 1,
-                    quality: quality,
-                  ),
-                ],
-              )
-              .single;
+        : resolver.resolveFixedWidth(
+            imageUrl,
+            width: cdnVariant.width,
+            quality: _isGif(imageUrl) ? 80 : cdnVariant.quality,
+          );
     final provider = ResizeImage(
       CachedNetworkImageProvider(url, cacheKey: url),
       width: decodeSize.width,
@@ -75,8 +90,6 @@ final class PicnicImageRequest {
     return PicnicImageRequest._(
       imageUrl: imageUrl,
       url: url,
-      requestWidth: cdnTransform ? requestSize.width : null,
-      requestHeight: cdnTransform ? requestSize.height : null,
       decodeWidth: decodeSize.width,
       decodeHeight: decodeSize.height,
       provider: provider,
@@ -86,17 +99,15 @@ final class PicnicImageRequest {
   const PicnicImageRequest._({
     required this.imageUrl,
     required this.url,
-    required this.requestWidth,
-    required this.requestHeight,
     required this.decodeWidth,
     required this.decodeHeight,
     required this.provider,
   });
 
   final String imageUrl;
+
+  /// The fetched URL and disk-cache key. It never depends on the device.
   final String url;
-  final int? requestWidth;
-  final int? requestHeight;
   final int decodeWidth;
   final int decodeHeight;
   final ImageProvider<Object> provider;
@@ -133,7 +144,7 @@ double _resolutionMultiplier(BuildContext context, double? requestedCap) {
   return platformMultiplier;
 }
 
-({int? width, int? height}) _physicalRequestSize(
+({int? width, int? height}) _physicalLayoutSize(
   double? logicalWidth,
   double? logicalHeight,
   double multiplier,
@@ -232,13 +243,13 @@ int _singlePhysicalDimension(double logical, double multiplier) {
 }
 
 ({int width, int height}) _decodeSize({
-  required int? requestWidth,
-  required int? requestHeight,
+  required int? layoutWidth,
+  required int? layoutHeight,
   required int? memCacheWidth,
   required int? memCacheHeight,
 }) {
-  if (requestWidth == null &&
-      requestHeight == null &&
+  if (layoutWidth == null &&
+      layoutHeight == null &&
       memCacheWidth == null &&
       memCacheHeight == null) {
     return (width: 400, height: 400);
@@ -246,8 +257,8 @@ int _singlePhysicalDimension(double logical, double multiplier) {
 
   final hasExplicitWidth = memCacheWidth != null;
   final hasExplicitHeight = memCacheHeight != null;
-  var width = hasExplicitWidth ? math.max(1, memCacheWidth) : requestWidth;
-  var height = hasExplicitHeight ? math.max(1, memCacheHeight) : requestHeight;
+  var width = hasExplicitWidth ? math.max(1, memCacheWidth) : layoutWidth;
+  var height = hasExplicitHeight ? math.max(1, memCacheHeight) : layoutHeight;
 
   if (width == null) {
     height = math.min(height!, _maximumDimension);
@@ -284,18 +295,7 @@ int _singlePhysicalDimension(double logical, double multiplier) {
   return _capSize(width, height);
 }
 
-int _quality(
-  String imageUrl,
-  double? logicalWidth,
-  double? logicalHeight,
-  int? maxQualityOverride,
-) {
-  if (_isGif(imageUrl)) return 80;
-  final width = logicalWidth ?? 400;
-  final height = logicalHeight ?? 400;
-  return width * height < 50000 ? maxQualityOverride ?? 85 : 80;
-}
-
+/// GIF variants keep the historical q80 regardless of their use case.
 bool _isGif(String imageUrl) {
   final uri = Uri.tryParse(imageUrl.trim());
   final path = uri?.path ?? imageUrl.split('?').first;

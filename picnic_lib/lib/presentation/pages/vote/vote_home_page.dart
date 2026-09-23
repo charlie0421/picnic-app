@@ -347,6 +347,7 @@ class _VoteHomePageState extends ConsumerState<VoteHomePage>
                               imageUrl: data[index].thumbnail ?? '',
                               width: 120,
                               height: 100,
+                              cdnVariant: RewardDialogConstants.imageCdnVariant,
                               fit: BoxFit.fitWidth,
                               priority: isHighPriority
                                   ? ImagePriority.high

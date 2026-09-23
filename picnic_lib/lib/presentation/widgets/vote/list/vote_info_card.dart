@@ -866,13 +866,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
   }
 
   Object _thumbnailRequestSignature(PicnicImageRequest request) {
-    return (
-      request.url,
-      request.requestWidth,
-      request.requestHeight,
-      request.decodeWidth,
-      request.decodeHeight,
-    );
+    return (request.url, request.decodeWidth, request.decodeHeight);
   }
 
   Iterable<PicnicImageRequest> _nextThumbnailImageRequests() sync* {

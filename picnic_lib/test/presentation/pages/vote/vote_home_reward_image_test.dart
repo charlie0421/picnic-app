@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
+import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_home_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -87,4 +88,62 @@ void main() {
       await tester.pump();
     });
   }
+
+  testWidgets('first-party home reward reuses the reward grid CDN key', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 3;
+    tester.view.physicalSize = const Size(393 * 3, 852 * 3);
+    addTearDown(tester.view.reset);
+    const shared = 'https://test-cdn.example.com/reward/legacy.png?q=80&w=1000';
+    setupMockSupabase({
+      'vote': <dynamic>[],
+      'pic_vote': <dynamic>[],
+      'banner': <dynamic>[],
+      'reward': [
+        {
+          'id': 902,
+          'title': {'ko': '리워드'},
+          'thumbnail': '/reward/legacy.png',
+          'overview_images': null,
+          'location': null,
+          'size_guide': null,
+          'size_guide_images': null,
+        },
+      ],
+    });
+    final harness = await ImageTestHarness.create();
+    addTearDown(harness.dispose);
+    await tester.runAsync(
+      () => harness.respondPng(shared, width: 600, height: 500),
+    );
+    await tester.pumpWidget(buildTestAppPage(const VoteHomePage()));
+    final rawFinder = find.descendant(
+      of: find.byKey(const ValueKey('reward_902')),
+      matching: find.byType(RawImage),
+    );
+    for (var frame = 0; frame < 100; frame++) {
+      if (tester.widgetList<RawImage>(rawFinder).any((r) => r.image != null)) {
+        break;
+      }
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 2)),
+      );
+      await tester.pump();
+    }
+
+    final context = tester.element(find.byKey(const ValueKey('reward_902')));
+    expect(rewardImageRequest(context, '/reward/legacy.png').url, shared);
+    final decoded = tester
+        .widgetList<RawImage>(rawFinder)
+        .singleWhere((raw) => raw.image != null)
+        .image!;
+    // One shared CDN key; the local decode still follows the 120pt card.
+    expect(decoded.width, lessThan(600));
+    expect(decoded.width, greaterThan(120 * 1.8));
+    expect(harness.requestsFor(shared), 1);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+  });
 }

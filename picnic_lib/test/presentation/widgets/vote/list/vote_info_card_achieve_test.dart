@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
@@ -53,7 +54,11 @@ VoteItemModel _voteItem({int voteTotal = 50000}) {
 
 /// [nullThumbnail] 은 운영자가 보상 이미지를 비워둔 행을 재현한다.
 /// `RewardModel.thumbnail` 은 순수 nullable DB 컬럼이다.
-VoteAchieve _voteAchieve({int amount = 10000, bool nullThumbnail = false}) {
+VoteAchieve _voteAchieve({
+  int amount = 10000,
+  bool nullThumbnail = false,
+  String thumbnail = 'https://example.com/thumb.jpg',
+}) {
   return VoteAchieve.fromJson({
     'id': 1,
     'vote_id': 1,
@@ -63,7 +68,7 @@ VoteAchieve _voteAchieve({int amount = 10000, bool nullThumbnail = false}) {
     'reward': {
       'id': 1,
       'title': {'ko': '포토카드'},
-      'thumbnail': nullThumbnail ? null : 'https://example.com/thumb.jpg',
+      'thumbnail': nullThumbnail ? null : thumbnail,
     },
     'vote': _voteRow(),
   });
@@ -107,6 +112,26 @@ void main() {
         find.byType(PicnicCachedNetworkImage),
       );
       expect((image.width, image.height), (45, 45));
+    });
+
+    testWidgets('45px reward thumbnail requests the w180 avatar variant', (
+      WidgetTester tester,
+    ) async {
+      await pump(tester, _voteAchieve(thumbnail: '/reward/achieve.png'));
+
+      final displayed = tester.widget<Image>(
+        find.descendant(
+          of: find.byType(PicnicCachedNetworkImage),
+          matching: find.byType(Image),
+        ),
+      );
+      final network =
+          (displayed.image as ResizeImage).imageProvider
+              as CachedNetworkImageProvider;
+      expect(
+        network.url,
+        'https://test-cdn.example.com/reward/achieve.png?q=85&w=180',
+      );
     });
 
     testWidgets('reward with null thumbnail renders instead of crashing', (

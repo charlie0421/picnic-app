@@ -65,6 +65,30 @@ final class PicnicImagePrefetchScope {
     _prefetchScheduler.removeScope(this);
   }
 
+  /// Records that a visible image started consuming [key].
+  ///
+  /// A background job preparing that key stops occupying one of the two
+  /// background slots: the foreground display needs those bytes anyway, and
+  /// the download cannot be aborted once started. Otherwise, after a fast
+  /// swipe, the downloads of a card the user already passed would keep the
+  /// landing card and its successor waiting. Queued work, generations, the
+  /// two-job ceiling for unclaimed work, and the total in-flight bound still
+  /// apply.
+  static void releaseForDisplay(Object key) {
+    _prefetchScheduler.releaseForDisplay(key);
+  }
+
+  /// Test-only snapshot of the shared scheduler: every started prefetch
+  /// download ([inFlight], claimed or not), those holding a background slot
+  /// ([unclaimed]), and jobs not yet started ([queued]).
+  @visibleForTesting
+  static ({int inFlight, int unclaimed, int queued})
+  get schedulerStateForTest => (
+    inFlight: _prefetchScheduler._inFlightByKey.length,
+    unclaimed: _prefetchScheduler._activeCount,
+    queued: _prefetchScheduler._queuedByKey.length,
+  );
+
   bool _isCurrent(int generation) => !_disposed && _generation == generation;
 
   bool _hasInterest(int generation, Object key, BuildContext context) {
@@ -87,9 +111,19 @@ final _PicnicImagePrefetchScheduler _prefetchScheduler =
 final class _PicnicImagePrefetchScheduler {
   static const int _maximumActiveJobs = 2;
 
+  /// Hard bound on every prefetch-started download still in flight, claimed or
+  /// not. A claimed download leaves its background slot but keeps using the
+  /// network, so on a stalled network repeated swipes would otherwise start
+  /// prefetch downloads without limit. A fast two-card vote swipe needs eight:
+  /// the passed and the landing card's three claimed portraits each, plus the
+  /// next card's two background jobs. Six would stall that next card.
+  static const int _maximumInFlightJobs = 8;
+
   final Queue<_PrefetchJob> _queue = ListQueue<_PrefetchJob>();
   final Map<Object, _PrefetchJob> _queuedByKey = {};
   final Map<Object, _PrefetchJob> _inFlightByKey = {};
+
+  /// In-flight jobs that no display has claimed yet.
   int _activeCount = 0;
 
   void addCandidates(
@@ -140,8 +174,19 @@ final class _PicnicImagePrefetchScheduler {
     _drain();
   }
 
+  void releaseForDisplay(Object key) {
+    final job = _inFlightByKey[key];
+    if (job == null || job.releasedForDisplay) return;
+    job.releasedForDisplay = true;
+    _activeCount--;
+    // Displays claim keys while building; start the next job afterwards.
+    scheduleMicrotask(_drain);
+  }
+
   void _drain() {
-    while (_activeCount < _maximumActiveJobs && _queue.isNotEmpty) {
+    while (_activeCount < _maximumActiveJobs &&
+        _inFlightByKey.length < _maximumInFlightJobs &&
+        _queue.isNotEmpty) {
       final job = _queue.removeFirst();
       if (!identical(_queuedByKey[job.key], job)) continue;
 
@@ -185,7 +230,7 @@ final class _PicnicImagePrefetchScheduler {
       if (identical(_inFlightByKey[job.key], job)) {
         _inFlightByKey.remove(job.key);
       }
-      _activeCount--;
+      if (!job.releasedForDisplay) _activeCount--;
       _drain();
     }
   }
@@ -197,6 +242,9 @@ final class _PrefetchJob {
   final Object key;
   final PicnicImageRequest request;
   final Map<PicnicImagePrefetchScope, _PrefetchInterest> interests = {};
+
+  /// A display consumes this download; it no longer holds a background slot.
+  bool releasedForDisplay = false;
 }
 
 final class _PrefetchInterest {

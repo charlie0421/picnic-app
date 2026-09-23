@@ -7,7 +7,6 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:picnic_lib/presentation/providers/reward_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/grid_two_column.dart';
@@ -25,15 +24,16 @@ import 'package:shimmer/shimmer.dart';
 class RewardListSection extends ConsumerStatefulWidget {
   const RewardListSection({super.key});
 
-  /// 카드 이미지가 CDN 에 요청하는 유일한 폭(물리 px).
+  /// 카드 이미지가 CDN 에 요청하는 유일한 변형(`q=80&w=1000`).
   ///
   /// 크기를 지정하지 않으면 레이아웃 폭×DPR 로 요청해 기기마다 CDN 캐시 키가
   /// 갈리고, 새 키마다 리사이저 콜드(1000px PNG 기준 1.5~3.5초)를 맞는다.
   /// 홈은 조회가 많으므로 기기와 무관한 키 하나로 모으면 전역 첫 요청만 콜드다.
   /// 1000 은 리워드 원본 폭이라 큰 태블릿(카드 ~488pt × 2x ≈ 976px)에서도
   /// 확대되지 않는다. 원본보다 큰 값은 CDN 이 원본 크기로 클램프한다. 높이는
-  /// 보내지 않는다(비율 유지, BoxFit.cover 가 잘라 낸다).
-  static const double imageRequestWidth = 1000;
+  /// 보내지 않는다(비율 유지, BoxFit.cover 가 잘라 낸다). 리워드 다이얼로그도
+  /// 같은 요청([rewardImageRequest])을 써서 캐시 키를 공유한다.
+  static const imageVariant = RewardDialogConstants.imageCdnVariant;
 
   @override
   ConsumerState<RewardListSection> createState() => _RewardListSectionState();
@@ -141,21 +141,16 @@ class _RewardListSectionState extends ConsumerState<RewardListSection> {
             PicnicCachedNetworkImage(
               key: ValueKey('reward_${reward.id}'),
               imageUrl: reward.thumbnail ?? '',
-              imageRequest: PicnicImageRequest.resolve(
-                context: context,
-                imageUrl: reward.thumbnail ?? '',
-                width: RewardListSection.imageRequestWidth,
-                maxResolutionMultiplierCap: 1,
-              ),
+              imageRequest: rewardImageRequest(context, reward.thumbnail ?? ''),
               fit: BoxFit.cover,
               priority: isHighPriority
                   ? ImagePriority.high
                   : ImagePriority.normal,
               enableMemoryOptimization: true,
               enableProgressiveLoading: !isHighPriority,
-              lazyLoadingStrategy: isHighPriority
-                  ? LazyLoadingStrategy.none
-                  : LazyLoadingStrategy.viewport,
+              // 홈에서 리워드는 대개 폴드 아래다. 앞 카드도 보일 때까지
+              // 다운로드하지 않는다(카드당 w1000 약 200KB).
+              lazyLoadingStrategy: LazyLoadingStrategy.viewport,
               timeout: const Duration(seconds: 10),
               maxRetries: 2,
             ),

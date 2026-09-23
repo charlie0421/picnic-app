@@ -103,6 +103,43 @@ void main() {
       expect(widget.border, isNotNull);
     });
 
+    testWidgets('requests the avatar variant unless a larger use case asks', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const Column(
+            children: [
+              ProfileImageContainer(
+                key: ValueKey('list'),
+                avatarUrl: 'avatars/a.png',
+                borderRadius: 20,
+                width: 40,
+                height: 40,
+              ),
+              ProfileImageContainer(
+                key: ValueKey('edit'),
+                avatarUrl: 'avatars/a.png',
+                borderRadius: 50,
+                width: 100,
+                height: 100,
+                cdnVariant: PicnicCdnImageVariant.thumbnail,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      PicnicCachedNetworkImage loaderIn(String key) => tester.widget(
+        find.descendant(
+          of: find.byKey(ValueKey(key)),
+          matching: find.byType(PicnicCachedNetworkImage),
+        ),
+      );
+      expect(loaderIn('list').cdnVariant, PicnicCdnImageVariant.avatar);
+      expect(loaderIn('edit').cdnVariant, PicnicCdnImageVariant.thumbnail);
+    });
+
     testWidgets('renders with null avatarUrl', (tester) async {
       await tester.pumpWidget(
         buildTestApp(
@@ -267,6 +304,11 @@ void main() {
             imageUrl: 'avatars/relative.png',
             width: 48,
             height: 48,
+            cdnVariant: PicnicCdnImageVariant.avatar,
+          );
+          expect(
+            expected.url,
+            'https://test-cdn.example.com/avatars/relative.png?q=85&w=180',
           );
           await tester.runAsync(
             () => harness.respondPng(

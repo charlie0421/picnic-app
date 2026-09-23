@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
@@ -123,7 +124,9 @@ void main() {
           imageUrl: source,
           width: 60,
           height: 60,
+          cdnVariant: PicnicCdnImageVariant.avatar,
         );
+        expect(Uri.parse(complete.url).query, 'q=85&w=180');
         await tester.runAsync(
           () => harness.respondPng(
             detail.url,
@@ -214,13 +217,12 @@ void main() {
       expect(detail.url, isNot(popup.url));
       expect(
         popup.url,
-        'https://test-cdn.example.com/artist/warm-standard.png?q=85&w=190&h=190',
+        'https://test-cdn.example.com/artist/warm-standard.png?q=85&w=180',
       );
-      expect(Uri.parse(detail.url).queryParameters, {
-        'q': '55',
-        'w': '78',
-        'h': '78',
-      });
+      expect(
+        detail.url,
+        'https://test-cdn.example.com/artist/warm-standard.png?q=55&w=78',
+      );
 
       await tester.runAsync(
         () => harness.respondPng(
@@ -690,15 +692,9 @@ Future<BuildContext> _pumpRequestContext(WidgetTester tester) async {
 }
 
 PicnicImageRequest _detailRequest(BuildContext context, String source) {
-  return PicnicImageRequest.resolve(
+  return resolveVoteDetailPortraitImageRequest(
     context: context,
     imageUrl: source,
-    width: 39,
-    height: 39,
-    memCacheWidth: 78,
-    memCacheHeight: 78,
-    maxQualityOverride: 55,
-    maxResolutionMultiplierCap: 2,
   );
 }
 
@@ -712,6 +708,7 @@ PicnicImageRequest _popupRequest(
     imageUrl: source,
     width: logicalSize.w - 4,
     height: logicalSize.w - 4,
+    cdnVariant: PicnicCdnImageVariant.avatar,
   );
 }
 

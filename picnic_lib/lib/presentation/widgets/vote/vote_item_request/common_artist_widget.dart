@@ -115,6 +115,7 @@ class CommonArtistWidget extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: width,
                 height: height,
+                cdnVariant: PicnicCdnImageVariant.avatar,
                 priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
                 enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
                 memCacheWidth: width.toInt(), // ✅ 메모리 캐시 크기 지정

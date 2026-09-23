@@ -100,6 +100,7 @@ class _LatestMediaSectionState extends ConsumerState<LatestMediaSection> {
             PicnicCachedNetworkImage(
               key: ValueKey('latest_media_${item.id}'),
               imageUrl: item.thumbnailUrl,
+              cdnVariant: PicnicCdnImageVariant.thumbnail,
               fit: BoxFit.cover,
             ),
             Positioned(

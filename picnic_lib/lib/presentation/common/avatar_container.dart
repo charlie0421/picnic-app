@@ -13,6 +13,7 @@ class ProfileImageContainer extends StatelessWidget {
     required this.width,
     required this.height,
     this.border,
+    this.cdnVariant = PicnicCdnImageVariant.avatar,
   });
 
   final String? avatarUrl;
@@ -20,6 +21,7 @@ class ProfileImageContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final Border? border;
+  final PicnicCdnImageVariant cdnVariant;
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +65,7 @@ class ProfileImageContainer extends StatelessWidget {
       imageUrl: resolvedUrl,
       width: width,
       height: height,
+      cdnVariant: cdnVariant,
       fit: BoxFit.cover,
       priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
       lazyLoadingStrategy: isHttpImage

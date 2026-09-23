@@ -39,8 +39,11 @@ class CandyBoostBanner extends ConsumerWidget {
           PicnicCachedNetworkImage(
             imageUrl: image,
             imageRequest: imageRequest,
+            cdnVariant: PicnicCdnImageVariant.large,
             fit: BoxFit.cover,
-            lazyLoadingStrategy: LazyLoadingStrategy.none,
+            // 일반 배너처럼 보일 때만 받는다. 가려진 홈이나 화면 밖 배너가
+            // 큰 변형을 먼저 받아 다른 이미지와 대역폭을 다투지 않게 한다.
+            lazyLoadingStrategy: LazyLoadingStrategy.viewport,
             priority: ImagePriority.high,
           ),
           const DecoratedBox(
