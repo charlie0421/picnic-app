@@ -17,11 +17,7 @@ void main() {
       minTextAdapt: true,
       builder: (context, _) {
         return MaterialApp(
-          home: Scaffold(
-            body: SingleChildScrollView(
-              child: child,
-            ),
-          ),
+          home: Scaffold(body: SingleChildScrollView(child: child)),
         );
       },
     );
@@ -38,9 +34,7 @@ void main() {
 
   group('VoteCardSkeleton default (ongoing)', () {
     testWidgets('renders with default status', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildTestWidget(const VoteCardSkeleton()),
-      );
+      await tester.pumpWidget(buildTestWidget(const VoteCardSkeleton()));
       await tester.pump();
 
       expect(find.byType(VoteCardSkeleton), findsOneWidget);
@@ -52,16 +46,15 @@ void main() {
     });
 
     testWidgets('contains Shimmer widgets', (WidgetTester tester) async {
-      await tester.pumpWidget(
-        buildTestWidget(const VoteCardSkeleton()),
-      );
+      await tester.pumpWidget(buildTestWidget(const VoteCardSkeleton()));
       await tester.pump();
 
       expect(find.byType(Shimmer), findsWidgets);
     });
 
-    testWidgets('contains vote items container for ongoing',
-        (WidgetTester tester) async {
+    testWidgets('contains vote items container for ongoing', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestWidget(const VoteCardSkeleton(status: VoteCardStatus.ongoing)),
       );
@@ -77,18 +70,21 @@ void main() {
     testWidgets('renders upcoming status', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestWidget(
-            const VoteCardSkeleton(status: VoteCardStatus.upcoming)),
+          const VoteCardSkeleton(status: VoteCardStatus.upcoming),
+        ),
       );
       await tester.pump();
 
       expect(find.byType(VoteCardSkeleton), findsOneWidget);
     });
 
-    testWidgets('upcoming does not show vote items container',
-        (WidgetTester tester) async {
+    testWidgets('upcoming does not show vote items container', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestWidget(
-            const VoteCardSkeleton(status: VoteCardStatus.upcoming)),
+          const VoteCardSkeleton(status: VoteCardStatus.upcoming),
+        ),
       );
       await tester.pump();
 
@@ -108,8 +104,9 @@ void main() {
       expect(find.byType(VoteCardSkeleton), findsOneWidget);
     });
 
-    testWidgets('ended contains Shimmer and structural widgets',
-        (WidgetTester tester) async {
+    testWidgets('ended contains Shimmer and structural widgets', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestWidget(const VoteCardSkeleton(status: VoteCardStatus.ended)),
       );
@@ -123,8 +120,9 @@ void main() {
 
   group('VoteCardSkeleton all statuses render without errors', () {
     for (final status in VoteCardStatus.values) {
-      testWidgets('renders ${status.name} without errors',
-          (WidgetTester tester) async {
+      testWidgets('renders ${status.name} without errors', (
+        WidgetTester tester,
+      ) async {
         await tester.pumpWidget(
           buildTestWidget(VoteCardSkeleton(status: status)),
         );
@@ -137,6 +135,45 @@ void main() {
   });
 
   group('VoteCardSkeleton structural verification', () {
+    for (final status in VoteCardStatus.values) {
+      testWidgets('$status has both save and share placeholders', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          buildTestWidget(VoteCardSkeleton(status: status)),
+        );
+        final footer = tester.widget<Row>(find.byType(Row).last);
+        expect(footer.children.length, 2);
+      });
+    }
+
+    for (final status in [VoteCardStatus.ongoing, VoteCardStatus.ended]) {
+      testWidgets('$status uses three full-size ranked portrait placeholders', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          buildTestWidget(VoteCardSkeleton(status: status)),
+        );
+
+        final portraits = find.byWidgetPredicate(
+          (widget) =>
+              widget is Container &&
+              widget.decoration is BoxDecoration &&
+              (widget.decoration! as BoxDecoration).shape == BoxShape.circle &&
+              (widget.decoration! as BoxDecoration).color == Colors.white,
+        );
+        expect(
+          portraits.evaluate().where((element) {
+            final size = tester.getSize(
+              find.byElementPredicate((candidate) => candidate == element),
+            );
+            return size.width >= 72 && size.height >= 72;
+          }).length,
+          3,
+        );
+      });
+    }
+
     testWidgets('is a StatelessWidget', (WidgetTester tester) async {
       const skeleton = VoteCardSkeleton();
       expect(skeleton, isA<StatelessWidget>());
@@ -152,8 +189,9 @@ void main() {
       expect(skeleton3, isNotNull);
     });
 
-    testWidgets('every status renders its own content block skeleton',
-        (WidgetTester tester) async {
+    testWidgets('every status renders its own content block skeleton', (
+      WidgetTester tester,
+    ) async {
       // 예전에는 "upcoming 은 ongoing 보다 구조가 덜하다"(셔머 수 비교)를
       // 고정했지만, upcoming 에 실카드의 썸네일 그리드에 대응하는 자리
       // 표시자가 생기면서(Δ386px 점프 수정) 그 전제가 의도적으로 깨졌다.

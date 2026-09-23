@@ -214,234 +214,67 @@ class VoteCardSkeleton extends StatelessWidget {
   }
 
   Widget _buildVoteItemsSkeleton() {
-    switch (status) {
-      case VoteCardStatus.upcoming:
-        // 예정: 간단한 목록 형태 (2개)
-        return Column(
-          children: List.generate(
-            2,
-            (index) => _buildUpcomingVoteItemSkeleton(),
-          ),
-        );
-      case VoteCardStatus.ongoing:
-        // 진행 중: 투표 버튼과 실시간 정보 포함 (3개)
-        return Column(
-          children: List.generate(
-            3,
-            (index) => _buildOngoingVoteItemSkeleton(),
-          ),
-        );
-      case VoteCardStatus.ended:
-        // 종료: 결과와 순위 정보 포함 (3개)
-        return Column(
-          children: List.generate(
-            3,
-            (index) => _buildEndedVoteItemSkeleton(index),
-          ),
-        );
-    }
-  }
-
-  Widget _buildUpcomingVoteItemSkeleton() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Row(
-        children: [
-          // 아티스트 이미지 스켈레톤
-          Container(
-            width: 30.w,
-            height: 30.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름 영역
-          Expanded(
-            child: Container(
-              height: 14.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-            ),
-          ),
-        ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
+        width: 240,
+        height: 220,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _buildRankedVoteSkeleton(2),
+            _buildRankedVoteSkeleton(1),
+            _buildRankedVoteSkeleton(3),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildOngoingVoteItemSkeleton() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
+  Widget _buildRankedVoteSkeleton(int rank) {
+    final barHeight =
+        220 *
+        (rank == 1
+            ? .65
+            : rank == 2
+            ? .50
+            : .40);
+    return SizedBox(
+      width: 80,
+      height: 220,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
         children: [
-          // 순위 영역
-          SizedBox(
-            width: 30.w,
+          Positioned(
+            bottom: 0,
+            child: Container(width: 80, height: barHeight, color: Colors.white),
+          ),
+          if (status == VoteCardStatus.ended)
+            Positioned(
+              bottom: barHeight + 76,
+              child: Container(width: 48, height: 12, color: Colors.white),
+            ),
+          Positioned(
+            bottom: barHeight + 58,
+            child: Container(width: 36, height: 12, color: Colors.white),
+          ),
+          Positioned(
+            bottom: barHeight - 32,
             child: Container(
-              width: 16.w,
-              height: 16.h,
-              decoration: BoxDecoration(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(4.r),
+                shape: BoxShape.circle,
               ),
             ),
           ),
-          SizedBox(width: 6.w),
-
-          // 아티스트 이미지 스켈레톤
-          Container(
-            width: 35.w,
-            height: 35.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름과 투표수 영역
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 아티스트 이름 스켈레톤
-                Container(
-                  height: 14.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-
-                // 투표수와 퍼센트 스켈레톤
-                Row(
-                  children: [
-                    Container(
-                      height: 16.h,
-                      width: 60.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      height: 12.h,
-                      width: 30.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 12.w),
-
-          // 투표 버튼 스켈레톤
-          Container(
-            width: 24.w,
-            height: 24.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEndedVoteItemSkeleton(int index) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
-        children: [
-          // 순위 메달/숫자 영역 (1,2,3위는 다른 크기)
-          SizedBox(
-            width: 35.w,
-            child: Container(
-              width: index < 3 ? 20.w : 16.w,
-              height: index < 3 ? 20.h : 16.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(index < 3 ? 10.r : 4.r),
-              ),
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 아티스트 이미지 스켈레톤 (1위는 조금 더 크게)
-          Container(
-            width: index == 0 ? 40.w : 35.w,
-            height: index == 0 ? 40.h : 35.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름과 결과 영역
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 아티스트 이름 스켈레톤
-                Container(
-                  height: 14.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-
-                // 최종 투표수와 퍼센트
-                Row(
-                  children: [
-                    Container(
-                      height: 16.h,
-                      width: 70.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      height: 14.h,
-                      width: 40.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // 결과 아이콘 영역 (트로피나 체크 등)
-          Container(
-            width: 20.w,
-            height: 20.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
+          Positioned(
+            bottom: 10,
+            child: Container(width: 56, height: 12, color: Colors.white),
           ),
         ],
       ),
@@ -479,29 +312,30 @@ class VoteCardSkeleton extends StatelessWidget {
         child: Shimmer.fromColors(
           baseColor: AppColors.grey300,
           highlightColor: AppColors.grey100,
-          child: Row(
-            mainAxisAlignment: status == VoteCardStatus.ongoing
-                ? MainAxisAlignment.spaceBetween
-                : MainAxisAlignment.center,
-            children: [
-              Container(
-                width: status == VoteCardStatus.ongoing ? 100.w : 120.w,
-                height: 12.h,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-              ),
-              if (status == VoteCardStatus.ongoing)
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
                 Container(
-                  width: 60.w,
-                  height: 12.h,
+                  width: 120.w,
+                  height: 32,
+                  margin: EdgeInsets.only(right: 16.w),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
+                    borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-            ],
+                Container(
+                  width: 120.w,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
