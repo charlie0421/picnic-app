@@ -940,6 +940,37 @@ void main() {
         'after a portrait to landscape rotation',
       );
     });
+
+    // PICNIC-2739: the columns' widths were resolved against the route, and
+    // for the first frames after the window shrinks in place (folding a
+    // foldable, dragging a split-screen divider) the width Dialog hands out
+    // is smaller, so the Row overflowed by up to 29px for one frame.
+    for (final (from, to) in const [
+      (Size(852, 393), Size(800, 480)),
+      (Size(1000, 393), Size(640, 400)),
+      (Size(1000, 393), Size(700, 393)),
+      (Size(915, 412), Size(600, 412)),
+      (Size(852, 393), Size(560, 360)),
+      (Size(1280, 400), Size(640, 400)),
+    ]) {
+      testWidgets('shrinking the window in place from '
+          '${from.width.toInt()}x${from.height.toInt()} to '
+          '${to.width.toInt()}x${to.height.toInt()} never overflows', (
+        tester,
+      ) async {
+        await openWithInset(tester, viewport: from, inset: 0);
+        expect(
+          find.byType(VoteDialogColumns),
+          findsOneWidget,
+          reason: 'the starting viewport must use two columns',
+        );
+
+        tester.view.physicalSize = Size(to.width * 3, to.height * 3);
+        await stepFrames(tester);
+
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 
   group('PICNIC-2697 the one-column recharge pill keeps its content width', () {
@@ -1142,5 +1173,65 @@ void main() {
         }
       }
     }
+  });
+
+  group('PICNIC-2739 renderedWidths', () {
+    const layout = VoteDialogColumnsLayout(
+      cardWidth: 700,
+      bodyHeight: 300,
+      leftWidth: 240,
+      rightWidth: 380,
+      topInset: 0,
+      bottomInset: 0,
+      showTopClose: true,
+      shape: VoteDialogShape(
+        mode: VoteDialogLayoutMode.actionsPinned,
+        cardBorderRadius: BorderRadius.zero,
+      ),
+      leftMinimumWidth: 200,
+      rightMinimumWidth: 360,
+    );
+    double total(({double left, double gap, double right}) w) =>
+        w.left + w.gap + w.right;
+
+    test('at rest the resolved widths are returned unchanged', () {
+      final w = layout.renderedWidths(700);
+      expect((w.left, w.gap, w.right), (240.0, kVoteDialogColumnGap, 380.0));
+      expect(
+        layout.renderedWidths(900),
+        w,
+        reason: 'more room changes nothing',
+      );
+    });
+
+    test('a shortfall within the slack keeps both minimums and the gap', () {
+      final w = layout.renderedWidths(670); // 30 short, slack is 40 + 20
+      expect(total(w), closeTo(620 + kVoteDialogColumnGap - 30, 1e-9));
+      expect(w.left, greaterThanOrEqualTo(200));
+      expect(w.right, greaterThanOrEqualTo(360));
+      expect(w.gap, kVoteDialogColumnGap);
+    });
+
+    test('past the slack the gap yields before any column', () {
+      final w = layout.renderedWidths(700 - 60 - 10); // slack 60, then 10
+      expect((w.left, w.right), (200.0, 360.0));
+      expect(w.gap, closeTo(kVoteDialogColumnGap - 10, 1e-9));
+    });
+
+    test('only an extreme shortfall takes the columns below their minimums, '
+        'and the row never exceeds what it is given', () {
+      for (final rendered in const [620.0, 400.0, 50.0, 10.0, 0.0]) {
+        final w = layout.renderedWidths(rendered);
+        final shortfall = 700 - rendered;
+        expect(
+          total(w),
+          closeTo(math.max(0.0, 620 + kVoteDialogColumnGap - shortfall), 1e-9),
+          reason: '$rendered',
+        );
+        expect(w.left, greaterThanOrEqualTo(0));
+        expect(w.right, greaterThanOrEqualTo(0));
+        expect(w.gap, greaterThanOrEqualTo(0));
+      }
+    });
   });
 }
