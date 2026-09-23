@@ -65,6 +65,7 @@ class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
       context: context,
       imageUrl: url,
       width: imageWidth,
+      cdnVariant: PicnicCdnImageVariant.large,
     );
   }
 
@@ -271,8 +272,11 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
                   ),
               width: constraints.maxWidth,
               height: constraints.maxHeight,
+              cdnVariant: PicnicCdnImageVariant.large,
               fit: BoxFit.cover,
-              lazyLoadingStrategy: LazyLoadingStrategy.none,
+              // 캐러셀 옆 카드와 스크롤·페이지에 가려진 카드는 보일 때까지
+              // 받지 않는다. 다음 카드는 캐러셀의 +1 프리페치가 데운다.
+              lazyLoadingStrategy: LazyLoadingStrategy.viewport,
               priority: ImagePriority.high,
             ),
           ),

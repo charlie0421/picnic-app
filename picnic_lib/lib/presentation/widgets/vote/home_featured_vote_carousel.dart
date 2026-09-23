@@ -10,6 +10,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 /// 홈 "현재 진행중인 투표" 가로 캐러셀.
 ///
@@ -76,6 +77,9 @@ class _HomeFeaturedVoteCarouselState
   final _prefetchScope = PicnicImagePrefetchScope();
   String? _prefetchSignature;
   int _prefetchGeneration = 0;
+  List<PicnicImageRequest> _prefetchCandidates = const [];
+  final Key _visibilityKey = UniqueKey();
+  bool _isVisible = false;
   List<FeaturedVoteEntry> _lastEntries = const [];
 
   void _synchronizeEntries(List<FeaturedVoteEntry> entries) {
@@ -104,22 +108,55 @@ class _HomeFeaturedVoteCarouselState
   }
 
   void _schedulePrefetch(List<PicnicImageRequest> requests) {
+    _prefetchCandidates = requests;
+    _syncPrefetch(afterFrame: true);
+  }
+
+  void _onVisibilityChanged(VisibilityInfo info) {
+    if (!mounted) return;
+    final visible = info.visibleFraction > 0;
+    if (visible == _isVisible) return;
+    _isVisible = visible;
+    _syncPrefetch(afterFrame: false);
+  }
+
+  /// 캐러셀이 실제로 보일 때만 다음 카드를 데운다.
+  ///
+  /// 홈은 IndexedStack 에서 다른 페이지에 가려져도 mount·layout 된 채 남으므로,
+  /// 가려지거나 스크롤로 벗어나면 대기 중인 후보를 비우고 다시 보이면 되살린다.
+  /// 이미 시작된 다운로드는 취소할 수 없어 끝까지 받는다.
+  void _syncPrefetch({required bool afterFrame}) {
+    final requests = _isVisible
+        ? _prefetchCandidates
+        : const <PicnicImageRequest>[];
     final signature = requests
         .map((r) => '${r.url}:${r.decodeWidth}:${r.decodeHeight}')
         .join('|');
     if (_prefetchSignature == signature) return;
     _prefetchSignature = signature;
     final generation = ++_prefetchGeneration;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    void apply() {
       if (mounted && generation == _prefetchGeneration) {
         _prefetchScope.replace(context, requests);
       }
-    });
+    }
+
+    // 빌드·레이아웃 중에는 프레임 뒤로 미루고, 가시성 콜백(프레임 밖)에서는
+    // 새 프레임 없이도 바로 반영한다.
+    if (afterFrame) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => apply());
+    } else {
+      apply();
+    }
   }
 
   @override
   void initState() {
     super.initState();
+    // PicnicCachedNetworkImage 와 같은 설정이다. 이미지보다 먼저(스켈레톤)
+    // 그려지는 이 감지기가 기본 500ms 타이머를 만들면 모든 가시성 콜백이
+    // 그 타이머를 기다린다.
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
     _controller = PageController(
       viewportFraction: HomeFeaturedVoteCarousel.viewportFraction,
     );
@@ -129,6 +166,7 @@ class _HomeFeaturedVoteCarouselState
   void dispose() {
     _prefetchGeneration++;
     _prefetchScope.dispose();
+    VisibilityDetectorController.instance.forget(_visibilityKey);
     _controller.dispose();
     super.dispose();
   }
@@ -137,6 +175,14 @@ class _HomeFeaturedVoteCarouselState
   Widget build(BuildContext context) {
     final entriesAsync = ref.watch(asyncActiveFeaturedVotesProvider);
 
+    return VisibilityDetector(
+      key: _visibilityKey,
+      onVisibilityChanged: _onVisibilityChanged,
+      child: _buildState(entriesAsync),
+    );
+  }
+
+  Widget _buildState(AsyncValue<List<FeaturedVoteEntry>> entriesAsync) {
     return entriesAsync.when(
       loading: () {
         if (_lastEntries.isNotEmpty) return _buildEntries(_lastEntries);
@@ -207,9 +253,10 @@ class _HomeFeaturedVoteCarouselState
               imageWidth,
             ),
         ];
+        // 다음 카드 하나만 데운다. 그다음 카드(w1000)는 페이지를 넘길 때
+        // 새 +1 이 되어 준비된다.
         _schedulePrefetch([
-          for (var i = _page + 1; i <= _page + 2 && i < entries.length; i++)
-            ?requests[i],
+          if (_page + 1 < entries.length) ?requests[_page + 1],
         ]);
         return Column(
           children: [

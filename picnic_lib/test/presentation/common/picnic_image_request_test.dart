@@ -16,45 +16,131 @@ void main() {
     PaintingBinding.instance.imageCache.clearLiveImages();
   });
 
-  testWidgets('nullable CDN axes become capped physical request pixels', (
-    tester,
-  ) async {
-    final context = await _pumpContext(tester, devicePixelRatio: 2);
-
-    final request = PicnicImageRequest.resolve(
-      context: context,
-      imageUrl: '/images/hero.jpg',
-      width: 320,
+  test('shared variants pin one width and quality per use case', () {
+    expect(
+      [for (final variant in _sharedVariants) (variant.width, variant.quality)],
+      [(180, 85), (500, 80), (1000, 80), (1600, 80)],
     );
-
-    expect(request.requestWidth, 768);
-    expect(request.requestHeight, isNull);
-    expect(Uri.parse(request.url).queryParameters, {'q': '80', 'w': '768'});
-    expect(request.decodeWidth, 768);
-    expect(request.decodeHeight, 2000);
   });
 
-  testWidgets('missing or invalid axes keep a q-only request and safe decode', (
+  // CDN 은 query 가 하나라도 붙으면 리사이저를 거치고, 새 변형의 첫 요청은
+  // 수 초 느리다(2026-09-19 실측). 기기마다 다른 w 는 변형을 기기 수만큼
+  // 쪼개 모든 사용자가 콜드를 맞게 하므로, 변형은 용도별 상수 하나다. 용도를
+  // 고르지 않으면 썸네일 변형이다. 레이아웃·DPR 은 로컬 디코드 크기에만 쓴다.
+  testWidgets(
+    'omitted variant requests the thumbnail variant on every device',
+    (tester) async {
+      final urls = <String>{};
+      final decodeWidths = <double, int>{};
+      for (final device in _devices) {
+        final context = await _pumpContext(
+          tester,
+          size: device.size,
+          devicePixelRatio: device.devicePixelRatio,
+        );
+
+        final request = PicnicImageRequest.resolve(
+          context: context,
+          imageUrl: '/images/hero.jpg?stale=1',
+          width: 320,
+          height: 180,
+        );
+
+        urls.add(request.url);
+        decodeWidths[device.devicePixelRatio] = request.decodeWidth;
+      }
+
+      expect(urls, {'https://test-cdn.example.com/images/hero.jpg?q=80&w=500'});
+      // 로컬 디코드 보호는 그대로 기기 해상도를 따른다.
+      expect(decodeWidths, {1.0: 384, 2.0: 768, 3.0: 800, 3.5: 800});
+    },
+  );
+
+  testWidgets('variant URL ignores layout size, DPR, and resolution cap', (
     tester,
   ) async {
-    final context = await _pumpContext(tester, devicePixelRatio: double.nan);
+    final urlsByWidth = <int, Set<String>>{};
+    for (final device in _devices) {
+      final context = await _pumpContext(
+        tester,
+        size: device.size,
+        devicePixelRatio: device.devicePixelRatio,
+      );
+      for (final variant in _sharedVariants) {
+        for (final logical in const [24.0, 72.0, 390.0]) {
+          for (final cap in const [null, 1.0]) {
+            final request = PicnicImageRequest.resolve(
+              context: context,
+              imageUrl: 'https://test-cdn.example.com/artist/1.png?fit=cover',
+              width: logical,
+              height: logical,
+              maxResolutionMultiplierCap: cap,
+              cdnVariant: variant,
+            );
+            urlsByWidth.putIfAbsent(variant.width, () => {}).add(request.url);
+          }
+        }
+      }
+    }
 
-    final request = PicnicImageRequest.resolve(
-      context: context,
-      imageUrl: '/images/unknown.png',
-      width: double.nan,
-      height: -20,
-      maxResolutionMultiplierCap: double.nan,
-    );
-
-    expect(request.requestWidth, isNull);
-    expect(request.requestHeight, isNull);
-    expect(Uri.parse(request.url).queryParameters, {'q': '80'});
-    expect(request.decodeWidth, 400);
-    expect(request.decodeHeight, 400);
+    expect(urlsByWidth, {
+      180: {'https://test-cdn.example.com/artist/1.png?q=85&w=180'},
+      500: {'https://test-cdn.example.com/artist/1.png?q=80&w=500'},
+      1000: {'https://test-cdn.example.com/artist/1.png?q=80&w=1000'},
+      1600: {'https://test-cdn.example.com/artist/1.png?q=80&w=1600'},
+    });
   });
 
-  testWidgets('cdnTransform false requests the untransformed original', (
+  testWidgets('every variant keeps signed external URLs verbatim', (
+    tester,
+  ) async {
+    final context = await _pumpContext(tester, devicePixelRatio: 3);
+    const signedUrl =
+        'https://external.example.com/photo.png?signature=a%2Bb&expires=9';
+
+    final urls = [
+      PicnicImageRequest.resolve(
+        context: context,
+        imageUrl: signedUrl,
+        width: 72,
+        height: 72,
+      ).url,
+      for (final variant in _sharedVariants)
+        PicnicImageRequest.resolve(
+          context: context,
+          imageUrl: signedUrl,
+          width: 72,
+          height: 72,
+          cdnVariant: variant,
+        ).url,
+    ];
+
+    expect(urls, everyElement(signedUrl));
+  });
+
+  testWidgets(
+    'missing or invalid axes keep the default variant and safe decode',
+    (tester) async {
+      final context = await _pumpContext(tester, devicePixelRatio: double.nan);
+
+      final request = PicnicImageRequest.resolve(
+        context: context,
+        imageUrl: '/images/unknown.png',
+        width: double.nan,
+        height: -20,
+        maxResolutionMultiplierCap: double.nan,
+      );
+
+      expect(
+        request.url,
+        'https://test-cdn.example.com/images/unknown.png?q=80&w=500',
+      );
+      expect(request.decodeWidth, 400);
+      expect(request.decodeHeight, 400);
+    },
+  );
+
+  testWidgets('fixed variant still caps decode to the requested width', (
     tester,
   ) async {
     final context = await _pumpContext(tester, devicePixelRatio: 3);
@@ -64,14 +150,13 @@ void main() {
       imageUrl: '/reward/1.png',
       width: 1000,
       maxResolutionMultiplierCap: 1,
-      cdnTransform: false,
+      cdnVariant: PicnicCdnImageVariant.large,
     );
 
-    expect(Uri.parse(request.url).hasQuery, isFalse);
-    expect(request.url, endsWith('/reward/1.png'));
-    expect(request.requestWidth, isNull);
-    expect(request.requestHeight, isNull);
-    // 디코드 크기는 CDN 변형 여부와 무관하게 요청한 크기로 제한한다.
+    expect(
+      request.url,
+      'https://test-cdn.example.com/reward/1.png?q=80&w=1000',
+    );
     expect(request.decodeWidth, 1000);
     expect(request.decodeHeight, 2000);
   });
@@ -94,11 +179,11 @@ void main() {
       maxResolutionMultiplierCap: 0,
     );
 
-    expect(capped.requestWidth, 50);
-    expect(invalidCap.requestWidth, 250);
+    expect(capped.decodeWidth, 50);
+    expect(invalidCap.decodeWidth, 250);
   });
 
-  testWidgets('two physical axes are proportionally capped at two megapixels', (
+  testWidgets('two decode axes are proportionally capped at two megapixels', (
     tester,
   ) async {
     final context = await _pumpContext(tester);
@@ -110,14 +195,12 @@ void main() {
       height: 2000,
     );
 
-    expect(request.requestWidth, 1414);
-    expect(request.requestHeight, 1414);
-    expect(
-      request.requestWidth! * request.requestHeight!,
-      lessThanOrEqualTo(2000000),
-    );
     expect(request.decodeWidth, 1414);
     expect(request.decodeHeight, 1414);
+    expect(
+      request.decodeWidth * request.decodeHeight,
+      lessThanOrEqualTo(2000000),
+    );
   });
 
   testWidgets(
@@ -132,8 +215,6 @@ void main() {
         height: 5e307,
       );
 
-      expect(request.requestWidth, 2000);
-      expect(request.requestHeight, 1000);
       expect(request.decodeWidth, 2000);
       expect(request.decodeHeight, 1000);
     },
@@ -177,39 +258,58 @@ void main() {
         memCacheWidth: 1800,
       );
 
-      expect(fixed.requestWidth, 173);
-      expect(fixed.requestHeight, 173);
       expect(fixed.decodeWidth, 78);
       expect(fixed.decodeHeight, 78);
-      expect(mixed.requestWidth, 1414);
-      expect(mixed.requestHeight, 1414);
       expect(mixed.decodeWidth, 1800);
       expect(mixed.decodeHeight, 1111);
     },
   );
 
-  testWidgets('GIF query detection and low-quality override retain policy', (
+  testWidgets('GIF sources keep q80 while other sources keep variant q', (
     tester,
   ) async {
     final context = await _pumpContext(tester);
+    const variant = PicnicCdnImageVariant(width: 78, quality: 55);
+    const gifUrl = 'https://test-cdn.example.com/animation.gif?token=old';
 
     final gif = PicnicImageRequest.resolve(
       context: context,
-      imageUrl: 'https://test-cdn.example.com/animation.gif?token=old',
-      width: 100,
-      height: 100,
-      maxQualityOverride: 55,
+      imageUrl: gifUrl,
+      width: 39,
+      height: 39,
+      cdnVariant: variant,
+    );
+    final defaultGif = PicnicImageRequest.resolve(
+      context: context,
+      imageUrl: gifUrl,
+      width: 39,
+      height: 39,
+    );
+    final avatarGif = PicnicImageRequest.resolve(
+      context: context,
+      imageUrl: gifUrl,
+      width: 39,
+      height: 39,
+      cdnVariant: PicnicCdnImageVariant.avatar,
     );
     final low = PicnicImageRequest.resolve(
       context: context,
       imageUrl: '/images/low.jpg',
-      width: 100,
-      height: 100,
-      maxQualityOverride: 55,
+      width: 39,
+      height: 39,
+      cdnVariant: variant,
     );
 
-    expect(Uri.parse(gif.url).queryParameters['q'], '80');
-    expect(Uri.parse(low.url).queryParameters['q'], '55');
+    expect(Uri.parse(gif.url).queryParameters, {'q': '80', 'w': '78'});
+    expect(
+      defaultGif.url,
+      'https://test-cdn.example.com/animation.gif?q=80&w=500',
+    );
+    expect(
+      avatarGif.url,
+      'https://test-cdn.example.com/animation.gif?q=80&w=180',
+    );
+    expect(Uri.parse(low.url).queryParameters, {'q': '55', 'w': '78'});
   });
 
   testWidgets(
@@ -340,18 +440,31 @@ void main() {
   );
 }
 
+const _sharedVariants = [
+  PicnicCdnImageVariant.avatar,
+  PicnicCdnImageVariant.thumbnail,
+  PicnicCdnImageVariant.large,
+  PicnicCdnImageVariant.fullscreen,
+];
+
+/// Phone, small phone, and tablet layouts across the DPR range.
+const _devices = [
+  MediaQueryData(size: Size(393, 852), devicePixelRatio: 1),
+  MediaQueryData(size: Size(360, 780), devicePixelRatio: 2),
+  MediaQueryData(size: Size(393, 852), devicePixelRatio: 3),
+  MediaQueryData(size: Size(1024, 1366), devicePixelRatio: 3.5),
+];
+
 Future<BuildContext> _pumpContext(
   WidgetTester tester, {
+  Size size = const Size(393, 852),
   double devicePixelRatio = 1,
 }) async {
   late BuildContext context;
   await tester.pumpWidget(
     MaterialApp(
       home: MediaQuery(
-        data: MediaQueryData(
-          size: const Size(393, 852),
-          devicePixelRatio: devicePixelRatio,
-        ),
+        data: MediaQueryData(size: size, devicePixelRatio: devicePixelRatio),
         child: Builder(
           builder: (currentContext) {
             context = currentContext;

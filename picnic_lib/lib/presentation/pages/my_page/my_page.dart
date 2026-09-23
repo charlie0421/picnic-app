@@ -440,6 +440,7 @@ class _MyPageState extends ConsumerState<MyPage>
                               imageUrl: artists[index].image ?? '',
                               width: 60,
                               height: 60,
+                              cdnVariant: PicnicCdnImageVariant.avatar,
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ],

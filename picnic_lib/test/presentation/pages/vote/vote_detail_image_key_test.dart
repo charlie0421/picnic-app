@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 
 import '../../../helpers/test_environment.dart';
@@ -38,60 +37,53 @@ void main() {
     });
   });
 
-  testWidgets('extracted detail portrait request preserves the exact row key', (
+  // 39pt 행 portrait 는 모든 기기가 78px 변형 하나를 공유하고, 디코드도
+  // 78px 로 고정된다. 팝업의 캐시 전용 placeholder 가 같은 키를 찾는다.
+  testWidgets('detail portrait request is one fixed 78px variant everywhere', (
     tester,
   ) async {
-    tester.view.physicalSize = const Size(1125, 2436);
-    tester.view.devicePixelRatio = 3;
     addTearDown(() {
       tester.view.resetPhysicalSize();
       tester.view.resetDevicePixelRatio();
     });
-    late BuildContext context;
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Builder(
-          builder: (buildContext) {
-            context = buildContext;
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
-    );
     const source = '/artist/detail-key.png?obsolete=1';
+    final urls = <String>{};
+    final keys = <Object>{};
+    for (final (size, dpr) in const [
+      (Size(375, 812), 3.0),
+      (Size(360, 780), 2.0),
+      (Size(1024, 1366), 2.0),
+    ]) {
+      tester.view.physicalSize = size * dpr;
+      tester.view.devicePixelRatio = dpr;
+      late BuildContext context;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (buildContext) {
+              context = buildContext;
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
 
-    final legacyRowRequest = PicnicImageRequest.resolve(
-      context: context,
-      imageUrl: source,
-      width: 39,
-      height: 39,
-      memCacheWidth: 78,
-      memCacheHeight: 78,
-      maxQualityOverride: 55,
-      maxResolutionMultiplierCap: 2,
-    );
-    final extractedRequest = resolveVoteDetailPortraitImageRequest(
-      context: context,
-      imageUrl: source,
-    );
-    final configuration = createLocalImageConfiguration(
-      context,
-      size: const Size(39, 39),
-    );
+      final request = resolveVoteDetailPortraitImageRequest(
+        context: context,
+        imageUrl: source,
+      );
+      urls.add(request.url);
+      expect((request.decodeWidth, request.decodeHeight), (78, 78));
+      keys.add(
+        await request.obtainKey(
+          createLocalImageConfiguration(context, size: const Size(39, 39)),
+        ),
+      );
+    }
 
-    expect(extractedRequest.url, legacyRowRequest.url);
-    expect(Uri.parse(extractedRequest.url).queryParameters, {
-      'q': '55',
-      'w': '78',
-      'h': '78',
+    expect(urls, {
+      'https://test-cdn.example.com/artist/detail-key.png?q=55&w=78',
     });
-    expect(
-      (extractedRequest.decodeWidth, extractedRequest.decodeHeight),
-      (78, 78),
-    );
-    expect(
-      await extractedRequest.obtainKey(configuration),
-      await legacyRowRequest.obtainKey(configuration),
-    );
+    expect(keys, hasLength(1));
   });
 }

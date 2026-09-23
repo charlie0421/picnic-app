@@ -251,6 +251,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                           child: imageUrl.isNotEmpty
                               ? PicnicCachedNetworkImage(
                                   imageUrl: imageUrl,
+                                  cdnVariant: PicnicCdnImageVariant.large,
                                   fit: BoxFit.cover,
                                 )
                               : Image.asset(

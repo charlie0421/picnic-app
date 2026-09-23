@@ -114,6 +114,7 @@ class _YouTubeEmbedContent extends StatelessWidget {
                         imageUrl: getThumbnailUrl(videoInfo.id, highQuality: true),
                         width: maxWidth,
                         height: thumbnailHeight,
+                        cdnVariant: PicnicCdnImageVariant.large,
                         fit: BoxFit.cover,
                         placeholder: SizedBox(
                           width: maxWidth,

@@ -474,6 +474,9 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                                                   imageUrl: achievement
                                                       .reward
                                                       .thumbnail!,
+                                                  cdnVariant:
+                                                      PicnicCdnImageVariant
+                                                          .thumbnail,
                                                   fit: BoxFit.cover,
                                                 ),
                                               ),
@@ -721,6 +724,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
               imageUrl: voteModel.mainImage!,
               width: width,
               memCacheWidth: width.toInt(),
+              cdnVariant: PicnicCdnImageVariant.large,
             ),
           ),
         const SizedBox(height: 36),
@@ -1024,6 +1028,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           height: 80,
           memCacheWidth: 80,
           memCacheHeight: 80,
+          cdnVariant: PicnicCdnImageVariant.avatar,
         ),
       ),
     );
@@ -1257,6 +1262,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                           achievements[rewardIndex].reward.thumbnail ?? '',
                       width: 50,
                       memCacheWidth: 50,
+                      cdnVariant: PicnicCdnImageVariant.avatar,
                     ),
                   ),
                 ),

@@ -58,6 +58,7 @@ class LocalImageEmbedBuilder extends EmbedBuilder {
           logger.i('Network URL received: ${snapshot.data}');
           return PicnicCachedNetworkImage(
             imageUrl: snapshot.data!,
+            cdnVariant: PicnicCdnImageVariant.large,
             fit: BoxFit.contain,
             placeholder: SizedBox(
               width: double.infinity,
@@ -138,6 +139,7 @@ class NetworkImageEmbedBuilder extends EmbedBuilder {
       child: PicnicCachedNetworkImage(
         imageUrl: imageUrl,
         width: getPlatformScreenSize(context).width.toInt() - 10,
+        cdnVariant: PicnicCdnImageVariant.large,
         fit: BoxFit.contain,
       ),
     );
@@ -181,6 +183,7 @@ class _FullScreenImageViewer extends StatelessWidget {
               maxScale: 4.0,
               child: PicnicCachedNetworkImage(
                 imageUrl: imageUrl,
+                cdnVariant: PicnicCdnImageVariant.fullscreen,
                 fit: BoxFit.contain,
               ),
             ),

@@ -110,6 +110,7 @@ class VoteCardColumnAchieve extends StatelessWidget {
                         imageUrl: rank.reward.thumbnail ?? '',
                         width: 45,
                         height: 45,
+                        cdnVariant: PicnicCdnImageVariant.avatar,
                         lazyLoadingStrategy: LazyLoadingStrategy.none,
                         priority: ImagePriority.high,
                       ),

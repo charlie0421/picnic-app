@@ -319,6 +319,7 @@ class VotingArtistImage extends StatelessWidget {
                 imageUrl: imageUrl,
                 width: side,
                 height: side,
+                cdnVariant: PicnicCdnImageVariant.avatar,
                 fit: BoxFit.cover,
                 placeholder: VoteDetailPortraitCachePlaceholder(
                   imageUrl: imageUrl,

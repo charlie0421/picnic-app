@@ -508,6 +508,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
             imageUrl: artist.image ?? '',
             width: 60,
             height: 60,
+            cdnVariant: PicnicCdnImageVariant.avatar,
             placeholder: VoteDetailPortraitCachePlaceholder(
               imageUrl: artist.image ?? '',
             ),
@@ -563,6 +564,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
               imageUrl: group.image ?? '',
               width: 60,
               height: 60,
+              cdnVariant: PicnicCdnImageVariant.avatar,
               placeholder: VoteDetailPortraitCachePlaceholder(
                 imageUrl: group.image ?? '',
               ),

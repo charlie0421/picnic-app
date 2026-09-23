@@ -103,6 +103,7 @@ class _PicPageState extends ConsumerState<PicPage> {
                         imageUrl: data?[index - 1].thumbnail ?? '',
                         width: 60.w,
                         height: 60,
+                        cdnVariant: PicnicCdnImageVariant.avatar,
                         fit: BoxFit.cover,
                         priority: ImagePriority.high, // 아티스트 이미지는 높은 우선순위
                         borderRadius: BorderRadius.circular(70),

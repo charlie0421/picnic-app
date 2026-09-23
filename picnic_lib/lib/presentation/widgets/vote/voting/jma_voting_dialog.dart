@@ -1089,6 +1089,7 @@ class _JmaVotingDialogState extends ConsumerState<JmaVotingDialog> {
                       imageUrl: imageUrl,
                       width: portraitSide,
                       height: portraitSide,
+                      cdnVariant: PicnicCdnImageVariant.avatar,
                       fit: BoxFit.cover,
                       placeholder: VoteDetailPortraitCachePlaceholder(
                         imageUrl: imageUrl,

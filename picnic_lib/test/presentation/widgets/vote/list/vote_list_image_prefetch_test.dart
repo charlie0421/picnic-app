@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -528,6 +529,213 @@ void main() {
     await tester.pump();
   });
 
+  // A fast multi-swipe passes the middle card while every download is cold.
+  // Its displayed portraits keep downloading after the user moves on, and
+  // those foreground downloads must not keep occupying the two background
+  // slots: the landing card should start in transit and its successor on
+  // arrival, while unclaimed background work stays at two jobs.
+  testWidgets(
+    'landing two cards ahead prepares the landing card in transit and its '
+    'successor on arrival',
+    (tester) async {
+      tester.view.physicalSize = const Size(393, 892);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final harness = await ImageTestHarness.create();
+      String url(int card, int rank) =>
+          'https://images.example.com/two-ahead-c$card-r$rank.png';
+      final urls = [
+        for (var card = 0; card < 6; card++)
+          for (var rank = 0; rank < 3; rank++) url(card, rank),
+      ];
+      // Held responses must be released and drained inside the body: a failed
+      // expectation would otherwise leave ImageTestHarness.dispose waiting on
+      // an open response stream forever.
+      try {
+        for (final image in urls) {
+          await tester.runAsync(() => harness.respondPng(image, held: true));
+        }
+        final pageItems = [
+          for (var card = 0; card < 6; card++)
+            _vote(card + 1, [
+              for (var rank = 0; rank < 3; rank++)
+                (url: url(card, rank), total: 30 - rank * 10),
+            ]),
+        ];
+
+        await tester.pumpWidget(
+          _app((page, _) async => page == 1 ? pageItems : const []),
+        );
+        await _pumpUntil(
+          tester,
+          () =>
+              harness.requestsFor(url(1, 0)) == 1 &&
+              harness.requestsFor(url(1, 1)) == 1,
+        );
+        expect(harness.requestsFor(url(1, 2)), 0);
+
+        final controller = tester
+            .widget<PageView>(find.byType(PageView))
+            .controller!;
+        // Never await this future: frames only advance while the test pumps.
+        unawaited(
+          controller.animateToPage(
+            2,
+            duration: const Duration(milliseconds: 350),
+            curve: Curves.easeOut,
+          ),
+        );
+        var landingStartedInTransit = false;
+        for (var frame = 0; frame < 30; frame++) {
+          await tester.pump(const Duration(milliseconds: 16));
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 1)),
+          );
+          if (controller.page! < 1.9 &&
+              harness.requestsFor(url(2, 0)) == 1 &&
+              harness.requestsFor(url(2, 1)) == 1) {
+            landingStartedInTransit = true;
+          }
+        }
+        await _pumpAsyncWork(tester);
+
+        expect(controller.page, 2);
+        expect(
+          landingStartedInTransit,
+          isTrue,
+          reason: 'the landing card should not wait for the page to settle',
+        );
+        // The skipped card is still downloading. Its foreground requests
+        // must not block the bounded successor prefetch.
+        expect(harness.requestsFor(url(1, 0)), 1);
+        expect(harness.requestsFor(url(3, 0)), 1);
+        expect(harness.requestsFor(url(3, 1)), 1);
+        expect([
+          for (final card in [4, 5])
+            for (var rank = 0; rank < 3; rank++)
+              harness.requestsFor(url(card, rank)),
+        ], everyElement(0));
+        for (var rank = 0; rank < 3; rank++) {
+          expect(harness.requestsFor(url(2, rank)), 1);
+          harness.release(url(2, rank));
+        }
+        for (var rank = 0; rank < 3; rank++) {
+          await _pumpUntil(
+            tester,
+            () => _rawImageFor(tester, url(2, rank))?.image != null,
+          );
+          expect(harness.requestsFor(url(2, rank)), 1);
+        }
+        expect(harness.requestsFor(url(3, 2)), 0);
+      } finally {
+        await _releaseAndDispose(tester, harness, urls);
+      }
+    },
+  );
+
+  // Swiping card after card on a network that never answers: every landing
+  // card claims its prepared downloads, so the claimed downloads pile up. The
+  // scheduler must stop starting prefetch downloads at its hard bound and
+  // resume once the network answers.
+  testWidgets(
+    'repeated held swipes keep prefetch downloads bounded and drain after the '
+    'network answers',
+    (tester) async {
+      tester.view.physicalSize = const Size(393, 892);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final harness = await ImageTestHarness.create();
+      const cards = 8;
+      String url(int card, int rank) =>
+          'https://images.example.com/held-swipes-c$card-r$rank.png';
+      final urls = [
+        for (var card = 0; card < cards; card++)
+          for (var rank = 0; rank < 3; rank++) url(card, rank),
+      ];
+      try {
+        for (final image in urls) {
+          await tester.runAsync(() => harness.respondPng(image, held: true));
+        }
+        final pageItems = [
+          for (var card = 0; card < cards; card++)
+            _vote(card + 1, [
+              for (var rank = 0; rank < 3; rank++)
+                (url: url(card, rank), total: 30 - rank * 10),
+            ]),
+        ];
+        await tester.pumpWidget(
+          _app((page, _) async => page == 1 ? pageItems : const []),
+        );
+        await _pumpUntil(
+          tester,
+          () =>
+              harness.requestsFor(url(1, 0)) == 1 &&
+              harness.requestsFor(url(1, 1)) == 1,
+        );
+
+        final controller = tester
+            .widget<PageView>(find.byType(PageView))
+            .controller!;
+        var peakInFlight = 0;
+        var peakUnclaimed = 0;
+        var peakQueued = 0;
+        const swipes = 5;
+        for (var target = 1; target <= swipes; target++) {
+          // Never await the animation: frames only advance while pumping.
+          unawaited(
+            controller.animateToPage(
+              target,
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+            ),
+          );
+          for (var frame = 0; frame < 20; frame++) {
+            await tester.pump(const Duration(milliseconds: 16));
+            await tester.runAsync(
+              () => Future<void>.delayed(const Duration(milliseconds: 1)),
+            );
+            final state = PicnicImagePrefetchScope.schedulerStateForTest;
+            if (state.inFlight > peakInFlight) peakInFlight = state.inFlight;
+            if (state.unclaimed > peakUnclaimed) {
+              peakUnclaimed = state.unclaimed;
+            }
+            if (state.queued > peakQueued) peakQueued = state.queued;
+          }
+          expect(controller.page, target);
+        }
+
+        expect(peakUnclaimed, lessThanOrEqualTo(2));
+        expect(peakQueued, lessThanOrEqualTo(3));
+        expect(peakInFlight, lessThanOrEqualTo(8));
+
+        for (final image in urls) {
+          harness.release(image);
+        }
+        await tester.pump(const Duration(milliseconds: 700));
+        await _pumpUntil(
+          tester,
+          () =>
+              PicnicImagePrefetchScope.schedulerStateForTest ==
+                  (inFlight: 0, unclaimed: 0, queued: 0) &&
+              harness.activeRequests == 0 &&
+              PaintingBinding.instance.imageCache.pendingImageCount == 0,
+        );
+        // Draining resumed: the card after the landing card is prepared, and
+        // no image was fetched twice.
+        expect(
+          [
+            for (var rank = 0; rank < 3; rank++)
+              harness.requestsFor(url(swipes + 1, rank)),
+          ],
+          [1, 1, 1],
+        );
+        expect(urls.every((image) => harness.requestsFor(image) <= 1), isTrue);
+      } finally {
+        await _releaseAndDispose(tester, harness, urls);
+      }
+    },
+  );
+
   testWidgets('same-DPR window resize reevaluates the prepared signature', (
     tester,
   ) async {
@@ -611,6 +819,34 @@ Future<List<int>> _centerRgba(WidgetTester tester, ui.Image image) async {
     for (var channel = 0; channel < 4; channel++)
       bytes.getUint8(center + channel),
   ];
+}
+
+/// Releases held responses and drains image work before disposing. Every wait
+/// is bounded, so a failed expectation reports instead of hanging on an open
+/// response stream.
+Future<void> _releaseAndDispose(
+  WidgetTester tester,
+  ImageTestHarness harness,
+  Iterable<String> urls,
+) async {
+  for (final url in urls) {
+    harness.release(url);
+  }
+  await tester.pumpWidget(const SizedBox.shrink());
+  for (var attempt = 0; attempt < 150; attempt++) {
+    if (harness.activeRequests == 0 &&
+        PaintingBinding.instance.imageCache.pendingImageCount == 0) {
+      break;
+    }
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 2)),
+    );
+    await tester.pump();
+  }
+  await _pumpAsyncWork(tester);
+  await tester.runAsync(
+    () => harness.dispose().timeout(const Duration(seconds: 5)),
+  );
 }
 
 Future<void> _pumpAsyncWork(WidgetTester tester) async {
