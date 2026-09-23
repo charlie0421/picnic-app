@@ -1,13 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_list_page.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
+import 'package:picnic_lib/presentation/widgets/vote/vote_card_skeleton.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+class _PendingVotes extends AsyncVoteList {
+  @override
+  Future<List<VoteModel>> build(
+    int page,
+    int limit,
+    String sort,
+    String order,
+    String area, {
+    VotePortal votePortal = VotePortal.vote,
+    required VoteStatus status,
+    required VoteCategory category,
+  }) => Completer<List<VoteModel>>().future;
+}
 
 void main() {
   late void Function() restore;
@@ -27,6 +45,46 @@ void main() {
   });
 
   group('VoteListContent rendering', () {
+    testWidgets('status filter immediately shows its matching skeleton', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(
+          const VoteListContent(isAdmin: false),
+          extraOverrides: [
+            asyncVoteListProvider.overrideWith(_PendingVotes.new),
+          ],
+        ),
+      );
+
+      expect(
+        tester.widget<VoteCardSkeleton>(find.byType(VoteCardSkeleton)).status,
+        VoteCardStatus.ongoing,
+      );
+      for (final (status, expected) in [
+        (VoteStatus.end, VoteCardStatus.ended),
+        (VoteStatus.upcoming, VoteCardStatus.upcoming),
+        (VoteStatus.active, VoteCardStatus.ongoing),
+      ]) {
+        await tester.tap(find.byType(DropdownButton<VoteStatus>));
+        await pumpAndIgnoreErrors(tester);
+        await tester.tap(
+          find
+              .byWidgetPredicate(
+                (widget) =>
+                    widget is DropdownMenuItem<VoteStatus> &&
+                    widget.value == status,
+              )
+              .last,
+        );
+        await pumpAndIgnoreErrors(tester);
+        expect(
+          tester.widget<VoteCardSkeleton>(find.byType(VoteCardSkeleton)).status,
+          expected,
+        );
+      }
+    });
+
     testWidgets(
       'renders 5 vote-type chips with ALL first, regardless of isAdmin',
       (tester) async {
