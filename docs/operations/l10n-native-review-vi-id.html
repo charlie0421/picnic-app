@@ -3,27 +3,54 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Picnic vi·id Translation Review</title>
+<title>Picnic Translation Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap">
 <style>
-:root { --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --soft:#f6f8fa; --old:#b42318; --new:#1a7f37; --accent:#6f42c1; }
-body { max-width:1400px; margin:0 auto; padding:32px 24px 80px; color:var(--ink); background:#fff; font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans",sans-serif; }
-h1 { font-size:26px; margin:0 0 4px; } h2 { font-size:20px; margin:2em 0 .4em; padding-bottom:6px; border-bottom:1px solid var(--line); }
-.note { color:var(--muted); font-size:13px; }
-.box { padding:14px 16px; border-left:5px solid var(--accent); background:#f8f5ff; margin:14px 0; }
-.terms { padding:10px 14px; background:var(--soft); border-radius:6px; }
-table { width:100%; border-collapse:collapse; font-size:13px; margin:10px 0 24px; }
-th,td { border:1px solid var(--line); padding:6px 8px; text-align:left; vertical-align:top; }
-th { background:var(--soft); position:sticky; top:0; }
-td.n { color:var(--muted); text-align:right; width:28px; }
-.k { color:var(--muted); font:11px ui-monospace,Menlo,monospace; word-break:break-all; margin-top:2px; }
-td.old { color:var(--old); text-decoration:line-through; text-decoration-color:rgba(180,35,24,.4); }
+:root {
+  --ground:#fbfbfd; --surface:#ffffff; --ink:#1b1f2a; --muted:#5e6577; --line:#dde0e8; --soft:#f1f2f7;
+  --accent:#4b3fb5; --accent-soft:#eeecfb; --old:#b3261e; --new:#17804a;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground:#12141b; --surface:#191c25; --ink:#e7e9f0; --muted:#9aa1b3; --line:#2c303d; --soft:#20242f;
+    --accent:#a79cff; --accent-soft:#242038; --old:#ff8a80; --new:#6fd49a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground:#12141b; --surface:#191c25; --ink:#e7e9f0; --muted:#9aa1b3; --line:#2c303d; --soft:#20242f;
+  --accent:#a79cff; --accent-soft:#242038; --old:#ff8a80; --new:#6fd49a;
+}
+body { margin:0; background:var(--ground); color:var(--ink); font:14px/1.6 "Be Vietnam Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+.wrap { max-width:1400px; margin:0 auto; padding-inline:24px; padding-block:32px 80px; }
+h1 { font-size:26px; line-height:1.25; margin:0 0 6px; text-wrap:balance; }
+h2 { font-size:20px; margin:2em 0 .5em; padding-bottom:6px; border-bottom:1px solid var(--line); text-wrap:balance; }
+a { color:var(--accent); }
+code { font:12.5px "JetBrains Mono", ui-monospace, Menlo, monospace; background:var(--soft); padding:.1em .35em; border-radius:4px; }
+.note { color:var(--muted); font-size:13px; max-width:80ch; }
+.box { padding:14px 18px; background:var(--accent-soft); border-radius:8px; margin:16px 0; max-width:92ch; }
+.box p { margin:.45em 0; }
+.terms { padding:10px 14px; background:var(--soft); border-radius:6px; max-width:92ch; }
+.jump { display:flex; flex-wrap:wrap; gap:16px; }
+.scroll { overflow-x:auto; margin:10px 0 28px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+table { width:100%; min-width:980px; border-collapse:collapse; font-size:13px; }
+th, td { border-bottom:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+th { background:var(--soft); color:var(--muted); font-weight:600; font-size:12px; letter-spacing:.02em; }
+tbody tr:last-child td { border-bottom:0; }
+td.n { color:var(--muted); text-align:right; width:28px; font-variant-numeric:tabular-nums; }
+.k { color:var(--muted); font:11px "JetBrains Mono", ui-monospace, Menlo, monospace; word-break:break-all; margin-top:3px; }
+td.old { color:var(--old); text-decoration:line-through; text-decoration-color:color-mix(in srgb, var(--old) 45%, transparent); }
 td.new { color:var(--new); font-weight:600; }
-td.ok { white-space:nowrap; color:var(--muted); } td.c { min-width:160px; }
-@media (max-width:760px) { body { padding:16px; } table { display:block; overflow-x:auto; } }
-@media print { th { position:static; } }
+td.ok { white-space:nowrap; color:var(--muted); }
+td.c { min-width:160px; }
+@media (max-width:640px) { .wrap { padding-inline:16px; } h1 { font-size:22px; } }
 </style>
 </head>
 <body>
+<div class="wrap">
 <h1>Picnic — Vietnamese &amp; Indonesian translation review</h1>
 <p class="note">2026-09-23 · PICNIC-2738 · Changes merged in PR #253, #257, #260, #262 · 한국어 요약: 원어민 확인용 시트입니다. 각 줄의 "Now" 가 지금 앱에 들어간 문구입니다.</p>
 <div class="box">
@@ -31,10 +58,10 @@ td.ok { white-space:nowrap; color:var(--muted); } td.c { min-width:160px; }
 <p><b>Please keep</b> anything in braces exactly as it is (for example <code>{count}</code>, <code>__MONTH__</code>), line breaks and leading "- ". Button and tab labels must stay short.</p>
 <p><b>Important:</b> within one language, these request-status labels must all be different from each other, because the app compares them: Can apply · Submit · Waiting · Pending · Approved · Rejected · In progress · Cancelled · Unknown.</p>
 </div>
-<p><a href="#vi">Tiếng Việt</a> · <a href="#id">Bahasa Indonesia</a></p>
+<p class="jump"><a href="#vi">Tiếng Việt</a><a href="#id">Bahasa Indonesia</a></p>
 <h2 id="vi">Tiếng Việt (Vietnamese) — 94 strings</h2>
 <p class="terms"><b>Terms we chose (please confirm or object):</b> Currencies stay English brand names: <b>Star Candy</b>, <b>Bonus Star Candy</b>, <b>Cotton Candy</b>. Fan vote = <b>bình chọn</b>. Nominating an artist as a candidate = <b>đề xuất / gửi yêu cầu</b>.</p>
-<table><thead><tr><th>#</th><th>Screen / key</th><th>Korean (source)</th><th>English (reference)</th><th>Before</th><th>Now (in app)</th><th>Check</th><th>Suggestion</th></tr></thead><tbody>
+<div class="scroll"><table><thead><tr><th>#</th><th>Screen / key</th><th>Korean (source)</th><th>English (reference)</th><th>Before</th><th>Now (in app)</th><th>Check</th><th>Suggestion</th></tr></thead><tbody>
 <tr><td class="n">1</td><td>Achievement vote detail<div class="k">text_achievement</div></td><td>🎉 지금까지 {count}개의 목표를 달성했습니다! 🎉</td><td>🎉 You&#x27;ve reached {count} goals so far! 🎉</td><td class="old">Bạn đã đạt được mục tiêu {count} cho đến nay! 🎉</td><td class="new">🎉 Bạn đã đạt được {count} mục tiêu cho đến nay! 🎉</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">2</td><td>Achievement vote detail, Vote detail<div class="k">page_title_vote_detail</div></td><td>투표</td><td>Vote</td><td class="old">Bỏ phiếu</td><td class="new">Bình chọn</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">3</td><td>Achievement vote detail, Vote detail, Vote dialog<div class="k">message_vote_is_ended</div></td><td>투표 마감됨</td><td>Poll closed</td><td class="old">Cuộc thăm dò ý kiến ​​đóng cửa</td><td class="new">Bình chọn đã kết thúc</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
@@ -129,9 +156,9 @@ td.ok { white-space:nowrap; color:var(--muted); } td.c { min-width:160px; }
 <tr><td class="n">92</td><td>Vote home, Vote card, Achievement vote card<div class="k">achieve</div></td><td>성과</td><td>Achieved</td><td class="old">Thành tích</td><td class="new">Đã đạt</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">93</td><td>Vote dialog<div class="k">dialog_title_vote_fail</div></td><td>투표 실패</td><td>Voting Failed</td><td class="old">Bỏ phiếu thất bại</td><td class="new">Bình chọn thất bại</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">94</td><td>Vote dialog<div class="k">label_button_vote</div></td><td>투표</td><td>Vote</td><td class="old">Bỏ phiếu</td><td class="new">Bình chọn</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
-</tbody></table><h2 id="id">Bahasa Indonesia — 82 strings</h2>
+</tbody></table></div><h2 id="id">Bahasa Indonesia — 82 strings</h2>
 <p class="terms"><b>Terms we chose (please confirm or object):</b> Currencies stay English brand names: <b>Star Candy</b>, <b>Bonus Star Candy</b>, <b>Cotton Candy</b>. Fan vote = <b>vote</b> (lowercase mid-sentence). Artist = <b>Artis</b>. Inquiry = <b>Pertanyaan</b>. Account withdrawal = <b>hapus akun</b>. Top-up = <b>isi ulang</b>.</p>
-<table><thead><tr><th>#</th><th>Screen / key</th><th>Korean (source)</th><th>English (reference)</th><th>Before</th><th>Now (in app)</th><th>Check</th><th>Suggestion</th></tr></thead><tbody>
+<div class="scroll"><table><thead><tr><th>#</th><th>Screen / key</th><th>Korean (source)</th><th>English (reference)</th><th>Before</th><th>Now (in app)</th><th>Check</th><th>Suggestion</th></tr></thead><tbody>
 <tr><td class="n">1</td><td>Achievement vote detail, Vote detail<div class="k">page_title_vote_detail</div></td><td>투표</td><td>Vote</td><td class="old">Pilih</td><td class="new">Vote</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">2</td><td>Achievement vote detail, Vote detail, Vote dialog<div class="k">message_vote_is_ended</div></td><td>투표 마감됨</td><td>Poll closed</td><td class="old">Jajak pendapat ditutup</td><td class="new">Vote Ditutup</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">3</td><td>Achievement vote detail, Vote detail, Vote dialog<div class="k">message_vote_is_upcoming</div></td><td>예정된 투표입니다.</td><td>This is an upcoming vote.</td><td class="old">Ini adalah pemungutan suara yang akan datang.</td><td class="new">Ini adalah vote yang akan datang.</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
@@ -214,6 +241,7 @@ td.ok { white-space:nowrap; color:var(--muted); } td.c { min-width:160px; }
 <tr><td class="n">80</td><td>Rate limit dialog<div class="k">button_cs_inquiry</div></td><td>고객센터 문의</td><td>Contact Support</td><td class="old">Hubungi Support</td><td class="new">Hubungi Layanan Pelanggan</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">81</td><td>Rate limit dialog<div class="k">error_anti_abuse_artist_request_message</div></td><td>지금은 아티스트 추가 요청이 어려워요. 잠시 후 다시 시도해주세요.</td><td>Artist request is currently limited. Please try again later.</td><td class="old">Saat ini tidak bisa menambah permintaan artis. Silakan coba lagi nanti.</td><td class="new">Saat ini tidak dapat mengajukan permintaan penambahan artis. Silakan coba lagi nanti.</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
 <tr><td class="n">82</td><td>Rate limit dialog<div class="k">error_anti_abuse_signup_message</div></td><td>비정상 활동이 감지되어 가입이 일시 제한되었어요. 본인이시라면 고객센터로 문의해주세요.</td><td>Sign-up is temporarily restricted due to suspicious activity. Please contact customer support if this is a mistake.</td><td class="old">Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi customer support.</td><td class="new">Pendaftaran sementara dibatasi karena aktivitas mencurigakan. Jika ini Anda, silakan hubungi layanan pelanggan.</td><td class="ok">☐ OK<br>☐ Fix</td><td class="c"></td></tr>
-</tbody></table>
+</tbody></table></div>
+</div>
 </body>
 </html>
