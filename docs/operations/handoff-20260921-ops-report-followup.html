@@ -70,9 +70,9 @@
 <thead><tr><th>#</th><th>문제</th><th>원인 파악</th><th>상태</th><th>Jira</th></tr></thead>
 <tbody>
 <tr><td>A</td><td>인스턴스 정체 15회 (9/19~9/20)</td><td>확정</td><td><span class="tag ok">수정 적용됨</span></td><td>—</td></tr>
-<tr><td>B</td><td>정합성 배치 8초 타임아웃 (리포트의 "웹훅 503")</td><td>확정</td><td><span class="tag open">미수정 · 재발 예상</span></td><td>PICNIC-2745</td></tr>
+<tr><td>B</td><td>정합성 배치 8초 타임아웃 (리포트의 "웹훅 503")</td><td>확정</td><td><span class="tag ok">수정 적용됨</span> picnic-supabase #176(20초 제한)·#184(증분 검사), 최근 24h 실패 0</td><td>PICNIC-2745</td></tr>
 <tr><td>C</td><td>iOS 스윕 422 + 정상 경로 결제 유실</td><td>422 는 확정, 유실은 코드 근거·실기기 미검증</td><td><span class="tag part">앱 수정 #255 → 130504 출시(9/25) · 실기기 검증·보상 판단 남음</span></td><td>PICNIC-2743</td></tr>
-<tr><td>D</td><td>영구 멱등 충돌이 재시도 가능 503 으로 나감 (Google)</td><td>확정</td><td><span class="tag open">미수정</span></td><td>PICNIC-2744</td></tr>
+<tr><td>D</td><td>영구 멱등 충돌이 재시도 가능 503 으로 나감 (Google)</td><td>확정</td><td><span class="tag part">picnic-supabase #176 로 422 <code>retryable:false</code> 전환·거부 로그에 해시 추가. DEAD 행의 소유자 재제출 차단은 미확인</span></td><td>PICNIC-2744</td></tr>
 </tbody></table></div>
 <p>A·B 의 공통 계기는 <strong>2026-09-18 12:27 UTC(KST 21:27) 인스턴스 축소</strong>다. C·D 는 용량과 무관하다.</p>
 
@@ -89,7 +89,7 @@
 <tr><td>재시작 후</td><td>2.0~2.9초</td><td>7~15초</td><td>시간대마다 발생</td></tr>
 <tr><td>9/19 06~09 UTC (마스킹 워커 정체 구간)</td><td>6.7초</td><td>150초</td><td>18</td></tr>
 </tbody></table></div>
-<div class="callout warn"><strong>결정 필요 (사용자).</strong> 컴퓨트를 다시 올릴지, 현 크기에 맞게 제한·배치·쿼리를 조정할지. 비용이 걸린 결정이라 에이전트가 임의로 정하지 않았다. 어느 쪽이든 C·D 는 해결되지 않는다.</div>
+<div class="callout warn"><strong>결정 필요 (사용자).</strong> 컴퓨트를 다시 올릴지, 현 크기에 맞게 제한·배치·쿼리를 조정할지. 비용이 걸린 결정이라 에이전트가 임의로 정하지 않았다. 어느 쪽이든 C·D 는 해결되지 않는다. <em>(9/25: 후자 쪽 조치가 picnic-supabase #176·#184 로 적용돼 현 크기에서 배치는 안정됐다. 재상향은 여전히 별개 결정이다.)</em></div>
 
 <h2>3. 문제별 상세</h2>
 
@@ -158,7 +158,7 @@
 <li><strong>PR #255</strong>(9/21 머지)가 C-3 의 1·3·4 와 관측 수단을 처리했다: 스윕을 <code>SK2Transaction.unfinishedTransactions()</code> + 거래별 JWS 로 전환(거래 ID↔JWS 일치 확인, 지급 확인 후에만 finish, 계정 전환 시 중단), 백그라운드 캐시 정리 중 구매 스트림 구독 유지, SK2 완료 응답 미도착 시 10초 후 보존, 결제 실패의 제한된 오류 분류와 인증 사용자 ID 를 Sentry 에 기록(영수증·JWS·토큰·이메일·원본 오류 본문 제외). 관련 테스트 437개 통과, 독립 Opus 리뷰 후 재검증. 13개 파일, 1,893 추가·110 삭제.</li>
 <li><strong>그 세션의 정정:</strong> 플러그인은 네이티브 구매 결과를 기다린 뒤 반환하고 앱은 반환 이후에 캐시 정리를 예약하므로, C-3 의 1번("구매 요청 5초 뒤 구독 공백이 오래 걸리는 일반 결제를 놓친다")은 <em>확정 근거로 쓸 수 없다</em>. 구독 공백 자체는 수정했지만 실제 피해 거래와의 연관은 실기기 확인이 필요하다. C-3 의 2번(세션 복원 전 이벤트)은 #255 범위 밖이며 그대로 남아 있다.</li>
 <li><strong>출시:</strong> <code>1.3.5+130504</code>(태그 <code>picnic-v1.3.5+130504-skip-tests</code>, 대상 커밋 <code>8ba669d6e</code>)에 포함, 2026-09-25 출시 완료(<code>release-notes-1.3.5+130504.html</code>). OTA 가 아닌 신규 바이너리라 사용자 업데이트 속도에 따라 효과가 나타난다. <code>purchase_reward_snapshots.request_app_version</code> 은 iOS 에서 <code>0.0.0+0</code> 으로만 들어와 버전별 채택률은 이 테이블로 못 본다.</li>
-<li><strong>출시 전 지표(참고):</strong> 9/21 거부 2건·1명(<code>878e6a96…</code>, 후보 아님), 9/24 11:00~9/25 11:00 KST 거부 0건. 9/24 창의 <code>verify-receipt-v2</code> 422 25건·3명은 요청 크기 ~440바이트(Google 토큰 크기)로 Apple 스윕과 무관하다. 후보 7명은 9/21 이후 지급 행 0.</li>
+<li><strong>출시 전 지표(참고, 24h 창은 KST 11:00 기준):</strong> 9/21 거부 2건·1명(<code>878e6a96…</code>, 후보 아님) · 9/22 4건 · 9/23 21건(구형 영수증 6,936~6,988바이트 19건 + JWS 인 <code>APPLE_OWNER_MISMATCH</code> 1건) · 9/24 0건. 9/22 부터 서버 거부 로그가 구조화 JSON(<code>proof_type</code>·<code>proof_sha256</code> 포함)으로 바뀌어 사용자 ID 는 더 이상 로그에 없다. 9/24 창의 <code>verify-receipt-v2</code> 422 25건·3명은 ~440바이트(Google 토큰)로 Apple 스윕과 무관. 후보 7명은 9/21 이후 지급 행 0.</li>
 <li><strong>남은 것:</strong> ① Sandbox 실기기 — 앱 종료 후 미완료 거래 복구, 지연 승인 이벤트 수신, 계정 전환 시 지급 차단, Sentry 실제 전송 ② 130504 채택 후 <code>APPLE_JWS_INVALID</code> 와 지급 내역 대조 ③ 후보 7명의 실결제·자동 구제 여부 ④ 세션 복원 전 이벤트 보류(C-3 의 2번) — 실기기로 재전달 동작을 먼저 확인.</li>
 </ul>
 
@@ -179,8 +179,8 @@
 <tr><td>1-B</td><td>구매 중 구독을 끊는 <code>backgroundCacheClear</code> 수정</td><td>앱</td><td><span class="tag ok">완료</span> #255 → 130504. 피해 거래와의 연관은 미확정</td></tr>
 <tr><td>1-D</td><td>결제 실패 Sentry 보고 + scope 에 사용자 ID</td><td>앱</td><td><span class="tag ok">완료</span> #255 → 130504. 실제 전송은 실기기 확인 필요</td></tr>
 <tr><td>2</td><td>세션 복원 전 도착한 <code>purchased</code> 를 보류했다가 로그인 후 처리</td><td>앱</td><td><span class="tag open">미착수</span> 실기기로 재전달 동작 확인 후 진행. #255 가 명시적으로 범위 밖으로 둠</td></tr>
-<tr><td>3</td><td>422 거부 시 페이로드 형식·해시 로그, 결정적 4xx 는 422 <code>retryable:false</code> 로 전달</td><td>picnic-supabase</td><td><span class="tag open">미착수</span> 배포본↔git 드리프트(PICNIC-2703) 먼저 대조</td></tr>
-<tr><td>4</td><td>정합성 배치: 함수 자체 <code>statement_timeout</code> 또는 배치 축소·쿼리 점검</td><td>picnic-supabase</td><td><span class="tag open">미착수</span> 컴퓨트 결정과 함께. wallet_private DDL 은 대여/반납 절차</td></tr>
+<tr><td>3</td><td>422 거부 시 페이로드 형식·해시 로그, 결정적 4xx 는 422 <code>retryable:false</code> 로 전달</td><td>picnic-supabase</td><td><span class="tag ok">완료</span> #176(<code>5f14dd6</code>, 9/22) → <code>verify-receipt-v2</code> v29·<code>wallet-provider-event</code> v30. 남은 것: OWNER_MISMATCH 로 DEAD 된 행이 정당 소유자 재제출을 막는지 코드 대조</td></tr>
+<tr><td>4</td><td>정합성 배치: 함수 자체 <code>statement_timeout</code> 또는 배치 축소·쿼리 점검</td><td>picnic-supabase</td><td><span class="tag ok">완료</span> #176 → 체크포인트 <code>statement_timeout=20s</code>, #184(<code>1aef933</code>, 9/25) → SUCCEEDED 증거 검사 증분화 + 인덱스. 9/24 12:00~9/25 14:40 UTC 1,440회 실패 0</td></tr>
 <tr><td>5</td><td>후보 7명 실결제 확인 후 보상 판단</td><td>운영</td><td><span class="tag open">미착수</span> 130504 채택 후 자동 구제 여부부터 관찰(§5 쿼리)</td></tr>
 </tbody></table></div>
 <ul>
