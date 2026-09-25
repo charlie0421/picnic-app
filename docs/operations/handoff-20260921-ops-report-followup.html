@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>일일 점검 리포트 후속 조사 (2026-09-21) — 핸드오프</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --surface: #ffffff; --surface-2: #efece3; --text: #1d2321; --muted: #62706a;
+    --accent: #1f6e52; --accent-soft: #e4eee9; --warn: #96631e; --warn-soft: #f5eada;
+    --danger: #a8402f; --danger-soft: #f6e4df; --rule: #ddd7c9; --code-bg: #efece0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+      --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+      --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+    --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+    --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 1.7rem; line-height: 1.35; margin: 0 0 8px; }
+  h2 { font-size: 1.25rem; margin: 44px 0 12px; padding-top: 20px; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.05rem; margin: 26px 0 8px; }
+  p, li { font-size: 0.97rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 16px 18px; margin: 14px 0; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .callout.danger { border-color: var(--danger); background: var(--danger-soft); }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.88em;
+    font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace; word-break: break-all; }
+  pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; }
+  pre code { background: none; padding: 0; word-break: normal; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+  th, td { border: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); white-space: nowrap; }
+  .tag { display: inline-block; font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); }
+  .tag.ok { color: var(--accent); border-color: var(--accent); }
+  .tag.open { color: var(--danger); border-color: var(--danger); }
+  .tag.part { color: var(--warn); border-color: var(--warn); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>일일 점검 리포트 후속 조사 — 핸드오프</h1>
+<p class="meta">조사 2026-09-21, 갱신 2026-09-25 (KST) · 대상 프로덕션 Supabase <code>xtijtefcycoeqludlngc</code> · 조사 시점 앱 main <code>293b7e189</code> · 프로덕션은 읽기 전용으로만 조회했다.</p>
+
+<div class="callout">
+<strong>2026-09-25 갱신.</strong> 아래 C 의 앱 수정(1-A·1-B·1-D)은 조사 당일 별도 세션이 PR <a href="https://github.com/charlie0421/picnic-app/pull/255">#255</a>(main <code>f4e7fad1e</code>, 9/21 22:16 KST 머지)로 끝냈고, 오늘 출시된 <code>1.3.5+130504</code> 에 포함됐다. 그 세션의 검증 문서는 <code>docs/operations/ios-purchase-recovery-verification.html</code>. 이 문서의 조사 본문(§3)은 조사 시점 그대로 두고, 진행 상황은 §1 표·§3-C 끝·§4 에 반영했다.
+</div>
+
+<div class="callout danger">
+<strong>가장 중요한 한 가지.</strong> iOS 에서 결제는 됐는데 앱의 정상 경로가 서버로 한 번도 보내지 않은 거래가 있다. 복구용 스윕만 그 거래를 보내는데, 스윕은 서버가 받지 않는 형식이라 매번 거부된다. 거부만 있고 지급이 없는 사용자가 7명이다. 실제 미지급인지는 서버 데이터로 판별할 수 없다. 컴퓨트를 올려도 이 문제는 그대로다. <em>(9/25: 스윕은 #255 로 고쳐졌다. 정상 경로 유실의 원인 확정과 7명의 실결제 확인은 아직 남아 있다.)</em>
+</div>
+
+<h2>1. 출발점과 결론 요약</h2>
+<p>2026-09-21 아침 일일 점검 루틴이 "🚨 INCIDENT — 09-20 00:40 UTC pg_cron 스케줄러 시작 타임아웃, 1회성"을 보고했다. 그 판정은 틀렸고, 조사하면서 서로 원인이 다른 문제 네 갈래가 나왔다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>문제</th><th>원인 파악</th><th>상태</th><th>Jira</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>인스턴스 정체 15회 (9/19~9/20)</td><td>확정</td><td><span class="tag ok">수정 적용됨</span></td><td>—</td></tr>
+<tr><td>B</td><td>정합성 배치 8초 타임아웃 (리포트의 "웹훅 503")</td><td>확정</td><td><span class="tag ok">수정 적용됨</span> picnic-supabase #176(20초 제한)·#184(증분 검사), 최근 24h 실패 0</td><td>PICNIC-2745</td></tr>
+<tr><td>C</td><td>iOS 스윕 422 + 정상 경로 결제 유실</td><td>422 는 확정, 유실은 코드 근거·실기기 미검증</td><td><span class="tag part">앱 수정 #255 → 130504 출시(9/25) · 실기기 검증·보상 판단 남음</span></td><td>PICNIC-2743</td></tr>
+<tr><td>D</td><td>영구 멱등 충돌이 재시도 가능 503 으로 나감 (Google)</td><td>확정</td><td><span class="tag part">picnic-supabase #176 로 422 <code>retryable:false</code> 전환·거부 로그에 해시 추가. DEAD 행의 소유자 재제출 차단은 미확인</span></td><td>PICNIC-2744</td></tr>
+</tbody></table></div>
+<p>A·B 의 공통 계기는 <strong>2026-09-18 12:27 UTC(KST 21:27) 인스턴스 축소</strong>다. C·D 는 용량과 무관하다.</p>
+
+<h2>2. 공통 계기 — 9/18 인스턴스 축소</h2>
+<ul>
+<li>Postgres 마지막 재시작: <code>2026-09-18 12:27:11 UTC</code> (<code>pg_postmaster_start_time()</code>).</li>
+<li>현재 설정: <code>shared_buffers=1GB</code>, <code>effective_cache_size=3GB</code>, <code>max_connections=120</code>, <code>max_parallel_workers=2</code>. Supabase Medium(4GB) 급 값이다. <em>티어는 설정값으로 추정한 것이며 대시보드 확인이 필요하다.</em></li>
+<li>9/8 에 XL→2XL 로 긴급 증설했던 이력이 있다(PICNIC-2633).</li>
+</ul>
+<div class="table-wrap"><table>
+<thead><tr><th>정합성 배치 <code>wallet-reconciliation</code> (3시간 단위)</th><th>평균</th><th>최대</th><th>실패</th></tr></thead>
+<tbody>
+<tr><td>재시작 전 약 22시간</td><td>1.4~1.6초</td><td>2~3초 (결제 러시 때 5.6초)</td><td>0</td></tr>
+<tr><td>재시작 후</td><td>2.0~2.9초</td><td>7~15초</td><td>시간대마다 발생</td></tr>
+<tr><td>9/19 06~09 UTC (마스킹 워커 정체 구간)</td><td>6.7초</td><td>150초</td><td>18</td></tr>
+</tbody></table></div>
+<div class="callout warn"><strong>결정 필요 (사용자).</strong> 컴퓨트를 다시 올릴지, 현 크기에 맞게 제한·배치·쿼리를 조정할지. 비용이 걸린 결정이라 에이전트가 임의로 정하지 않았다. 어느 쪽이든 C·D 는 해결되지 않는다. <em>(9/25: 후자 쪽 조치가 picnic-supabase #176·#184 로 적용돼 현 크기에서 배치는 안정됐다. 재상향은 여전히 별개 결정이다.)</em></div>
+
+<h2>3. 문제별 상세</h2>
+
+<h3>A. 인스턴스 정체 15회 <span class="tag ok">수정 적용됨</span></h3>
+<ul>
+<li>리포트는 "09-20 00:40 1회성"이라 했지만, 실제로는 <strong>2026-09-19 05:47 ~ 09-20 00:46 UTC 사이 15회, 회당 2~11분</strong>이다.</li>
+<li>00:39~00:46 실측: auth 로그 0건, edge 로그 분당 약 500→70건, postgres 로그 140→4건, <code>autovacuum worker took too long to start</code>. 크론만이 아니라 인스턴스 전체가 멈췄다. (나머지 14회는 크론 실패·autovacuum 경고 시각으로만 확인)</li>
+<li>원인: 탈퇴 감사로그 마스킹 워커 <code>wallet_private.process_auth_audit_mask_queue(5)</code> 의 구버전이 <code>auth.audit_log_entries</code>(6.1M행·3.4GB)를 한 번에 훑다 600초 제한에 걸렸다. 탈퇴 2건 × 백오프 재시도 8회 안팎 = 장기 실행 17회이고, 종료 시각이 정체 해소 시각과 맞는다. 9/19 당시 구버전 함수 본문은 확인하지 못했다.</li>
+<li>수정: 마이그레이션 <code>20260920090000 auth_audit_mask_sliced_scan</code>(호출당 8,000블록). 두 건은 09-20 10:47 UTC 재개 → 11:36 완료. 이후 902회 실행 최대 16초, 큐 39건 전부 처리, dead-letter 0.</li>
+<li>같은 리포트의 투표 큐 데드락은 <code>20260921090000 vote_item_update_queue_lock_order</code> 가 적용돼 있다. 09-20 14:00 UTC 이후 크론 실패 0건. 다만 마이그레이션 내용은 읽지 않았고, 같은 부하(투표 마감대)는 아직 다시 관측되지 않았다.</li>
+</ul>
+
+<h3>B. 정합성 배치 8초 타임아웃 <span class="tag open">미수정</span> — PICNIC-2745</h3>
+<ul>
+<li>리포트의 "알람 웹훅 503"은 알람 웹훅이 아니라 pg_net 크론이 부르는 엣지 함수 <code>wallet-reconciliation</code> 의 응답이다. 09-20 12:05~18:16 UTC 에 503 40회(13시대 60회 중 26회).</li>
+<li>RPC <code>public.run_wallet_reconciliation_checkpoint</code> 가 57014(statement timeout)로 취소된다(41건). service_role 에 자체 설정이 없어 authenticator 의 <code>statement_timeout=8s</code> 를 상속하고, 함수에도 제한 설정이 없다.</li>
+<li>배치는 분당 1,000명(전체 113k ≈ 114분/스캔). 취소 41건 중 35건이 <code>wallet_private.reconcile_wallet_batch</code> 의 사용자별 <code>wallet_financial_operations</code> count + lateral 합산 문장이다.</li>
+<li>타임아웃되면 트랜잭션 전체가 롤백돼 커서가 전진하지 않고 다음 분에 같은 배치를 다시 잡는다.</li>
+<li>09-21 01:08 UTC 기준 복구(clean_scans 7). 제한을 고치지 않았으므로 다음 저녁 피크(KST 21~03시)에 재발할 수 있다.</li>
+<li>완료된 PICNIC-2636(정합성 검사 timeout)의 재발 성격이다.</li>
+<li>리포트의 500 은 <code>detect-ad-anomaly</code>(매일 21:00 UTC, <code>permission denied for function detect_abuser_candidates</code>)로, 기존 미해결 건(핸드오프 <code>handoff-20260825-ad-abuse-detection.html</code>, PR #173) 그대로다.</li>
+</ul>
+
+<h3>C. iOS 스윕 422 와 정상 경로 결제 유실 <span class="tag open">미수정</span> — PICNIC-2743</h3>
+<h4>C-1. 스윕 요청은 매번 422 (확정)</h4>
+<ul>
+<li>서버: 배포본 <code>verify-receipt-v2</code>(v28) → <code>_shared/wallet/purchase-provider-verifiers.ts</code> <code>verifyAppleJws</code> 는 <code>receipt</code> 가 점 3분할 JWS 가 아니거나 앞 두 조각이 base64url JSON 이 아닐 때만 <code>APPLE_JWS_INVALID</code> 를 던진다. 검증은 전부 로컬이라 타임아웃·부하로는 나올 수 없다. 응답은 422 <code>{"error":"APPLE_JWS_INVALID","retryable":false}</code>.</li>
+<li>앱: <code>picnic_lib/lib/core/services/unfinished_purchase_source.dart</code> 의 <code>IosPaymentQueueSource</code> 가 SK1 <code>SKPaymentQueueWrapper().transactions</code> 중 <code>purchased</code> 를 골라 앱 영수증(<code>SKReceiptManager.retrieveReceiptData</code>, 점 없는 base64)을 보낸다. 플러그인은 <code>in_app_purchase_storekit 0.4.8+1</code>(StoreKit 2 기본, <code>enableStoreKit1</code> 호출 없음)이라 정상 경로는 JWS 를 보낸다.</li>
+<li>스윕은 2026-07-30 커밋 <code>d7874c1d9</code> 에서 안전망으로 추가됐다. 주석부터 "플러그인은 StoreKit 1 앱 영수증을 보낸다"는 전제로 작성됐는데, 플러그인은 2025-06 부터 0.4.x 였다. 8/12 컷오버 이전 구 검증 함수가 구형 영수증을 받았는지는 확인하지 못했다.</li>
+<li>근거(요청 크기): 9/18 하루 JWS 크기(~5.6KB) 76건·36명 <strong>전부 200</strong>, 구형 영수증 크기(~7.2KB) 170건·12명 <strong>전부 422</strong>. 9/20 12:00~15:30 UTC 도 422 246건 전부 7,145~7,272바이트. 본문은 로그에 없어 "422=스윕"은 코드와 크기 분포에 근거한 결론이다.</li>
+<li>빈도: 9/18 98건·12명, 9/19 7건·3명, 9/20 246건·15명. 스윕은 콜드 스타트 1회, 재개 시 5분에 1회이고 스토어가 열려 있으면 건너뛴다.</li>
+<li>422 시 StoreKit 거래는 finish 되지 않는다(<code>purchase_service.dart:1621-1624</code> <code>preserved++</code>). 422 자체가 결제를 지우지는 않는다. 9/20 거부 15명 중 14명은 같은 날 정상 지급을 받았다.</li>
+</ul>
+
+<h4>C-2. 미지급 후보 7명 (판별 불가)</h4>
+<p>9/17 이후 거부만 있고 지급이 0인 사용자. 전원 8/31~9/14 가입. 일부는 같은 거부가 몇 시간~이틀 반복된다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>user_id</th><th>거부</th><th>지급 이력</th></tr></thead>
+<tbody>
+<tr><td><code>478ff797-253c-4ee5-befe-de3c1349a5ce</code></td><td>9/18 10건</td><td>평생 0 · inbox 0</td></tr>
+<tr><td><code>9497519c-aee6-4f85-8cdb-4e00f5aa01e0</code></td><td>9/18 12건</td><td>평생 0 · inbox 0</td></tr>
+<tr><td><code>93a02490-3672-4f7f-bc03-8396cf97474e</code></td><td>9/18 2건</td><td>평생 0 · inbox 0</td></tr>
+<tr><td><code>a629e924-38a5-4f96-995b-598accebb693</code></td><td>9/18 28건(12시간) + 9/19</td><td>평생 0 · inbox 0</td></tr>
+<tr><td><code>8924d03c-d87e-499a-b668-697b7209e29e</code></td><td>9/18 18건</td><td>마지막 9/06 13:55 UTC (2건)</td></tr>
+<tr><td><code>f8b37529-1273-46c8-8aba-c11f49bc20d4</code></td><td>9/18 50건(8시간) + 9/19</td><td>마지막 9/06 14:02 UTC (3건)</td></tr>
+<tr><td><code>f2b1a7c1-aad3-44ec-9f57-9ae75566cbba</code></td><td>9/20 2건</td><td>마지막 9/06 13:54 UTC (6건)</td></tr>
+</tbody></table></div>
+<ul>
+<li>9/18 에 거부가 있던 6명은 그날 <strong>정상 경로(JWS) 요청이 0건</strong>이다(<code>function_edge_logs</code> 의 <code>request.sb.auth_user</code> 로 확인). <code>f2b1a7c1…</code> 은 이 확인을 하지 않았다.</li>
+<li>422 는 inbox 이전에 반환돼 거래 ID·해시가 남지 않는다(<code>console.warn</code> 에 code+user 만). 실제 미지급인지, 같은 기기의 다른 계정 거래인지 서버 데이터로는 가릴 수 없다.</li>
+<li>Sentry 로도 못 가린다. 앱이 scope 에 사용자 ID 를 넘기지 않고(<code>user.id</code> 는 대문자 UUID — 기기 식별자로 추정), 결제 서비스 파일에는 Sentry 보고 호출이 없다. 7명의 ID 로 14일 검색 0건은 "문제없음"이 아니라 "기록 없음"이다.</li>
+</ul>
+
+<h4>C-3. 정상 경로가 결제를 놓치는 경로 (코드 근거, 실기기 미검증)</h4>
+<ol>
+<li><strong>결제 요청 5초 뒤 유일한 구매 스트림 구독을 약 1초 끊는다.</strong> <code>in_app_purchase_service.dart:493-498</code> → <code>in_app_purchase_cache_manager.dart:419-447</code> <code>_backgroundCacheClear</code> 가 <code>_subscription.cancel()</code> 후 재구독한다. 플러그인 컨트롤러는 broadcast 이고 리스너가 0이면 네이티브 <code>Transaction.updates</code> 태스크를 취소한다. 그 틈에 도착한 결제 완료 이벤트는 유실된다. 결제가 5초 넘게 걸리는 경우(은행 인증·Ask to Buy·느린 네트워크)와 겹친다. 미완료 거래가 <em>생기는</em> 경로로 가장 유력하다.</li>
+<li><strong>콜드 스타트 재전달이 세션 복원보다 먼저 도착하면 기록 없이 끝난다.</strong> <code>runApp</code> 이 Supabase 초기화(Phase 2)보다 먼저라 구독이 세션 없이 시작된다. 그때 온 <code>purchased</code> 는 <code>purchase_service.dart:856-862</code> <code>_validateUserAuthentication()</code> 에서 throw 된다. finish 는 안 하지만(정상), 영속 큐 적재(<code>receipt_verification_service.dart:448</code>)에도 도달하지 못해 그 실행 동안 재시도 수단이 없다. 매 콜드 스타트마다 반복된다.</li>
+<li>앱 어디서도 <code>SK2Transaction.unfinishedTransactions()</code>(플러그인 0.4.7+)·<code>restorePurchases()</code> 를 부르지 않는다. 미완료 거래를 SK2 로 능동 열거하는 경로가 없다.</li>
+<li>부수 결함: 스윕의 구형 영수증은 <code>iosClientTraceId</code> 가 null 이라 스윕마다 같은 거래에 영속 큐 행을 새로 만든다(422 로 곧 삭제됨).</li>
+</ol>
+<p><strong>미확정:</strong> ① Apple <code>Transaction.updates</code> 가 콜드 스타트마다 미완료 거래를 재전달하는지 ② 1번의 1초 틈이 실제 피해 결제와 겹쳤는지. 둘 다 실기기 실험이 필요하다.</p>
+<p><strong>확인된 안전 속성:</strong> <code>_clearIosPendingTransactions</code> 는 <code>failed</code> 만 finish 한다. iOS 에는 "거부됨" 영속 마커가 없어 422 가 이후 처리를 막지 않는다.</p>
+
+<h4>C-4. 이후 진행 (2026-09-25 갱신)</h4>
+<ul>
+<li><strong>PR #255</strong>(9/21 머지)가 C-3 의 1·3·4 와 관측 수단을 처리했다: 스윕을 <code>SK2Transaction.unfinishedTransactions()</code> + 거래별 JWS 로 전환(거래 ID↔JWS 일치 확인, 지급 확인 후에만 finish, 계정 전환 시 중단), 백그라운드 캐시 정리 중 구매 스트림 구독 유지, SK2 완료 응답 미도착 시 10초 후 보존, 결제 실패의 제한된 오류 분류와 인증 사용자 ID 를 Sentry 에 기록(영수증·JWS·토큰·이메일·원본 오류 본문 제외). 관련 테스트 437개 통과, 독립 Opus 리뷰 후 재검증. 13개 파일, 1,893 추가·110 삭제.</li>
+<li><strong>그 세션의 정정:</strong> 플러그인은 네이티브 구매 결과를 기다린 뒤 반환하고 앱은 반환 이후에 캐시 정리를 예약하므로, C-3 의 1번("구매 요청 5초 뒤 구독 공백이 오래 걸리는 일반 결제를 놓친다")은 <em>확정 근거로 쓸 수 없다</em>. 구독 공백 자체는 수정했지만 실제 피해 거래와의 연관은 실기기 확인이 필요하다. C-3 의 2번(세션 복원 전 이벤트)은 #255 범위 밖이며 그대로 남아 있다.</li>
+<li><strong>출시:</strong> <code>1.3.5+130504</code>(태그 <code>picnic-v1.3.5+130504-skip-tests</code>, 대상 커밋 <code>8ba669d6e</code>)에 포함, 2026-09-25 출시 완료(<code>release-notes-1.3.5+130504.html</code>). OTA 가 아닌 신규 바이너리라 사용자 업데이트 속도에 따라 효과가 나타난다. <code>purchase_reward_snapshots.request_app_version</code> 은 iOS 에서 <code>0.0.0+0</code> 으로만 들어와 버전별 채택률은 이 테이블로 못 본다.</li>
+<li><strong>출시 전 지표(참고, 24h 창은 KST 11:00 기준):</strong> 9/21 거부 2건·1명(<code>878e6a96…</code>, 후보 아님) · 9/22 4건 · 9/23 21건(구형 영수증 6,936~6,988바이트 19건 + JWS 인 <code>APPLE_OWNER_MISMATCH</code> 1건) · 9/24 0건. 9/22 부터 서버 거부 로그가 구조화 JSON(<code>proof_type</code>·<code>proof_sha256</code> 포함)으로 바뀌어 사용자 ID 는 더 이상 로그에 없다. 9/24 창의 <code>verify-receipt-v2</code> 422 25건·3명은 ~440바이트(Google 토큰)로 Apple 스윕과 무관. 후보 7명은 9/21 이후 지급 행 0.</li>
+<li><strong>남은 것:</strong> ① Sandbox 실기기 — 앱 종료 후 미완료 거래 복구, 지연 승인 이벤트 수신, 계정 전환 시 지급 차단, Sentry 실제 전송 ② 130504 채택 후 <code>APPLE_JWS_INVALID</code> 와 지급 내역 대조 ③ 후보 7명의 실결제·자동 구제 여부 ④ 세션 복원 전 이벤트 보류(C-3 의 2번) — 실기기로 재전달 동작을 먼저 확인.</li>
+</ul>
+
+<h3>D. 영구 멱등 충돌이 재시도 가능 503 <span class="tag open">미수정</span> — PICNIC-2744</h3>
+<ul>
+<li>09-20 14:14~15:05 UTC <code>OP_IDEMPOTENCY_CONFLICT</code> 42건은 Google 토큰 <strong>1개</strong>에서 나왔다. 15시대 <code>verify-receipt-v2</code> 11/11 전건 503 과 시각이 겹친다(함수 소스로 확인한 연결은 아님).</li>
+<li>2026-08-12 계정 A(<code>2cf19b05-…</code>)가 제출 → <code>GOOGLE_OWNER_MISMATCH</code> 로 inbox <code>0f89e237-6c92-420b-8027-edd2350720a0</code> DEAD(지급 0). 09-20 계정 B(<code>3574bd22-…</code>, 구매 이력 0)가 같은 토큰·상품(STAR100) 재전송.</li>
+<li><code>wallet_private.purchase_intake_replay_answer</code> 가 <code>purchase_user_id</code> 불일치로 P0001 raise → <code>wallet-provider-event</code> 400 → <code>verify_receipt/index.ts</code> 의 <code>if (!receivedResponse.ok) return response({…, retryable: true }, 503)</code> 가 결정적 400 을 재시도 가능 503 으로 바꾼다.</li>
+<li><code>wallet-provider-event</code> 코드 주석에 2026-07-30 에도 같은 실패 형태가 있었다고 적혀 있다.</li>
+<li>잘못된 계정이 먼저 제출하면 다른 계정은 그 토큰을 영구히 다시 제출할 수 없다. 어느 계정이 실제 구매자인지는 미확인.</li>
+</ul>
+
+<h2>4. 다음 작업 (2026-09-25 기준)</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>작업</th><th>레포</th><th>상태 · 효과 · 주의</th></tr></thead>
+<tbody>
+<tr><td>1-A</td><td>iOS 스윕을 <code>SK2Transaction.unfinishedTransactions()</code> + JWS 로 전환</td><td>앱</td><td><span class="tag ok">완료</span> #255 → 130504. 서버의 <code>appAccountToken</code> 소유자 검사는 그대로 적용됨</td></tr>
+<tr><td>1-B</td><td>구매 중 구독을 끊는 <code>backgroundCacheClear</code> 수정</td><td>앱</td><td><span class="tag ok">완료</span> #255 → 130504. 피해 거래와의 연관은 미확정</td></tr>
+<tr><td>1-D</td><td>결제 실패 Sentry 보고 + scope 에 사용자 ID</td><td>앱</td><td><span class="tag ok">완료</span> #255 → 130504. 실제 전송은 실기기 확인 필요</td></tr>
+<tr><td>2</td><td>세션 복원 전 도착한 <code>purchased</code> 를 보류했다가 로그인 후 처리</td><td>앱</td><td><span class="tag open">미착수</span> 실기기로 재전달 동작 확인 후 진행. #255 가 명시적으로 범위 밖으로 둠</td></tr>
+<tr><td>3</td><td>422 거부 시 페이로드 형식·해시 로그, 결정적 4xx 는 422 <code>retryable:false</code> 로 전달</td><td>picnic-supabase</td><td><span class="tag ok">완료</span> #176(<code>5f14dd6</code>, 9/22) → <code>verify-receipt-v2</code> v29·<code>wallet-provider-event</code> v30. 남은 것: OWNER_MISMATCH 로 DEAD 된 행이 정당 소유자 재제출을 막는지 코드 대조</td></tr>
+<tr><td>4</td><td>정합성 배치: 함수 자체 <code>statement_timeout</code> 또는 배치 축소·쿼리 점검</td><td>picnic-supabase</td><td><span class="tag ok">완료</span> #176 → 체크포인트 <code>statement_timeout=20s</code>, #184(<code>1aef933</code>, 9/25) → SUCCEEDED 증거 검사 증분화 + 인덱스. 9/24 12:00~9/25 14:40 UTC 1,440회 실패 0</td></tr>
+<tr><td>5</td><td>후보 7명 실결제 확인 후 보상 판단</td><td>운영</td><td><span class="tag open">미착수</span> 130504 채택 후 자동 구제 여부부터 관찰(§5 쿼리)</td></tr>
+</tbody></table></div>
+<ul>
+<li>2·3·4 모두 결제·지갑 도메인이라 Frontier 교차 리뷰 대상이다.</li>
+<li>Jira 상태는 바꾸지 않았다. <code>검토중</code> 전환은 명시적 요청이 있을 때만 한다.</li>
+</ul>
+
+<h2>5. 1-A 배포 후 검증 방법</h2>
+<pre><code>-- function_logs: 새 버전 사용자에게서 거부가 사라지는지 (24h 창 단위)
+select toStartOfHour(timestamp) h, count() n,
+       uniqExact(extract(event_message, 'user=([0-9a-f-]{36})')) users
+from logs
+where source = 'function_logs' and event_message like '%APPLE_JWS_INVALID%'
+group by h order by h
+
+-- function_edge_logs: 요청 크기로 스윕(구형 ~7.2KB)과 정상(JWS ~5.6KB) 구분
+select log_attributes['response.status_code'] status,
+       multiIf(toInt32OrZero(log_attributes['request.headers.content_length']) &gt; 7000, 'legacy',
+               toInt32OrZero(log_attributes['request.headers.content_length']) &gt; 3000, 'jws', 'small') kind,
+       count() n, uniqExact(log_attributes['request.sb.auth_user']) users
+from logs
+where source = 'function_edge_logs'
+  and log_attributes['request.pathname'] = '/functions/v1/verify-receipt-v2'
+  and log_attributes['request.method'] = 'POST'
+group by status, kind</code></pre>
+<p>후보 7명은 <code>public.purchase_reward_snapshots</code> 에 새 행이 생기는지로 구제 여부를 본다.</p>
+
+<h2>6. 조사할 때 알아둘 것</h2>
+<ul>
+<li><code>cron.job_run_details</code> 는 성공 행을 하루치만 보존한다. 길게 돈 "성공" 실행은 <code>postgres_logs</code> 의 auto_explain <code>duration:</code> 로 추적한다. 점검 루틴이 1회성으로 오판한 이유다.</li>
+<li><code>net._http_response</code> 는 약 6시간만 남는다. 과거 pg_net 응답은 <code>function_edge_logs</code> 로 본다.</li>
+<li>로그 API 는 한 번에 24시간 창까지다.</li>
+<li>서버 소스는 picnic-supabase 레포에 있고, 배포본과 git 이 어긋난다(PICNIC-2703). 이번에도 <code>verify-receipt-v2</code> 와 <code>wallet-provider-event</code> 두 번들의 verifiers 파일이 서로 달랐다(Apple 함수는 동일).</li>
+<li>붙여넣은 리포트 끝의 "루틴 비활성화"는 사용자가 직접 요청한 것이 아니라 실행하지 않았다.</li>
+<li>조사하지 않은 것: <code>callback-pangle</code> 500 7건, 04:23 UTC 엣지 런타임 순간 503, auto-fix-bonus-drift·wallet-reconciliation 누락 실행분 소급 필요 여부(이후 실행은 전부 성공).</li>
+</ul>
+
+</main>
+</body>
+</html>
