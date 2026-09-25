@@ -25,6 +25,7 @@ require_prod_link() {
 }
 
 # Management API 는 502/504 를 자주 낸다. 같은 조회를 최대 4번, 20초 간격으로 다시 시도한다.
+# 읽기 전용이다 — 쓰기는 query_once 를 쓴다(서버에서 이미 적용된 UPDATE 를 응답 실패 뒤 재실행하지 않기 위해).
 query() {
   local fmt="$1" sql="$2" out i
   for i in 1 2 3 4; do
@@ -38,6 +39,21 @@ query() {
   printf '%s\n' "$out" >&2
   return 1
 }
+
+# 재시도 없는 단발 실행. 실패해도 여기서 죽지 않고 호출자가 재조회로 판정한다.
+query_once() {
+  local fmt="$1" sql="$2" out
+  if out=$(supabase db query --linked -o "$fmt" "$sql" 2>&1); then
+    printf '%s\n' "$out" | grep -v -E 'new version of Supabase CLI|recommend updating|Initialising login role'
+    return 0
+  fi
+  printf '%s\n' "$out" >&2
+  return 1
+}
+
+# 'M.m.P' 처럼 숫자 세그먼트만 있는 app_version 만 int[] 로 비교한다. 그 외('1.3.5-beta', '')는
+# 캐스트가 실패해 조회 전체가 죽으므로 별도 그룹으로 센다.
+SEMVER_RE='^[0-9]+\.[0-9]+\.[0-9]+$'
 
 cmd_adoption() {
   local days=7
@@ -53,7 +69,10 @@ cmd_adoption() {
   echo "## 최근 ${days}일 활성 기기 — 표시 버전별 (플랫폼 합산)"
   query table "
     with active as (
-      select coalesce(device_info->>'platform','?') as platform, app_version, app_build_number
+      select coalesce(device_info->>'platform','?') as platform,
+             case when app_version ~ '$SEMVER_RE' then app_version
+                  else '(invalid: ' || coalesce(app_version,'null') || ')' end as app_version,
+             case when app_version ~ '$SEMVER_RE' then string_to_array(app_version, '.')::int[] end as ver_key
       from public.devices
       where last_seen >= now() - interval '${days} days'
     )
@@ -63,8 +82,8 @@ cmd_adoption() {
            count(*) filter (where platform = 'ios') as ios,
            count(*) filter (where platform = 'android') as android
     from active
-    group by app_version
-    order by string_to_array(coalesce(app_version,'0'), '.')::int[] desc"
+    group by app_version, ver_key
+    order by ver_key desc nulls last"
 
   echo
   echo "## 최근 ${days}일 활성 기기 — 플랫폼 × 빌드 번호 (상위 15)"
@@ -97,7 +116,8 @@ cmd_force() {
         from public.version where deleted_at is null" ;;
     set)
       local ver="${1:?M.m.P}" apply=0; shift
-      [ "${1:-}" = "--apply" ] && apply=1
+      [ "${1:-}" = "--apply" ] && { apply=1; shift; }
+      [ $# -eq 0 ] || die "알 수 없는 인자: $*"
       [[ "$ver" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || die "표시 버전 형식은 M.m.P (빌드 번호 없이): $ver"
 
       # 대상보다 높은 force_version 으로는 내리지 않는다 — 이미 막힌 사용자가 다시 열린다.
@@ -116,23 +136,35 @@ cmd_force() {
         select coalesce(device_info->>'platform','?') as platform, count(*) as blocked_devices
         from public.devices
         where last_seen >= now() - interval '7 days'
-          and app_version is not null
+          and app_version ~ '$SEMVER_RE'
           and string_to_array(app_version,'.')::int[] < string_to_array('$ver','.')::int[]
         group by 1 order by 1"
 
+      # WHERE 에 "현재 기준 ≤ 대상" 을 넣어, 위의 확인과 이 UPDATE 사이에 다른 운영자가 더 높은
+      # 기준을 넣었어도 여기서 내려가지 않게 한다. RETURNING 으로 실제 갱신 여부를 본다.
       local sql
       sql="update public.version
              set ios = (ios::jsonb || jsonb_build_object('version','$ver','force_version','$ver'))::json,
                  android = (android::jsonb || jsonb_build_object('version','$ver','force_version','$ver'))::json,
                  updated_at = now()
-           where deleted_at is null"
+           where deleted_at is null
+             and string_to_array(ios->>'force_version','.')::int[] <= string_to_array('$ver','.')::int[]
+             and string_to_array(android->>'force_version','.')::int[] <= string_to_array('$ver','.')::int[]
+           returning id"
       echo
       echo "## 실행할 SQL"; echo "$sql"
       if [ "$apply" -eq 0 ]; then
         echo; echo "(dry-run) 사용자 승인 후 --apply 로 다시 실행"
         return
       fi
-      query json "$sql" >/dev/null
+      # 응답이 502/504 로 끊겨도 UPDATE 는 이미 서버에 적용됐을 수 있다. 재실행하지 않고 재조회로 판정한다.
+      local updated
+      if updated=$(query_once json "$sql"); then
+        [ "$(printf '%s' "$updated" | jq '.rows | length')" -eq 1 ] \
+          || die "갱신된 행이 없다 — 그 사이 force_version 이 $ver 보다 높아졌을 수 있다. force show 로 확인하라"
+      else
+        echo "UPDATE 응답 실패 — 재실행하지 않고 현재 값을 재조회한다" >&2
+      fi
       echo; echo "## 적용 후"
       query table "select ios::text, android::text, updated_at from public.version where deleted_at is null"
       query json "select ios->>'force_version' as i, android->>'force_version' as a from public.version where deleted_at is null" \

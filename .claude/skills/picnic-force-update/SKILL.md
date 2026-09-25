@@ -14,12 +14,15 @@ argument-hint: "[M.m.P]  (생략 시 origin/main 의 현재 표시 버전)"
 
 0. **대상 버전** — 인자가 없으면 `git fetch origin main && git show origin/main:picnic_app/pubspec.yaml | grep ^version:` 의 표시 버전.
    인자가 있으면 그 값(`M.m.P`).
-1. **출시 확인** — 대상 버전이 **양쪽 스토어에 실제로 출시돼 있어야** 한다. 사용자가 "출시됐다" 고 하지 않았으면 묻는다.
-   Codemagic finished·Shorebird active 는 출시가 아니다. 출시 전에 강업하면 모든 사용자가 스토어에서 받을 수 없는 버전을 요구받는다.
+1. **출시 확인** — 대상 버전이 **App Store 와 Play Store 양쪽에, 전 지역에, 100% 로** 공개돼 있어야 한다.
+   에이전트는 스토어를 직접 볼 수 없으므로 사용자에게 **플랫폼별로** 묻는다: "iOS 와 Android 둘 다 심사 통과·공개 완료인가요? 단계적 출시(phased/staged rollout) 중이 아닌가요?"
+   "출시됐다" 한 마디는 한쪽만·단계적 출시일 수 있다. Codemagic finished·Shorebird active 는 출시가 아니다.
+   출시 전이거나 한쪽만이면 강업하지 않는다 — 그 플랫폼 사용자 전원이 스토어에서 받을 수 없는 버전을 요구받는다.
 2. **영향 확인** — `scripts/app_version_ops.sh force set <M.m.P>` (dry-run). 현재 기준, **막히게 될 7일 활성 기기 수**(플랫폼별), 실행할 SQL 을 출력한다.
    필요하면 `scripts/app_version_ops.sh adoption` 으로 분포 전체를 본다.
 3. **사용자 승인** — 2의 출력(특히 막히는 기기 수)을 보여주고 명시 승인을 받는다. **"강업 해줘" 라는 최초 요청은 이 승인이 아니다** — 숫자를 본 뒤의 답이어야 한다.
-4. **적용** — `scripts/app_version_ops.sh force set <M.m.P> --apply`. 적용 후 행을 다시 읽어 양쪽 `force_version` 이 대상과 같은지 스크립트가 검증한다.
+4. **적용** — `scripts/app_version_ops.sh force set <M.m.P> --apply`. `--apply` 도 2와 같은 경로라 현재 기준·막히는 기기 수를 **다시 계산해 출력한 뒤** UPDATE 한다 — 승인 뒤 시간이 지났어도 별도 재확인 명령은 필요 없고, 출력된 숫자가 승인 때와 크게 다르면 멈추고 다시 묻는다.
+   UPDATE 는 `WHERE 현재 force_version ≤ 대상` 조건이라 그 사이 다른 운영자가 더 높은 기준을 넣었으면 갱신 0행으로 실패한다. 응답이 502/504 로 끊기면 재실행하지 않고 재조회로 판정한다. 적용 후 양쪽 `force_version` 이 대상과 같은지 스크립트가 검증한다.
 5. **보고** — 적용 전/후 값, 막히는 기기 수, 적용 시각(UTC). Jira 상태는 건드리지 않는다.
 
 ## 스크립트가 거부하는 것
