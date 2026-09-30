@@ -138,6 +138,25 @@ void main() {
       expect(e.toString(), contains('platform:VideoError'));
     });
 
+    test('a platform code carrying a signed URL is not passed through', () {
+      // 재검증 지적: message 만 정제하면 code 로 들어온 URL 이 reason 을 거쳐
+      // 예외 문자열과 ad_reason 태그로 샌다.
+      final f = classify(
+        PlatformException(
+          code: 'https://cdn.example.com/a/master.m3u8?token=secret',
+          message: 'x',
+        ),
+      );
+      expect(f.reason, 'platform:invalid');
+      expect(f.toSentryException().toString(), isNot(contains('token')));
+      expect(f.tags['ad_reason'], 'platform:invalid');
+    });
+
+    test('a well-formed platform code is kept', () {
+      final f = classify(PlatformException(code: 'VideoError-1.2_x'));
+      expect(f.reason, 'platform:VideoError-1.2_x');
+    });
+
     test('is never the original exception instance', () {
       final original = Exception('FunctionException 503');
       expect(classify(original).toSentryException(), isNot(same(original)));

@@ -108,9 +108,19 @@ class AdShortformLoadFailure {
     'video_url': videoUrl,
   };
 
+  /// 플랫폼 오류 코드로 허용하는 형태. ExoPlayer/AVFoundation 코드는
+  /// `VideoError` 같은 짧은 식별자다. 그 밖의 값(URL 등)은 태그로 새지 않게
+  /// `invalid` 로 접는다.
+  static final RegExp _platformCodePattern = RegExp(r'^[A-Za-z0-9_.\-]{1,64}$');
+
   static String describeReason(Object error) {
     if (error is TimeoutException) return 'timeout';
-    if (error is PlatformException) return 'platform:${error.code}';
+    if (error is PlatformException) {
+      final code = _platformCodePattern.hasMatch(error.code)
+          ? error.code
+          : 'invalid';
+      return 'platform:$code';
+    }
     if (error is StateError) return 'state';
     return 'other';
   }

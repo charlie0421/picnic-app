@@ -570,6 +570,12 @@ class _AdShortformFullscreenPageState
     try {
       await ctrl.setVolume(1.0);
     } catch (_) {}
+    // setLooping/setVolume 이 워치독을 넘겨 멈췄다가 늦게 돌아온 경우도 같다 —
+    // 다이얼로그가 이미 떠 있으면 컨트롤러를 등록하거나 재생하지 않는다.
+    if (!mounted || _errorDialogShown) {
+      unawaited(ctrl.dispose().catchError((_) {}));
+      return;
+    }
     ctrl.addListener(_onProgress);
     // 컨트롤러가 준비됐으니 워치독 해제 — 단일 탈출 경로 유지.
     _cancelWatchdog();
