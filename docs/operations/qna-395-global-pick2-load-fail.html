@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QnA 395 글로벌픽#2 로드 실패 조사</title>
+<style>
+  :root { --bg:#fbfbfa; --fg:#1c1b1a; --muted:#6b6864; --line:#e2dfda; --accent:#b4472e; --card:#f3f1ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17161a; --fg:#e8e6e3; --muted:#a09c96; --line:#33302e; --accent:#e08a70; --card:#211f22; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.75 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, sans-serif; }
+  main { max-width:56rem; margin:0 auto; padding:3rem 1.5rem 6rem; }
+  h1 { font-size:1.7rem; margin:0 0 .3rem; letter-spacing:-.02em; }
+  h2 { font-size:1.15rem; margin:2.6rem 0 .8rem; padding-top:1.3rem; border-top:1px solid var(--line); }
+  h3 { font-size:1rem; margin:1.6rem 0 .5rem; }
+  .sub { color:var(--muted); margin:0 0 2rem; font-size:.92rem; }
+  .note { border-left:3px solid var(--accent); padding:.1rem 0 .1rem 1rem; margin:1.5rem 0; }
+  .reply { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1.2rem 1.4rem; margin:1rem 0; white-space:pre-wrap; line-height:1.85; }
+  code { font-family:"SF Mono", ui-monospace, Menlo, monospace; font-size:.85em; background:var(--card); padding:.1rem .35rem; border-radius:3px; }
+  pre { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1rem 1.2rem; overflow-x:auto; font-size:.85em; line-height:1.6; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; }
+  th, td { border:1px solid var(--line); padding:.45rem .7rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  td.num, th.num { text-align:right; font-variant-numeric:tabular-nums; }
+  ul { padding-left:1.3rem; } li { margin:.35rem 0; }
+  .muted { color:var(--muted); }
+</style>
+</head>
+<body>
+<main>
+<h1>QnA 395 · 글로벌픽#2 "재생이 안 됩니다" 조사</h1>
+<p class="sub">조사일 2026-09-30 · 문의 <a href="https://admin.picnic.fan/qnas/show/395">admin.picnic.fan/qnas/show/395</a> · 사용자 <code>971e4a24</code>(닉네임 하미니에요, KR, 카카오 가입) · 기기 갤럭시 S24 울트라(SM-S928N), One UI 8.5(사용자 진술) · 앱 1.3.5+130504, 패치 없음</p>
+
+<h2>1. 결론 요약</h2>
+<ul>
+  <li><strong>증상은 "광고 로드 실패"다.</strong> 첫 스크린샷은 자체숏폼 전체화면(검은 배경)에 뜬 <code>label_ads_load_fail</code>("광고 로드에 실패했습니다. 다시 시도해주세요.") 다이얼로그다. 촬영 시각은 9/28 16:01 KST 발급 건 직후로 맞아떨어진다.</li>
+  <li><strong>서버는 정상이다.</strong> 이 사용자에게 9/26~9/29 사이 자체숏폼 토큰이 27번 발급됐고(<code>ad_impressions</code> 27행) 서버 오류·안티어뷰징 차단·한도 초과는 없었다. 실패는 발급 뒤 <strong>단말에서 HLS 영상을 15초 안에 초기화하지 못해</strong> 생긴 것이다. 27건 중 2건(9/27 12:33·12:35)만 끝까지 재생돼 적립됐다.</li>
+  <li><strong>전체 장애가 아니다.</strong> 최근 16일 전체 완료율은 93.7~96.7%로 평탄하고 1.3.5 출시(9/25) 전후로 변화가 없다. 같은 기간 이 사용자는 AdMob(글로벌픽#1)·Pangle(아시아픽#1)을 하루 50회씩 정상 시청했다.</li>
+  <li><strong>이 사용자는 예전엔 잘 됐다.</strong> 4월~8/20까지 자체숏폼 92건 중 91건 완료. 9/26부터 갑자기 2/27. 그 사이에 앱 1.3.5 업데이트와 (사용자 진술상) One UI 8.5 업데이트가 있었다. 어느 쪽인지 서버 데이터로는 못 가른다.</li>
+  <li><strong>관리자 1차 답변의 "1시간 10회"는 맞다.</strong> 서버 한도는 공급자별 시간당 10회·KST 일 120회(<code>get_cotton_ad_limit_status</code>)다. 다만 이 건은 한도와 무관하다. 한도 초과면 발급 자체가 막히고, 이 사용자는 매번 발급이 됐다.</li>
+  <li><strong>원인을 확정할 로그가 없다.</strong> 영상 로드 실패 경로는 다이얼로그만 띄우고 Sentry·서버 어디에도 오류 종류를 남기지 않는다. 이 사용자·이 기기 모델의 Sentry 이벤트는 최근 7일 0건이다. 그래서 아래 회신은 원인 후보를 좁히는 질문을 포함한다.</li>
+</ul>
+
+<h2>2. 대화 타임라인(KST)</h2>
+<table>
+  <tr><th>시각</th><th>주체</th><th>내용</th></tr>
+  <tr><td>9/28 16:04</td><td>사용자</td><td>"글로벌 픽#2가 재생이 안 됩니다. 기종은 갤럭시 S24 울트라, UI 8.5" + 로드 실패 다이얼로그 스크린샷</td></tr>
+  <tr><td>9/28 16:19</td><td>관리자</td><td>정상 작동 중 안내, 시간당 10회 한도·인터넷 불안정 가능성, 앱 버전 요청</td></tr>
+  <tr><td>9/30 10:05</td><td>사용자</td><td>앱정보 스크린샷: 현재 버전 1.3.5, 최신 빌드 130504, 적용된 패치 없음</td></tr>
+</table>
+<p>스레드 상태는 <code>IN_PROGRESS</code>이며 이 문서는 상태를 바꾸지 않는다.</p>
+
+<h2>3. 증거</h2>
+
+<h3>3-1. 이 사용자의 자체숏폼 발급 vs 완료(ad_impressions)</h3>
+<table>
+  <tr><th>KST 일자</th><th class="num">발급</th><th class="num">완료</th><th>비고</th></tr>
+  <tr><td>4/11 ~ 8/20 (10일)</td><td class="num">92</td><td class="num">91</td><td>이전 앱 버전에서는 정상</td></tr>
+  <tr><td>9/26</td><td class="num">5</td><td class="num">0</td><td>20:10~20:26, 같은 IP</td></tr>
+  <tr><td>9/27</td><td class="num">13</td><td class="num">2</td><td>12:33·12:35 성공, 그 앞뒤로 실패. 같은 IP 안에서 성공·실패 혼재</td></tr>
+  <tr><td>9/28</td><td class="num">8</td><td class="num">0</td><td>16:01 실패 직후 문의 접수</td></tr>
+  <tr><td>9/29</td><td class="num">1</td><td class="num">0</td><td></td></tr>
+</table>
+<ul>
+  <li>모든 발급 행이 <code>view_reward_status = PENDING</code>, <code>completed_at = null</code>. 시청 콜백(<code>callback-ad-shortform-view</code>)이 한 번도 오지 않았다는 뜻이다.</li>
+  <li>실패 뒤 재시도 간격이 19초·28초·34초인 구간이 있다. 발급 왕복과 다이얼로그 조작을 빼면 15초 안팎으로, 앱의 <code>initialize().timeout(15s)</code>에 걸린 모양과 맞는다(즉시 예외보다는 타임아웃 쪽).</li>
+  <li>IP 해시가 4일간 6개로 바뀐다. 가정 Wi-Fi보다 이동통신망에 가깝다.</li>
+  <li>같은 기간 다른 공급자 적립: AdMob 9/27 57·9/28 50·9/29 50, Pangle 9/27 41·9/28 50·9/29 50. 단말·계정·네트워크가 광고 시청 자체는 가능한 상태다.</li>
+</ul>
+
+<h3>3-2. 전체·코호트(최근 7일, 발급 ≥ 20건 코호트만)</h3>
+<table>
+  <tr><th>코호트</th><th class="num">발급</th><th class="num">완료율</th><th>비고</th></tr>
+  <tr><td>전체(9/14~9/30 일별)</td><td class="num">1,743~25,179/일</td><td class="num">93.7~96.7%</td><td>1.3.5 출시 전후 변화 없음</td></tr>
+  <tr><td>iOS 1.3.5</td><td class="num">15,992</td><td class="num">96.1%</td><td></td></tr>
+  <tr><td>Android 16 · 1.3.5</td><td class="num">6,370</td><td class="num">95.7%</td><td>132명</td></tr>
+  <tr><td>Android 15 · 1.3.5</td><td class="num">3,060</td><td class="num">92.1%</td><td></td></tr>
+  <tr><td>Android 11 · 1.3.5</td><td class="num">3,016</td><td class="num">86.0%</td><td>구형일수록 낮다</td></tr>
+  <tr><td>Android 10 · 1.3.5</td><td class="num">153</td><td class="num">69.3%</td><td>10명 중 9명이 실패 경험</td></tr>
+  <tr><td>SM-S928N(S24U 국내) · Android 16 · 1.3.5 · 이 사용자 제외 3명</td><td class="num">50</td><td class="num">70%</td><td>20/23, 1/1, 14/26 — 한 명은 절반 실패</td></tr>
+  <tr><td>SM-S928B(S24U 글로벌) · 1.3.5</td><td class="num">270</td><td class="num">97.8%</td><td></td></tr>
+</table>
+<ul>
+  <li>일별 "실패 사용자"(발급 5건 이상인데 완료 25% 미만) 비율은 0.1~2.5%로 9/25 전후 차이가 없다. 최근 7일 이 조건에 드는 사용자는 18명이고 기기 정보가 있는 8명은 OPPO·Huawei·Xiaomi 구형과 삼성 저가형·폴드가 섞여 있다.</li>
+  <li>이 사용자의 <code>devices</code> 행은 5/27(1.2.24) 이후 갱신되지 않았다. 다만 광고 활성 사용자 1,212명 중 484명이 같은 상태이고 두 집단의 완료율이 95.7%로 같아서, 이 건과는 무관하다(별건 관찰).</li>
+</ul>
+
+<h3>3-3. 영상·CDN</h3>
+<ul>
+  <li>활성 캠페인 6개(이프아이 1~5, 이스트샤인) 모두 완료율 94.4~96.3%. 특정 영상 문제 아님.</li>
+  <li>마스터 플레이리스트는 1080p(5.1 Mbps)부터 240p까지 5개 변형, 영상 19초(4초 세그먼트 5개). 1080p 첫 세그먼트 2.66 MB, 240p 383 KB. CloudFront에서 HTTP 200, 1초 이내 응답.</li>
+  <li>ExoPlayer(media3 1.9.2, video_player_android 2.9.4 — 2025-08부터 동일)는 초기 대역폭 추정치로 변형을 고르므로 국내 이동통신에서는 1080p/720p로 시작할 가능성이 크다. 실측 속도가 1 Mbps 이하(데이터 소진 후 속도제한, 혼잡)면 첫 세그먼트만 20초가 넘어 15초 타임아웃에 걸린다. AdMob·Pangle은 자체 플레이어·낮은 비트레이트로 시작해 같은 망에서도 재생될 수 있다.</li>
+</ul>
+
+<h3>3-4. 앱 코드 경로</h3>
+<ul>
+  <li><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_fullscreen_page.dart</code>: <code>_initPlayer</code>가 <code>VideoPlayerController.networkUrl(...).initialize().timeout(15s)</code>, 별도 20초 워치독. 실패 시 <code>_showVideoLoadErrorDialog</code>가 다이얼로그만 띄우고 오류를 어디에도 보내지 않는다(PR #52, 1.2.30부터).</li>
+  <li><code>shortform_internal_platform.dart</code>: 발급은 라우트 진입 시점에 <code>ad-shortform-issue</code> 호출. 안티어뷰징 차단은 별도 다이얼로그(rate-limited)라 이번 스크린샷과 다르다.</li>
+</ul>
+
+<h2>4. 원인 후보(가능성 순)</h2>
+<ol>
+  <li><strong>단말 네트워크 속도 부족 + 15초 초기화 타임아웃.</strong> 이동통신 IP, 같은 IP에서 성공·실패 혼재, 재시도 간격 ~15초, AdMob·Pangle 정상, 구형·저가 기기에서 완료율 하락 — 전부 이 가설과 맞는다. 사용자에게 Wi-Fi 재현 여부와 요금제 속도제한 여부를 물어 확인한다.</li>
+  <li><strong>One UI 8.5(베타/최신 펌웨어)와 media3 디코더 조합 문제.</strong> 9/26 갑작스런 전환과 사용자가 UI 8.5를 직접 언급한 점이 근거. 같은 모델 다른 사용자 3명은 대체로 되지만 한 명이 절반 실패라 배제는 못 한다. Wi-Fi에서도 실패하면 이쪽으로 본다. 그 경우 실기기 재현 없이는 확정 불가.</li>
+  <li><strong>앱 1.3.5 회귀.</strong> 코드·의존성 diff에 플레이어 변경이 없고 전체·Android 16 코호트 완료율에 변화가 없어 가능성 낮음.</li>
+</ol>
+
+<h2>5. 회신 초안(관리자 → 사용자)</h2>
+<div class="note">1차 답변에서 "정상 작동 중"이라고 한 뒤 사용자가 버전을 보내왔으니, 확인했다는 사실과 로드 실패 원인이 단말 쪽 영상 로딩임을 말하고, 원인을 가르는 두 가지 확인을 요청한다. 한도 안내는 이미 했으므로 반복하지 않는다.</div>
+<div class="reply">안녕하세요, 버전 정보 보내주셔서 감사합니다.
+
+보내주신 화면(“광고 로드에 실패했습니다”)은 광고 발급은 정상적으로 됐는데 기기에서 광고 영상을 제한 시간(15초) 안에 불러오지 못했을 때 표시됩니다. 확인해 보니 9/26~9/29 사이 글로벌픽#2 광고가 여러 차례 정상 발급됐고 그중 두 번은 끝까지 재생돼 적립까지 됐습니다. 즉 회원님 계정이나 서버 문제는 아니고, 광고 영상(고화질 스트리밍)이 기기에서 시간 내에 로딩되지 못한 경우로 보입니다.
+
+원인을 좁히기 위해 두 가지만 확인 부탁드립니다.
+1. Wi-Fi에 연결한 상태에서 글로벌픽#2를 다시 시도해 주시고, 그래도 같은 화면이 뜨는지 알려주세요.
+2. 평소 모바일 데이터로 이용하신다면, 데이터 소진 후 속도 제한이 걸리는 요금제인지도 알려주시면 도움이 됩니다.
+
+Wi-Fi에서는 정상 재생된다면 이동통신 속도 문제이고, Wi-Fi에서도 같은 화면이 뜬다면 One UI 8.5 업데이트와의 호환 문제로 보고 개발팀에서 해당 기기 기준으로 재현·수정을 진행하겠습니다. 불편을 드려 죄송합니다.</div>
+
+<h2>6. 개발 후속 과제</h2>
+<ol>
+  <li><strong>로드 실패 텔레메트리 추가(우선).</strong> <code>_showVideoLoadErrorDialog</code>에서 오류 종류(TimeoutException / PlatformException 코드·메시지), 경과 시간, 선택된 video_url, 네트워크 종류(Wi-Fi/셀룰러)를 Sentry 이벤트로 남기고, 가능하면 <code>ad_impressions</code>에 <code>load_failed_at</code>·<code>load_fail_reason</code>을 기록하는 콜백을 추가한다. 지금은 CS가 들어와도 원인을 볼 방법이 없다. 이 문서의 원인 후보 1·2도 이 데이터가 있어야 확정된다.</li>
+  <li><strong>저속망 완화.</strong> 19초짜리 세로형 광고에 1080p 5 Mbps 변형은 과하다. 마스터 플레이리스트에서 1080p를 빼거나 720p 이하로 캡하고(서버/인코딩 파이프라인 쪽), 앱에서는 초기화 타임아웃을 15초에서 30초로 늘리되 로딩 표시를 유지한다. 완료율 4~5%p 손실의 상당 부분이 구형·저속 코호트에서 나오므로 전체 적립 손실도 줄어든다.</li>
+  <li><strong>One UI 8.5 실기기 재현.</strong> 사용자가 Wi-Fi에서도 실패한다고 답하면 S24 울트라(One UI 8.5) 실기기로 자체숏폼을 열어 logcat의 ExoPlayer 오류를 확인한다. 회사 보유 기기가 없으면 Samsung Remote Test Lab을 쓴다.</li>
+  <li><strong>별건 관찰.</strong> 광고 활성 사용자의 40%가 최근 7일 <code>devices</code> 갱신이 없다(이 사용자는 5/27 이후 정지). 배포율·강업 판단이 이 테이블에 기대므로 별도 조사 대상으로 남긴다. 이번 건과는 무관하다.</li>
+</ol>
+
+<h2>7. 확인에 쓴 쿼리</h2>
+<pre>-- 사용자 발급/완료 일별
+select (issued_at at time zone 'Asia/Seoul')::date, count(*), count(completed_at)
+from public.ad_impressions where user_id='971e4a24-97cf-46b4-9aa3-b49bf69fdddf'
+group by 1 order by 1;
+
+-- 실패 뒤 재시도 간격
+select issued_at, completed_at is not null as ok,
+  extract(epoch from lead(issued_at) over (order by issued_at) - issued_at) as secs
+from public.ad_impressions where user_id='971e4a24-...' and issued_at >= '2026-09-26';
+
+-- 기기 코호트 완료율(최근 7일, devices.last_seen 7일 이내 사용자만)
+with dev as (select distinct on (user_id) user_id, app_version,
+  device_info->>'model' model, device_info->'version'->>'release' os
+  from public.devices where last_seen >= now()-interval '7 days' order by user_id, last_seen desc)
+select d.os, d.app_version, count(*), count(i.completed_at)
+from public.ad_impressions i join dev d using (user_id)
+where i.issued_at >= now()-interval '7 days' group by 1,2;</pre>
+<p class="muted">첨부 스크린샷은 <code>qna_attachments</code> 버킷의 <code>qna/971e4a24-…/1173/…jpg</code>(로드 실패 다이얼로그), <code>…/1175/…jpg</code>(앱정보 1.3.5 · 130504)이다.</p>
+</main>
+</body>
+</html>
