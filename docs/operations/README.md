@@ -40,4 +40,6 @@
 | [handoff-20260819-wallet-incidents.html](handoff-20260819-wallet-incidents.html) | 지갑 장애 4건(코튼 게이트·8/15 선행·Tapjoy 7일·투표 보너스 18일) 대응 기록. 소급 4,865건, 알람 신설, 반복하기 쉬운 함정 6가지 |
 | [handoff-20260820-emergency-patch.html](handoff-20260820-emergency-patch.html) | 긴급패치 배포 대기열. 130007 이후 미배포 8건(투표 이중 차감 방어 #159·#160, Sentry 5G9 수정 #165 포함)과 OTA 선행 vs 130008 신규 빌드 경로 판단 |
 | [handoff-20260825-ad-abuse-detection.html](handoff-20260825-ad-abuse-detection.html) | 광고 어뷰징 탐지 cron(detect-ad-anomaly) 만성 500 + 설계 공백 4종(ACL 증발·소비자 불일치·0명 임계값·알림 부재). anti-abuse 도메인 이관 |
-| [handoff-20260821-ga4-taxonomy.html](handoff-20260821-ga4-taxonomy.html) | **GA4 이벤트 택소노미** (PR #153). 코드는 `1.3.0+130007` 로 이미 프로덕션 반영됨 — 남은 것은 GA4 콘솔 맞춤 측정기준 등록(소급 불가·최우선), 실측 검증, 대행사 회신, 복구 구매 매출 복원 결정 |
+| [handoff-20260906-ga4-taxonomy-final.html](handoff-20260906-ga4-taxonomy-final.html) | **GA4 택소노미 — 진입점.** 전 작업 종료(2026-09-06) 시점의 프로덕션 상태, 남은 2건(Android 강업 · attestation seal), 함정, 복붙용 검증 쿼리. GA4 관련 작업을 맡으면 **이 문서부터** 읽는다 |
+| [handoff-20260902-purchase-revenue-server.html](handoff-20260902-purchase-revenue-server.html) | GA4 매출 서버 계약(picnic-supabase #109·#116·#117·#118)의 상세 기록. §0 에 "계약이 프로덕션에서 한 번도 동작하지 않았다"는 GA4×DB 대조와 근본 원인(워커 타입 게이트) |
+| [handoff-20260821-ga4-taxonomy.html](handoff-20260821-ga4-taxonomy.html) | GA4 택소노미 **2026-08-21~24 시점 기록**(구현·교차리뷰·대행사 회신). 본문의 "미착수/미검증" 표기는 당시 상태이고 전부 종결됐다 — 맨 위 종결 요약 블록을 먼저 볼 것 |
