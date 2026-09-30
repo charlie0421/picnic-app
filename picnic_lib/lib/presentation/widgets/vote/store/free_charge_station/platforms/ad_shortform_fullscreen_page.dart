@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -23,6 +24,8 @@ import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure_reporter.dart';
 
 /// '더보기'를 눌렀을 때 광고주 랜딩으로 보내고, 그 클릭을 서버에 기록한다.
 ///
@@ -354,6 +357,22 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   /// 기록에 성공했으면 true — 실패는 [AdCtaClickReporter] 가 재시도로 남겨둔다.
   final Future<bool> Function()? onCtaClick;
 
+  /// "광고 로드에 실패했습니다" 가 뜨는 모든 경로에서 정확히 한 번 불린다.
+  /// null 이면 [reportAdShortformLoadFailure](Sentry) 로 간다. 던져도 다이얼로그는
+  /// 그대로 뜬다 — 통계가 광고 흐름을 막아선 안 된다.
+  final void Function(AdShortformLoadFailure failure)? onLoadFailure;
+
+  /// [VideoPlayerController.initialize] 의 타임아웃. initialize 자체엔 타임아웃이
+  /// 없어 네트워크 stall 시 영구 hang 이다. 15초였을 때 19초 광고의 1080p 첫
+  /// 세그먼트(2.6MB)가 1Mbps 이하 망에서 이 안에 못 들어와 저속망 사용자가
+  /// 매번 실패했다(QnA 395).
+  static const Duration initializeTimeout = Duration(seconds: 30);
+
+  /// 워치독: 발급(`loadAd`)부터 컨트롤러 준비까지 이 시간 안에 못 끝나면 단일
+  /// 오류+종료. [initializeTimeout] 보다 발급 왕복만큼(5초) 길어야 initialize
+  /// 타임아웃이 먼저 잡혀 `initialize` 단계로 분류된다.
+  static const Duration watchdogTimeout = Duration(seconds: 35);
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -363,6 +382,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.ga4,
     this.onWalletRewardPresented,
     this.onCtaClick,
+    this.onLoadFailure,
   });
 
   @override
@@ -384,17 +404,13 @@ class _AdShortformFullscreenPageState
   final GlobalKey<LoadingOverlayState> _loadingOverlayKey =
       GlobalKey<LoadingOverlayState>();
 
-  /// Watchdog: if the controller never initializes within this window (server
-  /// failure / network stall anywhere in initialize/setLooping/setVolume/play),
-  /// force a single error+exit so the loader can never pulse forever.
-  static const Duration _watchdogTimeout = Duration(seconds: 20);
-
-  /// Timeout for the underlying [VideoPlayerController.initialize] call, which
-  /// itself has no timeout (cf. pangle_platform.dart's 5s guard).
-  static const Duration _initializeTimeout = Duration(seconds: 15);
-
   Timer? _watchdog;
   bool _errorDialogShown = false;
+
+  /// 페이지 진입 시각. 로드 실패 리포트의 `elapsed_ms` 기준점이다.
+  /// `Stopwatch` 대신 `clock` 을 쓰는 이유는 위젯 테스트의 가짜 시간을 따르게
+  /// 하기 위해서다(워치독 35초를 실제로 기다리지 않는다).
+  late final DateTime _loadStartedAt;
 
   /// GA4 단발 발송 가드. 위젯 리빌드/리스너 재호출로 같은 시청 건의
   /// ad_impression·earn_virtual_currency·ad_cta_click 이 2번 나가지 않게 한다.
@@ -424,6 +440,7 @@ class _AdShortformFullscreenPageState
     _applyWallet = ContainerWalletSummaryApplier.of(context);
     _refreshWallet = ContainerWalletSummaryRefresher.of(context);
     _enterImmersive();
+    _loadStartedAt = clock.now();
     _startWatchdog();
     _initializeFlow();
   }
@@ -432,12 +449,13 @@ class _AdShortformFullscreenPageState
   /// on dispose, or once an error dialog is shown.
   void _startWatchdog() {
     _watchdog?.cancel();
-    _watchdog = Timer(_watchdogTimeout, () {
+    _watchdog = Timer(AdShortformFullscreenPage.watchdogTimeout, () {
       if (!mounted) return;
       if (_controller != null) return; // controller arrived in time
       if (_errorDialogShown) return; // error path already handled exit
       _showVideoLoadErrorDialog(
         TimeoutException('ad-shortform watchdog: controller never initialized'),
+        stage: AdShortformLoadStage.watchdog,
       );
     });
   }
@@ -468,9 +486,13 @@ class _AdShortformFullscreenPageState
           _resolvedVideoUrl = result.videoUrl;
           _resolvedCtaUrl = result.ctaUrl;
           blocked = result.blocked;
-        } catch (e) {
+        } catch (e, s) {
           // loadAd 자체가 throw (anti-abuse 아님) → 에러 다이얼로그 + pop.
-          _showVideoLoadErrorDialog(e);
+          _showVideoLoadErrorDialog(
+            e,
+            stage: AdShortformLoadStage.loadAd,
+            stackTrace: s,
+          );
           return;
         }
       } else {
@@ -488,6 +510,7 @@ class _AdShortformFullscreenPageState
         )) {
           _showVideoLoadErrorDialog(
             StateError('ad-shortform: empty video_url'),
+            stage: AdShortformLoadStage.emptyUrl,
           );
         }
         return;
@@ -495,8 +518,12 @@ class _AdShortformFullscreenPageState
       if (!mounted) return;
       try {
         await _initPlayer(resolvedUrl);
-      } catch (e) {
-        _showVideoLoadErrorDialog(e);
+      } catch (e, s) {
+        _showVideoLoadErrorDialog(
+          e,
+          stage: AdShortformLoadStage.initialize,
+          stackTrace: s,
+        );
         return;
       }
     } finally {
@@ -513,12 +540,15 @@ class _AdShortformFullscreenPageState
     try {
       // initialize() 자체엔 타임아웃이 없어 네트워크 stall 시 영구 hang.
       // TimeoutException 은 아래 generic catch 로 흘러 에러 다이얼로그로 이어진다.
-      await ctrl.initialize().timeout(_initializeTimeout);
-    } on PlatformException catch (e) {
-      _showVideoLoadErrorDialog(e);
-      return;
-    } catch (e) {
-      _showVideoLoadErrorDialog(e);
+      await ctrl.initialize().timeout(
+        AdShortformFullscreenPage.initializeTimeout,
+      );
+    } catch (e, s) {
+      _showVideoLoadErrorDialog(
+        e,
+        stage: AdShortformLoadStage.initialize,
+        stackTrace: s,
+      );
       return;
     }
     try {
@@ -535,11 +565,12 @@ class _AdShortformFullscreenPageState
     });
     try {
       await ctrl.play();
-    } on PlatformException catch (e) {
-      _showVideoLoadErrorDialog(e);
-      return;
-    } catch (e) {
-      _showVideoLoadErrorDialog(e);
+    } catch (e, s) {
+      _showVideoLoadErrorDialog(
+        e,
+        stage: AdShortformLoadStage.play,
+        stackTrace: s,
+      );
       return;
     }
     // ad_impression (스펙 §2-6): 재생이 실제로 시작된 시점이 자체 숏폼 광고의
@@ -566,13 +597,19 @@ class _AdShortformFullscreenPageState
     );
   }
 
-  void _showVideoLoadErrorDialog(dynamic error) {
+  void _showVideoLoadErrorDialog(
+    Object error, {
+    required AdShortformLoadStage stage,
+    StackTrace? stackTrace,
+  }) {
+    // 이미 닫힌 페이지(사용자가 로딩 중 X 를 누른 경우)는 실패가 아니라 취소다.
     if (!mounted) return;
     // 워치독·initialize 타임아웃·loadAd 예외 등 여러 경로에서 호출될 수 있으므로
     // 중복 다이얼로그를 막는다.
     if (_errorDialogShown) return;
     _errorDialogShown = true;
     _cancelWatchdog();
+    _reportLoadFailure(error, stage: stage, stackTrace: stackTrace);
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
     void closePage() {
       final c = navigatorKey.currentContext;
@@ -587,6 +624,32 @@ class _AdShortformFullscreenPageState
       onOk: closePage,
       onCancel: closePage,
     );
+  }
+
+  /// 로드 실패를 분류해 [AdShortformFullscreenPage.onLoadFailure](없으면 Sentry)
+  /// 로 넘긴다. 리포터가 던져도 여기서 삼킨다 — 다이얼로그가 우선이다.
+  void _reportLoadFailure(
+    Object error, {
+    required AdShortformLoadStage stage,
+    StackTrace? stackTrace,
+  }) {
+    final failure = AdShortformLoadFailure.classify(
+      error: error,
+      stage: stage,
+      elapsed: clock.now().difference(_loadStartedAt),
+      videoUrl: _resolvedVideoUrl,
+      stackTrace: stackTrace,
+    );
+    try {
+      final report = widget.onLoadFailure;
+      if (report != null) {
+        report(failure);
+      } else {
+        unawaited(reportAdShortformLoadFailure(failure));
+      }
+    } catch (_) {
+      // 통계용 보고가 광고 흐름을 깨서는 안 된다.
+    }
   }
 
   void _onProgress() {

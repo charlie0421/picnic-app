@@ -78,6 +78,7 @@ dependencies:
   firebase_analytics: ^12.0.4
   timezone: ^0.10.0
   connectivity_plus: ^7.0.0
+  clock: ^1.1.2
   image_cropper: ^9.0.0
   flutter_inappwebview: ^6.1.7
   version: ^3.0.2
