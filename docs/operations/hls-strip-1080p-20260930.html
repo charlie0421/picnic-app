@@ -28,7 +28,7 @@
 <body>
 <main>
 <h1>자체숏폼 광고 HLS 마스터에서 1080p 변형 제거 (720p 상한)</h1>
-<p class="sub">적용 2026-09-30 · QnA 395 후속 과제 2번 · 조사 문서 <code>docs/operations/qna-395-global-pick2-load-fail.html</code> · 스크립트 <code>scripts/hls_strip_1080p.sh</code></p>
+<p class="sub">적용 2026-09-30 · QnA 395 후속 과제 2번 · 조사 문서 <code>docs/operations/qna-395-global-pick2-load-fail.html</code> · 스크립트 <code>scripts/hls_strip_1080p.sh</code> · 테스트 <code>scripts/tests/hls_strip_1080p_test.sh</code>(가짜 aws 로 27개 검사)</p>
 
 <h2>1. 무엇을 왜 바꿨나</h2>
 <ul>
@@ -55,6 +55,7 @@ scripts/hls_strip_1080p.sh --restore --only 5fa8d080-6e1e-48ba-9e63-d3555a03c194
 <p>CloudFront 캐시가 60초라 복원도 1분 안에 반영된다. 재생 중인 사용자는 master 를 시작할 때 한 번만 읽으므로 영향이 없다.</p>
 
 <h2>4. 새 광고 영상이 올라올 때</h2>
+<div class="note">교차 리뷰(Codex) 지적으로 스크립트를 보강했다: <code>--only</code> 에 ID 가 없으면 오류, 백업은 <code>If-None-Match:*</code> 조건부 쓰기로 절대 덮어쓰지 않음, 404 가 아닌 조회 오류는 failed 로 세고 쓰지 않음, 복원은 백업 객체의 메타를 사용, 종단 개행 보존, 목록 조회 실패는 비정상 종료. 9/30 실제 적용은 보강 전 버전으로 했지만 드라이런으로 내용을 확인한 뒤 실행했고 결과는 위 검증과 같다.</div>
 <div class="note">트랜스코더는 여전히 1080p 를 만든다. 어드민에서 새 영상을 올려 캠페인을 만든 뒤 아래를 한 번 돌리면 된다. 이미 처리된 master 는 건너뛰므로 전체를 대상으로 돌려도 안전하다.</div>
 <pre>AWS_PROFILE=picnic scripts/hls_strip_1080p.sh --dry-run   # 먼저 확인
 AWS_PROFILE=picnic scripts/hls_strip_1080p.sh</pre>

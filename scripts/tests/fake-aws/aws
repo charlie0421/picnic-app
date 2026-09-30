@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# hls_strip_1080p.sh 테스트용 가짜 aws CLI. FAKE_S3_DIR 아래를 버킷처럼 쓴다.
+#   객체 본문: $FAKE_S3_DIR/<key>      메타: $FAKE_S3_DIR/<key>.meta (2줄: content-type, cache-control)
+#   호출 기록: $FAKE_S3_LOG 에 한 줄씩
+# 오류 주입: FAKE_S3_LIST_FAIL=1, FAKE_S3_HEAD_ERROR=<code>(모든 head-object 실패, 404 제외)
+set -uo pipefail
+: "${FAKE_S3_DIR:?}"; : "${FAKE_S3_LOG:?}"
+echo "$*" >> "$FAKE_S3_LOG"
+
+arg() { # arg <name> → 값
+  local i=1; while [ $i -le $# ]; do :; break; done
+  local prev=""; for a in "${ARGS[@]}"; do [ "$prev" = "$1" ] && { printf '%s' "$a"; return; }; prev="$a"; done
+}
+has() { for a in "${ARGS[@]}"; do [ "$a" = "$1" ] && return 0; done; return 1; }
+ARGS=("$@")
+svc=$1; cmd=$2
+
+case "$svc $cmd" in
+  "s3api list-objects-v2")
+    [ "${FAKE_S3_LIST_FAIL:-0}" = 1 ] && { echo "An error occurred (AccessDenied)" >&2; exit 254; }
+    prefix=$(arg --prefix)
+    (cd "$FAKE_S3_DIR" && find "$prefix" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort | sed 's#$#/#' | paste -sd '\t' -)
+    ;;
+  "s3api head-object")
+    key=$(arg --key)
+    if [ -n "${FAKE_S3_HEAD_ERROR:-}" ]; then echo "An error occurred (${FAKE_S3_HEAD_ERROR}) when calling the HeadObject operation" >&2; exit 254; fi
+    [ -f "$FAKE_S3_DIR/$key" ] || { echo "An error occurred (404) when calling the HeadObject operation: Not Found" >&2; exit 254; }
+    ct=$(sed -n 1p "$FAKE_S3_DIR/$key.meta" 2>/dev/null); cc=$(sed -n 2p "$FAKE_S3_DIR/$key.meta" 2>/dev/null)
+    printf '{"ContentType":"%s","CacheControl":"%s","ContentLength":%s}\n' "$ct" "$cc" "$(wc -c < "$FAKE_S3_DIR/$key")"
+    ;;
+  "s3api get-object")
+    key=$(arg --key); out=${ARGS[-1]}
+    [ -f "$FAKE_S3_DIR/$key" ] || { echo "An error occurred (NoSuchKey)" >&2; exit 254; }
+    cp "$FAKE_S3_DIR/$key" "$out"; echo '{}'
+    ;;
+  "s3api put-object")
+    key=$(arg --key); body=$(arg --body); body=${body#fileb://}; body=${body#file://}
+    if has --if-none-match && [ -f "$FAKE_S3_DIR/$key" ]; then
+      echo "An error occurred (PreconditionFailed) when calling the PutObject operation: At least one of the pre-conditions you specified did not hold" >&2; exit 254
+    fi
+    mkdir -p "$(dirname "$FAKE_S3_DIR/$key")"
+    cp "$body" "$FAKE_S3_DIR/$key"
+    printf '%s\n%s\n' "$(arg --content-type)" "$(arg --cache-control)" > "$FAKE_S3_DIR/$key.meta"
+    echo '{}'
+    ;;
+  *) echo "fake aws: unsupported: $*" >&2; exit 99 ;;
+esac
