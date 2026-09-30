@@ -29,6 +29,7 @@ scripts/app_version_ops.sh adoption --days 30
 - "현재 버전" 은 `origin/main` 의 `picnic_app/pubspec.yaml` 표시 버전이다. 그 행의 `pct` 가 배포율이다.
 - 빌드 번호별 표에서 같은 표시 버전의 이전 빌드(예: 130502)가 남아 있으면 TestFlight·내부 테스트 기기다.
 - 강업 기준(`force_version`) 미만 버전에 활성 기기가 있으면 그 수를 따로 말한다 — 그 사용자는 앱을 열어도 강업 화면에서 막힌다.
+- `app_version` 이 null 인 행과 `(invalid: …)` 행은 **0 이 아닐 때만** 언급한다. 0 이면 보고에 쓰지 않는다.
 
 ## 해석 주의
 
