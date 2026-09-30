@@ -106,8 +106,15 @@ do_restore() { # <id>
   bmeta=$(s3_head "$orig") && rc=0 || rc=$?   # set -e 아래서 치환 실패로 죽지 않게
   if [ $rc -eq 1 ]; then failed=$((failed+1)); return; fi
   if [ $rc -eq 44 ]; then
+    # 백업이 없다. master 의 상태를 확인하지 못하면 skipped 로 넘기지 않는다.
+    local mrc
+    s3_head "$key" >/dev/null && mrc=0 || mrc=$?
+    if [ $mrc -eq 44 ]; then echo "[$id] 백업도 master 도 없음, 건너뜀"; skipped=$((skipped+1)); return; fi
+    if [ $mrc -ne 0 ] || ! s3_get "$key" "$WORK/cur"; then
+      echo "[$id] 백업이 없고 master 상태도 확인 못 함 — 실패로 보고" >&2; failed=$((failed+1)); return
+    fi
     # 백업이 없는데 master 에 1080p 가 없으면 "수정됐는데 백업을 잃은" 상태다 — 실패로 보고.
-    if s3_get "$key" "$WORK/cur" && ! has_1080p_variant "$WORK/cur"; then
+    if ! has_1080p_variant "$WORK/cur"; then
       echo "[$id] 백업이 없는데 master 는 이미 수정본이다 — 복원 불가" >&2; failed=$((failed+1)); return
     fi
     echo "[$id] 백업 없음(손대지 않은 master), 건너뜀"; skipped=$((skipped+1)); return

@@ -2,13 +2,12 @@
 # hls_strip_1080p.sh 테스트용 가짜 aws CLI. FAKE_S3_DIR 아래를 버킷처럼 쓴다.
 #   객체 본문: $FAKE_S3_DIR/<key>      메타: $FAKE_S3_DIR/<key>.meta (2줄: content-type, cache-control)
 #   호출 기록: $FAKE_S3_LOG 에 한 줄씩
-# 오류 주입: FAKE_S3_LIST_FAIL=1, FAKE_S3_HEAD_ERROR=<code>(모든 head-object 실패, 404 제외)
+# 오류 주입: FAKE_S3_LIST_FAIL=1, FAKE_S3_HEAD_ERROR=<code>(모든 head-object 실패, 404 제외), FAKE_S3_GET_FAIL=1
 set -uo pipefail
 : "${FAKE_S3_DIR:?}"; : "${FAKE_S3_LOG:?}"
 echo "$*" >> "$FAKE_S3_LOG"
 
 arg() { # arg <name> → 값
-  local i=1; while [ $i -le $# ]; do :; break; done
   local prev=""; for a in "${ARGS[@]}"; do [ "$prev" = "$1" ] && { printf '%s' "$a"; return; }; prev="$a"; done
 }
 has() { for a in "${ARGS[@]}"; do [ "$a" = "$1" ] && return 0; done; return 1; }
@@ -30,6 +29,7 @@ case "$svc $cmd" in
     ;;
   "s3api get-object")
     key=$(arg --key); out=${ARGS[-1]}
+    [ "${FAKE_S3_GET_FAIL:-0}" = 1 ] && { echo "An error occurred (InternalError) when calling the GetObject operation" >&2; exit 254; }
     [ -f "$FAKE_S3_DIR/$key" ] || { echo "An error occurred (NoSuchKey)" >&2; exit 254; }
     cp "$FAKE_S3_DIR/$key" "$out"; echo '{}'
     ;;

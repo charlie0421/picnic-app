@@ -121,6 +121,14 @@ fresh; put k "$MASTER_5"   # 손대지 않은 master 는 백업이 없어도 ski
 out=$("$SCRIPT" --restore 2>&1); rc=$?
 check "untouched master without backup is skipped" '[ $rc -eq 0 ] && grep -q "skipped=1" <<<"$out"'
 
+fresh; mkdir -p "$FAKE_S3_DIR/videos/output/m"   # 백업도 master 도 없는 폴더
+out=$("$SCRIPT" --restore 2>&1); rc=$?
+check "no backup and no master is skipped" '[ $rc -eq 0 ] && grep -q "skipped=1" <<<"$out"'
+fresh; put n "$MASTER_5"; export FAKE_S3_GET_FAIL=1   # 백업 없음 + master 다운로드 실패 → 상태 미확인
+out=$("$SCRIPT" --restore 2>&1); rc=$?
+check "no backup and unreadable master is failed" '[ $rc -ne 0 ] && grep -q "failed=1" <<<"$out"'
+unset FAKE_S3_GET_FAIL
+
 echo "11. --dry-run 은 쓰지 않는다"
 fresh; put l "$MASTER_5"
 "$SCRIPT" --dry-run >/dev/null 2>&1
