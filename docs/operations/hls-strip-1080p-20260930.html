@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자체숏폼 HLS 1080p 제거 기록</title>
+<style>
+  :root { --bg:#fbfbfa; --fg:#1c1b1a; --muted:#6b6864; --line:#e2dfda; --accent:#b4472e; --card:#f3f1ee; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#17161a; --fg:#e8e6e3; --muted:#a09c96; --line:#33302e; --accent:#e08a70; --card:#211f22; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+    font:16px/1.75 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", Segoe UI, sans-serif; }
+  main { max-width:56rem; margin:0 auto; padding:3rem 1.5rem 6rem; }
+  h1 { font-size:1.7rem; margin:0 0 .3rem; letter-spacing:-.02em; }
+  h2 { font-size:1.15rem; margin:2.6rem 0 .8rem; padding-top:1.3rem; border-top:1px solid var(--line); }
+  .sub { color:var(--muted); margin:0 0 2rem; font-size:.92rem; }
+  .note { border-left:3px solid var(--accent); padding:.1rem 0 .1rem 1rem; margin:1.5rem 0; }
+  code { font-family:"SF Mono", ui-monospace, Menlo, monospace; font-size:.85em; background:var(--card); padding:.1rem .35rem; border-radius:3px; }
+  pre { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:1rem 1.2rem; overflow-x:auto; font-size:.85em; line-height:1.6; }
+  table { border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; }
+  th, td { border:1px solid var(--line); padding:.45rem .7rem; text-align:left; vertical-align:top; }
+  th { background:var(--card); }
+  ul, ol { padding-left:1.3rem; } li { margin:.35rem 0; }
+</style>
+</head>
+<body>
+<main>
+<h1>자체숏폼 광고 HLS 마스터에서 1080p 변형 제거 (720p 상한)</h1>
+<p class="sub">적용 2026-09-30 · QnA 395 후속 과제 2번 · 조사 문서 <code>docs/operations/qna-395-global-pick2-load-fail.html</code> · 스크립트 <code>scripts/hls_strip_1080p.sh</code></p>
+
+<h2>1. 무엇을 왜 바꿨나</h2>
+<ul>
+  <li>자체숏폼(글로벌픽#2) 광고 영상은 19초짜리인데 마스터 플레이리스트가 1080p(5.1 Mbps)부터 시작했다. 1080p 첫 세그먼트는 2.66 MB 라 1 Mbps 이하 이동통신망에서는 앱의 초기화 타임아웃(당시 15초, PR #278 이후 30초) 안에 못 들어와 "광고 로드에 실패했습니다"가 났다.</li>
+  <li>앱은 서버가 준 URL 을 항상 <code>&lt;id&gt;/master.m3u8</code> 로 치환하므로(<code>shortform_internal_platform.dart</code> 의 <code>rewriteVideoUrlIfNeeded</code>), 설치된 앱에 바로 효과가 있는 지렛대는 <strong>master.m3u8 의 내용</strong>뿐이다.</li>
+  <li>그래서 S3 의 master.m3u8 10개에서 1080p <code>#EXT-X-STREAM-INF</code> 줄과 그 URI 줄만 뺐다. 720p·480p·360p·240p 변형과 세그먼트는 그대로다. 720p 첫 세그먼트는 약 1.6 MB 라 1 Mbps 에서도 13초면 들어온다.</li>
+</ul>
+
+<h2>2. 적용 내역</h2>
+<table>
+  <tr><th>항목</th><th>값</th></tr>
+  <tr><td>버킷 / 프리픽스</td><td><code>picnic-prod-cdn</code> / <code>picnic/videos/output/&lt;id&gt;/</code> (CloudFront <code>d2jrkjksiktw4e.cloudfront.net</code>)</td></tr>
+  <tr><td>대상</td><td>출력 11개 중 master 가 있는 10개 (캠페인 9개: 활성 8·일시정지 1 전부 포함). <code>73125b93…</code> 은 master 가 없어 건너뜀</td></tr>
+  <tr><td>백업</td><td>각 폴더에 <code>master.orig.m3u8</code> (5개 변형 원본). 스크립트는 백업이 이미 있으면 덮어쓰지 않는다</td></tr>
+  <tr><td>객체 메타</td><td>Content-Type <code>application/x-mpegURL</code>, Cache-Control <code>public, max-age=60</code> 원본과 동일</td></tr>
+  <tr><td>자격증명</td><td>AWS 프로필 <code>picnic</code>(cdn-user, 어드민 업로드와 같은 키). MediaConvert·Lambda 는 접근 거부</td></tr>
+  <tr><td>검증</td><td>S3 재조회 10/10 변형 4개·1080p 0. CloudFront 로 활성 8개 재조회: 전부 변형 4개, 최상위 <code>RESOLUTION=1280x720</code>, 720p 플레이리스트 200, x-cache Hit</td></tr>
+  <tr><td>멱등 확인</td><td>재실행 드라이런 <code>changed=0 skipped=11 failed=0</code></td></tr>
+</table>
+
+<h2>3. 되돌리기</h2>
+<pre>scripts/hls_strip_1080p.sh --restore            # 10개 전부 master.orig.m3u8 로 복원
+scripts/hls_strip_1080p.sh --restore --only 5fa8d080-6e1e-48ba-9e63-d3555a03c194</pre>
+<p>CloudFront 캐시가 60초라 복원도 1분 안에 반영된다. 재생 중인 사용자는 master 를 시작할 때 한 번만 읽으므로 영향이 없다.</p>
+
+<h2>4. 새 광고 영상이 올라올 때</h2>
+<div class="note">트랜스코더는 여전히 1080p 를 만든다. 어드민에서 새 영상을 올려 캠페인을 만든 뒤 아래를 한 번 돌리면 된다. 이미 처리된 master 는 건너뛰므로 전체를 대상으로 돌려도 안전하다.</div>
+<pre>AWS_PROFILE=picnic scripts/hls_strip_1080p.sh --dry-run   # 먼저 확인
+AWS_PROFILE=picnic scripts/hls_strip_1080p.sh</pre>
+
+<h2>5. 항구 수정 (권한 필요, 미완)</h2>
+<p>어드민은 <code>picnic/videos/input/&lt;uuid&gt;.mp4</code> 에 올리고(<code>app/ads/components/AdsForm.tsx</code>), AWS 쪽 트랜스코더가 <code>picnic/videos/output/&lt;uuid&gt;/</code> 에 HLS 를 만든다. 이 트랜스코더의 출력 설정에서 1080p 를 빼면 스크립트가 필요 없어진다. 확인할 곳:</p>
+<ol>
+  <li>S3 콘솔 → <code>picnic-prod-cdn</code> → 속성 → 이벤트 알림. <code>picnic/videos/input/</code> ObjectCreated 에 걸린 대상(Lambda 또는 EventBridge)을 찾는다.</li>
+  <li>대상이 MediaConvert 잡을 만들면 잡 템플릿의 HLS 출력 그룹에서 1920x1080 출력을 제거한다. Lambda 가 직접 설정을 넣으면 그 코드의 출력 목록에서 뺀다.</li>
+  <li>바꾼 뒤 테스트 영상을 하나 올려 새 master 에 1080p 줄이 없는지 확인하고, 이 문서와 스크립트 헤더에 "트랜스코더 수정 완료"를 기록한다.</li>
+</ol>
+<p>현재 보유한 두 AWS 자격증명(cdn-user, n8n-ec2-user)은 MediaConvert·Lambda 조회 권한이 없어 이 단계는 콘솔 접근 권한이 있는 사람이 해야 한다.</p>
+
+<h2>6. 효과 확인 방법</h2>
+<p>적용 전 7일 자체숏폼 완료율은 93.7~96.7% 였고, Android 10·11 코호트는 69~86% 였다. 며칠 뒤 아래로 전후를 비교한다. PR #278 이 배포되면 Sentry 의 <code>ad_reason=timeout</code> 비율도 같이 본다.</p>
+<pre>select (issued_at at time zone 'Asia/Seoul')::date as kst_day,
+       count(*) issued, count(completed_at) completed,
+       round(100.0*count(completed_at)/count(*),1) pct
+from public.ad_impressions
+where issued_at >= '2026-09-23'
+group by 1 order by 1;</pre>
+</main>
+</body>
+</html>
