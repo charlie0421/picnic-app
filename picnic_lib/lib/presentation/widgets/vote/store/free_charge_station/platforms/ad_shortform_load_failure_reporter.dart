@@ -36,8 +36,9 @@ Future<void> reportAdShortformLoadFailure(
 }
 
 Future<void> _sendToSentry(AdShortformLoadFailure failure) async {
+  // 원본 예외가 아니라 전용 예외를 보낸다 — 이유는 [AdShortformLoadFailure.toSentryException].
   await Sentry.captureException(
-    failure.error,
+    failure.toSentryException(),
     stackTrace: failure.stackTrace,
     withScope: (scope) {
       failure.tags.forEach(scope.setTag);

@@ -84,6 +84,19 @@ class AdShortformLoadFailure {
     stackTrace: stackTrace,
   );
 
+  /// Sentry 로 보낼 전용 예외. 원본 예외는 보내지 않는다.
+  ///
+  /// ExoPlayer 의 `PlatformException.message` 에는 서명된 원본 URL 이 들어
+  /// 있어 그대로 보내면 정제한 `video_url` 과 별개로 토큰이 샌다. 또 발급
+  /// 실패의 `FunctionException` 은 앱의 Sentry beforeSend 필터가 버리므로
+  /// 원본 타입으로는 기록되지 않는다. 그래서 단계·사유·원본 타입 이름만 담은
+  /// 예외를 새로 만든다. 원본은 [error] 로 후크 안에서만 쓸 수 있다.
+  AdShortformLoadException toSentryException() => AdShortformLoadException(
+    stage: stage,
+    reason: reason,
+    originalType: error.runtimeType.toString(),
+  );
+
   Map<String, String> get tags => {
     'ad_stage': stage.name,
     'ad_reason': reason,
@@ -124,4 +137,23 @@ class AdShortformLoadFailure {
     }
     return 'none';
   }
+}
+
+/// [AdShortformLoadFailure.toSentryException] 이 만드는 예외. 메시지에 URL·
+/// 원본 예외 본문이 없어 그대로 Sentry 이슈 제목이 돼도 안전하다.
+class AdShortformLoadException implements Exception {
+  const AdShortformLoadException({
+    required this.stage,
+    required this.reason,
+    required this.originalType,
+  });
+
+  final AdShortformLoadStage stage;
+  final String reason;
+  final String originalType;
+
+  @override
+  String toString() =>
+      'AdShortformLoadException(stage=${stage.name}, reason=$reason, '
+      'original=$originalType)';
 }

@@ -537,6 +537,12 @@ class _AdShortformFullscreenPageState
 
   Future<void> _initPlayer(String videoUrl) async {
     final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+    // 워치독을 initialize 시작 시점으로 다시 맞춘다. 페이지 진입 기준으로 두면
+    // 발급이 5초 넘게 걸린 뒤 initialize 가 멈췄을 때 35초 워치독이 30초
+    // initialize 타임아웃보다 먼저 울려 `initialize` 대신 `watchdog` 으로
+    // 분류된다. 워치독은 initialize 뒤 setLooping·setVolume·play 의 정지도
+    // 계속 덮는다.
+    _startWatchdog();
     try {
       // initialize() 자체엔 타임아웃이 없어 네트워크 stall 시 영구 hang.
       // TimeoutException 은 아래 generic catch 로 흘러 에러 다이얼로그로 이어진다.
@@ -549,6 +555,13 @@ class _AdShortformFullscreenPageState
         stage: AdShortformLoadStage.initialize,
         stackTrace: s,
       );
+      return;
+    }
+    // 오류 다이얼로그(워치독)나 페이지 종료 뒤에 늦게 끝난 initialize 는 재생으로
+    // 이어지면 안 된다 — 다이얼로그 뒤에서 소리만 나거나, 닫힌 페이지가 보상 흐름을
+    // 시작한다.
+    if (!mounted || _errorDialogShown) {
+      unawaited(ctrl.dispose().catchError((_) {}));
       return;
     }
     try {

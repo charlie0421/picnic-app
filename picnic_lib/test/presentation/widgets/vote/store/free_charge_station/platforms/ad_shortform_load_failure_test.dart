@@ -116,6 +116,34 @@ void main() {
     });
   });
 
+  group('sentry exception', () {
+    // 리뷰 지적: ExoPlayer 의 PlatformException.message 에는 서명된 원본 URL 이
+    // 그대로 들어온다. 원본 예외를 Sentry 에 보내면 정제한 video_url 과 별개로
+    // 토큰이 샌다. 그리고 loadAd 의 FunctionException 은 앱의 beforeSend 필터가
+    // 버리므로 원본 타입으로 보내면 발급 실패가 기록되지 않는다.
+    test('does not carry the raw message or URL, only stage and reason', () {
+      final f = classify(
+        PlatformException(
+          code: 'VideoError',
+          message:
+              'Source error https://cdn.example.com/a/master.m3u8?token=secret',
+        ),
+        videoUrl: 'https://cdn.example.com/a/master.m3u8?token=secret',
+      );
+      final e = f.toSentryException();
+      expect(e, isA<AdShortformLoadException>());
+      expect(e.toString(), isNot(contains('token=secret')));
+      expect(e.toString(), isNot(contains('https://')));
+      expect(e.toString(), contains('initialize'));
+      expect(e.toString(), contains('platform:VideoError'));
+    });
+
+    test('is never the original exception instance', () {
+      final original = Exception('FunctionException 503');
+      expect(classify(original).toSentryException(), isNot(same(original)));
+    });
+  });
+
   group('sentry payload', () {
     test(
       'tags carry stage, reason and network; extras carry elapsed and url',
