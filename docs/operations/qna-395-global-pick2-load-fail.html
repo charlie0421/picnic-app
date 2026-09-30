@@ -122,8 +122,8 @@ Wi-Fi에서는 정상 재생된다면 이동통신 속도 문제이고, Wi-Fi에
 
 <h2>6. 개발 후속 과제</h2>
 <ol>
-  <li><strong>로드 실패 텔레메트리 추가(우선).</strong> <code>_showVideoLoadErrorDialog</code>에서 오류 종류(TimeoutException / PlatformException 코드·메시지), 경과 시간, 선택된 video_url, 네트워크 종류(Wi-Fi/셀룰러)를 Sentry 이벤트로 남기고, 가능하면 <code>ad_impressions</code>에 <code>load_failed_at</code>·<code>load_fail_reason</code>을 기록하는 콜백을 추가한다. 지금은 CS가 들어와도 원인을 볼 방법이 없다. 이 문서의 원인 후보 1·2도 이 데이터가 있어야 확정된다.</li>
-  <li><strong>저속망 완화.</strong> 19초짜리 세로형 광고에 1080p 5 Mbps 변형은 과하다. 마스터 플레이리스트에서 1080p를 빼거나 720p 이하로 캡하고(서버/인코딩 파이프라인 쪽), 앱에서는 초기화 타임아웃을 15초에서 30초로 늘리되 로딩 표시를 유지한다. 완료율 4~5%p 손실의 상당 부분이 구형·저속 코호트에서 나오므로 전체 적립 손실도 줄어든다.</li>
+  <li><strong>로드 실패 텔레메트리 추가(우선).</strong> <em>(9/30 PR #278 머지, 다음 배포에 포함)</em> <code>_showVideoLoadErrorDialog</code>에서 오류 종류(TimeoutException / PlatformException 코드·메시지), 경과 시간, 선택된 video_url, 네트워크 종류(Wi-Fi/셀룰러)를 Sentry 이벤트로 남기고, 가능하면 <code>ad_impressions</code>에 <code>load_failed_at</code>·<code>load_fail_reason</code>을 기록하는 콜백을 추가한다. 지금은 CS가 들어와도 원인을 볼 방법이 없다. 이 문서의 원인 후보 1·2도 이 데이터가 있어야 확정된다.</li>
+  <li><strong>저속망 완화.</strong> <em>(9/30 적용: master.m3u8 10개에서 1080p 제거, 앱 타임아웃 30초는 PR #278. 기록 <code>docs/operations/hls-strip-1080p-20260930.html</code>)</em> 19초짜리 세로형 광고에 1080p 5 Mbps 변형은 과하다. 마스터 플레이리스트에서 1080p를 빼거나 720p 이하로 캡하고(서버/인코딩 파이프라인 쪽), 앱에서는 초기화 타임아웃을 15초에서 30초로 늘리되 로딩 표시를 유지한다. 완료율 4~5%p 손실의 상당 부분이 구형·저속 코호트에서 나오므로 전체 적립 손실도 줄어든다.</li>
   <li><strong>One UI 8.5 실기기 재현.</strong> 사용자가 Wi-Fi에서도 실패한다고 답하면 S24 울트라(One UI 8.5) 실기기로 자체숏폼을 열어 logcat의 ExoPlayer 오류를 확인한다. 회사 보유 기기가 없으면 Samsung Remote Test Lab을 쓴다.</li>
   <li><strong>별건 관찰.</strong> 광고 활성 사용자의 40%가 최근 7일 <code>devices</code> 갱신이 없다(이 사용자는 5/27 이후 정지). 배포율·강업 판단이 이 테이블에 기대므로 별도 조사 대상으로 남긴다. 이번 건과는 무관하다.</li>
 </ol>
