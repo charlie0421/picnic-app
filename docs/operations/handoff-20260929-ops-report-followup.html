@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>일일 점검 리포트 후속 조치 (2026-09-29) — 핸드오프</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --surface: #ffffff; --surface-2: #efece3; --text: #1d2321; --muted: #62706a;
+    --accent: #1f6e52; --accent-soft: #e4eee9; --warn: #96631e; --warn-soft: #f5eada;
+    --danger: #a8402f; --danger-soft: #f6e4df; --rule: #ddd7c9; --code-bg: #efece0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+      --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+      --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+    --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+    --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 1.7rem; line-height: 1.35; margin: 0 0 8px; }
+  h2 { font-size: 1.25rem; margin: 44px 0 12px; padding-top: 20px; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.05rem; margin: 26px 0 8px; }
+  h4 { font-size: 0.97rem; margin: 18px 0 6px; }
+  p, li { font-size: 0.97rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .callout.danger { border-color: var(--danger); background: var(--danger-soft); }
+  .callout ol, .callout ul { margin: 6px 0 0; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.88em;
+    font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace; word-break: break-all; }
+  pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; }
+  pre code { background: none; padding: 0; word-break: normal; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+  th, td { border: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); white-space: nowrap; }
+  .tag { display: inline-block; font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); white-space: nowrap; }
+  .tag.ok { color: var(--accent); border-color: var(--accent); }
+  .tag.open { color: var(--danger); border-color: var(--danger); }
+  .tag.part { color: var(--warn); border-color: var(--warn); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>일일 점검 리포트 후속 조치 — 핸드오프</h1>
+<p class="meta">작업 2026-09-30 · 재확인 2026-10-01 14:49~17:22 UTC(KST 10/1 23:49 ~ 10/2 02:22) · 대상 프로덕션 Supabase <code>xtijtefcycoeqludlngc</code> · picnic-supabase main 은 재확인 중 <code>90a5f8a</code> 에서 <code>f9ecd18</code> 로 움직였다 · 이 작업은 프로덕션을 바꿨다(§4). 시각은 따로 적지 않으면 UTC 다.</p>
+
+<div class="callout warn">
+<strong>먼저 볼 것 — 결론이 바뀐 것 하나, 기한이 있는 것 하나, 결정이 필요한 것 둘.</strong>
+<ol>
+<li><strong>DEAD 결제 2건(PICNIC-2835)은 미지급 결제가 아니다.</strong> 두 구매 모두 옛 결제 경로가 오래전에 검증하고 지급까지 마친 구매다(2025-11-08 STAR2000, 2026-07-11 STAR100, 각각 다른 앱 계정에 지급). 그 토큰이 다른 계정에서 새 경로로 다시 제출됐고 서버가 거절한 것이다. 보상 대상이 아니다. 9/30 의 "선제 보상 없음"은 결론이 맞았고, 그때 든 근거가 틀렸다(§3-E).</li>
+<li><strong>기한 있음 — 9/30 에 서버가 지급한 STAR200 1건이 구글에 확인(acknowledge)되지 않은 것으로 보인다.</strong> 구매자 앱이 지급 응답을 받지 못했다. 로그와 앱 코드로 본 추정이고 구글 응답은 보지 않았다. 맞다면 10/3 08:40(17:40 KST) 전후에 구글이 자동 환불하고, 지급된 200개는 남는다(§2 의 2번).</li>
+<li><strong>결정 필요 — 프로덕션에 적용한 마이그레이션 3건이 이력에 없다.</strong> <code>supabase_migrations.schema_migrations</code> 에 행을 넣지 않았다(§2 의 3번).</li>
+<li><strong>결정 필요 — 월간 투표 크론의 대기 한도가 1초로 남아 있다.</strong> 9/30 에 놓쳤고, 그 때문에 10/1 리포트가 NORMAL 이 아니라 WARNING 이었다. 함수는 정상 완료됐다. 다음 실행은 11/1 이다(§2 의 4번).</li>
+</ol>
+</div>
+
+<h2>1. 출발점과 현재 상태</h2>
+<p>2026-09-29 09:11 KST 일일 점검 리포트가 WARNING 을 냈다. 경고 3건을 추적하니 전부 장애가 아니었다. 그 과정에서 리포트의 판정 규칙, 크론 설정, 방치돼 있던 결제 경보, picnic-supabase CI 까지 손댔다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>항목</th><th>상태</th><th>남은 것</th><th>근거</th></tr></thead>
+<tbody>
+<tr><td>A</td><td>9/29 리포트의 경고 3건</td><td><span class="tag ok">원인 확인</span> 셋 다 장애 아님. 웹훅 건의 호출자는 추정</td><td>없음</td><td>§3-A</td></tr>
+<tr><td>B</td><td>일일 점검 루틴의 판정 규칙</td><td><span class="tag part">적용됨 · 10/1 은 WARNING</span></td><td>월간 투표 크론, 루틴 안내 문구(§2 의 4번)</td><td>루틴 <code>trig_01Rt3PFebBYi1mVtQk2wA7HK</code></td></tr>
+<tr><td>C</td><td>크론의 pg_net 대기 한도</td><td><span class="tag part">적용·검증·머지</span> 리뷰 없음</td><td>이력 미기록, 크론 1개 남음</td><td>picnic-supabase <a href="https://github.com/charlie0421/picnic-supabase/pull/191">#191</a></td></tr>
+<tr><td>D</td><td>크론 명령의 service_role 키 → Vault</td><td><span class="tag part">적용·검증·머지</span> 리뷰 없음</td><td>이력 미기록</td><td>picnic-supabase <a href="https://github.com/charlie0421/picnic-supabase/pull/193">#193</a></td></tr>
+<tr><td>E</td><td><code>GOOGLE_OWNER_MISMATCH</code> DEAD 2건</td><td><span class="tag ok">원인 확인</span> 보상 대상 아님</td><td>이슈 종결 판단. 조사 중 드러난 것은 §2 의 2·5·6번</td><td>PICNIC-2835</td></tr>
+<tr><td>F</td><td>picnic-supabase CI 간헐 실패</td><td><span class="tag ok">수정 머지</span> 이후 실패 0</td><td>PR #190 리베이스</td><td>picnic-supabase <a href="https://github.com/charlie0421/picnic-supabase/pull/194">#194</a></td></tr>
+</tbody></table></div>
+
+<h2>2. 다음 작업</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>작업</th><th>누가 정하나</th><th>내용</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>PICNIC-2835 마무리</td><td>사용자</td><td>원인이 확인돼 보상도, 구글 응답 조회용 배포도 필요 없다(§3-E). 이슈는 "해야 할 일" 그대로다. 상태는 바꾸지 않았다.</td></tr>
+<tr><td>2</td><td>확인되지 않은 STAR200 1건<br>기한 10/3 08:40 (17:40 KST)</td><td>사용자 (결제 도메인)</td><td>인박스 <code>2c3b9e97…</code>. 서버는 9/30 08:40:01 에 +200 을 지급했다. 구매자 앱은 그 응답을 받지 못했다(<code>verify-receipt-v2</code> 호출이 08:38 에 503, 08:45 에 401 이고 그 뒤로는 없다). 앱은 지급 응답을 받은 뒤에만 구글에 확인·소비를 하고, 서버는 하지 않는다. 구매는 아직 구글에 소비되지 않은 채 남아 있다(다른 계정들의 제출로 확인). 확인(acknowledge) 여부는 구글 응답을 보지 않아 추정이다. 구글은 확인되지 않은 구매를 3일 뒤 자동 환불한다. 구매자 계정이 그 구글 계정의 기기에서 앱을 열면 저절로 소비되지만(코드 기준) 기대하기 어렵다. 구매자 세션은 10/1 15:58 에도 갱신됐는데 이 토큰을 다시 낸 적이 없다. 선택지는 둘이다. ① 그대로 둔다. 환불되면 200개가 무상 지급으로 남는다. ② 서버에서 소비 처리한다. 구글 <code>purchases.products.consume</code> 을 부르면 소비가 확인을 겸한다. 상품 id 는 소문자(<code>star200</code>)이고 토큰은 <code>public.receipts.receipt_data</code> 의 <code>proof</code> 다. 9/3 에 임시 Edge Function 으로 한 선례가 있지만 그 코드는 레포에 없어 새로 써야 한다. 프로덕션 배포라 승인이 필요하고, 끝나면 함수를 지운다. 같은 구매자의 STAR2000(<code>6889fc5f…</code>)은 결제 대기 중이고, 결제되면 같은 상황이 된다.</td></tr>
+<tr><td>3</td><td>마이그레이션 이력 3건 기록</td><td>사용자 승인 (마이그레이션)</td><td><code>20260930020000</code>(name <code>call_edge_function_timeout</code>), <code>20260930020100</code>(<code>process_bonus_queue_cron_timeout</code>), <code>20260930070000</code>(<code>cron_bearer_from_vault</code>). 이 프로젝트는 <code>db push</code> 를 쓰지 않는다. 관례는 적용과 이력 INSERT 를 한 트랜잭션으로 묶는 것이고, 이번 작업이 아닌 <code>20260930120000</code> 이 그렇게 들어갔다. 이번 3건은 적용만 했으므로 이력을 사후에 넣어야 한다. 형식은 <code>version</code>, <code>name</code>, <code>statements</code>(파일 전문을 원소 1개로)이다. 예시는 picnic-supabase <code>supabase/prod-cutover/20260930-currency-history-keyset-admin-filter/apply/02_ledger.sql</code>. <code>call_edge_function</code> 의 본문은 파일과 같다(10/1 에 md5 로 대조). 크론 두 건은 넣기 전에 §5 의 첫 쿼리로 한도 값과 리터럴 유무를 확인한다. 레포의 마이그레이션 190개 중 프로덕션 이력에 없는 것은 4개뿐이고 그중 3개가 이것이다. 나머지 하나는 <code>20260915010000_fix_consolidate_bonus_buckets_cron.sql</code> 로, 이번 작업이 아니고 담당이 정해져 있지 않다. 세 파일은 다시 적용돼도 결과가 같다(<code>CREATE OR REPLACE</code> 하나, 조건에 맞는 행이 없으면 아무것도 바꾸지 않는 <code>cron.alter_job</code> 둘).</td></tr>
+<tr><td>4</td><td>월간 투표 크론(jobid 4)의 대기 한도 1초 → 30초, 루틴 안내 문구</td><td>사용자 승인 (프로덕션 크론 · 루틴)</td><td>문장은 §5 끝에 있고 결과를 미리 확인했다. 이번에는 마이그레이션 파일과 이력 행까지 함께 남긴다. 안 올리면 매월 1일 리포트가 WARNING 이 될 수 있다(10/1 실행 1,015ms, 관측 1회). 올리는 대신 루틴에 정보성으로 등록하는 방법도 있다. 루틴 프롬프트의 안내 문구도 함께 고쳐야 한다. 지금은 5000ms 타임아웃을 <code>call_edge_function</code> 호출자로 안내하는데, 5,000ms 한도로 남은 것은 트리거 웹훅 3종뿐이다(§3-C). 그 3종의 한도를 올릴지, 정보성으로 분류할지도 함께 정한다. 그 전에 5000ms 타임아웃 WARNING 이 나오면 트리거 웹훅 3종을 먼저 본다.</td></tr>
+<tr><td>5</td><td>같은 구매 토큰의 반복 제출, 서버가 지급 뒤 구글에 확인하지 않는 구조</td><td>사용자 (PICNIC-2744 의 담당자)</td><td>여러 앱 계정이 같은 토큰을 하루 약 230번 제출하고 전부 422 로 거절된다. 지급은 없다. 서버 쪽 소비는 이미 과제로 적혀 있다(<a href="purchase-flow-improvement-plan.html">purchase-flow-improvement-plan.html</a> 3-4 "Android 서버측 consume", P1). 아직 구현되지 않았다. 옛 경로에서 지급돼 인박스가 DEAD 인 건은 그 과제로도 끝나지 않으므로 따로 정해야 한다. PICNIC-2744 는 "해야 할 일" 상태이고, 이 결과는 아직 그 이슈에 적지 않았다. 적는 일을 누가 할지도 정해지지 않았다. 상세는 §3-E 의 "남은 것".</td></tr>
+<tr><td>6</td><td>옛 경로에서 지급된 구매의 이중 지급 가능성</td><td>결제 담당</td><td>레포 기준으로 새 경로의 지급 함수는 옛 영수증을 대조하지 않고(<code>20260824060000</code>), 구글 검증은 소비 여부를 보지 않는다. 그래서 각인이 제출 계정과 같은 옛 구매가 있다면, 다시 냈을 때 한 번 더 지급될 수 있다. 태그 기준으로는 그런 구매가 없다. 각인(#90)과 새 경로 호출은 같은 프로덕션 태그 <code>picnic-v1.3.0</code>(7/29 KST)에서 함께 들어갔고, 옛 경로를 부르던 프로덕션 빌드(1.2.38 이하)에는 각인이 없다. 실측 3건도 전부 소유자 검사에서 막혔고, 정상 정산 893건 중 옛 토큰은 0건이다. 확인하지 않은 것은, 각인을 넣고 옛 경로를 부르던 스테이징 빌드(1.2.39, 7/27~28)의 구매가 프로덕션 DB 에 있는지다. 가드를 넣을지는 결제 담당이 정한다. Jira 이슈는 없다.</td></tr>
+<tr><td>7</td><td><code>monthly-create-vote</code> 의 무인증 호출</td><td>담당 미정</td><td>배포본(v67)은 <code>verify_jwt=false</code> 이고 핸들러에 인증 검사가 없다. 호출하면 service_role 로 <code>create_monthly_votes</code> RPC 를 실행하고 Slack 통지를 보낸다. 반복 호출이 투표를 중복 생성하는지는 확인하지 않았다. jobid 4 를 고칠 때 인증을 함께 넣을지 정한다. Jira 이슈는 없다.</td></tr>
+<tr><td>8</td><td>10/2·10/3 리포트 확인</td><td>누구나</td><td>지금 OPEN 경보가 1건 있다(Google 결제 대기). 새 규칙대로면 '참고'로만 나와야 한다. 정보성 규칙의 첫 실전이다.</td></tr>
+<tr><td>9</td><td><code>notify-vote-progress</code> 실행 시간</td><td>누구나, 주 1회</td><td>§5 의 로그 쿼리로 본다. 일일 리포트는 이 함수의 타임아웃 행을 볼 수 없다(§3-B). 43초(9/29) → 63.5초(10/1). 90초를 넘으면 <code>net._http_response</code> 에 타임아웃 행이 남고, 150초(마이그레이션 머리말에 적은 Edge Function 한도. 플랜별 값은 확인하지 않았다)에서는 함수가 끊겨 일부 푸시가 발송되지 않는다. 80초를 넘기면 발송 방식을 손볼 것을 제안한다.</td></tr>
+<tr><td>10</td><td>picnic-supabase PR #190 리베이스</td><td>그 PR 의 작성자(사용자)</td><td><code>fix/service-role-dual-key</code>, draft, main 과 충돌 상태. 실패한 검사는 <code>Isolated PostgreSQL delivery lifecycle and concurrency</code> 하나다. 수정 전 main 기준이라 재실행으로는 안 고쳐지고 리베이스하면 풀린다. 헤드 <code>f3f936a</code>.</td></tr>
+<tr><td>11</td><td>스테이징 적용 · 로컬 재생 확인</td><td>다음 작업자</td><td>마이그레이션 3건은 프로덕션에만 적용했다. 스테이징(<code>jkjhvogcnjrzuhpynzqo</code>)에 적용할지, 어떤 경로로 할지는 정하지 않았고 스테이징의 현재 상태도 보지 않았다. 적용한다면 그대로 넣지 말고 먼저 확인한다. <code>20260930070000</code> 은 크론 명령의 리터럴을 Vault 조회로 바꾸기만 하고 Vault 에 <code>service_role_key</code> 가 있는지, 값이 같은지는 보지 않는다. <code>20260930020000</code> 의 함수 본문은 URL 이 프로덕션으로 하드코딩돼 있다(베이스라인 정의도 같다). 로컬 <code>supabase db reset</code> 재생도 돌려 보지 않았다. 로컬 스택은 다른 세션과 공유하므로 조율하고 돌린다.</td></tr>
+<tr><td>12</td><td>safety 고정 다이제스트 테스트 10건 (별건)</td><td>별도 작업</td><td>picnic-supabase <code>scripts/safety/*.test.mjs</code>(<code>npm run test:wallet:safety</code>) 중 10건이 main 에서 실패한다. #147(9/10)이 매니페스트에 고정된 마이그레이션 두 개를 수정한 뒤부터다(<code>20260909030430_wallet_worker_specific_release_health.sql</code> 6건, <code>20260908031648_promotion_v2_rollout_audience.sql</code> 4건). 이 스위트는 수동 롤아웃 워크플로 두 개(<code>wallet-production-rollout</code>, <code>wallet-google-pending-hotfix-rollout</code>)에서만 돌아 PR CI 에 안 잡힌다. 그 워크플로를 쓰려면 먼저 고쳐야 한다.</td></tr>
+</tbody></table></div>
+
+<h2>3. 항목별 상세</h2>
+
+<h3>A. 9/29 리포트의 경고 3건 <span class="tag ok">원인 확인</span></h3>
+<div class="table-wrap"><table>
+<thead><tr><th>리포트 문구</th><th>실제</th><th>근거</th></tr></thead>
+<tbody>
+<tr><td>"Google purchases have been pending for more than a day" (OPEN)</td><td>대기(pending) 상태의 결제 1건이 48.5시간 뒤 구글 쪽에서 취소됐다. 지급도 문의도 없었고 경보는 저절로 닫혔다.</td><td>인박스 <code>02de9c30…</code>(STAR600). 9/27 05:05 접수 → 70회 재확인 → 9/29 05:36 <code>DEAD / GOOGLE_PURCHASE_CANCELED</code>. 경보 9/28 05:06 → 9/29 05:37.</td></tr>
+<tr><td>"웹훅 비-200 1건, 타임아웃(DNS 추정)"</td><td>pg_net 호출의 대기 한도가 응답보다 짧을 때 남는 행이다. 그 행(9/29 00:08)은 보존이 끝나 직접 보지 못했고, 호출자는 추정이다.</td><td>그 시각에 pg_net 을 부를 수 있는 것은 매분 크론(<code>process-bonus-queue</code> 는 당시 한도 1초, 지갑 워커 3종은 25초)과 트리거 웹훅 3종(한도 5초)이다. 한도가 가장 짧은 <code>process-bonus-queue</code> 가 가장 그럴듯하지만 그 행의 한도 값은 모른다. 같은 종류의 행은 직접 봤다. 9/29 20:00 과 21:00 의 1초 한도 행, 그리고 9/30 00:30 의 5초 한도 행이다. 뒤의 것은 <code>notify-vote-progress</code> 가 54초 걸려 200 으로 끝난 실행이었다. 오류문의 "DNS time" 은 전체 대기 시간이 찍힌 것이다.</td></tr>
+<tr><td>"관리자 거래 내역 조회 지연 급증"</td><td>3회 호출 중 1회가 1,473.9ms 였다. 콜드 캐시로 본다.</td><td><code>pg_stat_statements</code> queryid <code>3207612450334913661</code>: 최소 9.1ms, 최대 1,473.9ms, 누적 디스크 읽기 2,388블록. 10/1 까지 추가 호출 0.</td></tr>
+</tbody></table></div>
+
+<h3>B. 일일 점검 루틴 <span class="tag part">적용됨 · 10/1 은 WARNING</span></h3>
+<ul>
+<li><strong>정체.</strong> 매일 09:10 KST 에 Gmail 로 오는 리포트는 클라우드 루틴 <code>trig_01Rt3PFebBYi1mVtQk2wA7HK</code>("Picnic DB post-rollout observation (daily 09:10 KST)xp")가 만든다. cron <code>10 0 * * *</code>, 모델 claude-sonnet-5, Supabase·Gmail 커넥터, 읽기 전용. 레포에는 정의가 없다.</li>
+<li><strong>고치는 법.</strong> <code>RemoteTrigger</code> 로 <code>get</code> → <code>update</code>. <code>update</code> 는 <code>job_config</code> 전체를 보내야 하고, 프롬프트는 <code>events[0].data.message.content</code> 다. 실행 결과는 <code>list_runs</code> → <code>get_run_log</code> 로 본다.</li>
+<li><strong>9/30 에 바꾼 것</strong>(최종 수정 02:04):
+  <ul>
+  <li>판정에 영향을 주지 않는 '참고(정상 동작)' 분류를 만들었다. ① <code>wallet:backlog:google_pending_age</code> — 96시간 초과 또는 5건 이상일 때만 WARNING ② <code>wallet:backlog:new_dead</code> 중 <code>GOOGLE_PURCHASE_CANCELED</code> ③ 신규 호출 10건 미만인 쿼리 지연.</li>
+  <li>웹훅 집계를 <code>webhook_24h</code> 로 바꾸고 보존이 약 6시간뿐임을 명시했다. pg_net 타임아웃 행은 WARNING 이다. 처음에는 정보성으로 내렸다가, §3-C 로 크론 호출에서는 정상 상황에 안 생기게 한 뒤 같은 날 되돌렸다.</li>
+  <li>쿼리 성능 기준선을 9/30 01:46 값으로 갱신했다. 신규 호출 10건 이상이고 구간 평균이 500ms 를 넘을 때(또는 기준선 누적 평균의 3배 이상)만 WARNING.</li>
+  <li><code>ops_alerts</code> 조회에 <code>fingerprint</code>·<code>error_code</code>·<code>observed</code>·<code>affected_count</code> 를 추가했다.</li>
+  </ul></li>
+<li><strong>리포트가 볼 수 있는 범위.</strong> 리포트는 00:10 에 돌고 pg_net 응답은 약 6시간만 남는다. 그래서 18:10~00:10 사이의 행만 본다. <code>notify-vote-progress</code>(00:30·03:30·09:30·12:00)의 타임아웃 행은 리포트 전에 지워져 한 번도 잡히지 않는다.</li>
+<li><strong>고쳐야 할 안내 문구.</strong> 루틴 프롬프트는 타임아웃의 한도 값으로 호출자를 짐작하게 하면서 "5000/90000ms → call_edge_function 호출자"라고 적는다. <code>call_edge_function</code> 은 이제 90초이고, 5,000ms 로 남은 것은 트리거 웹훅 3종이다(§3-C). 아직 고치지 않았다(§2 의 4번).</li>
+<li><strong>10/1 결과: WARNING.</strong> "제한 1000ms 타임아웃 1건(00:00:01), 호출자 미상"이었다. 호출자는 jobid 4 <code>월간 투표 추가</code>다. 매월 1일 00:00 에 <code>net.http_get(… monthly-create-vote …, timeout_milliseconds:=1000)</code> 을 부른다. 함수는 1,015ms 만에 200 으로 끝났다(<code>function_edge_logs</code> 00:00:02). 9/30 에 1초짜리 크론을 <code>process-bonus-queue</code> 하나로 보고 이 잡을 놓쳤다. 루틴은 규칙대로 판정했다. 나머지 지표는 전부 정상이었고, <code>wallet:dead:*</code> 경보는 2건에서 0건이 됐다(이 작업이 9/30 에 닫은 2건이다).</li>
+<li><strong>지금 OPEN 인 경보 1건.</strong> <code>wallet:backlog:google_pending_age</code>, 인박스 <code>6889fc5f…</code>(STAR2000), 9/30 08:31 접수, 경보 10/1 08:32 부터. §3-A 의 첫 줄과 같은 유형이다. 10/4 08:31(17:31 KST)까지는 '참고'로만 나와야 한다. 이 토큰은 10/1 10:48 과 10:54 에 다른 계정의 제출로 접수에서 두 번 거절됐다(§3-E).</li>
+</ul>
+
+<h3>C. 크론의 pg_net 대기 한도 <span class="tag part">적용·검증·머지</span></h3>
+<p>DB 크론은 pg_net 으로 Edge Function 을 부른다. 대기 한도 안에 응답이 없으면 <code>net._http_response</code> 에 <code>status_code null / "Timeout of N ms"</code> 행만 남고, 함수는 그와 무관하게 계속 돈다. 그 행은 진짜 실패와 구분되지 않는다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>대상</th><th>전</th><th>후</th><th>적용</th><th>검증</th></tr></thead>
+<tbody>
+<tr><td><code>public.call_edge_function</code> (jobid 50~54)</td><td>5,000ms (pg_net 기본값)</td><td>90,000ms</td><td>9/30 약 01:55</td><td>9/30 03:30 실행이 약 50초 뒤 200. 10/1 의 4회 전부 200.</td></tr>
+<tr><td><code>process-bonus-queue</code> (jobid 46)</td><td>1,000ms</td><td>30,000ms</td><td>9/30 02:01:56</td><td>변경 뒤 첫 두 실행(02:02 · 02:03)이 200. 이후는 아래 전체 응답 확인.</td></tr>
+</tbody></table></div>
+<p>변경 뒤 pg_net 응답 전체를 본 구간은 둘이다. 9/30 02:02~03:31 은 406건 중 무응답 0, 10/1 08:50~14:49 는 1,641건 전부 2xx 였다. 그 사이에 알려진 타임아웃 행은 10/1 00:00:01 의 jobid 4 한 건이다(루틴이 본 것).</p>
+<p>pg_net 을 쓰는 크론 전체(10/1 15:16 기준):</p>
+<div class="table-wrap"><table>
+<thead><tr><th>jobid</th><th>이름</th><th>주기 (UTC)</th><th>대기 한도</th></tr></thead>
+<tbody>
+<tr><td>4</td><td>월간 투표 추가 → <code>monthly-create-vote</code></td><td>매월 1일 00:00</td><td><strong>1,000ms — 남아 있다</strong></td></tr>
+<tr><td>11</td><td>jma 본선 동기화 (비활성)</td><td>5분마다 (꺼져 있었다)</td><td>5,000ms</td></tr>
+<tr><td>46</td><td>process-bonus-queue</td><td>매분</td><td>30,000ms</td></tr>
+<tr><td>50~53</td><td>notify-vote-progress (<code>call_edge_function</code>)</td><td>00:30 · 03:30 · 09:30 · 12:00</td><td>90,000ms</td></tr>
+<tr><td>54</td><td>notify-my-artist-vote-start (<code>call_edge_function</code>)</td><td>10분마다</td><td>90,000ms</td></tr>
+<tr><td>59</td><td>anti_abuse_alert_dispatcher</td><td>5분마다</td><td>25,000ms</td></tr>
+<tr><td>64 · 65 · 71 · 75</td><td>wallet-operation-worker · wallet-expiry-worker · wallet-alert-dispatcher · wallet-reconciliation</td><td>1~5분마다</td><td>25,000ms</td></tr>
+</tbody></table></div>
+<ul>
+<li><strong>jobid 11 은 그 뒤 없어졌다.</strong> 10/1 15:17~16:59 사이에 다른 작업(picnic-supabase #201, PICNIC-2736)이 삭제했고 이력(<code>20261001155718</code>)도 기록돼 있다. 지금 pg_net 을 쓰는 크론은 12개다.</li>
+<li><strong>크론이 아닌 pg_net 호출자가 있다.</strong> 트리거 함수 3개다: <code>notify_receipt_alarm</code>(<code>receipts</code>), <code>notify_qna_message_alarm</code>(<code>qna_messages</code>), <code>notify_artist_request_alarm</code>(<code>vote_item_request_users</code>). 한도는 5,000ms 이고 이번에 바꾸지 않았다. 행이 생길 때마다 불리므로 임의 시각에 타임아웃 행을 남길 수 있다.</li>
+<li><strong>관찰 — <code>notify-vote-progress</code> 가 길어지고 있다.</strong> 9/29 03:30 43.1초 → 9/30 00:30 54.0초(발송 시도 201건) → 10/1 00:30 54.6초(211건), 03:30 60.3초(213건), 09:30 60.3초(221건), 12:00 63.5초(221건). 건당 0.26~0.29초로 일정해 순차 발송으로 보인다(함수 코드는 읽지 않았다). 단순 비례로는 310~350건에서 90초에 닿는다. 보는 방법과 기준은 §2 의 9번.</li>
+<li><strong>레포.</strong> #191 → main <code>555fc65</code>. <code>supabase/migrations/20260930020000_call_edge_function_timeout.sql</code>, <code>20260930020100_process_bonus_queue_cron_timeout.sql</code>. 리뷰 없이 머지했다.</li>
+<li><strong>하지 않은 것.</strong> 프로덕션 이력 기록, 스테이징 적용, 로컬 재생 확인(§2 의 3·11번).</li>
+<li><strong>되돌리기.</strong> 함수는 <code>timeout_milliseconds := 90000</code> 줄을 빼고 <code>CREATE OR REPLACE</code>. 크론은 <code>cron.alter_job</code> 으로 <code>replace</code> 를 반대로.</li>
+<li><strong>관찰 — 월간 투표 크론은 인증 헤더 없이 부르고, 함수는 그것을 받아 준다.</strong> <code>headers:=jsonb_build_object()</code> 인데 200 을 받는다. 배포본에 인증 검사가 없다(§2 의 7번).</li>
+</ul>
+
+<h3>D. 크론 명령의 service_role 키 → Vault <span class="tag part">적용·검증·머지</span></h3>
+<ul>
+<li>jobid 46(활성)과 11(비활성)의 명령에 service_role JWT 가 리터럴로 박혀 있었다. <code>'Bearer '||(select decrypted_secret from vault.decrypted_secrets where name='service_role_key')</code> 로 바꿨다. 적용 9/30 06:53:58.</li>
+<li>바꾸기 전에 두 리터럴이 Vault 값과 같음을 확인했다. 다음 실행(06:54)은 200 이었다. 지금 명령에 JWT 리터럴이 있는 크론은 0개다.</li>
+<li><strong>남은 흔적.</strong> <code>cron.job_run_details.command</code> 에 옛 명령 텍스트가 19,321행 남아 있다(9/16 19:21 ~ 9/30 06:53). 보존 정리(jobid 81, 매일 19:20)는 14일이 지난 행을 지운다. 마지막 리터럴 행은 10/14 19:20(10/15 04:20 KST) 실행에서 사라진다.</li>
+<li>키 로테이션은 하지 않았다(기존 보류 건). service_role 키를 보내는 크론(jobid 46·59 와 <code>call_edge_function</code>)은 이제 모두 Vault 의 <code>service_role_key</code> 를 읽는다. 지갑 워커 크론(64·65·71·75)은 service_role 이 아니라 Vault 의 <code>wallet_cron_secret</code> 을 보낸다.</li>
+<li><strong>레포.</strong> #193 → main <code>da53e81</code>. <code>20260930070000_cron_bearer_from_vault.sql</code>. 키 값은 파일에 없고 모양으로만 찾는다. 이력 기록은 C 와 같이 빠져 있다. 키를 다루는 변경인데 리뷰 없이 머지했다.</li>
+</ul>
+
+<h3>E. <code>GOOGLE_OWNER_MISMATCH</code> DEAD 2건 <span class="tag ok">원인 확인 · 보상 대상 아님</span> — PICNIC-2835</h3>
+<p><strong>결론.</strong> 두 건 모두 미지급 결제가 아니다. 옛 결제 경로가 오래전에 검증하고 지급까지 마친 구매의 토큰이, 다른 앱 계정에서 새 경로로 다시 제출된 것이다. 서버는 계정이 맞지 않아 거절했고 그 행이 DEAD 로 남았다.</p>
+<div class="table-wrap"><table>
+<thead><tr><th>계정</th><th>인박스</th><th>새 경로 접수</th><th>상품</th><th>같은 토큰의 옛 영수증</th><th>그때의 지급</th></tr></thead>
+<tbody>
+<tr><td>B</td><td><code>ec91054b…</code></td><td>9/1 04:07:15</td><td>STAR100</td><td>2026-07-11 09:03:01 · <code>valid</code> · 다른 계정</td><td><code>PURCHASE</code> +100</td></tr>
+<tr><td>A</td><td><code>9349e5c7…</code></td><td>9/4 12:03:27</td><td>STAR2000</td><td>2025-11-08 08:50:31 · <code>valid</code> · 다른 계정</td><td><code>PURCHASE</code> +2000</td></tr>
+<tr><td>(PICNIC-2744)</td><td><code>0f89e237…</code></td><td>8/12 07:46:37</td><td>STAR100</td><td>2026-08-02 13:39:28 · <code>valid</code> · 같은 계정</td><td><code>PURCHASE</code> +100</td></tr>
+</tbody></table></div>
+<p>이 오류로 DEAD 된 행은 이 3건이 전부이고, 셋 다 옛 경로에서 이미 지급된 구매의 재제출이다. A·B 는 구매자가 아닌 계정이 제출했고, 세 번째는 구매자 본인이 제출했다. A·B 의 행은 지금도 DEAD, row_version 6 이다. operation_id 는 B <code>025cc4d9-be43-4190-8953-53a36c0cbb62</code>, A <code>c9db7135-6144-486e-b7de-44e6f5ef1ea5</code>. 사용자 id 는 이 문서에 적지 않았다. 인박스 행의 <code>purchase_user_id</code> 로 찾는다. 여기의 계정 A·B 는 9/21 핸드오프가 PICNIC-2744 에서 부른 계정 A·B 와 다른 계정이다.</p>
+
+<h4>근거</h4>
+<ol>
+<li><strong>토큰이 옛 영수증과 같다.</strong> 새 경로는 접수 봉투를 <code>public.receipts.receipt_data</code> 에 JSON 으로 남기고, 그 <code>proof</code> 가 구매 토큰이다(배포된 워커가 이 값으로 구글을 조회한다). 옛 경로의 영수증(<code>platform = 'android'</code>)은 <code>receipt_data</code> 가 토큰 그 자체다. 두 값을 맞춰 보면 새 구글 접수 931건 중 3건이 옛 영수증과 일치하고, 그 3건이 이 오류의 DEAD 3건이다. 정상 정산된 893건에는 일치가 없다.</li>
+<li><strong>옛 경로는 그때 지급했다.</strong> 세 영수증 모두 <code>valid</code> 이고, 영수증이 기록된 0.3~0.4초 뒤 그 계정의 <code>star_candy_history</code> 에 <code>PURCHASE</code> +100 / +2000 / +100 이 있다.</li>
+<li><strong>새 경로 제출은 앱을 연 직후에 나왔다.</strong> 그날(UTC) 그 계정의 함수 호출은 <code>track-country</code>, <code>verify-receipt-v2</code>(422), <code>register-push-token</code> 3건뿐이고 한꺼번에 일어났다(계정 B 는 1초, 계정 A 는 약 10초 안). 로그인 세션은 제출 1.5초(B)·3.9초(A) 전에 갱신됐다. 그 사이에 새로 결제했을 수는 없다.</li>
+<li><strong>9/30 재검증 때도 구글은 "구매됨"으로 답했다.</strong> 배포된 <code>wallet-operation-worker</code> v30(9/3 배포)은 대기(2)·취소(1)·그 밖의 값을 소유자보다 먼저 걸러내므로, 소유자 불일치는 <code>purchaseState</code> 가 0 일 때만 나온다. 대기도 취소도 아닌 구매라는 뜻이다. 소유자 검사는 응답의 <code>obfuscatedExternalAccountId</code> 가 제출 계정 id 와 다르면 실패이고, 비어 있어도 실패다.</li>
+<li><strong>제출한 두 계정에는 지급·문의가 없다.</strong> 제출 이후 별사탕·보너스·지갑 원장·관리자 조정 감사 기록이 0건이고, QnA 는 전 기간 0건이다. 같은 토큰의 다른 인박스 행도 없다. 8/20 이후 CS 지급을 받은 계정 6개와 기기·IP 가 겹치지 않는다.</li>
+<li><strong>두 계정 모두 그 뒤로 돌아오지 않았다.</strong> 두 계정의 어느 로그인 세션도 제출 직전의 갱신 뒤로 10/1 까지 다시 갱신되지 않았다(마지막 로그인은 계정 A 4/7, 계정 B 7/27).</li>
+</ol>
+
+<h4>왜 구매자가 아닌 계정으로 제출됐나</h4>
+<p>앱은 콜드 스타트 때, 그리고 포그라운드로 돌아올 때(최소 5분 간격) 그 구글 계정이 아직 소비하지 않고 보유한 구매를 찾아 지금 로그인한 계정으로 다시 제출한다(<code>sweepUnfinishedPurchases</code>, Android 는 <code>queryPastPurchases</code>). 이 목록은 앱 계정이 아니라 구글 계정에 묶여 있다. 그래서 구글 계정은 그대로 두고 앱 계정만 바꾸면 옛 구매가 새 계정 이름으로 제출된다. 옛 경로로 지급된 구매에는 계정 각인이 없다. 각인(앱 PR #90, 7/27 커밋)과 새 경로 호출은 같은 프로덕션 태그 <code>picnic-v1.3.0</code>(7/29 KST)에서 함께 들어갔고, 옛 경로를 부르던 프로덕션 빌드에는 각인이 없기 때문이다. 각인이 비어 있으면 어느 계정이 제출해도 소유자 불일치가 된다. 세 번째 건(8/2 구매)에서 구매자 본인의 제출이 거절된 것도 이것으로 설명된다. 구글 응답의 각인 값을 직접 본 것은 아니다.</p>
+<p>같은 사람의 다른 계정이라는 정황은 시각에 있다.</p>
+<ul>
+<li>계정 A: 옛 구매를 지급받은 계정의 세션이 마지막으로 갱신된 것이 2026-03-11 13:15:00 이고, 계정 A 는 그 43초 뒤(13:15:43)에 만들어졌다. 로그인 수단은 구글에서 카카오로 바뀌었다.</li>
+<li>계정 B: 두 계정이 같은 날(2026-04-05) 만들어졌다. 옛 구매를 지급받은 계정은 구매 3분 전(7/11 08:59:55)에 마지막으로 로그인했고, 계정 B 의 마지막 투표일도 7/11 이다.</li>
+<li>기기 행이나 IP 로는 확인하지 못했다. 옛 계정들에 <code>devices</code> 행이 없고 세션 IP 는 겹치지 않는다.</li>
+</ul>
+<p>확정하지 못한 것이 하나 있다. #90 이전 빌드는 결제 즉시 구매를 소비했으므로(#90 의 커밋 메시지), 원래대로라면 이 구매들은 구글에 남아 있지 않아야 한다. 소비가 실패했거나, 기기에 저장된 영수증 재전송 큐(<code>ReceiptQueueService</code>)가 보냈을 수 있다. 다만 8/5 이후 코드는 7일 넘은 큐 항목을 버린다. A·B 는 각각 한 번만 제출돼 서버 기록으로는 어느 쪽인지 가릴 수 없다. 어느 쪽이든 위 결론은 같다.</p>
+
+<h4>남은 것 — 같은 토큰의 반복 제출 (PICNIC-2744 와 겹친다)</h4>
+<p>보상과는 무관하다. 조사하다 드러난 현재 상태이고 PICNIC-2835 의 범위 밖이다.</p>
+<ul>
+<li><strong>9/30 15:30 ~ 10/1 15:30 의 24시간에 <code>verify-receipt-v2</code> 는 422 를 229번(14개 계정) 돌려줬다.</strong> 200 은 31번이다. 422 중 226건은 요청 크기가 구글 토큰의 것(300~600바이트)이다. 접수 단계의 거절 로그(<code>purchase_intake_rejected</code>)는 같은 24시간에 구글 토큰 237줄이고 전부 <code>OP_IDEMPOTENCY_CONFLICT</code>, 토큰은 3개다. 이 코드는 같은 토큰이 다른 사용자(또는 다른 상품)로 이미 저장돼 있을 때 난다(레포 코드 기준). 두 로그의 수(226과 237)가 같은 창에서 어긋나는 이유는 확인하지 않았다.
+<div class="table-wrap"><table>
+<thead><tr><th>토큰이 가리키는 인박스</th><th>접수 거절 로그 줄 수</th><th>원래 구매의 처리</th></tr></thead>
+<tbody>
+<tr><td><code>0f89e237…</code> STAR100 (PICNIC-2744 의 DEAD 행)</td><td>201</td><td>8/2 옛 경로에서 지급(+100)</td></tr>
+<tr><td><code>2c3b9e97…</code> STAR200</td><td>34 (10/1 10:48 부터)</td><td>9/30 08:40:01 새 경로에서 지급(+200). 구글에는 확인되지 않은 것으로 본다</td></tr>
+<tr><td><code>6889fc5f…</code> STAR2000 (§3-B 의 OPEN 경보)</td><td>2</td><td>결제 대기 중. 위 STAR200 과 같은 구매자</td></tr>
+</tbody></table></div>
+이 로그는 접수 단계의 거절만 남긴다. 구매자 본인이 DEAD 인 토큰을 다시 낼 때의 422 는 워커 단계에서 나가고 이 로그에 없다.</li>
+<li><strong>뜻.</strong> 한 구글 계정을 여러 앱 계정이 쓰고 그 구글 계정에 소비되지 않은 구매가 남아 있으면, 앱을 켜거나 포그라운드로 돌아올 때마다 그때 로그인한 계정으로 그 구매가 다시 제출된다. 구매자가 아니면 서버가 거절하고, 앱은 거절된 구매를 소비하지 않으므로 반복된다. 지급은 일어나지 않는다. 기기가 하나인지는 확인하지 않았다.</li>
+<li><strong>끝나는 조건이 건마다 다르다.</strong> <code>0f89e237…</code> 는 저절로 끝나지 않는다. 인박스가 DEAD 라 구매자 본인이 다시 내도 422 이고 앱은 소비하지 않는다. 8/2 구매가 두 달째 이 상태다. <code>2c3b9e97…</code> 는 구매자 계정이 그 구글 계정의 기기에서 앱을 열면 200 을 받고 소비된다.</li>
+<li><strong>확인되지 않은 구매 — 기한이 있다.</strong> <code>2c3b9e97…</code> 의 구매자는 9/30 08:38:21 에 이 토큰을 제출해 503(결제 대기)을 받았다. 서버는 08:40:01 에 지급했다. 구매자 앱의 다음 <code>verify-receipt-v2</code> 호출은 08:45:32 의 401 두 건이고 그 뒤로는 없다(구매자 세션은 10/1 15:58 에도 갱신됐다). 앱은 지급 응답(200)을 받은 뒤에만 구글에 확인·소비를 하므로 이 구매는 확인되지 않은 것으로 본다(구글 응답은 보지 않았다). 구글은 확인되지 않은 구매를 3일 뒤 자동 환불한다. 기한은 10/3 08:40(17:40 KST) 전후다. 환불돼도 지급된 200개는 남는다. 선택지는 §2 의 2번.</li>
+<li><strong>구조.</strong> 서버는 지급한 뒤 구글에 확인도 소비도 요청하지 않는다(레포의 Edge Function 에 그런 호출이 없다). 환불 통지를 받는 함수(<code>google-play-notifications</code>)는 레포에 있지만 배포돼 있지 않고(<code>config.toml</code> 주석), 처리된 환불 이벤트는 0건이다(<code>purchase_refund_events</code>). 그래서 서버가 지급한 뒤 구매자 앱이 3일 안에 돌아오지 않으면 환불과 지급이 함께 남는다. 8/7 의 결제 흐름 개선 계획 3-4("Android 서버측 consume", P1)가 이 구조를 과제로 적었고 아직 구현되지 않았다. 대기를 거쳐 서버가 나중에 지급한 구글 결제는 지금까지 893건 중 43건이다. 그중 몇 건이 환불됐는지는 알 수 없다.</li>
+<li><strong>추이.</strong> 9/24 의 24시간에는 422 가 25건·3개 계정이었다(9/21 핸드오프의 기록). 그 사이 9/25 에 1.3.5 강제 업데이트가 있었다.</li>
+<li><strong>PICNIC-2744 에 반영할 것.</strong> 9/21 핸드오프 §3-D 는 8/12 DEAD 행을 "지급 0"으로 적었다. 새 경로 기준으로는 맞지만, 같은 구매가 8/2 에 옛 경로에서 이미 지급됐다. 구매자 본인의 재제출이 거절된 것은 맞고, 미지급 사례는 아니다.</li>
+<li><strong>옛 구매의 이중 지급 가능성.</strong> 세 건 모두 접수를 통과해 구글 검증까지 갔고 소유자 검사에서 멈췄다. 그 뒤의 검사는 실행되지 않았다. 코드상 옛 영수증 대조는 없으므로 각인이 맞는 옛 구매였다면 지급됐을 수 있다. 태그 기준으로는 그런 구매가 없다(§2 의 6번).</li>
+<li><strong>확인하지 않은 것.</strong> 소비되지 않은 구매가 남은 구글 계정에서 같은 상품을 다시 살 수 있는지(Play 는 소비되지 않은 상품의 재구매를 막는다), 한 구글 계정을 여러 앱 계정이 쓰는 이유.</li>
+<li><strong>경보.</strong> 같은 유형이 새로 나오면 DEAD 행과 <code>wallet:dead:*</code> CRITICAL 이 생긴다. §5 의 대조 쿼리로 바로 구분된다.</li>
+</ul>
+
+<h4>9/30 에 한 일</h4>
+<ul>
+<li>두 행을 <code>admin_request_wallet_operation_retry</code> 로 되살려 워커가 구글에 다시 묻게 했다. 둘 다 다시 <code>GOOGLE_OWNER_MISMATCH</code> → DEAD.</li>
+<li>CS 수동 지급 여부를 확인했다. 흔적이 없다(근거 5번).</li>
+<li>사용자 결정 "선제 보상 없음, 문의가 오면 CS 절차로"에 따라 건별 경보 2건을 확인 처리하고 닫았다.</li>
+</ul>
+
+<h4>틀리게 적었던 것</h4>
+<p>Jira 댓글과 당시 보고에 남아 있다. Jira 에는 정정 댓글을 두 번 달았다(KST 10/2 00:07 과 00:38. 둘째는 02:11 에 내용을 고쳤다).</p>
+<ul>
+<li><strong>"두 계정 모두 휴면"</strong>(9/30) — 근거가 틀렸다. <code>devices.last_seen</code> 을 서버 시각으로 읽었는데, 이 컬럼은 기기의 현지 시각이 UTC 로 저장된다. 계정 B 의 "기기 최종 접속 9/1 11:07" 은 실제로 04:07 이고, 토큰 제출과 같은 순간이다. 두 계정 모두 제출 순간에 앱을 열었고, 그 뒤로는 접속이 없다.</li>
+<li><strong>"옛 빌드로 9/1·9/4 에 결제해 청구된 채 미지급일 가능성이 높다"</strong>(9/30) — 틀렸다. 결제는 2026-07-11 과 2025-11-08 에 이뤄졌고 그때 지급됐다. 9/1·9/4 는 그 토큰이 다시 제출된 날이다. <code>devices.app_version</code>(1.2.32)을 근거로 삼은 것도 잘못이다. 기기 행이 전부 1.2.x 인 사용자 45명도 8/12 이후 구글 결제 147건을 정상 정산했다.</li>
+<li><strong>"9/1 건의 토큰은 다른 어떤 행과도 겹치지 않는다"</strong>(9/30) — 인박스 안에서만 본 것이다. 옛 영수증에는 있었다.</li>
+<li><strong>"누가 언제 산 구매인지는 구글 응답을 봐야 알고, 프로덕션 배포가 필요하다"</strong>(KST 10/2 00:07 의 정정 댓글) — 틀렸다. 옛 영수증 대조로 확인됐다. 배포는 필요 없다.</li>
+</ul>
+
+<h4>되살리기의 부작용</h4>
+<p><strong>구글 DEAD 행은 §5 의 대조 쿼리로 옛 영수증과 옛 지급을 확인하기 전에는 되살리지 않는다.</strong> 되살리면 워커가 구글에 다시 묻고, 각인이 맞는 구매라면 옛 경로에서 지급된 것도 한 번 더 지급될 수 있다. 9/30 에는 이 대조 없이 두 행을 되살렸다.</p>
+<p>행 하나를 되살릴 때마다 경보가 열린다. 9/30 에는 06:58~07:03 사이 CRITICAL 4건과 WARNING 1건이 열렸다. 당시 보고에는 <code>purchase_age</code> 2건이 빠져 있었다.</p>
+<ul>
+<li><code>wallet:backlog:purchase_age</code> CRITICAL — 대기 시간이 접수 시각부터 계산돼 "5분 넘은 정산 대기"로 잡힌다. 1분 뒤 저절로 닫힌다. 2건.</li>
+<li><code>wallet:dead:&lt;inbox&gt;</code> CRITICAL — 다시 DEAD 가 되면서 재발한다. 2건. 지금은 확인 처리 후 RESOLVED.</li>
+<li><code>wallet:backlog:new_dead</code> WARNING — 저절로 닫힌다. 1건.</li>
+</ul>
+<p>알림 채널로 실제 발송됐는지는 확인하지 않았다. 두 행의 <code>completed_at</code> 도 9/30 으로 바뀌었다. 종결일 기준으로 세면 9/30 에 DEAD 2건이 생긴 것으로 보인다.</p>
+
+<h4>CS 참고</h4>
+<p>이 두 사용자가 문의하면, 그 구매는 다른 계정(같은 사용자의 이전 계정으로 보인다)에 이미 지급됐다. §5 의 대조 쿼리로 날짜와 지급 내역을 확인해 안내한다. 인박스 행을 되살려도 지급되지 않는다. 감사 기록(모두 ticket <code>PICNIC-2835</code>): 되살리기 <code>f431e14b…</code>·<code>d7c5677a…</code>, 경보 확인 <code>780a7398…</code>·<code>78e4dfe2…</code>.</p>
+
+<h3>F. picnic-supabase CI 간헐 실패 <span class="tag ok">수정 머지</span></h3>
+<ul>
+<li><strong>증상.</strong> pg15 컨테이너 검사(Bonus drift scan · Wallet alert delivery · Server payment recovery regression)가 테스트 시작 1초 만에 <code>CalledProcessError: docker run …</code> 으로 죽었다. 9/30 하루에 9회.</li>
+<li><strong>원인.</strong> 진단 실행에서 ECR Public 이 한 러너의 익명 pull 을 <code>toomanyrequests: Data limit exceeded</code> 로 거절했다. AWS 문서상 인증 없는 전송은 출발지 IP 별 월 500GB 다. 원래 실패의 stderr 는 스위트가 가려서 남아 있지 않다. 그래서 원래 실패가 같은 원인이라는 것, 러너가 출구 주소를 남과 나눠 쓴다는 것은 추론이다.</li>
+<li><strong>수정.</strong> #194 → main <code>bc803f7</code>(9/30 10:36). <code>scripts/ci/prepull-images.sh</code> 가 같은 이미지를 <code>ghcr.io/supabase</code> 에서 먼저 받아 스위트가 찾는 이름으로 태그한다. 안 되면 ECR 을 최대 6회 시도한다. 워크플로 4개의 스위트 직전에 넣었다. 두 저장소의 다이제스트가 같음을 확인했다.</li>
+<li><strong>이후.</strong> 머지 뒤 10/1 16:27 까지 실행 46회(그중 pg15·헬퍼 워크플로 25회) 실패 0. 10/1 의 main <code>90a5f8a</code> 에서 헬퍼 테스트 49건 통과.</li>
+<li><strong>새 pg15 잡을 만들 때.</strong> 같은 잡 안에서 스위트보다 먼저, 한 줄짜리 <code>run: bash scripts/ci/prepull-images.sh &lt;이미지 참조가 있는 스위트 파일&gt;</code> 을 <code>if</code>·<code>continue-on-error</code> 없이 둔다. 빠지면 <code>ci-helpers</code> 검사가 실패한다. main 에 브랜치 보호가 없어 머지를 막지는 못한다.</li>
+<li><strong>리뷰.</strong> 교차 공급자 리뷰는 하지 못했다(라우터 telemetry-blocked — 계정 바인딩 증거 없음). 같은 공급자의 읽기 전용 리뷰 3라운드로 대신했고, 마지막 커밋 <code>47a4ede</code> 는 리뷰어가 보지 않았다.</li>
+</ul>
+
+<h2>4. 프로덕션과 외부 시스템에 가한 변경</h2>
+<div class="table-wrap"><table>
+<thead><tr><th>시각 UTC (KST)</th><th>대상</th><th>변경</th><th>방법</th><th>기록</th></tr></thead>
+<tbody>
+<tr><td>9/30 01:48 · 02:04 (10:48 · 11:04)</td><td>클라우드 루틴</td><td>프롬프트 수정 2회</td><td><code>RemoteTrigger update</code></td><td>—</td></tr>
+<tr><td>9/30 약 01:55 (10:55)</td><td><code>public.call_edge_function</code></td><td>대기 한도 90,000ms</td><td><code>execute_sql</code></td><td>#191</td></tr>
+<tr><td>9/30 02:01:56 (11:01)</td><td>cron jobid 46</td><td>대기 한도 1,000 → 30,000ms</td><td><code>cron.alter_job</code></td><td>#191</td></tr>
+<tr><td>9/30 06:53:58 (15:53)</td><td>cron jobid 46 · 11</td><td>bearer 리터럴 → Vault 조회</td><td><code>cron.alter_job</code></td><td>#193</td></tr>
+<tr><td>9/30 06:57:54 · 06:59:43 (15:57 · 15:59)</td><td>인박스 <code>ec91054b…</code> · <code>9349e5c7…</code></td><td>DEAD → PENDING → (워커) → DEAD</td><td><code>admin_request_wallet_operation_retry</code></td><td>감사 <code>f431e14b…</code> · <code>d7c5677a…</code></td></tr>
+<tr><td>9/30 07:27:25 (16:27)</td><td><code>ops_alerts</code> 2건</td><td>ACKNOWLEDGED</td><td><code>admin_ack_wallet_ops_alert</code></td><td>감사 <code>780a7398…</code> · <code>78e4dfe2…</code></td></tr>
+<tr><td>9/30 07:27:30 (16:27)</td><td>같은 2건</td><td>RESOLVED</td><td><code>wallet_private.resolve_ops_alert</code></td><td>—</td></tr>
+<tr><td>9/30 06:57~07:27 (15:57~16:27), 10/1 15:07 · 15:38 · 17:11 (10/2 00:07 · 00:38 · 02:11)</td><td>Jira PICNIC-2835</td><td>생성과 댓글 3건, 정정 댓글 2건, 둘째 정정 댓글의 수정 1회</td><td>—</td><td>—</td></tr>
+<tr><td>9/30 03:33 · 07:30 · 10:36 (12:33 · 16:30 · 19:36)</td><td>picnic-supabase main</td><td>#191 · #193 · #194 머지</td><td>squash</td><td><code>555fc65</code> · <code>da53e81</code> · <code>bc803f7</code></td></tr>
+</tbody></table></div>
+<p>CI 진단용 임시 브랜치(<code>chore/ci-docker-pull-diagnostic</code>)는 삭제했다(원격에 없음을 확인). 지급·환불·키 교체·Edge Function 배포는 하지 않았다. 10/1 14:49 이후의 재확인은 전부 읽기 전용 조회다.</p>
+
+<h2>5. 현재 상태를 다시 확인하는 쿼리</h2>
+<p>모두 재확인 때 그대로 돌려 본 것이다.</p>
+<pre><code>-- 크론별 대기 한도와 키 리터럴 (jobid 50~54 는 함수의 90초를 쓰므로 timeout_ms 가 null 이다)
+select jobid, jobname, active,
+       substring(command from 'timeout_milliseconds\s*:?=&gt;?\s*(\d+)') as timeout_ms,
+       command ilike '%call_edge_function%' as via_call_edge_function,
+       command ~ 'eyJ[A-Za-z0-9_.-]{20,}' as has_literal_jwt
+from cron.job
+where command ilike '%net.http%' or command ilike '%call_edge_function%'
+order by jobid;
+
+select pg_get_functiondef('public.call_edge_function(text,jsonb)'::regprocedure)
+       like '%timeout_milliseconds := 90000%' as has_90s;
+
+-- pg_net 을 부르는 함수 (call_edge_function 과 트리거 함수 3개가 나온다)
+select n.nspname || '.' || p.proname as fn,
+       (select array_agg(distinct m[1]) from regexp_matches(p.prosrc, 'timeout_milliseconds\s*:?=&gt;?\s*(\d+)', 'g') m) as timeouts
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where p.prokind = 'f' and p.prosrc ~* 'net\.http_(post|get)' and n.nspname = 'public';
+
+-- pg_net 응답 (약 6시간만 남는다)
+select min(created) as retention_from, count(*) as total,
+       count(*) filter (where status_code is null) as no_status,
+       count(*) filter (where status_code not between 200 and 299) as non2xx
+from net._http_response;
+
+-- 이력 기록 여부와 기존 행의 형식
+select version, name, array_length(statements, 1) as statements_len, length(statements[1]) as first_len
+from supabase_migrations.schema_migrations where version &gt;= '20260930' order by version;
+
+-- DEAD 2건과 열린 경보
+select left(id::text, 8), status, last_error_code, row_version, completed_at
+from public.wallet_provider_event_inbox
+where id in ('ec91054b-491b-4207-a6b8-1f05141f380a', '9349e5c7-f910-417d-b377-65ae7787e662');
+
+select fingerprint, status, severity, first_seen_at
+from public.ops_alerts where status in ('OPEN', 'ACKNOWLEDGED');
+
+-- 소유자 불일치 DEAD 가 옛 경로에서 이미 지급된 구매인지 (토큰과 사용자 id 는 출력하지 않는다)
+-- CASE 를 빼면 안 된다. 옛 영수증은 JSON 이 아니라서 캐스트가 실패한다.
+with intake as materialized (
+  select i.id, i.created_at, i.purchase_user_id, i.purchase_product_id,
+         case when left(r.receipt_data, 1) = '{' then r.receipt_data::jsonb -&gt;&gt; 'proof' end as token
+  from public.wallet_provider_event_inbox i
+  join public.receipts r on (r.verification_data -&gt;&gt; 'inbox_id') = i.id::text
+  where i.last_error_code = 'GOOGLE_OWNER_MISMATCH'
+)
+select left(n.id::text, 8) as inbox, n.created_at as submitted, n.purchase_product_id as product,
+       l.created_at as legacy_at, l.status as legacy_status, l.user_id = n.purchase_user_id as same_user,
+       (select jsonb_agg(jsonb_build_object('type', h.type, 'amount', h.amount))
+          from public.star_candy_history h
+         where h.user_id = l.user_id
+           and h.created_at between l.created_at - interval '1 minute' and l.created_at + interval '1 minute') as legacy_grant
+from intake n
+left join public.receipts l on l.platform = 'android' and l.receipt_data = n.token
+order by n.created_at;</code></pre>
+
+<p>로그 API(ClickHouse)는 쿼리 하나씩 보낸다. 시간 창은 쿼리가 아니라 호출 인자(시작·끝 시각)로 주고, 한 번에 24시간까지다.</p>
+<pre><code>-- notify-vote-progress 의 응답과 실행 시간 (하루 4회)
+select timestamp, log_attributes['response.status_code'] as status,
+       log_attributes['execution_time_ms'] as ms
+from logs
+where source = 'function_edge_logs'
+  and log_attributes['request.pathname'] = '/functions/v1/notify-vote-progress'
+order by timestamp desc</code></pre>
+<pre><code>-- 한 계정의 함수 호출 (§3-E 근거 3번과 §2 의 2번을 확인한 방법)
+select timestamp, log_attributes['request.pathname'] as path,
+       log_attributes['response.status_code'] as status
+from logs
+where source = 'function_edge_logs'
+  and log_attributes['request.sb.auth_user'] = '&lt;user id&gt;'
+order by timestamp</code></pre>
+<pre><code>-- 접수 단계에서 거절된 토큰별 줄 수 (§3-E 의 "남은 것")
+-- proof_sha256 의 앞 48자에 'token_' 을 붙이면 인박스의 purchase_provider_transaction_id 다.
+select JSONExtractString(event_message, 'provider') as provider,
+       JSONExtractString(event_message, 'proof_sha256') as proof_sha256,
+       JSONExtractString(event_message, 'code') as code,
+       count(*) as n, min(timestamp) as first_seen, max(timestamp) as last_seen
+from logs
+where source = 'function_logs'
+  and event_message like '%purchase_intake_rejected%'
+  and JSONExtractString(event_message, 'stage') = 'intake'
+group by provider, proof_sha256, code
+order by n desc</code></pre>
+
+<h4>승인되면 실행할 문장 (아직 실행하지 않았다)</h4>
+<pre><code>-- §2 의 4번: 월간 투표 크론의 대기 한도 1초 → 30초.
+-- 치환 결과는 select 로 미리 확인했다(timeout_milliseconds:=30000 으로만 바뀐다).
+select cron.alter_job(jobid, command := replace(command, 'timeout_milliseconds:=1000', 'timeout_milliseconds:=30000'))
+from cron.job
+where jobid = 4 and command like '%timeout_milliseconds:=1000%';</code></pre>
+
+<h2>6. 조사할 때 알아둘 것</h2>
+<ul>
+<li><strong><code>devices.created_at</code>·<code>last_seen</code> 은 기기의 현지 시각이다.</strong> UTC 로 저장되지만 값은 현지 시각이다. 10/1 에 최근 24시간 안에 본 509대 중 244대의 <code>last_seen</code> 이 미래(최대 +9시간)였다. 서버 시각과 맞춰 볼 때는 <code>auth.sessions.refreshed_at</code> 이나 Edge 로그를 쓴다.</li>
+<li><strong>결제 문제를 볼 때는 <code>public.receipts</code> 부터 대조한다.</strong> 옛 경로 행(<code>platform = 'android'</code>)은 <code>receipt_data</code> 가 구매 토큰이고, 새 경로 행(<code>platform = 'google'</code>)은 접수 봉투 JSON 이며 그 <code>proof</code> 가 토큰이다. 새 경로 행은 <code>verification_data-&gt;&gt;'inbox_id'</code> 로 인박스와 이어진다. 인박스만 보면 옛 경로의 지급이 보이지 않는다.</li>
+<li><code>public.receipts</code> 는 RLS 가 꺼져 있고 <code>authenticated</code> 에 SELECT 가 있다. 구매 토큰이 평문으로 들어 있는 테이블이다. 로그인 사용자의 전 행 열람을 닫는 일은 <a href="handoff-rls-rollout.html">handoff-rls-rollout.html</a> 이 다룬다.</li>
+<li>접수 봉투의 <code>requestContext.app_version</code> 은 구글 접수 931건 전부 <code>0.0.0</code> 이다. 제출한 앱 버전은 여기서 알 수 없다. <code>devices.app_version</code> 도 근거가 못 된다(§3-E).</li>
+<li><code>net._http_response</code> 는 약 6시간, <code>cron.job_run_details</code> 는 14일만 남는다(9/21 핸드오프의 "성공 행 하루치"는 지금 값이 아니다). 로그 API 는 30일 전 것도 조회되고(9/1 로그 확인) 한 번에 24시간 창까지다.</li>
+<li>pg_net 타임아웃 문구의 "DNS time" 을 DNS 장애로 읽지 말 것. 5초 타임아웃 행의 "DNS time: 5000ms" 는 함수가 요청을 받아 54초 동안 돈 실행에서 나왔다.</li>
+<li>picnic-supabase main 에서 워크플로를 수동으로 다시 돌리면 동시성 그룹(<code>cancel-in-progress</code>) 때문에 진행 중인 최신 실행이 취소된다.</li>
+<li><code>~/Repositories/picnic-supabase</code> 메인 폴더에 커밋되지 않은 변경 3개(<code>.gitignore</code>, <code>package.json</code>, <code>.nvmrc</code>)가 있다. 이번 작업과 무관해 손대지 않았다.</li>
+<li>Jira 상태는 바꾸지 않았다. <code>검토중</code> 전환은 명시적 요청이 있을 때만 한다.</li>
+</ul>
+
+<h2>7. 정정 기록</h2>
+<p>작업 중 틀리게 보고했다가 바로잡은 것들이다. PR 본문·커밋 메시지·Jira 댓글에 옛 서술이 남아 있을 수 있다.</p>
+<ul>
+<li><strong>CI:</strong> "스위트가 컨테이너를 동시에 띄운다" → 순차 실행이다. 동시 3개는 진단 워크플로의 모양이었다.</li>
+<li><strong>CI:</strong> "<code>Rate exceeded</code> 가 원인" → 진단에서 관측한 거절은 <code>Data limit exceeded</code> 다. <code>Rate exceeded</code> 는 진단이 스스로 만든 것이다.</li>
+<li><strong>리포트:</strong> "9/29 의 웹훅 타임아웃은 <code>notify-vote-progress</code> 다" → 그 함수의 행은 리포트가 볼 수 없다. 그 행의 호출자는 추정으로 남았다(§3-A).</li>
+<li><strong>크론:</strong> "1초짜리는 <code>process-bonus-queue</code> 뿐이고 이후 타임아웃 행은 0이어야 한다" → jobid 4 를 놓쳤고, 트리거 웹훅 3종(5초)도 빠뜨렸다(§3-B·C).</li>
+<li><strong>결제:</strong> "옛 빌드로 결제해 청구된 채 미지급", "구글 응답을 봐야 안다" → 틀렸다. 옛 경로에서 이미 지급된 구매의 재제출이다. "휴면 계정"은 근거로 든 <code>devices.last_seen</code> 해석이 틀렸다(§3-E).</li>
+<li><strong>결제:</strong> 되살리기로 열린 <code>purchase_age</code> CRITICAL 2건을 보고하지 않았다.</li>
+<li><strong>결제:</strong> 9/30 에 옛 영수증을 대조하지 않고 DEAD 두 행을 되살렸다. 각인이 맞는 구매였다면 한 번 더 지급됐을 수 있는 조치였다.</li>
+<li><strong>마이그레이션:</strong> 프로덕션 이력을 기록하지 않았고, 당시 그 사실을 알리지 않았다. #191·#193 을 리뷰 없이 머지했다.</li>
+</ul>
+
+<h2>8. 관련 자료</h2>
+<ul>
+<li>Jira <a href="https://picnic-team.atlassian.net/browse/PICNIC-2835">PICNIC-2835</a> — DEAD 2건의 조사·결정·정정.</li>
+<li>Jira <a href="https://picnic-team.atlassian.net/browse/PICNIC-2744">PICNIC-2744</a> — 같은 원인의 세 번째 DEAD 행과 같은 토큰의 반복 제출.</li>
+<li>picnic-supabase PR <a href="https://github.com/charlie0421/picnic-supabase/pull/191">#191</a> · <a href="https://github.com/charlie0421/picnic-supabase/pull/193">#193</a> · <a href="https://github.com/charlie0421/picnic-supabase/pull/194">#194</a>. #194 본문에 CI 원인의 근거와 한계가 있다.</li>
+<li>앞선 리포트 후속 조사: <a href="handoff-20260921-ops-report-followup.html">handoff-20260921-ops-report-followup.html</a> (PICNIC-2743·2744·2745).</li>
+<li>결제 누락 문의 대응: <a href="cs-missing-purchase-runbook.html">cs-missing-purchase-runbook.html</a>.</li>
+<li>결제 흐름 개선 계획(서버측 consume 은 3-4): <a href="purchase-flow-improvement-plan.html">purchase-flow-improvement-plan.html</a>.</li>
+<li>로그인 사용자의 전 행 열람(RLS): <a href="handoff-rls-rollout.html">handoff-rls-rollout.html</a>.</li>
+</ul>
+
+</main>
+</body>
+</html>
