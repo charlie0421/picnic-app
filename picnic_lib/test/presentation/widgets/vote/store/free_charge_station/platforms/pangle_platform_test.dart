@@ -1,3 +1,4 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -5,6 +6,46 @@ import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform.dart';
 
 void main() {
+  test('policy denial never persists a claim or loads the SDK', () async {
+    const denied = FunctionException(
+      status: 429,
+      details: {
+        'error': {'code': 'AD_DEVICE_ACCOUNT_LIMIT'},
+      },
+    );
+    final calls = <String>[];
+    final preflight = PangleClaimPreflight(
+      createClaim:
+          ({
+            required platform,
+            required placementId,
+            required clientRequestId,
+          }) async => throw denied,
+      persist: (_, _) async {
+        calls.add('persist');
+      },
+      pollingSignals: const Stream<void>.empty(),
+      poll: (_, _) async {
+        calls.add('poll');
+      },
+      load: (_, _) async {
+        calls.add('load');
+        return true;
+      },
+    );
+    await expectLater(
+      preflight.execute(
+        ownerUserId: 'u',
+        platform: 'ios',
+        placementId: 'p',
+        clientRequestId: 'r',
+      ),
+      throwsA(same(denied)),
+    );
+    expect(calls, isEmpty);
+  });
+
+
   test(
     'preflight creates, persists, subscribes, then loads signed media extra',
     () async {

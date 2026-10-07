@@ -5,6 +5,26 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   group('mapToAntiAbuseException', () {
+    test(
+      'device restriction maps the stable code without exposing details',
+      () {
+        for (final details in [
+          {'domain_code': 'AD_DEVICE_ACCOUNT_LIMIT'},
+          {
+            'error': {'code': 'AD_DEVICE_ACCOUNT_LIMIT'},
+          },
+        ]) {
+          final result =
+              mapToAntiAbuseException(
+                    FunctionException(status: 429, details: details),
+                  )
+                  as AntiAbuseException?;
+          expect(result?.channel, 'ad_watch');
+          expect(result?.rawCode, 'AD_DEVICE_ACCOUNT_LIMIT');
+        }
+      },
+    );
+
     test('PostgrestException P0001 RATE_LIMITED:signup → AntiAbuseException', () {
       const ex = PostgrestException(
         message: 'RATE_LIMITED:signup',

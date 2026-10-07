@@ -2101,6 +2101,10 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -4201,4 +4205,8 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get bonus_expiry_policy_summary =>
       '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
 }

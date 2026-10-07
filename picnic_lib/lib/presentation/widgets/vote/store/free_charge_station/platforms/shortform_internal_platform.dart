@@ -248,7 +248,7 @@ class ShortformInternalPlatform extends AdPlatform {
       final aa = mapToAntiAbuseException(e);
       if (aa is AntiAbuseException) {
         logWarning('ad-shortform-issue blocked: channel=${aa.channel}');
-        _showRateLimitedAndCloseRoute(aa.channel);
+        _showRateLimitedAndCloseRoute(aa);
         // anti-abuse 차단: route pop + rate-limited dialog 는 여기서 처리됨.
         // blocked:true 로 fullscreen 이 중복 에러 다이얼로그를 띄우지 않게 한다.
         return (videoUrl: '', ctaUrl: null, blocked: true);
@@ -259,13 +259,17 @@ class ShortformInternalPlatform extends AdPlatform {
   }
 
   /// fullscreen 라우트 close + 부모 context 에서 anti-abuse 다이얼로그 표시.
-  void _showRateLimitedAndCloseRoute(String channel) {
+  void _showRateLimitedAndCloseRoute(AntiAbuseException restriction) {
     if (context.mounted) {
       Navigator.of(context, rootNavigator: true).maybePop();
     }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (context.mounted) {
-        showRateLimitedDialog(context, channel: channel);
+        showRateLimitedDialog(
+          context,
+          channel: restriction.channel,
+          rawCode: restriction.rawCode,
+        );
       }
     });
   }

@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
+import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -411,6 +414,19 @@ class AdmobPlatform extends AdPlatform {
         },
       );
     } catch (e, s) {
+      final restriction = mapToAntiAbuseException(e);
+      if (restriction is AntiAbuseException) {
+        _disposeCurrentAd();
+        stopAllAnimations();
+        if (context.mounted && !isDisposed) {
+          await showRateLimitedDialog(
+            context,
+            channel: restriction.channel,
+            rawCode: restriction.rawCode,
+          );
+        }
+        return;
+      }
       logger.e(
         '[$id] AdMob SSV claim 발급 실패 - 광고를 표시하지 않음',
         error: e,

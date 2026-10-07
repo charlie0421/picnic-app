@@ -2022,4 +2022,8 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다.';
 }

@@ -2103,4 +2103,8 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'Ad access for this account on this device is temporarily restricted.';
 }

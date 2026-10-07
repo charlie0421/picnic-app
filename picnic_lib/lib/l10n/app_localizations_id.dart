@@ -2110,4 +2110,8 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Perolehan tanggal 1–14 kedaluwarsa tanggal 15 bulan berikutnya; perolehan tanggal 15–akhir bulan kedaluwarsa pukul 00.00 (KST) tanggal 15 dua bulan berikutnya.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'Akses iklan untuk akun ini di perangkat ini dibatasi sementara.';
 }

@@ -2076,4 +2076,8 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว';
 }

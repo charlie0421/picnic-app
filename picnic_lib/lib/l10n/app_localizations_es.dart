@@ -2126,4 +2126,8 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.';
 }

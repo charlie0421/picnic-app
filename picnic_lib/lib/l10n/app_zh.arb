@@ -2553,5 +2553,6 @@
   "expiry_quantity_description": "目前帳戶中預計到期的數量。",
   "expiry_policy_description": "各貨幣的到期標準。",
   "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
-  "expiry_tonight_at_midnight": "今晚午夜"
+  "expiry_tonight_at_midnight": "今晚午夜",
+  "error_ad_device_account_restricted_message": "此账号在此设备上的广告使用权限暂时受到限制。"
 }
