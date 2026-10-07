@@ -11,6 +11,14 @@ void main() {
         for (final details in [
           {'domain_code': 'AD_DEVICE_ACCOUNT_LIMIT'},
           {
+            'success': false,
+            'domain_code': 'AD_DEVICE_ACCOUNT_LIMIT',
+            'error': {
+              'code': 'RATE_LIMITED',
+              'details': {'reason': 'ad_watch_ip_quota'},
+            },
+          },
+          {
             'error': {'code': 'AD_DEVICE_ACCOUNT_LIMIT'},
           },
         ]) {
