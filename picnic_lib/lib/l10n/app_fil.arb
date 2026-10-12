@@ -2557,5 +2557,6 @@
   "expiry_quantity_description": "Mga halagang nakatakdang mag-expire sa kasalukuyang account.",
   "expiry_policy_description": "Pamantayan ng pag-expire ayon sa currency.",
   "bonus_expiry_policy_summary": "Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.",
-  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi"
+  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi",
+  "error_ad_device_account_restricted_message": "Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito."
 }

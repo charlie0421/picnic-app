@@ -7,7 +7,6 @@ import 'package:picnic_lib/core/services/search_service.dart';
 import 'package:picnic_lib/core/services/search_cache_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
-import 'package:picnic_lib/core/services/update_service.dart';
 import 'package:picnic_lib/core/services/link_service.dart';
 import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/core/services/notification_inbox_service.dart';
@@ -42,9 +41,6 @@ class MockPurchaseService extends Mock implements PurchaseService {}
 
 /// 푸시 토큰 서비스 Mock
 class MockPushTokenService extends Mock implements PushTokenService {}
-
-/// 업데이트 서비스 Mock
-class MockUpdateService extends Mock implements UpdateService {}
 
 /// 링크 서비스 Mock
 class MockLinkService extends Mock implements LinkService {}

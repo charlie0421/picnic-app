@@ -2118,4 +2118,8 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '၁–၁၄ ရက်အတွင်း ရရှိသောပမာဏသည် နောက်လ ၁၅ ရက်တွင်၊ ၁၅ ရက်မှ လကုန်အတွင်း ရရှိသောပမာဏသည် နောက်တစ်လကျော် ၁၅ ရက် 00:00 (KST) တွင် သက်တမ်းကုန်မည်။';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'ဤစက်တွင် ယခုအကောင့်ဖြင့် ကြော်ငြာကြည့်ရှုခြင်းကို ယာယီကန့်သတ်ထားပါသည်။';
 }

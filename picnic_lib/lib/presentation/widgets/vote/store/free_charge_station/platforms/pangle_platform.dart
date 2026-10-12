@@ -1,6 +1,10 @@
 // pangle_platform.dart
 
 import 'dart:async';
+import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
+import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
+import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
+
 import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
@@ -382,6 +386,18 @@ class PanglePlatform extends AdPlatform {
       // 안내는 호출부가 no-fill 로 처리한다.
       return (loaded: result == true, reported: false);
     } catch (e, s) {
+      final restriction = mapToAntiAbuseException(e);
+      if (restriction is AntiAbuseException) {
+        stopAllAnimations();
+        if (context.mounted && !isDisposed) {
+          await showRateLimitedDialog(
+            context,
+            channel: restriction.channel,
+            rawCode: restriction.rawCode,
+          );
+        }
+        return (loaded: false, reported: true);
+      }
       final failedAdUnitId = Platform.isIOS
           ? (Environment.pangleIosRewardedVideoId ?? 'unknown')
           : (Environment.pangleAndroidRewardedVideoId ?? 'unknown');

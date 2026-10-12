@@ -60,12 +60,16 @@ void main() {
     );
   });
   test('claim uses only canonical edge parameters', () async {
-    await AdRewardRepository(client).createPangleClaim(
+    await AdRewardRepository(
+      client,
+      deviceIdProvider: () async => 'existing-device',
+    ).createPangleClaim(
       platform: 'ios',
       placementId: 'feed',
       clientRequestId: 'request-1',
     );
     expect(requests.single.url.path, endsWith('/functions/v1/ad-reward-claim'));
+    expect(requests.single.headers['x-device-id'], 'existing-device');
     expect(jsonDecode(requests.single.body), {
       'platform': 'ios',
       'placement_id': 'feed',
@@ -73,14 +77,19 @@ void main() {
     });
   });
   test('AdMob claim sends its channel and parses ADMOB_CLAIM', () async {
-    final claim = await AdRewardRepository(client).createAdmobClaim(
-      platform: 'android',
-      placementId: 'ca-app-pub-1/2',
-      clientRequestId: 'request-admob-1',
-    );
+    final claim =
+        await AdRewardRepository(
+          client,
+          deviceIdProvider: () async => 'existing-device',
+        ).createAdmobClaim(
+          platform: 'android',
+          placementId: 'ca-app-pub-1/2',
+          clientRequestId: 'request-admob-1',
+        );
 
     expect(claim.reference.type, AdRewardReferenceType.admobClaim);
     expect(claim.signedToken, 'signed');
+    expect(requests.single.headers['x-device-id'], 'existing-device');
     expect(jsonDecode(requests.single.body), {
       'channel': 'ADMOB',
       'platform': 'android',
@@ -88,12 +97,29 @@ void main() {
       'client_request_id': 'request-admob-1',
     });
   });
+  test(
+    'device lookup failure leaves issuance to server missing-ID policy',
+    () async {
+      await AdRewardRepository(
+        client,
+        deviceIdProvider: () async => throw StateError('unavailable'),
+      ).createPangleClaim(
+        platform: 'ios',
+        placementId: 'feed',
+        clientRequestId: 'request-2',
+      );
+      expect(requests.single.headers.containsKey('x-device-id'), isFalse);
+    },
+  );
   test('status list and ack use exact p_ RPC parameters', () async {
     const reference = AdRewardReference(
       type: AdRewardReferenceType.internalImpression,
       id: '00000000-0000-4000-8000-000000000402',
     );
-    final repository = AdRewardRepository(client);
+    final repository = AdRewardRepository(
+      client,
+      deviceIdProvider: () async => 'existing-device',
+    );
     await repository.getStatus(reference);
     await repository.listUnacknowledged(cursor: 'cursor', limit: 7);
     await repository.acknowledge(reference);
@@ -116,7 +142,10 @@ void main() {
     });
   });
   test('internal response accepts only legacy and wallet-aware shapes', () {
-    final repository = AdRewardRepository(client);
+    final repository = AdRewardRepository(
+      client,
+      deviceIdProvider: () async => 'existing-device',
+    );
     final legacy = {
       'ok': true,
       'reward_added': 3,

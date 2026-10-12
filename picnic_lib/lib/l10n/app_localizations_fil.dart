@@ -2139,4 +2139,8 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito.';
 }

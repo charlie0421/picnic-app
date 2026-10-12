@@ -2557,5 +2557,6 @@
   "expiry_quantity_description": "จำนวนที่กำหนดให้หมดอายุในบัญชีปัจจุบัน",
   "expiry_policy_description": "เกณฑ์การหมดอายุแยกตามสกุลเงิน",
   "bonus_expiry_policy_summary": "ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า",
-  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้"
+  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้",
+  "error_ad_device_account_restricted_message": "การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว"
 }

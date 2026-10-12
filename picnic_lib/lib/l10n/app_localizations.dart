@@ -3866,6 +3866,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.'**
   String get bonus_expiry_policy_summary;
+
+  /// No description provided for @error_ad_device_account_restricted_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad access for this account on this device is temporarily restricted.'**
+  String get error_ad_device_account_restricted_message;
 }
 
 class _AppLocalizationsDelegate

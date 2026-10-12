@@ -1,8 +1,40 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart';
 
 void main() {
+  test('policy denial never persists a claim or loads the SDK', () async {
+    const denied = FunctionException(
+      status: 429,
+      details: {
+        'error': {'code': 'AD_DEVICE_ACCOUNT_LIMIT'},
+      },
+    );
+    final calls = <String>[];
+    final preflight = AdmobClaimPreflight(
+      createClaim:
+          ({
+            required platform,
+            required placementId,
+            required clientRequestId,
+          }) async => throw denied,
+      persist: (_, _) async {
+        calls.add('persist');
+      },
+    );
+    await expectLater(
+      preflight.execute(
+        ownerUserId: 'u',
+        platform: 'ios',
+        placementId: 'p',
+        clientRequestId: 'r',
+      ),
+      throwsA(same(denied)),
+    );
+    expect(calls, isEmpty);
+  });
+
   const reference = AdRewardReference(
     type: AdRewardReferenceType.admobClaim,
     id: 'claim-admob-a',

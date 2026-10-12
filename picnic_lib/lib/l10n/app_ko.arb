@@ -2699,5 +2699,6 @@
   "expiry_quantity_title": "내 소멸 예정 캔디",
   "expiry_quantity_description": "현재 계정에서 예정된 소멸 수량입니다.",
   "expiry_policy_description": "재화별 소멸 기준입니다.",
-  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다."
+  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.",
+  "error_ad_device_account_restricted_message": "이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다."
 }

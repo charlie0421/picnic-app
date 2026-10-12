@@ -2022,4 +2022,8 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'この端末での現在のアカウントによる広告の利用は、一時的に制限されています。';
 }

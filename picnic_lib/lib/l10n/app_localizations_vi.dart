@@ -2106,4 +2106,8 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Phần nhận từ ngày 1–14 hết hạn vào ngày 15 tháng sau; phần nhận từ ngày 15 đến cuối tháng hết hạn lúc 00:00 (KST) ngày 15 của tháng kế tiếp nữa.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'Quyền truy cập quảng cáo của tài khoản này trên thiết bị này tạm thời bị hạn chế.';
 }
