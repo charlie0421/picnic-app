@@ -57,8 +57,53 @@
 <h1>일일 점검 리포트 후속 조치 — 핸드오프</h1>
 <p class="meta">작업 2026-09-30 · 재확인 2026-10-01 14:49~17:22 UTC(KST 10/1 23:49 ~ 10/2 02:22) · 대상 프로덕션 Supabase <code>xtijtefcycoeqludlngc</code> · picnic-supabase main 은 재확인 중 <code>90a5f8a</code> 에서 <code>f9ecd18</code> 로 움직였다 · 이 작업은 프로덕션을 바꿨다(§4). 시각은 따로 적지 않으면 UTC 다.</p>
 
+<div class="callout">
+<strong>2026-10-15 갱신 — 지금 상태는 §0 에 있다.</strong> §1~§8 은 2026-10-02 기준 기록이고 그대로 두었다. 둘이 다르면 §0 이 맞다.
+</div>
+
+<h2 id="update-20261015">0. 2026-10-15 재확인과 처리</h2>
+<p class="meta">재확인 2026-10-14 16:41 UTC 부터(KST 10/15 01:41). 프로덕션 조회는 읽기 전용이었고, 바꾼 것은 아래 "가한 변경"에 모두 적었다. 사용자 결정(10/15)은 네 가지이고 모두 권고안이다: 월간 투표 크론 30초와 원장 기록(교차 리뷰 뒤 머지·적용), 루틴 프롬프트 수정, 10/4 경보 확인·해소, PICNIC-2835 완료 전환.</p>
+
+<h3>항목별 상태 (§2 의 번호)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>#</th><th>항목</th><th>10/15 상태</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>PICNIC-2835</td><td><span class="tag ok">완료</span> 사용자 승인으로 완료 전환(10/14 17:00 UTC). 원인 확인·보상 불필요·경보 종결까지 끝났다.</td></tr>
+<tr><td>2</td><td>확인되지 않은 STAR200 (<code>2c3b9e97…</code>)</td><td><span class="tag ok">종결</span> 구글이 10/3 08:48:59 에 자동 환불했다(사유: 미승인). 지급된 200개는 남았다. 근거는 PICNIC-2744 작업의 Play Voided Purchases 조회다(picnic-supabase <code>docs/operations/picnic-2744-google-server-acknowledge.html</code>). 구매자 계정은 10/1~10/4 에 앱을 많이 썼지만 <code>verify-receipt-v2</code> 호출은 0건이었다. 다른 계정들의 재제출은 10/3 10:27 이 마지막이다. 같은 구매자의 STAR2000(<code>6889fc5f…</code>)은 10/3 10:14 에 구글이 취소해 DEAD(<code>GOOGLE_PURCHASE_CANCELED</code>)가 됐고 지급은 없다.</td></tr>
+<tr><td>3</td><td>마이그레이션 이력 3건</td><td><span class="tag ok">기록함</span> picnic-supabase #219(<code>39492f9</code>)의 컷오버 킷 <code>supabase/prod-cutover/20261015-cron-timeout-ledger</code> 로 10/14 17:28:14~16 에 원장 4행을 넣었다. 9/30 의 3건과 새 마이그레이션 <code>20261014170155</code> 이다. 각 행은 마이그레이션 파일 전문 한 개이고, md5 가 파일과 같다(킷의 <code>verify/post.sql</code> 3번). 이제 레포 마이그레이션 196개 중 프로덕션 원장에 없는 것은 <code>20260915010000_fix_consolidate_bonus_buckets_cron.sql</code> 하나다(이번 작업이 아니고 담당 미정).</td></tr>
+<tr><td>4</td><td>월간 투표 크론 1초 한도 · 루틴 안내 문구</td><td><span class="tag ok">적용</span> 위와 같은 트랜잭션에서 jobid 4 의 대기 한도를 1,000 → 30,000 ms 로 올렸다. 명령에서 그 값만 바뀐다(적용 전 미리보기 길이 +1). 루틴 프롬프트도 10/14 17:29:34 에 고쳤다. (1) pg_net 호출자 표를 실측과 맞췄다. 5,000 ms 는 트리거 웹훅 3종이다. (2) 참고 분류 (e)를 넣었다. 새 <code>GOOGLE_OWNER_MISMATCH</code> DEAD 가 옛 경로에서 지급된 구매의 재제출이면 판정에 넣지 않는다. 조건은 같은 토큰으로 기록된, 삭제되지 않은 양수 <code>PURCHASE</code> 행이 있고 같은 토큰의 음수 행이 없는 것이다. 나머지는 WARNING 이다. 새 규칙의 첫 리포트는 10/15 09:10 KST 다. 다음 jobid 4 실행은 11/1 09:00 KST 다.</td></tr>
+<tr><td>5</td><td>같은 토큰 반복 제출 · 서버 승인 구조</td><td><span class="tag ok">다른 작업이 처리</span> PICNIC-2744 작업이 서버 승인(picnic-supabase #208, 10/5 13:54 배포)과 이미 지급된 구매에 대한 409 응답(#210, 10/6 01:18 배포)을 넣었다. 10/14 의 Voided Purchases 재조회에서 배포 뒤 지급분의 미승인 환불은 0건이었다. 접수 단계 거절은 10/12 08:32 의 1건이 마지막이고, 10/13 16:42 ~ 10/14 16:42 에는 0건이다. 옛 경로 지급분(아래 4건)을 Play 에서 consume 할지는 그 작업에서 사용자 결정을 기다린다.</td></tr>
+<tr><td>6</td><td>옛 구매의 이중 지급 가능성</td><td>변화 없음. 10/4 의 4번째 소유자 불일치 건도 소유자 검사에서 막혔다. 스테이징 빌드(1.2.39) 구매 여부는 여전히 확인하지 않았다.</td></tr>
+<tr><td>7</td><td><code>monthly-create-vote</code> 무인증 호출</td><td>변화 없음. 배포본 v67, <code>verify_jwt=false</code>. 이번 크론 변경에서 인증은 다루지 않았다.</td></tr>
+<tr><td>8</td><td>10/2·10/3 리포트</td><td><span class="tag ok">확인</span> 두 날 모두 결제 대기 경보를 '참고'로 분류해 NORMAL 이었다. 정보성 규칙이 의도대로 동작했다. 10/2~10/14 리포트 중 WARNING 은 10/5 와 10/11 두 번이다(아래 "새로 생긴 것").</td></tr>
+<tr><td>9</td><td><code>notify-vote-progress</code> 실행 시간</td><td>10/14 의 4회가 18.1~21.9초다(10/1 은 54.6~63.5초). 함수 버전은 v53 그대로다. 지금은 지켜볼 필요가 없다.</td></tr>
+<tr><td>10</td><td>picnic-supabase PR #190</td><td><span class="tag ok">머지</span> 10/6 (<code>9e77a24</code>).</td></tr>
+<tr><td>11</td><td>스테이징 · 로컬 재생</td><td>스테이징을 처음 확인했다. 해당 크론(jobid 4·46·50~54)이 없고, pg_net 크론은 지갑 워커 4개(25초, Vault)뿐이다. <code>call_edge_function</code> 은 스테이징 URL 을 쓰고 한도 인자가 없다. Vault 에 <code>service_role_key</code> 가 있다. 그래서 <code>20260930020000</code> 을 그대로 적용하면 스테이징 함수가 프로덕션 URL 을 부르게 된다. <strong>스테이징에는 적용하지 않는다.</strong> <code>020100</code>·<code>070000</code> 은 스테이징에서 바꿀 행이 없다. 공유 로컬 DB 는 9/15 상태(<code>call_edge_function</code> 본문이 다르다)였고 이번에 바꾸지 않았다.</td></tr>
+<tr><td>12</td><td>safety 테스트</td><td>origin/main <code>b5c6f3a</code> 를 임시 작업 트리에서 돌렸다. 기존 10건(다이제스트 고정)은 그대로 실패한다. 그 밖에 google-pending 테스트 13건이 실패했지만 판단할 수 없다. 2건은 임시 작업 트리에 <code>js-yaml</code> 이 없어서였고, 11건(공유 로컬 DB 를 <code>begin…rollback</code> 으로만 쓰는 테스트)은 원인을 조사하지 않았다.</td></tr>
+<tr><td>D</td><td>크론 기록의 JWT 흔적</td><td>10/14 16:41 에 <code>cron.job_run_details</code> 에 JWT 리터럴이 든 옛 명령 694행이 남아 있었다(9/29 19:20 ~ 9/30 06:53). 보존 정리(jobid 81)가 10/14 19:20(10/15 04:20 KST)에 지울 예정이다. 이 갱신을 쓸 때는 그 전이라 확인하지 못했다. 확인: <code>select count(*) from cron.job_run_details where command ~ 'eyJ[A-Za-z0-9_.-]{20,}';</code> → 0 이어야 한다.</td></tr>
+</tbody></table></div>
+
+<h3>새로 생긴 것</h3>
+<ul>
+<li><strong>10/4 04:31:56, <code>GOOGLE_OWNER_MISMATCH</code> DEAD 1건(인박스 <code>3da586f8…</code>, STAR600).</strong> §5 의 대조 쿼리로 보면, 같은 토큰의 옛 경로 영수증이 2025-10-27 15:52 에 <strong>같은 계정</strong>으로 있고(<code>valid</code>) 그때 <code>PURCHASE</code> +600 이 지급됐다. 구매자 본인의 옛 구매 재제출이다(PICNIC-2744 의 8/12 건과 같은 유형). 미지급이 아니므로 보상 대상이 아니다. 이 건으로 CRITICAL 경보 <code>wallet:dead:3da586f8…</code> 가 열려 10일 동안 확인되지 않았다. 리포트는 10/5 에만 WARNING 을 냈고, 그 뒤로는 "과거 결제 백로그 1건"으로 세어 NORMAL 이었다. 사용자 승인으로 10/14 16:58 에 확인·해소했다. <code>GOOGLE_OWNER_MISMATCH</code> DEAD 는 이제 4건이고, 4건 모두 옛 경로에서 지급된 구매의 재제출이다.</li>
+<li><strong>10/11 리포트 WARNING.</strong> 원인은 10/10 18:14:20 의 <code>wallet-reconciliation</code> 503 1건(20.2초)이다. 10/13 16:48 ~ 10/14 16:46 에는 1,213회 모두 200 이었다(최대 13.0초). 한 번 일어난 일로 본다. 원인은 조사하지 않았다.</li>
+</ul>
+
+<h3>가한 변경 (10/14 ~ 10/15)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>시각 UTC (KST)</th><th>대상</th><th>변경</th><th>기록</th></tr></thead>
+<tbody>
+<tr><td>10/14 16:58:25 · 16:58:29 (10/15 01:58)</td><td><code>ops_alerts</code> <code>wallet:dead:3da586f8…</code></td><td>OPEN → ACKNOWLEDGED → RESOLVED. <code>admin_ack_wallet_ops_alert</code>(티켓 PICNIC-2744) 다음 <code>wallet_private.resolve_ops_alert</code>. 인박스 행은 DEAD 그대로 두었다.</td><td>감사 <code>ce5e9639…</code></td></tr>
+<tr><td>10/14 16:58 · 17:00 (10/15 01:58 · 02:00)</td><td>Jira</td><td>PICNIC-2744 에 대조 결과 댓글, PICNIC-2835 를 완료로 전환</td><td>댓글 18482</td></tr>
+<tr><td>10/14 17:17 ~ 17:26 (10/15 02:17 ~ 02:26)</td><td>교차 리뷰</td><td>Codex <code>gpt-6.1-sol</code>/medium, 읽기 전용. Orca Run <code>run_a79bb7560903</code> 의 Dispatch 3개를 모두 정산하고 리뷰 터미널을 닫았다. 1차 HOLD(HIGH 1·MEDIUM 1) → 수정 → SQL GO, 프롬프트 MEDIUM 1 → 수정 → GO.</td><td>—</td></tr>
+<tr><td>10/14 17:27:57 (10/15 02:27)</td><td>picnic-supabase main</td><td>#219 squash 머지(CI 5개 통과)</td><td><code>39492f9</code></td></tr>
+<tr><td>10/14 17:28:14 ~ 17:28:16 (10/15 02:28)</td><td>프로덕션 DB</td><td>한 트랜잭션: cron jobid 4 대기 한도 1,000 → 30,000 ms, 원장 4행 기록</td><td>킷 <code>20261015-cron-timeout-ledger</code></td></tr>
+<tr><td>10/14 17:29:34 (10/15 02:29)</td><td>클라우드 루틴 <code>trig_01Rt3PFebBYi1mVtQk2wA7HK</code></td><td>프롬프트 수정: 호출자 표, 참고 (e), owner-mismatch 조회</td><td><code>RemoteTrigger update</code></td></tr>
+</tbody></table></div>
+<p>적용 전에 같은 요청을 프로덕션에서 <code>begin … rollback</code> 으로 두 번 리허설했다. 두 번 모두 jobid 4 = 30000, 원장 4행 md5 = 파일 md5 를 확인했고, 롤백 뒤 프로덕션은 jobid 4 = 1000, 원장 0행 그대로였다. 로컬 SQL 테스트(<code>supabase/tests/monthly_vote_cron_timeout_ledger.test.sql</code>)는 공유 로컬 DB 에서 한 트랜잭션 안에서만 돌았고, 끝난 뒤 로컬 상태가 그대로인 것을 확인했다. 지급·환불·키 교체·Edge Function 배포는 하지 않았다. 스테이징은 조회만 했다.</p>
+
 <div class="callout warn">
-<strong>먼저 볼 것 — 결론이 바뀐 것 하나, 기한이 있는 것 하나, 결정이 필요한 것 둘.</strong>
+<strong>먼저 볼 것 (2026-10-02 기준) — 결론이 바뀐 것 하나, 기한이 있는 것 하나, 결정이 필요한 것 둘.</strong>
 <ol>
 <li><strong>DEAD 결제 2건(PICNIC-2835)은 미지급 결제가 아니다.</strong> 두 구매 모두 옛 결제 경로가 오래전에 검증하고 지급까지 마친 구매다(2025-11-08 STAR2000, 2026-07-11 STAR100, 각각 다른 앱 계정에 지급). 그 토큰이 다른 계정에서 새 경로로 다시 제출됐고 서버가 거절한 것이다. 보상 대상이 아니다. 9/30 의 "선제 보상 없음"은 결론이 맞았고, 그때 든 근거가 틀렸다(§3-E).</li>
 <li><strong>기한 있음 — 9/30 에 서버가 지급한 STAR200 1건이 구글에 확인(acknowledge)되지 않은 것으로 보인다.</strong> 구매자 앱이 지급 응답을 받지 못했다. 로그와 앱 코드로 본 추정이고 구글 응답은 보지 않았다. 맞다면 10/3 08:40(17:40 KST) 전후에 구글이 자동 환불하고, 지급된 200개는 남는다(§2 의 2번).</li>
