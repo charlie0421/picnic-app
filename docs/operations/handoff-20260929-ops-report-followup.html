@@ -80,7 +80,7 @@
 <tr><td>10</td><td>picnic-supabase PR #190</td><td><span class="tag ok">머지</span> 10/6 (<code>9e77a24</code>).</td></tr>
 <tr><td>11</td><td>스테이징 · 로컬 재생</td><td>스테이징을 처음 확인했다. 프로덕션 jobid 4·46·50~54 에 해당하는 크론은 없다(스테이징의 jobid 4 는 <code>wallet-operation-worker</code> 다). pg_net 크론은 지갑 워커 4개(25초, Vault)뿐이다. 스테이징 <code>call_edge_function</code> 의 <code>net.http_post</code> 호출에는 URL 인자가 없고(<code>function_name</code> 을 쓰지 않는다) 한도 인자도 없다. <code>url</code> 에는 기본값이 없으므로 지금 정의로 부르면 오류가 난다. 스테이징 크론 중 이 함수를 부르는 것은 없다. Vault 에 <code>service_role_key</code> 가 있다. <code>20260930020000</code> 은 URL 을 프로덕션으로 하드코딩하므로, 그대로 적용하면 스테이징 함수가 프로덕션 URL 을 부르게 된다. <strong>스테이징에는 적용하지 않는다.</strong> <code>020100</code>·<code>070000</code> 은 스테이징에서 바꿀 행이 없다. 공유 로컬 DB 는 9/15 상태(<code>call_edge_function</code> 본문이 다르다)였고 이번에 바꾸지 않았다.</td></tr>
 <tr><td>12</td><td>safety 테스트</td><td>origin/main <code>b5c6f3a</code> 를 임시 작업 트리에서 돌렸다. 기존 10건(다이제스트 고정)은 그대로 실패한다. 그 밖에 google-pending 테스트 13건이 실패했지만 판단할 수 없다. 2건은 임시 작업 트리에 <code>js-yaml</code> 이 없어서였고, 11건(공유 로컬 DB 를 <code>begin…rollback</code> 으로만 쓰는 테스트)은 원인을 조사하지 않았다.</td></tr>
-<tr><td>D</td><td>크론 기록의 JWT 흔적</td><td>10/14 16:41 에 <code>cron.job_run_details</code> 에 JWT 리터럴이 든 옛 명령 694행이 남아 있었다(9/29 19:20 ~ 9/30 06:53). 보존 정리(jobid 81)가 10/14 19:20(10/15 04:20 KST)에 지울 예정이다. 이 갱신을 쓸 때는 그 전이라 확인하지 못했다. 확인: <code>select count(*) from cron.job_run_details where command ~ 'eyJ[A-Za-z0-9_.-]{20,}';</code> → 0 이어야 한다.</td></tr>
+<tr><td>D</td><td>크론 기록의 JWT 흔적</td><td><span class="tag ok">정리됨</span> 10/14 16:41 에 <code>cron.job_run_details</code> 에 JWT 리터럴이 든 옛 명령 694행이 남아 있었다(9/29 19:20 ~ 9/30 06:53). 보존 정리(jobid 81)가 10/14 19:20:00 ~ 19:20:03(KST 10/15 04:20)에 성공했고, 19:25 에 다시 세니 0행이었다(보존 시작 9/30 19:20). 조회: <code>select count(*) from cron.job_run_details where command ~ 'eyJ[A-Za-z0-9_.-]{20,}';</code> 이 항목은 크론 기록에 남은 흔적만 다룬다. 키 자체는 §3-D 그대로다.</td></tr>
 </tbody></table></div>
 
 <h3>새로 생긴 것</h3>
@@ -107,7 +107,6 @@
 <ol>
 <li><strong>10/15 09:10 KST 리포트</strong>(새 프롬프트의 첫 실행): 실행 로그에 조회 오류가 없어야 한다. 10/14 19:04 UTC 에 열린 경보는 0건이었다. 그 뒤 새 경보가 없으면 열린 경보와 과거 결제 백로그도 0건이어야 한다. 참고 (e)와 owner-mismatch 조회는 24시간 안에 새 <code>GOOGLE_OWNER_MISMATCH</code> 경보가 있을 때만 돈다. 그래서 이 리포트로는 (e)를 검증할 수 없다.</li>
 <li><strong>11/1 09:10 KST 리포트</strong>: jobid 4 의 타임아웃 행이 없어야 한다(리포트는 00:00 UTC 실행의 응답 행을 볼 수 있다). 함수 쪽은 11/1 00:00 UTC 직후 <code>function_edge_logs</code> 의 <code>monthly-create-vote</code> 응답이 200 이어야 한다.</li>
-<li><strong>D</strong>: 10/14 19:20 UTC 의 보존 정리 뒤 위 표 D 행의 count 가 0 이어야 한다. 이 항목은 크론 기록에 남은 흔적만 다룬다. 키 자체는 §3-D 그대로다.</li>
 <li><strong>PICNIC-2744 에 알릴 것</strong>: 5행의 두 가지(6행의 10/7 재제출, 댓글 18482 의 틀린 시각)를 그 이슈에 적는다. 외부 쓰기이므로 사용자 승인 뒤에 한다.</li>
 </ol>
 
