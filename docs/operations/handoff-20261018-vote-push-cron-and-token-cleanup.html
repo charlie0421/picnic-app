@@ -57,8 +57,26 @@
 <h1>투표 진행 알림 30분 크론과 무효 토큰 정리 — 핸드오프</h1>
 <p class="meta">작성 2026-10-18 14:10 UTC(KST 23:10) · 대상 프로덕션 Supabase <code>xtijtefcycoeqludlngc</code> · picnic-supabase main <code>baaf2a4</code> · 시각은 따로 적지 않으면 UTC 다. 이 저장소는 공개 저장소이므로 키·사용자 ID·함수 ID·프롬프트 전문은 싣지 않는다. 앞선 기록은 <a href="handoff-20260929-ops-report-followup.html">9/29 핸드오프</a>에 있다.</p>
 
+<section aria-labelledby="followup-20261019">
+<h2 id="followup-20261019">10/19 후속 결과와 검사 예약</h2>
 <div class="callout">
-<strong>지금 상태</strong>
+<p><strong>아래 본문은 10/18 시점의 기록이다.</strong> §2의 A·B·C·E는 10/19에 완료했다. send-push v58과 notify-vote-progress v54를 운영에 배포했고, 일일 리포트와 컷오버 24시간 점검을 마쳤다. 10/19 16:16 KST 재확인에서 v54는 ACTIVE였고, 16:00 정기 실행은 HTTP 200·발송 성공 2건·실패 0건이었다.</p>
+<p>최신 근거는 picnic-supabase의 <a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/operations/push-token-cleanup-deploy-preparation-2026-10-19.html">무효 토큰 정리 배포 결과</a>와 <a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/operations/vote-progress-timezone-2026-10-19.html">국가별 시간대 배포 결과</a>에 있다. 두 문서는 <a href="https://github.com/charlie0421/picnic-supabase/pull/251">picnic-supabase PR #251</a>로 main에 반영했다.</p>
+</div>
+<p>남은 D·F 검사는 Orca 자동화 4개로 예약했다. 아래 시각은 모두 2026년 KST다. 각 실행은 picnic-supabase main에서 새 워크트리와 새 세션을 만들므로 이 문서의 원래 작업 세션이 종료돼도 된다.</p>
+<div class="table-wrap"><table>
+<tr><th>예약 시각(KST)</th><th>검사</th><th>자동화 ID</th></tr>
+<tr><td>10/24 18:25</td><td>투표 313·314 시작 알림과 18:15 관측 리포트</td><td><code>2ef0578e-4360-4049-8874-9ac69d686f11</code></td></tr>
+<tr><td>11/1 09:25</td><td>월간 투표 Cron(jobid 4)과 09:10 일일 리포트</td><td><code>fa0c893b-6f65-4db9-a104-d4fc1b90cd50</code></td></tr>
+<tr><td>11/15 00:35</td><td>보너스 만료 경계 뒤 미처리 잔량과 Cron 실행</td><td><code>89d33155-7b11-44fe-a278-f40386fc3e9a</code></td></tr>
+<tr><td>11/15 09:25</td><td>보너스 만료 일일 리포트의 판정</td><td><code>b58bf0d6-1f80-484d-843a-1726c4552032</code></td></tr>
+</table></div>
+<p>자동화는 운영 상태를 읽기 전용으로 검사하고 결과를 실행 기록에 남긴다. 올해 지정 시각부터 2시간 안에만 실행하도록 제한했고, 검사 뒤 해당 예약을 비활성화하도록 설정했다. 예약 시각에는 로컬 Mac Studio와 Orca 실행 서비스가 켜져 있고 인터넷에 연결돼 있어야 한다. 메일 접근 실패나 로그 누락은 정상으로 간주하지 않는다.</p>
+<p>§2-D의 <code>picnic-supabase-push-deploy-canary</code>는 10/19 재확인에서 Git·Orca 목록과 로컬 작업폴더에 없었다. 해당 워크트리를 보존하거나 복원할 필요는 없다. 기존 클라우드 관측 루틴은 별개이며, 10/24 검사 후 비활성화 여부를 확인할 후속 항목으로 남는다.</p>
+</section>
+
+<div class="callout">
+<strong>10/18 당시 상태</strong>
 <ol>
 <li>투표 진행 알림 크론을 30분 간격으로 바꿨다(10/18 01:10). 14:00 까지 26회 실행했고 모두 성공했다. 이전 크론은 한 번도 실행되지 않았다.</li>
 <li>일일 DB 점검 루틴의 프롬프트를 새 크론 기준으로 고쳤다(10/18 06:57).</li>
