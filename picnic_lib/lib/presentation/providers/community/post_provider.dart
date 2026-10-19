@@ -37,7 +37,7 @@ Future<List<PostModel>?> postsByArtist(
         .select('''
             post_id, title,created_at,view_count,reply_count, user_id,board_id, is_anonymous,
             boards!inner(board_id,name, artist_id, description),
-            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            user_profiles:user_profiles_public!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
             post_reports!left(post_id),
             post_scraps!left(post_id)
             ''')
@@ -88,7 +88,7 @@ Future<List<PostModel>?> postsByBoard(
         .select('''
             post_id, title,created_at,view_count,reply_count, user_id,board_id, is_anonymous,
             boards!inner(board_id,name, artist_id, description),
-            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            user_profiles:user_profiles_public!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
             post_reports!left(post_id),
             post_scraps!left(post_id)
         ''')
@@ -148,7 +148,7 @@ Future<List<PostModel>?> postsByQuery(
         .select('''
             post_id, title,created_at,view_count,reply_count, user_id,board_id,
             boards!inner(board_id,name, artist_id, description),
-            user_profiles!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
+            user_profiles:user_profiles_public!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at),
             post_reports!left(post_id),
             post_scraps!left(post_id)
          ''')
@@ -209,7 +209,7 @@ Future<PostModel?> postById(ref, String postId,
     var query = supabase
         .from('posts')
         .select(
-            '*, board:boards!inner(*), user_profiles!posts_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, board:boards!inner(*), user_profiles:user_profiles_public!posts_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('post_id', postId)
         .isFilter('post_reports', null);
 
