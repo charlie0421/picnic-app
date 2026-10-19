@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>투표 진행 알림 30분 크론과 무효 토큰 정리 — 핸드오프</title>
+<style>
+  :root {
+    --bg: #f6f4ef; --surface: #ffffff; --surface-2: #efece3; --text: #1d2321; --muted: #62706a;
+    --accent: #1f6e52; --accent-soft: #e4eee9; --warn: #96631e; --warn-soft: #f5eada;
+    --danger: #a8402f; --danger-soft: #f6e4df; --rule: #ddd7c9; --code-bg: #efece0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+      --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+      --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a; --surface: #1a1f21; --surface-2: #212729; --text: #e7eae7; --muted: #96a19b;
+    --accent: #4fae87; --accent-soft: #1e2f28; --warn: #d9a25b; --warn-soft: #2e2618;
+    --danger: #e08770; --danger-soft: #2e1e1a; --rule: #2a3134; --code-bg: #10201b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); line-height: 1.7;
+    font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+  main { max-width: 920px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 1.7rem; line-height: 1.35; margin: 0 0 8px; }
+  h2 { font-size: 1.25rem; margin: 44px 0 12px; padding-top: 20px; border-top: 1px solid var(--rule); }
+  h3 { font-size: 1.05rem; margin: 26px 0 8px; }
+  h4 { font-size: 0.97rem; margin: 18px 0 6px; }
+  p, li { font-size: 0.97rem; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin: 0 0 24px; }
+  .callout { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: 12px 16px; border-radius: 6px; margin: 14px 0; }
+  .callout.warn { border-color: var(--warn); background: var(--warn-soft); }
+  .callout.danger { border-color: var(--danger); background: var(--danger-soft); }
+  .callout ol, .callout ul { margin: 6px 0 0; }
+  code { background: var(--code-bg); padding: 1px 5px; border-radius: 4px; font-size: 0.88em;
+    font-family: "IBM Plex Mono", "SF Mono", Menlo, monospace; word-break: break-all; }
+  pre { background: var(--code-bg); padding: 12px 14px; border-radius: 8px; overflow-x: auto; font-size: 0.84rem; line-height: 1.55; }
+  pre code { background: none; padding: 0; word-break: normal; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+  th, td { border: 1px solid var(--rule); padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: var(--surface-2); white-space: nowrap; }
+  .tag { display: inline-block; font-size: 0.78rem; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--rule); color: var(--muted); white-space: nowrap; }
+  .tag.ok { color: var(--accent); border-color: var(--accent); }
+  .tag.open { color: var(--danger); border-color: var(--danger); }
+  .tag.part { color: var(--warn); border-color: var(--warn); }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+
+<h1>투표 진행 알림 30분 크론과 무효 토큰 정리 — 핸드오프</h1>
+<p class="meta">작성 2026-10-18 14:10 UTC(KST 23:10) · 대상 프로덕션 Supabase <code>xtijtefcycoeqludlngc</code> · picnic-supabase main <code>baaf2a4</code> · 시각은 따로 적지 않으면 UTC 다. 이 저장소는 공개 저장소이므로 키·사용자 ID·함수 ID·프롬프트 전문은 싣지 않는다. 앞선 기록은 <a href="handoff-20260929-ops-report-followup.html">9/29 핸드오프</a>에 있다.</p>
+
+<section aria-labelledby="followup-20261019">
+<h2 id="followup-20261019">10/19 후속 결과와 검사 예약</h2>
+<div class="callout">
+<p><strong>아래 본문은 10/18 시점의 기록이다.</strong> §2의 A·B·C·E는 10/19에 완료했다. send-push v58과 notify-vote-progress v54를 운영에 배포했고, 일일 리포트와 컷오버 24시간 점검을 마쳤다. 10/19 16:16 KST 재확인에서 v54는 ACTIVE였고, 16:00 정기 실행은 HTTP 200·발송 성공 2건·실패 0건이었다.</p>
+<p>최신 근거는 picnic-supabase의 <a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/operations/push-token-cleanup-deploy-preparation-2026-10-19.html">무효 토큰 정리 배포 결과</a>와 <a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/operations/vote-progress-timezone-2026-10-19.html">국가별 시간대 배포 결과</a>에 있다. 두 문서는 <a href="https://github.com/charlie0421/picnic-supabase/pull/251">picnic-supabase PR #251</a>로 main에 반영했다.</p>
+</div>
+<p>남은 D·F 검사는 Orca 자동화 4개로 예약했다. 아래 시각은 모두 2026년 KST다. 각 실행은 picnic-supabase main에서 새 워크트리와 새 세션을 만들므로 이 문서의 원래 작업 세션이 종료돼도 된다.</p>
+<div class="table-wrap"><table>
+<tr><th>예약 시각(KST)</th><th>검사</th><th>자동화 ID</th></tr>
+<tr><td>10/24 18:25</td><td>투표 313·314 시작 알림과 18:15 관측 리포트</td><td><code>2ef0578e-4360-4049-8874-9ac69d686f11</code></td></tr>
+<tr><td>11/1 09:25</td><td>월간 투표 Cron(jobid 4)과 09:10 일일 리포트</td><td><code>fa0c893b-6f65-4db9-a104-d4fc1b90cd50</code></td></tr>
+<tr><td>11/15 00:35</td><td>보너스 만료 경계 뒤 미처리 잔량과 Cron 실행</td><td><code>89d33155-7b11-44fe-a278-f40386fc3e9a</code></td></tr>
+<tr><td>11/15 09:25</td><td>보너스 만료 일일 리포트의 판정</td><td><code>b58bf0d6-1f80-484d-843a-1726c4552032</code></td></tr>
+</table></div>
+<p>자동화는 운영 상태를 읽기 전용으로 검사하고 결과를 실행 기록에 남긴다. 올해 지정 시각부터 2시간 안에만 실행하도록 제한했고, 검사 뒤 해당 예약을 비활성화하도록 설정했다. 예약 시각에는 로컬 Mac Studio와 Orca 실행 서비스가 켜져 있고 인터넷에 연결돼 있어야 한다. 메일 접근 실패나 로그 누락은 정상으로 간주하지 않는다.</p>
+<p>§2-D의 <code>picnic-supabase-push-deploy-canary</code>는 10/19 재확인에서 Git·Orca 목록과 로컬 작업폴더에 없었다. 해당 워크트리를 보존하거나 복원할 필요는 없다. 기존 클라우드 관측 루틴은 별개이며, 10/24 검사 후 비활성화 여부를 확인할 후속 항목으로 남는다.</p>
+</section>
+
+<div class="callout">
+<strong>10/18 당시 상태</strong>
+<ol>
+<li>투표 진행 알림 크론을 30분 간격으로 바꿨다(10/18 01:10). 14:00 까지 26회 실행했고 모두 성공했다. 이전 크론은 한 번도 실행되지 않았다.</li>
+<li>일일 DB 점검 루틴의 프롬프트를 새 크론 기준으로 고쳤다(10/18 06:57).</li>
+<li>send-push 실패는 모두 무효 토큰(<code>UNREGISTERED</code>)이었다. 토큰을 정리하는 수정을 main 에 머지했다(picnic-supabase PR #238). <strong>운영 배포는 하지 않았다.</strong> 배포 준비를 시작하려던 시점에 작업을 멈췄다(§2-A).</li>
+</ol>
+</div>
+
+<h2>1. 한 일</h2>
+
+<h3>1-1. 크론을 30분 간격으로 전환 <span class="tag ok">완료</span></h3>
+<ul>
+<li><strong>문제.</strong> notify-vote-progress 는 시간대 그룹마다 현지 09:30·12:30·18:30·21:00(±15분)에 알림을 보낸다. 크론 4개(jobid 50~53)는 UTC 00:30·03:30·09:30·12:00, 즉 KST 기준 시각에만 돌았다. 그래서 Asia/Seoul 그룹(KR·JP·국가 없음)만 네 번을 모두 받았고, 7개 그룹은 한 번도 받지 못했다.</li>
+<li><strong>변경.</strong> picnic-supabase PR #233(<code>1a3da1f</code>). 새 크론 jobid 98 <code>notify-vote-progress-every-30m</code>, 일정 <code>0,30 * * * *</code>. 이전 크론 50~53 은 지우지 않고 비활성으로 바꿨다. 컷오버 킷은 <code>supabase/prod-cutover/20261017-vote-progress-cron-every-30m/</code> 다.</li>
+<li><strong>리뷰.</strong> Codex 교차 리뷰는 HOLD 였다. 지적은 두 가지였다: 명령 비교가 대소문자를 무시하는 문제, 일부만 활성인 상태에서도 적용이 시작되는 문제. 둘 다 고친 뒤 GO 를 받았다.</li>
+<li><strong>적용.</strong> 2026-10-18 01:10:13. 적용과 원장 기록(<code>20261017010000</code>)은 한 트랜잭션이다. 적용 전에 rollback 리허설을 했다.</li>
+</ul>
+
+<div class="table-wrap"><table>
+<tr><th>확인 (10/18 14:06 기준)</th><th>결과</th></tr>
+<tr><td>jobid 98 실행</td><td>26회, 실패 0</td></tr>
+<tr><td>jobid 50~53 실행(01:10 이후)</td><td>0회</td></tr>
+<tr><td>함수 응답</td><td>모두 HTTP 200, pg_net 타임아웃 0</td></tr>
+<tr><td>대상 그룹</td><td>실행마다 목표 현지 시각과 정확히 일치. 예: 01:30 Shanghai, 02:30 Bangkok+LA, 03:30 Seoul+Dhaka</td></tr>
+<tr><td>가장 큰 그룹</td><td>Bangkok 152건, 약 7초. pg_net 대기 한도 90초 안</td></tr>
+<tr><td>KR·JP 회귀</td><td>03:30 의 <code>push_messages</code> 7행. 컷오버 전 00:30 실행도 7행</td></tr>
+</table></div>
+
+<h3>1-2. 일일 DB 점검 루틴 프롬프트 수정 <span class="tag ok">완료</span></h3>
+<ul>
+<li>대상은 클라우드 루틴 <code>trig_01Rt3PFebBYi1mVtQk2wA7HK</code>(09:10 KST 리포트)이다.</li>
+<li>notify-vote-progress 설명을 "jobid 50~53, 하루 4회"에서 "jobid 98, 30분 간격, 하루 48회"로 바꿨다.</li>
+<li>health 쿼리에 <code>vote_progress_jobs</code> 항목(jobid·active·runs_24h·last_run)을 더했다. 리포트는 다음 경우 WARNING 을 낸다: jobid 50~53 이 10/18 01:10 뒤에 실행됨, jobid 98 이 비활성이거나 없음, 활성 job 이 2개 이상.</li>
+<li>함수가 이제 30분마다 돌므로, 리포트 창(18:10~00:10)에도 이 함수의 pg_net 응답 행이 들어온다.</li>
+<li>수정한 쿼리는 운영에서 읽기 전용으로 실행해 확인했다. 수정 전·후 프롬프트와 diff 는 로컬 비공개 폴더에 있다(§6).</li>
+</ul>
+
+<h3>1-3. send-push 실패 원인 <span class="tag ok">완료</span></h3>
+<ul>
+<li>01:30~12:00 의 send-push 요약 로그(<code>[send-push] summary</code>, function_logs)를 집계했다. 실패가 있었던 호출은 21건, 실패는 44건이다. <strong>44건 모두 <code>UNREGISTERED</code></strong> 였다. 대부분 Android 였다.</li>
+<li><code>UNREGISTERED</code> 는 FCM 이 그 토큰을 다시 받아들이지 않는다는 뜻이다(앱 삭제, 토큰 교체 등). 서버 결함은 아니다.</li>
+<li>send-push 가 이 토큰을 지우지 않아서, 같은 토큰이 실행마다 다시 실패했다. 예: Seoul 그룹 호출(41건 중 4건 실패)이 03:30·09:30·12:00 에 같은 결과를 냈다.</li>
+</ul>
+
+<h3>1-4. 무효 토큰 정리 수정 <span class="tag part">머지 완료, 배포 전</span></h3>
+<ul>
+<li>picnic-supabase PR #238, squash <code>baaf2a4</code>.</li>
+<li><strong>동작.</strong> FCM 이 <code>UNREGISTERED</code> 로 답한 토큰만 정리한다. 발송이 끝난 뒤, 그 토큰 값을 그대로 가진 <code>user_push_tokens</code> 행에서 해당 플랫폼 칸만 <code>null</code> 로 바꾼다. 행은 지우지 않는다.</li>
+<li><strong>제한.</strong> UPDATE 하나에 토큰 50개. UPDATE 하나는 4초 뒤 중단한다. 정리 전체는 8초 안에서만 새 UPDATE 를 보낸다. 서비스 롤 호출만 정리한다.</li>
+<li><strong>로그.</strong> 요약 로그에 <code>unregisteredCleared</code>·<code>clearErrors</code>·<code>clearSkipped</code> 를 더했다.</li>
+<li><strong>검증.</strong> push 테스트 79개 통과. 변이 7개를 테스트가 모두 잡았다. Codex 교차 리뷰(GPT-6.1-Sol high)는 1차 HOLD(정리 요청에 시간 제한 없음, High 1건)였고, 수정 뒤 재검토에서 GO 를 받았다.</li>
+<li><strong>CI.</strong> edge preflight gate 가 소스 지문 불일치로 실패했다. 인벤토리 지문을 <code>c1387649…</code> 로 갱신하고 근거 문서 <code>docs/operations/push-clear-unregistered-2026-10-18.html</code>(picnic-supabase)을 추가했다.</li>
+<li><strong>일괄 정리는 하지 않는다.</strong> 어떤 토큰이 무효인지는 보내 봐야 안다. 발송할 때 걸리는 토큰부터 지워진다.</li>
+</ul>
+
+<h2>2. 다음 작업</h2>
+
+<h3>A. send-push 운영 배포 <span class="tag open">승인 필요</span></h3>
+<div class="callout warn">send-push 는 일반 <code>supabase functions deploy</code> 로 배포하지 않는다. import map 없이 빌드하면 하위 패키지 4개의 버전이 바뀐다. 10/16 배포와 같은 방식(고정 import map 으로 만든 빌드 파일 + canary 실행 도구)을 쓴다. 자세한 방식은 picnic-supabase <code>docs/operations/push-deploy-canary-2026-10-16.html</code> 에 있다.</div>
+<p>실행 도구 <code>scripts/security/edge_canary.py</code> 는 10/16 배포 전용으로 고정돼 있다. 그래서 먼저 도구를 이번 배포에 맞게 바꿔야 한다.</p>
+<ul>
+<li><code>ORIGINALS</code> 에 10/15 에 관측한 원본(send-push v56, my_artist v61)이 하드코딩돼 있다. 지금 운영본은 send-push v57, my_artist v62 다. 되돌리기 기준을 v57 로 바꿔야 한다.</li>
+<li><code>SOURCE_SHA</code> 가 <code>d4c8986</code> 이다. 새 빌드의 기준은 main <code>baaf2a4</code> 다.</li>
+<li><code>ops/edge/send-push/manifest.json</code> 에 실행 도구 sha256, 빌드, 출처 증명이 들어 있다. 도구를 바꾸면 manifest 도 다시 만들어야 한다(<code>scripts/security/edge_canary_manifest.py</code>). <code>scripts/security/test_edge_canary.py</code> 도 같이 맞춰야 한다.</li>
+<li>이번 배포는 send-push 만 바꾼다. my_artist(v62)는 그대로 둔다. 새 send-push 도 동시 발송을 유지하므로 my_artist 와 함께 동작한다.</li>
+</ul>
+<p>진행 순서(제안):</p>
+<ol>
+<li>현재 운영본 send-push v57 을 내려받아 백업한다. 읽기 전용이다.</li>
+<li><code>baaf2a4</code> 로 고정 import map 빌드를 만든다. 실행 도구, manifest, 테스트를 v57 기준으로 바꾼다. 이 변경은 picnic-supabase PR 로 만들고 교차 리뷰를 받는다.</li>
+<li>리허설 계획(임시 함수 배포, canary 사용자 1명 발송)을 정리해 승인을 받는다.</li>
+<li>승인 뒤 배포한다. 다음 투표 진행 알림 실행에서 요약 로그의 <code>unregisteredCleared</code> 가 0보다 크고, 같은 토큰의 반복 실패가 줄어드는지 본다.</li>
+<li>문제가 있으면 v57 로 되돌린다. 이미 비운 토큰 칸은 앱이 다음에 등록할 때 다시 채운다.</li>
+</ol>
+
+<h3>B. 10/19 09:10 KST 리포트 확인 <span class="tag open">대기</span></h3>
+<ul><li>새 프롬프트의 첫 실행이다. <code>vote_progress_jobs</code> 항목이 리포트에 나오는지, 오탐 WARNING 이 없는지 본다.</li></ul>
+
+<h3>C. 컷오버 24시간 점검 <span class="tag open">10/19 01:30 이후</span></h3>
+<ul><li>jobid 98 실행 48회가 모두 성공했는지 본다. jobid 50~53 실행이 0회인지 본다. 큰 투표가 있으면 Bangkok 그룹 실행(02:30·05:30·11:30·14:00)의 소요 시간을 본다.</li></ul>
+
+<h3>D. 10/24 투표 313·314 관측 <span class="tag open">대기</span></h3>
+<ul><li>관측 루틴 메일(18:15 KST)을 읽고 루틴을 비활성화한다. 결과가 정상이면 picnic-supabase 워크트리 <code>picnic-supabase-push-deploy-canary</code> 를 지운다.</li></ul>
+
+<h3>E. notify-vote-progress 함수 수정 <span class="tag open">미착수</span></h3>
+<ul>
+<li>미매핑 국가 36개(예: MX, CO, AU)의 참여자는 알림을 받지 못한다.</li>
+<li>US 가 두 그룹(New York, LA)에 걸쳐 있다.</li>
+<li>그룹 오프셋이 고정 표준시라 서머타임을 반영하지 않는다. 지금 LA·NY 그룹은 현지 시각보다 1시간 늦게 받는다.</li>
+</ul>
+
+<h3>F. 정기 점검</h3>
+<ul><li>11/1 00:00: 월간 투표 추가 크론(jobid 4). 11/14 15:00: 보너스 만료 경계.</li></ul>
+
+<h2>3. 프로덕션과 외부 시스템에 가한 변경</h2>
+<div class="table-wrap"><table>
+<tr><th>시각</th><th>대상</th><th>변경</th><th>되돌리기</th></tr>
+<tr><td>10/18 01:10:13</td><td>pg_cron</td><td>jobid 98 생성, jobid 50~53 비활성, 원장 <code>20261017010000</code></td><td>컷오버 킷 <code>rollback/01_restore.sql</code></td></tr>
+<tr><td>10/18 06:57:25</td><td>클라우드 루틴</td><td>일일 점검 프롬프트 3차 수정(sha256 <code>86a7bb81…</code> → <code>2d7cad31…</code>)</td><td>로컬 백업의 수정 전 프롬프트로 update</td></tr>
+<tr><td>10/18</td><td>GitHub</td><td>picnic-supabase PR #238 머지, 브랜치 <code>chore/vote-progress-cron-30m</code> 삭제</td><td>—</td></tr>
+</table></div>
+<p>send-push 는 바꾸지 않았다. 운영본은 여전히 v57 이다.</p>
+
+<h2>4. 상태를 다시 확인하는 쿼리 (읽기 전용)</h2>
+<pre><code>-- 크론 상태와 컷오버 뒤 실행 수
+select j.jobid, j.jobname, j.schedule, j.active,
+       (select count(*) from cron.job_run_details d
+         where d.jobid = j.jobid and d.start_time &gt; '2026-10-18 01:10+00') as runs_since_cutover,
+       (select count(*) from cron.job_run_details d
+         where d.jobid = j.jobid and d.start_time &gt; '2026-10-18 01:10+00' and d.status &lt;&gt; 'succeeded') as failed
+  from cron.job j
+ where j.command ilike '%notify-vote-progress%'
+ order by j.jobid;
+
+-- 최근 6시간의 함수 응답(대상 그룹, 성공·실패 수)
+select created, status_code, timed_out, left(content, 200) as body
+  from net._http_response
+ where content like '%targetTimezones%'
+ order by created desc;</code></pre>
+<p>send-push 실패 코드는 로그에서 본다(Supabase MCP <code>query_logs</code>, source <code>function_logs</code>, 메시지 <code>[send-push] summary</code>). 요약 로그에는 토큰과 사용자 ID 가 없다.</p>
+
+<h2>5. 조사할 때 알아둘 것</h2>
+<ul>
+<li>운영 postgres 롤은 <code>cron.job</code> 을 UPDATE 할 수 없다. <code>cron.alter_job</code>·<code>cron.schedule</code>·<code>cron.unschedule</code> 을 쓴다.</li>
+<li><code>net._http_response</code> 는 약 6시간만 보존한다.</li>
+<li>notify-vote-progress 실행 시간은 <code>push_messages</code>(data.type='vote_progress')의 첫·마지막 행 시각으로 본다. <code>function_edge_logs</code> 는 회차의 약 25% 가 빠진다.</li>
+<li>picnic-supabase 에서 <code>supabase/functions/</code> 아래 런타임 파일을 바꾸면 edge preflight 인벤토리의 소스 지문을 갱신해야 한다. 근거 문서의 <code>#freshness</code> 절도 함께 쓴다.</li>
+<li>교차 리뷰 전 사용량 라우트가 blocked(예: Orca 캐시 낡음)이면 작업자를 띄우지 않는다. 10/18 재검토 때 게이트가 셸에서 작업자 실행을 막지 못해 작업이 한 번 잘못 전달됐다. 리뷰어를 즉시 중단했고 그 작업은 실패로 정산했다.</li>
+</ul>
+
+<h2>6. 관련 자료</h2>
+<ul>
+<li>picnic-supabase PR #233(30분 크론), #238(무효 토큰 정리), #228(푸시 배포 도구)</li>
+<li>picnic-supabase <code>docs/operations/push-clear-unregistered-2026-10-18.html</code>, <code>docs/operations/push-deploy-canary-2026-10-16.html</code></li>
+<li>picnic-supabase <code>supabase/prod-cutover/20261017-vote-progress-cron-every-30m/</code></li>
+<li>로컬 비공개 증거(저장소 밖): <code>~/.local/share/usage-route-evidence/20261016T-vote-progress-cron-review/</code>(컷오버 리뷰·적용 기록), <code>~/.local/share/usage-route-evidence/20261018T-vote-progress-routine/</code>(루틴 프롬프트 전·후), <code>~/.local/share/usage-route-evidence/20261018T-push-clear-unregistered-review/</code>(PR #238 리뷰)</li>
+<li><a href="handoff-20260929-ops-report-followup.html">9/29 일일 점검 후속 핸드오프</a></li>
+</ul>
+
+</main>
+</body>
+</html>
