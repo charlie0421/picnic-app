@@ -256,7 +256,7 @@ Future<List<PostModel>> postsByUser(
     var query = supabase
         .from('posts')
         .select(
-            '*, boards!inner(*), user_profiles!posts_user_id_fkey(*), post_reports!left(post_id), post_scraps!left(post_id)')
+            '*, boards!inner(*), user_profiles:user_profiles_public!posts_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at), post_reports!left(post_id), post_scraps!left(post_id)')
         .eq('user_id', userId)
         .isFilter('deleted_at', null)
         .isFilter('post_reports', null);
@@ -272,7 +272,7 @@ Future<List<PostModel>> postsByUser(
         .order('created_at', ascending: false)
         .range(range.$1, range.$2);
 
-    return response.map((data) => PostProviderHelper.parsePostWithUserAndBoard(data)).toList();
+    return response.map((data) => PostModel.fromJson(data)).toList();
   } catch (e, s) {
     logger.e('Error fetching posts:', error: e, stackTrace: s);
     return Future.error(e);

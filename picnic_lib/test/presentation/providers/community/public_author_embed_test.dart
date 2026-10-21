@@ -194,6 +194,81 @@ void main() {
           expectListRequestAndAuthors(posts);
         });
 
+        test('postsByUser preserves scope, filters and pagination', () async {
+          tearDownMockSupabase();
+          final tables = <String, dynamic>{
+            'posts': [_postRow('post-1', _author())],
+            'user_blocks': [
+              {'blocked_user_id': 'blocked-author'},
+            ],
+          };
+          if (signedIn) {
+            await setupMockSupabaseWithAuth(tables, userId: _viewerId);
+          } else {
+            setupMockSupabase(tables);
+          }
+
+          final posts = await container.read(
+            postsByUserProvider(_authorId, 10, 2).future,
+          );
+
+          final postRequests = _restRequests(capturedMockRequests, 'posts');
+          expect(postRequests, hasLength(1));
+          final request = postRequests.single;
+          _expectOnlyPublicAuthorEmbed(request, _postAuthorEmbed);
+          expect(request.queryParameters['select'], contains('boards!inner(*)'));
+          expect(
+            request.queryParameters['select'],
+            contains('post_reports!left(post_id)'),
+          );
+          expect(
+            request.queryParameters['select'],
+            contains('post_scraps!left(post_id)'),
+          );
+          expect(request.queryParameters['user_id'], 'eq.author-1');
+          expect(request.queryParameters['deleted_at'], 'is.null');
+          expect(request.queryParameters['post_reports'], 'is.null');
+          expect(request.queryParameters['order'], 'created_at.desc.nullslast');
+          expect(request.queryParameters['offset'], '10');
+          expect(request.queryParameters['limit'], '10');
+          expect(
+            request.queryParameters['or'],
+            signedIn ? '(and(user_id.not.in.(blocked-author)))' : isNull,
+          );
+          final blockRequests = _restRequests(
+            capturedMockRequests,
+            'user_blocks',
+          );
+          expect(blockRequests, hasLength(signedIn ? 1 : 0));
+          if (signedIn) {
+            expect(blockRequests.single.queryParameters['user_id'], 'eq.viewer-1');
+            expect(blockRequests.single.queryParameters['deleted_at'], 'is.null');
+          }
+
+          final post = posts.single;
+          expect(post.postId, 'post-1');
+          expect(post.userId, _authorId);
+          expect(post.userProfiles!.id, _authorId);
+          expect(post.userProfiles!.nickname, 'PublicAuthor');
+          expect(post.userProfiles!.avatarUrl, 'https://example.com/author.png');
+          expect(post.userProfiles!.deletedAt, isNull);
+          expect(post.board!.boardId, 'board-1');
+          expect(post.board!.name, {'en': 'Board'});
+          expect(post.createdAt, DateTime.utc(2026, 1, 1));
+        });
+
+        test('postsByUser preserves posts with a null public author', () async {
+          final posts = await container.read(
+            postsByUserProvider(_authorId, 10, 1).future,
+          );
+
+          expectListRequestAndAuthors(posts);
+          expect(posts.map((post) => post.postId), ['post-1', 'post-2']);
+          expect(posts[0].board!.boardId, 'board-1');
+          expect(posts[1].board!.boardId, 'board-1');
+          expect(posts[1].userId, _authorId);
+        });
+
         testWidgets('postsByQuery', (tester) async {
           // 정렬 키가 현재 로캘을 navigatorKey 의 context 에서 읽는다.
           await tester.pumpWidget(
