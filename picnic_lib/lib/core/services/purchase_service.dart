@@ -200,9 +200,12 @@ class PurchaseService {
     Duration pendingIntakeCacheDuration = const Duration(seconds: 30),
     Duration pendingIntakeLookupTimeout = const Duration(seconds: 2),
     bool sweepOnStart = true,
+    Future<void> Function()? flushReceiptQueue,
   }) : unfinishedPurchaseSource =
            unfinishedPurchaseSource ?? defaultUnfinishedPurchaseSource(),
        _clock = clock,
+       _flushReceiptQueue =
+           flushReceiptQueue ?? (() => ReceiptQueueService().flushPending()),
        _resumeSweepInterval = resumeSweepInterval,
        _pendingIntakeCacheDuration = pendingIntakeCacheDuration,
        _pendingIntakeLookupTimeout = pendingIntakeLookupTimeout {
@@ -282,6 +285,12 @@ class PurchaseService {
   final UnfinishedPurchaseSource? unfinishedPurchaseSource;
 
   final DateTime Function() _clock;
+
+  /// 스윕이 끝에서 돌리는 영수증 큐 플러시. 운영에서는
+  /// [ReceiptQueueService.flushPending] 이고, 테스트는 호출 여부만 센다 -
+  /// 실제 플러시는 모의 함수 호출이 응답하지 않는 FakeAsync 하네스에서 영원히
+  /// 끝나지 않는다.
+  final Future<void> Function() _flushReceiptQueue;
   final Duration _resumeSweepInterval;
   static const String pendingIntakeConfigKey =
       'PURCHASE_PENDING_INTAKE_ANDROID';
@@ -1516,6 +1525,18 @@ class PurchaseService {
     }
     if (scan.isEmpty && scan.pendingPurchases.isEmpty) {
       logger.i('ℹ️ 미완료 구매 없음 (${source.label}, 진행 중 ${scan.liveInFlight}건)');
+      // 스토어에 미완료 거래가 없어도 영수증 큐에는 영수증이 남아 있을 수
+      // 있다 - 다른 경로가 거래를 먼저 finish 했거나, 이전 실행이 큐 적재 뒤
+      // 전송 전에 죽은 경우다. 그 영수증은 스윕이 다시 찾아 주지 못하므로
+      // 큐 flush 가 유일한 재시도 수단이다 (PICNIC-2743).
+      //
+      // 트레일링 flush 와 같은 규칙이다: 화면이 다시 붙어 자체 정리를 하는
+      // 중이면(shouldAbort) 서버 왕복을 만들지 않는다. 세션이 없으면 전송은
+      // 401 로 끝나고 백오프만 태우므로 로그인 뒤의 다음 계기에 맡긴다.
+      final abortedBeforeFlush = shouldAbort?.call() ?? false;
+      if (!abortedBeforeFlush && _signedInUserIdOrNull() != null) {
+        await _flushReceiptQueue();
+      }
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.completed,
@@ -1701,7 +1722,7 @@ class PurchaseService {
     // 중단됐으면 큐 플러시도 건너뛴다 - 화면이 다시 붙어 자체 정리를 하는
     // 중일 수 있는 상황에서 굳이 서버 왕복을 더 만들 이유가 없다.
     if (!aborted) {
-      await ReceiptQueueService().flushPending();
+      await _flushReceiptQueue();
     }
 
     return PurchaseSweepReport(
