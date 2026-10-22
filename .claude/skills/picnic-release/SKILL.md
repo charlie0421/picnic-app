@@ -1,6 +1,6 @@
 ---
 name: picnic-release
-description: picnic_app 스토어 신규 바이너리를 릴리스할 때 사용한다 — "릴리즈 해줘", "새 버전 업로드", "빌드넘버만 올려서 다시 빌드", "실패한 Codemagic 빌드 재시도", "picnic-v 태그 푸시". 인자는 patch(기본, 새 버전) · build(현재 버전의 새 바이너리) · M.m.P+MmPPBB(직접 지정). Shorebird OTA 패치, 스테이징 빌드, ttja_app 에는 쓰지 않는다.
+description: picnic_app 스토어 신규 바이너리를 릴리스할 때 사용한다 — "릴리즈 해줘", "새 버전 업로드", "빌드넘버만 올려서 다시 빌드", "실패한 Codemagic 빌드 재시도", "picnic-v 태그 푸시". 인자는 patch(새 버전) · build(현재 버전의 새 바이너리) · M.m.P+MmPPBB(직접 지정). Shorebird OTA 패치, 스테이징 빌드, ttja_app 에는 쓰지 않는다.
 argument-hint: "[patch | build | <M.m.P+MmPPBB>]"
 ---
 
@@ -15,13 +15,14 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 
 | 호출 | 뜻 | 버전 |
 |---|---|---|
-| `patch` (기본) | **새로운 버전** — 패치 버전만 올린다 | `next patch` · 1.3.5+130501 → 1.3.6+130601 |
+| `patch` | **새로운 버전** — 패치 버전만 올린다 | `next patch` · 1.3.5+130501 → 1.3.6+130601 |
 | `build` | **현재 버전의 새 바이너리** — 빌드 번호만 올린다 (재빌드, 실패한 빌드 재시도) | `next build` · 1.3.5+130501 → 1.3.5+130502 |
 | `<M.m.P+MmPPBB>` | **직접 지정** — minor·major 증가도 여기로 | 사용자 값 그대로 · 예 `1.4.0+140001` |
 
-- 인자가 없고 요청 문장으로도 모드가 갈리지 않으면 `patch` 다.
-- 직접 지정은 `next` 를 건너뛰고 1번에서 그 값을 쓴다. `bump` 가 형식·MmPPBB 접두·증가 여부를 검증하며, 거부될 때만 되묻는다.
-- 세 모드 모두 아래 절차는 동일하다. `build` 도 범프 PR 을 생략하지 않는다(태그는 pubspec 과 일치해야 하고,
+- 모드는 1번의 표에서 위부터 처음 맞는 줄로 정한다.
+- 직접 지정은 `next` 를 건너뛰고 1번에서 그 값을 쓴다. `bump` 가 형식·MmPPBB 접두를 검증하고, 빌드 번호가
+  원격 릴리스 태그(스테이징 포함)의 최댓값보다 큰지 본다. 거부될 때만 되묻는다.
+- 범프하는 세 모드는 모두 아래 2~6을 거친다. `build` 도 범프 PR 을 생략하지 않는다(태그는 pubspec 과 일치해야 하고,
   커밋 하나에는 릴리스 태그가 하나만 붙을 수 있다).
 
 ## 절차
@@ -29,11 +30,25 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 0. **최신 코드 받기** — 항상 여기서 시작한다. 이전 세션의 브랜치·로컬 `main`·기억 속 SHA 를 믿지 않는다.
    ```bash
    git fetch origin main --tags --prune
-   git log --oneline "$(git describe --tags --abbrev=0 --match 'picnic-v*' origin/main)"..origin/main
+   prev=$(git describe --tags --abbrev=0 --match 'picnic-v*' origin/main)
+   git log --oneline "$prev"..origin/main
+   scripts/release_picnic.sh status "$prev"
    ```
-   출력(직전 릴리스 태그 이후 커밋)이 곧 이번 릴리스 내용이다 — 사용자에게 보여준다.
-   사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다
-1. **버전 결정** — `scripts/release_picnic.sh next <patch|build>` (직접 지정이면 생략)
+   `git log` 출력(직전 릴리스 태그 이후 커밋)이 곧 이번 릴리스 내용이다 — 사용자에게 보여준다.
+   사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다.
+   `status` 출력은 직전 릴리스의 빌드 결과다. Codemagic API 든 GitHub 체크든 같은 열(워크플로 ID, 상태, 시작, 끝, URL)로
+   최신순으로 나온다. `picnic-app-ios`·`picnic-app-android` 의 첫 줄이 모두 `finished` 면 성공이다. 하나라도
+   `failed`·`canceled`·`timeout` 이면 실패다. `queued`·`building`·`in_progress` 같은 진행 상태면 끝난 뒤 다시 본다.
+   두 워크플로 중 하나라도 줄이 없거나 위에 없는 값이면 성공으로 보지 않는다 — Codemagic 화면이나 `shorebird releases list`
+   로 그 버전이 나갔는지 확인하고, 그래도 모르면 사용자에게 묻는다
+1. **버전 결정** — 직접 지정이 아니면 `scripts/release_picnic.sh next <patch|build>` 를 실행한다. 아래 표에서 위부터 처음 맞는 줄을 따른다.
+
+   | 상태 | 할 일 |
+   |---|---|
+   | 사용자가 버전을 직접 지정했다 | 그 값으로 2부터 진행한다. 표시 버전(예: 1.3.6)만 주면 그 버전 태그의 최대 빌드 순번 +1 을 붙인다(태그가 없으면 01) |
+   | `next` 가 "아직 태그되지 않았다"로 멈췄다 | origin/main 의 버전이 이번 버전이다. 2~6을 건너뛰고 7로 간다 |
+   | 0에서 직전 빌드가 실패했다 | `next build` 값으로 진행한다(같은 버전, 빌드 순번 +1) |
+   | 그 밖 | 요청한 모드의 `next` 값으로 진행한다. 요청에 모드가 없으면 `patch` 다 |
 2. **브랜치** — `git switch -c chore/release-<M>-<m>-<P>[-build-<BB>] origin/main --no-track`
    (워크트리 안에서만. 메인 폴더에서는 워크트리를 먼저 만든다.) 기존 릴리스 브랜치를 재사용하지 않고
    방금 받은 `origin/main` 에서 새로 만든다 — 아니면 `bump` 가 거부한다
@@ -64,7 +79,9 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 
 기존 태그를 삭제·이동·재푸시하지 않는다. 같은 커밋에 접미사만 바꾼 태그를 하나 더 붙이지도 않는다
 (`resolve_release_tag.sh` 가 커밋당 태그 1개를 요구하고, 스토어는 빌드 번호 재사용을 거부한다).
-원인을 main 에 고친 뒤 **`build` 모드로 처음부터** 다시 돈다.
+원인을 고친 뒤 **`build` 모드로 처음부터** 다시 돈다. 코드 원인은 main 에 머지하고, CI 설정 원인(인증 토큰 등)은
+Codemagic 에서 고친다. 그 사이 `patch` 범프가 main 에 머지됐고 아직 태그되지 않았으면, `bump` 에 실패한 버전의
+다음 빌드 번호를 직접 지정해 되돌린다(예: 1.3.7+130701 → 1.3.6+130602).
 
 ## 흔한 실수
 
@@ -75,3 +92,5 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 | GitHub 체크에 Android 가 없어 실패로 판단 | 체크는 빌드가 시작돼야 생긴다. `status` (Codemagic API) 로 `queued` 를 확인 |
 | 이 절차로 OTA 를 내보냄 | OTA 는 태그 없이 Codemagic `picnic-app-patch-*` 워크플로 전용. 로컬 `shorebird patch` 는 금지 |
 | 스테이징 빌드에 이 스킬 사용 | 스테이징은 `picnic-staging-v*` 태그라 범위 밖이다. 사용자에게 확인한다 |
+| 직전 빌드가 실패했는데 `patch` 로 새 버전을 범프함 | 실패한 버전은 같은 버전의 빌드 순번만 올린다. 0의 `status` 로 확인하고 1의 표를 따른다 |
+| main 의 태그되지 않은 버전을 다시 범프함 | 그 번호를 건너뛰게 된다. `next` 가 멈추면 범프 없이 7부터 한다 |

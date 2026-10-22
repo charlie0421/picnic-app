@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# release_picnic.sh 테스트용 gh. `gh api <path> --jq <expr>` 만 받아 FAKE_GH_JSON 에 jq 로 적용한다.
+set -euo pipefail
+: "${FAKE_GH_JSON:?}"
+[ "${1:-}" = api ] && [ "${3:-}" = --jq ] || { echo "fake gh: unsupported: $*" >&2; exit 2; }
+jq -r "$4" "$FAKE_GH_JSON"
