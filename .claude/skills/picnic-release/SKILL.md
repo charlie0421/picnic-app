@@ -36,15 +36,16 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
    ```
    `git log` 출력(직전 릴리스 태그 이후 커밋)이 곧 이번 릴리스 내용이다 — 사용자에게 보여준다.
    사용자가 "머지했다"고 한 수정이 목록에 없으면 멈추고 PR 번호를 묻는다.
-   `status` 출력은 직전 릴리스의 빌드 결과다. 같은 워크플로가 여러 줄이면 맨 위 줄이 최신이다.
-   `picnic-app-ios`·`picnic-app-android` 의 최신 줄이 모두 `finished` 면 성공이다. 하나라도 `failed`·`canceled`·`timeout` 이면
-   실패다. 진행 중이면 끝난 뒤 다시 본다. 목록이 비면(최근 빌드 20개 밖) Codemagic 화면이나 `shorebird releases list` 로
-   그 버전이 나갔는지 확인한다
+   `status` 출력은 직전 릴리스의 빌드 결과다. Codemagic API 든 GitHub 체크든 같은 열(워크플로 ID, 상태, 시작, 끝, URL)로
+   최신순으로 나온다. `picnic-app-ios`·`picnic-app-android` 의 첫 줄이 모두 `finished` 면 성공이다. 하나라도
+   `failed`·`canceled`·`timeout` 이면 실패다. `queued`·`building`·`in_progress` 같은 진행 상태면 끝난 뒤 다시 본다.
+   두 워크플로 중 하나라도 줄이 없거나 위에 없는 값이면 성공으로 보지 않는다 — Codemagic 화면이나 `shorebird releases list`
+   로 그 버전이 나갔는지 확인하고, 그래도 모르면 사용자에게 묻는다
 1. **버전 결정** — 직접 지정이 아니면 `scripts/release_picnic.sh next <patch|build>` 를 실행한다. 아래 표에서 위부터 처음 맞는 줄을 따른다.
 
    | 상태 | 할 일 |
    |---|---|
-   | 사용자가 버전을 직접 지정했다 | 그 값으로 2부터 진행한다 |
+   | 사용자가 버전을 직접 지정했다 | 그 값으로 2부터 진행한다. 표시 버전(예: 1.3.6)만 주면 그 버전 태그의 최대 빌드 순번 +1 을 붙인다(태그가 없으면 01) |
    | `next` 가 "아직 태그되지 않았다"로 멈췄다 | origin/main 의 버전이 이번 버전이다. 2~6을 건너뛰고 7로 간다 |
    | 0에서 직전 빌드가 실패했다 | `next build` 값으로 진행한다(같은 버전, 빌드 순번 +1) |
    | 그 밖 | 요청한 모드의 `next` 값으로 진행한다. 요청에 모드가 없으면 `patch` 다 |

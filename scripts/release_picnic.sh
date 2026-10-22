@@ -115,7 +115,8 @@ cmd_tag() {
   tags=$(release_tags)
 
   [ -z "$(git tag --list "$tag")" ] || die "로컬에 이미 있는 태그: $tag"
-  [ -z "$(git ls-remote --tags origin "refs/tags/$tag")" ] || die "원격에 이미 있는 태그: $tag"
+  # 원격은 위에서 한 번만 읽는다. 다시 조회하면 그 실패가 빈 결과로 보여 검사를 통과한다.
+  if grep -Fqx -- "$tag" <<<"$tags"; then die "원격에 이미 있는 태그: $tag"; fi
   # 같은 버전이 다른 접미사나 스테이징 태그로 이미 나갔다면 스토어가 빌드 번호를 거부한다.
   others=$(tags_for_version "$tags" "$ver")
   [ -z "$others" ] || die "버전 $ver 은 이미 태그됐다 — 빌드 순번을 올려라: ${others//$'\n'/ }"
@@ -154,8 +155,15 @@ cmd_status() {
   fi
   sha=$(git ls-remote --tags origin "refs/tags/$tag^{}" | cut -f1)
   [ -n "$sha" ] || die "원격에 없는 태그: $tag"
+  # Codemagic API 와 같은 열(워크플로 ID, 상태, 시작, 끝, URL)과 최신순으로 맞춘다. 끝난 체크는 결론을
+  # Codemagic 상태 이름으로 바꾸고, 진행 중인 체크는 GitHub 상태를 그대로 둔다.
   gh api "repos/:owner/:repo/commits/$sha/check-runs" \
-    --jq '.check_runs[] | select(.name | startswith("Picnic App")) | [.name, .status, .conclusion // "-", .details_url] | @tsv'
+    --jq '.check_runs | map(select(.name | startswith("Picnic App"))) | sort_by(.started_at // "") | reverse | .[]
+      | [({"Picnic App - iOS": "picnic-app-ios", "Picnic App - Android": "picnic-app-android"}[.name] // .name),
+         (if .status == "completed"
+          then ({"success": "finished", "failure": "failed", "cancelled": "canceled", "timed_out": "timeout"}[.conclusion] // .conclusion)
+          else .status end),
+         (.started_at // "-"), (.completed_at // "-"), .details_url] | @tsv'
 }
 
 cmd="${1:?next|bump|tag|status}"; shift
