@@ -1187,6 +1187,42 @@ void main() {
       },
     );
 
+    testWidgets('an empty scan does not wait for the flush to finish', (
+      tester,
+    ) async {
+      // 스토어 화면은 진입 시 이 스윕이 끝나야 구매 게이트를 연다
+      // (RestorePurchaseHandler.performProactiveCleanup). 큐 flush 는 항목마다
+      // 30초 전송을 직렬로 돌리고 전체 상한이 없으므로, 그 완료를 기다리면
+      // 빈 스토어에서도 구매가 수십 초 막힌다 (Codex 리뷰 지적).
+      final neverFinishes = Completer<void>();
+      var flushes = 0;
+      await buildWithSource(
+        tester,
+        _SettledVerification(),
+        const UnfinishedPurchaseScan(),
+        flushReceiptQueue: () {
+          flushes++;
+          return neverFinishes.future;
+        },
+      );
+
+      PurchaseSweepReport? report;
+      unawaited(
+        service
+            .sweepUnfinishedPurchases(trigger: PurchaseSweepTrigger.manual)
+            .then((value) => report = value),
+      );
+      await tester.pump();
+      await tester.pump();
+
+      expect(flushes, 1, reason: '큐 flush 는 시작돼야 한다');
+      expect(
+        report?.outcome,
+        PurchaseSweepOutcome.completed,
+        reason: '빈 스캔의 스윕은 flush 완료와 무관하게 바로 끝나야 한다',
+      );
+    });
+
     testWidgets('an empty scan does not flush when the sweep was aborted', (
       tester,
     ) async {

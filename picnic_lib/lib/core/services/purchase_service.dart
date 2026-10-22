@@ -1533,9 +1533,20 @@ class PurchaseService {
       // 트레일링 flush 와 같은 규칙이다: 화면이 다시 붙어 자체 정리를 하는
       // 중이면(shouldAbort) 서버 왕복을 만들지 않는다. 세션이 없으면 전송은
       // 401 로 끝나고 백오프만 태우므로 로그인 뒤의 다음 계기에 맡긴다.
+      //
+      // 완료를 기다리지 않는다. 스토어 화면은 진입 시 이 스윕이 끝나야 구매
+      // 게이트를 여는데(RestorePurchaseHandler.performProactiveCleanup), 큐
+      // flush 는 항목마다 30초 전송을 직렬로 돌리고 전체 상한이 없다. 빈
+      // 스토어에서 그 완료를 기다리면 구매가 수십 초 막힌다 (Codex 리뷰).
+      // 생성자의 첫 프레임 flush 와 같이 백그라운드로 보내고 실패는 로그만
+      // 남긴다 - 큐는 durable 하므로 다음 계기가 다시 시도한다.
       final abortedBeforeFlush = shouldAbort?.call() ?? false;
       if (!abortedBeforeFlush && _signedInUserIdOrNull() != null) {
-        await _flushReceiptQueue();
+        unawaited(
+          _flushReceiptQueue().catchError((Object e) {
+            logger.w('빈 스캔 뒤 영수증 큐 플러시 실패(다음 기회에 재시도): $e');
+          }),
+        );
       }
       return PurchaseSweepReport(
         trigger: trigger,
