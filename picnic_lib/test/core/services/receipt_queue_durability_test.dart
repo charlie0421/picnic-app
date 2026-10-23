@@ -268,7 +268,7 @@ void main() {
     });
   });
 
-  group('C-2 제거 조건 (422 만 영구 거부)', () {
+  group('C-2 제거 조건 (422 영구 거부, 409 지급 확정)', () {
     Future<void> flushWith(int status, Map<String, dynamic> body) async {
       nextResponse = () async => jsonResponse(body, status);
       await enqueueAndroidItem();
@@ -300,14 +300,27 @@ void main() {
       );
     });
 
-    // 아래 두 응답 모양은 verify-receipt-v2 가 반환하지 않는다(엔진 grep 0건).
-    // 죽은 "제거" 분기를 지웠으므로 이제 정체 불명의 실패 = 유지 + 백오프다.
-    test('409 DUPLICATE_RECEIPT 는 제거 신호가 아니다', () async {
+    // verify-receipt-v2 는 v33(2026-10-21)부터 이미 지급된 구매가 다시 오면
+    // 409 + `grant_confirmed: true` 로 답한다. 그 구조화된 필드만 제거
+    // 신호다.
+    test('409 + grant_confirmed:true 는 지급 확정 중복이라 제거한다', () async {
+      await flushWith(409, {
+        'error': 'PURCHASE_ALREADY_GRANTED',
+        'retryable': false,
+        'grant_confirmed': true,
+      });
+
+      expect(await queue(), isEmpty);
+    });
+
+    // 아래 두 응답 모양(필드 없는 409, 400 PURCHASE_CANCELED)은
+    // verify-receipt-v2 가 반환하지 않는 레거시 모양이다. 정체 불명의 실패 =
+    // 유지 + 백오프다.
+    test('grant_confirmed 가 없는 409 DUPLICATE_RECEIPT 는 제거 신호가 아니다', () async {
       await flushWith(409, {
         'success': false,
         'code': 'DUPLICATE_RECEIPT',
         'message': '이미 처리된 구매입니다.',
-        'grant_confirmed': true,
       });
 
       final items = await queue();
