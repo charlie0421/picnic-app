@@ -25,8 +25,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 /// - **항목 단위 read-modify-write**: invoke 전후로 큐를 다시 읽고 해당
 ///   항목만 갱신/제거한다. 스냅샷 전체를 되쓰지 않으므로 invoke 를 기다리는
 ///   동안 적재된 새 구매가 사라지지 않는다.
-/// - **제거 조건**: 200 정산 성공, 그리고 422(서버의 명시적 영구 거부)뿐.
-///   그 외(503·5xx·400·네트워크·타임아웃·401 복구 실패)는 백오프 후 유지.
+/// - **제거 조건**: 200 정산 성공, 422(서버의 명시적 영구 거부), 그리고
+///   409 + `grant_confirmed: true`(서버가 지급까지 확인한 중복)뿐. 그 외
+///   (503·5xx·400·네트워크·타임아웃·401 복구 실패, 그 필드가 없는 409)는
+///   백오프 후 유지.
 /// - **스토어 트랜잭션은 절대 건드리지 않는다**: 이 큐는 검증 *재전송*만
 ///   한다. finish/consume/acknowledge 판단은 상위 구매 경로의 몫이다 —
 ///   미확인 트랜잭션을 파괴하면 과금된 구매가 소멸한다.
@@ -396,9 +398,11 @@ class ReceiptQueueService {
   /// 필드가 없는 배포본(v161)에 한해 알려진 실패 문구 부재로 fallback하며,
   /// 판별할 수 없는 응답은 보수적으로 유지한다.
   ///
-  /// **이 큐의 플러시는 이 판정을 쓰지 않는다** — 큐가 호출하는
-  /// `verify-receipt-v2` 는 409 를 반환하지 않는다([_flushItem] 주석 참고).
-  /// foreground 검증 경로가 레거시 409 를 만났을 때만 쓰인다.
+  /// **이 큐의 플러시는 이 판정을 쓰지 않는다** — 문구 폴백은 지급 확정을
+  /// 추측할 뿐이라, 과금된 영수증의 유일한 durable 기록을 지우는 근거가 될 수
+  /// 없다. 플러시는 [_serverConfirmedGrant] 의 구조화된 필드만 본다. 이 판정은
+  /// foreground 검증 경로가 409 를 `ReusedPurchaseException` 으로 바꿀 때
+  /// 쓰인다.
   @visibleForTesting
   static bool duplicateConfirmsGrant(dynamic details) {
     if (details is! Map) return false;
@@ -408,6 +412,14 @@ class ReceiptQueueService {
     final message = details['message']?.toString() ?? '';
     return !message.contains('실패');
   }
+
+  /// 409 본문에 서버가 지급 확정을 구조화된 필드로 실었는지.
+  ///
+  /// `verify-receipt-v2` 는 v33(2026-10-21)부터 이미 지급된 구매가 다시 오면
+  /// `{error: PURCHASE_ALREADY_GRANTED, retryable: false, grant_confirmed:
+  /// true}` 를 409 로 답한다. 적립·인박스·워커 없이 답하는 응답이다.
+  static bool _serverConfirmedGrant(Object? details) =>
+      details is Map && details['grant_confirmed'] == true;
 
   bool _shouldSendNow(Map<String, dynamic> item) {
     final nextAt = (item['nextAt'] as num?)?.toInt() ?? 0;
@@ -513,9 +525,10 @@ class ReceiptQueueService {
     }
   }
 
-  /// pending 접수가 서버에서 비재시도로 거부됐음을 durable 하게 남긴다.
+  /// pending 접수에 서버가 비재시도 답(422 거부, 409 지급 확정)을 줬음을
+  /// durable 하게 남긴다.
   /// 행 자체는 유지된다 - 결정적 키 덕분에 남아 있는 행이 재접수를 막는다.
-  Future<void> _markPendingIntakeRejected(String clientTraceId) =>
+  Future<void> _markPendingIntakeRejected(String clientTraceId, int status) =>
       _withMutationLock(() async {
         final items = await _loadQueue();
         final index = items.indexWhere(
@@ -528,8 +541,8 @@ class ReceiptQueueService {
         };
         await _saveQueue(items);
         logger.w(
-          '🚫 Android pending 접수 서버 거부(422) - 행 보존, 재접수 차단: '
-          '$clientTraceId',
+          '🚫 Android pending 접수 서버 비재시도 응답($status) - 행 보존, '
+          '재접수 차단: $clientTraceId',
         );
       });
 
@@ -665,34 +678,37 @@ class ReceiptQueueService {
       // 성공하지 못하는 영수증이 큐를 영원히 돌지 않게 제거한다. (엔진은
       // 워커 5xx → 503, 그 외 워커 실패 → 422 로 나눈다. 503 은 아래 백오프
       // 경로로 유지된다.)
-      if (e.status == 422) {
+      //
+      // 409 + `grant_confirmed: true` 는 서버가 "이미 지급까지 끝난 구매"라고
+      // 확인한 답이다. 적립도 정산 본문도 없으므로 매출 이벤트를 넘기지 않고
+      // 422 와 같이 재전송을 멈춘다. 남겨 두면 앱을 열 때마다 같은 409 를
+      // 다시 받는다(PICNIC-3006). 스토어 트랜잭션은 여기서도 건드리지 않는다
+      // — finish/consume 은 같은 409 를 받은 구매·스윕 경로의 몫이다.
+      final grantConfirmed =
+          e.status == 409 && _serverConfirmedGrant(e.details);
+      if (e.status == 422 || grantConfirmed) {
         // pending 접수 행은 지우지 않고 거부 표시만 남긴다. 키가 구매
         // 토큰에서 결정적으로 파생되므로, 행이 남아 있으면 다음 스윕의
         // enqueue 가 기존 항목을 재사용해 재생성하지 않는다. 지워버리면
         // 콜드스타트와 5분 간격 resume 스윕이 같은 토큰을 다시 만들어
-        // Play 의 3일 대기 창 내내 422 를 반복해서 받는다.
+        // Play 의 3일 대기 창 내내 같은 답을 반복해서 받는다.
         if (item['pending_intake'] == true) {
-          await _markPendingIntakeRejected(clientTraceId);
+          await _markPendingIntakeRejected(clientTraceId, e.status);
           return;
         }
-        await _dropItem(clientTraceId, '🚫 서버 영구 거부(422)');
+        await _dropItem(
+          clientTraceId,
+          grantConfirmed ? '♻️ 서버 지급 확정 중복(409)' : '🚫 서버 영구 거부(422)',
+        );
         return;
       }
 
-      // 과거 여기 있던 두 "제거" 분기는 삭제했다. 이 큐가 호출하는
-      // 엔드포인트는 `verify-receipt-v2` 뿐이고, 그 핸들러(engine
-      // supabase/functions/verify-receipt-v2 → verify_receipt/index.ts)가
-      // 돌려주는 상태코드는 200/400/401/403/422/503/405 뿐이다:
-      //   - 409 DUPLICATE_RECEIPT 는 레거시 `verify_receipt`(v162) 전용
-      //     응답이다. v2 엔진 전체 grep 결과 409 는 0건이라 분기가 실행될
-      //     수 없었다.
-      //   - `details['code'] == 'PURCHASE_CANCELED'` 도 같은 이유로 v2 가
-      //     반환하지 않는다(v2 의 400 은 PURCHASE_INVALID_PROOF /
-      //     PURCHASE_INVALID_PLATFORM 과 핸들러 catch-all 뿐).
-      // 실행되지 않는 "제거" 분기를 남겨 두면 서버 계약이 바뀌는 순간
-      // 과금된 영수증의 유일한 durable 기록을 조용히 지우는 함정이 된다.
-      // (409 판정 헬퍼 [duplicateConfirmsGrant] 는 레거시 409 를 만나는
-      // foreground 경로가 계속 쓰므로 그대로 둔다.)
+      // 그 밖의 상태는 백오프 후 유지한다. `grant_confirmed` 필드가 없거나
+      // false 인 409 도 여기에 남긴다 — 지급 확정 여부를 알 수 없는 응답으로
+      // 과금된 영수증의 유일한 durable 기록을 지우면 안 된다. (과거에 있던
+      // "409 DUPLICATE_RECEIPT 문구"·`PURCHASE_CANCELED` 제거 분기는 레거시
+      // `verify_receipt`(v162) 전용 응답에 기대고 있어 삭제했다. 서버 계약을
+      // 추측하는 제거 분기는 계약이 바뀌는 순간 그 기록을 조용히 지운다.)
       await _scheduleRetry(clientTraceId, '상태 ${e.status}');
     } catch (e) {
       // 네트워크/타임아웃/401 복구 실패 등 → 백오프

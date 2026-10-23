@@ -926,10 +926,11 @@ void main() {
     });
 
     group('flushPending non-2xx handling', () {
-      // verify-receipt-v2 는 409 를 반환하지 않는다(엔진 grep 0건). 죽은
-      // 제거 분기를 없앤 뒤에는 409 도 "정체 불명의 실패" = 유지 + 백오프다.
-      // 지급 확정 여부를 알 수 없는 응답으로 과금된 영수증의 유일한 durable
-      // 기록을 지우지 않는 쪽이 안전한 기본값이다.
+      // verify-receipt-v2 는 v33(2026-10-21)부터 이미 지급된 구매가 다시 오면
+      // 409 + `grant_confirmed: true` 로 답한다. 큐는 이 구조화된 필드만
+      // 제거 신호로 쓴다. 필드가 없는 옛 형식 409 는 지급 확정 여부를 알 수
+      // 없으므로 유지 + 백오프다 — 그런 응답으로 과금된 영수증의 유일한
+      // durable 기록을 지우지 않는 쪽이 안전한 기본값이다.
       test('409(지급 확정 문구)는 더 이상 제거 신호가 아니다 - 유지 + 백오프', () async {
         setupMockSupabase(
           {
@@ -986,6 +987,116 @@ void main() {
         final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
         expect(items.length, 1);
         expect(items[0]['attempt'], 1);
+      });
+
+      // verify-receipt-v2 v33 의 실제 409 본문(이미 지급된 레거시 구매).
+      const grantedConflictBody = {
+        'error': 'PURCHASE_ALREADY_GRANTED',
+        'retryable': false,
+        'grant_confirmed': true,
+      };
+
+      int verificationRequests() => capturedMockRequests
+          .where((uri) => uri.path.endsWith('/functions/v1/verify-receipt-v2'))
+          .length;
+
+      Future<List<Map<String, dynamic>>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? []
+            : (json.decode(raw) as List).cast<Map<String, dynamic>>();
+      }
+
+      test(
+        '409 + grant_confirmed:true 는 지급 확정 중복이다 - 제거하고 다시 보내지 않는다',
+        () async {
+          // 서버가 "이미 지급까지 끝난 구매"라고 확인한 답이다. 남겨 두면 앱을
+          // 열 때마다 같은 409 를 다시 받는다(PICNIC-3006 운영 관측: 같은
+          // 영수증으로 409 8회). 적립·정산 본문이 없으므로 매출 인계도 없다.
+          setupMockSupabase(
+            {'functions:verify-receipt-v2': grantedConflictBody},
+            functionStatusCodes: {'functions:verify-receipt-v2': 409},
+          );
+          var handOffs = 0;
+          service.onSettlementRecovered =
+              (
+                settlement, {
+                required String storeProductId,
+                required String? clientObservedCurrency,
+              }) async {
+                handOffs++;
+                return true;
+              };
+          addTearDown(() => service.onSettlementRecovered = null);
+
+          await service.enqueue(
+            platform: ReceiptQueueService.platformIOS,
+            receipt: 'legacy-receipt-without-app-account-token',
+            productId: 'STAR100',
+            userId: 'test-user',
+            environment: 'sandbox',
+          );
+
+          await service.flushPending();
+          await service.flushPending();
+
+          expect(await queuedItems(), isEmpty);
+          expect(verificationRequests(), 1, reason: '제거한 항목은 다시 보내지 않는다');
+          expect(handOffs, 0, reason: '409 에는 넘길 정산이 없다');
+        },
+      );
+
+      test('409 + grant_confirmed:false 는 유지 + 백오프', () async {
+        setupMockSupabase(
+          {
+            'functions:verify-receipt-v2': {
+              'error': 'PURCHASE_CONFLICT',
+              'grant_confirmed': false,
+            },
+          },
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
+        );
+
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items, hasLength(1));
+        expect(items.single['attempt'], 1);
+      });
+
+      test('pending 접수 행이 409 지급 확정을 받으면 행을 남기고 재전송을 멈춘다', () async {
+        // 422 와 같은 이유다: Android 키는 구매 토큰에서 결정적으로 나오므로
+        // 행이 남아 있어야 다음 스윕이 같은 토큰을 다시 접수하지 않는다.
+        setupMockSupabase(
+          {'functions:verify-receipt-v2': grantedConflictBody},
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
+        );
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'granted-pending-token',
+          productId: 'STAR100',
+          userId: 'user-1',
+          environment: 'sandbox',
+          pendingIntake: true,
+        );
+        service.canFlushPendingIntake = () async => true;
+
+        await service.flushPending();
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items, hasLength(1), reason: 'row must survive the 409');
+        expect(items.single['intake_rejected'], isTrue);
+        expect(verificationRequests(), 1);
       });
 
       // 헬퍼 자체는 남는다: 레거시 verify_receipt(v162)의 409 를 만나는
