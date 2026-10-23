@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_format_helper.dart';
+import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -1317,6 +1318,67 @@ void main() {
         );
 
         expect(await queuedItems(), isEmpty);
+      });
+
+      test('an iOS confirmed duplicate removes only its own transaction row',
+          () async {
+        // 파싱 가능한 JWS 는 결정적 키(ios-<transactionId>)로 적재된다. 같은
+        // 거래의 이전 전달이 남긴 행은 그 키로 재사용되고 확정 409 에서 함께
+        // 지워져야 한다. 다른 거래의 행은 남아야 한다.
+        String jws({required String transactionId, required int signedDate}) {
+          String segment(Map<String, dynamic> value) =>
+              base64Url.encode(utf8.encode(jsonEncode(value))).replaceAll('=', '');
+          return '${segment({'alg': 'ES256', 'typ': 'JWT'})}'
+              '.${segment({
+                'transactionId': transactionId,
+                'productId': 'STAR200',
+                'signedDate': signedDate,
+              })}'
+              '.${segment({'sig': 'not-verified-here'})}';
+        }
+
+        tearDownMockSupabase();
+        SharedPreferences.setMockInitialValues({});
+        setupMockSupabase({
+          'functions:verify-receipt-v2': {
+            'error': 'PURCHASE_ALREADY_GRANTED',
+            'retryable': false,
+            'grant_confirmed': true,
+          },
+        }, userId: 'test-user-id', functionStatusCodes: {
+          'functions:verify-receipt-v2': 409,
+        });
+        for (final transactionId in ['2000000000000001', '2000000000000002']) {
+          await ReceiptQueueService().enqueue(
+            platform: ReceiptQueueService.platformIOS,
+            receipt: jws(transactionId: transactionId, signedDate: 1700000000000),
+            productId: 'STAR200',
+            userId: 'test-user-id',
+            environment: 'sandbox',
+          );
+        }
+        final iosService = ReceiptVerificationService()..isIOSPlatform = true;
+
+        // 같은 거래의 재전달이다(서명 시각만 다르다).
+        await expectLater(
+          iosService.verifyReceipt(
+            jws(transactionId: '2000000000000001', signedDate: 1700000060000),
+            'STAR200',
+            'test-user-id',
+            'sandbox',
+          ),
+          throwsA(
+            isA<ReusedPurchaseException>()
+                .having((e) => e.grantConfirmed, 'grantConfirmed', isTrue),
+          ),
+        );
+
+        expect(
+          (await queuedItems())
+              .map((e) => (e as Map)['client_trace_id'])
+              .toList(),
+          ['ios-2000000000000002'],
+        );
       });
 
       test('an iOS duplicate whose grant is unconfirmed stays queued',
