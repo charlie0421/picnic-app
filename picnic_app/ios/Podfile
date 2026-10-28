@@ -1,6 +1,11 @@
 # Uncomment this line to define a global platform for your project
 platform :ios, '15.4'
 
+# FlutterFire 5.1.0 pins 12.19.3, but Analytics was last published as 12.19.0.
+# Use the supported override; Core can still resolve its compatible 12.19.3 patch.
+# Remove when FlutterFire fixes the CocoaPods Analytics version constraint.
+$FirebaseSDKVersion = '12.19.0'
+
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
 

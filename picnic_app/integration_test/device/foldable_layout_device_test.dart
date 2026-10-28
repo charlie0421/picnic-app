@@ -1,6 +1,7 @@
-// Runs the production layout inside the native Runner without backend calls.
+// Runs the production layout without initializing Picnic backend services.
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,6 +26,35 @@ Future<void> _waitFor(
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+
+  testWidgets('Firebase Core can initialize an isolated native app',
+      (tester) async {
+    // A demo project and named app exercise the real native bridge without
+    // requesting a push token, signing in, or writing Analytics events.
+    final app = await Firebase.initializeApp(
+      name: 'foldable-regression',
+      options: const FirebaseOptions(
+        apiKey: 'AIza00000000000000000000000000000000000',
+        appId: '1:1234567890:ios:0123456789abcdef',
+        messagingSenderId: '1234567890',
+        projectId: 'demo-foldable-regression',
+      ),
+    );
+    expect(app.options.projectId, 'demo-foldable-regression');
+    expect(Firebase.app('foldable-regression').name, app.name);
+    // Keep the app until process exit. Immediate deletion races Android's
+    // eager Firebase Installations task; production does not delete apps.
+  });
+
+  testWidgets('Messaging reads native notification settings without a prompt',
+      (tester) async {
+    final settings = await const MethodChannel(
+      'plugins.flutter.io/firebase_messaging',
+    ).invokeMapMethod<String, dynamic>('Messaging#getNotificationSettings');
+    expect(settings, isNotNull);
+    // Messaging 17 uses -1 for notDetermined (including Android 13+).
+    expect(settings!['authorizationStatus'], isIn([-1, 0, 1, 2, 3]));
+  });
 
   testWidgets(
       'native viewport and keyboard reach the content without losing input',

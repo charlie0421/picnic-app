@@ -45,12 +45,6 @@ android {
 
     kotlinOptions {
         jvmTarget = '17'  // Changed to match Java version
-        apiVersion = '1.7'  // Match Kotlin version
-        languageVersion = '1.7'  // Match Kotlin version
-        // Add this to suppress metadata version errors if needed
-        freeCompilerArgs += [
-            "-Xskip-metadata-version-check"
-        ]
     }
 
     sourceSets {
