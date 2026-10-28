@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'vote_deadline_refresh.dart';
+
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -82,6 +84,58 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
+  Timer? _deadlineRefreshTimer;
+  DateTime? _refreshedDeadline;
+  Future<void>? _fullRefresh;
+  DateTime? _fullRefreshStartedAt;
+  int _refreshGeneration = 0;
+
+  bool get _isBoundaryRefreshPending =>
+      _deadlineRefreshTimer != null || _fullRefresh != null;
+
+  VoteModel? get _currentVote => ref
+      .read(
+        asyncVoteDetailProvider(
+          voteId: widget.voteId,
+          votePortal: widget.votePortal,
+        ),
+      )
+      .value;
+
+  bool _hasEnded(VoteModel vote) => vote.stopAt != null
+      ? !ref.read(voteDeadlineClockProvider).now().isBefore(vote.stopAt!)
+      : vote.isEnded ?? false;
+
+  void _updateLocalStatus(VoteModel vote) {
+    isEnded = _hasEnded(vote);
+    isUpcoming =
+        !isEnded &&
+        (vote.startAt != null
+            ? ref.read(voteDeadlineClockProvider).now().isBefore(vote.startAt!)
+            : vote.isUpcoming ?? false);
+  }
+
+  // Run before automatic queries so a poll cannot bypass the deadline delay.
+  void _checkDeadline() {
+    final vote = _currentVote;
+    if (vote != null && vote.isEnded != true && _hasEnded(vote)) {
+      _handleTimerRefresh();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant VoteDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.voteId != widget.voteId ||
+        oldWidget.votePortal != widget.votePortal) {
+      _deadlineRefreshTimer?.cancel();
+      _deadlineRefreshTimer = null;
+      _refreshedDeadline = null;
+      _refreshGeneration++;
+      _fullRefresh = null;
+    }
+  }
+
   bool _isRefreshingItems = false;
   bool _isScrolling = false;
   DateTime? _scrollGateRaisedAt;
@@ -186,6 +240,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     var tick = 0;
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!mounted) return;
+      _checkDeadline();
+      if (_isBoundaryRefreshPending) return;
       // Refresh cadence: live votes poll every tick, ended/upcoming every
       // 5th — decided PER TICK. isEnded/isUpcoming are only known after the
       // first build, so choosing the Timer.periodic interval up front always
@@ -236,6 +292,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   /// Performs a single vote-totals refresh that was suppressed while scrolling.
   Future<void> _onScrollSettle() async {
     if (!mounted) return;
+    _checkDeadline();
+    if (_isBoundaryRefreshPending) return;
     if (_isRefreshingItems || _isSaving) return;
     _isRefreshingItems = true;
     try {
@@ -270,24 +328,87 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  Future<void> _handleTimerRefresh() async {
+  void _handleTimerRefresh() {
     if (!mounted) return;
-    // 상세와 아이템 리스트 모두 새로고침하여 상태 전환을 즉시 반영
-    // ignore: unused_result
-    await ref.refresh(
-      asyncVoteDetailProvider(
-        voteId: widget.voteId,
-        votePortal: widget.votePortal,
-      ).future,
+    final vote = _currentVote;
+    if (vote == null) return;
+    if (_hasEnded(vote)) {
+      if (_refreshedDeadline == vote.stopAt) return;
+      _refreshedDeadline = vote.stopAt;
+      setState(() => _updateLocalStatus(vote));
+      _deadlineRefreshTimer?.cancel();
+      _deadlineRefreshTimer = Timer(
+        ref.read(voteDeadlineRefreshDelayProvider)(),
+        () {
+          _deadlineRefreshTimer = null;
+          if (mounted) {
+            unawaited(_refreshDetailsAndItems(notBefore: vote.stopAt));
+          }
+        },
+      );
+    } else {
+      // A vote opening is not a deadline burst and remains immediate.
+      setState(() => _updateLocalStatus(vote));
+      unawaited(_refreshDetailsAndItems());
+    }
+  }
+
+  Future<void> _handleManualRefresh() {
+    _deadlineRefreshTimer?.cancel();
+    _deadlineRefreshTimer = null;
+    final vote = _currentVote;
+    if (vote != null) {
+      if (_hasEnded(vote)) _refreshedDeadline = vote.stopAt;
+      setState(() => _updateLocalStatus(vote));
+    }
+    return _refreshDetailsAndItems(
+      notBefore: vote != null && _hasEnded(vote) ? vote.stopAt : null,
     );
-    if (!mounted) return;
-    // ignore: unused_result
-    await ref.refresh(
-      asyncVoteItemListProvider(
-        voteId: widget.voteId,
-        votePortal: widget.votePortal,
-      ).future,
-    );
+  }
+
+  Future<void> _refreshDetailsAndItems({DateTime? notBefore}) {
+    if (!mounted) return Future.value();
+    // A pre-deadline request may contain pre-deadline totals. Only a request
+    // started after the deadline can stand in for the final refresh.
+    if (_fullRefresh != null &&
+        (notBefore == null || !_fullRefreshStartedAt!.isBefore(notBefore))) {
+      return _fullRefresh!;
+    }
+    _fullRefreshStartedAt = ref.read(voteDeadlineClockProvider).now();
+    return _fullRefresh = _performFullRefresh(++_refreshGeneration);
+  }
+
+  Future<void> _performFullRefresh(int generation) async {
+    final voteId = widget.voteId;
+    final portal = widget.votePortal;
+    try {
+      await Future.wait([
+        ref
+            .refresh(
+              asyncVoteDetailProvider(
+                voteId: voteId,
+                votePortal: portal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => null),
+        ref
+            .refresh(
+              asyncVoteItemListProvider(
+                voteId: voteId,
+                votePortal: portal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => []),
+      ]);
+    } catch (error, stackTrace) {
+      logger.e(
+        'Vote boundary refresh failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      if (generation == _refreshGeneration) _fullRefresh = null;
+    }
   }
 
   // Recompute the rank map from a provider snapshot. The provider
@@ -377,6 +498,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _textEditingController.dispose();
     _searchSubject.close();
     _updateTimer?.cancel();
+    _deadlineRefreshTimer?.cancel();
     _gapTooltipLatch?.cancel();
     super.dispose();
   }
@@ -570,45 +692,14 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
             .when(
               data: (voteModel) {
                 if (voteModel == null) return const SizedBox.shrink();
-                isEnded = voteModel.isEnded!;
-                isUpcoming = voteModel.isUpcoming!;
+                _updateLocalStatus(voteModel);
 
                 return GestureDetector(
                   onTap: () => _focusNode.unfocus(),
                   child: RefreshIndicator(
                     color: AppColors.primary500,
                     backgroundColor: Colors.white,
-                    onRefresh: () async {
-                      _isRefreshingItems = true;
-                      try {
-                        await Future.wait([
-                          ref
-                              .refresh(
-                                asyncVoteDetailProvider(
-                                  voteId: widget.voteId,
-                                  votePortal: widget.votePortal,
-                                ).future,
-                              )
-                              .timeout(
-                                const Duration(seconds: 8),
-                                onTimeout: () => null,
-                              ),
-                          ref
-                              .refresh(
-                                asyncVoteItemListProvider(
-                                  voteId: widget.voteId,
-                                  votePortal: widget.votePortal,
-                                ).future,
-                              )
-                              .timeout(
-                                const Duration(seconds: 8),
-                                onTimeout: () => [],
-                              ),
-                        ]);
-                      } finally {
-                        _isRefreshingItems = false;
-                      }
-                    },
+                    onRefresh: _handleManualRefresh,
                     child: SizedBox.expand(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (notification) {
@@ -722,9 +813,15 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 ? voteModel.startAt!
                 : voteModel.stopAt!;
             return CountdownTimer(
+              key: ValueKey((
+                widget.voteId,
+                widget.votePortal,
+                endTime,
+                status,
+              )),
               endTime: endTime.toUtc(),
               status: status,
-              onRefresh: _handleTimerRefresh,
+              onRefresh: status == VoteStatus.end ? null : _handleTimerRefresh,
             );
           },
         ),
@@ -1608,6 +1705,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       return;
     }
 
+    final currentVote = _currentVote;
+    if (currentVote != null) _updateLocalStatus(currentVote);
     if (isEnded) {
       showSimpleDialog(
         content: AppLocalizations.of(context).message_vote_is_ended,

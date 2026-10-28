@@ -162,13 +162,13 @@ class _CountdownTimerState extends State<CountdownTimer> {
       if (mounted) {
         setState(() {
           _timeLeft = widget.endTime.difference(DateTime.now().toUtc());
-          if (_timeLeft.isNegative) {
+          if (_timeLeft <= Duration.zero) {
             _timeLeft = Duration.zero;
             _timer?.cancel();
             // 타이머가 끝나는 즉시 새로고침 트리거 (프레임 종료 후 안전 호출)
             if (widget.onRefresh != null) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
-                widget.onRefresh!.call();
+                if (mounted) widget.onRefresh?.call();
               });
             }
           }
