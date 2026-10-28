@@ -5,6 +5,7 @@
 <p>2026-10-28 · 기준 <code>d2e8b72a6</code> · 브랜치 <code>docs/foldable-ui-audit</code></p>
 <p class="note"><strong>공통 UI 개선을 적용했다.</strong> 화면 크기·키보드 정보 갱신, 짧은 투표 화면의 스크롤, 접기 전환 중 현재 투표 보존을 수정했다. 관련 자동 테스트 <strong>287개</strong>가 통과했다. Android 에뮬레이터와 iPad 시뮬레이터에서 실제 키보드도 확인했다.</p>
 <p class="warning"><strong>iPhone Duo 지원은 완료되지 않았다.</strong> UIScene 전환 후보는 Duo 시작 충돌을 해소했지만, 콜드 스타트 링크·알림 회귀 위험과 키보드 실패가 남았다. 후보를 최종 실행 코드에서 제외하고 이 문서에 보존했다. 최종 브랜치에는 기존 iOS 시작 경로가 남아 있다. Galaxy Fold8의 실제 One UI 기기를 인증한 결과도 아니다.</p>
+<p class="note"><strong>후속 정정:</strong> 새 Duo 시뮬레이터에서 Picnic 키보드 검증이 통과했다. 기존 기기의 키보드 실패와 UIScene 의존성 문제를 구분했다. <a href="2026-10-28-duo-lifecycle-followup.html">후속 대조 실험·적용 후보·승인 범위</a>를 참조한다.</p>
 <h2>요청과 적용 범위</h2>
 <p>사용자의 “개선 진행” 요청에 따라 <a href="../../03-analysis/2026-10-28-foldable-ui-audit.html">기존 감사</a>의 우선 개선 항목을 구현·검증했다. 기존 600 논리 픽셀 너비 상한과 글자 배율 상한 2.6을 유지했다. 두 열 재설계, 앱 전체 ScreenUtil 교체, 버전·배포·인증·결제 로직·의존성 변경은 수행하지 않았다. 실결제·실투표·실로그인은 실행하지 않았다.</p>
 <table><thead><tr><th>항목</th><th>변경과 결과</th><th>주요 파일</th></tr></thead><tbody>
