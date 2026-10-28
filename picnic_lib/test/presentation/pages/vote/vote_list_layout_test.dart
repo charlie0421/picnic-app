@@ -13,7 +13,9 @@ import 'package:picnic_lib/presentation/screens/vote/vote_home_screen.dart';
 import 'package:picnic_lib/presentation/widgets/navigator/bottom/common_bottom_navigation_bar.dart';
 import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_achieve.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card_header.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../../helpers/factories/vote_factory.dart';
@@ -26,6 +28,8 @@ const _title = '다가오는 생일 축하 투표에 참여할 아티스트를 �
 
 class _LayoutVotes extends AsyncVoteList {
   static int requestCount = 0;
+  static bool failNextPage = false;
+  static bool forceAchieve = false;
   _LayoutVotes(this.itemCount, this.voteCount);
   final int itemCount;
   final int voteCount;
@@ -42,11 +46,13 @@ class _LayoutVotes extends AsyncVoteList {
     required VoteCategory category,
   }) async {
     requestCount++;
+    if (failNextPage && page > 1) throw StateError('Next page unavailable');
     final upcoming = status == VoteStatus.upcoming;
     return [
       for (var voteIndex = 0; voteIndex < voteCount; voteIndex++)
         VoteFactory.create(
           id: voteIndex + 1,
+          voteCategory: forceAchieve ? VoteCategory.achieve.name : 'birthday',
           title: {'ko': voteIndex == 0 ? _title : '다음 예정 투표'},
           isUpcoming: upcoming,
           startAt: DateTime.now().add(Duration(days: upcoming ? 1 : -1)),
@@ -138,8 +144,27 @@ Future<void> _showList(
 void main() {
   setUp(() {
     _LayoutVotes.requestCount = 0;
+    _LayoutVotes.failNextPage = false;
+    _LayoutVotes.forceAchieve = false;
     initTestColors();
-    setupMockSupabase({});
+    setupMockSupabase({
+      'vote_achieve': [
+        for (var rank = 1; rank <= 5; rank++)
+          {
+            'id': rank,
+            'vote_id': 1,
+            'reward_id': rank,
+            'order': rank,
+            'amount': rank * 100,
+            'reward': {
+              'id': rank,
+              'title': {'ko': '보상 $rank'},
+              'thumbnail': null,
+            },
+            'vote': VoteFactory.create(voteCategory: 'achieve').toJson(),
+          },
+      ],
+    });
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     PicnicCachedNetworkImage.disableTimeoutForTest = true;
   });
@@ -187,8 +212,13 @@ void main() {
     const Size(320, 700),
     const Size(360, 800),
     const Size(390, 844),
+    const Size(416, 657),
+    const Size(466, 678),
+    const Size(609, 816),
+    const Size(951, 669),
+    const Size(600, 400),
   ]) {
-    for (final scale in [1.0, 1.3, 1.5, 2.0]) {
+    for (final scale in [1.0, 1.3, 1.5, 2.0, 2.6]) {
       testWidgets(
         'upcoming card stays inside ${screen.width}x${screen.height} at $scale text',
         (tester) async {
@@ -197,10 +227,15 @@ void main() {
             (widget) =>
                 widget is PageView && widget.scrollDirection == Axis.vertical,
           );
-          final pageBounds = tester.getRect(verticalPager);
+          expect(verticalPager, findsOneWidget);
+          final listBounds = tester.getRect(find.byType(VoteList));
           final share = find.byType(ShareSection);
           final card = find.byType(VoteInfoCard);
           expect(card, findsOneWidget);
+          final cardElement = card.evaluate().single;
+          final currentCard = find.byElementPredicate(
+            (element) => identical(element, cardElement),
+          );
           final gridBounds = tester.getRect(
             find.byWidgetPredicate(
               (widget) =>
@@ -223,21 +258,18 @@ void main() {
                   'share=${tester.getSize(share)}',
             );
           }
-          if (find
-              .byKey(const ValueKey('vote-card-overflow-scroll'))
-              .evaluate()
-              .isNotEmpty) {
-            await tester.ensureVisible(share);
+          for (final label in ['저장', '공유']) {
+            final action = find.ancestor(
+              of: find.descendant(of: currentCard, matching: find.text(label)),
+              matching: find.byType(ElevatedButton),
+            );
+            await tester.ensureVisible(action);
             await tester.pump();
+            final bounds = tester.getRect(action);
+            expect(bounds.bottom, lessThanOrEqualTo(listBounds.bottom + 0.5));
+            expect(bounds.top, greaterThanOrEqualTo(listBounds.top - 0.5));
+            expect(action.hitTestable(), findsOneWidget);
           }
-          final shareBounds = tester.getRect(share);
-          expect(
-            shareBounds.bottom,
-            lessThanOrEqualTo(pageBounds.bottom + 0.5),
-          );
-          expect(shareBounds.top, greaterThanOrEqualTo(pageBounds.top));
-          expect(find.text('저장').hitTestable(), findsOneWidget);
-          expect(find.text('공유').hitTestable(), findsOneWidget);
           drainExpectedImageErrors(tester);
           await tester.pumpWidget(const SizedBox.shrink());
           await tester.pump(const Duration(seconds: 1));
@@ -473,6 +505,198 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pump(const Duration(seconds: 1));
   });
+
+  for (final kind in ['upcoming', 'active', 'end', 'achieve']) {
+    testWidgets(
+      '$kind touch scrolling reaches retry in a 600x400 window at 2.6 text',
+      (tester) async {
+        _LayoutVotes.failNextPage = true;
+        _LayoutVotes.forceAchieve = kind == 'achieve';
+        await _showList(
+          tester,
+          screen: const Size(600, 400),
+          textScale: 2.6,
+          upcoming: kind == 'upcoming',
+          targetStatus: kind == 'end' ? VoteStatus.end : null,
+        );
+        final model = tester.widget<VoteInfoCard>(find.byType(VoteInfoCard));
+        expect(
+          model.status,
+          kind == 'upcoming'
+              ? VoteStatus.upcoming
+              : kind == 'end'
+              ? VoteStatus.end
+              : VoteStatus.active,
+        );
+        expect(
+          model.vote.voteCategory,
+          kind == 'achieve' ? 'achieve' : 'birthday',
+        );
+        if (kind == 'achieve') {
+          for (
+            var frame = 0;
+            frame < 10 && find.byType(VoteCardColumnAchieve).evaluate().isEmpty;
+            frame++
+          ) {
+            await pumpAndIgnoreErrors(
+              tester,
+              const Duration(milliseconds: 100),
+            );
+          }
+          expect(find.byType(VoteCardColumnAchieve), findsNWidgets(5));
+        }
+        final viewport = tester.getRect(find.byType(VoteList));
+        await tester.dragFrom(viewport.center, const Offset(0, -800));
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
+        final retry = find.byKey(const ValueKey('vote-list-retry'));
+        expect(retry.hitTestable(), findsOneWidget);
+        final requests = _LayoutVotes.requestCount;
+        await tester.tap(retry);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+        expect(_LayoutVotes.requestCount, greaterThan(requests));
+        drainExpectedImageErrors(tester);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+
+    testWidgets(
+      '$kind touch scrolling reaches actions in a 600x400 window at 2.6 text',
+      (tester) async {
+        _LayoutVotes.forceAchieve = kind == 'achieve';
+        await _showList(
+          tester,
+          screen: const Size(600, 400),
+          textScale: 2.6,
+          upcoming: kind == 'upcoming',
+          targetStatus: kind == 'end' ? VoteStatus.end : null,
+        );
+        final model = tester.widget<VoteInfoCard>(find.byType(VoteInfoCard));
+        expect(
+          model.status,
+          kind == 'upcoming'
+              ? VoteStatus.upcoming
+              : kind == 'end'
+              ? VoteStatus.end
+              : VoteStatus.active,
+        );
+        expect(
+          model.vote.voteCategory,
+          kind == 'achieve' ? 'achieve' : 'birthday',
+        );
+        if (kind == 'achieve') {
+          for (
+            var frame = 0;
+            frame < 10 && find.byType(VoteCardColumnAchieve).evaluate().isEmpty;
+            frame++
+          ) {
+            await pumpAndIgnoreErrors(
+              tester,
+              const Duration(milliseconds: 100),
+            );
+          }
+          expect(find.byType(VoteCardColumnAchieve), findsNWidgets(5));
+        }
+        final viewport = tester.getRect(find.byType(VoteList));
+        final card = find.byType(VoteInfoCard).evaluate().single;
+        final save = find.ancestor(
+          of: find.descendant(
+            of: find.byElementPredicate((e) => identical(e, card)),
+            matching: find.text('저장'),
+          ),
+          matching: find.byType(ElevatedButton),
+        );
+        final drag = await tester.startGesture(viewport.center);
+        for (var i = 0; i < 160; i++) {
+          await drag.moveBy(const Offset(0, -8));
+          await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 16));
+          final bounds = tester.getRect(save);
+          if (bounds.top >= viewport.top && bounds.bottom <= viewport.bottom) {
+            break;
+          }
+        }
+        await drag.up();
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
+        for (final label in ['저장', '공유']) {
+          final button = find.ancestor(
+            of: find.descendant(
+              of: find.byElementPredicate((e) => identical(e, card)),
+              matching: find.text(label),
+            ),
+            matching: find.byType(ElevatedButton),
+          );
+          final bounds = tester.getRect(button);
+          expect(bounds.top, greaterThanOrEqualTo(viewport.top - 0.5));
+          expect(bounds.bottom, lessThanOrEqualTo(viewport.bottom + 0.5));
+          expect(button.hitTestable(), findsOneWidget);
+        }
+        drainExpectedImageErrors(tester);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+  }
+
+  testWidgets('a new vote starts at the top after scrolling a short viewport', (
+    tester,
+  ) async {
+    await _showList(
+      tester,
+      screen: const Size(600, 400),
+      textScale: 2.6,
+      voteCount: 2,
+    );
+    final viewport = tester.getRect(find.byType(VoteList));
+    await tester.dragFrom(viewport.center, const Offset(0, -800));
+    await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 500));
+    final vertical = find.byWidgetPredicate(
+      (widget) => widget is PageView && widget.scrollDirection == Axis.vertical,
+    );
+    tester.widget<PageView>(vertical).controller!.jumpToPage(1);
+    await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+    expect(
+      tester.getTopLeft(find.text('다음 예정 투표')).dy,
+      greaterThanOrEqualTo(viewport.top),
+    );
+    drainExpectedImageErrors(tester);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump(const Duration(seconds: 1));
+  });
+
+  testWidgets(
+    'resizing through the short-list threshold preserves the current vote',
+    (tester) async {
+      await _showList(
+        tester,
+        screen: const Size(390, 844),
+        textScale: 2.6,
+        voteCount: 2,
+      );
+      final vertical = find.byWidgetPredicate(
+        (widget) =>
+            widget is PageView && widget.scrollDirection == Axis.vertical,
+      );
+      tester.widget<PageView>(vertical).controller!.jumpToPage(1);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+      final activeCard = find.byType(VoteInfoCard).evaluate().single;
+      for (final size in [const Size(600, 400), const Size(390, 844)]) {
+        tester.view.physicalSize = size;
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 300));
+        expect(
+          tester.widget<PageView>(vertical).controller!.page,
+          closeTo(1, 0.01),
+        );
+        expect(
+          find.byElementPredicate((e) => identical(e, activeCard)),
+          findsOneWidget,
+        );
+      }
+      drainExpectedImageErrors(tester);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump(const Duration(seconds: 1));
+    },
+  );
 
   testWidgets(
     'resizing on the last candidate page keeps a valid visible page',

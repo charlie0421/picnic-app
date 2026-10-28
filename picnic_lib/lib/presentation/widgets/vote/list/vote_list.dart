@@ -54,6 +54,7 @@ class _VoteListState extends ConsumerState<VoteList> {
   Object? _appliedAdjacentImageSignature;
   static const _pageSize = 10;
   late PageController _pageController;
+  final ScrollController _viewportScrollController = ScrollController();
 
   @override
   void initState() {
@@ -336,7 +337,20 @@ class _VoteListState extends ConsumerState<VoteList> {
   }
 
   void _onPageChanged(int index) {
+    final changed = index != _currentIndex;
     _currentIndex = index;
+    if (changed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted &&
+            _currentIndex == index &&
+            _viewportScrollController.hasClients) {
+          // 새 투표는 이전 카드의 바깥 스크롤 위치를 이어받지 않는다.
+          _viewportScrollController.jumpTo(
+            _viewportScrollController.position.minScrollExtent,
+          );
+        }
+      });
+    }
     _scheduleAdjacentImages();
     if (!_isLoading &&
         !_isFetchingMore &&
@@ -508,7 +522,19 @@ class _VoteListState extends ConsumerState<VoteList> {
       }
       return VoteNoItem(status: widget.status, context: context);
     }
-    return RefreshIndicator(
+    final noticeHeight = math.max(
+      40.0,
+      VoteCardLayout.textHeight(
+            context,
+            AppLocalizations.of(context).label_retry,
+            Theme.of(context).textTheme.labelLarge!,
+            maxWidth: double.infinity,
+          ) +
+          8,
+    );
+    final minimumHeight =
+        VoteCardLayout.shareSectionExtent(context) + 24 + noticeHeight;
+    final list = RefreshIndicator(
       color: AppColors.primary500,
       backgroundColor: Colors.white,
       onRefresh: _refreshVotes,
@@ -532,6 +558,7 @@ class _VoteListState extends ConsumerState<VoteList> {
                   context: context,
                   vote: item,
                   status: itemStatus,
+                  overflowParentController: _viewportScrollController,
                 );
               },
             ),
@@ -539,16 +566,7 @@ class _VoteListState extends ConsumerState<VoteList> {
           // 필터를 거친 짧은 응답도 다음 페이지가 있을 수 있다. 안내 영역을
           // 유지하여 로딩이 끝나거나 실패해도 후보 페이지 구성이 바뀌지 않는다.
           SizedBox(
-            height: math.max(
-              40,
-              VoteCardLayout.textHeight(
-                    context,
-                    AppLocalizations.of(context).label_retry,
-                    Theme.of(context).textTheme.labelLarge!,
-                    maxWidth: double.infinity,
-                  ) +
-                  8,
-            ),
+            height: noticeHeight,
             child: _hasLoadError
                 ? Material(
                     color: PicnicUi.surface,
@@ -562,6 +580,26 @@ class _VoteListState extends ConsumerState<VoteList> {
           ),
         ],
       ),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (!constraints.hasBoundedHeight) {
+          return list;
+        }
+        // 필터 아래 공간이 작아도 카드 동작과 재시도 영역을 함께 접근할 수 있다.
+        // 같은 트리를 유지해야 크기 전환으로 현재 투표·후보 상태가 초기화되지 않는다.
+        return SingleChildScrollView(
+          controller: _viewportScrollController,
+          primary: false,
+          physics: constraints.maxHeight >= minimumHeight
+              ? const NeverScrollableScrollPhysics()
+              : null,
+          child: SizedBox(
+            height: math.max(constraints.maxHeight, minimumHeight),
+            child: list,
+          ),
+        );
+      },
     );
   }
 
@@ -626,6 +664,7 @@ class _VoteListState extends ConsumerState<VoteList> {
     _imagePrefetchGeneration++;
     _imagePrefetchScope.dispose();
     _pageController.dispose();
+    _viewportScrollController.dispose();
     super.dispose();
   }
 }

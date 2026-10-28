@@ -24,8 +24,21 @@ class VoteCardSkeleton extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       margin: EdgeInsets.only(top: 8, bottom: 16),
       child: LayoutBuilder(
-        builder: (context, constraints) =>
-            _buildContents(context, bounded: constraints.hasBoundedHeight),
+        builder: (context, constraints) {
+          if (!constraints.hasBoundedHeight) {
+            return _buildContents(context, bounded: false);
+          }
+          // 로딩 중에도 헤더·푸터와 최소 한 행이 들어갈 높이를 확보한다.
+          // 짧은 창에서는 스크롤하고, 여유가 있으면 기존처럼 높이를 채운다.
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: _buildContents(context, bounded: true),
+              ),
+            ),
+          );
+        },
       ),
     );
   }
@@ -160,6 +173,15 @@ class VoteCardSkeleton extends StatelessWidget {
     );
     return Container(
       width: double.infinity,
+      constraints: bounded
+          ? BoxConstraints(
+              minHeight:
+                  VoteCardLayout.thumbnailGridExtent(context, 1) +
+                  VoteCardLayout.thumbnailPagerHeight +
+                  24 +
+                  3.w,
+            )
+          : null,
       margin: const EdgeInsets.only(top: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
