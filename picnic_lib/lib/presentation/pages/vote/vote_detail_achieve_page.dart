@@ -577,9 +577,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
           // SizedBox.expand 가 없으면 셔머(SingleChildScrollView)가 콘텐츠
           // 높이(793px)로 수축해, 데이터가 도착하는 순간 페이지가 로드 높이
           // (892px)로 99px 점프한다. vote_detail_page.dart 의 로딩 브랜치와
-          // 같은 처리. 이 페이지는 로드 브랜치에 Expanded 가 있어 어차피
-          // 유한한 높이의 부모를 전제하므로, expand 가 무한 제약을 만날
-          // 일은 없다.
+          // 같은 처리. 로드된 스크롤 영역도 부모의 유한한 높이를 사용한다.
           loading: () => SizedBox.expand(child: _buildLoadingShimmer()),
           error: (error, stackTrace) => buildErrorView(
             context,
@@ -603,37 +601,33 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         .when(
           data: (data) {
             if (data.isEmpty) return _buildItemsRetry();
-            return Column(
-              children: [
-                _buildVoteInfo(voteModel),
-                _buildVoteItem(context, voteModel, data[0]!),
-                Expanded(
-                  // 형제 vote_detail_page 와 같은 당겨서-새로고침. 이 페이지의
-                  // 스크롤 영역은 마일스톤 사다리뿐이라 인디케이터도 여기 단다.
-                  child: RefreshIndicator(
-                    color: AppColors.primary500,
-                    backgroundColor: Colors.white,
-                    onRefresh: _refreshVoteData,
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (notification) {
-                        if (notification is ScrollStartNotification) {
-                          _onScrollStart();
-                        } else if (notification is ScrollEndNotification) {
-                          _onScrollSettle();
-                        }
-                        return false;
-                      },
-                      child: SingleChildScrollView(
-                        controller: _scrollController,
-                        // 사다리가 뷰포트보다 짧아도 당길 수 있어야 한다 —
-                        // 기본 physics 는 내용이 짧으면 오버스크롤 자체가 없다.
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: Column(children: [_buildLevelItem(data[0]!)]),
-                      ),
-                    ),
+            return RefreshIndicator(
+              color: AppColors.primary500,
+              backgroundColor: Colors.white,
+              onRefresh: _refreshVoteData,
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (notification) {
+                  // Animated digit wheels have their own nested scrollables.
+                  if (notification.depth != 0) return false;
+                  if (notification is ScrollStartNotification) {
+                    _onScrollStart();
+                  } else if (notification is ScrollEndNotification) {
+                    _onScrollSettle();
+                  }
+                  return false;
+                },
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    children: [
+                      _buildVoteInfo(voteModel),
+                      _buildVoteItem(context, voteModel, data[0]!),
+                      _buildLevelItem(data[0]!),
+                    ],
                   ),
                 ),
-              ],
+              ),
             );
           },
           // 바깥 게이트의 로딩 브랜치와 같은 이유 — 아이템 목록만 늦게 올 때도
@@ -753,6 +747,13 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
   }
 
   Widget _buildLevelItem(VoteItemModel data) {
+    // Share measurements between the two future builders. A parent rebuild
+    // creates a new cache, so locale, text scale and inherited style stay fresh.
+    final measuredHeights = <String, double>{};
+    double heightFor(List<int> levels) => measuredHeights.putIfAbsent(
+      levels.join(','),
+      () => _levelHeight(levels),
+    );
     final generation = _pollGeneration;
     final voteId = widget.voteId;
     final votePortal = widget.votePortal;
@@ -796,6 +797,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                   });
 
                   final levels = _generateLevels(mainMilestones);
+                  final levelHeight = heightFor(levels);
                   var rewardIndex = 0;
 
                   return Container(
@@ -824,7 +826,7 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                             SizedBox(width: 5.w),
                             Container(
                               width: 80,
-                              height: 50,
+                              height: levelHeight,
                               alignment: Alignment.centerRight,
                               child: Text(
                                 currentLevel == 0
@@ -873,7 +875,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
                 );
 
                 final progressHeight =
-                    50 * _calculateTotalSteps(mainMilestones).toDouble() - 50;
+                    heightFor(_generateLevels(mainMilestones)) *
+                    (_calculateTotalSteps(mainMilestones) - 1);
                 return Container(
                   width: 20,
                   height: progressHeight,
@@ -911,6 +914,28 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
         ),
       ),
     );
+  }
+
+  // Every rung and the progress bar share this height. Keep all target digits
+  // at the requested text size, including wrapped numbers at large text scales.
+  double _levelHeight(List<int> levels) {
+    var height = 50.0;
+    for (final level in levels) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: formatNumberWithComma(level.toString()),
+          style: DefaultTextStyle.of(
+            context,
+          ).style.merge(getTextStyle(AppTypo.caption12B, AppColors.grey400)),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+        locale: Localizations.localeOf(context),
+      )..layout(maxWidth: 80);
+      height = max(height, painter.height + 8);
+      painter.dispose();
+    }
+    return height;
   }
 
   Widget _buildVoteItem(
@@ -1162,17 +1187,8 @@ class _VoteDetailAchievePageState extends ConsumerState<VoteDetailAchievePage>
       onTap: () {
         showRewardDialog(context, achievements[rewardIndex].reward);
       },
-      // PICNIC-2738. The rung is 50 tall and at most 180 wide on purpose (it
-      // only narrows on screens too small for 180, PICNIC-2746): the progress bar
-      // beside the ladder is drawn as 50px per level, so a taller rung would
-      // slide every level out of line with it (and the thumbnail below has
-      // no height of its own — the 50 is what keeps it round). The text is
-      // what has to fit: the two caption lines are 36px at 1.0x but 68px at
-      // 2.0x, which overflowed the 50 in every language, and unbounded
-      // "Penghargaan1" pushed the ladder row 33px past the card. So the text
-      // is laid out at the width it has — the name ellipsizes, the number
-      // shrinks to fit — and only when the pair is taller than 50 do both
-      // shrink together. At 1.0x nothing moves.
+      // The reward keeps a compact 50px slot; the number cell can make its
+      // containing rung taller. Open the reward for its full title and details.
       child: SizedBox(
         height: 50,
         width: _rewardRungWidth,

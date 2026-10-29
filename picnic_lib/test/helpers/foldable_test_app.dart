@@ -23,6 +23,7 @@ Widget buildFoldableTestApp(
   Locale locale = const Locale('ko'),
   List<dynamic> overrides = const [],
   bool deviceAssets = false,
+  bool pageHasScaffold = false,
 }) => ProviderScope(
   retry: (_, _) => null,
   overrides: [
@@ -43,12 +44,22 @@ Widget buildFoldableTestApp(
         title: 'Picnic foldable screen test',
         theme: ThemeData(),
         home: FixedWidthLayout(
-          child: Scaffold(
-            appBar: AppBar(title: const Text('PICNIC')),
-            body: deviceAssets
-                ? page
-                : DefaultAssetBundle(bundle: hostAppAssetBundle, child: page),
-          ),
+          child: pageHasScaffold
+              ? (deviceAssets
+                    ? page
+                    : DefaultAssetBundle(
+                        bundle: hostAppAssetBundle,
+                        child: page,
+                      ))
+              : Scaffold(
+                  appBar: AppBar(title: const Text('PICNIC')),
+                  body: deviceAssets
+                      ? page
+                      : DefaultAssetBundle(
+                          bundle: hostAppAssetBundle,
+                          child: page,
+                        ),
+                ),
         ),
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,

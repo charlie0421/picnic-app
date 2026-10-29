@@ -1,5 +1,6 @@
 <!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Duo·Fold8 추가 UI 검증</title><style>body{max-width:960px;margin:32px auto;padding:0 20px;font:16px/1.7 system-ui;color:#252536}table{border-collapse:collapse;width:100%}td,th{border:1px solid #ddd;padding:10px;text-align:left}code,pre{background:#f4f4f8;overflow-wrap:anywhere}pre{padding:16px;white-space:pre-wrap}img{max-width:100%;max-height:700px}summary{cursor:pointer;padding:10px}.note{padding:16px;background:#eef4fc}</style></head><body>
-<h1>Duo·Fold8 추가 UI 검증</h1><p>기준 커밋 55165348a · 기존 한 열·최대 폭 600·글자 배율 상한 2.6 유지. 커뮤니티·댓글 제외.</p>
+<h1>Duo·Fold8 추가 UI 검증</h1>
+<p><a href="2026-10-29-foldable-detail-ui.html">추가 점검: 고객문의 상세·달성형·제휴 투표</a></p><p>기준 커밋 55165348a · 기존 한 열·최대 폭 600·글자 배율 상한 2.6 유지. 커뮤니티·댓글 제외.</p>
 <p class="note">추가 점검에서 날짜·금액 넘침, 로딩 중 버튼 이동, 작은 아이콘 조작 영역과 큰 글씨의 확인창 문제를 재현하고 수정했다. 아래 표는 위젯 직접 실행과 실제 앱 이동 검증을 구분한다.</p>
 <details><summary>승인한 실행 계획</summary><ol>
 <li>투표 입력 중 창 전환: 실제 Portal에서 투표 입력창 진입 후 값·선택 위치를 기록한다. 커버↔펼침·가로 창 전환 후 값 유지, 입력 재개, 키보드 가림과 닫기를 확인한다. 파일: picnic_app/integration_test/device/current_service_foldable_device_test.dart, picnic_app/test/current_service_foldable_test.dart.</li>
