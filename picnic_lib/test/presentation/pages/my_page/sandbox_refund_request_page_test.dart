@@ -1,10 +1,13 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/sandbox_refund_candidate_store.dart';
 import 'package:picnic_lib/core/services/storekit_refund_request_channel.dart';
 import 'package:picnic_lib/presentation/pages/my_page/sandbox_refund_request_page.dart';
+import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
+import '../../../helpers/mock_providers.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
 
@@ -37,6 +40,14 @@ class _FakeRefundChannel implements StoreKitRefundRequestChannel {
     requested.add(transactionId);
     return outcome;
   }
+}
+
+/// Lets a test take admin access away while the page stays mounted.
+class _SwitchableUserInfo extends MockUserInfo {
+  _SwitchableUserInfo(super.profile);
+
+  void revokeAdmin() =>
+      state = AsyncValue.data(MockData.userProfile(isAdmin: false));
 }
 
 SandboxRefundCandidate _candidate(String transactionId, String productId) =>
@@ -107,6 +118,42 @@ void main() {
       expect(find.text('STAR200'), findsNothing);
     },
   );
+
+  testWidgets('does not open the refund sheet when admin access ends while the '
+      'dialog is open', (tester) async {
+    final store = _FakeCandidateStore([
+      _candidate('2000000000001111', 'STAR200'),
+    ]);
+    final channel = _FakeRefundChannel(StoreKitRefundRequestOutcome.success);
+    final userInfo = _SwitchableUserInfo(MockData.userProfile(isAdmin: true));
+    // buildTestAppPage 가 이미 userInfoProvider 를 override 하므로 중첩
+    // ProviderScope 로 바꿔 끼운다(같은 컨테이너에서 두 번 override 불가).
+    await tester.pumpWidget(
+      buildTestAppPage(
+        ProviderScope(
+          overrides: [userInfoProvider.overrideWith(() => userInfo)],
+          child: SandboxRefundRequestPage(
+            candidates: store,
+            refundRequests: channel,
+          ),
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    await tester.tap(find.text('STAR200'));
+    await pumpAndIgnoreErrors(tester);
+    userInfo.revokeAdmin();
+    await pumpAndIgnoreErrors(tester);
+    expect(find.text('접근 권한이 없습니다.'), findsOneWidget);
+
+    await tester.tap(find.text('열기'));
+    await pumpAndIgnoreErrors(tester);
+
+    expect(channel.requested, isEmpty);
+    expect(store.removed, isEmpty);
+  });
 
   testWidgets('does nothing when the tester backs out of the dialog', (
     tester,

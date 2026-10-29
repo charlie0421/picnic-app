@@ -141,6 +141,11 @@ class _SandboxRefundRequestPageState
       ),
     );
     if (confirmed != true || !mounted) return;
+    // 확인 창이 떠 있는 동안 권한이 바뀌었을 수 있다(로그아웃·권한 회수).
+    // 화면만 바뀌고 창은 남으므로, 요청 직전에 다시 확인한다.
+    final stillAdmin =
+        ref.read(userInfoProvider).value?.hasAdminAccess ?? false;
+    if (!stillAdmin) return;
 
     setState(() => _requestInProgress = true);
     final outcome = await _refundRequests.begin(candidate.transactionId);
