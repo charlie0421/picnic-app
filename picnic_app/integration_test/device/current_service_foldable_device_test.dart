@@ -217,6 +217,39 @@ void main() {
       expect(tester.getRect(input).bottom,
           lessThanOrEqualTo(window(tester).height - keyboard(tester) + 1));
       await capture(tester, 'vote-keyboard-$scale');
+      for (var transition = 0; transition < 2; transition++) {
+        final selection = editable.controller.selection;
+        await fold(tester, 'vote-input-$scale-$transition');
+        expect(editable.controller.text, '10');
+        expect(editable.controller.selection, selection);
+        await tester.ensureVisible(input);
+        await frames(tester);
+        await tester.tap(input);
+        final keyboardDeadline =
+            DateTime.now().add(const Duration(seconds: 15));
+        while (keyboard(tester) == 0 &&
+            DateTime.now().isBefore(keyboardDeadline)) {
+          await tester.pump(const Duration(milliseconds: 200));
+        }
+        expect(keyboard(tester), greaterThan(0),
+            reason: 'The vote field must reopen the OS keyboard after folding');
+        tester
+            .state<EditableTextState>(
+                find.descendant(of: input, matching: find.byType(EditableText)))
+            .updateEditingValue(const TextEditingValue(
+                text: '101', selection: TextSelection.collapsed(offset: 3)));
+        await frames(tester);
+        expect(editable.controller.text, '101');
+        expect(tester.getRect(input).bottom,
+            lessThanOrEqualTo(window(tester).height - keyboard(tester) + 1));
+        await capture(tester, 'vote-resumed-$scale-$transition');
+        tester
+            .state<EditableTextState>(
+                find.descendant(of: input, matching: find.byType(EditableText)))
+            .updateEditingValue(const TextEditingValue(
+                text: '10', selection: TextSelection.collapsed(offset: 2)));
+        await frames(tester);
+      }
       // Short windows intentionally give the close strip's height to the
       // input while the keyboard is open. The barrier remains an exit.
       await tester.tapAt(const Offset(10, 10));

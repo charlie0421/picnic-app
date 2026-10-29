@@ -2114,4 +2114,7 @@ class AppLocalizationsId extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'Akses iklan untuk akun ini di perangkat ini dibatasi sementara.';
+
+  @override
+  String get profile_photo_change => 'Ubah foto profil';
 }

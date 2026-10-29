@@ -41,8 +41,8 @@ void main() {
 
   test('mutation guard rejects current vote and purchase function paths', () {
     for (final function in ['pic-voting-v2', 'voting-v2', 'verify_receipt']) {
-      capturedMockRequests.add(
-          Uri.parse('https://fixture.invalid/functions/v1/$function'));
+      capturedMockRequests
+          .add(Uri.parse('https://fixture.invalid/functions/v1/$function'));
       try {
         expect(expectNoServiceMutation, throwsA(isA<TestFailure>()));
       } finally {
@@ -165,6 +165,27 @@ void main() {
         expect(tester.getRect(input).bottom,
             lessThanOrEqualTo(size.height - inset + 1));
         expect(find.text('10'), findsWidgets);
+        if (size == const Size(400, 640)) {
+          final editable =
+              find.descendant(of: input, matching: find.byType(EditableText));
+          final controller = tester.widget<EditableText>(editable).controller;
+          final selection = controller.selection;
+          for (final resized in [
+            const Size(800, 600),
+            const Size(600, 400),
+            const Size(400, 600),
+          ]) {
+            tester.view.physicalSize = resized;
+            tester.view.viewInsets = const FakeViewPadding(bottom: 160);
+            await serviceFrames(tester);
+            expect(controller.text, '10');
+            expect(controller.selection, selection);
+            await tester.ensureVisible(input);
+            await serviceFrames(tester);
+            expect(tester.getRect(input).bottom,
+                lessThanOrEqualTo(resized.height - 160 + 1));
+          }
+        }
         await tester.tapAt(const Offset(10, 10));
         await serviceFrames(tester);
         expect(find.byType(VotingDialog), findsNothing);

@@ -175,12 +175,14 @@ class _WalletSummaryError extends StatelessWidget {
                 children: [
                   const Icon(Icons.refresh, size: 14, color: Color(0xFF7C58E8)),
                   const SizedBox(width: 4),
-                  Text(
-                    retryLabel,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF7C58E8),
+                  Flexible(
+                    child: Text(
+                      retryLabel,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFF7C58E8),
+                      ),
                     ),
                   ),
                 ],

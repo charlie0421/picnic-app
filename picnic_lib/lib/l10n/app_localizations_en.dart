@@ -2107,4 +2107,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'Ad access for this account on this device is temporarily restricted.';
+
+  @override
+  String get profile_photo_change => 'Change profile photo';
 }

@@ -31,24 +31,29 @@ class CurrencyHistoryListItem extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                Text(
                   _currencyLabel(context),
                   style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                 ),
-              ),
-              Text(
-                signedDelta,
-                style: getTextStyle(
-                  AppTypo.body16B,
-                  delta < BigInt.zero
-                      ? AppColors.statusError
-                      : AppColors.point900,
+                Text(
+                  signedDelta,
+                  style: getTextStyle(
+                    AppTypo.body16B,
+                    delta < BigInt.zero
+                        ? AppColors.statusError
+                        : AppColors.point900,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           SizedBox(height: 6.h),
           Text(

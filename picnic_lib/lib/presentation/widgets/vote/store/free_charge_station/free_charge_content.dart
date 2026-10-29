@@ -136,6 +136,10 @@ class FreeChargeContent extends ConsumerWidget {
           item.title,
           style: PicnicUi.text(size: 14, weight: FontWeight.w600),
         ),
+        actionMinWidth: StoreListTile.uniformActionWidth(context, [
+          _getButtonText(item, false, context),
+          _getButtonText(item, true, context),
+        ]),
         buttonText: _getButtonText(item, isLoading, context),
         buttonOnPressed: isLoading ? null : item.onPressed,
         isLoading: isLoading,

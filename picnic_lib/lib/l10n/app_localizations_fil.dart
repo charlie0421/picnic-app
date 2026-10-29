@@ -2143,4 +2143,7 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito.';
+
+  @override
+  String get profile_photo_change => 'Palitan ang larawan sa profile';
 }

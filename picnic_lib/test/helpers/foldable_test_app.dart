@@ -13,6 +13,7 @@ import 'factories/vote_factory.dart';
 import 'factories/artist_factory.dart';
 import 'host_app_asset_bundle.dart';
 import 'mock_providers.dart';
+import 'mock_data.dart';
 
 /// Production app scaling and navigation, with local providers and no startup.
 /// Device tests use the host app's real asset bundle.
@@ -24,7 +25,12 @@ Widget buildFoldableTestApp(
   bool deviceAssets = false,
 }) => ProviderScope(
   retry: (_, _) => null,
-  overrides: [...defaultProviderOverrides(), ...overrides],
+  overrides: [
+    ...defaultProviderOverrides(
+      setting: MockData.setting(language: locale.languageCode),
+    ),
+    ...overrides,
+  ],
   child: Builder(
     builder: (context) => MediaQuery(
       data: MediaQuery.of(
