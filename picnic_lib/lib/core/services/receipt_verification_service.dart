@@ -4,7 +4,6 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 import 'package:picnic_lib/core/services/receipt_format_helper.dart';
-import 'package:picnic_lib/core/services/sandbox_refund_candidate_store.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -99,12 +98,6 @@ class ReceiptVerificationService {
   @visibleForTesting
   bool isIOSPlatform = Platform.isIOS;
 
-  /// Sandbox purchases this device settled, for the admin refund test tool
-  /// (`SandboxRefundRequestPage`). Injectable for host tests.
-  @visibleForTesting
-  SandboxRefundCandidateStore sandboxRefundCandidates =
-      SandboxRefundCandidateStore();
-
   /// 디버깅용 환경 정보 반환
   Future<Map<String, dynamic>> getEnvironmentInfo() async {
     final packageInfo = await PackageInfo.fromPlatform();
@@ -179,10 +172,6 @@ class ReceiptVerificationService {
           );
 
     logger.i('=== Receipt Verification Completed ===');
-    if (isIOSPlatform) {
-      // 테스트 도구용 기록이라 기다리지 않는다. 실패해도 정산 결과는 같다.
-      unawaited(sandboxRefundCandidates.recordVerifiedReceipt(receipt));
-    }
     return result;
   }
 
