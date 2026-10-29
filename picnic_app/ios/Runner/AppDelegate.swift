@@ -10,6 +10,7 @@ import UIKit
 @objc class AppDelegate: FlutterAppDelegate {
     private var pangleAdManager: PangleAdManager?
     private var pincruxOfferwallManager: PincruxOfferwallManager?
+    private var storeKitRefundRequestManager: StoreKitRefundRequestManager?
 
     override func application(
         _ application: UIApplication,
@@ -44,6 +45,15 @@ import UIKit
         // Pincrux 채널 메소드 핸들러 설정
         pincruxChannel.setMethodCallHandler { [weak self] call, result in
             self?.pincruxOfferwallManager?.handleMethodCall(call, result: result)
+        }
+
+        // StoreKit 환불 요청 채널 (관리자 sandbox 환불 테스트 도구)
+        let storeKitRefundRequestChannel = FlutterMethodChannel(
+            name: "picnic/storekit_refund_request",
+            binaryMessenger: controller.binaryMessenger)
+        storeKitRefundRequestManager = StoreKitRefundRequestManager(viewController: controller)
+        storeKitRefundRequestChannel.setMethodCallHandler { [weak self] call, result in
+            self?.storeKitRefundRequestManager?.handleMethodCall(call, result: result)
         }
 
         GeneratedPluginRegistrant.register(with: self)

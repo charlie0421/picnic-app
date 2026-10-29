@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,10 +9,12 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/ui.dart' as ui;
 import 'package:picnic_lib/core/services/consent_service.dart';
+import 'package:picnic_lib/core/services/sandbox_refund_candidate_store.dart';
 import 'package:picnic_lib/presentation/common/picnic_list_item.dart';
 import 'package:picnic_lib/presentation/controllers/admin_gdpr_reset_controller.dart';
 import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/sandbox_refund_request_page.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
@@ -18,10 +22,20 @@ import 'package:picnic_lib/presentation/widgets/error.dart';
 typedef AppReloadCallback = void Function(BuildContext context);
 
 class AdminMenuPage extends ConsumerStatefulWidget {
-  const AdminMenuPage({super.key, this.gdprResetController, this.reloadApp});
+  const AdminMenuPage({
+    super.key,
+    this.gdprResetController,
+    this.reloadApp,
+    this.isIOS,
+    this.sandboxRefundCandidates,
+  });
 
   final AdminGdprResetController? gdprResetController;
   final AppReloadCallback? reloadApp;
+
+  /// Defaults to [Platform.isIOS]. Injectable for host tests.
+  final bool? isIOS;
+  final SandboxRefundCandidateStore? sandboxRefundCandidates;
 
   @override
   ConsumerState<AdminMenuPage> createState() => _AdminMenuPageState();
@@ -32,6 +46,8 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
   late final AdminGdprResetController _gdprResetController;
   late final AppReloadCallback _reloadApp;
   bool _isGdprResetInProgress = false;
+  late final SandboxRefundCandidateStore _sandboxRefundCandidates;
+  bool _hasSandboxRefundCandidates = false;
 
   @override
   void initState() {
@@ -43,6 +59,9 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
           logCurrentState: ConsentService().logCurrentState,
         );
     _reloadApp = widget.reloadApp ?? Phoenix.rebirth;
+    _sandboxRefundCandidates =
+        widget.sandboxRefundCandidates ?? SandboxRefundCandidateStore();
+    _loadSandboxRefundCandidates();
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateNavigation());
   }
 
@@ -102,6 +121,13 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
                   assetPath: 'assets/icons/arrow_right_style=line.svg',
                   onTap: _isGdprResetInProgress ? null : _resetAndReloadGdpr,
                 ),
+                // sandbox(TestFlight) 구매를 정산한 iOS 기기에서만 보인다.
+                if (_hasSandboxRefundCandidates)
+                  PicnicListItem(
+                    leading: '테스트 환불 요청',
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: _openSandboxRefundRequest,
+                  ),
               ],
             ),
           ),
@@ -123,6 +149,21 @@ class _AdminMenuPageState extends ConsumerState<AdminMenuPage>
     ref
         .read(navigationInfoProvider.notifier)
         .setCurrentMyPage(const ChargeHistoryPage());
+  }
+
+  Future<void> _loadSandboxRefundCandidates() async {
+    if (!(widget.isIOS ?? Platform.isIOS)) return;
+    final candidates = await _sandboxRefundCandidates.load();
+    if (!mounted || candidates.isEmpty) return;
+    setState(() => _hasSandboxRefundCandidates = true);
+  }
+
+  void _openSandboxRefundRequest() {
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setCurrentMyPage(
+          SandboxRefundRequestPage(candidates: _sandboxRefundCandidates),
+        );
   }
 
   Future<void> _resetAndReloadGdpr() async {
