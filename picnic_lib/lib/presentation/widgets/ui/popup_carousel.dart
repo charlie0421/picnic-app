@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -236,82 +237,133 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
-                    maxHeight: maxHeight, // 팝업 높이 고정 (원하는 값으로 조정)
+                    maxHeight: maxHeight,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24),
-                          ),
-                          child: imageUrl.isNotEmpty
-                              ? PicnicCachedNetworkImage(
-                                  imageUrl: imageUrl,
-                                  cdnVariant: PicnicCdnImageVariant.large,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  package: 'picnic_lib',
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.contain,
-                                ),
-                        ),
-                      ),
-                      SizedBox(height: PicnicUi.vertical(16)),
-                      // 제목과 본문은 하나의 스크롤 예산을 나눠 쓴다. 제목이
-                      // 고정 높이였을 때는 긴 현지화 제목이 본문과 버튼 자리를
-                      // 먹어 카드 예산 밖으로 밀어냈다.
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: PicnicUi.horizontal(16),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  popup.title[lang] ?? popup.title['en'] ?? '',
-                                  style: PicnicUi.text(
-                                    size: 16,
-                                    weight: FontWeight.w700,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: PicnicUi.vertical(8)),
-                                Text(
-                                  popup.content[lang] ??
-                                      popup.content['en'] ??
-                                      '',
-                                  style: PicnicUi.text(size: 14),
-                                  textAlign: TextAlign.start,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: PicnicUi.vertical(16)),
-                      Padding(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: PicnicUi.horizontal(16),
-                        ),
-                        child: _buildActions(context),
-                      ),
-                      SizedBox(height: PicnicUi.vertical(16)),
-                    ],
-                  ),
+                  child: _buildCardBody(context, popup, lang, imageUrl),
                 ),
               );
             },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCardBody(
+    BuildContext context,
+    Popup popup,
+    String lang,
+    String imageUrl,
+  ) {
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: imageUrl.isNotEmpty
+                ? PicnicCachedNetworkImage(
+                    imageUrl: imageUrl,
+                    cdnVariant: PicnicCdnImageVariant.large,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    'assets/images/logo.png',
+                    package: 'picnic_lib',
+                    fit: BoxFit.contain,
+                  ),
+          ),
+        ),
+        SizedBox(height: PicnicUi.vertical(16)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                popup.title[lang] ?? popup.title['en'] ?? '',
+                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: PicnicUi.vertical(8)),
+              Text(
+                popup.content[lang] ?? popup.content['en'] ?? '',
+                style: PicnicUi.text(size: 14),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final actions = Padding(
+      padding: EdgeInsets.all(0).copyWith(
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        top: PicnicUi.vertical(16),
+        bottom: PicnicUi.vertical(16),
+      ),
+      child: _buildActions(context),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final actionWidth = math.max(
+          0.0,
+          constraints.maxWidth - PicnicUi.horizontal(32),
+        );
+        final actionsHeight =
+            _actionsHeight(context, actionWidth) + PicnicUi.vertical(32);
+        // Keep actions visible whenever they fit. In a shorter window, allow
+        // the complete card to scroll instead of overflowing the action group.
+        if (actionsHeight + PicnicUi.vertical(8) >= constraints.maxHeight) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [content, actions],
+            ),
+          );
+        }
+        return Column(
+          children: [
+            Expanded(child: SingleChildScrollView(child: content)),
+            actions,
+          ],
+        );
+      },
+    );
+  }
+
+  bool _stackActions(BuildContext context, double width) =>
+      width < 200 || MediaQuery.textScalerOf(context).scale(14) > 18.2;
+
+  double _actionsHeight(BuildContext context, double width) {
+    final l10n = AppLocalizations.of(context);
+    double height(String label, double buttonWidth) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: PicnicUi.text(size: 14, weight: FontWeight.w600),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: math.max(0.0, buttonWidth - PicnicUi.horizontal(32)));
+      final result = math.max(
+        PicnicUi.minimumTapTarget,
+        painter.height + PicnicUi.vertical(24),
+      );
+      painter.dispose();
+      return result;
+    }
+
+    if (_stackActions(context, width)) {
+      return height(l10n.label_popup_close, width) +
+          height(l10n.label_popup_hide_7days, width) +
+          PicnicUi.vertical(8);
+    }
+    final unit = (width - PicnicUi.horizontal(16)) / 3;
+    return math.max(
+      height(l10n.label_popup_close, unit),
+      height(l10n.label_popup_hide_7days, unit * 2),
     );
   }
 
@@ -334,9 +386,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final stacked =
-            constraints.maxWidth < 200 ||
-            MediaQuery.textScalerOf(context).scale(14) > 18.2;
+        final stacked = _stackActions(context, constraints.maxWidth);
         if (stacked) {
           return Column(
             mainAxisSize: MainAxisSize.min,

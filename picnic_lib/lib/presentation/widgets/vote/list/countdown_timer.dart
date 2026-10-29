@@ -236,16 +236,20 @@ class _CountdownTimerState extends State<CountdownTimer> {
         if (widget.status != VoteStatus.end)
           SizedBox(
             height: tileHeight,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ...unit(totalDays, 'D'),
-                ...unit(hours),
-                _buildSeparator(':'),
-                ...unit(minutes),
-                _buildSeparator(':'),
-                ...unit(seconds),
-              ],
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  ...unit(totalDays, 'D'),
+                  ...unit(hours),
+                  _buildSeparator(':'),
+                  ...unit(minutes),
+                  _buildSeparator(':'),
+                  ...unit(seconds),
+                ],
+              ),
             ),
           ),
       ],

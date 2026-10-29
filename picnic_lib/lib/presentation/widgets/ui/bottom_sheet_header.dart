@@ -10,18 +10,14 @@ class BottomSheetHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 70,
-      alignment: Alignment.center,
+      constraints: const BoxConstraints(minHeight: 70),
       padding: const EdgeInsets.symmetric(vertical: 16),
       color: AppColors.transparent,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Container(
-            height: 5,
-            width: 100.w,
-            color: AppColors.grey300,
-          ),
+          Container(height: 5, width: 100.w, color: AppColors.grey300),
           Text(
             title,
             style: getTextStyle(AppTypo.body14B, AppColors.primary500),

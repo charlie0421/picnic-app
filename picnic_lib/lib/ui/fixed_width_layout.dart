@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+const double kAppMaxContentWidth = 600;
+
 class FixedWidthLayout extends StatelessWidget {
   final Widget child;
   final double maxWidth;
@@ -7,7 +9,7 @@ class FixedWidthLayout extends StatelessWidget {
   const FixedWidthLayout({
     super.key,
     required this.child,
-    this.maxWidth = 600, // 원하는 최대 너비를 설정하세요
+    this.maxWidth = kAppMaxContentWidth,
   });
 
   @override

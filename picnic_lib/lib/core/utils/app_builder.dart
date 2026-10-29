@@ -9,6 +9,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/locale_service.dart';
+import 'package:picnic_lib/ui/fixed_width_layout.dart';
 
 /// 프로덕션 ScreenUtil 기준 디자인 크기.
 ///
@@ -61,6 +62,18 @@ class AppBuilder {
       splitScreenMode: kAppSplitScreenMode,
       // ScreenUtil 초기화 오류를 잡아 처리하는 builder 추가
       builder: (context, child) {
+        // ScreenUtilInit 5.9 reads the full FlutterView even under an inherited
+        // MediaQuery. Scale the existing single-column UI to its content width,
+        // while leaving real window metrics available to routes and keyboards.
+        final window = MediaQueryData.fromView(View.of(context));
+        ScreenUtil.configure(
+          data: window.copyWith(
+            size: Size(
+              window.size.width.clamp(0.0, kAppMaxContentWidth),
+              window.size.height,
+            ),
+          ),
+        );
         // child가 null인 경우에도 안전하게 처리
         final safeChild =
             child ??
