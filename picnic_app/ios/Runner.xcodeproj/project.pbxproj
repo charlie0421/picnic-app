@@ -18,6 +18,7 @@
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */; };
 		E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E185CAB42D94F3730026357C /* PangleAdManager.swift */; };
+		F7C996F30EA31D6CCC3264F6 /* StoreKitRefundRequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36FD07C817AF429A314A366F /* StoreKitRefundRequestManager.swift */; };
 		E1B64F7B2C2CAA51009CE725 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E1B64F792C2CAA51009CE725 /* InfoPlist.strings */; };
 		E1F5FA1F2D958EA0006749C8 /* PincruxOfferwall.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; };
 		E1F5FA202D958EA0006749C8 /* PincruxOfferwall.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -74,6 +75,7 @@
 		E103A5D12D95219A00AF5F40 /* PincruxOfferwall.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; path = PincruxOfferwall.xcframework; sourceTree = "<group>"; };
 		E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincruxOfferwallManager.swift; sourceTree = "<group>"; };
 		E185CAB42D94F3730026357C /* PangleAdManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PangleAdManager.swift; sourceTree = "<group>"; };
+		36FD07C817AF429A314A366F /* StoreKitRefundRequestManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreKitRefundRequestManager.swift; sourceTree = "<group>"; };
 		E1B64F692C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		E1B64F6B2C2CA13F009CE725 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Main.storyboard; sourceTree = "<group>"; };
 		E1B64F772C2CA38A009CE725 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -162,6 +164,7 @@
 			children = (
 				E185CAB42D94F3730026357C /* PangleAdManager.swift */,
 				E103A5D42D9521CC00AF5F40 /* PincruxOfferwallManager.swift */,
+				36FD07C817AF429A314A366F /* StoreKitRefundRequestManager.swift */,
 				E1B64F7E2C2E5321009CE725 /* Runner.entitlements */,
 				E1B64F6D2C2CA13F009CE725 /* Base.lproj */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
@@ -416,6 +419,7 @@
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				E103A5D52D9521CC00AF5F40 /* PincruxOfferwallManager.swift in Sources */,
 				E185CAB52D94F3730026357C /* PangleAdManager.swift in Sources */,
+				F7C996F30EA31D6CCC3264F6 /* StoreKitRefundRequestManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

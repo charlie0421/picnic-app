@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/sandbox_refund_candidate_store.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/navigation_stack.dart';
 import 'package:picnic_lib/presentation/controllers/admin_gdpr_reset_controller.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/sandbox_refund_request_page.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+/// Sandbox purchases this device recorded, held in memory.
+class _FakeCandidateStore extends SandboxRefundCandidateStore {
+  _FakeCandidateStore(this.candidates);
+
+  final List<SandboxRefundCandidate> candidates;
+
+  @override
+  Future<List<SandboxRefundCandidate>> load() async =>
+      List.unmodifiable(candidates);
+}
+
+final _recordedPurchase = SandboxRefundCandidate(
+  transactionId: '2000000000001111',
+  productId: 'STAR200',
+  purchasedAt: DateTime.utc(2026, 10, 29, 6),
+);
 
 void main() {
   setUpAll(initTestColors);
@@ -166,5 +185,64 @@ void main() {
     await pumpAndIgnoreErrors(tester);
 
     expect(reloads, 0);
+  });
+
+  testWidgets('opens the sandbox refund tool on iOS when this device recorded '
+      'sandbox purchases', (tester) async {
+    final store = _FakeCandidateStore([_recordedPurchase]);
+    await tester.pumpWidget(
+      buildTestAppPage(
+        const MyPageScreen(),
+        navigation: Navigation(
+          drawerNavigationStack: NavigationStack(
+            initialPage: AdminMenuPage(
+              isIOS: true,
+              sandboxRefundCandidates: store,
+            ),
+          ),
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    await tester.tap(find.text('테스트 환불 요청'));
+    await pumpAndIgnoreErrors(tester);
+
+    expect(find.byType(SandboxRefundRequestPage), findsOneWidget);
+  });
+
+  testWidgets('hides the sandbox refund tool without recorded purchases', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      buildTestAppPage(
+        AdminMenuPage(
+          isIOS: true,
+          sandboxRefundCandidates: _FakeCandidateStore([]),
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    expect(find.text('캔디 내역'), findsOneWidget);
+    expect(find.text('테스트 환불 요청'), findsNothing);
+  });
+
+  testWidgets('hides the sandbox refund tool on Android', (tester) async {
+    await tester.pumpWidget(
+      buildTestAppPage(
+        AdminMenuPage(
+          isIOS: false,
+          sandboxRefundCandidates: _FakeCandidateStore([_recordedPurchase]),
+        ),
+        userProfile: MockData.userProfile(isAdmin: true),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+
+    expect(find.text('캔디 내역'), findsOneWidget);
+    expect(find.text('테스트 환불 요청'), findsNothing);
   });
 }
