@@ -39,12 +39,14 @@ class VoteInfoCard extends ConsumerStatefulWidget {
     required this.vote,
     required this.status,
     this.votePortal = VotePortal.vote,
+    this.overflowParentController,
   });
 
   final BuildContext context;
   final VoteModel vote;
   final VoteStatus status;
   final VotePortal votePortal;
+  final ScrollController? overflowParentController;
 
   @override
   ConsumerState<VoteInfoCard> createState() => _VoteInfoCardState();
@@ -278,8 +280,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
               ),
             ),
           );
-          if (!constraints.hasBoundedHeight ||
-              vote.voteCategory == VoteCategory.achieve.name) {
+          if (!constraints.hasBoundedHeight) {
             return card;
           }
           final headerHeight = _buildHeader(
@@ -328,11 +329,26 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       _cardDragTransferred = false;
       _cardEdgeDragDistance = 0;
     }
-    if (_cardDragTransferred) return true;
     if (notification is! OverscrollNotification ||
         notification.dragDetails == null) {
       return false;
     }
+    final viewportController = widget.overflowParentController;
+    if (viewportController != null && viewportController.hasClients) {
+      final viewport = viewportController.position;
+      final target = (viewport.pixels + notification.overscroll).clamp(
+        viewport.minScrollExtent,
+        viewport.maxScrollExtent,
+      );
+      if ((target - viewport.pixels).abs() > 0.01) {
+        // 카드 끝에 도달한 드래그로 바깥 창의 잘린 버튼·안내도 드러낸다.
+        // 같은 드래그가 다음 투표로 넘어가지는 않도록 표시한다.
+        _cardDragTransferred = true;
+        viewport.jumpTo(target);
+        return true;
+      }
+    }
+    if (_cardDragTransferred) return true;
     final next = notification.overscroll > 0;
     if (!(next ? _cardDragStartedAtBottom : _cardDragStartedAtTop)) {
       return false;

@@ -99,32 +99,37 @@ class _SettingPageState extends ConsumerState<SettingPage>
             PicnicListItem(
               leading: AppLocalizations.of(context).label_setting_push_alarm,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              tailing: LoadSwitch(
-                width: 48.w,
-                height: 28,
-                value: value1,
-                future: _getFuture1,
-                style: SpinStyle.material,
-                curveIn: Curves.easeInBack,
-                curveOut: Curves.easeOutBack,
-                animationDuration: const Duration(milliseconds: 500),
-                thumbDecoration: (value, isActive) => BoxDecoration(
-                  gradient: switchThumbGradient,
-                  borderRadius: BorderRadius.circular(28),
+              tailing: Semantics(
+                container: true,
+                label: l10n.label_setting_push_alarm,
+                toggled: value1,
+                child: LoadSwitch(
+                  width: 64.w.clamp(64, double.infinity),
+                  height: 48,
+                  value: value1,
+                  future: _getFuture1,
+                  style: SpinStyle.material,
+                  curveIn: Curves.easeInBack,
+                  curveOut: Curves.easeOutBack,
+                  animationDuration: const Duration(milliseconds: 500),
+                  thumbDecoration: (value, isActive) => BoxDecoration(
+                    gradient: switchThumbGradient,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  switchDecoration: (value, isActive) => BoxDecoration(
+                    color: value ? AppColors.primary500 : AppColors.grey200,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [switchBoxShadow],
+                  ),
+                  spinColor: (value) =>
+                      value ? AppColors.primary500 : AppColors.primary500,
+                  spinStrokeWidth: 1,
+                  onChange: (v) {
+                    value1 = v;
+                    setState(() {});
+                  },
+                  onTap: (v) {},
                 ),
-                switchDecoration: (value, isActive) => BoxDecoration(
-                  color: value ? AppColors.primary500 : AppColors.grey200,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [switchBoxShadow],
-                ),
-                spinColor: (value) =>
-                    value ? AppColors.primary500 : AppColors.primary500,
-                spinStrokeWidth: 1,
-                onChange: (v) {
-                  value1 = v;
-                  setState(() {});
-                },
-                onTap: (v) {},
               ),
             ),
             PicnicListItem(
@@ -139,32 +144,37 @@ class _SettingPageState extends ConsumerState<SettingPage>
                 ),
               ),
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              tailing: LoadSwitch(
-                width: 48.w,
-                height: 28,
-                value: value2,
-                future: _getFuture2,
-                style: SpinStyle.material,
-                curveIn: Curves.easeInBack,
-                curveOut: Curves.easeOutBack,
-                animationDuration: const Duration(milliseconds: 500),
-                thumbDecoration: (value, isActive) => BoxDecoration(
-                  gradient: switchThumbGradient,
-                  borderRadius: BorderRadius.circular(28),
+              tailing: Semantics(
+                container: true,
+                label: l10n.label_setting_event_alarm,
+                toggled: value2,
+                child: LoadSwitch(
+                  width: 64.w.clamp(64, double.infinity),
+                  height: 48,
+                  value: value2,
+                  future: _getFuture2,
+                  style: SpinStyle.material,
+                  curveIn: Curves.easeInBack,
+                  curveOut: Curves.easeOutBack,
+                  animationDuration: const Duration(milliseconds: 500),
+                  thumbDecoration: (value, isActive) => BoxDecoration(
+                    gradient: switchThumbGradient,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  switchDecoration: (value, isActive) => BoxDecoration(
+                    color: value ? AppColors.primary500 : AppColors.grey200,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [switchBoxShadow],
+                  ),
+                  spinColor: (value) =>
+                      value ? AppColors.primary500 : AppColors.primary500,
+                  spinStrokeWidth: 1,
+                  onChange: (v) {
+                    value2 = v;
+                    setState(() {});
+                  },
+                  onTap: (v) {},
                 ),
-                switchDecoration: (value, isActive) => BoxDecoration(
-                  color: value ? AppColors.primary500 : AppColors.grey200,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [switchBoxShadow],
-                ),
-                spinColor: (value) =>
-                    value ? AppColors.primary500 : AppColors.primary500,
-                spinStrokeWidth: 1,
-                onChange: (v) {
-                  value2 = v;
-                  setState(() {});
-                },
-                onTap: (v) {},
               ),
             ),
             const SizedBox(height: 24),

@@ -10,7 +10,6 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:picnic_lib/core/utils/date.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
-import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/data/models/common/comment.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/community/post.dart';
@@ -27,7 +26,6 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/providers/community/comments_provider.dart';
 import 'package:picnic_lib/presentation/providers/community/post_provider.dart';
 import 'package:picnic_lib/presentation/providers/community_navigation_provider.dart';
-import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/link_embed_builder.dart';
@@ -36,6 +34,7 @@ import 'package:picnic_lib/presentation/widgets/community/write/embed_builder/yo
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/fixed_width_layout.dart';
 
 class PostViewPage extends ConsumerStatefulWidget {
   const PostViewPage(this.postId, {super.key, this.syncNavigation = true});
@@ -487,32 +486,34 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              Text(
-                '${AppLocalizations.of(context).views}: ${post.viewCount}',
-                style: getTextStyle(
-                  AppTypo.caption10SB,
-                  const Color(0XFF8E8E8E),
+          Expanded(
+            child: Wrap(
+              spacing: 8.w,
+              runSpacing: 4,
+              children: [
+                Text(
+                  '${AppLocalizations.of(context).views}: ${post.viewCount}',
+                  style: getTextStyle(
+                    AppTypo.caption10SB,
+                    const Color(0XFF8E8E8E),
+                  ),
                 ),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                '${AppLocalizations.of(context).replies}: ${post.replyCount}',
-                style: getTextStyle(
-                  AppTypo.caption10SB,
-                  const Color(0XFF8E8E8E),
+                Text(
+                  '${AppLocalizations.of(context).replies}: ${post.replyCount}',
+                  style: getTextStyle(
+                    AppTypo.caption10SB,
+                    const Color(0XFF8E8E8E),
+                  ),
                 ),
-              ),
-              SizedBox(width: 8.w),
-              Text(
-                formatDateTimeYYYYMMDDHHM(post.createdAt!),
-                style: getTextStyle(
-                  AppTypo.caption10SB,
-                  const Color(0XFF8E8E8E),
+                Text(
+                  formatDateTimeYYYYMMDDHHM(post.createdAt!),
+                  style: getTextStyle(
+                    AppTypo.caption10SB,
+                    const Color(0XFF8E8E8E),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           PostPopupMenu(
             post: post,
@@ -744,18 +745,23 @@ class _PostViewPageState extends ConsumerState<PostViewPage>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(40)),
       ),
-      constraints: BoxConstraints(
-        maxHeight:
-            ref.watch(globalMediaQueryProvider).size.height -
-            getAppBarHeight(ref),
-      ),
-      builder: (context) => SafeArea(
-        child: CommentList(
-          id: post.postId,
-          title: AppLocalizations.of(context).replies,
-          openReportModal: (String title, CommentModel comment) {
-            _handleCommentReport(title, comment, post);
-          },
+      constraints: const BoxConstraints(maxWidth: kAppMaxContentWidth),
+      builder: (context) => LayoutBuilder(
+        builder: (context, constraints) => SizedBox(
+          // Recalculate while the sheet is open when the window folds/rotates.
+          height: (constraints.maxHeight - kToolbarHeight).clamp(
+            0.0,
+            constraints.maxHeight,
+          ),
+          child: SafeArea(
+            child: CommentList(
+              id: post.postId,
+              title: AppLocalizations.of(context).replies,
+              openReportModal: (String title, CommentModel comment) {
+                _handleCommentReport(title, comment, post);
+              },
+            ),
+          ),
         ),
       ),
     ).then((_) {

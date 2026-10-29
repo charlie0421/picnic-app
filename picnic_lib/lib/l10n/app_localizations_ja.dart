@@ -2026,4 +2026,7 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'この端末での現在のアカウントによる広告の利用は、一時的に制限されています。';
+
+  @override
+  String get profile_photo_change => 'プロフィール写真を変更';
 }

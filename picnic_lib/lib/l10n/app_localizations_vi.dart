@@ -2110,4 +2110,7 @@ class AppLocalizationsVi extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'Quyền truy cập quảng cáo của tài khoản này trên thiết bị này tạm thời bị hạn chế.';
+
+  @override
+  String get profile_photo_change => 'Thay đổi ảnh hồ sơ';
 }

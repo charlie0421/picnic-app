@@ -305,25 +305,30 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                 ),
               ],
             ),
-            body: Column(
-              children: [
-                if (_categoryLabel != null && _categoryLabel!.isNotEmpty)
-                  QnaCategoryChip(label: _categoryLabel!),
-                Expanded(child: _buildBody()),
-                QnaMessageInput(
-                  isThreadOpen: _thread.isOpen,
-                  showAutoCloseNotice: shouldShowAutoCloseNotice(
-                    threadStatus: _thread.status,
-                    messages: _messages,
+            body: LayoutBuilder(
+              builder: (context, constraints) => Column(
+                children: [
+                  Expanded(child: _buildBody()),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: constraints.maxHeight * 0.6,
+                    ),
+                    child: QnaMessageInput(
+                      isThreadOpen: _thread.isOpen,
+                      showAutoCloseNotice: shouldShowAutoCloseNotice(
+                        threadStatus: _thread.status,
+                        messages: _messages,
+                      ),
+                      isSending: _isSending,
+                      attachments: _attachments,
+                      messageController: _messageController,
+                      onSend: _sendMessage,
+                      onPickMedia: _pickMedia,
+                      onRemoveAttachment: _removeAttachment,
+                    ),
                   ),
-                  isSending: _isSending,
-                  attachments: _attachments,
-                  messageController: _messageController,
-                  onSend: _sendMessage,
-                  onPickMedia: _pickMedia,
-                  onRemoveAttachment: _removeAttachment,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           if (_isSending || _isAttaching)
@@ -362,14 +367,25 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
       return _buildErrorView();
     }
     if (_messages.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context).qna_no_answer_yet),
+      return ListView(
+        children: [
+          if (_categoryLabel?.isNotEmpty ?? false)
+            QnaCategoryChip(label: _categoryLabel!),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              AppLocalizations.of(context).qna_no_answer_yet,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       );
     }
     return QnaMessageListView(
       messages: _messages,
       currentUserId: _currentUserId,
       getPublicUrl: _repository.getPublicUrl,
+      categoryLabel: _categoryLabel,
     );
   }
 
@@ -383,27 +399,36 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   Widget _buildErrorView() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, color: Colors.red[400], size: 60),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context).qna_load_fail_title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: Colors.red[400], size: 60),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context).qna_load_fail_title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _loadThreadDetails,
+                icon: const Icon(Icons.refresh),
+                label: Text(AppLocalizations.of(context).retry),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary500,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: _loadThreadDetails,
-            icon: const Icon(Icons.refresh),
-            label: Text(AppLocalizations.of(context).retry),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: AppColors.primary500,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

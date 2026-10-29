@@ -2122,4 +2122,7 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'ဤစက်တွင် ယခုအကောင့်ဖြင့် ကြော်ငြာကြည့်ရှုခြင်းကို ယာယီကန့်သတ်ထားပါသည်။';
+
+  @override
+  String get profile_photo_change => 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်';
 }

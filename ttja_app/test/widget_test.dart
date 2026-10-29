@@ -1,29 +1,43 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/config/environment.dart';
 import 'package:ttja_app/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const App());
+  setUpAll(() {
+    Environment.initTestConfig({
+      'theme': {
+        'colors': {
+          'primary': '0xFF6200EE',
+          'secondary': '0xFF03DAC6',
+          'sub': '0xFFBB86FC',
+          'point': '0xFFFF0266',
+          'point_900': '0xFFCF6679',
+        },
+      },
+      'logging': {'level': 'off'},
+    });
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+  testWidgets('TTJA keeps the splash visible while SDK startup is pending',
+      (tester) async {
+    await tester.pumpWidget(const ProviderScope(child: App()));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    final app = tester.widget<MaterialApp>(find.byType(MaterialApp));
+    expect(app.title, 'TTJA');
+    expect(
+      find.byWidgetPredicate((widget) =>
+          widget is Image &&
+          widget.image is AssetImage &&
+          (widget.image as AssetImage).assetName == 'assets/splash.webp'),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
+    expect(tester.takeException(), isNull);
   });
 }

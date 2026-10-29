@@ -33,10 +33,14 @@ class QnaMessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isThreadOpen) {
-      return _buildClosedNotice(context);
-    }
-    return _buildOpenInput(context);
+    // Keep the composer reachable when a keyboard or short window leaves
+    // less room than the notice, attachments and input need together.
+    return SingleChildScrollView(
+      reverse: true,
+      child: isThreadOpen
+          ? _buildOpenInput(context)
+          : _buildClosedNotice(context),
+    );
   }
 
   Widget _buildClosedNotice(BuildContext context) {

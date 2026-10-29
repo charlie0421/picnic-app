@@ -348,6 +348,9 @@ class _FeaturedVoteCardSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ScreenUtil excludes private widgets from its resize rebuild. Subscribe
+    // to the live content width so the skeleton follows a fold transition too.
+    MediaQuery.sizeOf(context);
     return Container(
       key: FeaturedVoteSkeletonKeys.frame,
       // HomeFeaturedVoteCard 의 프레임과 동일 — 테두리와 글로우까지 같아야

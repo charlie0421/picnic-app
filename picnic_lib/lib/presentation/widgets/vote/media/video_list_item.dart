@@ -105,12 +105,14 @@ class VideoListItem extends StatelessWidget {
                               CachedNetworkImageProvider(channelThumbnail),
                         ),
                         const SizedBox(width: 8),
-                        Text(
-                          channelTitle,
-                          style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey900),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Flexible(
+                          child: Text(
+                            channelTitle,
+                            style:
+                                getTextStyle(AppTypo.body16B, AppColors.grey900),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ],
                     ),

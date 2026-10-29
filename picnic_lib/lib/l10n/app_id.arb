@@ -2614,5 +2614,6 @@
   "expiry_policy_description": "Ketentuan kedaluwarsa menurut mata uang.",
   "bonus_expiry_policy_summary": "Perolehan tanggal 1–14 kedaluwarsa tanggal 15 bulan berikutnya; perolehan tanggal 15–akhir bulan kedaluwarsa pukul 00.00 (KST) tanggal 15 dua bulan berikutnya.",
   "expiry_tonight_at_midnight": "Tengah malam ini",
-  "error_ad_device_account_restricted_message": "Akses iklan untuk akun ini di perangkat ini dibatasi sementara."
+  "error_ad_device_account_restricted_message": "Akses iklan untuk akun ini di perangkat ini dibatasi sementara.",
+  "profile_photo_change": "Ubah foto profil"
 }

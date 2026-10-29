@@ -8,7 +8,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:picnic_lib/core/config/environment.dart';
@@ -155,35 +155,34 @@ Widget _harness() => ProviderScope(
         communityStateInfoProvider.overrideWith(_MockCommunityStateInfo.new),
         walletSummaryProvider.overrideWith(_StaticWalletSummary.new),
       ],
-      child: ScreenUtilInit(
-        designSize: const Size(393, 892),
-        minTextAdapt: true,
-        splitScreenMode: true,
-        child: MaterialApp(
-          navigatorKey: navigatorKey,
-          locale: const Locale('ko'),
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('ko'), Locale('en')],
-          home: Scaffold(
-            body: Center(
-              child: Builder(
-                builder: (context) => ElevatedButton(
-                  onPressed: () => showDialog<void>(
-                    context: context,
-                    barrierDismissible: true,
-                    builder: (_) => VotingDialog(
-                      voteModel: _vote(),
-                      voteItemModel: _voteItem(),
-                      portalType: VotePortal.vote,
-                    ),
+      child: AppBuilder.buildApp(
+        scaffoldKey: GlobalKey<ScaffoldMessengerState>(),
+        title: 'Vote dialog device test',
+        routes: const {},
+        theme: ThemeData(),
+        navigatorKey: navigatorKey,
+        locale: const Locale('ko'),
+        localizationsDelegates: const [
+          AppLocalizations.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('ko'), Locale('en')],
+        home: Scaffold(
+          body: Center(
+            child: Builder(
+              builder: (context) => ElevatedButton(
+                onPressed: () => showDialog<void>(
+                  context: context,
+                  barrierDismissible: true,
+                  builder: (_) => VotingDialog(
+                    voteModel: _vote(),
+                    voteItemModel: _voteItem(),
+                    portalType: VotePortal.vote,
                   ),
-                  child: const Text('open-voting-dialog'),
                 ),
+                child: const Text('open-voting-dialog'),
               ),
             ),
           ),

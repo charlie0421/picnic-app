@@ -1997,6 +1997,9 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3992,6 +3995,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String get error_ad_device_account_restricted_message =>
       '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5988,4 +5994,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get error_ad_device_account_restricted_message =>
       '此帳號在此裝置上的廣告使用權限暫時受到限制。';
+
+  @override
+  String get profile_photo_change => '更換頭像';
 }

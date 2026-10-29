@@ -2105,6 +2105,9 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
+
+  @override
+  String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -4209,4 +4212,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get error_ad_device_account_restricted_message =>
       'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
+
+  @override
+  String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
 }

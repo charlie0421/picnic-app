@@ -2130,4 +2130,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.';
+
+  @override
+  String get profile_photo_change => 'Cambiar foto de perfil';
 }

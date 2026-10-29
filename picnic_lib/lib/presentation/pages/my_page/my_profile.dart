@@ -256,6 +256,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
       // 확인 시트라 명시적인 취소 버튼으로만 닫는 편이 맞다.
       isDismissible: false,
       enableDrag: false,
+      isScrollControlled: true,
+      useSafeArea: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           topLeft: const Radius.circular(48),
@@ -305,126 +307,137 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
             // 평가되므로, 요청 중에만 막고 평상시에는 뒤로가기로 닫히는
             // 기존 동작을 그대로 남길 수 있다.
             canPop: !isWithdrawing,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    AppLocalizations.of(sheetContext).dialog_withdraw_title,
-                    style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(
-                      sheetContext,
-                    ).dialog_will_delete_star_candy,
-                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
-                  ),
-                  const StarCandyInfoText(),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(sheetContext).dialog_withdraw_message,
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(
-                      sheetContext,
-                    ).dialog_message_can_resignup,
-                    style: getTextStyle(AppTypo.caption12R, AppColors.grey700),
-                    textAlign: TextAlign.center,
-                  ),
-                  Text(
-                    formattedDate,
-                    style: getTextStyle(AppTypo.caption12B, AppColors.grey700),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: MaterialButton(
-                          onPressed: isWithdrawing ? null : handleWithdraw,
-                          child: Container(
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20.w,
-                              vertical: 8,
-                            ),
-                            constraints: BoxConstraints(minWidth: 100.w),
-                            decoration: BoxDecoration(
-                              // 활성 상태를 grey300 으로 칠해 두면 비활성
-                              // 버튼처럼 보인다 — CS 로 실제 접수된 오인이다.
-                              // 잠긴 동안에만 grey300 으로 낮춘다.
-                              color: isWithdrawing
-                                  ? AppColors.grey300
-                                  : AppColors.primary500,
-                              borderRadius: BorderRadius.circular(30.w),
-                            ),
-                            child: isWithdrawing
-                                ? SizedBox(
-                                    width: 24.w,
-                                    height: 24.w,
-                                    child: SmallPulseLoadingIndicator(),
-                                  )
-                                : Text(
-                                    AppLocalizations.of(
-                                      sheetContext,
-                                    ).dialog_withdraw_button_ok,
-                                    style: getTextStyle(
-                                      AppTypo.title18SB,
-                                      AppColors.grey00,
-                                    ),
-                                  ),
-                          ),
-                        ),
+            child: SingleChildScrollView(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 40.h),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      AppLocalizations.of(sheetContext).dialog_withdraw_title,
+                      style: getTextStyle(AppTypo.title18SB, AppColors.grey900),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(
+                        sheetContext,
+                      ).dialog_will_delete_star_candy,
+                      style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                    ),
+                    const StarCandyInfoText(),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(sheetContext).dialog_withdraw_message,
+                      style: getTextStyle(
+                        AppTypo.caption12R,
+                        AppColors.grey700,
                       ),
-                      Expanded(
-                        child: MaterialButton(
-                          // 요청 중에 모달을 닫으면 응답이 돌아왔을 때
-                          // _deleteAccount 의 pop 이 엉뚱한 라우트를 닫는다.
-                          // 닫을 때는 페이지가 아니라 **시트 자신의**
-                          // 라우트를 대상으로 한다.
-                          onPressed: isWithdrawing
-                              ? null
-                              : () => Navigator.of(sheetContext).pop(),
-                          child: Container(
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 20.w,
-                              vertical: 8,
-                            ),
-                            constraints: BoxConstraints(minWidth: 100.w),
-                            decoration: BoxDecoration(
-                              color: AppColors.grey00,
-                              borderRadius: BorderRadius.circular(30.w),
-                              border: Border.all(
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      AppLocalizations.of(
+                        sheetContext,
+                      ).dialog_message_can_resignup,
+                      style: getTextStyle(
+                        AppTypo.caption12R,
+                        AppColors.grey700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      formattedDate,
+                      style: getTextStyle(
+                        AppTypo.caption12B,
+                        AppColors.grey700,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: MaterialButton(
+                            onPressed: isWithdrawing ? null : handleWithdraw,
+                            child: Container(
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.w,
+                                vertical: 8,
+                              ),
+                              constraints: BoxConstraints(minWidth: 100.w),
+                              decoration: BoxDecoration(
+                                // 활성 상태를 grey300 으로 칠해 두면 비활성
+                                // 버튼처럼 보인다 — CS 로 실제 접수된 오인이다.
+                                // 잠긴 동안에만 grey300 으로 낮춘다.
                                 color: isWithdrawing
                                     ? AppColors.grey300
                                     : AppColors.primary500,
-                                width: 1.5.w,
+                                borderRadius: BorderRadius.circular(30.w),
                               ),
+                              child: isWithdrawing
+                                  ? SizedBox(
+                                      width: 24.w,
+                                      height: 24.w,
+                                      child: SmallPulseLoadingIndicator(),
+                                    )
+                                  : Text(
+                                      AppLocalizations.of(
+                                        sheetContext,
+                                      ).dialog_withdraw_button_ok,
+                                      style: getTextStyle(
+                                        AppTypo.title18SB,
+                                        AppColors.grey00,
+                                      ),
+                                    ),
                             ),
-                            child: Text(
-                              AppLocalizations.of(
-                                sheetContext,
-                              ).dialog_button_cancel,
-                              style: getTextStyle(
-                                AppTypo.title18SB,
-                                isWithdrawing
-                                    ? AppColors.grey300
-                                    : AppColors.primary500,
+                          ),
+                        ),
+                        Expanded(
+                          child: MaterialButton(
+                            // 요청 중에 모달을 닫으면 응답이 돌아왔을 때
+                            // _deleteAccount 의 pop 이 엉뚱한 라우트를 닫는다.
+                            // 닫을 때는 페이지가 아니라 **시트 자신의**
+                            // 라우트를 대상으로 한다.
+                            onPressed: isWithdrawing
+                                ? null
+                                : () => Navigator.of(sheetContext).pop(),
+                            child: Container(
+                              alignment: Alignment.center,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 20.w,
+                                vertical: 8,
+                              ),
+                              constraints: BoxConstraints(minWidth: 100.w),
+                              decoration: BoxDecoration(
+                                color: AppColors.grey00,
+                                borderRadius: BorderRadius.circular(30.w),
+                                border: Border.all(
+                                  color: isWithdrawing
+                                      ? AppColors.grey300
+                                      : AppColors.primary500,
+                                  width: 1.5.w,
+                                ),
+                              ),
+                              child: Text(
+                                AppLocalizations.of(
+                                  sheetContext,
+                                ).dialog_button_cancel,
+                                style: getTextStyle(
+                                  AppTypo.title18SB,
+                                  isWithdrawing
+                                      ? AppColors.grey300
+                                      : AppColors.primary500,
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           );
@@ -525,6 +538,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
   }
 
   Widget buildNicknameInput(BuildContext context) {
+    final canSave =
+        isValid &&
+        _textEditingController.text !=
+            ref.watch(userInfoProvider).value?.nickname;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -540,9 +557,9 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           ),
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           alignment: Alignment.center,
-          // A 48 minimum, not a fixed 48: at 2.6x the field itself is
-          // taller than 48 and was drawn outside the pill.
-          constraints: BoxConstraints(minHeight: 48),
+          // Reserve the clear control's 48px plus the container borders
+          // before focus. Larger text can still grow the pill.
+          constraints: BoxConstraints(minHeight: 48 + 2 * 1.5.w),
           width: 200.w,
           child: Form(
             key: _formKey,
@@ -561,11 +578,8 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
               keyboardType: TextInputType.text,
               style: getTextStyle(AppTypo.body16B, AppColors.grey900),
               decoration: InputDecoration(
-                // The default field is 12 + line + 12 with a 48 minimum,
-                // which did not fit the 48 pill minus its two 1.5 borders:
-                // it was squeezed and its bottom 3px cut. Dense with the
-                // bottom padding taking the borders fills the pill exactly,
-                // so nothing moves at 1.0x and it can still grow.
+                // Dense padding keeps the text inside the bordered pill.
+                // The parent reserves the clear control space before focus.
                 isDense: true,
                 contentPadding: EdgeInsets.fromLTRB(0, 12, 0, 12 - 2 * 1.5.w),
                 // Shrunk to fit rather than cut: the field is 141px wide on
@@ -586,14 +600,20 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
-                suffixIconConstraints: BoxConstraints(
-                  minWidth: 20.w,
-                  minHeight: 20.w,
+                suffixIconConstraints: const BoxConstraints(
+                  minWidth: 48,
+                  minHeight: 48,
                 ),
                 suffixIcon: _focusNode.hasFocus
-                    ? GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
+                    ? IconButton(
+                        tooltip: MaterialLocalizations.of(
+                          context,
+                        ).deleteButtonTooltip,
+                        constraints: const BoxConstraints(
+                          minWidth: 48,
+                          minHeight: 48,
+                        ),
+                        onPressed: () {
                           _textEditingController.clear();
                           setState(() {
                             isValid =
@@ -601,96 +621,74 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                                 null;
                           });
                         },
-                        child: _textEditingController.text.isEmpty
-                            ? SvgPicture.asset(
-                                package: 'picnic_lib',
-                                'assets/icons/cancel_style=fill.svg',
-                                colorFilter: const ColorFilter.mode(
-                                  AppColors.grey300,
-                                  BlendMode.srcIn,
-                                ),
-                                width: 20.w,
-                                height: 20,
-                              )
-                            : GestureDetector(
-                                onTap: () {
-                                  _textEditingController.clear();
-                                  setState(() {
-                                    isValid =
-                                        validateInput(
-                                          _textEditingController.text,
-                                        ) ==
-                                        null;
-                                  });
-                                },
-                                child: SvgPicture.asset(
-                                  package: 'picnic_lib',
-                                  'assets/icons/cancel_style=fill.svg',
-                                  colorFilter: const ColorFilter.mode(
-                                    AppColors.grey700,
-                                    BlendMode.srcIn,
-                                  ),
-                                  width: 20.w,
-                                  height: 20,
-                                ),
-                              ),
+                        icon: SvgPicture.asset(
+                          'assets/icons/cancel_style=fill.svg',
+                          package: 'picnic_lib',
+                          width: 20.w,
+                          height: 20,
+                          colorFilter: ColorFilter.mode(
+                            _textEditingController.text.isEmpty
+                                ? AppColors.grey300
+                                : AppColors.grey700,
+                            BlendMode.srcIn,
+                          ),
+                        ),
                       )
                     : null,
               ),
             ),
           ),
         ),
-        GestureDetector(
-          onTap: () async {
-            _focusNode.unfocus();
-            if (isValid &&
-                _textEditingController.text !=
-                    ref.watch(userInfoProvider).value?.nickname) {
-              OverlayLoadingProgress.start(context);
-              ref
-                  .read(userInfoProvider.notifier)
-                  .updateNickname(_textEditingController.text)
-                  .then((success) {
-                    if (success) {
-                      // 닉네임 변경 성공
-                      if (navigatorKey.currentContext != null) {
-                        showSimpleDialog(
-                          content: AppLocalizations.of(
-                            navigatorKey.currentContext!,
-                          ).message_update_nickname_success,
-                        );
-                      }
-                    } else {
-                      // 닉네임 변경 실패 (중복 또는 오류)
-                      if (navigatorKey.currentContext != null) {
-                        showSimpleDialog(
-                          content: AppLocalizations.of(
-                            navigatorKey.currentContext!,
-                          ).message_update_nickname_fail,
-                        );
-                      }
+        Padding(
+          padding: EdgeInsets.only(left: 8.w),
+          child: IconButton(
+            tooltip: AppLocalizations.of(context).save,
+            onPressed: canSave
+                ? () async {
+                    _focusNode.unfocus();
+                    if (isValid &&
+                        _textEditingController.text !=
+                            ref.watch(userInfoProvider).value?.nickname) {
+                      OverlayLoadingProgress.start(context);
+                      ref
+                          .read(userInfoProvider.notifier)
+                          .updateNickname(_textEditingController.text)
+                          .then((success) {
+                            if (success) {
+                              // 닉네임 변경 성공
+                              if (navigatorKey.currentContext != null) {
+                                showSimpleDialog(
+                                  content: AppLocalizations.of(
+                                    navigatorKey.currentContext!,
+                                  ).message_update_nickname_success,
+                                );
+                              }
+                            } else {
+                              // 닉네임 변경 실패 (중복 또는 오류)
+                              if (navigatorKey.currentContext != null) {
+                                showSimpleDialog(
+                                  content: AppLocalizations.of(
+                                    navigatorKey.currentContext!,
+                                  ).message_update_nickname_fail,
+                                );
+                              }
+                            }
+                            OverlayLoadingProgress.stop();
+                          });
                     }
-                    OverlayLoadingProgress.stop();
-                  });
-            }
-          },
-          child: Container(
-            width: 48.w,
-            height: 48,
-            alignment: Alignment.center,
-            margin: EdgeInsets.only(left: 8.w),
-            decoration: BoxDecoration(
-              color:
-                  isValid &&
-                      _textEditingController.text !=
-                          ref.watch(userInfoProvider).value?.nickname
-                  ? AppColors.primary500
-                  : AppColors.grey300,
-              borderRadius: BorderRadius.circular(24.w),
+                  }
+                : null,
+            style: IconButton.styleFrom(
+              minimumSize: Size(48.w.clamp(48, double.infinity), 48),
+              backgroundColor: AppColors.primary500,
+              disabledBackgroundColor: AppColors.grey300,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24.w),
+              ),
             ),
-            child: SvgPicture.asset(
-              package: 'picnic_lib',
+            icon: SvgPicture.asset(
               'assets/icons/pencil_style=fill.svg',
+              package: 'picnic_lib',
               colorFilter: const ColorFilter.mode(
                 AppColors.grey900,
                 BlendMode.srcIn,
@@ -728,9 +726,18 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                   Positioned(
                     right: 0,
                     bottom: 0,
-                    child: GestureDetector(
-                      onTap: () => _uploadProfileImage(),
-                      child: Container(
+                    child: IconButton(
+                      tooltip: AppLocalizations.of(
+                        context,
+                      ).profile_photo_change,
+                      constraints: const BoxConstraints(
+                        minWidth: 48,
+                        minHeight: 48,
+                      ),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.bottomRight,
+                      onPressed: () => _uploadProfileImage(),
+                      icon: Container(
                         width: 24.w,
                         height: 24,
                         alignment: Alignment.center,

@@ -3872,6 +3872,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ad access for this account on this device is temporarily restricted.'**
   String get error_ad_device_account_restricted_message;
+
+  /// No description provided for @profile_photo_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get profile_photo_change;
 }
 
 class _AppLocalizationsDelegate

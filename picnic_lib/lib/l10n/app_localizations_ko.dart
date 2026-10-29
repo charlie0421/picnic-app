@@ -2026,4 +2026,7 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       '이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다.';
+
+  @override
+  String get profile_photo_change => '프로필 사진 변경';
 }

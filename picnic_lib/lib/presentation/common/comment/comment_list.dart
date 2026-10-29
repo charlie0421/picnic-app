@@ -328,7 +328,9 @@ class _CommentListState extends ConsumerState<CommentList> {
                 Expanded(
                   child: NotificationListener<ScrollStartNotification>(
                     onNotification: (notification) {
-                      _dismissKeyboard();
+                      if (notification.dragDetails != null) {
+                        _dismissKeyboard();
+                      }
                       return true;
                     },
                     child: RefreshIndicator(

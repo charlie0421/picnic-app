@@ -2080,4 +2080,7 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get error_ad_device_account_restricted_message =>
       'การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว';
+
+  @override
+  String get profile_photo_change => 'เปลี่ยนรูปโปรไฟล์';
 }
