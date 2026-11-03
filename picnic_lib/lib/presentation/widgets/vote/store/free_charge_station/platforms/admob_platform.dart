@@ -315,15 +315,19 @@ class AdmobShowFlow<T> {
       onLoadTimeout();
     });
 
+    // 이 attempt 가 받아들인 광고, 그리고 받아들이지 않고 정리한 광고들.
+    // 로드 결과는 성공·실패를 합쳐 한 번만 받는다 — 성공을 받은 뒤 늦게 온
+    // 실패 콜백이나 load Future 오류는 claim·SSV 준비를 취소하지 않는다.
+    T? accepted;
+    final rejected = Set<T>.identity();
+
     void handleLoadFailed(Object error) {
+      if (accepted != null) return; // 이미 성공을 받았다 — 늦은 실패는 무시
       if (!_isCurrent(g)) return; // 늦은 실패 콜백 — 이미 타임아웃 처리됨
       _finish(g);
       onLoadFailed(error);
     }
 
-    // 이 attempt 가 받아들인 광고, 그리고 받아들이지 않고 정리한 광고들.
-    T? accepted;
-    final rejected = Set<T>.identity();
     void rejectOnce(T ad) {
       if (rejected.add(ad)) disposeAd(ad);
     }

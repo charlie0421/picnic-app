@@ -321,13 +321,23 @@ class _TestAdmobPlatform extends AdmobPlatform {
     await request();
   }
 
+  /// true 이면 `RewardedAd.load` 가 돌려주는 Future 를 요청별 [Completer] 로
+  /// 붙잡는다. 그 Future 의 오류(채널 실패 등)를 테스트가 원하는 때에 낸다 —
+  /// 실제 SDK 에서도 콜백 결과와 Future 결과는 따로 도착한다.
+  bool holdLoadFuture = false;
+  final List<Completer<void>> loadFutures = [];
+
   @override
   Future<void> loadRewardedAd({
     required String adUnitId,
     required RewardedAdLoadCallback callback,
-  }) async {
+  }) {
     log.add('load');
     loads.add(callback);
+    if (!holdLoadFuture) return Future<void>.value();
+    final future = Completer<void>();
+    loadFutures.add(future);
+    return future.future;
   }
 
   @override
@@ -1402,6 +1412,74 @@ void main() {
       expect(platform.claimCalls, 1);
       platform.dispose();
     });
+  });
+
+  // P2: 같은 요청의 로드 결과는 성공·실패를 합쳐 한 번만 받는다. 성공으로
+  // claim·SSV 준비가 시작된 뒤 늦게 도착한 실패 콜백이나 load Future 오류가
+  // 준비를 취소하거나 실패 안내·스피너 해제를 내면 안 된다.
+  group('P2: 성공 뒤 늦은 로드 실패', () {
+    for (final stage in ['claim', 'SSV']) {
+      for (final failure in ['실패 콜백', 'load Future 오류']) {
+        testWidgets('$stage 대기 중 늦은 $failure 는 준비를 취소하지 않는다', (tester) async {
+          final platform = await buildPlatform(tester);
+          platform.holdLoadFuture = true;
+          final claim = Completer<AdmobClaimModel>();
+          if (stage == 'claim') {
+            platform.createClaim =
+                ({
+                  required platform,
+                  required placementId,
+                  required clientRequestId,
+                }) => claim.future;
+          }
+
+          await platform.showAd();
+          final ad = _FakeRewardedAd('ad-1', platform.log);
+          if (stage == 'SSV') ad.ssvGate = Completer<void>();
+          platform.loads.single.onAdLoaded(ad);
+          await tester.pump();
+          expect(platform.claimCalls, 1);
+          expect(ad.showCalls, 0); // 아직 claim 또는 SSV 대기 중
+
+          if (failure == '실패 콜백') {
+            platform.loads.single.onAdFailedToLoad(
+              LoadAdError(3, 'domain', 'late no fill', null),
+            );
+          } else {
+            platform.loadFutures.single.completeError(
+              StateError('late load future error'),
+            );
+          }
+          await tester.pump();
+          expect(platform.loadFailures, isEmpty);
+          expect(platform.spinnerStops, 0);
+
+          if (stage == 'claim') {
+            claim.complete(_TestAdmobPlatform.claimFor('claim-1'));
+          } else {
+            ad.ssvGate!.complete();
+          }
+          await tester.pump();
+
+          expect(platform.claimCalls, 1);
+          expect(platform.log.where((e) => e == 'ssv:ad-1'), hasLength(1));
+          expect(ad.showCalls, 1);
+          expect(ad.disposeCalls, 0);
+          expect(platform.loadFailures, isEmpty);
+          expect(platform.showFailures, isEmpty);
+          expect(platform.dialogs, isEmpty);
+
+          ad.sdkShowed();
+          expect(platform.spinnerStops, 1);
+          ad.sdkEarn();
+          await tester.pump();
+          expect(platform.polls, ['user-a:claim-1']);
+          ad.sdkDismissed();
+          expect(ad.disposeCalls, 1);
+          platform.dispose();
+        });
+      }
+    }
   });
 
   // R2 (정책 경계): 실제 AdPlatform.safelyExecute → checkAdsLimit →
