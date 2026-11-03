@@ -161,11 +161,20 @@ class AdmobShowAttempt {
   AdmobShowAttempt._({
     required bool Function() isActive,
     required bool Function() abandon,
+    required void Function() showSubmitted,
   }) : _isActive = isActive,
-       _abandon = abandon;
+       _abandon = abandon,
+       _showSubmitted = showSubmitted;
 
   final bool Function() _isActive;
   final bool Function() _abandon;
+  final void Function() _showSubmitted;
+
+  /// delegate 가 `ad.show()` 를 호출하기 직전에 부른다. 이때부터 광고가 실제로
+  /// 떠 있을 수 있으므로 flow 의 정리 대상에서 뺀다 — onShowed 가 유실돼도
+  /// 다음 요청·dispose 가 광고를 폐기해 SDK 보상 라우팅을 지우지 않게 한다.
+  /// 정리는 광고 자신의 dismissed/failedToShow 가 맡는다.
+  void showSubmitted() => _showSubmitted();
 
   /// 이 attempt 가 UI terminal 전이고 광고도 정리되지 않았으면 true.
   /// false 이면 delegate 는 `ad.show()` 를 호출하지 않는다.
@@ -206,10 +215,14 @@ class _LoadedAd<T> {
 ///   무시한다. 광고 정리는 세대와 무관하게 **광고 한 건마다 정확히 한 번**
 ///   수행한다(`_LoadedAd`). 늦게 도착한 구세대 콜백은 자기 광고만 정리하므로
 ///   신세대 attempt 의 광고를 폐기하지 않는다.
-/// - **화면에 뜬 광고(onShowed 수신)는 flow 의 정리 대상에서 빠진다.** 다음
-///   attempt 나 [dispose] 가 그 광고를 폐기하지 않고, 광고 자신의
-///   dismissed/failedToShow 가 정리한다. 시청 중에 화면이 사라져도 SDK 보상
-///   콜백이 살아 있어야 적립 확인 폴링이 시작되기 때문이다.
+/// - **표시를 요청한 광고(showSubmitted)와 화면에 뜬 광고(onShowed)는 flow 의
+///   정리 대상에서 빠진다.** 다음 attempt 나 [dispose] 가 그 광고를 폐기하지
+///   않고, 광고 자신의 dismissed/failedToShow 가 정리한다. SDK 는 dispose 때
+///   광고의 이벤트 라우팅을 지우므로, 떠 있는 광고를 폐기하면 보상 콜백이
+///   버려져 적립 확인 폴링이 시작되지 않는다.
+/// - 한 attempt 는 로드 결과를 **한 번만** 받는다. SDK 는 같은 광고 객체로
+///   onAdLoaded 를 다시 보낼 수 있다. 이미 받은 광고의 재전달은 무시하고(소유·
+///   표시 중일 수 있다), 그 밖의 광고는 광고마다 한 번만 정리한다.
 /// - `onDismissed` 는 onShowed 가 이 attempt 를 끝냈고, 그 뒤 새 attempt 나
 ///   dispose 가 없었을 때만 UI 액션을 전달한다.
 /// - SDK 타입·BuildContext 에 의존하지 않아 fake 로 유닛 테스트가 가능하다
@@ -308,13 +321,28 @@ class AdmobShowFlow<T> {
       onLoadFailed(error);
     }
 
+    // 이 attempt 가 받아들인 광고, 그리고 받아들이지 않고 정리한 광고들.
+    T? accepted;
+    final rejected = Set<T>.identity();
+    void rejectOnce(T ad) {
+      if (rejected.add(ad)) disposeAd(ad);
+    }
+
     try {
       startLoad((ad) {
-        if (!_isCurrent(g)) {
-          // 타임아웃/재시도 이후 늦게 도착한 onAdLoaded — 조용히 폐기.
-          disposeAd(ad);
+        final first = accepted;
+        if (first != null) {
+          // 같은 attempt 의 중복 로드 결과. 이미 받은 같은 광고는 준비·표시
+          // 중이므로 건드리지 않는다. 다른 광고면 그 광고만 정리한다.
+          if (!identical(first, ad)) rejectOnce(ad);
           return;
         }
+        if (!_isCurrent(g)) {
+          // 타임아웃/재시도/dispose 이후 늦게 도착한 onAdLoaded — 조용히 폐기.
+          rejectOnce(ad);
+          return;
+        }
+        accepted = ad;
         _cancelWatchdog();
         final loaded = _LoadedAd<T>(ad, disposeAd);
         _pending = loaded;
@@ -346,6 +374,9 @@ class AdmobShowFlow<T> {
             if (!_isCurrent(g)) return false;
             _finish(g);
             return true;
+          },
+          showSubmitted: () {
+            if (identical(_pending, loaded)) _pending = null;
           },
         );
 
@@ -419,18 +450,39 @@ class AdmobRewardWiring {
   poll;
 }
 
+/// showAd 요청 한 건의 고정 컨텍스트.
+///
+/// showAd 진입 시점, 첫 await(로그인·정책 확인) 이전에 만들고 바꾸지 않는다.
+/// 정책·준비·로드·claim·SSV·표시·보상 폴링은 인스턴스 필드가 아니라 이 값을
+/// 쓴다. 그래야 그 사이 시작된 다른 요청이 owner·GA4·갱신 상태를 덮어써도
+/// 이 요청의 결과가 다른 요청·계정으로 이어지지 않는다.
+class _AdmobRequest {
+  _AdmobRequest({
+    required this.seq,
+    required this.owner,
+    required this.logGa4Impression,
+    required this.refreshUserProfileOnce,
+  });
+
+  final int seq;
+
+  /// 진입 시점 사용자 ID. claim·SSV·보상 폴링의 소유자다.
+  final String? owner;
+  final void Function() logGa4Impression;
+  final void Function() refreshUserProfileOnce;
+}
+
 /// AdMob 광고 플랫폼 구현
 /// 참고: AdMob SDK 초기화는 MainInitializer._initializeAdMob()에서 앱 시작 시 수행됨
 class AdmobPlatform extends AdPlatform {
   String _adUnitId = '';
 
-  /// 가장 최근 showAd 요청의 owner(진입 시점 사용자 ID).
-  String? _requestOwner;
-  late final AdmobShowFlow<RewardedAd> _flow = AdmobShowFlow<RewardedAd>(
-    startLoad: _startLoad,
-    attachCallbacksAndShow: _attachCallbacksAndShow,
-    disposeAd: (ad) => ad.dispose(),
-  );
+  /// 가장 최근 showAd 요청의 순번. 이보다 오래된 요청은 비활성이다.
+  int _requestSeq = 0;
+
+  /// 현재 요청의 흐름. 요청마다 새로 만들고, 새 요청이 시작되면 이전 흐름을
+  /// dispose 한다(아직 표시 요청 전인 광고만 정리되고 워치독이 멈춘다).
+  AdmobShowFlow<RewardedAd>? _flow;
 
   /// 현재 attempt 의 "프로필 1회 갱신" 클로저 — [beginProfileRefreshAttempt] 가
   /// attempt 마다 새로 만들어 심는다(MINOR-1: attempt 별 dedup).
@@ -555,41 +607,53 @@ class AdmobPlatform extends AdPlatform {
 
   @override
   Future<void> showAd() async {
-    await safelyExecute(() async {
-      if (!context.mounted || isDisposed) return;
+    // 첫 await(safelyExecute 의 로그인·정책 확인) 이전에 이 요청을 고정한다.
+    // 새 요청이 시작되면 이전 요청의 흐름을 끝낸다 — 표시 요청 전인 광고만
+    // 정리되고, 이미 표시를 요청한 광고는 자기 dismissed 가 정리한다.
+    final request = _AdmobRequest(
+      seq: ++_requestSeq,
+      owner: currentUserId(),
+      // MAJOR-2: 구좌 클릭 시점의 GA4 컨텍스트를 스냅샷한다.
+      logGa4Impression: captureGa4ImpressionLogger(),
+      refreshUserProfileOnce: beginProfileRefreshAttempt(),
+    );
+    _flow?.dispose();
+    _flow = null;
+    bool isActive() => _isActiveRequest(request);
 
-      final userId = currentUserId();
-      if (userId == null || userId.isEmpty) {
+    await safelyExecute(isRequestActive: isActive, () async {
+      if (!context.mounted || isDisposed || !isActive()) return;
+
+      final owner = request.owner;
+      if (owner == null || owner.isEmpty) {
         logger.e('[$id] SSV userId가 없음 - 인증 세션 만료 가능성');
         stopAllAnimations();
         showLoginRequired();
         return;
       }
+      if (!_requestOwnerIsCurrent(request)) return;
 
       if (_adUnitId.isEmpty) {
         await _initAdUnitId();
       }
       startButtonAnimation();
       logger.i('[$id] 광고 로드 시작: $_adUnitId');
-      final refreshUserProfileOnce = beginProfileRefreshAttempt();
-      // 이 요청의 owner. 준비·로드·claim·SSV 각 경계에서 현재 사용자와 대조해
-      // 다른 계정으로 claim 이 이어지거나 로그아웃 뒤 광고가 뜨지 않게 한다.
-      _requestOwner = userId;
 
       try {
         await runWhenAdsReady(
-          isRequestActive: () => !isDisposed && context.mounted,
+          isRequestActive: isActive,
           request: () async {
-            final current = currentUserId();
-            if (current != userId) {
-              stopAllAnimations();
-              _notifyOwnerChanged(current);
-              return;
-            }
-            _runFlow(refreshUserProfileOnce);
+            if (!isActive()) return;
+            if (!_requestOwnerIsCurrent(request)) return;
+            _runFlow(request);
           },
         );
       } on AdsUnavailable catch (e) {
+        if (!isActive()) {
+          // 더 새로운 요청이 스피너·안내를 이어받았다.
+          logger.i('[$id] 대체된 광고 요청 종료: $e');
+          return;
+        }
         // 준비 대기 종료·동의 미허용·화면 닫기는 SDK 로드 오류가 아니다.
         logger.i('[$id] 광고 요청 보류: $e');
         stopAllAnimations();
@@ -597,21 +661,59 @@ class AdmobPlatform extends AdPlatform {
           showErrorDialog(AppLocalizations.of(context).label_ads_load_fail);
         }
       } catch (e, s) {
+        if (!isActive()) {
+          logger.w('[$id] 대체된 광고 요청의 준비 실패', error: e, stackTrace: s);
+          return;
+        }
         logAdLoadFailure('AdMob', e, _adUnitId, e.toString(), s);
         stopAllAnimations();
       }
     });
   }
 
-  void _runFlow(void Function() refreshUserProfileOnce) {
-    _flow.run(
+  bool _isActiveRequest(_AdmobRequest request) =>
+      request.seq == _requestSeq && !isDisposed && context.mounted;
+
+  /// 요청 owner 가 아직 현재 사용자인지 확인한다(흐름 시작 전 경계용).
+  /// 다르면 스피너를 풀고 안내한다(로그아웃이면 로그인 안내, 계정 전환이면
+  /// 로드 실패 안내).
+  bool _requestOwnerIsCurrent(_AdmobRequest request) {
+    final current = currentUserId();
+    if (current == request.owner) return true;
+    stopAllAnimations();
+    _notifyOwnerChanged(current);
+    return false;
+  }
+
+  void _runFlow(_AdmobRequest request) {
+    final flow = AdmobShowFlow<RewardedAd>(
+      startLoad: _startLoad,
+      attachCallbacksAndShow:
+          (
+            ad, {
+            required onShowed,
+            required onDismissed,
+            required onFailedToShow,
+            required attempt,
+          }) => _attachCallbacksAndShow(
+            ad,
+            request: request,
+            onShowed: onShowed,
+            onDismissed: onDismissed,
+            onFailedToShow: onFailedToShow,
+            attempt: attempt,
+          ),
+      disposeAd: (ad) => ad.dispose(),
+    );
+    _flow = flow;
+    flow.run(
       onLoadTimeout: () {
-        logger.w('[$id] 광고 로드 타임아웃 (${_flow.loadTimeout.inSeconds}s)');
+        logger.w('[$id] 광고 로드 타임아웃 (${flow.loadTimeout.inSeconds}s)');
         // '광고 로드 시간 초과' 는 isNonReportableAdError 키워드에 걸려
         // "모든 광고 소진" 안내 + Sentry 미보고로 처리된다.
         logAdLoadFailure(
           'AdMob',
-          TimeoutException('admob load timeout', _flow.loadTimeout),
+          TimeoutException('admob load timeout', flow.loadTimeout),
           _adUnitId,
           '광고 로드 시간 초과',
           StackTrace.current,
@@ -625,12 +727,12 @@ class AdmobPlatform extends AdPlatform {
       },
       onShowTimeout: () {
         logger.e(
-          '[$id] 광고 표시 타임아웃 (${_flow.showTimeout.inSeconds}s) — '
+          '[$id] 광고 표시 타임아웃 (${flow.showTimeout.inSeconds}s) — '
           'FullScreenContentCallback 미수신',
         );
         logAdShowFailure(
           'AdMob',
-          TimeoutException('admob show timeout', _flow.showTimeout),
+          TimeoutException('admob show timeout', flow.showTimeout),
           _adUnitId,
           'AdMob show callback timeout', // no-fill 키워드에 안 걸리는 문구 → Sentry 보고됨
           StackTrace.current,
@@ -651,7 +753,7 @@ class AdmobPlatform extends AdPlatform {
         // 스피너는 onShowStarted 에서 이미 풀었다 — 다시 풀면 그 사이 다른
         // 구좌가 켠 전역 로딩 오버레이를 닫는다.
         logger.i('[$id] 광고가 닫힘');
-        refreshUserProfileOnce();
+        request.refreshUserProfileOnce();
       },
     );
   }
@@ -708,6 +810,7 @@ class AdmobPlatform extends AdPlatform {
   /// claim/SSV 완료가 오래된 광고를 띄우지 못하게 한다.
   Future<void> _attachCallbacksAndShow(
     RewardedAd ad, {
+    required _AdmobRequest request,
     required void Function() onShowed,
     required void Function() onDismissed,
     required void Function(Object error) onFailedToShow,
@@ -716,11 +819,10 @@ class AdmobPlatform extends AdPlatform {
     final adSource = AdmobAdSourceSummary.fromResponseInfo(ad.responseInfo);
     logger.i('[$id] 광고 로드 완료 ${adSource.describe()}');
     _breadcrumb('loaded', adSource.toBreadcrumbData());
-    // 첫 await 이전에 이 attempt 전용 값을 캡처한다.
-    final owner = _requestOwner;
-    // MAJOR-2: 콜백 배선 시점에 GA4 컨텍스트를 스냅샷한다.
-    final logGa4Impression = captureGa4ImpressionLogger();
-    final refreshUserProfileOnce = captureProfileRefreshOnce();
+    // 이 요청의 고정 값만 쓴다 — 인스턴스 필드는 다른 요청이 덮어쓸 수 있다.
+    final owner = request.owner;
+    final logGa4Impression = request.logGa4Impression;
+    final refreshUserProfileOnce = request.refreshUserProfileOnce;
 
     if (!_canStillShow(attempt) || !_ownerStillCurrent(owner, attempt)) return;
     final userId = owner!;
@@ -806,6 +908,9 @@ class AdmobPlatform extends AdPlatform {
       },
     );
     final poll = wiring.poll;
+    // 이제 광고가 떠 있을 수 있다. onShowed 가 유실돼도 새 요청·화면 dispose 가
+    // 이 광고를 폐기하지 않게 flow 의 정리 대상에서 뺀다(SDK 보상 라우팅 보존).
+    attempt.showSubmitted();
     await ad.show(
       onUserEarnedReward: (AdWithoutView _, RewardItem reward) {
         // 세대·owner 가드 밖이다 — 이미 시청한 보상은 요청 owner 와 이 claim
@@ -925,7 +1030,8 @@ class AdmobPlatform extends AdPlatform {
 
   @override
   void dispose() {
-    _flow.dispose();
+    _flow?.dispose();
+    _flow = null;
     super.dispose();
   }
 }
