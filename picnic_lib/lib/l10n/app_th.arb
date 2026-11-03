@@ -480,6 +480,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "ถึงขีดจำกัดต่อชั่วโมงแล้ว ({used}/{limit})",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "ถึงขีดจำกัดต่อวันแล้ว ({used}/{limit})",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "ไม่สามารถโหลดโฆษณาได้ โปรดลองอีกครั้ง",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -536,7 +560,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "ลงคะแนนเสียง",
+  "label_button_vote": "โหวต",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
@@ -1322,7 +1346,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!",
+  "voting_share_benefit_text": "รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนน!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1638,6 +1662,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "ยังไม่สามารถยืนยันการชำระเงินของคุณได้ คุณอาจยังทำการชำระเงินไม่เสร็จสิ้นในหน้าชำระเงินของสโตร์\nหากคุณชำระเงินแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น กรุณาอย่าชำระเงินซ้ำ",
+  "purchase_payment_pending_message": "การชำระเงินของคุณยังไม่เสร็จสมบูรณ์ หากคุณเลือกวิธีชำระเงินที่ใช้เวลา เช่น เงินสดหรือโอนผ่านธนาคาร กรุณาชำระเงินให้เสร็จสิ้นที่ร้านค้าหรือธนาคาร\nลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อการชำระเงินสำเร็จ กรุณาอย่าชำระเงินซ้ำ",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1875,6 +1900,10 @@
   "withdrawal_success": "การยกเลิกการสมัครถูกประมวลผลสำเร็จ",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "การยกเลิกบัญชีล้มเหลว กรุณาลองใหม่อีกครั้งในภายหลัง",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "คุณได้สมัครศิลปินคนนี้แล้ว",
   "@vote_item_request_already_applied_artist": {
@@ -2403,9 +2432,31 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "รางวัลพื้นฐาน + โบนัสเพิ่ม 100%",
   "candy_boost_extra_bonus": "รางวัลพื้นฐาน + โบนัสเพิ่ม",
+  "candy_boost_multiplier": "โบนัส {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "กำลังตรวจสอบโปรโมชั่น",
   "candy_boost_purchase_pending": "มีการซื้อสินค้านี้ที่กำลังประมวลผลอยู่แล้ว",
   "candy_boost_late_purchase_explanation": "การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว",
+  "candy_boost_total_multiplier": "โบนัสอีเวนต์ +{multiplier}%",
+  "purchase_reward_base": "รางวัลพื้นฐาน",
+  "purchase_reward_base_short": "พื้นฐาน",
+  "purchase_reward_event_short": "อีเวนต์",
+  "purchase_reward_product_bonus": "โบนัสพื้นฐาน",
+  "purchase_reward_event_bonus": "โบนัสอีเวนต์",
+  "purchase_reward_expected_total": "ยอดรวมโดยประมาณ",
+  "purchase_reward_total_short": "รวม",
+  "purchase_current_balance": "ยอดคงเหลือปัจจุบัน {amount}",
+  "purchase_expected_balance": "คาดว่าหลังซื้อ {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "เป็นจำนวนโดยประมาณ จำนวนสุดท้ายจะยืนยันโดยเซิร์ฟเวอร์เมื่อชำระเงินเสร็จสมบูรณ์",
+  "candy_reward_receipt_total": "ได้รับรวม {amount}",
   "ad_reward_pending": "กำลังตรวจสอบรางวัลของคุณ",
   "ad_reward_granted": "ได้รับลูกอมสายไหมแล้ว",
   "ad_reward_not_granted": "ไม่มีการมอบรางวัล",
@@ -2420,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "ยอดคงเหลือปัจจุบัน {amount}",
+  "candy_reward_receipt_purchase_balance": "ยอคงเหลือใหม่ {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2505,5 +2557,7 @@
   "expiry_quantity_description": "จำนวนที่กำหนดให้หมดอายุในบัญชีปัจจุบัน",
   "expiry_policy_description": "เกณฑ์การหมดอายุแยกตามสกุลเงิน",
   "bonus_expiry_policy_summary": "ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า",
-  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้"
+  "expiry_tonight_at_midnight": "เที่ยงคืนคืนนี้",
+  "error_ad_device_account_restricted_message": "การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว",
+  "profile_photo_change": "เปลี่ยนรูปโปรไฟล์"
 }

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GA4 이벤트 택소노미 — 핸드오프</title>
+<style>
+  body{font-family:'Pretendard','Apple SD Gothic Neo',sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;line-height:1.75;color:#1a1a2e}
+  h1{border-bottom:3px solid #7c6ff0;padding-bottom:10px}
+  h2{margin-top:2.4em;border-left:4px solid #7c6ff0;padding-left:10px}
+  h3{margin-top:1.7em;color:#3a3a5e}
+  .tw{overflow-x:auto}
+  table{border-collapse:collapse;width:100%;margin:12px 0;font-size:14px}
+  th,td{border:1px solid #d8d8e8;padding:7px 10px;text-align:left;vertical-align:top}
+  th{background:#f2f0ff}
+  code{background:#f4f4f8;padding:1px 5px;border-radius:4px;font-size:.92em}
+  pre{background:#f4f4f8;padding:12px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55}
+  .ok{background:#e8f7ee;border-left:5px solid #0a8f4a;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .warn{background:#fff4e5;border-left:5px solid #ff9800;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .stop{background:#fdecea;border-left:5px solid #c0392b;padding:12px 16px;border-radius:4px;margin:12px 0}
+  .meta{color:#666;font-size:13px}
+  li{margin:5px 0}
+  .k{font-weight:700;color:#c0392b}
+  .done{color:#0a8f4a;font-weight:700}
+  .todo{color:#c0392b;font-weight:700}
+  .unk{color:#b7791f;font-weight:700}
+</style>
+</head>
+<body>
+
+<h1>GA4 이벤트 택소노미 — 핸드오프</h1>
+<p class="meta">
+작성 2026-08-21 · 최종 갱신 2026-09-03 · 작업 브랜치 <code>docs/handoff-20260821-ga4-taxonomy</code> · 프로덕션 <code>1.3.0+130007</code>(작성 시점)<br>
+원 작업 PR <a href="https://github.com/charlie0421/picnic-app/pull/153">#153</a> (머지 커밋 <code>d99118ab3</code>, 2026-08-10) ·
+purchase revenue PR — 앱 <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a> ·
+서버 <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> (작성 시점 둘 다 열림 — <b>현재는 둘 다 머지·배포됨</b>)
+</p>
+
+<div class="ok">
+<b>2026-09-03 — 이 문서의 미결 항목은 전부 종결됐다.</b> 이 문서는 <b>2026-08-21~24 시점의 기록</b>이고,
+이후 진행은 아래 문서가 이어받는다. 여기의 "미착수 / 미검증" 표기를 현재 상태로 읽지 말 것.
+<ul style="margin:.5em 0 0">
+<li><b>④ 복구 구매의 매출 복원</b> — 앱(#172)·서버(#109) 모두 머지·배포. 결함 2건(#116·#117)과
+    워커 타입 게이트(#118, <code>wallet-operation-worker</code> v29)까지 잡고 <b>2026-09-03 GA4 끝단 검증 완료</b>.
+    <b>iOS 해소 / Android 는 플랫폼 한계</b>(강업 예정). → <code>docs/operations/handoff-20260902-purchase-revenue-server.html</code></li>
+<li><b>미검증 3항목</b>(재화명 오염 · 언어 <code>ja</code>/<code>jp</code> · <code>login</code>/<code>sign_up</code> 중복·오탐) —
+    2026-08-31 및 09-01 실측으로 전건 종결. 재화명 오염 없음, <code>ja</code> 미출현, <code>sign_up</code> 은
+    오탐이 아니라 <b>누락</b>(커버리지 88.3%, 설계 한계). → <code>docs/analytics/ga4-event-taxonomy.md</code> §4-A</li>
+<li><b>B-4 재고지</b> — 2026-09-03 <b>불필요로 종결</b>(제품 판단). AdMob 지면은 계측 범위에 포함하고
+    분석에서 <code>ad_platform</code> 으로 분리한다. → 같은 문서 §2-A</li>
+<li><b>B-10 이벤트명</b> — <code>ad_click</code> 이 AdMob 자동수집 <b>예약어</b>임이 밝혀져
+    <code>ad_cta_click</code> 으로 개명, 배포·수집 확인 완료(8/29).</li>
+</ul>
+</div>
+
+<div class="ok">
+<strong>코드는 이미 프로덕션에 나가 있다.</strong> GA4 택소노미는 <code>1.3.0+130007</code> 바이너리에
+포함돼 8/13 공개·강업으로 배포됐고, 그 릴리스에 패치는 0건이다.
+즉 <strong>지금 이 순간에도 프로덕션 GA4 속성으로 이벤트가 들어가고 있다.</strong>
+</div>
+
+<div class="ok">
+<strong>GA4 콘솔 등록 완료.</strong> 프로덕션 속성 <code>picnic-423500</code>
+(속성 ID <code>441670286</code>)에서 맞춤 측정기준 24개와 맞춤 측정항목 4개를 확인했다.
+기존 23개 측정기준·4개 측정항목에 누락됐던 상품 범위
+<code>virtual_currency_name</code>을 2026-08-21 추가 등록했다. 등록 이전 데이터에는 소급 적용되지 않는다.
+</div>
+
+<h2>1. 지금 상태 (실측)</h2>
+
+<div class="tw">
+<table>
+<tr><th>항목</th><th>값</th><th>확인 방법</th></tr>
+<tr><td>main 머지</td><td class="done">완료</td><td><code>d99118ab3</code> · PR #153</td></tr>
+<tr><td>프로덕션 반영</td><td class="done">완료</td><td><code>0151b77b5</code>(130007 범프)가 머지 이후 커밋 — <code>git merge-base --is-ancestor</code> 확인</td></tr>
+<tr><td>라이브 릴리스</td><td><code>1.3.0+130007</code></td><td><code>shorebird releases list</code> · ios/android active</td></tr>
+<tr><td>해당 릴리스 패치</td><td>0건</td><td><code>shorebird patches list --release-version="1.3.0+130007"</code> → No patches found</td></tr>
+<tr><td>코드 규모</td><td>22개 파일</td><td><code>picnic_lib/lib/core/analytics/</code></td></tr>
+<tr><td>130007 이후 analytics 변경</td><td>없음</td><td>main 24커밋 중 <code>core/analytics/</code> 변경 0</td></tr>
+<tr><td>GA4 콘솔 등록</td><td class="done">완료</td><td>속성 <code>441670286</code> · 측정기준 24개 / 측정항목 4개 실측</td></tr>
+<tr><td>실측 검증</td><td class="done">완료 (2026-08-28)</td><td>GA4 프로덕션 데이터 + 실기기 로그캣(<code>1.3.0+130007</code>, SM-G781N). purchase 중복 없음 확인, <strong>매출 이중계상 규명·조치·검증 완료</strong>, <code>ad_click</code> 예약어 원인 규명</td></tr>
+<tr><td>대행사 회신</td><td class="done">수신 완료</td><td>A-1~B-10 답변 수신 · 2026-08-21</td></tr>
+<tr><td>purchase revenue 계약 설계</td><td class="done">교차 승인</td><td><code>5bb861418</code> · Codex 구현 설계 / Sonnet 최종 APPROVE</td></tr>
+<tr><td>purchase revenue — 앱 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a> · 브랜치 <code>feat/ga4-purchase-revenue</code> · 커밋 7개 · <code>flutter test</code> 12,956 통과</td></tr>
+<tr><td>purchase revenue — 서버 사이드</td><td class="done">구현·교차리뷰 완료</td><td>PR <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a> · 커밋 6개 · wallet SQL 39파일 · deno edge 179 통과 · 런타임 플래그 꺼진 채 dark</td></tr>
+<tr><td>attestation seal 확장</td><td class="todo">미착수(의도)</td><td>설계 §5.4 편차. MAC 재작성이 필요해 별도 설계·리뷰로 분리 — PR #109 본문 참조</td></tr>
+<tr><td>Google 출처 A</td><td class="done">종결 — 구현 안 함</td><td>미확인 전제는 해소됐으나(신 <code>onetimeproducts</code> 모델·스코프 충분) <strong>불필요</strong>로 결론. 강업 + 출처 B 로 대체됨</td></tr>
+</table>
+</div>
+
+<div class="stop">
+<strong>기존 문서의 사실 오류 정정 —</strong>
+<code>docs/operations/handoff-20260820-emergency-patch.html</code> 의 "이 대기열에 없는 것" 절은
+<em>"GA4 택소노미 구현(9/10 이벤트)은 아직 커밋조차 안 됐다"</em> 고 적고 있으나 <span class="k">사실이 아니다.</span>
+GA4 는 8/10 에 PR #153 으로 머지됐고(<code>d99118ab3</code>), 태그 조상 검증 결과
+<code>picnic-v1.3.0+130007</code> 에 포함돼 있다.
+<pre>git merge-base --is-ancestor d99118ab3 picnic-v1.3.0+130007   # exit 0 = 포함</pre>
+그 문서는 8/20 작성 시점의 오래된 메모를 근거로 삼은 것으로 보인다.
+<strong>GA4 는 배포 대기열에 없는 것이 맞지만, 이유는 "미커밋"이 아니라 "이미 배포됨"이다.</strong>
+</div>
+
+<p>머지 이후 <a href="https://github.com/charlie0421/picnic-app/pull/157">#157</a>(<code>2048fa016</code>)이
+택소노미 문서 §2를 보강했다 — 자체 숏폼의 <code>ad_unit_name</code> 공란 사유,
+<code>ad_click</code> 이 "종료 후"로 한정되지 않는 실제 동작(잔여 5초부터 CTA 노출),
+재화명/영역명 차이. <strong>코드 변경은 없고 문서만 추가</strong>됐다.</p>
+
+<h2>2. 무엇이 구현돼 있나</h2>
+
+<p>스프레드시트 정의 10개 중 <strong>9개</strong> + 사용자 속성 3종.</p>
+
+<div class="tw">
+<table>
+<tr><th>이벤트</th><th>발송 시점</th></tr>
+<tr><td><code>login</code> / <code>sign_up</code></td><td>auth 리스너 <code>signedIn</code>. sign_up 은 <code>created_at ≈ last_sign_in_at</code> 30초 창</td></tr>
+<tr><td><code>click_mission</code> / <code>ad_request</code></td><td>무료 충전소 미션·광고 버튼</td></tr>
+<tr><td><code>ad_impression</code></td><td>광고 SDK 노출 콜백</td></tr>
+<tr><td><code>earn_virtual_currency</code></td><td><strong>서버 적립 확정 후</strong> (콜백만으로 보내지 않음)</td></tr>
+<tr><td><code>ad_click</code></td><td>자체 숏폼 CTA (잔여 5초부터 활성)</td></tr>
+<tr><td><code>purchase</code></td><td><strong>영수증 서버 검증 성공 후</strong></td></tr>
+<tr><td><code>vote</code></td><td>서버 제출 2xx 직후</td></tr>
+<tr><td><code>click_attendance</code></td><td class="k">미구현 — 출석 보상 폐지로 진입 UI 없음</td></tr>
+</table>
+</div>
+
+<p><strong>durable analytics outbox</strong>가 함께 들어갔다. payload 를 sink 호출 전에 영속 저장하고
+sink 가 성공을 반환한 항목만 제거해, 스토어 거래·위젯·프로세스 수명과 독립적으로 재시도한다.
+설계는 문서 §6.</p>
+
+<h2>3. 남은 작업</h2>
+
+<h3>① GA4 콘솔 맞춤 측정기준 등록 <span class="done">— 완료</span></h3>
+<p>속성 <code>picnic-423500</code>(<code>441670286</code>)에서 아래 등록을 실측했다.</p>
+<ul>
+<li><strong>사용자 범위(텍스트)</strong> — <code>is_login</code>, <code>language</code>
+    <span class="meta">(<code>user_id</code> 는 GA4 기본 기능이라 등록 불요)</span></li>
+<li><strong>이벤트 범위(텍스트)</strong> — <code>method</code>, <code>selected_language</code>,
+    <code>virtual_currency_name</code>, <code>mission_category</code>, <code>section_name</code>,
+    <code>ad_category</code>, <code>ad_platform</code>, <code>ad_source</code>, <code>ad_format</code>,
+    <code>ad_unit_name</code>, <code>earn_method</code>, <code>destination_type</code>,
+    <code>vote_id</code>, <code>vote_name</code>, <code>vote_reward</code>,
+    <code>vote_start_date</code>, <code>vote_end_date</code>, <code>vote_artist_name</code>,
+    <code>vote_artist_group</code></li>
+<li><strong>이벤트 범위(숫자)</strong> — <code>reward_amount</code>, <code>star_candy_usage</code>,
+    <code>star_candy_bonus_usage</code>, <code>cotton_candy_usage</code></li>
+<li><strong>상품 범위</strong> — <code>virtual_currency_name</code>, <code>base_amount</code>, <code>bonus_amount</code>
+    <span class="meta">(<code>items</code> 배열의 커스텀 파라미터)</span></li>
+</ul>
+<p class="meta"><code>transaction_id</code>·<code>currency</code>·<code>value</code> 는 전자상거래 표준이라 등록 불요.</p>
+
+<h3>② 실측 검증 <span class="done">— 완료 (2026-08-28)</span></h3>
+
+<div class="stop">
+<strong>이것만 프로덕션에 이미 나가 있는 코드에 대한 검증이다.</strong>
+④·⑤(purchase revenue)는 아직 배포되지 않은 코드를 다루지만, ②가 확인하려는
+값들은 <code>1.3.0+130007</code>로 8/13에 배포돼 <strong>지금 이 순간에도 GA4로
+들어가고 있다.</strong> 특히 <code>purchase</code> 중복은 확인 전까지 매출이 2배로
+잡히고 있는지 아닌지를 아무도 모르는 상태다. 후속 세션은 ④·⑤보다 이것을 먼저
+집는 편이 낫다.
+</div>
+<p>코드는 12,956개 테스트를 통과했지만 <strong>실제 기기에서 GA4로 나가는 값은 아직 아무도 눈으로 보지 않았다.</strong></p>
+<p><strong>DebugView 가 정공법이다</strong> — 맞춤 측정기준 등록 없이도 이벤트 이름·파라미터·값·사용자 속성이 즉시 보인다.</p>
+<pre># Android — 스토어 빌드에서도 재빌드 없이 켜짐
+adb shell setprop debug.firebase.analytics.app &lt;패키지명&gt;
+
+# iOS — 실행 인자 -FIRDebugEnabled 필요 (Xcode 실행 필수, TestFlight 빌드 불가)</pre>
+
+<h4>2026-08-25 실측 결과</h4>
+
+<div class="ok">
+<strong><code>purchase</code> 중복 없음 — 최우선 항목 통과.</strong>
+GA4 탐색 분석에서 <code>거래 ID</code>별 이벤트 수를 내림차순으로 뽑은 결과
+545건 <strong>전부 정확히 1건씩</strong>이다. 정렬이 내림차순이므로 2건 이상인
+거래 ID 가 하나도 없다는 뜻이다.
+</div>
+
+<div class="stop">
+<strong>대신 매출 이중계상을 찾았다 — 우리 이벤트끼리가 아니라 자동 수집과의 중복.</strong>
+<pre>purchase          545건   $6,927.54   ← 우리 이벤트
+in_app_purchase   214건   $1,230.90   ← Firebase 자동 수집
+app_store_refund    4건      -$9.45
+────────────────────────────────────
+GA4 총 구매 수익          $8,149.00   (= 위 셋의 합)</pre>
+<p style="margin:.6em 0 0">GA4 가 두 이벤트의 매출을 그대로 더한다. <strong>총 매출의 약 15% 과대계상</strong>이며,
+플랫폼별로 겹침이 비대칭이다 — Android 는 199건 중 161건(81%), iOS 는 346건 중 53건(15%).</p>
+<p style="margin:.6em 0 0"><strong>1차 시도 실패(2026-08-25~26).</strong> GA4
+<code>이벤트 수정</code>으로 두 스트림에
+<code>event_name = in_app_purchase</code> → <code>in_app_purchase_auto</code> 규칙을 걸었으나
+<strong>단 한 건도 개명되지 않았다.</strong> 규칙 적용 5~6시간 뒤에도 원래 이름으로 들어왔고,
+플랫폼별로 쪼개도 Android·iOS 양쪽 다 안 먹었다(<code>in_app_purchase_auto</code> 0건).
+<strong>GA4 이벤트 수정은 자동 수집 이벤트에 적용되지 않는다.</strong> 규칙 2개는 8/26 삭제했다 —
+다시 시도하지 말 것.</p>
+
+<p style="margin:.6em 0 0"><strong>재실측(8/19~25, 7일).</strong> 과대계상이 15%가 아니라
+<strong>25.7%</strong>였고, 금액 기준 Android 가 84%다.</p>
+<pre>                   건수    총수익
+purchase   Android   49   $288.71
+purchase   iOS       55   $986.64
+in_app_purchase Android 45  $273.26   ← 자동
+in_app_purchase iOS      5  $ 53.98   ← 자동
+──────────────────────────────────────
+GA4 총수익            $1,602.60  (= 정확한 합)</pre>
+
+<p style="margin:.6em 0 0"><strong>2차 조치(2026-08-26):</strong> Firebase 콘솔 →
+프로젝트 설정 → 통합 → Google Play →
+<strong><code>Google 애널리틱스: 수익 및 잠재고객 데이터 공유</code> 토글 OFF.</strong>
+제품별 개별 토글이라 <code>앱 배포</code>·<code>Crashlytics</code> 는 켜진 채 유지된다
+(GA4 admin 의 Google Play 링크는 삭제만 가능해 세분화 불가 — 반드시 Firebase 쪽을 쓸 것).
+앱 배포 불필요, 되돌리기는 토글 재활성화.</p>
+
+<p style="margin:.6em 0 0"><strong>iOS 는 끌 방법이 없다.</strong> 애플이 구글에 결제 정보를
+주지 않으므로, 앱 안의 Firebase SDK 가 StoreKit 을 직접 관찰해 이벤트를 만든다. 공식
+비활성화 옵션이 없고 StoreKit 2 마이그레이션이 유일한 우회인데, 결제 경로 개편이라
+리포트 정합성만으로 할 작업이 아니다. 기대 효과는 <strong>25.7% → 약 4.2%</strong>였다
+(<span class="k">이 4.2% 추정은 2026-08-31 실측에서 <strong>10.7%</strong> 로 정정됐다 — 아래 참조</span>).</p>
+
+<p style="margin:.6em 0 0"><strong>✅ 검증 완료(2026-08-28, 8/27 전체 데이터).</strong>
+토글 이후 Android <code>purchase</code> 10건에 자동 이벤트가 <strong>하나도 붙지 않았다.</strong>
+직전 패턴이 Android 92%(49건 중 45건) 짝이었으므로 10건 연속 무짝은 우연으로 설명되지 않는다.</p>
+<pre>8/26 04시     purchase Android 1 + in_app_purchase Android 1   ← 토글 전, 짝 있음
+8/26 12~18시  purchase Android 7 / iOS 2                       ← 짝 0
+8/27 09~21시  purchase Android 3 / iOS 3                       ← 짝 0 (하루 전체)
+──────────────────────────────────────────────────────────────
+토글 이후 Android purchase 10건 → 자동 in_app_purchase 0건</pre>
+<p style="margin:.6em 0 0">토글 이후 유일한 자동 이벤트는 8/26 04시(토글 전) 1건뿐이고,
+8/27 하루 매출은 전액 <code>purchase</code> 로만 잡혔다(허수 0).
+<span class="k">iOS 도 8/26~27 에 0건이지만 이건 조치 효과가 아니다 — iOS 자동 이벤트는
+원래 드물어(7일에 5건) 이틀 0건은 정상 범위이고, iOS 는 계속 발생한다.</span></p>
+<p style="margin:.6em 0 0"><strong>8/29 재확인 — 예측대로다.</strong> 8/28 하루에
+<code>in_app_purchase</code> 2건이 나타났는데 <strong>둘 다 iOS</strong>($3.45)이고
+Android 는 여전히 0 이다(같은 날 Android <code>purchase</code> 7건, 짝 0).
+토글 효과가 유지되고 iOS 잔여분만 남는다는 구조가 데이터로 확인됐다 —
+전체 매출 $178.06 대비 <strong>1.9%</strong>로 예측한 약 4% 범위 안이다.</p>
+
+<p style="margin:.6em 0 0"><strong>⚠️ 8/31 재실측 — iOS 잔여분이 예측의 2.5배다.</strong>
+토글 이후 4일(8/27~30) 집계에서 <strong>10.7%</strong> 가 나왔다. "약 4%" 는 낡은 수치다.</p>
+<pre>                        건수   총수익      앱 버전별(iOS 자동)
+in_app_purchase  iOS     15   $143.04     1.3.0  6건 $82.43
+purchase         Android 57   $476.56     1.3.1  9건 $60.61
+purchase         iOS     57   $854.47
+──────────────────────────────────────
+과대계상 = $143.04 / $1,331.03 = 10.7%   Android 자동 = 0 (토글 유지)</pre>
+<p style="margin:.6em 0 0"><strong>우리 배포(130104) 회귀가 아니다.</strong> 구버전 1.3.0 에서도
+iOS 자동 수집이 21%(purchase 28건 대비 6건) 발생한다. 다만 비율 자체는 8/19~25 의 9% 에서
+21~31%(건수)로 올랐고, <span class="k">원인은 확정하지 못했다</span> — 1.3.1 확산 또는 iOS
+결제 구성 변화로 보이나 증거가 부족하다.</p>
+<p style="margin:.6em 0 0"><strong>❌ "StoreKit 2 로 옮기면 해결된다"는 성립하지 않는다 —
+이미 StoreKit 2 다.</strong></p>
+<ul style="margin:.4em 0 0">
+<li>서버가 <strong>StoreKit 2 JWS 만 받는다</strong>. <code>purchase-provider-verifiers.ts</code> 는
+  <code>APPLE_JWS_REQUIRED</code> 로 거부하고 x5c 체인·루트 핀·ES256 서명을 검증한다.
+  StoreKit 1 의 <code>/verifyReceipt</code> 호출이나 <code>latest_receipt_info</code> 파싱이
+  <strong>코드에 아예 없다</strong>.</li>
+<li>그런데 iOS 결제는 정상 동작한다(8/27~30 <code>purchase</code> 57건).
+  → 앱은 이미 StoreKit 2 트랜잭션을 보내고 있다.</li>
+<li><strong>그런데도 Firebase 가 iOS 자동 수집을 계속한다.</strong> Firebase 의 자동 IAP 측정은
+  앱의 StoreKit 버전 선택과 독립적으로 동작하는 것으로 보인다(플러그인의 하위 호환
+  SKPaymentQueue 옵저버 가능성 — <span class="k">확정하지 못했다</span>).</li>
+</ul>
+<p style="margin:.6em 0 0"><code>in_app_purchase_cache_manager.dart:308</code> 의 주석
+"in_app_purchase 3.2.0+는 자동으로 StoreKit2를 활용"은 <code>enableStoreKit2()</code> 호출이
+없다는 점에서 근거가 약하지만, 서버 계약이 JWS 전용이므로 <strong>결과적으로는 맞다</strong>.</p>
+<p style="margin:.6em 0 0"><strong>❌ <code>FirebaseAppStoreReceiptURLCheckEnabled=false</code> 도
+답이 아니다 (2026-08-31 조사 완료).</strong> 후보로 올렸다가 철회했다 —
+<strong>IAP 수집과 무관한 키다.</strong></p>
+<ul style="margin:.4em 0 0">
+<li>실제 용도는 <code>GULAppEnvironmentUtil</code> 의 <strong>앱 배포 경로 판별</strong>이다.
+  영수증 URL 에 <code>sandboxReceipt</code> 가 있는지 봐서
+  (<code>isAppStoreReceiptSandbox</code>) <strong>TestFlight 인지 App Store 인지</strong> 구분한다.</li>
+<li>끄면 <strong>TestFlight/프로덕션 구분이 깨진다.</strong> 스테이징 빌드를 계속 돌리는
+  상황에서 데이터가 섞일 실질 위험이다.</li>
+<li>APNs 환경 판별(<code>FIRAuthAPNSTokenManager</code>)에도 쓰이지만 <span class="k">우리는
+  <code>firebase_auth</code> 를 안 쓰고 푸시는 <code>firebase_messaging</code> 단독이라 해당 없다.</span></li>
+<li><strong>자동 IAP 수집을 끈다는 근거는 어디에도 없다.</strong> firebase-ios-sdk #2435 에
+  2019년부터 "iOS 자동 in_app_purchase 를 끄게 해달라"는 요청이 열려 있다는 것이
+  오히려 방법이 없다는 정황이다.</li>
+</ul>
+<p style="margin:.6em 0 0"><strong>다시 후보로 올리지 말 것.</strong> 매출 이중계상을 고치려다
+스테이징/프로덕션 구분을 잃는 거래가 된다.</p>
+<p style="margin:.6em 0 0"><strong>판단: iOS 는 막을 수단이 사실상 없다.</strong>
+<code>purchase</code> 만 필터링한 리포트를 매출 기준으로 고정하는 것이 유일한 실효 대책이다.</p>
+
+<div class="ok" style="margin-top:1em">
+<strong>✅ 매출 기준 리포트를 만들었다 (2026-08-31).</strong>
+GA4 → 탐색 → <strong><code>✅ 실제 매출 (purchase 전용) — 매출은 이 리포트로 보세요</code></strong>
+<p style="margin:.6em 0 0"><strong>GA4 표준 보고서의 "총수익"을 매출로 쓰지 말 것.</strong>
+자동 수집분이 섞여 있다. 28일 기준 $8,706.02 → 실제 <strong>$7,550.25</strong>
+(차이 $1,155.77 이 자동 수집분).</p>
+<pre>구성  행 날짜 / 열 플랫폼 / 값 총수익·이벤트 수
+필터  이벤트 이름 <strong>다음과 정확하게 일치</strong> purchase</pre>
+<p style="margin:.6em 0 0"><span class="k">필터 조건이 <strong>"포함"이 아니라 "정확하게 일치"</strong>
+여야 한다. "포함"으로 두면 <code>in_app_purchase</code> 가 같이 걸려 고치려던 문제가 그대로 남는다.</span>
+진단용으로 만든 <code>purchase 이중계상 시간대별 검증</code> 은 의도적으로 "포함"을 쓰므로
+매출 기준으로 쓰면 안 된다.</p>
+<p style="margin:.6em 0 0">이 리포트는 <strong>과거 구간에도 그대로 유효하다</strong> —
+소급 보정이 안 되는 8/13~8/26 도 이걸로 읽으면 정확하다.</p>
+</div>
+
+<p style="margin:.6em 0 0"><span class="k">소급 적용은 안 되므로 8/13~8/26 구간과 iOS
+잔여분은 <code>purchase</code> 만 필터링한 탐색 분석
+(<code>purchase 이중계상 시간대별 검증</code>)으로 읽는다.</span></p>
+</div>
+
+<div class="stop">
+<strong><code>ad_click</code> 은 구현 결함이 아니다 — Google 이 그 이름을 앱에 허용하지 않는다.</strong>
+<p style="margin:.6em 0 0">28일간 0건이었다. 코드는 전 구간 정상 동작한다 — 실기기(SM-G781N,
+<code>1.3.0+130007</code>) 로그캣에서 확인했다:</p>
+<pre>I/flutter: [internal] more pressed
+I/flutter: Invalid argument (name): Event name is reserved and cannot be used: "ad_click"
+I/flutter:   #0 _logEventNameValidation (package:firebase_analytics/.../firebase_analytics.dart:1346)
+I/flutter:   #6 PicnicAnalytics.logAdClick (picnic_analytics.dart:323)
+I/flutter:   #7 _AdShortformFullscreenPageState._logAdClick (ad_shortform_fullscreen_page.dart:732)
+I/flutter: ⛔ GA4 이벤트 전송 실패: ad_click {ad_platform: internal-shortform, ad_source: internal,
+           ad_format: rewarded, ad_unit_name: undefined, section_name: 광고에서 코튼캔디 받기,
+           ad_category: 글로벌 픽 #1, destination_type: youtube}</pre>
+<p style="margin:.6em 0 0">버튼도 눌리고 외부 이동도 되고 파라미터도 완벽하게 채워진다.
+<strong>마지막에 Firebase SDK 가 이름을 거부한다.</strong>
+<code>ad_click</code> 은 앱 <strong>예약 이벤트명</strong>이다(Google 공식 목록).
+같은 코드 경로의 <code>ad_impression</code> 은 예약어가 아니라 102,405건 정상 수집된다 —
+그래서 하나만 0건이었다.</p>
+<p style="margin:.6em 0 0"><strong>GA4 이벤트 수정으로 우회할 수 없다.</strong> 공식 문서가
+"새 이름이 예약어가 아닌지 확인하라"고 명시한다. 즉 앱이 다른 이름으로 보내고 GA4 에서
+<code>ad_click</code> 으로 되돌리는 방식은 금지다. <strong>이름 변경 외에 방법이 없다.</strong></p>
+<p style="margin:.6em 0 0"><strong>해결 (2026-08-25).</strong> 대행사가
+<code>ad_cta_click</code> 으로 승인했다. picnic-app <strong>PR #176</strong>
+(<code>fix/ga4-ad-cta-click</code>)에서 전송 이름과 Dart 심볼을 함께 개명하고
+(<code>adClick</code>→<code>adCtaClick</code>, <code>logAdClick</code>→<code>logAdCtaClick</code>)
+스펙 문서 4종을 맞췄다. <strong>트리거 시점과 파라미터는 원안 그대로다.</strong>
+재발 방지로 <code>ga4_taxonomy_test.dart</code> 가 <code>Ga4Event.all</code> 의 예약어·예약
+접두사를 검증한다.</p>
+<p style="margin:.6em 0 0"><strong>✅ 배포·검증 완료 (2026-08-29).</strong>
+<code>picnic-v1.3.1+130104</code>(8/28 15:37 KST) 로 나갔고, 배포 당일 8/28 에
+<code>ad_cta_click</code> <strong>2건</strong>이 수집됐다. 28일 0건이던 이벤트가 살아났다 —
+예약어 문제 종결.</p>
+<pre>section_name      광고에서 코튼캔디 받기      ad_category   글로벌 픽 #2
+ad_source         internal                   ad_format     rewarded
+ad_platform       internal-shortform         destination_type  youtube
+ad_unit_name      undefined (설계대로)</pre>
+<p style="margin:.6em 0 0">7개 파라미터가 전부 스펙대로 실렸다. 배포 후 경과가 8시간여이고
+채택률이 낮아 절대 수는 작지만(같은 날 <code>ad_impression</code> 25,025), <strong>0 이 아니라는
+사실이 판정의 전부</strong>다. 문의 원문:
+<code>docs/analytics/agency-inquiry-20260825.html</code></p>
+
+<div class="stop" style="margin-top:1em">
+<strong>⚠️ 같은 날 <code>ad_click</code> 39건이 나타났다 — 우리 이벤트가 아니다.</strong>
+<p style="margin:.6em 0 0">AdMob 자동 수집이다. <code>firebase_event_origin</code> 이
+<strong><code>am</code>(100%)</strong> 이고(우리 앱이면 <code>app</code>),
+<code>ad_source</code>=<code>AdMob Network</code>,
+<code>ad_platform</code>=<code>AdMob</code>,
+<code>ad_unit_name</code>=<code>ca-app-pub-1539304887…</code> 다.
+<strong>Google 이 <code>ad_click</code> 을 예약어로 잡아둔 이유가 바로 이것</strong> —
+자기 자동 수집용 이름이다. 앱이 그 이름을 못 쓰는 것과 정확히 같은 사실의 양면이다.</p>
+<p style="margin:.6em 0 0"><code>a7327ae7a feat(ads): enable AdMob in release builds</code> 로
+AdMob 이 릴리스에서 다시 켜지면서 나타났다. 8/25 실측 때는 0건이었다.</p>
+<p style="margin:.6em 0 0"><strong>분석 시 주의.</strong> GA4 에 <code>ad_click</code> 이
+존재한다고 해서 우리 계측이 동작하는 것이 아니다. 우리 것은 <code>ad_cta_click</code> 이고
+<code>ad_platform</code> 이 <code>internal-shortform</code>/<code>Pangle</code> 이다.
+둘을 합산하면 자체 숏폼 CTA 와 AdMob 클릭이 뒤섞인다.</p>
+<p style="margin:.6em 0 0"><span class="k">대행사 회신 B-4("광고 플랫폼 값은 AdMob 이 아니다")의
+전제가 바뀌었다 — 이제 AdMob 이 실제로 돌고 있다.</span>
+<b>→ 2026-09-03 재고지는 불필요로 종결(제품 판단).</b> AdMob 지면을 계측 범위에 포함하고,
+분석에서 <code>ad_platform</code> 으로 분리해 대응한다(택소노미 문서 §2-A).</p>
+</div>
+</div>
+
+<div class="warn">
+<strong>부수 관측:</strong> <code>ad_unit_name</code> 이 문자열 <code>undefined</code> 로 나간다(설계상
+값 없는 String 파라미터의 의도된 치환). 값 없는 Number 는 키를 생략하는 B-3 와 짝이 맞는지
+대행사와 재확인할 여지가 있다.
+<p style="margin:.6em 0 0"><s>아직 검증 안 된 항목: 재화명(<code>별사탕</code> 오염 여부),
+언어(<code>ja</code>/<code>jp</code>), <code>login</code>/<code>sign_up</code> 중복·오탐.</s>
+<b>→ 2026-08-31 · 09-01 실측으로 전건 종결</b>(택소노미 문서 §2-A · §1 · §4-A).</p>
+</div>
+
+<div class="tw">
+<table>
+<tr><th>확인 항목</th><th>기대값</th><th>틀리면</th></tr>
+<tr><td>재화 이름</td><td><code>스타캔디</code> / <code>보너스 스타캔디</code> / <code>코튼캔디</code></td><td><code>별사탕</code> 이면 <code>Ga4CurrencyNames</code> 우회 경로 존재</td></tr>
+<tr><td>일본어 기기 언어</td><td><code>jp</code></td><td><code>ja</code> 면 <code>Ga4Language</code> 정규화 누락</td></tr>
+<tr><td><span class="k">purchase 중복</span></td><td>결제 1건 → 이벤트 <strong>1건</strong></td><td>2건이면 매출 2배 왜곡 — 최우선 확인</td></tr>
+<tr><td>login 중복</td><td>앱 재시작 시 재발송 없음</td><td>세션 복원 서명 방어 실패</td></tr>
+<tr><td>sign_up</td><td>신규 가입만 1회, 재로그인 0회</td><td>30초 창 판정 오탐</td></tr>
+<tr><td>광고 플랫폼</td><td><code>internal-shortform</code> / <code>Pangle</code></td><td><code>AdMob</code> 이면 잘못된 구좌</td></tr>
+<tr><td>값 없는 숫자 파라미터</td><td>파라미터 자체가 없음</td><td><code>undefined</code> 문자열이면 타입 오염</td></tr>
+</table>
+</div>
+
+<h3>③ 대행사 회신 <span class="done">— 수신 완료</span></h3>
+<p>2026-08-21 A-1~B-10 답변을 받았다. 구현 판단에 직접 영향을 주는 결론은 다음과 같다.</p>
+<ul>
+<li><code>click_attendance</code>는 시점이 사라져 삭제 처리됐다.</li>
+<li><code>vote</code> 가산 파라미터 3종과 <code>virtual_currency_name</code> 전송값에 이견이 없다.</li>
+<li><code>user_id</code> UUID는 고객을 유추할 수 없다면 허용된다.</li>
+<li><code>purchase.currency</code>는 필수 전송해야 한다.</li>
+<li>값이 없는 Number 파라미터는 키 자체를 빼고 전송한다.</li>
+<li>자체 숏폼 <code>ad_click</code>은 전체화면 CTA 클릭 시점으로 확정됐다. <strong>(트리거는 유효하나 이벤트명은 2026-08-25 <code>ad_cta_click</code> 으로 개명 — §3-② 참조)</strong></li>
+<li><code>sign_up</code>은 별도 가입 시점을 잡을 수 없다면 제안한 휴리스틱을 허용한다.</li>
+<li>B-10 이벤트명 변경은 중복 적재 확인 뒤 결정한다. DebugView 실측 전에는 변경하지 않는다.</li>
+</ul>
+
+<h3>④ 복구 구매의 매출 복원 <span class="done">— 2026-09-03 종결(iOS 해소 / Android 는 강업 대기)</span>
+<span class="meta">아래는 2026-08-21 시점 기록</span></h3>
+<p>현재 코드는 정산 시점에 스토어 카탈로그가 메모리에 없으면
+<code>currency</code>/<code>value</code> 없이 purchase를 확정할 수 있다.
+대행사 B-2를 충족하기 위해 다음 계약을 선택했고 교차 검증에서 최종 승인받았다.</p>
+
+<div class="ok">
+<strong>승인된 불변식:</strong> <code>currency</code>를 확보하지 못한 revenue-bearing
+<code>purchase</code>는 GA4로 보내지 않고 durable outbox의 <code>awaiting_currency</code>에서 재시도한다.
+실제로 GA4에 전송되는 모든 매출 purchase에는 ISO 4217 <code>currency</code>가 있어야 한다.
+<code>value</code>만 없을 때는 B-3에 따라 그 숫자 키만 생략한다. 결제 지급 성공과 GA4 보류는 분리한다.
+</div>
+
+<p>승인 설계: <code>docs/superpowers/specs/2026-08-21-ga4-purchase-revenue-contract-design.md</code><br>
+커밋: <code>5bb861418 docs(analytics): finalize purchase revenue contract</code></p>
+
+<p>교차 리뷰가 확인한 주요 안전장치:</p>
+<ul>
+<li>analytics 통화·가격을 환불 정산용 <code>providerCurrency</code>/<code>providerPaidAmountMinor</code>와 분리해 QUANTITY 불변식 보존</li>
+<li>Apple JWS <code>price</code> 밀리유닛을 GA4 메이저 단위로 정확히 변환</li>
+<li>Shorebird OTA와 맞지 않는 <code>app_build</code> 게이트 대신 현재 요청의 parser capability 사용</li>
+<li>grant 트랜잭션에서 immutable analytics snapshot을 원자 저장하고 inbox 전용 최소권한 RPC로 최초·replay 응답 복원</li>
+<li>Android <code>client_observed_currency</code>를 foreground·queue recovery·서버 envelope까지 전달하되 intake identity hash에서는 제외</li>
+<li>구버전 앱에는 기존 7-key 응답을 유지하고, 앱 선배포 뒤 서버를 배포하는 순서 고정</li>
+</ul>
+
+<div class="ok">
+<strong>앱 사이드는 구현·교차리뷰까지 끝났다 — PR <a href="https://github.com/charlie0421/picnic-app/pull/172">#172</a>(열림).</strong>
+forward-compatible 파서, ISO 4217 관문, outbox <code>awaiting_currency</code> 상태 머신,
+parser capability 선언, 영수증 큐 durable hand-off 가 들어갔다.
+<code>flutter test</code> 12,956 통과(실패 1건은 <code>main</code> 에서도 재현되는 기존 실패).
+</div>
+
+<div class="warn">
+<strong>서버 사이드는 아직 한 줄도 바뀌지 않았다.</strong> Apple JWS <code>price</code>/<code>currency</code>
+추출, <code>purchase_reward_snapshots</code> analytics 컬럼·migration·RPC, capability 기반 응답
+shaping 은 모두 picnic-supabase 레포의 후속 작업이다. 서버가 아직 <code>currency</code>/<code>value</code>
+를 보내지 않으므로 <span class="k">앱만 배포해도 오늘 동작은 그대로다</span> — 이것이 §9.1 이 요구하는
+"앱 선배포" 상태다. 로컬 가격 시각 매칭 방식(<code>b5b138bd1</code>)을 되살리지 말고 승인 설계를 따른다.
+</div>
+
+<p><strong>앱 사이드 교차 리뷰에서 나온 것</strong> — 반대 공급자 Frontier(Codex Sol) 3라운드.
+구현이 놓쳤던 것 중 배포됐다면 매출을 잃었을 결함:</p>
+<ul>
+<li><strong>프로덕션에 <code>PurchaseCurrencyResolver</code> 가 아예 연결돼 있지 않았다.</strong>
+    보류 상태 머신은 있는데 그것을 진행시킬 주체가 없어, 보류된 매출 이벤트는 같은 거래가
+    재전달되지 않는 한 365일 뒤 dead letter 로 끝났다</li>
+<li>iOS 멱등 캐시 재확인 경로에 영수증 큐 삭제 지점이 하나 더 남아 있었다</li>
+<li>resolver 를 기다리는 동안 서버 통화로 승격되면 늦게 끝난 카탈로그 조회가 그것을 덮어썼다</li>
+<li>보류 중 모아 둔 candidate 금액이 새로 들어온 통화 옆에 붙어 조작된 매출이 됐다</li>
+<li>큐 상한·TTL 이 정산 완료·인계 대기 항목을 조용히 지웠다 — 그 거래의 스토어 트랜잭션은
+    이미 finish 돼 스윕이 되찾을 것이 없다</li>
+</ul>
+<p class="meta">리뷰어가 1라운드의 내 반박을 2라운드에서 더 나은 반례로 되받은 건이 하나 있다:
+정산 본문 파싱 실패는 요청의 성질이 아니라 그 순간 서버가 무엇을 배포하고 있었는지의 함수이므로,
+일시 오류가 롤백되면 같은 영수증이 정상 본문을 받는다 — 지웠으면 그때 재시도할 재료가 없다.</p>
+
+<h3>⑤ 다음 실행 순서</h3>
+<ol>
+<li><del>앱 워크트리 구현</del> <span class="done">— 완료 (PR #172)</span></li>
+<li><del>앱 회귀 검증</del> <span class="done">— 완료 (12,956 통과)</span></li>
+<li><del>앱 교차 리뷰</del> <span class="done">— 완료 (Codex Sol 3라운드, 최종 "남은 결함 없음")</span></li>
+<li><del>Play Console 확인</del> <span class="done">— 2026-08-24 해소, 그리고 출처 A 자체를 종결</span>
+    <div class="ok" style="margin-top:.5em">
+    <strong>신 카탈로그 모델이다.</strong> Play Console 좌측 메뉴가
+    <em>제품 → 앱 가격 / 일회성 제품 / 정기 결제</em> 이고 구 모델의 "인앱 상품" 항목이 없다.
+    URL 은 <code>/one-time-products</code>, 안내 문구도 "일회성 제품(이전의 인앱 상품)" 으로
+    마이그레이션을 명시한다. 일회성 제품 10개가 등록돼 있다
+    (<code>star2000</code>·<code>star3000</code>·<code>star4000</code>·<code>star5000</code>·
+    <code>star7000</code>·<code>star10000</code> 등 소문자 SKU — <code>verifyGoogle</code> 의
+    <code>productId.toLowerCase()</code> 와 일치).
+    <p style="margin:.6em 0 0"><strong>스코프는 추가가 필요 없다.</strong>
+    <code>purchase-provider-verifiers.ts</code> 의 <code>googleAccessToken</code> 이 이미
+    <code>https://www.googleapis.com/auth/androidpublisher</code> 를 요청하는데, 이 단일 스코프가
+    Android Publisher API 전체를 덮어 <code>monetization.onetimeproducts.*</code> 도 포함한다.</p>
+    </div>
+
+    <div class="ok" style="margin-top:.5em">
+    <strong>그럼에도 출처 A 는 구현하지 않기로 했다(2026-08-25).</strong> 전제가 풀렸으니
+    "확인만 되면 해야 할 일"로 남을 뻔했으나, 확인하고 나니 필요가 없다는 결론이다.
+    <ul style="margin:.5em 0 0">
+    <li><strong>서버 검증 응답에 통화가 없는 것은 라이브러리 버전 문제가 아니다.</strong>
+        구 <code>purchases.products.get</code> 과 신
+        <code>purchases.productsv2</code>(<code>getproductpurchasev2</code>) <strong>양쪽 다</strong>
+        가격·통화·결제액 필드가 없다. Play Billing Library 를 8.x 로 올려도 서버가 통화를
+        알게 되지 않는다.</li>
+    <li><strong>출처 A 는 실결제 통화가 아니라 지역 매핑 근사다.</strong>
+        <code>regionCode</code> → 카탈로그는 "이 지역은 이 통화"일 뿐이고, 출처 B 는 사용자가
+        결제 직전 화면에서 실제로 본 통화다 — A 가 B 보다 정확하지 않다.</li>
+    <li><strong>A 의 유일한 우위는 "앱이 안 보내줘도 서버가 안다"인데 강제 업데이트로
+        사라진다.</strong> 남는 콜드스타트 복구 구매(카탈로그 미적재)는 앱의
+        <code>StoreCatalogueCurrencyResolver</code> 가 카탈로그를 직접 로드해 해결한다 —
+        유실이 아니라 지연이다.</li>
+    </ul>
+    <p style="margin:.6em 0 0">전제: 출처 B 를 담은 앱(<a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a>)이
+    <strong>강제 업데이트로 배포</strong>돼야 이 결론이 성립한다. 그 강업이 없으면 구버전
+    Android 사용자의 Google 결제는 통화 확보가 앱 resolver 에만 의존한다.</p>
+    </div></li>
+<li><del>Supabase 워크트리 구현</del> <span class="done">— 완료 (PR picnic-supabase#109)</span></li>
+<li><del>서버 회귀 검증</del> <span class="done">— 완료 (wallet SQL 39파일 · deno edge 179)</span></li>
+<li><del>서버 교차 리뷰</del> <span class="done">— 완료 (Codex Sol, HIGH 2·MEDIUM 3 중 4건 반영)</span></li>
+<li><strong>운영 게이트:</strong> migration apply·배포·merge는 별도 승인 전 수행하지 않는다.
+    B-10은 실기기 DebugView에서 중복 여부를 확인한 뒤에만 이벤트명을 결정한다.</li>
+</ol>
+
+<div class="stop">
+<strong>배포 순서를 어기지 말 것.</strong> PR #172 의 파서가 <span class="k">먼저</span> 사용자에게
+도달한 뒤에 서버가 <code>currency</code>/<code>value</code> 를 보내기 시작해야 한다. 반대로 하면
+이미 지급이 끝난 정산 응답을 구버전 앱이 파싱하지 못해 <strong>결제가 실패한 것처럼 보인다</strong>.
+서버의 capability fail-closed 가 이 위험을 대부분 막지만, 순서 자체가 1차 방어선이다.
+</div>
+
+<h2>4. 함정</h2>
+
+<div class="stop">
+<strong>테스트에서 저장소를 쓰는 새 소비자를 추가할 때.</strong>
+<code>globalStorage</code>(<code>NonWebLocalStorage</code>)의 정적 <code>SharedPreferences</code> future 는
+자신이 생성된 <code>testWidgets</code> 존에 묶인다. 그 존이 끝난 뒤 다른 테스트에서 await 하면
+<strong>영원히 완료되지 않고</strong>, <code>ioTimeout</code> 도 pump 없이는 진행되지 않아 소용없다.
+<code>PurchaseService</code> 를 세우는 위젯 테스트는 반드시 메모리 저장소를 주입하라.
+<code>AnalyticsOutbox</code>, <code>PurchaseAnalyticsDedup</code>, <code>AnalyticsSendMarkerStore</code> 모두 해당한다.
+</div>
+
+<div class="warn">
+<strong>Shorebird 릴리스는 버전 번호로만 구분된다.</strong>
+<code>shorebird.yaml</code> 의 <code>app_id</code> 가 단일이라 스테이징/프로덕션이 같은 앱을 공유한다.
+<code>1.3.0+130007</code> 에 패치를 쏘면 곧 <strong>프로덕션 전체 사용자 배포</strong>다.
+</div>
+
+<div class="warn">
+<strong>에셋을 추가한 커밋은 OTA 로 나갈 수 없다 — 단, 지금 130007 에는 해당 없음.</strong>
+에셋은 바이너리에 번들되므로 패치로 전달되지 않는다.
+<code>--allow-asset-diffs</code> 는 <strong>경고를 넘길 뿐 에셋을 전달하지 않는다.</strong>
+<p style="margin:.6em 0 0">8/10 에 #156 의 <code>splash_key.png</code> 때문에 OTA 기준 커밋을 제한한 적이 있으나,
+<span class="k">그 판단은 구 릴리스 <code>130001</code> 기준이었다.</span> 현재 활성 릴리스
+<code>1.3.0+130007</code> 태그에는 해당 에셋이 이미 포함돼 있어(<code>git cat-file -e
+picnic-v1.3.0+130007:picnic_app/assets/splash_key.png</code> 확인) 130007 대상 패치에는 걸리지 않는다.
+<strong>원칙은 유효하니 새 에셋이 추가되면 그때 다시 판단하라.</strong></p>
+</div>
+
+<h2>5. 스펙과 의도적으로 다른 지점</h2>
+
+<p>전부 근거와 함께 문서 §4에 있다. <strong>"스펙대로 안 했다"로 오해하지 말 것.</strong></p>
+
+<div class="tw">
+<table>
+<tr><th>항목</th><th>스펙</th><th>실제</th><th>이유</th></tr>
+<tr><td>재화 이름</td><td><code>별사탕</code></td><td><code>스타캔디</code>/<code>코튼캔디</code></td><td>구매(스타캔디)와 광고(코튼캔디)는 <strong>별개로 공존하는 재화</strong>. 합치면 재화별 집계 불가</td></tr>
+<tr><td><code>ad_platform</code></td><td><code>AdMob</code></td><td><code>internal-shortform</code>/<code>Pangle</code></td><td>AdMob 은 UI 구좌에서 빠졌고 SSV 라 클라이언트가 적립 성공을 관측 불가</td></tr>
+<tr><td><code>currency</code> 결측</td><td><code>undefined</code></td><td>파라미터 생략</td><td>ISO 4217 위반이면 GA4 가 <strong>그 purchase 의 매출을 통째로 무시</strong></td></tr>
+<tr><td>Number 결측</td><td><code>undefined</code></td><td>파라미터 생략</td><td>GA4 가 키를 측정기준/측정항목 중 하나로만 등록 → 타입 섞으면 반대 타입 누락</td></tr>
+<tr><td><code>user_id</code></td><td>해시값</td><td>원본 UUID</td><td>UUID 는 PII 아님. 해시하면 BigQuery↔DB 조인과 기존 히스토리 단절</td></tr>
+<tr><td>언어 코드</td><td><code>jp</code></td><td><code>ja</code> → <code>jp</code> 정규화</td><td>앱 내부는 ISO 639-1 유지, analytics 경계에서만 변환</td></tr>
+</table>
+</div>
+
+<h2>6. 참고 문서</h2>
+
+<div class="tw">
+<table>
+<tr><th>경로</th><th>내용</th></tr>
+<tr><td><code>docs/analytics/ga4-event-taxonomy.md</code></td><td><strong>기준 문서.</strong> 코드보다 먼저 읽을 것. 이벤트 정의(§2), 대행사 확인 항목(§4), outbox 설계(§6), 알려진 한계(§7), 미해결 과제(§8)</td></tr>
+<tr><td><code>docs/analytics/trigger-mapping.md</code></td><td>이벤트별 실측 트리거 지점과 파라미터 데이터 출처</td></tr>
+<tr><td><code>docs/analytics/api-contract.html</code></td><td><code>PicnicAnalytics</code> 공개 API 계약</td></tr>
+<tr><td><code>docs/analytics/agency-reply.html</code></td><td>대행사 회신 — 불일치 13건, 전송값 대조표(C절), <strong>GA4 등록 목록(D절)</strong></td></tr>
+<tr><td><code>docs/analytics/agency-inquiry-20260825.html</code></td><td><strong><code>ad_click</code> 이벤트명 변경 요청.</strong> 예약어 근거(로그캣·공식 목록), 우회 불가 사유, 후보 3안. <strong>발송 완료 — 대행사가 <code>ad_cta_click</code> 승인(2026-08-25)</strong></td></tr>
+<tr><td><code>docs/analytics/agency-notice-20260831-admob.html</code></td><td><strong>AdMob 지면 계측 안내(초안).</strong> AdMob 자동 수집 3종 유입과 지면 분리 규칙, 스펙 불일치 3건. <strong>결정 요청이 아니라 통보다</strong> — 포함은 우리가 정했고 대행사가 결정할 사안이 없다. <strong>2026-08-31 발송 불필요로 종결</strong>(대행사가 리포트를 직접 만들지 않음). 지면 구분 규칙은 <code>ga4-event-taxonomy.md</code> §2-A 가 기준이다.</td></tr>
+<tr><td><code>docs/analytics/implementation-report.html</code></td><td>구현 경과와 리뷰에서 발견한 결함 기록</td></tr>
+<tr><td><code>docs/superpowers/specs/2026-08-21-ga4-purchase-revenue-contract-design.md</code></td><td><strong>purchase revenue 후속 구현의 승인 설계.</strong> durable currency 보류·재시도, snapshot/RPC, capability 배포 순서, TDD 범위</td></tr>
+<tr><td>PR <a href="https://github.com/charlie0421/picnic-app/pull/172">picnic-app#172</a></td><td>purchase revenue <strong>앱 사이드</strong>. 브랜치 <code>feat/ga4-purchase-revenue</code>, 커밋 7개</td></tr>
+<tr><td>PR <a href="https://github.com/charlie0421/picnic-supabase/pull/109">picnic-supabase#109</a></td><td>purchase revenue <strong>서버 사이드</strong>. 브랜치 <code>feat/ga4-purchase-revenue-server</code>, 커밋 6개. 알려진 편차(attestation seal · Google 출처 A · PayPal 노출)는 PR 본문에</td></tr>
+<tr><td><code>docs/operations/attendance-reward-decision.html</code></td><td><code>click_attendance</code> 미구현 근거 (출석 보상 폐지)</td></tr>
+</table>
+</div>
+
+<h2>7. 이 작업에서 리뷰가 잡은 것</h2>
+
+<p class="meta">같은 실수를 반복하지 않기 위한 기록. 상세는 <code>implementation-report.html</code>.</p>
+
+<p>반대 공급자 교차 리뷰 4회 + 되돌린 후속 작업 3회에서
+<strong>배포됐다면 매출 데이터를 왜곡했을 결함</strong>들이 나왔다.</p>
+
+<ul>
+<li><code>replayed</code> 플래그를 발송 증거로 오용 → 매출 <strong>영구 누락</strong></li>
+<li><code>purchaseID</code> 없는 결제가 전부 같은 <code>transaction_id</code> 로 뭉쳐 두 번째 매출부터 소실</li>
+<li>dedup 동시성 경쟁으로 중복 발송</li>
+<li>마커를 전송 <strong>전에</strong> 저장 + Sink 가 실패를 은폐 → 영구 누락 <span class="meta">(1차 수정이 만든 결함)</span></li>
+<li>스토어 거래 finish 후 재시도 경로 소멸 <span class="meta">(2차 수정이 만든 결함)</span></li>
+<li>기존 <code>AnalyticsService</code> 가 이미 <code>purchase</code> 를 직접 <code>logEvent</code> 하고 있어, 통합하지 않았다면 <strong>매출이 2배</strong>로 잡혔을 상황</li>
+</ul>
+
+<p><strong>매 리뷰 라운드가 직전 수정이 새로 만든 결함을 잡았다.</strong>
+결제·매출 경로를 건드릴 때는 한 번의 리뷰로 끝내지 말 것.</p>
+
+</body>
+</html>

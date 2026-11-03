@@ -129,12 +129,17 @@ class AdService {
 
   // 리소스 해제
   void dispose() {
-    // BLOCKER-3: 각 플랫폼의 dispose() 를 먼저 호출해야 flow 의
-    // 워치독 타이머·pendingAd 가 정리된다. clear() 만으로는 각 AdPlatform
-    // 인스턴스가 그대로 살아남아, 위젯 teardown 후에도 타이머가 dispose 된
-    // AnimationController 를 건드리거나 네이티브 광고가 누수된다.
+    // 각 플랫폼의 dispose 를 반드시 호출한다. 맵만 비우면 PanglePlatform 의
+    // pollingSignals 구독 같은 리소스가 페이지 unmount 후에도 살아남아
+    // dispose 된 ref 를 계속 읽는다 (PICNIC-APP-5G9). AdMob 은 같은 이유로
+    // flow 의 워치독 타이머·pendingAd 를 여기서 정리한다(BLOCKER-3). 한
+    // 플랫폼의 dispose 예외가 나머지 플랫폼 정리를 막지 않도록 격리한다.
     for (final platform in _platforms.values) {
-      platform.dispose();
+      try {
+        platform.dispose();
+      } catch (e) {
+        logger.e('Error disposing ${platform.id} platform', error: e);
+      }
     }
     _platforms.clear();
   }

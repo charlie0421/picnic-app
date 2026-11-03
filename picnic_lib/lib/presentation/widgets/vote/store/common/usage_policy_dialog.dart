@@ -8,6 +8,7 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -152,8 +153,11 @@ class UsagePolicyPopup extends ConsumerWidget {
               // 고정한다.
               padding: const EdgeInsets.fromLTRB(64, 24, 64, 16),
               child: Center(
+                // 좁은 화면(320dp) + 200% 글자 확대에서 긴 번역(bn 등)이 여러
+                // 줄로 늘어나 헤더가 본문을 밀어내고 넘쳤다. 제목은 2줄까지만.
                 child: VoteCommonTitle(
                   title: localizations.expiring_bonus_candy_guide,
+                  maxLines: 2,
                 ),
               ),
             ),
@@ -197,10 +201,7 @@ class UsagePolicyPopup extends ConsumerWidget {
           child: SizedBox(
             width: 28.w,
             height: 28.w,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              color: AppColors.primary500,
-            ),
+            child: SmallPulseLoadingIndicator(),
           ),
         ),
       ),
@@ -359,7 +360,7 @@ class UsagePolicyPopup extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           child: walletState.when(
             data: (_) => const SizedBox.shrink(),
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const Center(child: MediumPulseLoadingIndicator()),
             error: (error, stackTrace) => cell(l.wallet_load_failed),
           ),
         ),

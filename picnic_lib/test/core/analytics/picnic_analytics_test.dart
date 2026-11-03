@@ -213,9 +213,9 @@ void main() {
     });
   });
 
-  group('ad_click (스펙 §2-8)', () {
+  group('ad_cta_click (스펙 §2-8)', () {
     test('destination_type 을 포함한 7개 파라미터가 나간다', () async {
-      await analytics.logAdClick(
+      await analytics.logAdCtaClick(
         adPlatform: 'AdMob',
         adSource: 'Google Ads',
         adFormat: 'rewarded',
@@ -225,7 +225,7 @@ void main() {
         destinationType: 'youtube',
       );
 
-      expect(sink.last.name, Ga4Event.adClick);
+      expect(sink.last.name, Ga4Event.adCtaClick);
       expect(sink.last.parameters[Ga4Param.destinationType], 'youtube');
       expect(sink.last.parameters.length, 7);
     });

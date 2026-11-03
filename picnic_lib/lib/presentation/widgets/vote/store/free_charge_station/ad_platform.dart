@@ -1,11 +1,11 @@
+import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show visibleForTesting;
+import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:intl/intl.dart';
-import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:picnic_lib/core/utils/common_utils.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -14,6 +14,7 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_overlay.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -27,12 +28,17 @@ abstract class AdPlatform {
   final AnimationController? animationController;
   late final CommonUtils _commonUtils;
   bool _isDisposed = false;
+
+  /// 이 플랫폼이 켠 로딩(전역 오버레이 + adLoadingStateProvider)이 아직
+  /// 꺼지지 않았는지. OverlayLoadingProgress 는 전역 싱글턴이라, dispose 가
+  /// 자신이 켠 것만 정리해야 다른 기능의 오버레이를 닫지 않는다.
+  bool _startedLoading = false;
   final Stopwatch _performanceStopwatch = Stopwatch();
 
   /// 이번 시청 건의 GA4 컨텍스트. 구좌(버튼) 클릭 시점에 주입된다.
   ///
   /// `ad_request` 를 보낸 구좌의 카테고리·재화·수량을 `ad_impression` /
-  /// `ad_click` / `earn_virtual_currency` 까지 그대로 옮기기 위한 값이며,
+  /// `ad_cta_click` / `earn_virtual_currency` 까지 그대로 옮기기 위한 값이며,
   /// analytics 전용이라 광고 동작에는 전혀 관여하지 않는다.
   FreeChargeAdGa4Context? ga4AdContext;
 
@@ -84,8 +90,22 @@ abstract class AdPlatform {
   Future<void> handleError(dynamic error, StackTrace? stackTrace);
 
   void dispose() {
+    final ownedLoading = _startedLoading;
+    _startedLoading = false;
     _isDisposed = true;
-    stopAllAnimations();
+    // stopAllAnimations() 는 isDisposed 가드에 막혀 여기서는 전부 no-op 이라
+    // teardown 에 필요한 정리를 직접 한다. 단, 이 플랫폼이 켠 로딩만 끈다.
+    if (animationController != null && animationController!.isAnimating) {
+      animationController!.stop();
+    }
+    if (ownedLoading) {
+      // 오버레이는 전역이라 페이지가 죽어도 남는다 — 먼저 내린다.
+      AdLoadingOverlay.stop();
+      // 로딩 상태는 전역 provider 라 남으면 다음 방문의 버튼이 잠긴다.
+      // State.dispose 안에서의 ref.read 는 허용되고, 그 밖의 늦은 호출이
+      // 던지면 AdService 가 플랫폼별로 격리한다.
+      ref.read(adLoadingStateProvider.notifier).setLoading(id, false);
+    }
     logger.i('[$id] 플랫폼 종료');
   }
 
@@ -101,14 +121,16 @@ abstract class AdPlatform {
   void startLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(true);
-    OverlayLoadingProgress.start(context);
+    _startedLoading = true;
+    unawaited(AdLoadingOverlay.start(context));
   }
 
   // 공통 로직: 로딩 UI 종료
   void stopLoading() {
     if (!context.mounted || isDisposed) return;
     setLoading(false);
-    OverlayLoadingProgress.stop();
+    _startedLoading = false;
+    AdLoadingOverlay.stop();
   }
 
   // 공통 로직: 버튼 애니메이션 시작
@@ -143,52 +165,122 @@ abstract class AdPlatform {
     return true;
   }
 
+  /// G3: kDebugMode + admob 한정으로 서버 `disabled` 게이트를 우회할지 여부.
+  ///
+  /// AdMob 은 운영 롤아웃 전이라 서버가 `disabled: true` 를 내려줄 수 있다.
+  /// QA 가 로컬 디버그 빌드에서 실제 시청 플로우(요청→응답→rate limit)를
+  /// 끝까지 확인할 수 있도록 이 게이트만 우회한다 — `allowed`/rate limit/에러
+  /// 경로는 그대로 둔다. 순수 함수라 kDebugMode 를 직접 읽지 않고 인자로
+  /// 받는다: 이래야 release 분기(`isDebugMode: false`)도 테스트로 고정할 수 있다.
+  @visibleForTesting
+  static bool shouldBypassDisabledForDebugAdmob({
+    required bool isDebugMode,
+    required String platform,
+  }) {
+    return isDebugMode && platform == 'admob';
+  }
+
+  /// G3: `check-ads-count` 요청/응답 판정 seam — BuildContext 에 의존하지 않는다.
+  ///
+  /// os 스코프 1차 응답이 `disabled: true` 이고 [shouldBypassDisabledForDebugAdmob]
+  /// 조건(kDebugMode+admob)을 만족할 때만 os 파라미터 없이 정확히 한 번
+  /// 재요청하고, 그 2차 응답을 최종 데이터로 그대로 반환한다. 2차 응답이 다시
+  /// disabled 여도 재귀 재시도는 하지 않는다 — "정확히 한 번"이 요구사항이고,
+  /// 무한 루프를 방지한다. [checkAdsLimit] 은 이 결과를 기존 disabled/allowed
+  /// 판정 로직에 그대로 흘려보낸다: 단순히 disabled 게이트만 건너뛰면 1차
+  /// 응답의 allowed:false 가 그대로 남아 여전히 막히므로(PICNIC-2377 리뷰
+  /// 지적), 판정 대상 데이터 자체를 2차 응답으로 교체해야 한다.
+  @visibleForTesting
+  static Future<Map> resolveAdsCountData({
+    required String platform,
+    required String os,
+    required bool isDebugMode,
+  }) async {
+    final data = await _requestAdsCount(platform: platform, os: os);
+
+    if (data['disabled'] == true &&
+        shouldBypassDisabledForDebugAdmob(
+          isDebugMode: isDebugMode,
+          platform: platform,
+        )) {
+      logger.w(
+        '⚠️ [DEBUG ONLY] [$platform] disabled=true 이지만 kDebugMode+admob 이라 '
+        'os 파라미터 없이 재요청합니다. release 빌드에서는 절대 발생하면 안 됩니다.',
+      );
+      return _requestAdsCount(platform: platform, os: null);
+    }
+
+    return data;
+  }
+
+  static Future<Map> _requestAdsCount({
+    required String platform,
+    required String? os,
+  }) async {
+    final query = os == null
+        ? 'check-ads-count?platform=$platform'
+        : 'check-ads-count?platform=$platform&os=$os';
+    logger.i('[checkAdsLimit] request start: $query');
+    final resp = await supabase.functions.invoke(query);
+
+    final status = (resp as dynamic).status;
+    logger.i('[checkAdsLimit] response status: $status, raw: ${resp.data}');
+
+    // 상태코드 4xx/5xx 로깅. invoke() 는 실제로는 2xx 외 응답에 대해
+    // FunctionException 을 던지므로(catch 로 전파) 이 분기는 방어적 로깅이다.
+    if (status is int && status >= 400) {
+      logger.w('[checkAdsLimit] http error status: $status');
+    }
+
+    return (resp.data as Map?) ?? const {};
+  }
+
   // 공통 로직: 광고 시청 제한 확인
   Future<bool> checkAdsLimit(String platform) async {
     if (!context.mounted || isDisposed) return false;
 
     try {
       final os = Platform.isIOS ? 'ios' : 'android';
-      logInfo('checkAdsLimit request start: platform=$platform, os=$os');
-      final resp = await supabase.functions.invoke(
-        'check-ads-count?platform=$platform&os=$os',
+      final data = await resolveAdsCountData(
+        platform: platform,
+        os: os,
+        isDebugMode: kDebugMode,
       );
       if (!context.mounted || isDisposed) return false;
-
-      final status = (resp as dynamic).status;
-      logInfo('checkAdsLimit response status: $status');
-      logInfo('checkAdsLimit raw: ${resp.data}');
-
-      // 상태코드 4xx/5xx 로깅
-      if (status is int && status >= 400) {
-        logWarning('checkAdsLimit http error status: $status');
-      }
-
-      final data = (resp.data as Map?) ?? const {};
-      final allowed = data['allowed'] == true;
 
       // 서버 설정에 의해 비활성화된 경우
       if (data['disabled'] == true) {
         if (context.mounted && !isDisposed) {
           showSimpleDialog(
-            content: AppLocalizations.of(context).label_ads_temporarily_unavailable,
+            content: AppLocalizations.of(
+              context,
+            ).label_ads_temporarily_unavailable,
           );
         }
         return false;
       }
 
+      final allowed = data['allowed'] == true;
       if (allowed != true) {
         // limits 안전 파싱
         final limitsMap = (data['limits'] as Map?) ?? const {};
         final platformLimits = (limitsMap[platform] as Map?) ?? const {};
         final hourly = (platformLimits['hourly'] as num?)?.toInt() ?? 10;
-        final daily = (platformLimits['daily'] as num?)?.toInt() ?? 50;
+        final daily = (platformLimits['daily'] as num?)?.toInt() ?? 120;
+        // counts 안전 파싱 — 어느 한도에 걸렸는지 말해주려면 소진량이 필요하다.
+        // 서버가 counts 를 안 주면(구버전 응답 등) 종류 표시 없이 예전처럼 뜬다.
+        final countsMap = (data['counts'] as Map?) ?? const {};
+        final platformCounts = (countsMap[platform] as Map?) ?? const {};
+        final hourlyUsed = (platformCounts['hourly'] as num?)?.toInt();
+        final dailyUsed = (platformCounts['daily'] as num?)?.toInt();
         final nextAvailableTime = data['nextAvailableTime'] as String?;
 
-        _handleExceededAdsLimit(nextAvailableTime, {
-          'hourly': hourly,
-          'daily': daily,
-        });
+        _handleExceededAdsLimit(
+          nextAvailableTime,
+          {'hourly': hourly, 'daily': daily},
+          hourlyUsed: hourlyUsed,
+          dailyUsed: dailyUsed,
+        );
         return false;
       }
       return true;
@@ -204,11 +296,38 @@ abstract class AdPlatform {
     }
   }
 
+  /// G4: 어느 한도에 걸렸는지 판정하는 seam — BuildContext 에 의존하지 않는다.
+  ///
+  /// PICNIC-2537: 예전 다이얼로그는 "시간당 10회, 일일 120회" 라는 정책 문구와
+  /// 해제 시각만 보여줬다. 일간 한도에 걸린 사용자는 6~7시간 뒤 해제 시각을 보고
+  /// "시간당 10회가 고장 났다"고 읽었고 CS 로 들어왔다. 어느 한도에 · 몇 회로
+  /// 걸렸는지를 함께 보여줘야 그 오해가 안 생긴다.
+  ///
+  /// 소진량(counts)이 없으면 둘 다 false 를 돌려주고, 호출부는 종류 표시 없이
+  /// 예전 화면을 그대로 띄운다 — 없는 정보를 추측해서 쓰지 않는다.
+  /// 두 한도가 동시에 걸릴 수 있으므로 하나를 고르지 않고 둘 다 보고한다.
+  @visibleForTesting
+  static ({bool hourly, bool daily}) resolveExceededAdsLimit({
+    required int? hourlyUsed,
+    required int? dailyUsed,
+    required int hourlyLimit,
+    required int dailyLimit,
+  }) {
+    // 한도 값 자체가 없으면(limits 누락) 판정하지 않는다 — 0 을 한도로 쓰면
+    // 소진량 0 도 "초과"가 된다.
+    return (
+      hourly: hourlyLimit > 0 && hourlyUsed != null && hourlyUsed >= hourlyLimit,
+      daily: dailyLimit > 0 && dailyUsed != null && dailyUsed >= dailyLimit,
+    );
+  }
+
   // 공통 로직: 광고 제한 초과 처리
   void _handleExceededAdsLimit(
     String? nextAvailableTimeStr,
-    Map<String, int>? limits,
-  ) {
+    Map<String, int>? limits, {
+    int? hourlyUsed,
+    int? dailyUsed,
+  }) {
     if (!context.mounted || isDisposed) return;
 
     DateTime? nextAvailableTime;
@@ -221,6 +340,14 @@ abstract class AdPlatform {
     }
 
     final formatter = DateFormat('yyyy-MM-dd HH:mm:ss');
+    final hourlyLimit = (limits?['hourly'] as num?)?.toInt() ?? 0;
+    final dailyLimit = (limits?['daily'] as num?)?.toInt() ?? 0;
+    final exceeded = resolveExceededAdsLimit(
+      hourlyUsed: hourlyUsed,
+      dailyUsed: dailyUsed,
+      hourlyLimit: hourlyLimit,
+      dailyLimit: dailyLimit,
+    );
 
     showSimpleDialog(
       contentWidget: Column(
@@ -232,12 +359,29 @@ abstract class AdPlatform {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 16),
+          if (exceeded.hourly)
+            Text(
+              AppLocalizations.of(context).label_ads_limit_reached_hourly(
+                hourlyUsed ?? 0,
+                hourlyLimit,
+              ),
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
+          if (exceeded.daily)
+            Text(
+              AppLocalizations.of(context).label_ads_limit_reached_daily(
+                dailyUsed ?? 0,
+                dailyLimit,
+              ),
+              style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+              textAlign: TextAlign.center,
+            ),
           if (limits != null)
             UnderlinedText(
-              text: AppLocalizations.of(context).label_ads_limits(
-                (limits['hourly'] as num?)?.toInt() ?? 0,
-                (limits['daily'] as num?)?.toInt() ?? 0,
-              ),
+              text: AppLocalizations.of(
+                context,
+              ).label_ads_limits(hourlyLimit, dailyLimit),
               textStyle: getTextStyle(AppTypo.body14M, AppColors.grey600),
             ),
           if (nextAvailableTime != null) ...[
@@ -392,8 +536,9 @@ abstract class AdPlatform {
       '작업을 완료할 수 없습니다',
     ];
 
-    return nonReportableKeywords
-        .any((keyword) => lowercaseMessage.contains(keyword));
+    return nonReportableKeywords.any(
+      (keyword) => lowercaseMessage.contains(keyword),
+    );
   }
 
   // No Fill 에러 시 표시할 간단한 다이얼로그

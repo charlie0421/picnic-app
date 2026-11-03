@@ -57,10 +57,13 @@ class _VoteHistoryHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Text(
-          formatLocalDateTime(item.createdAt, format: 'yyyy.MM.dd HH:mm:ss'),
-          style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+        Flexible(
+          child: Text(
+            formatLocalDateTime(item.createdAt, format: 'yyyy.MM.dd HH:mm:ss'),
+            style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+          ),
         ),
+        const SizedBox(width: 8),
         if (isPartnership)
           Image.asset(
             'assets/icons/store/${item.vote.partner}.png',
@@ -181,57 +184,46 @@ class _VoteUsage extends StatelessWidget {
     }
 
     final numberStyle = getTextStyle(AppTypo.body14B, AppColors.grey900);
-    final List<Widget> children = [];
-
-    // Star candy part
-    if (starUsage > 0) {
-      children.add(_buildStarIcon(context, isPartnership));
-      children.add(SizedBox(width: 2.w));
-      children.add(Text(formatNumberWithComma(starUsage), style: numberStyle));
-    }
-
-    // Bonus candy part
-    if (bonusUsage > 0) {
-      if (starUsage > 0) {
-        children.add(SizedBox(width: 8.w));
-      }
-
-      // Wrap bonus icon in a fixed-size container to ensure alignment
-      children.add(
-        SizedBox(
-          width: 36.0,
-          height: 36.0,
-          child: Center(
-            child: Image.asset(
-              'assets/icons/store/bonus.png',
-              package: 'picnic_lib',
-              width: 20,
-              height: 20,
+    Widget usage(Widget icon, int amount) => Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        icon,
+        SizedBox(width: 2.w),
+        Flexible(
+          child: Text(formatNumberWithComma(amount), style: numberStyle),
+        ),
+      ],
+    );
+    final children = [
+      if (starUsage > 0)
+        usage(_buildStarIcon(context, isPartnership), starUsage),
+      if (bonusUsage > 0)
+        usage(
+          SizedBox(
+            width: 36,
+            height: 36,
+            child: Center(
+              child: Image.asset(
+                'assets/icons/store/bonus.png',
+                package: 'picnic_lib',
+                width: 20,
+                height: 20,
+              ),
             ),
           ),
+          bonusUsage,
         ),
-      );
-      children.add(SizedBox(width: 2.w));
-      children.add(Text(formatNumberWithComma(bonusUsage), style: numberStyle));
-    }
-
-    if (cottonUsage > 0) {
-      if (starUsage > 0 || bonusUsage > 0) {
-        children.add(SizedBox(width: 8.w));
-      }
-      children.add(
-        Image.asset(
-          'assets/icons/store/currency_cotton_candy.png',
-          package: 'picnic_lib',
-          width: 36,
-          height: 36,
+      if (cottonUsage > 0)
+        usage(
+          Image.asset(
+            'assets/icons/store/currency_cotton_candy.png',
+            package: 'picnic_lib',
+            width: 36,
+            height: 36,
+          ),
+          cottonUsage,
         ),
-      );
-      children.add(SizedBox(width: 2.w));
-      children.add(
-        Text(formatNumberWithComma(cottonUsage), style: numberStyle),
-      );
-    }
+    ];
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
@@ -239,9 +231,10 @@ class _VoteUsage extends StatelessWidget {
         color: AppColors.grey100.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(30.r),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      child: Wrap(
+        spacing: 8.w,
+        runSpacing: 8.h,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: children,
       ),
     );

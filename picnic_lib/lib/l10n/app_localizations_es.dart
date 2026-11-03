@@ -386,6 +386,16 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'Has alcanzado el límite por hora ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'Has alcanzado el límite diario ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'No se pudo cargar anuncio. Por favor intente de nuevo.';
 
@@ -931,7 +941,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reward => 'Recompensas';
 
   @override
-  String get save => 'Ahorrar';
+  String get save => 'Guardar';
 
   @override
   String get seconds => 'artículos de segunda clase';
@@ -1055,7 +1065,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!';
+      '¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos!';
 
   @override
   String get cancel => 'Cancelar';
@@ -1305,6 +1315,10 @@ class AppLocalizationsEs extends AppLocalizations {
       'Aún no hemos confirmado tu pago. Es posible que no hayas completado el pago en la pantalla de pago de la tienda.\nSi ya pagaste, tus Star Candy se acreditarán automáticamente cuando termine el procesamiento; por favor, no vuelvas a pagar.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Tu pago aún no se ha completado. Si elegiste un método de pago lento, como efectivo o transferencia bancaria, termina de pagar en la tienda o el banco.\nTus Star Candy se acreditarán automáticamente cuando se confirme el pago. Por favor, no vuelvas a pagar.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Próximo';
 
   @override
@@ -1491,6 +1505,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get withdrawal_success => 'El Unfrenscribe se procesó con éxito.';
+
+  @override
+  String get withdrawal_failed =>
+      'No se pudo procesar la baja. Vuelve a intentarlo en unos momentos.';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1936,6 +1954,11 @@ class AppLocalizationsEs extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Recompensa base + bono extra';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'Bono de $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Verificando la promoción';
 
   @override
@@ -1945,6 +1968,56 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       'La autenticación tardó más de lo esperado, pero la compra se completó correctamente.';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Bono del evento +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Recompensa base';
+
+  @override
+  String get purchase_reward_base_short => 'Base';
+
+  @override
+  String get purchase_reward_event_short => 'Evento';
+
+  @override
+  String get purchase_reward_product_bonus => 'Bonificación base';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bono del evento';
+
+  @override
+  String get purchase_reward_expected_total => 'Total estimado';
+
+  @override
+  String get purchase_reward_total_short => 'Total';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'Saldo actual $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'Previsto tras la compra $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Es una estimación. El servidor confirma la cantidad final cuando se completa el pago.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Total recibido $amount';
+  }
 
   @override
   String get ad_reward_pending => 'Verificando tu recompensa';
@@ -1969,6 +2042,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'Saldo actual $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'Nuevo saldo $amount';
   }
 
   @override
@@ -2048,4 +2126,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.';
+
+  @override
+  String get profile_photo_change => 'Cambiar foto de perfil';
 }

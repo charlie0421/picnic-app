@@ -384,6 +384,16 @@ class AppLocalizationsMy extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'တစ်နာရီအကန့်အသတ် ပြည့်သွားပါပြီ ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'တစ်နေ့အကန့်အသတ် ပြည့်သွားပါပြီ ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ';
 
@@ -431,7 +441,7 @@ class AppLocalizationsMy extends AppLocalizations {
   String get label_button_view_policy => 'မူဝါဒကြည့်ပါ';
 
   @override
-  String get label_button_vote => 'မဲပေးပဲှ';
+  String get label_button_vote => 'မဲပေး';
 
   @override
   String get label_celeb_gallery => 'အနုပညာရှင်ပြခန်း';
@@ -927,13 +937,13 @@ class AppLocalizationsMy extends AppLocalizations {
   String get reward => 'ဆုလာဘ်';
 
   @override
-  String get save => 'ကယ်ဆယ်';
+  String get save => 'Save';
 
   @override
   String get seconds => 'စက္ကန့်';
 
   @override
-  String get share => 'ခဲှဝေ';
+  String get share => 'Share';
 
   @override
   String get text_community_board_search => 'အနုပညာရှင်ဘုတ်ရှာဖွေခြင်း';
@@ -1299,6 +1309,10 @@ class AppLocalizationsMy extends AppLocalizations {
       'သင့်ငွေပေးချေမှုကို အတည်ပြုနိုင်ခြင်း မရှိသေးပါ။ စတိုး၏ ငွေပေးချေမှုစာမျက်နှာတွင် ငွေပေးချေမှု မပြီးဆုံးသေးခြင်း ဖြစ်နိုင်ပါသည်။\nငွေပေးချေပြီးဖြစ်ပါက လုပ်ဆောင်မှုပြီးဆုံးသည်နှင့် ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးမည်ဖြစ်၍ ထပ်မံ ငွေမပေးချေပါနှင့်။';
 
   @override
+  String get purchase_payment_pending_message =>
+      'သင့်ငွေပေးချေမှု မပြီးဆုံးသေးပါ။ ငွေသားဖြင့်ပေးချေခြင်း သို့မဟုတ် ဘဏ်လွှဲပြောင်းခြင်းကဲ့သို့ အချိန်ကြာသည့် နည်းလမ်းကို ရွေးချယ်ထားပါက ဆိုင် သို့မဟုတ် ဘဏ်တွင် ငွေပေးချေမှုကို ပြီးမြောက်အောင် လုပ်ဆောင်ပါ။\nငွေပေးချေမှု အောင်မြင်ပါက ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးမည်ဖြစ်၍ ထပ်မံ ငွေမပေးချေပါနှင့်။';
+
+  @override
   String get label_tabbar_vote_upcoming => 'လာမည့်';
 
   @override
@@ -1487,6 +1501,10 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။';
+
+  @override
+  String get withdrawal_failed =>
+      'အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ ခဏအကြာတွင် ထပ်မံကြိုးစားပါ။';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1928,6 +1946,11 @@ class AppLocalizationsMy extends AppLocalizations {
   String get candy_boost_extra_bonus => 'အခြေခံဆု + ထပ်ဆောင်းဘောနပ်';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'ဘောနပ် $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်';
 
   @override
@@ -1937,6 +1960,56 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       'အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'အစီအစဉ် ဘောနပ်စ် +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'အခြေခံဆုလာဘ်';
+
+  @override
+  String get purchase_reward_base_short => 'အခြေခံ';
+
+  @override
+  String get purchase_reward_event_short => 'အီဗင့်';
+
+  @override
+  String get purchase_reward_product_bonus => 'အခြေခံ ဘောနပ်စ်';
+
+  @override
+  String get purchase_reward_event_bonus => 'အီဗင့် ဘောနပ်စ်';
+
+  @override
+  String get purchase_reward_expected_total => 'ခန့်မှန်း စုစုပေါင်း';
+
+  @override
+  String get purchase_reward_total_short => 'စုစုပေါင်း';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'လက်ရှိလက်ကျန် $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'ဝယ်ယူပြီး ခန့်မှန်း $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'ခန့်မှန်းအရေအတွက်ဖြစ်ပါသည်။ နောက်ဆုံးအရေအတွက်ကို ငွေပေးချေမှုပြီးဆုံးချိန်တွင် ဆာဗာက အတည်ပြုပါမည်။';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'စုစုပေါင်း $amount ရရှိ';
+  }
 
   @override
   String get ad_reward_pending => 'သင့်ဆုကို စစ်ဆေးနေပါသည်';
@@ -1961,6 +2034,11 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'လက်ရှိလက်ကျန် $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'လက်ကျန်အသစ် $amount';
   }
 
   @override
@@ -2040,4 +2118,11 @@ class AppLocalizationsMy extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '၁–၁၄ ရက်အတွင်း ရရှိသောပမာဏသည် နောက်လ ၁၅ ရက်တွင်၊ ၁၅ ရက်မှ လကုန်အတွင်း ရရှိသောပမာဏသည် နောက်တစ်လကျော် ၁၅ ရက် 00:00 (KST) တွင် သက်တမ်းကုန်မည်။';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'ဤစက်တွင် ယခုအကောင့်ဖြင့် ကြော်ငြာကြည့်ရှုခြင်းကို ယာယီကန့်သတ်ထားပါသည်။';
+
+  @override
+  String get profile_photo_change => 'ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်';
 }

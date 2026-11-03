@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>테스트 보완 후속 재검토 패키지</title><style>body{font:16px/1.65 system-ui,sans-serif;max-width:1150px;margin:40px auto;padding:0 24px}pre,code{background:#f3f5f7;white-space:pre-wrap;overflow-wrap:anywhere}pre{padding:18px}td,th{border:1px solid #ccc;padding:10px}table{border-collapse:collapse}</style></head><body>
+<h1>후속 재검토: 기존 지적 3건 + fix diff만</h1><p>앱 HEAD 5088edc5889fdb489a58b05bffd70330b5d8aedf / 서버 HEAD 7d8f47d6b07da9ee017614ed8d781053a72b6464 그대로, 모든 차이는 미커밋. 이전 리뷰가 본 바이트와 현재 파일 사이의 diff를 아래 제공한다. 구현자 보고서·자기평가는 포함하지 않았다.</p>
+<h2>이전 finding 및 유지 조건</h2><ol><li>중요: lineage의 current.length 및 HEAD later 파일 존재 가정, manifest의 HEAD pinned file 존재 및 drifted &gt; 0 가정은 정상 삭제·되돌림 시 거짓 실패. 고정 post-rollout 및 합성 drift/absence 반례로 보완할 것.</li><li>경미: 앱 harness는 controller만 자동 정리해 사전 단언 실패 시 AdService dispose 누락. 서비스 정리를 보장할 것.</li><li>경미: makeClone이 임시 shared clone을 전혀 제거하지 않음. 자신이 만든 정확한 root만 종료 시 정리할 것.</li></ol><p>현재 manifest와 function allowlist 바이트 고정 단언은 승인 범위의 release artifact 계약이므로 유지해야 한다. 일반 소스의 HEAD drift와 다르며, 이를 삭제하거나 production guard/verifier/배포 pin을 수정하는 것은 이번 보완 범위 밖이다. 소유 파일: 앱 ad_service_test.dart 1개, 서버 두 test와 historical helper 3개. analytics 테스트는 1차 승인 이후 변경 없음.</p>
+<h2>검증 범위</h2><p>앱 집중 29 PASS(추가 harness test RED는 28 PASS/1 FAIL, pangle.isDisposed 실제 false), 분석 29 items No issues. 정상 control + 기존 결함 5종 재검증 모두 예상 결과. 원본 앱 27 dirty file hash 그대로.</p>
+<p>서버 OS deny network*, outbound EPERM + 환경 allowlist에서 22 safety files 276 PASS / 31 DB SKIP / 0 FAIL. test-owned hotfix 임시 root 잔존 0개. HTTP mock 16 PASS는 앞선 별도 network-none 컨테이너 결과 재사용(파일 수정 없음), 23파일 합계 292 PASS /31 DB SKIP. SQL·Edge·실DB를 실행했다는 의미가 아니다.</p>
+<p>격리 shared clone HEAD=ROLLOUT(6cec1119...) + 현재 guard/verifier/test source만 복사한 비교 실험: 수정 전 24 PASS/2 FAIL(HEAD later path absent, all pins equal로 drifted &gt;0 실패) → 수정 후 29 PASS/0 FAIL. 실제 user worktree HEAD는 변경하지 않았다.</p>
+<p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-sAD1GE/results.json">앱 정상 control + 결함 5종 원본</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-BH6eez/result.json">HTTP mock 결과</a></p>
+<h2>조정자 원본 결과 JSON</h2>
+<h3>flutter-release-diagnostics-KoQl7S</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-KoQl7S/output.log">원본 로그</a></p><pre>{
+  "mode": "release-diagnostics",
+  "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+  "args": [
+    "test",
+    "--no-pub",
+    "test/core/analytics/analytics_outbox_currency_test.dart",
+    "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+    "--reporter",
+    "expanded"
+  ],
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-KoQl7S",
+  "startedAt": "2026-09-08T11:17:12.202Z",
+  "finishedAt": "2026-09-08T11:17:16.797Z",
+  "exit": 1,
+  "signal": null
+}</pre>
+<h3>flutter-release-diagnostics-L1sNcX</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-L1sNcX/output.log">원본 로그</a></p><pre>{
+  "mode": "release-diagnostics",
+  "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+  "args": [
+    "test",
+    "--no-pub",
+    "test/core/analytics/analytics_outbox_currency_test.dart",
+    "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+    "--reporter",
+    "expanded"
+  ],
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-L1sNcX",
+  "startedAt": "2026-09-08T11:17:59.378Z",
+  "finishedAt": "2026-09-08T11:18:03.337Z",
+  "exit": 0,
+  "signal": null
+}</pre>
+<h3>flutter-analyze-changed-v9sjVf</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-v9sjVf/output.log">원본 로그</a></p><pre>{
+  "mode": "analyze-changed",
+  "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+  "args": [
+    "analyze",
+    "--no-pub",
+    "lib/presentation/common/common_banner.dart",
+    "lib/presentation/providers/banner_list_provider.dart",
+    "lib/presentation/providers/promotion_badge_resolver_provider.dart",
+    "lib/presentation/providers/promotion_campaign_provider.dart",
+    "lib/presentation/providers/promotion_campaign_v2_provider.dart",
+    "lib/presentation/providers/wallet_provider.dart",
+    "lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart",
+    "lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart",
+    "lib/presentation/widgets/vote/store/purchase/purchase_star_candy_state.dart",
+    "test/core/analytics/analytics_outbox_currency_test.dart",
+    "test/presentation/common/common_banner_render_test.dart",
+    "test/presentation/providers/banner_list_provider_test.dart",
+    "test/presentation/providers/promotion_badge_resolver_provider_test.dart",
+    "test/presentation/providers/wallet_provider_test.dart",
+    "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+    "test/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_after_leaving_store_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_campaign_attempt_clock_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_campaign_attempt_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_cancelled_attempt_reconcile_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_late_settlement_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_processor_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_settlement_step_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_stale_attempt_reconcile_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_star_candy_state_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_terminal_failure_test.dart",
+    "test/presentation/widgets/vote/store/purchase/purchase_timeout_notice_test.dart",
+    "test/presentation/widgets/vote/store/purchase/recording_receipt_dialogs.dart",
+    "test/presentation/providers/session_isolation_provider_test.dart"
+  ],
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-v9sjVf",
+  "startedAt": "2026-09-08T11:18:00.605Z",
+  "finishedAt": "2026-09-08T11:18:04.664Z",
+  "exit": 0,
+  "signal": null
+}</pre>
+<h3>safety-head-reversion-vltSSF</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF/output.log">원본 로그</a></p><pre>{
+  "finishedAt": "2026-09-08T11:17:26.817Z",
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF",
+  "repo": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF/repo",
+  "head": "6cec1119ba9a01f29960f1067aea0054f9c3837e",
+  "networkProbe": "EPERM",
+  "args": [
+    "--test",
+    "scripts/safety/assert-hotfix-lineage.test.mjs",
+    "scripts/safety/google-pending-hotfix-manifest.test.mjs"
+  ],
+  "exit": 1,
+  "summary": [
+    "      at Test.run (node:internal/test_runner/test:1325:25)",
+    "      at Test.processPendingSubtests (node:internal/test_runner/test:911:18)",
+    "      at Test.postRun (node:internal/test_runner/test:1465:19)",
+    "      at Test.run (node:internal/test_runner/test:1390:12)",
+    "      at async Test.processPendingSubtests (node:internal/test_runner/test:911:7) {",
+    "    generatedMessage: false,",
+    "    code: 'ERR_ASSERTION',",
+    "    actual: false,",
+    "    expected: true,",
+    "    operator: '==',",
+    "    diff: 'simple'",
+    "  }"
+  ]
+}</pre>
+<h3>safety-head-reversion-gdALxM</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-gdALxM/output.log">원본 로그</a></p><pre>{
+  "finishedAt": "2026-09-08T11:31:09.497Z",
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-gdALxM",
+  "repo": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-gdALxM/repo",
+  "head": "6cec1119ba9a01f29960f1067aea0054f9c3837e",
+  "networkProbe": "EPERM",
+  "args": [
+    "--test",
+    "scripts/safety/assert-hotfix-lineage.test.mjs",
+    "scripts/safety/google-pending-hotfix-manifest.test.mjs"
+  ],
+  "exit": 0,
+  "summary": [
+    "✔ hotfix manifest verifier rejects widened function scope, non-ready status, automated rollback, and schema drift (4468.804416ms)",
+    "✔ hotfix manifest verifier refuses SYNTHETIC drift on every single-file pin, and accepts the tree again once the pinned bytes are back (2816.744208ms)",
+    "✔ hotfix manifest verifier refuses a pinned path carrying the bytes a LATER PINNED COMMIT gave it: real main work does not re-pin this release (301.364167ms)",
+    "✔ hotfix manifest verifier fails closed when a pinned path is ABSENT from the deploy tree, naming it (2628.815875ms)",
+    "ℹ tests 29",
+    "ℹ suites 0",
+    "ℹ pass 29",
+    "ℹ fail 0",
+    "ℹ cancelled 0",
+    "ℹ skipped 0",
+    "ℹ todo 0",
+    "ℹ duration_ms 51057.581916"
+  ]
+}</pre>
+<h3>safety-isolated-offline-UT31ah</h3><p><a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-UT31ah/output.log">원본 로그</a></p><pre>{
+  "mode": "offline",
+  "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety",
+  "args": [
+    "--test",
+    "scripts/safety/assert-hotfix-lineage.test.mjs",
+    "scripts/safety/assert-hotfix-release.test.mjs",
+    "scripts/safety/assert-hotfix-toctou-acceptance.test.mjs",
+    "scripts/safety/assert-production-read.test.mjs",
+    "scripts/safety/assert-production-release.test.mjs",
+    "scripts/safety/assert-wallet-target.test.mjs",
+    "scripts/safety/google-pending-apply-sql.test.mjs",
+    "scripts/safety/google-pending-hotfix-manifest.test.mjs",
+    "scripts/safety/google-pending-hotfix-workflow.test.mjs",
+    "scripts/safety/google-pending-readonly-sql.test.mjs",
+    "scripts/safety/google-pending-rehearsal-restore-wrapper.test.mjs",
+    "scripts/safety/google-pending-rehearsal-restore.test.mjs",
+    "scripts/safety/google-pending-rehearsal-sql.test.mjs",
+    "scripts/safety/google-pending-rehearsal-steps.test.mjs",
+    "scripts/safety/google-pending-statements-reproduction.test.mjs",
+    "scripts/safety/promotion-v2-release-safety.test.mjs",
+    "scripts/safety/wallet-contract-fixture-shapes.test.mjs",
+    "scripts/safety/wallet-contract-v2-fixtures.test.mjs",
+    "scripts/safety/wallet-contract-verifier.test.mjs",
+    "scripts/safety/wallet-migration-lock-safety.test.mjs",
+    "scripts/safety/wallet-migration-order.test.mjs",
+    "scripts/safety/wallet-release-artifacts.test.mjs"
+  ],
+  "files": 22,
+  "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-UT31ah",
+  "startedAt": "2026-09-08T11:30:16.965Z",
+  "finishedAt": "2026-09-08T11:31:08.494Z",
+  "exit": 0,
+  "signal": null,
+  "residualHotfixFixtureRoots": [],
+  "isolation": {
+    "policy": "(version 1)(allow default)(deny network*)",
+    "networkProbe": "EPERM",
+    "ambientCredentialsExcluded": true,
+    "dbTarget": "127.0.0.1:1"
+  }
+}</pre>
+<h2>Fix diff — 앱</h2><pre>--- /tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/control/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart	2026-09-08 19:55:03
++++ /Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart	2026-09-08 20:17:59
+@@ -4,6 +4,7 @@
+ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
+ import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
++import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
+ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
+
+ import '../../../../../helpers/ignore_image_errors.dart';
+@@ -78,17 +79,34 @@
+     );
+     // 본문이 중간에 실패해도 컨트롤러는 반드시 해제한다.
+     addTearDown(controller.dispose);
++    final service = AdService(
++      ref: capturedRef,
++      context: capturedContext,
++      animationController: controller,
++    );
++    // 사전 단언 실패 시에도 서비스부터 정리한 뒤 컨트롤러를 해제한다.
++    addTearDown(service.dispose);
+     return (
+       ref: capturedRef,
+       context: capturedContext,
+-      service: AdService(
+-        ref: capturedRef,
+-        context: capturedContext,
+-        animationController: controller,
+-      ),
++      service: service,
+     );
+   }
+
++  testWidgets('harness 는 본문에서 dispose 하지 않아도 플랫폼을 정리한다', (tester) async {
++    final platforms = &lt;AdPlatform&gt;[];
++    // harness 정리보다 먼저 등록해 정리 후 상태를 확인한다(tearDown은 역순).
++    addTearDown(() {
++      expect(platforms, isNotEmpty);
++      for (final platform in platforms) {
++        expect(platform.isDisposed, isTrue, reason: platform.id);
++      }
++    });
++    final harness = await pumpHarness(tester);
++    platforms.add(harness.service.getPlatform('pangle')!);
++    // 명시적 dispose 없이 본문을 끝내도 실패 경로와 같은 자동 정리가 필요하다.
++  });
++
+   testWidgets('dispose 는 모든 플랫폼을 dispose 한다', (tester) async {
+     // 프로덕션 결함 (PICNIC-APP-5G9): dispose 가 _platforms.clear() 만 하고
+     // 각 플랫폼의 dispose() 를 호출하지 않아, PanglePlatform 의 pollingSignals
+</pre>
+<h2>Fix diff — 서버</h2><pre>--- /tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF/repo/scripts/safety/assert-hotfix-lineage.test.mjs	2026-09-08 20:16:46
++++ /Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/assert-hotfix-lineage.test.mjs	2026-09-08 20:30:16
+@@ -47,7 +47,7 @@
+ import path from "node:path";
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath } from "node:url";
+-import { ROLLOUT_SHA as ROLLOUT, changedPaths, git, gitBlob, gitEnv, materialize } from "./historical-rollout-tree.mjs";
++import { POST_ROLLOUT_SHA as POST_ROLLOUT, ROLLOUT_SHA as ROLLOUT, changedPaths, git, gitBlob, gitEnv, materialize } from "./historical-rollout-tree.mjs";
+
+ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+ const guard = path.join(root, "scripts/safety/assert-hotfix-lineage.mjs");
+@@ -67,11 +67,18 @@
+ // same bytes.
+ const rolloutManifest = () =&gt; JSON.parse(gitBlob(root, `${ROLLOUT}:${MANIFEST}`).toString("utf8"));
+
+-// One shared clone per test run: cheap (object store is shared), isolated
++// One shared clone per fixture: cheap (object store is shared), isolated
+ // (commits in the clone never touch this repository).  Checked out at the
+ // BASELINE by default - the real main commit the rollout was prepared on.
+-function makeClone(at = BASELINE) {
++//
++// Each call registers a teardown for THE ONE directory it just created, so a
++// run cleans up after itself even when an assertion throws (these tests build
++// ~56 clones per run, and none of them used to be removed).  Nothing here
++// scans or globs the temporary directory: a path is only ever removed if this
++// call is the one that made it.
++function makeClone(t, at = BASELINE) {
+   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hotfix-lineage-"));
++  t.after(() =&gt; { fs.rmSync(dir, { recursive: true, force: true }); });
+   git(root, "clone", "--shared", "--quiet", root, path.join(dir, "repo"));
+   const repo = path.join(dir, "repo");
+   git(repo, "checkout", "--quiet", "-b", "probe", at);
+@@ -95,23 +102,15 @@
+ function overlay(repo, files) {
+   materialize(root, ROLLOUT, files, repo);
+ }
+-// The CURRENT checkout's post-baseline state - committed on this branch
+-// (baseline..HEAD) and still dirty in the working tree (modified or
+-// untracked, ignore rules respected).  Every fixture used to be built this
+-// way; it now exists only to prove the guard REFUSES it.
+-function currentCheckoutFiles() {
+-  const committed = git(root, "diff", "--name-only", "--no-renames", BASELINE, "HEAD").split("\n").filter(Boolean);
+-  const dirty = git(root, "status", "--porcelain", "--untracked-files=all", "--no-renames").split("\n").filter(Boolean)
+-    .filter((line) =&gt; !/^.D|^D/.test(line.slice(0, 2))).map((line) =&gt; line.slice(3));
+-  return [...new Set([...committed, ...dirty])].filter((rel) =&gt; fs.existsSync(path.join(root, rel)));
++// Main as of POST_ROLLOUT: the same derivation as rolloutFiles(), one pinned
++// commit later.  Used only to prove the guard REFUSES it.  This is where the
++// fixtures used to read `git diff BASELINE HEAD` plus `git status --porcelain`
++// instead - which made the verdict depend on where HEAD happens to sit and on
++// whatever was uncommitted at the time, so a later main that deleted or
++// reverted those files would have failed the test for no reason.
++function postRolloutFiles() {
++  return changedPaths(root, BASELINE, POST_ROLLOUT);
+ }
+-function overlayFromCheckout(repo, files) {
+-  for (const rel of files) {
+-    const target = path.join(repo, rel);
+-    fs.mkdirSync(path.dirname(target), { recursive: true });
+-    fs.copyFileSync(path.join(root, rel), target);
+-  }
+-}
+ function commitAll(repo, message) {
+   git(repo, "add", "-A");
+   git(repo, "commit", "--quiet", "--allow-empty", "-m", message);
+@@ -168,8 +167,8 @@
+   assert.equal(sha256(gitBlob(root, `${ROLLOUT}:${MIGRATION}`)), manifest.migration.sha256, "the deploy tree carries the hardened migration");
+ });
+
+-test("lineage guard accepts the ROLLOUT PREPARATION COMMIT reconstructed on top of the pinned baseline and prints no SHAs", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard accepts the ROLLOUT PREPARATION COMMIT reconstructed on top of the pinned baseline and prints no SHAs", (t) =&gt; {
++  const repo = makeClone(t);
+   const files = rolloutFiles();
+   // The fixture must be the real historical change set, and it must include
+   // the files the manifest lists (otherwise the overlay would be testing
+@@ -198,8 +197,8 @@
+   assert.doesNotMatch(r.stdout + r.stderr, /[0-9a-f]{40}/, "guard output must not echo SHAs");
+ });
+
+-test("lineage guard rejects a rollout commit whose deno.lock never left the ignore list (absent from the deploy tree)", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard rejects a rollout commit whose deno.lock never left the ignore list (absent from the deploy tree)", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles().filter((rel) =&gt; rel !== ".gitignore"));
+   commitAll(repo, "rollout without un-ignoring the lock");
+   assert.ok(!git(repo, "ls-tree", "-r", "--name-only", "HEAD").split("\n").includes("deno.lock"), "fixture: the lock is still ignored and absent");
+@@ -208,8 +207,8 @@
+   assert.match(r.stderr, /lock file deno\.lock is missing from the deploy commit/);
+ });
+
+-test("lineage guard rejects a deploy tree whose tracked deno.lock differs from the pinned digest", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard rejects a deploy tree whose tracked deno.lock differs from the pinned digest", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   fs.appendFileSync(path.join(repo, "deno.lock"), "\n");
+   commitAll(repo, "lock drift");
+@@ -218,8 +217,8 @@
+   assert.match(r.stderr, /lock file deno\.lock does not hash/);
+ });
+
+-test("lineage guard rejects the rollout stacked directly on the reviewed commit (the pre-#117 fixture the old guard accepted)", () =&gt; {
+-  const repo = makeClone(REVIEWED);
++test("lineage guard rejects the rollout stacked directly on the reviewed commit (the pre-#117 fixture the old guard accepted)", (t) =&gt; {
++  const repo = makeClone(t, REVIEWED);
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "stale base");
+   const r = run(repo);
+@@ -227,9 +226,9 @@
+   assert.match(r.stderr, /does not descend from the baseline/);
+ });
+
+-test("lineage guard rejects the rollout stacked on the intermediate #117..#120 commits (baseline not reached)", () =&gt; {
++test("lineage guard rejects the rollout stacked on the intermediate #117..#120 commits (baseline not reached)", (t) =&gt; {
+   for (const at of [INTERMEDIATE_117, INTERMEDIATE_118, INTERMEDIATE_119, INTERMEDIATE_120]) {
+-    const repo = makeClone(at);
++    const repo = makeClone(t, at);
+     overlay(repo, rolloutFiles());
+     commitAll(repo, "half-way base");
+     const r = run(repo);
+@@ -238,15 +237,15 @@
+   }
+ });
+
+-test("lineage guard rejects a deploy commit that is the baseline, the reviewed, or an intermediate commit itself (no rollout preparation)", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard rejects a deploy commit that is the baseline, the reviewed, or an intermediate commit itself (no rollout preparation)", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "prepare");
+   for (const sha of [BASELINE, INTERMEDIATE_120, INTERMEDIATE_119, INTERMEDIATE_118, INTERMEDIATE_117, REVIEWED]) assert.notEqual(run(repo, { RELEASE_INPUT_SHA: sha }).status, 0, sha);
+ });
+
+-test("lineage guard requires the manifest bytes to hash to the workflow input", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard requires the manifest bytes to hash to the workflow input", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "prepare");
+   assert.notEqual(run(repo, { RELEASE_INPUT_MANIFEST_HASH: "b".repeat(64) }).status, 0, "wrong input hash");
+@@ -254,7 +253,7 @@
+   assert.notEqual(run(repo, { RELEASE_INPUT_MANIFEST_HASH: "not-a-digest" }).status, 0, "malformed input hash");
+ });
+
+-test("lineage guard pins the reviewed, intermediate, and baseline identities as constants: a retargeted manifest fails even with a matching input hash", () =&gt; {
++test("lineage guard pins the reviewed, intermediate, and baseline identities as constants: a retargeted manifest fails even with a matching input hash", (t) =&gt; {
+   for (const [name, mutate] of [
+     ["reviewed sha retargeted", (m) =&gt; { m.reviewed_change.sha = PRE_HOTFIX; }],
+     ["reviewed pull request retargeted", (m) =&gt; { m.reviewed_change.pull_request = 116; }],
+@@ -282,7 +281,7 @@
+     ["lock_files removed", (m) =&gt; { delete m.lock_files; }],
+     ["lock_files digest drifted", (m) =&gt; { m.lock_files[0].sha256 = "9".repeat(64); }],
+   ]) {
+-    const repo = makeClone();
++    const repo = makeClone(t);
+     overlay(repo, rolloutFiles());
+     editManifest(repo, mutate);
+     commitAll(repo, name);
+@@ -294,8 +293,8 @@
+   }
+ });
+
+-test("lineage guard refuses a deploy tree that silently kept the #121 (un-hardened) hotfix migration: the overlap is pinned at the deploy SHA to the rollout digest, whether or not the path appears in the post-baseline diff (review 12 Important #2)", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard refuses a deploy tree that silently kept the #121 (un-hardened) hotfix migration: the overlap is pinned at the deploy SHA to the rollout digest, whether or not the path appears in the post-baseline diff (review 12 Important #2)", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles().filter((rel) =&gt; rel !== MIGRATION));
+   commitAll(repo, "rollout without the hardened migration");
+   assert.equal(git(repo, "diff", "--name-only", BASELINE, "HEAD").split("\n").includes(MIGRATION), false, "fixture: the migration did not change after the baseline");
+@@ -303,7 +302,7 @@
+   assert.notEqual(r.status, 0);
+   assert.match(r.stderr, /does not hash to the rollout pin at the deploy SHA/);
+
+-  const repo2 = makeClone();
++  const repo2 = makeClone(t);
+   overlay(repo2, rolloutFiles());
+   fs.appendFileSync(path.join(repo2, MIGRATION), "\n-- re-edited after the baseline\n");
+   commitAll(repo2, "rollout with a re-edited migration");
+@@ -312,15 +311,15 @@
+   assert.match(r2.stderr, /does not hash to the rollout pin at the deploy SHA|does not hash to the manifest digest/);
+ });
+
+-test("lineage guard verifies byte-pinned files against the manifest digests", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard verifies byte-pinned files against the manifest digests", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   const migration = rolloutManifest().migration.file;
+   fs.appendFileSync(path.join(repo, migration), "\n-- drift\n");
+   commitAll(repo, "migration drift");
+   assert.notEqual(run(repo).status, 0, "migration bytes must hash to the manifest digest");
+
+-  const repo2 = makeClone();
++  const repo2 = makeClone(t);
+   overlay(repo2, rolloutFiles());
+   const testSource = rolloutManifest().test_sources[0].path;
+   fs.appendFileSync(path.join(repo2, testSource), "\n-- drift\n");
+@@ -328,7 +327,7 @@
+   assert.notEqual(run(repo2).status, 0, "SQL test bytes must hash to the manifest digest");
+ });
+
+-test("lineage guard rejects post-baseline edits outside the allowlist, including the intermediate-change files, function sources, and other migrations", () =&gt; {
++test("lineage guard rejects post-baseline edits outside the allowlist, including the intermediate-change files, function sources, and other migrations", (t) =&gt; {
+   for (const [name, mutate] of [
+     ["the deployed worker touched again after the baseline", (repo) =&gt; fs.appendFileSync(path.join(repo, "supabase/functions/wallet-operation-worker/index.ts"), "\n// drift\n")],
+     ["the shared database.types touched again after the baseline", (repo) =&gt; fs.appendFileSync(path.join(repo, "supabase/functions/_shared/database.types.ts"), "\n// drift\n")],
+@@ -345,7 +344,7 @@
+     ["deleted reviewed file", (repo) =&gt; fs.rmSync(path.join(repo, "README.md"))],
+     ["package manifest", (repo) =&gt; fs.writeFileSync(path.join(repo, "package.json"), "{}\n")],
+   ]) {
+-    const repo = makeClone();
++    const repo = makeClone(t);
+     overlay(repo, rolloutFiles());
+     mutate(repo);
+     commitAll(repo, name);
+@@ -353,8 +352,8 @@
+   }
+ });
+
+-test("lineage guard rejects a deploy SHA that does not descend from the baseline, unknown SHAs, and bad inputs", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard rejects a deploy SHA that does not descend from the baseline, unknown SHAs, and bad inputs", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "prepare");
+   assert.equal(run(repo).status, 0);
+@@ -369,8 +368,8 @@
+   assert.notEqual(run(repo, { HOTFIX_MANIFEST_PATH: "/etc/passwd" }).status, 0, "absolute manifest path");
+ });
+
+-test("lineage guard refuses a checkout whose manifest differs from the deploy commit blob", () =&gt; {
+-  const repo = makeClone();
++test("lineage guard refuses a checkout whose manifest differs from the deploy commit blob", (t) =&gt; {
++  const repo = makeClone(t);
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "prepare");
+   // Dirty the checked-out manifest AFTER committing; supply the dirty bytes'
+@@ -380,12 +379,12 @@
+   assert.notEqual(r.status, 0, "worktree manifest must equal the deploy commit's blob");
+ });
+
+-test("lineage guard rejects a history where the intermediate commits are not exactly the pinned ones (a rewritten #117..#121 with the same PR numbers)", () =&gt; {
++test("lineage guard rejects a history where the intermediate commits are not exactly the pinned ones (a rewritten #117..#121 with the same PR numbers)", (t) =&gt; {
+   // Rebuild #117 and #118 as NEW commits with identical trees on top of the
+   // reviewed commit: same paths, same bytes, different SHAs.  A guard that
+   // allowlisted by PR number or by path would accept this; the constants
+   // must not.
+-  const repo = makeClone(REVIEWED);
++  const repo = makeClone(t, REVIEWED);
+   for (const [sha, message] of [[INTERMEDIATE_117, "rewritten 117"], [INTERMEDIATE_118, "rewritten 118"], [INTERMEDIATE_119, "rewritten 119"], [INTERMEDIATE_120, "rewritten 120"], [BASELINE, "rewritten 121"]]) {
+     git(repo, "checkout", "--quiet", sha, "--", ".");
+     commitAll(repo, message);
+@@ -397,40 +396,65 @@
+   assert.match(r.stderr, /does not descend from the baseline|not exactly the pinned intermediate changes/);
+ });
+
+-// --- HEAD drift is not retroactive approval -------------------------------
+-// The two cases below are the regression this file was repaired for.  They
+-// are the direction the old fixtures got backwards: main has moved on since
+-// the rollout preparation commit, and none of that later work is part of it.
++// --- later main work is not retroactive approval --------------------------
++// The cases below are the regression this file was repaired for: main has
++// moved on since the rollout preparation commit, and none of that later work
++// is part of it.  Both fixtures are taken from POST_ROLLOUT, a PINNED commit,
++// never from HEAD - so a future main that deletes or reverts those files
++// cannot turn these into false failures, and the exact denial each one must
++// produce is knowable in advance.
+
+-test("lineage guard refuses the CURRENT checkout as this rollout's deploy tree: work main merged (or a dirty tree carries) after the rollout is not approved retroactively", () =&gt; {
+-  // Exactly the fixture this file used to build for the ACCEPT case:
+-  // baseline..HEAD plus everything dirty in the working tree.  History only
+-  // grows, so this can never again be the rollout, and the guard must say so
+-  // rather than approve today's main under the rollout's manifest.
+-  const current = currentCheckoutFiles();
+-  assert.ok(current.length &gt; rolloutFiles().length, "fixture: the current checkout carries more than the rollout change set");
+-  const repo = makeClone();
+-  overlayFromCheckout(repo, current);
+-  commitAll(repo, "today's checkout presented as the rollout");
++test("lineage guard refuses main AS OF A LATER PINNED COMMIT as this rollout's deploy tree: the pinned lineage path it re-touched is caught by digest", (t) =&gt; {
++  // The same derivation as the ACCEPT fixture, at a fixed later commit.  POST_ROLLOUT
++  // re-touched supabase/tests/ad_campaign_monthly_stats.test.sql, a #120
++  // lineage path pinned at its BASELINE blob, so the guard fails at the
++  // intermediate-pin gate before it ever reaches the allowlist - and it fails
++  // there for every future main too, because this is a fact about a commit.
++  const files = postRolloutFiles();
++  assert.ok(files.length &gt; rolloutFiles().length, "fixture: the later commit carries more than the rollout change set");
++  const repo = makeClone(t);
++  materialize(root, POST_ROLLOUT, files, repo);
++  commitAll(repo, "later main presented as the rollout");
+   const r = run(repo);
+   assert.notEqual(r.status, 0, r.stdout);
+-  assert.match(r.stderr, /^hotfix lineage denied:/m);
++  assert.match(r.stderr, /intermediate-change file supabase\/tests\/ad_campaign_monthly_stats\.test\.sql does not hash to the manifest digest at the deploy SHA/);
+   assert.doesNotMatch(r.stdout, /hotfix lineage accepted/);
+ });
+
+-test("lineage guard refuses the historical rollout plus ONE unrelated file that landed on main afterwards, and names it", () =&gt; {
+-  // A single later main file, taken at HEAD, dropped into an otherwise exact
+-  // rollout tree.  Every earlier gate passes, so the verdict can only come
+-  // from the post-baseline allowlist - and it must name the intruder.
+-  const later = "scripts/wallet/promotion_v2_preflight.sql";
++test("lineage guard refuses the rollout plus ONE genuine file that landed on main afterwards, and names it", (t) =&gt; {
++  // One real post-rollout migration, taken at POST_ROLLOUT, dropped into an
++  // otherwise exact rollout tree.  It is neither pinned nor a lineage path, so
++  // every earlier gate passes and the verdict can only come from the
++  // post-baseline allowlist - which must name the intruder.  The guard refuses
++  // any allowlist entry starting with supabase/, so this path can never be
++  // allowlisted into acceptance.
++  const later = "supabase/migrations/20260904120000_stats_ad_campaign_monthly_rollup.sql";
+   const files = rolloutFiles();
+   assert.ok(!files.includes(later), "fixture: the extra file is not part of the rollout change set");
+-  const repo = makeClone();
++  assert.ok(postRolloutFiles().includes(later), "fixture: the extra file is genuine later main work");
++  const repo = makeClone(t);
+   overlay(repo, files);
+-  materialize(root, "HEAD", [later], repo);
++  materialize(root, POST_ROLLOUT, [later], repo);
+   commitAll(repo, "rollout plus later main work");
+   const r = run(repo);
+   assert.notEqual(r.status, 0, r.stdout);
+   assert.match(r.stderr, /post-baseline change\(s\) outside the rollout allowlist/);
+   assert.ok(r.stderr.includes(later), r.stderr);
+ });
++
++test("lineage guard refuses a deploy tree that DELETED a byte-pinned file rather than drifting it", (t) =&gt; {
++  // Absence, not drift.  The pinned SQL test exists at the baseline, so
++  // removing it from the deploy tree is a real deletion in BASELINE..deploy:
++  // it enters the post-baseline diff, it is byte-pinned, and it is NOT a
++  // lineage path, so nothing pre-empts the deletion branch of the guard.
++  const testSource = rolloutManifest().test_sources[0].path;
++  assert.notEqual(gitBlob(root, `${BASELINE}:${testSource}`).length, 0, "fixture: the pinned SQL test exists at the baseline");
++  const repo = makeClone(t);
++  overlay(repo, rolloutFiles());
++  fs.rmSync(path.join(repo, testSource));
++  commitAll(repo, "rollout with the pinned SQL test deleted");
++  assert.ok(!git(repo, "ls-tree", "-r", "--name-only", "HEAD").split("\n").includes(testSource), "fixture: the pinned file is absent from the deploy commit");
++  const r = run(repo);
++  assert.notEqual(r.status, 0, r.stdout);
++  assert.match(r.stderr, new RegExp(`byte-pinned file ${testSource.replace(/[.]/g, "\\.")} was deleted or unreadable at the deploy SHA`));
++});
+
+--- /tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF/repo/scripts/safety/google-pending-hotfix-manifest.test.mjs	2026-09-08 20:16:46
++++ /Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/google-pending-hotfix-manifest.test.mjs	2026-09-08 20:30:16
+@@ -33,7 +33,7 @@
+ import path from "node:path";
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath } from "node:url";
+-import { ROLLOUT_SHA as ROLLOUT, gitBlob, materialize } from "./historical-rollout-tree.mjs";
++import { POST_ROLLOUT_SHA as POST_ROLLOUT, ROLLOUT_SHA as ROLLOUT, gitBlob, materialize } from "./historical-rollout-tree.mjs";
+
+ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+ const MANIFEST_REL = "ops/wallet/google-pending-hotfix-manifest.json";
+@@ -62,8 +62,14 @@
+ // A private materialisation of everything the verifier hashes, taken from the
+ // ROLLOUT commit: tampering tests never touch the working tree, and work main
+ // merged after the rollout never enters the deploy tree under test.
+-function stagedRoot() {
++//
++// The teardown removes THE ONE directory this call created, so a failing
++// assertion no longer leaks it (the explicit rmSync at the end of each test
++// stays; rmSync with force:true on an already-removed path is a no-op).
++// Nothing here scans or globs the temporary directory.
++function stagedRoot(t) {
+   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "google-pending-hotfix-"));
++  t.after(() =&gt; { fs.rmSync(dir, { recursive: true, force: true }); });
+   const m = manifest();
+   materialize(root, ROLLOUT, [...new Set([
+     MANIFEST_REL,
+@@ -232,8 +238,8 @@
+   assert.ok(r.database.never.some((s) =&gt; /DEAD/.test(s)));
+ });
+
+-test("hotfix manifest verifier accepts the ROLLOUT PREPARATION tree with the committed manifest's exact bytes and allowlist, without echoing the project ref", () =&gt; {
+-  const dir = stagedRoot();
++test("hotfix manifest verifier accepts the ROLLOUT PREPARATION tree with the committed manifest's exact bytes and allowlist, without echoing the project ref", (t) =&gt; {
++  const dir = stagedRoot(t);
+   const staged = path.join(dir, MANIFEST_REL);
+   // The exact committed bytes, not a re-serialisation: --manifest-sha256 is
+   // the operator-supplied pin, so this is the real GO path.
+@@ -251,8 +257,8 @@
+   fs.rmSync(dir, { recursive: true, force: true });
+ });
+
+-test("hotfix manifest verifier rejects a wrong manifest hash, the pre-hotfix commit, and a drifted function allowlist file", () =&gt; {
+-  const dir = stagedRoot();
++test("hotfix manifest verifier rejects a wrong manifest hash, the pre-hotfix commit, and a drifted function allowlist file", (t) =&gt; {
++  const dir = stagedRoot(t);
+   const staged = path.join(dir, MANIFEST_REL);
+   const stagedFunctions = path.join(dir, FUNCTIONS_REL);
+   // These negatives are only meaningful against a root that otherwise
+@@ -264,6 +270,7 @@
+   assert.notEqual(verifyRoot(dir, ["--commit-sha", PRE_HOTFIX]).status, 0, "deploying the pre-hotfix commit is a rollback, not this rollout");
+   assert.notEqual(verifyRoot(dir, ["--commit-sha", "not-a-sha"]).status, 0);
+   const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "google-pending-functions-"));
++  t.after(() =&gt; { fs.rmSync(scratch, { recursive: true, force: true }); });
+   const drifted = path.join(scratch, "functions.txt");
+   for (const body of ["wallet-provider-event\nwallet-operation-worker\nwallet-alert-dispatcher\n", "wallet-operation-worker\nwallet-provider-event\n", "wallet-provider-event\n", ""]) {
+     fs.writeFileSync(drifted, body);
+@@ -273,37 +280,37 @@
+   fs.rmSync(dir, { recursive: true, force: true });
+ });
+
+-test("hotfix manifest verifier fails closed on tampered function, shared, or migration sources", () =&gt; {
+-  const dir = stagedRoot();
++test("hotfix manifest verifier fails closed on tampered function, shared, or migration sources", (t) =&gt; {
++  const dir = stagedRoot(t);
+   const m = manifest();
+   assert.equal(verifyStaged(dir, m).status, 0, "staged copy must verify before tampering");
+   fs.appendFileSync(path.join(dir, "supabase/functions/wallet-provider-event/index.ts"), "\n// drift\n");
+   assert.notEqual(verifyStaged(dir, m).status, 0, "function source drift");
+   fs.rmSync(dir, { recursive: true, force: true });
+
+-  const dir2 = stagedRoot();
++  const dir2 = stagedRoot(t);
+   fs.appendFileSync(path.join(dir2, "supabase/functions/_shared/wallet/purchase-provider-verifiers.ts"), "\n// drift\n");
+   assert.notEqual(verifyStaged(dir2, m).status, 0, "shared verifier drift");
+   fs.rmSync(dir2, { recursive: true, force: true });
+
+-  const dir3 = stagedRoot();
++  const dir3 = stagedRoot(t);
+   fs.appendFileSync(path.join(dir3, MIGRATION), "\n-- drift\n");
+   assert.notEqual(verifyStaged(dir3, m).status, 0, "migration drift");
+   fs.rmSync(dir3, { recursive: true, force: true });
+
+-  const dir4 = stagedRoot();
++  const dir4 = stagedRoot(t);
+   fs.writeFileSync(path.join(dir4, "supabase/functions/wallet-operation-worker/extra.ts"), "export const x = 1;\n");
+   assert.notEqual(verifyStaged(dir4, m).status, 0, "an extra file inside a pinned function directory");
+   fs.rmSync(dir4, { recursive: true, force: true });
+
+-  const dir5 = stagedRoot();
++  const dir5 = stagedRoot(t);
+   fs.writeFileSync(path.join(dir5, "supabase/migrations/20260831120000_second_copy.sql"), "select 1;\n");
+   assert.notEqual(verifyStaged(dir5, m).status, 0, "two local files with the pinned migration version");
+   fs.rmSync(dir5, { recursive: true, force: true });
+ });
+
+-test("hotfix manifest verifier rejects widened function scope, non-ready status, automated rollback, and schema drift", () =&gt; {
+-  const dir = stagedRoot();
++test("hotfix manifest verifier rejects widened function scope, non-ready status, automated rollback, and schema drift", (t) =&gt; {
++  const dir = stagedRoot(t);
+   const base = manifest();
+   const variants = [
+     ["extra function", (m) =&gt; { m.functions.push({ name: "wallet-alert-dispatcher", path: "supabase/functions/wallet-alert-dispatcher", sha256: "0".repeat(64) }); }],
+@@ -418,41 +425,87 @@
+   fs.rmSync(dir, { recursive: true, force: true });
+ });
+
+-// --- HEAD drift is not retroactive approval -------------------------------
++// --- later main work is not retroactive approval --------------------------
++// These three replace a test that hashed HEAD's blob of every pin and then
++// asserted that at least one of them had genuinely drifted.  That made the
++// suite depend on the current state of main twice over: it threw outright once
++// any pinned path was deleted at HEAD, and it failed once every pinned path
++// was reverted to its rollout bytes.  Both are legitimate things for a future
++// main to do, and neither says anything about this release.  The drift below
++// is therefore SYNTHESISED (guaranteed different, proven so in-test), the one
++// genuine-drift case reads a PINNED later commit, and absence is exercised
++// directly instead of being an accident of what HEAD happens to contain.
+
+-test("hotfix manifest verifier refuses TODAY'S bytes for a pinned path unless they are byte-identical to the pin: main moving on does not re-pin the rollout preparation commit", () =&gt; {
+-  // The regression this file was repaired for, stated as an invariant rather
+-  // than as a snapshot: for every single-file pin, staging the CURRENT HEAD
+-  // blob must be refused when it differs from the pinned digest and must
+-  // still verify when it does not.  Function directories are digested as a
+-  // whole and are covered by the tamper cases above.
+-  const dir = stagedRoot();
+-  const m = manifest();
+-  const pins = [
+-    [m.migration.file, m.migration.sha256],
+-    ...m.test_sources.map((source) =&gt; [source.path, source.sha256]),
+-    ...m.lock_files.map((entry) =&gt; [entry.path, entry.sha256]),
+-    ...m.shared_sources.map((shared) =&gt; [shared.path, shared.sha256]),
+-    ...m.lineage.intermediate_changes.flatMap((change) =&gt; change.paths.map((p) =&gt; [p.path, p.deploy_pin === "migration" ? m.migration.sha256 : p.sha256])),
+-  ];
+-  let drifted = 0;
+-  for (const [rel, digest] of pins) {
+-    const head = gitBlob(root, `HEAD:${rel}`);
+-    fs.writeFileSync(path.join(dir, rel), head);
+-    const r = verifyStaged(dir, structuredClone(m));
+-    if (sha256(head) === digest) assert.equal(r.status, 0, `${rel} is unchanged since the rollout and must still verify: ${r.stderr}`);
+-    else {
+-      drifted += 1;
+-      assert.notEqual(r.status, 0, `${rel} carries today's bytes, not the pinned deploy bytes, and must be refused`);
+-      assert.match(r.stderr, /NO-GO: google-pending-hotfix-v1:/, rel);
+-    }
++// Every single-file pin the verifier hashes, with the digest it must equal in
++// the deploy tree.  Function directories are digested as a whole and are
++// covered by the tamper cases above.
++function singleFilePins(m) {
++  return [
++    [m.migration.file, m.migration.sha256, "migration file hash"],
++    ...m.test_sources.map((source) =&gt; [source.path, source.sha256, `test source ${source.path} hash`]),
++    ...m.lock_files.map((entry) =&gt; [entry.path, entry.sha256, `lock file ${entry.path} hash`]),
++    ...m.shared_sources.map((shared) =&gt; [shared.path, shared.sha256, `shared ${shared.path} hash`]),
++    ...m.lineage.intermediate_changes.flatMap((change) =&gt; change.paths.map((p) =&gt; [p.path, p.deploy_pin === "migration" ? m.migration.sha256 : p.sha256, `lineage path ${p.path} hash in the checkout${p.deploy_pin === "migration" ? " (hardened migration)" : ""}`])),
++  ];
++}
++
++test("hotfix manifest verifier refuses SYNTHETIC drift on every single-file pin, and accepts the tree again once the pinned bytes are back", (t) =&gt; {
++  // A total function over the pins, with the counterexample constructed rather
++  // than borrowed from main: appending a marker to the rollout bytes cannot
++  // collide with the pin, and the test proves that per path before trusting
++  // the refusal.  Restoring from ROLLOUT must then verify again, which is what
++  // makes each refusal attributable to that one file.
++  const dir = stagedRoot(t);
++  const m = manifest();
++  for (const [rel, digest, label] of singleFilePins(m)) {
++    const drifted = Buffer.concat([blob(rel), Buffer.from("\n-- synthetic drift\n", "utf8")]);
++    assert.notEqual(sha256(drifted), digest, `${rel}: the synthetic counterexample must differ from the pin`);
++    fs.writeFileSync(path.join(dir, rel), drifted);
++    const bad = verifyStaged(dir, structuredClone(m));
++    assert.notEqual(bad.status, 0, `${rel} carries drifted bytes and must be refused`);
++    assert.ok(bad.stderr.includes(label), `${rel}: expected ${label} in ${bad.stderr}`);
+     materialize(root, ROLLOUT, [rel], dir);
++    assert.equal(verifyStaged(dir, structuredClone(m)).status, 0, `${rel}: restoring the pinned bytes must verify again`);
+   }
+-  // Evidence that the loop above is not vacuous: main really has moved past
+-  // this rollout (the 20260904 stats work re-touched a #120 lineage path), so
+-  // at least one pin is genuinely drifted at HEAD and was genuinely refused.
+-  // If this ever fails, check whether the drifted paths were reverted before
+-  // weakening anything here.
+-  assert.ok(drifted &gt; 0, "fixture: at least one pinned path must differ between the rollout and HEAD");
+   fs.rmSync(dir, { recursive: true, force: true });
+ });
++
++test("hotfix manifest verifier refuses a pinned path carrying the bytes a LATER PINNED COMMIT gave it: real main work does not re-pin this release", (t) =&gt; {
++  // The genuine counterpart to the synthetic case above, and the reason the
++  // repair was needed at all: POST_ROLLOUT re-touched this #120 lineage path,
++  // which the manifest pins at its BASELINE blob.  Reading it from a pinned
++  // commit rather than from HEAD keeps the evidence real while making the
++  // outcome independent of anything a future main does to that file.
++  const drifted = "supabase/tests/ad_campaign_monthly_stats.test.sql";
++  const dir = stagedRoot(t);
++  const m = manifest();
++  const pin = m.lineage.intermediate_changes.flatMap((change) =&gt; change.paths).find((p) =&gt; p.path === drifted);
++  assert.ok(pin, "fixture: the path is a pinned lineage path");
++  const later = gitBlob(root, `${POST_ROLLOUT}:${drifted}`);
++  assert.notEqual(sha256(later), pin.sha256, "fixture: the later commit genuinely changed the pinned bytes");
++  fs.writeFileSync(path.join(dir, drifted), later);
++  const r = verifyStaged(dir, structuredClone(m));
++  assert.notEqual(r.status, 0, "later main bytes for a pinned path must be refused");
++  assert.ok(r.stderr.includes(`lineage path ${drifted} hash in the checkout`), r.stderr);
++  fs.rmSync(dir, { recursive: true, force: true });
++});
++
++test("hotfix manifest verifier fails closed when a pinned path is ABSENT from the deploy tree, naming it", (t) =&gt; {
++  // Absence, not drift: a deploy tree that simply does not carry a pinned file
++  // must be refused with the readability label for that pin, never treated as
++  // "nothing to compare".  Exercise every single-file pin in every class.
++  const dir = stagedRoot(t);
++  const m = manifest();
++  for (const [rel, , hashLabel] of singleFilePins(m)) {
++    // Every pin class labels its unreadable branch the same way it labels its
++    // hash branch, with "hash..." replaced by "readable".
++    const readableLabel = hashLabel.replace(/ hash( in the checkout)?( \(hardened migration\))?$/, " readable");
++    fs.rmSync(path.join(dir, rel));
++    const r = verifyStaged(dir, structuredClone(m));
++    assert.notEqual(r.status, 0, `${rel} is absent and must be refused`);
++    assert.ok(r.stderr.includes(readableLabel), `${rel}: expected ${readableLabel} in ${r.stderr}`);
++    materialize(root, ROLLOUT, [rel], dir);
++    assert.equal(verifyStaged(dir, structuredClone(m)).status, 0, `${rel}: restoring the pinned file must verify again`);
++  }
++  fs.rmSync(dir, { recursive: true, force: true });
++});
+
+--- /tmp/picnic-admin-rollout.ZMVuZ7/safety-head-reversion-vltSSF/repo/scripts/safety/historical-rollout-tree.mjs	2026-09-08 20:16:46
++++ /Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/historical-rollout-tree.mjs	2026-09-08 20:22:34
+@@ -41,6 +41,28 @@
+ export const BASELINE_SHA = "8a0190c0c6ad16938733f83727a74c3d8172da11";
+ export const ROLLOUT_SHA = "6cec1119ba9a01f29960f1067aea0054f9c3837e";
+
++// A pinned commit STRICTLY AFTER the rollout preparation commit: PR #126,
++// "perf(stats): serve ad campaign monthly stats from a rollup (PICNIC-2535)".
++// Verified against this repository's history:
++//
++//   * ROLLOUT_SHA is an ancestor of it, so it is unambiguously later main work;
++//   * ROLLOUT_SHA..POST_ROLLOUT_SHA touches 7 paths - two are allowlisted
++//     rollout files, FOUR are genuine intruders under supabase/ (the guard
++//     refuses any allowlist entry starting with supabase/, so they can never
++//     become allowlisted), and one is
++//     supabase/tests/ad_campaign_monthly_stats.test.sql, a PR #120 lineage
++//     path the manifest pins at its BASELINE blob - i.e. genuine drift of a
++//     pinned path;
++//   * BASELINE_SHA..POST_ROLLOUT_SHA is 44 paths: the rollout's 39 plus those
++//     five.
++//
++// It exists so the "later main work is not approved retroactively" fixtures
++// can use REAL post-rollout files and REAL drift of a pinned path without
++// asking anything of HEAD.  Deleting or reverting those paths on a future main
++// cannot change any of the facts above, because they are facts about a commit,
++// not about the current checkout.
++export const POST_ROLLOUT_SHA = "57bc7eca9614d6d5f82aeb63c7ae4d3bd2601651";
++
+ // database.types.ts alone is ~340 KB and node's default is 1 MB; a truncated
+ // blob would silently produce a wrong digest, so give git room and fail loudly
+ // instead.
+</pre>
+<h2>고정된 최신 파일 SHA-256</h2><pre>analytics_outbox_currency_test.dart e43ecaacb7596329e6fc35ecf90fdc73358fff2d6df55f255b2f8956ce0b6f64
+ad_service_test.dart 25915fe7c5e08dc1871baf80a2b3aade1737102ffc7b2f636ccf9c7289721cf0
+assert-hotfix-lineage.test.mjs 32ad5aa1f0db5687111dfb6825f9cd3291eabd66d7ff5e5aa47b137542ddf193
+google-pending-hotfix-manifest.test.mjs ad95cad7afd95e3d920f05636c1cd481db3ab1a787b41d5e7371f431cbabfa33
+historical-rollout-tree.mjs f75c471073f7f5aa4ad77350bf78a8e5f98369b99d79a4eadf38b45a572b29df</pre>
+</body></html>

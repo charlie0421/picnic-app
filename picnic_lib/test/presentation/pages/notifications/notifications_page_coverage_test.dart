@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/notification_inbox_service.dart';
+import 'package:picnic_lib/data/storage/broadcast_notification_read_store.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+class _MemoryStorage implements LocalStorage {
+  final Map<String, String> values = {};
+
+  @override
+  Future<String?> loadData(String key, String? defaultValue) async =>
+      values[key] ?? defaultValue;
+
+  @override
+  Future<void> saveData(String key, String value) async => values[key] = value;
+
+  @override
+  Future<void> removeData(String key) async => values.remove(key);
+
+  @override
+  Future<void> clearStorage() async => values.clear();
+}
+
+NotificationInboxService _service() => NotificationInboxService(
+  readStore: BroadcastNotificationReadStore(storage: _MemoryStorage()),
+);
 
 void main() {
   late void Function() restore;
@@ -20,8 +44,11 @@ void main() {
     tearDownMockSupabase();
   });
 
-  Future<void> pumpAndDrain(WidgetTester tester, Widget widget,
-      {int pumps = 3}) async {
+  Future<void> pumpAndDrain(
+    WidgetTester tester,
+    Widget widget, {
+    int pumps = 3,
+  }) async {
     // 첫 프레임부터 필터가 걸려 있어야 한다 — 그래야 그 프레임의 에러가
     // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
     // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
@@ -33,9 +60,10 @@ void main() {
   }
 
   group('NotificationsPage coverage - with notification items', () {
-    testWidgets('renders unread vote notification with icon',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders unread vote notification with icon', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 1,
@@ -55,7 +83,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -66,7 +94,7 @@ void main() {
     });
 
     testWidgets('renders read post notification', (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 2,
@@ -75,8 +103,9 @@ void main() {
             'body': {'ko': '댓글이 달렸습니다', 'en': 'Comment added'},
             'type': 'post',
             'is_read': true,
-            'created_at':
-                DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 1))
+                .toIso8601String(),
             'read_at': DateTime.now().toIso8601String(),
             'action_url': null,
             'data': {'post_id': 'post-abc'},
@@ -87,7 +116,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -95,9 +124,10 @@ void main() {
       expect(find.byIcon(Icons.post_add), findsWidgets);
     });
 
-    testWidgets('renders qna notification with question_answer icon',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders qna notification with question_answer icon', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 3,
@@ -117,7 +147,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -125,9 +155,10 @@ void main() {
       expect(find.byIcon(Icons.question_answer), findsWidgets);
     });
 
-    testWidgets('renders default type notification with notifications icon',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders default type notification with notifications icon', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 4,
@@ -147,7 +178,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -155,9 +186,10 @@ void main() {
       expect(find.byIcon(Icons.notifications), findsWidgets);
     });
 
-    testWidgets('renders notification with emoji in title',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders notification with emoji in title', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 5,
@@ -177,7 +209,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -185,52 +217,56 @@ void main() {
       // Emoji extracted and shown as leading text
     });
 
-    testWidgets('renders mixed read/unread notifications with correct styling',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
-        'user_notifications': [
-          {
-            'id': 10,
-            'user_id': 'test-user-id',
-            'title': {'ko': '읽지 않음', 'en': 'Unread'},
-            'body': {'ko': '내용', 'en': 'Body'},
-            'type': 'vote',
-            'is_read': false,
-            'created_at': DateTime.now().toIso8601String(),
-            'read_at': null,
-            'action_url': null,
-            'data': {'vote_id': '1'},
-          },
-          {
-            'id': 11,
-            'user_id': 'test-user-id',
-            'title': {'ko': '이미 읽음', 'en': 'Read'},
-            'body': {'ko': '내용', 'en': 'Body'},
-            'type': 'post',
-            'is_read': true,
-            'created_at':
-                DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
-            'read_at': DateTime.now().toIso8601String(),
-            'action_url': null,
-            'data': {'post_id': 'p1'},
-          },
-        ],
-        'broadcast_notifications': <Map<String, dynamic>>[],
-      }, userId: 'test-user-id');
+    testWidgets(
+      'renders mixed read/unread notifications with correct styling',
+      (WidgetTester tester) async {
+        await setupMockSupabaseWithAuth({
+          'user_notifications': [
+            {
+              'id': 10,
+              'user_id': 'test-user-id',
+              'title': {'ko': '읽지 않음', 'en': 'Unread'},
+              'body': {'ko': '내용', 'en': 'Body'},
+              'type': 'vote',
+              'is_read': false,
+              'created_at': DateTime.now().toIso8601String(),
+              'read_at': null,
+              'action_url': null,
+              'data': {'vote_id': '1'},
+            },
+            {
+              'id': 11,
+              'user_id': 'test-user-id',
+              'title': {'ko': '이미 읽음', 'en': 'Read'},
+              'body': {'ko': '내용', 'en': 'Body'},
+              'type': 'post',
+              'is_read': true,
+              'created_at': DateTime.now()
+                  .subtract(const Duration(hours: 2))
+                  .toIso8601String(),
+              'read_at': DateTime.now().toIso8601String(),
+              'action_url': null,
+              'data': {'post_id': 'p1'},
+            },
+          ],
+          'broadcast_notifications': <Map<String, dynamic>>[],
+        }, userId: 'test-user-id');
 
-      await pumpAndDrain(
-        tester,
-        buildTestAppPage(const NotificationsPage()),
-        pumps: 4,
-      );
+        await pumpAndDrain(
+          tester,
+          buildTestAppPage(NotificationsPage(service: _service())),
+          pumps: 4,
+        );
 
-      expect(find.byType(NotificationsPage), findsOneWidget);
-      expect(find.byType(ListTile), findsWidgets);
-    });
+        expect(find.byType(NotificationsPage), findsOneWidget);
+        expect(find.byType(ListTile), findsWidgets);
+      },
+    );
 
-    testWidgets('renders answer_created and question_created types',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders answer_created and question_created types', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 20,
@@ -262,7 +298,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -271,9 +307,10 @@ void main() {
       expect(find.byIcon(Icons.question_answer), findsWidgets);
     });
 
-    testWidgets('notification with action URL renders',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('notification with action URL renders', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 30,
@@ -293,7 +330,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -302,8 +339,7 @@ void main() {
   });
 
   group('NotificationsPage coverage - empty and loading states', () {
-    testWidgets('renders empty notification list',
-        (WidgetTester tester) async {
+    testWidgets('renders empty notification list', (WidgetTester tester) async {
       setupMockSupabase({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': <Map<String, dynamic>>[],
@@ -311,16 +347,17 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
       expect(find.byType(NotificationsPage), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
     });
 
-    testWidgets('renders with unauthenticated user',
-        (WidgetTester tester) async {
+    testWidgets('renders with unauthenticated user', (
+      WidgetTester tester,
+    ) async {
       setupMockSupabase({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': <Map<String, dynamic>>[],
@@ -329,7 +366,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           loggedIn: false,
         ),
         pumps: 4,
@@ -340,9 +377,10 @@ void main() {
   });
 
   group('NotificationsPage coverage - interactions', () {
-    testWidgets('mark all read button is tappable without crash',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('mark all read button is tappable without crash', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 1,
@@ -362,7 +400,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -375,9 +413,10 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('tapping a notification item triggers mark read',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('tapping a notification item triggers mark read', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 50,
@@ -397,7 +436,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
@@ -412,18 +451,18 @@ void main() {
     });
 
     testWidgets('pull to refresh works', (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+      await setupMockSupabaseWithAuth({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': <Map<String, dynamic>>[],
       }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, 300));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 300));
       await tester.pump();
       await tester.pump(const Duration(seconds: 2));
       drainExpectedImageErrors(tester);
@@ -433,9 +472,10 @@ void main() {
   });
 
   group('NotificationsPage coverage - broadcast notifications', () {
-    testWidgets('renders with broadcast notifications merged',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders with broadcast notifications merged', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 1,
@@ -457,8 +497,9 @@ void main() {
             'body': {'ko': '전체 공지', 'en': 'Broadcast'},
             'type': 'default',
             'is_read': false,
-            'created_at':
-                DateTime.now().subtract(const Duration(minutes: 30)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(minutes: 30))
+                .toIso8601String(),
             'read_at': null,
             'action_url': null,
             'data': null,
@@ -468,7 +509,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
         pumps: 4,
       );
 

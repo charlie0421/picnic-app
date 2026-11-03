@@ -36,3 +36,9 @@
 |---|---|
 | [handoff-pr73-claude.html](handoff-pr73-claude.html) | PR #73 핸드오프 |
 | [handoff-store-purchase-speed-and-cancel-fix.html](handoff-store-purchase-speed-and-cancel-fix.html) | 구매 속도 개선 + 취소/에러 로딩락 수정 핸드오프 (PR #137 계열) |
+| [handoff-rls-rollout.html](handoff-rls-rollout.html) | RLS 도입 (0단계 완료 · 1~6단계 착수 전). anon 쓰기 32개는 2026-08-21 회수 완료, 남은 것은 **읽기** — 로그인 사용자의 타인 데이터 열람. 엣지 함수 7개가 `authenticated` 로 도는 함정 포함 |
+| [handoff-20260819-wallet-incidents.html](handoff-20260819-wallet-incidents.html) | 지갑 장애 4건(코튼 게이트·8/15 선행·Tapjoy 7일·투표 보너스 18일) 대응 기록. 소급 4,865건, 알람 신설, 반복하기 쉬운 함정 6가지 |
+| [handoff-20260820-emergency-patch.html](handoff-20260820-emergency-patch.html) | 긴급패치 배포 대기열. 130007 이후 미배포 8건(투표 이중 차감 방어 #159·#160, Sentry 5G9 수정 #165 포함)과 OTA 선행 vs 130008 신규 빌드 경로 판단 |
+| [handoff-20260825-ad-abuse-detection.html](handoff-20260825-ad-abuse-detection.html) | 광고 어뷰징 탐지 cron(detect-ad-anomaly) 만성 500 + 설계 공백 4종(ACL 증발·소비자 불일치·0명 임계값·알림 부재). anti-abuse 도메인 이관 |
+| [handoff-20260821-ga4-taxonomy.html](handoff-20260821-ga4-taxonomy.html) | **GA4 이벤트 택소노미** (PR #153). 코드는 `1.3.0+130007` 로 이미 프로덕션 반영됨 — 남은 것은 GA4 콘솔 맞춤 측정기준 등록(소급 불가·최우선), 실측 검증, 대행사 회신, 복구 구매 매출 복원 결정 |
+| [handoff-20260929-ops-report-followup.html](handoff-20260929-ops-report-followup.html) | 9/29 일일 점검 리포트 후속. 경고 3건은 전부 장애가 아니었고, 그 과정에서 루틴 판정 규칙·크론 대기 한도·크론 키의 Vault 전환·picnic-supabase CI 를 고쳤다. `GOOGLE_OWNER_MISMATCH` DEAD(PICNIC-2835, 완료)는 옛 결제 경로에서 이미 지급된 구매의 재제출로 확인됐다(보상 대상 아님). 10/15 에 월간 투표 크론 30초·이력 기록·루틴 프롬프트 수정을 적용했고 남은 결정을 정했다(§0). 10/15 오후에 월 1회 보너스 만료 크론(jobid 1)을 끄고 루틴에 참고 (f)를 넣었다. **미결**: `monthly-create-vote` 무인증 호출, 투표 알림 발송 개선의 리뷰·배포(picnic-supabase #224·#225, `notify-vote-progress` 최대 10/8 약 103초), 11/14 소멸 경계 확인, PICNIC-2744 의 옛 구매 consume 범위 |

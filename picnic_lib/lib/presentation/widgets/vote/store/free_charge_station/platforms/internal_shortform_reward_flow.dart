@@ -10,12 +10,19 @@ class InternalShortformIssueResult {
     required this.videoUrl,
     required this.ctaUrl,
     required this.viewToken,
+    this.moreToken,
   });
   final String ownerUserId;
   final AdRewardReference reference;
   final String videoUrl;
   final String? ctaUrl;
   final String viewToken;
+
+  /// '더보기' 클릭을 서버에 기록할 때 쓰는 토큰.
+  ///
+  /// 재생·보상에는 관여하지 않는 통계용이라 없어도 광고는 정상 재생된다.
+  /// (어드민 캠페인 리포트의 `more_clicks` 만 비게 된다.)
+  final String? moreToken;
 }
 
 class InternalShortformIssueFlow {
@@ -59,6 +66,10 @@ class InternalShortformIssueFlow {
       if (videoUrl.isEmpty || viewToken is! String || viewToken.isEmpty) {
         throw const FormatException('Ad issue is not playable');
       }
+      final rawMoreToken = tokens['more_token'];
+      final moreToken = rawMoreToken is String && rawMoreToken.isNotEmpty
+          ? rawMoreToken
+          : null;
       final reference = AdRewardReference(
         type: AdRewardReferenceType.internalImpression,
         id: impressionId,
@@ -69,11 +80,58 @@ class InternalShortformIssueFlow {
         videoUrl: videoUrl,
         ctaUrl: ad['cta_url'] as String?,
         viewToken: viewToken,
+        moreToken: moreToken,
       );
     } on FormatException {
       rethrow;
     } catch (error) {
       throw FormatException('Invalid ad issue response', error);
+    }
+  }
+}
+
+/// '더보기' 클릭을 `callback-ad-shortform-more` 에 기록한다.
+///
+/// 어드민 "광고 캠페인 월간" 리포트의 `more_clicks` 는
+/// `ad_impressions.more_completed_at` 을 세는데, 앱이 이 콜백을 부르지 않아
+/// 프로덕션 임프레션 전건이 NULL 이었다.
+///
+/// 보상이 아니라 통계다. 사용자는 이미 광고주 랜딩으로 떠나는 중이므로 실패해도
+/// 화면에 올리지 않고 [onError] 로만 흘린다 — 이 쓰기가 CTA 이동이나 시청 보상을
+/// 막는 일은 없어야 한다. 서버는 멱등하므로 중복 호출도 안전하다.
+class InternalShortformMoreClickFlow {
+  InternalShortformMoreClickFlow({
+    required this.moreToken,
+    required this.issuedOwner,
+    required this.currentOwner,
+    required this.invokeCallback,
+    this.onError,
+  });
+
+  final String? moreToken;
+  final String? issuedOwner;
+  final String? Function() currentOwner;
+  final Future<Object?> Function(String token) invokeCallback;
+  final void Function(Object error, StackTrace stackTrace)? onError;
+
+  /// 서버에 클릭을 보냈으면 true. 보낼 토큰이 없거나 실패하면 false.
+  Future<bool> report() async {
+    final token = moreToken;
+    if (token == null || token.isEmpty) return false;
+    // 발급 이후 계정이 바뀌었으면 남의 세션으로 남의 토큰을 보내는 셈이라 보내지
+    // 않는다 (시청 콜백과 같은 규칙).
+    final owner = currentOwner();
+    if (issuedOwner == null || owner == null || owner != issuedOwner) {
+      return false;
+    }
+    try {
+      // Future.sync: invokeCallback 이 동기로 던져도(예: dispose 된 ref.read)
+      // 예외가 CTA 이동 경로로 새지 않게 한다.
+      await Future.sync(() => invokeCallback(token));
+      return true;
+    } catch (error, stackTrace) {
+      onError?.call(error, stackTrace);
+      return false;
     }
   }
 }
@@ -120,6 +178,7 @@ class InternalShortformViewRecoveryFlow {
     required this.view,
     required this.poll,
     this.onPollError,
+    this.onGrantConfirmed,
   });
 
   final InternalShortformViewFlow view;
@@ -127,22 +186,56 @@ class InternalShortformViewRecoveryFlow {
   poll;
   final void Function(Object error, StackTrace stackTrace)? onPollError;
 
+  /// Called the moment an authenticated current view comes back already
+  /// GRANTED, before anything is rendered.
+  ///
+  /// This is the only point on the synchronous path where the app observes the
+  /// grant while the owner is still verified. Everything after it depends on
+  /// the route surviving: the fullscreen page shows its receipt only while
+  /// `mounted`, and the acknowledgement runs from that dialog's first frame. A
+  /// user who closes the ad as the callback lands disposes the route first, and
+  /// the grant would then be observed by nobody.
+  final void Function(String ownerUserId, AdRewardStatusModel status)?
+  onGrantConfirmed;
+
   Future<InternalShortformViewResponse> report() async {
     final response = await view.report();
+    final reward = response.reward;
     // A synchronously granted reward is presented by the fullscreen page while
     // the ad is still open. Starting recovery here races that local receipt and
     // delays it until the route has been dismissed.
-    if (response.reward == null ||
-        response.reward!.state == AdRewardState.granted) {
+    if (reward == null || reward.state == AdRewardState.granted) {
+      if (reward != null) _recordConfirmedGrant(reward);
       return response;
     }
     final owner = view.session.ownerUserId!;
     final reference = view.session.reference!;
+    // Future.sync: dispose 된 ref.read 처럼 poll 이 동기로 던져도 시청 응답을
+    // 잃지 않고 onPollError 로 모은다.
     unawaited(
-      poll(owner, reference).catchError((Object error, StackTrace stackTrace) {
+      Future.sync(() => poll(owner, reference)).catchError((
+        Object error,
+        StackTrace stackTrace,
+      ) {
         onPollError?.call(error, stackTrace);
       }),
     );
     return response;
+  }
+
+  /// 통계 기록은 보상 흐름을 절대 막지 않는다. 여기서 던진 예외가 report() 를
+  /// 실패시키면 시청 응답 자체가 유실된다.
+  void _recordConfirmedGrant(AdRewardStatusModel reward) {
+    final record = onGrantConfirmed;
+    if (record == null) return;
+    // `view.report()` 가 발급 소유자와 현재 소유자가 같은 경우에만 여기까지
+    // 오므로 이 값은 인증된 현재 사용자다.
+    final owner = view.session.ownerUserId;
+    if (owner == null) return;
+    try {
+      record(owner, reward);
+    } catch (error, stackTrace) {
+      onPollError?.call(error, stackTrace);
+    }
   }
 }

@@ -3,29 +3,32 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-/// Anti-abuse 다이얼로그 — 채널별로 톤이 다름.
-///
-///   - signup        : 부분적으로 명확 ("비정상 활동 감지됨") + 고객센터 링크
-///   - ad_watch      : 모호 톤 ("잠시 후 다시 시도")
-///   - attendance    : 모호 톤
-///   - artist_request: 모호 톤
-///
-/// 모호 톤은 abuser 가 회피 패턴을 추론하기 어렵게 하기 위함 (스펙 §9 참조).
+/// 제한 응답 코드에 맞는 현지화 문구를 표시한다.
 Future<void> showRateLimitedDialog(
   BuildContext context, {
   required String channel,
+  String? rawCode,
   String csEmail = 'cs@picnic.fan',
 }) {
   return showDialog<void>(
     context: context,
-    builder: (ctx) => _RateLimitedDialog(channel: channel, csEmail: csEmail),
+    builder: (ctx) => _RateLimitedDialog(
+      channel: channel,
+      rawCode: rawCode,
+      csEmail: csEmail,
+    ),
   );
 }
 
 class _RateLimitedDialog extends StatelessWidget {
-  const _RateLimitedDialog({required this.channel, required this.csEmail});
+  const _RateLimitedDialog({
+    required this.channel,
+    this.rawCode,
+    required this.csEmail,
+  });
 
   final String channel;
+  final String? rawCode;
   final String csEmail;
 
   @override
@@ -52,22 +55,36 @@ class _RateLimitedDialog extends StatelessWidget {
   }
 
   (String, String) _copyForChannel(String ch, AppLocalizations l) {
+    if (rawCode == 'AD_DEVICE_ACCOUNT_LIMIT') {
+      return (
+        l.error_anti_abuse_ad_title,
+        l.error_ad_device_account_restricted_message,
+      );
+    }
     switch (ch) {
       case 'signup':
-        return (l.error_anti_abuse_signup_title,
-            l.error_anti_abuse_signup_message);
+        return (
+          l.error_anti_abuse_signup_title,
+          l.error_anti_abuse_signup_message,
+        );
       case 'ad_watch':
         return (l.error_anti_abuse_ad_title, l.error_anti_abuse_ad_message);
       case 'attendance':
-        return (l.error_anti_abuse_attendance_title,
-            l.error_anti_abuse_attendance_message);
+        return (
+          l.error_anti_abuse_attendance_title,
+          l.error_anti_abuse_attendance_message,
+        );
       case 'artist_request':
-        return (l.error_anti_abuse_artist_request_title,
-            l.error_anti_abuse_artist_request_message);
+        return (
+          l.error_anti_abuse_artist_request_title,
+          l.error_anti_abuse_artist_request_message,
+        );
       default:
         // Unknown channel — fall back to attendance copy (모호 톤). 로그만 남김.
-        return (l.error_anti_abuse_attendance_title,
-            l.error_anti_abuse_attendance_message);
+        return (
+          l.error_anti_abuse_attendance_title,
+          l.error_anti_abuse_attendance_message,
+        );
     }
   }
 

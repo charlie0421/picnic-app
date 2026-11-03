@@ -67,6 +67,21 @@ String? _localized(Map<String, dynamic> values, String locale) {
   return null;
 }
 
+/// Shared by V1 and V2 campaign models. Falls back through the requested
+/// locale, then Korean, then [fallbackCode] — matching V1's original
+/// per-model `localizedDisplayName` behavior exactly (no bare `''`).
+String localizedPromotionDisplayName(
+  Map<String, dynamic> values,
+  String locale, {
+  required String fallbackCode,
+}) {
+  for (final key in [locale, 'ko']) {
+    final value = values[key];
+    if (value is String && value.trim().isNotEmpty) return value.trim();
+  }
+  return fallbackCode;
+}
+
 @freezed
 abstract class ActivePromotionCampaignModel
     with _$ActivePromotionCampaignModel {
@@ -84,27 +99,25 @@ abstract class ActivePromotionCampaignModel
     @JsonKey(name: 'home_creative') PromotionCreativeModel? homeCreative,
   }) = _ActivePromotionCampaignModel;
 
-  String localizedDisplayName(String locale) {
-    for (final key in [locale, 'ko']) {
-      final value = displayName[key];
-      if (value is String && value.trim().isNotEmpty) return value.trim();
-    }
-    return code;
-  }
+  String localizedDisplayName(String locale) =>
+      localizedPromotionDisplayName(displayName, locale, fallbackCode: code);
 
   bool hasReadableHomeCreative(String locale) =>
       showHomeBanner &&
       homeCreative?.localizedTitle(locale) != null &&
       homeCreative?.localizedImage(locale) != null;
 
-  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) {
-    final exact = requireExactContractKeys(json, _campaignKeys);
-    if (exact['home_creative'] is Map &&
-        (exact['home_creative'] as Map).isEmpty) {
-      exact['home_creative'] = null;
-    }
-    return _$ActivePromotionCampaignModelFromJson(exact);
+  factory ActivePromotionCampaignModel.fromJson(Map<String, dynamic> json) =>
+      _$ActivePromotionCampaignModelFromJson(_normalizeCampaignJson(json));
+}
+
+Map<String, dynamic> _normalizeCampaignJson(Map<String, dynamic> json) {
+  final exact = requireExactContractKeys(json, _campaignKeys);
+  if (exact['home_creative'] is Map &&
+      (exact['home_creative'] as Map).isEmpty) {
+    exact['home_creative'] = null;
   }
+  return exact;
 }
 
 @freezed

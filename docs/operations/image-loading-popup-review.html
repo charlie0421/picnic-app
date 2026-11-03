@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>팝업/상세 이미지 잔여 수정 — 독립 적대적 리뷰</title>
+<style>
+  :root { color-scheme: light; }
+  body { margin: 0 auto; padding: 32px 24px 80px; max-width: 1040px;
+         font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+         color: #1c1e21; background: #fbfbfa; }
+  h1 { font-size: 26px; margin: 0 0 4px; letter-spacing: -0.01em; }
+  h2 { font-size: 19px; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e2df; }
+  h3 { font-size: 15.5px; margin: 26px 0 8px; }
+  .sub { color: #6b6b66; font-size: 13.5px; margin: 0 0 24px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { background: #f0f0ed; padding: 1px 5px; border-radius: 3px; font-size: 0.89em; }
+  pre { background: #1e1f22; color: #e6e6e3; padding: 14px 16px; border-radius: 6px;
+        overflow-x: auto; font-size: 12.5px; line-height: 1.55; }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13.5px; }
+  th, td { border: 1px solid #e2e2df; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f4f4f1; font-weight: 600; }
+  .verdict { border-left: 4px solid #2f7d32; background: #eef6ee; padding: 14px 18px; border-radius: 0 6px 6px 0; margin: 18px 0; }
+  .sev { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em;
+         padding: 2px 7px; border-radius: 3px; vertical-align: 2px; margin-right: 8px; }
+  .sev-low  { background: #fff2d6; color: #7a4f00; }
+  .sev-info { background: #e6eefb; color: #1f4b8f; }
+  .finding { border: 1px solid #e2e2df; border-radius: 6px; padding: 16px 18px; margin: 16px 0; background: #fff; }
+  .finding p { margin: 8px 0; }
+  .label { font-weight: 600; color: #4a4a45; }
+  ul { padding-left: 20px; }
+  li { margin: 4px 0; }
+  .ok { color: #2f7d32; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<h1>팝업/상세 이미지 잔여 수정 — 독립 적대적 리뷰</h1>
+<p class="sub">
+워크스페이스 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화</code> ·
+브랜치 <code>charlie0421/이미지최적화</code> (HEAD <code>1e38f174a</code>) · 2026-09-13 ·
+읽기 전용 리뷰(프로덕션 수정 없음). 작성자 분석 문서와 Astra 리포트는 읽지 않았다.
+</p>
+
+<div class="verdict">
+<strong>결론: 블로커 없음.</strong> 요구사항 7개 항목(즉시 시작 / 완전 디코드된 상세 썸네일 재사용 /
+요청 키·행 기하·팝업 치수 보존 / 미스·축출·pending 시 재요청 금지 / 캐시 전용 조회의 provider 폴백 차단 /
+ImageInfo 소유권·리스너 해제·세대 처리 / Standard·JMA 동일 동작)은 소스와 실제 실행으로 모두 확인했다.
+발견한 6건은 전부 Low 또는 정보성이며, 머지를 막을 사유는 없다.
+</div>
+
+<h2>1. 리뷰 범위와 실제 diff의 불일치 (먼저 읽을 것)</h2>
+<p>
+지정된 델타 <code>/tmp/picnic-image-popup-review.patch</code>는 두 팝업의
+<code>lazyLoadingStrategy: LazyLoadingStrategy.none</code> 과 <code>priority: ImagePriority.high</code> 를
+<em>변경되지 않은 컨텍스트 줄</em>로 보여준다. 그러나 <code>main</code> 대비 실제 작업 트리 diff에서는 이 두 줄이
+<strong>추가된 줄</strong>이다. 델타는 커밋되지 않은 중간 스냅샷("이전에 리뷰한 최적화") 기준이라 그 부분이 감춰진다.
+</p>
+<pre><code>$ git diff --stat -- &lt;4개 프로덕션 파일&gt;
+ vote_detail_helper.dart        |  28 +++
+ vote_detail_page.dart          |  16 +-
+ jma_voting_dialog.dart         |   6 +
+ voting_dialog_widgets.dart     | 190 +++++++++++++++++
+ 4 files changed, 234 insertions(+), 6 deletions(-)
+
+$ git diff -U1 -- .../jma_voting_dialog.dart      # 발췌
++import '.../voting_dialog_widgets.dart';
++  placeholder: VoteDetailPortraitCachePlaceholder(imageUrl: imageUrl),
++  lazyLoadingStrategy: LazyLoadingStrategy.none,
++  priority: ImagePriority.high,</code></pre>
+<p>
+즉 "뷰포트 알림 지연 없이 즉시 시작" 요구사항을 실제로 충족시키는 변경(VisibilityDetector 우회)은
+델타 바깥에 있다. 이 자체는 안전하다고 판단한다 — 두 이미지 모두 항상 보이는 다이얼로그 서브트리 안에 있고,
+JMA 쪽은 추가로 <code>if (!isKeyboardVisible)</code> 게이트가 걸려 있어 키보드가 뜨면 서브트리째 제거된다
+(<code>jma_voting_dialog.dart:621</code>). 다만 델타만 보는 리뷰어는 이 변경을 보지 못하므로 명시해 둔다.
+</p>
+
+<h2>2. 검증 완료 — 요구사항별 근거</h2>
+
+<table>
+<tr><th>요구사항</th><th>확인 방법 / 근거</th><th>결과</th></tr>
+<tr>
+  <td>팝업 최종 고화질 요청이 뷰포트 알림 지연 없이 즉시 시작</td>
+  <td><code>picnic_cached_network_image.dart:538-540</code> — <code>strategy == none</code> 이면
+      <code>VisibilityDetector</code> 없이 <code>_buildForLayout(loadImage: true)</code>. placeholder 는
+      <code>frameBuilder(frame == null)</code> 안에서만 산다(<code>:623-629</code>)므로 요청 시작 시점에 영향 없음.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>완전 디코드된 상세 초상만 재사용</td>
+  <td><code>voting_dialog_widgets.dart:98-101</code> 의 <code>!status.pending &amp;&amp; status.keepAlive</code> 게이트.
+      커밋된 테스트가 실제 <code>RenderImage.image</code> 픽셀(<code>[0,255,0,255]</code>)과 <code>width == 78</code> 로 단언.</td>
+  <td class="ok">충족 (F1 단서 참조)</td>
+</tr>
+<tr>
+  <td>상세 요청 키 · 행 기하 보존</td>
+  <td><code>vote_detail_image_key_test.dart</code> 가 추출된 helper 와 레거시 인라인 파라미터의
+      <code>url</code>(<code>q=55&amp;w=78&amp;h=78</code>), <code>(decodeWidth, decodeHeight) == (78,78)</code>,
+      <code>await obtainKey(...)</code> 동등성을 단언. 직접 실행해 통과 확인.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>팝업 치수 보존 (Standard 80.w / JMA 60.w)</td>
+  <td>위젯 prop 불변(<code>voting_dialog_widgets.dart:222-223</code>, <code>jma_voting_dialog.dart:634-635</code>).
+      JMA 테스트가 <code>(loader.width, loader.height) == (60, 60)</code> 단언.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>미스 / 축출 / pending 시 추가 디스크·네트워크 요청 금지</td>
+  <td><code>ImageCache.putIfAbsent</code>(SDK <code>painting/image_cache.dart</code>)는 loader 가 던지면
+      <code>onError</code> 호출 후 <code>null</code> 반환하며 <code>_trackLiveImage</code>/<code>_pendingImages</code> 에
+      아무것도 남기지 않는다. 커밋 테스트 3종 + 자체 프로브 P1 에서 <code>requestsFor(detail.url)</code> 불변.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>원자적 캐시 전용 조회가 provider fetch 로 흘러내리지 않음</td>
+  <td>코드 경로상 <code>provider.resolve()</code> 호출 지점이 없다. <code>obtainKey</code> 는 fetch 를 하지 않는다
+      (<code>cached_network_image-3.4.1/.../cached_network_image_provider.dart:67</code> → <code>SynchronousFuture</code>).</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>ImageInfo 소유권</td>
+  <td><code>RawImage</code> 는 내부에서 clone 한다 — <code>widgets/basic.dart:7017-7022</code>
+      (<code>renderObject..image = image?.clone()</code>), <code>didUnmountRenderObject</code> 는
+      <code>image = null</code>. 따라서 <code>build()</code> 가 <code>imageInfo.image</code> 를 clone 없이 넘기는 것은
+      <em>정상</em>이며 이중 dispose 가 발생하지 않는다. 프로브 P2 에서 state 가 핸들을 released 한 뒤에도
+      렌더 오브젝트 핸들은 <code>debugDisposed=false</code>; 커밋된 언마운트 테스트에서는 렌더 오브젝트 해제 후
+      <code>debugDisposed=true</code>.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>리스너 해제 / 축출 경합</td>
+  <td><code>_releaseCachedImage()</code> 가 <em>먼저</em> <code>removeListener</code>, 그다음 핸들 dispose.
+      <code>addListener</code> 의 <code>_checkDisposed()</code> 는 <code>StateError</code> 를 던지며
+      (<code>painting/image_stream.dart:535</code>) 코드가 <code>on StateError</code> 로 잡아 미스로 되돌린다.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>stale 세대 / 빠른 선택 변경 / 완료 전 언마운트</td>
+  <td><code>_isCurrentGeneration</code>(mounted + generation) + <code>_acceptImage</code>/<code>_dropFailedCompleter</code> 의
+      completer·listener identity 이중 확인, <code>dispose()</code> 가 generation 을 먼저 증가.
+      커밋된 rapid-replacement / close-before-primary-frame 테스트 통과, 프로브 P4(URL→공백→복귀) 정상.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>artist / group 선택 일치</td>
+  <td>상세행 <code>vote_detail_page.dart:1277-1279</code> 과 팝업
+      <code>voting_dialog_widgets.dart:205-209</code> / <code>jma_voting_dialog.dart:610-615</code> 모두
+      <code>(artist?.id ?? 0) != 0 ? artist?.image : artistGroup?.image</code> 로 동일. 양쪽 모두 CDN 미적용
+      원본 상대경로를 넘기므로 최종 URL도 같다.</td>
+  <td class="ok">충족</td>
+</tr>
+<tr>
+  <td>wallet / auth / 투표 제출 미접촉</td>
+  <td>작업 트리 diff 가 리뷰 대상 4개 파일에 한정(위 <code>--stat</code>).</td>
+  <td class="ok">충족</td>
+</tr>
+</table>
+
+<h3>테스트 하네스 교착 vs 제품 결함</h3>
+<p>
+교착 징후 없음. <code>_pumpUntil</code> 은 <code>tester.runAsync</code> + 실 2ms 지연을 150회 상한으로 돌리고
+초과 시 <code>fail()</code> 로 끝난다(무한 대기 아님). <code>ImageTestHarness</code> 의 <code>held: true</code> 게이트는
+모두 <code>addTearDown(() =&gt; harness.release(...))</code> 로 해제되고, <code>dispose()</code> 가 열린 스트림을 기다린 뒤
+<code>defaultCacheManager</code> 를 복구한다. 대상 파일 12개 테스트가 약 1초에 완료됐다.
+</p>
+
+<h2>3. 발견 사항 (블로커 0건)</h2>
+
+<div class="finding">
+<h3><span class="sev sev-low">LOW</span>F1 — "keepAlive 가 디코드 완료를 증명한다"는 주석이 실제 동작과 다르다</h3>
+<p><span class="label">위치:</span> <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart:98-101</code></p>
+<p><span class="label">실패 조건 / 재현:</span> 상세 항목이 <em>live 이지만 keepAlive 캐시에서는 축출된</em> 상태
+(<code>keepAlive=false, live=true, pending=false</code>)에서 팝업을 연다. 재현: 상세 <code>Image</code> 를 마운트해
+디코드시킨 뒤 <code>imageCache.clear()</code>(<code>_liveImages</code> 는 남음)하고, 그 <code>Image</code> 를 마운트한 채
+팝업을 띄운다. 실행 결과:</p>
+<pre><code>P1 after clear: keepAlive=false live=true pending=false
+P1 preview adopted = true (w=78) detailRequests=1 popupRequests=1</code></pre>
+<p><span class="label">원인:</span> <code>ImageCache.putIfAbsent</code> 의 <code>_liveImages</code> 분기가
+<code>_touch()</code> 로 해당 completer 를 <code>_cache</code> 에 <strong>다시 넣은 뒤</strong> 반환한다. 코드가
+<code>statusForKey</code> 를 읽는 시점은 그 이후이므로 <code>keepAlive</code> 는 이미 true 다. 즉 게이트가 검사하는 상태는
+"조회 전 상태"가 아니라 "조회가 만들어 낸 상태"다.</p>
+<p><span class="label">영향:</span> 동작 자체는 요구사항에 부합한다(디코드 완료된 이미지이며 추가 요청 0건).
+다만 (a) 주석이 보장하지 않는 불변식을 주장하고, (b) "원자적 캐시 전용 조회"가 부수효과가 없지 않다 —
+MRU 재배치와 재삽입을 하며 <code>_checkCacheSize</code> 를 태워 <em>다른</em> 이미지를 축출시킬 수 있다.</p>
+<p><span class="label">최소 수정:</span> <code>putIfAbsent</code> <em>호출 전</em>에 <code>cache.statusForKey(key)</code> 를
+읽어 판정하거나(엄격), 주석을 "pending 이 아닌 live 항목도 채택하며 이때 keepAlive 캐시로 의도적으로 승격된다"로
+정정한다(현행 동작 유지). 후자를 권장한다.</p>
+</div>
+
+<div class="finding">
+<h3><span class="sev sev-low">LOW</span>F2 — 팝업 요청이 실패하면 멀쩡한 프리뷰가 깨진 이미지 아이콘으로 대체된다</h3>
+<p><span class="label">위치:</span> <code>picnic_lib/lib/presentation/common/picnic_cached_network_image.dart:625-627</code>
+(<code>frameBuilder</code> 의 <code>_hasError</code> 분기) 및 <code>:1125-1163</code> (<code>_buildErrorWidget</code> 가
+<code>widget.placeholder</code> 를 무시).</p>
+<p><span class="label">실패 조건 / 재현:</span> 상세 78px 항목이 warm 인 상태에서 팝업의 고화질 URL 이 실패하면,
+정확한 (저해상도지만 올바른) 초상 대신 회색 <code>Icons.image_not_supported</code> 가 뜬다. 프로브 P3 결과:</p>
+<pre><code>P3 popupRequests=1 previewStillPainted=false errorIconShown=true</code></pre>
+<p><span class="label">영향:</span> 이번 패치의 <em>회귀는 아니다</em>(패치 전에도 shimmer → 에러 아이콘이었다).
+다만 프리뷰가 가장 가치 있는 상황에서 정확히 그 프리뷰를 버린다.</p>
+<p><span class="label">최소 수정:</span> 두 호출부에서
+<code>errorWidget: VoteDetailPortraitCachePlaceholder(imageUrl: imageUrl)</code> 를 함께 넘긴다(호출부 2줄, 공용 위젯 무변경).
+더 넓게 고치려면 <code>_buildErrorWidget</code> 이 <code>widget.placeholder != null &amp;&amp; _retryCount &lt; effectiveMaxRetries</code>
+동안 placeholder 를 유지하도록 한다 — 다만 이쪽은 공용 컴포넌트라 전 화면 영향이므로 이번 범위 밖 권장.</p>
+</div>
+
+<div class="finding">
+<h3><span class="sev sev-low">LOW</span>F3 — 레이어링: 로직 전용 helper 파일이 위젯 레이어를 끌어들인다</h3>
+<p><span class="label">위치:</span> <code>picnic_lib/lib/presentation/pages/vote/vote_detail_helper.dart:1-35</code></p>
+<p><span class="label">조건:</span> 이 파일은 이제 <code>package:flutter/widgets.dart</code> 와
+<code>picnic_image_request.dart</code>(→ <code>cached_network_image</code>, <code>Environment</code>,
+<code>universal_platform</code>)를 임포트하고 <code>BuildContext</code> 를 받는 함수를 보유한다. 그 결과
+<code>presentation/widgets/vote/voting/voting_dialog_widgets.dart</code>(위젯 레이어)가
+<code>presentation/pages/</code> 를 임포트하고, 기존 소비자인
+<code>presentation/providers/vote_detail_provider.dart</code> 도 이 의존을 전이로 얻는다.</p>
+<p><span class="label">영향:</span> 기능적 결함 아님(테스트·analyze 모두 클린). 순환 임포트도 없다. 유지보수 냄새.</p>
+<p><span class="label">최소 수정:</span> <code>resolveVoteDetailPortraitImageRequest</code> 와 4개 상수를
+<code>presentation/common/</code>(<code>picnic_image_request.dart</code> 옆)으로 옮기고 양쪽 소비자가 그것을 임포트한다.</p>
+</div>
+
+<div class="finding">
+<h3><span class="sev sev-info">INFO</span>F4 — 조회가 dependency 변경마다 재실행된다 (검증 결과 무해)</h3>
+<p><span class="label">위치:</span> <code>voting_dialog_widgets.dart:46-49</code> →
+<code>_startLookup()</code>, 경유 <code>picnic_image_request.dart:_resolutionMultiplier</code> →
+<code>core/utils/ui.dart:46 isIPad</code> → <code>MediaQuery.of(context).size</code>.</p>
+<p><span class="label">조건:</span> iOS 에서는 <code>isIPad</code> 때문에 이 위젯이 <em>MediaQueryData 전체</em>에
+의존한다. 키보드 애니메이션의 <code>viewInsets</code> 변화가 프레임마다
+<code>didChangeDependencies → _startLookup</code>(핸들 해제 후 재채택)을 유발한다. Android 에서는
+<code>isIPad</code> 가 조기 반환하므로 해당 없음.</p>
+<p><span class="label">왜 무해한가:</span> <code>CachedNetworkImageProvider.obtainKey</code> 가
+<code>SynchronousFuture</code> 를 반환하고(<code>cached_network_image-3.4.1:67</code>)
+<code>ResizeImage.obtainKey</code> 가 이를 전파하므로, 해제→재채택이 <code>didChangeDependencies</code> 안에서
+<em>동기적으로</em> 끝나고 그 뒤 <code>build()</code> 가 돈다. 깜빡임이 없다. 프로브 P2(Directionality 반전으로
+<code>didChangeDependencies</code> 유발):</p>
+<pre><code>P2 before: w=78 disposed=false
+P2 after dir change: present=true w=78 beforeDisposed=false detailRequests=1
+P2 after rgba=[0, 255, 0, 255]</code></pre>
+<p><span class="label">주의:</span> 바로 이 동기 경로 때문에 <code>_isStartingLookup</code> 플래그는 <strong>필수</strong>다
+(build 중 <code>setState</code> 방지). 죽은 코드로 오인해 제거하면 안 된다. 선택적 개선:
+<code>_startLookup</code> 초입에서 이미 채택한 <code>request.url</code> 과 같으면 조기 반환.</p>
+</div>
+
+<div class="finding">
+<h3><span class="sev sev-info">INFO</span>F5 — 델타에 없는 VisibilityDetector 우회가 실제로 함께 배포된다</h3>
+<p>§1 참조. <code>lazyLoadingStrategy: none</code> + <code>priority: high</code> 가 두 다이얼로그 모두에
+<code>main</code> 대비 추가된다. 안전하다고 판단하지만 리뷰 범위 밖이었음을 기록한다.</p>
+</div>
+
+<div class="finding">
+<h3><span class="sev sev-info">INFO</span>F6 — 투표 완료 다이얼로그는 동일 증상이 남아 있다 (후속 과제)</h3>
+<p><span class="label">위치:</span> <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_complete.dart:454</code>,
+<code>:488</code></p>
+<p>같은 아티스트 초상을 60×60 으로 그리는데 기본 <code>LazyLoadingStrategy.viewport</code> 이고 캐시 placeholder 가 없다.
+요청 폭이 60 논리픽셀이라 상세(39)·팝업(76) 어느 쪽과도 URL 이 달라 항상 cold 다. 따라서 투표 제출 직후
+완료 다이얼로그에서는 이번에 없앤 shimmer + 뷰포트 지연이 그대로 보인다. 이번 범위 밖이므로 후속으로만 기록한다.</p>
+</div>
+
+<h2>4. 실제 실행한 검증 명령과 결과</h2>
+
+<h3>4.1 대상 테스트 (커밋된 소스)</h3>
+<pre><code>$ cd picnic_lib &amp;&amp; flutter test --no-pub --timeout 120s \
+    test/presentation/widgets/vote/voting/voting_artist_image_loading_test.dart \
+    test/presentation/pages/vote/vote_detail_image_key_test.dart -r expanded
+
+00:01 +12: All tests passed!</code></pre>
+<p>팝업 파일 9건(신규 6건 포함) + 키 파일 3건. 신규 6건이 모두 개별 통과하는 것을 확장 리포터로 확인했다:
+standard 프리뷰→최종 교체, JMA 동일 동작(60px 요청 유지), 미스 시 폴백 요청 없음, 축출 시 비페치 미스,
+pending 항목 미채택, primary frame 이전 종료 시 리스너·핸들 해제, 빠른 아티스트 교체.</p>
+
+<h3>4.2 정적 분석 (프로덕션 4 + 테스트 2)</h3>
+<pre><code>$ flutter analyze --no-pub \
+    lib/presentation/pages/vote/vote_detail_helper.dart \
+    lib/presentation/pages/vote/vote_detail_page.dart \
+    lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart \
+    lib/presentation/widgets/vote/voting/jma_voting_dialog.dart \
+    test/presentation/pages/vote/vote_detail_image_key_test.dart \
+    test/presentation/widgets/vote/voting/voting_artist_image_loading_test.dart
+
+info • Don't use 'BuildContext's across async gaps, guarded by an unrelated
+       'mounted' check • jma_voting_dialog.dart:1425 • use_build_context_synchronously
+1 issue found. (ran in 4.1s)</code></pre>
+<p><strong>선행 존재 확인:</strong> <code>git show HEAD:...jma_voting_dialog.dart</code> 의 같은 위치에 동일한
+<code>Navigator.of(context).pop()</code> 이 있고, 이 파일의 diff 는 임포트 1줄 + 636행 근처 5줄뿐이다.
+즉 이번 변경이 만든 진단이 아니다 — 제공된 증거와 일치.</p>
+
+<h3>4.3 광역 회귀 (영향 영역 전체)</h3>
+<pre><code>$ flutter test --no-pub --timeout 180s -r compact \
+    test/presentation/common test/presentation/widgets/vote test/presentation/pages/vote
+
+01:40 +3812 ~6: All other tests passed!</code></pre>
+<p>3,812건 통과 · 6건 스킵 · 0건 실패. 루트 47파일 스위트(697 통과)와 별개로, 이미지·투표 관련 영역을
+독립적으로 넓게 돌려 회귀가 없음을 확인했다. 이 실행은 코디네이터 메시지가 도착하기 전에 자연 종료됐고
+(코디네이터 정정: SIGINT 미전송), 이후 추가 광역 테스트는 실행하지 않았다. 스킵 6건은 이 변경과 무관한
+기존 baseline 스킵이다(<code>vote_detail_page_render_test.dart</code> 계열).</p>
+
+<h3>4.4 적대적 프로브 (임시, 무시되는 경로, 실행 후 삭제)</h3>
+<p>커밋 테스트가 다루지 않은 4개 경계를 직접 작성해 실행했다
+(<code>picnic_lib/.dart_tool/review_probe/popup_probe_test.dart</code> — <code>.gitignore</code> 대상, 실행 후 <code>rm -rf</code>).</p>
+<pre><code>$ flutter test --no-pub --timeout 120s .dart_tool/review_probe/popup_probe_test.dart -r expanded
+
+P1 after clear: keepAlive=false live=true pending=false
+P1 preview adopted = true (w=78) detailRequests=1 popupRequests=1
+P2 before: w=78 disposed=false
+P2 after dir change: present=true w=78 beforeDisposed=false detailRequests=1
+P2 after rgba=[0, 255, 0, 255]
+P3 popupRequests=1 previewStillPainted=false errorIconShown=true
+P4 preview shown = true
+P4 after whitespace url: rawImage=false
+P4 back to source: rawImage=true
+00:01 +4: All tests passed!</code></pre>
+<table>
+<tr><th>프로브</th><th>검증 대상</th><th>판정</th></tr>
+<tr><td>P1</td><td>live-but-evicted 항목 채택 여부와 재요청</td><td>채택됨, 재요청 0 → <strong>F1</strong> 근거</td></tr>
+<tr><td>P2</td><td>dependency 변경 중 프리뷰 생존 / 이중 dispose</td><td>생존, 픽셀 정확, 이중 dispose 없음 → <strong>F4</strong> 근거</td></tr>
+<tr><td>P3</td><td>팝업 실패 시 warm 프리뷰의 운명</td><td>에러 아이콘으로 대체 → <strong>F2</strong> 근거</td></tr>
+<tr><td>P4</td><td>URL → 공백 → 복귀 플립</td><td>크래시 없음, 프리뷰 드롭/복귀 정상</td></tr>
+</table>
+
+<h2>5. 한계</h2>
+<ul>
+<li>지시에 따라 작성자 분석 문서와 Astra 리포트를 읽지 않았다. 따라서 그쪽 주장과의 교차 검증은 하지 않았다.</li>
+<li>디바이스/시뮬레이터를 구동하지 않았다. 증거의 iOS 관측치(Gyuvin 114ms/263ms, Taemin 111..2007ms/3006ms)는
+    여기서 검증하지 않았으며, 제출된 대로 <em>관측치이지 HTTP 벤치마크가 아니다</em> — 요청 단위 로그 없이는
+    "상세 캐시가 warm 이라 프리뷰가 떴다"와 "CDN 이 빨랐다"를 구분할 수 없다. 대신 위젯 테스트의 실제
+    <code>RenderImage</code> 픽셀 단언으로 메커니즘을 확인했다.</li>
+<li>iOS 전용 <code>isIPad</code> MediaQuery 의존(F4)은 호스트 테스트에서 <code>UniversalPlatform.isIOS == false</code> 라
+    직접 재현할 수 없어, Directionality 로 <code>didChangeDependencies</code> 를 유발해 대체 검증하고 나머지는
+    Flutter SDK 소스로 추론했다.</li>
+<li>델타의 6개 파일과 그 직접 의존성만 읽었다. 함께 배포될 나머지 미커밋 변경(수정 20개 파일, 신규 7개 파일)은
+    이번 리뷰 대상이 아니다.</li>
+<li>프로덕션 해시 <code>4fc11b3b…</code> 동일성은 재도출하지 않았다.</li>
+</ul>
+
+</body>
+</html>

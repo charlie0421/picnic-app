@@ -386,6 +386,16 @@ class AppLocalizationsFil extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'Naabot na ang limitasyon kada oras ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'Naabot na ang limitasyon kada araw ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail =>
       'Nabigong mag -load ng ad. Mangyaring subukang muli.';
 
@@ -933,7 +943,7 @@ class AppLocalizationsFil extends AppLocalizations {
   String get reward => 'Gantimpala';
 
   @override
-  String get save => 'I -save';
+  String get save => 'I-save';
 
   @override
   String get seconds => 'Segundo';
@@ -1057,7 +1067,7 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!';
+      'Kumuha ng 1 bonus star candy para sa bawat 100 boto!';
 
   @override
   String get cancel => 'Kanselahin';
@@ -1311,6 +1321,10 @@ class AppLocalizationsFil extends AppLocalizations {
       'Hindi pa nakukumpirma ang iyong bayad. Maaaring hindi mo pa natapos ang pagbabayad sa payment screen ng store.\nKung nakabayad ka na, awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso. Huwag nang magbayad muli.';
 
   @override
+  String get purchase_payment_pending_message =>
+      'Hindi pa tapos ang iyong bayad. Kung pumili ka ng mabagal na paraan ng pagbabayad tulad ng cash o bank transfer, pakitapos ang pagbabayad sa tindahan o bangko.\nAwtomatikong maikakredito ang iyong Star Candy kapag natuloy ang bayad. Huwag nang magbayad muli.';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Paparating';
 
   @override
@@ -1501,6 +1515,10 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get withdrawal_success =>
       'Ang unsubscribe ay matagumpay na naproseso.';
+
+  @override
+  String get withdrawal_failed =>
+      'Nabigo ang pag-alis ng account. Pakisubukang muli maya-maya.';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1949,6 +1967,11 @@ class AppLocalizationsFil extends AppLocalizations {
   String get candy_boost_extra_bonus => 'Batayang gantimpala + dagdag na bonus';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier× na bonus';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'Sinusuri ang promosyon';
 
   @override
@@ -1958,6 +1981,56 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       'Mas natagalan ang authentication kaysa inaasahan, pero matagumpay na nakumpleto ang pagbili.';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Event bonus +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Batayang reward';
+
+  @override
+  String get purchase_reward_base_short => 'Batayan';
+
+  @override
+  String get purchase_reward_event_short => 'Event';
+
+  @override
+  String get purchase_reward_product_bonus => 'Batayang bonus';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bonus ng event';
+
+  @override
+  String get purchase_reward_expected_total => 'Tinatayang kabuuan';
+
+  @override
+  String get purchase_reward_total_short => 'Kabuuan';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'Kasalukuyang balanse $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'Inaasahan pagkatapos bumili $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Tinatayang halaga ito. Kinukumpirma ng server ang panghuling dami kapag nakumpleto na ang bayad.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Kabuuang natanggap $amount';
+  }
 
   @override
   String get ad_reward_pending => 'Sinusuri ang iyong gantimpala';
@@ -1982,6 +2055,11 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'Kasalukuyang balanse $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'Bagong balanse $amount';
   }
 
   @override
@@ -2061,4 +2139,11 @@ class AppLocalizationsFil extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito.';
+
+  @override
+  String get profile_photo_change => 'Palitan ang larawan sa profile';
 }

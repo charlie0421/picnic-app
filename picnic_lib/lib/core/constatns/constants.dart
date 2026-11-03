@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -32,6 +33,14 @@ class NavBarConstants {
 
   /// 내비 외곽 하단 마진 (콘텐츠 패딩 계산에도 사용)
   static const double bottomNavOuterMargin = 16.0;
+
+  /// 메뉴와 본문이 같은 안전영역·디자인 여백을 사용해야 하단 액션이 가려지지 않는다.
+  /// 앱의 ScreenUtil 초기화 이후 사용한다.
+  static double bottomMargin(BuildContext context) =>
+      bottomNavOuterMargin.h + MediaQuery.viewPaddingOf(context).bottom;
+
+  static double contentBottomPadding(BuildContext context) =>
+      bottomNavHeight + bottomMargin(context);
 }
 
 LocalStorage globalStorage = LocalStorage();

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2694 투표 팝업 뷰포트 대응 구현 계획</title>
+<style>
+:root{color-scheme:light;--ink:#172438;--muted:#57657a;--line:#d9e1eb;--accent:#2358a8;--light:#f3f6fa}*{box-sizing:border-box}body{margin:0;background:#eef2f7;color:var(--ink);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}main{max-width:1240px;margin:32px auto;padding:36px 44px;background:white;border-radius:16px}h1{font-size:30px;line-height:1.35;margin:0 0 18px}h2{font-size:24px;border-top:2px solid var(--line);padding-top:26px;margin-top:42px}h3{font-size:18px;margin-top:28px}p{margin:12px 0}a{color:var(--accent);overflow-wrap:anywhere}code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:.87em;overflow-wrap:anywhere;background:#edf2f8;padding:1px 4px;border-radius:3px}pre{overflow:auto;white-space:pre-wrap;background:#152238;color:#eef5ff;padding:18px;border-radius:8px;line-height:1.55}pre code{background:none;color:inherit;padding:0;overflow-wrap:normal}table{border-collapse:collapse;width:100%;font-size:13px;margin:18px 0}th,td{border:1px solid var(--line);padding:9px 11px;text-align:left;vertical-align:top}th{background:var(--light)}thead th{text-align:center}.table-wrap{overflow:auto}.matrix{min-width:1060px}.matrix td{white-space:nowrap;text-align:center}.matrix code{font-size:11px}.muted,figcaption{color:var(--muted);font-size:13px}.callout{background:#edf4ff;border-left:4px solid var(--accent);padding:14px 20px;margin:20px 0}.caution{background:#fff7e6;border-color:#b87908}.chips{display:flex;gap:8px;flex-wrap:wrap}.chip{background:var(--light);border-radius:15px;padding:3px 12px;font-size:12px}li{margin:6px 0}.steps>li{margin:18px 0}.diagram{display:flex;gap:24px;flex-wrap:wrap}.frame{border:2px solid #8eabd0;border-radius:28px;padding:16px;width:300px;background:#f7faff}.slot{text-align:center;border:1px solid #c7d5e8;border-radius:8px;padding:10px;margin:6px 0}.priority{background:#e2efff;border:2px solid #4a78b9}.optional{border-style:dashed;color:var(--muted)}nav{padding:14px 20px;background:var(--light);border-radius:10px}nav a{margin-right:18px}footer{margin-top:36px;font-size:13px;color:var(--muted)}@media(max-width:700px){main{margin:0;padding:24px 18px;border-radius:0}h1{font-size:25px}}@media print{body{background:white}main{max-width:none;margin:0;padding:0}.table-wrap{overflow:visible}.matrix{min-width:0;font-size:9px}.matrix code{font-size:8px}tr,figure{break-inside:avoid}h2,h3{break-after:avoid}}
+</style>
+</head>
+<body><main>
+<header>
+<div class="chips"><span class="chip">PICNIC-2694</span><span class="chip">분석·계획만</span><span class="chip">2026-09-15</span><span class="chip">기준 HEAD 2e5ccdc20</span></div>
+<h1>투표 팝업: 화면비보다 실제 가용 공간을 기준으로 입력과 투표 동작 보장</h1>
+<p><strong>목표:</strong> 플렉스 모드, 폴더블, 듀얼 스크린, 휴대폰 가로, 태블릿 분할 창에서 키보드가 없을 때 <strong>금액 입력·전체 사용·투표 버튼을 첫 화면, 스크롤 오프셋 0에서 모두 표시</strong>한다.</p>
+<p><strong>권고 구조:</strong> 실제 부모 제약으로 핵심 조작부 높이를 먼저 확보하고, 부족한 공간은 로고·장식 여백·초상화 순으로 줄인 뒤 헤더와 부가정보를 스크롤 영역으로 보낸다. 일반·PIC·파트너·JMA가 같은 레이아웃 정책을 사용하되 검증·차감·사용량 계산은 기존 다이얼로그가 소유한다.</p>
+<p><strong>기술:</strong> Flutter / Dart / LayoutBuilder / MediaQuery / flutter_screenutil 5.9.3. <strong>요구사항 출처:</strong> 전달받은 PICNIC-2694 작업 명세와 로컬 코드. Jira 원문·실기기·위젯 실행 결과로 확대 해석하지 않는다.</p>
+<p class="muted">실행자는 superpowers:test-driven-development와 systematic-debugging 절차로 실패 재현 → 최소 수정 → 회귀 검증을 수행한다. 이번 산출물은 지정 HTML 한 파일이며 코드·Jira·외부 서비스·커밋은 변경하지 않는다.</p>
+</header>
+<nav aria-label="목차"><a href="#cause">1. 근본 원인</a><a href="#matrix">2. 뷰포트 매트릭스</a><a href="#design">3. 설계</a><a href="#steps">4. 구현 단계</a><a href="#acceptance">5. 인수 기준</a><a href="#risk">6. 위험·회귀</a></nav>
+<section id="cause"><h2>1. 근본 원인</h2>
+<h3>1.1 직접 원인: ‘입력이 들어갈 수 있음’과 ‘처음부터 입력이 보임’의 혼동</h3>
+<table><thead><tr><th>관찰</th><th>코드 근거 (저장소 기준 파일:라인)</th><th>영향</th></tr></thead><tbody>
+<tr><td>티어 계산이 입력 한 줄 + 8만 예약</td><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:316–344</code><br><code>window = _amountInputPreferredHeight(...) + 8</code></td><td>full/compact 선택은 스크롤 후 입력 전체를 담을 가능성만 보장한다. 오프셋 0의 선행 콘텐츠 높이를 예약하지 않는다.</td></tr>
+<tr><td>입력 앞에 잔액과 전체 사용이 배치됨</td><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:479–493</code><br><code>voting_dialog_widgets.dart:547–548, 676–677</code></td><td>짧은 라벨에서도 각각 최소 48, 합계 최소 96이 입력보다 먼저 나온다. compact에는 이름까지 추가된다.</td></tr>
+<tr><td>중앙에만 남는 높이를 전달</td><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:385–405</code></td><td>Column의 고정 헤더·푸터 뒤 남은 공간을 Flexible.loose + SingleChildScrollView가 받는다. 중간 콘텐츠가 그 높이를 넘으면 키보드 없이도 스크롤 범위가 생긴다. 374–376행의 ‘키보드가 높이를 먹을 때만’이라는 주석은 실제 분기 조건과 다르다.</td></tr>
+<tr><td>초기 화면 보정이 없음</td><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:118–122, 568–597</code></td><td>초기에는 포커스가 없고 ensureVisible은 포커스가 있을 때만 실행된다. 입력이 숨은 상태에서 자동으로 드러나지 않는다. 포커스 후 보정 성공은 첫 화면 가시성의 증거가 아니다.</td></tr>
+<tr><td>none도 기존 순서 전체 스크롤</td><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:418–433</code></td><td>초상화 → 이름 → 잔액 → 전체 사용 → 입력 → 안내 → 제출 순서다. 높이가 더 짧으면 입력과 제출 모두 아래로 밀린다.</td></tr>
+</tbody></table>
+<p><strong>가설 판정:</strong> ‘짧은 pinned 중앙 창에서 전체 사용만 보인다’는 구조적 설명은 맞다. 다만 모든 가로형이 pinned는 아니다. 너비에 비례해 커진 이미지 때문에 일반 휴대폰 가로는 <code>none</code>으로 떨어지는 별도 경로도 있다. 특정 실제 기기에서 보이는 정확한 픽셀은 렌더 검증이 필요하다.</p>
+<h3>1.2 공간을 더 줄이는 요인과 실제 상수</h3>
+<ul>
+<li><code>voting_dialog.dart:233–257</code>: 일반 AlertDialog의 세로 inset은 위·아래 24씩, 합계 <strong>48 logical px</strong>다. 부모가 이미 뺀 키보드·SafeArea를 다시 빼는 버그는 현재 일반 코드에 없다. 최종 높이는 <code>constraints.maxHeight</code>에서 팝업 자체 장식만 뺀다.</li>
+<li><code>picnic_lib/lib/presentation/widgets/ui/large_popup.dart:16–35</code>: 숨긴 닫기 영역도 24를 점유하고 테두리는 양쪽 <code>2.r</code>이므로 추가 높이는 <code>24 + 4.r</code>다. 65–76행의 캡슐은 <code>Clip.antiAlias</code>로 실제로 자른다. 단순 화면 Rect 포함만 검사하면 둥근 모서리 클리핑을 놓칠 수 있다.</li>
+<li><code>large_popup.dart:22</code>: <code>345.w</code>는 물리적으로 고정된 345가 아니다. <code>voting_dialog_widgets.dart:226, 238–239, 387–388</code>: 초상화는 <code>80.w</code>, 일반 로고는 <code>60.w</code>, 파트너 로고는 <code>100.w</code>다. 가로 화면에서 세로 이미지 점유까지 화면 폭 배율로 커진다.</li>
+<li><code>picnic_lib/lib/core/utils/app_builder.dart:17–20, 50–53</code>: 기준 393×892, <code>splitScreenMode=true</code>, <code>minTextAdapt=true</code>. 잠긴 ScreenUtil 5.9.3의 <code>lib/src/screen_util.dart:216–245</code>에서 <code>scaleWidth=W/393</code>, <code>scaleHeight=max(H,700)/892</code>, <code>.r=min(scaleWidth,scaleHeight)</code>다. 높이 393이어도 세로 여백은 393/892가 아닌 700/892 배율을 쓴다.</li>
+<li><code>picnic_lib/lib/ui/presentation_tokens.dart:64–81</code>: PicnicUi.text는 <code>fontSize=size</code>, <code>height=1.45</code>이며 .sp를 쓰지 않는다. minTextAdapt가 글자 크기를 자동 축소해 해결해주지 않는다. 글자는 MediaQuery의 TextScaler를 따른다.</li>
+<li>루트 ScreenUtil 크기와 팝업 부모 크기가 다를 수 있다. 예를 들어 루트 412×1000에서 상단 패널 412×500만 쓰면 실제 예산은 500 높이인데 .h 배율은 1000/892일 수 있다. 기기 자세나 <code>MediaQuery.size</code>만 보지 않고 <strong>최종 부모 constraints</strong>를 사용해야 한다.</li>
+</ul>
+<h3>1.3 일반 다이얼로그 높이 공식과 키보드 없는 티어 예시</h3>
+<p>아래는 <strong>루트 논리 크기와 부모 크기가 같고 SafeArea 추가 차감이 0</strong>인 독립 테스트 조건이다. W/H는 논리 px, K는 bottom viewInset, t는 선형 텍스트 배율이다. 폰트의 정확한 높이는 <code>measureVotingTextHeight</code>(<code>voting_dialog_widgets.dart:18–32</code>)로 측정해야 한다. 아래 23.2t·26.1t는 16×1.45t·18×1.45t의 <strong>한 줄 추정값</strong>이다.</p>
+<pre><code>sx = W / 393
+sy = max(H, 700) / 892
+sr = min(sx, sy)
+B  = max(0, H - K - 48 - (24 + 4*sr))
+C  = 실제 카드 폭 - 4*sr - 48*sx
+
+I = max(48, measuredDigitLine + 16*sy + 2)
+S = max(52, measuredVoteLabel + 8*sy)
+N = measuredNameRow(C) + 20*sy
+P = 80*sx + (K&gt;0 ? 20 : 40)*sy
+F = S + (K&gt;0 ? 16*sy : 40*sy + logoHeight)
+logoHeight = 60*sx (일반), 100*sx (파트너)
+
+full    : B &gt;= P + N + F + I + 8
+compact : B &gt;= P + F + I + 8, full 조건은 불충족
+none    : 위 조건 불충족 또는 C &lt;= 0
+
+full의 중간 창 Vh    = B - P - N - F
+compact의 중간 창 Vh = B - P - F
+입력 시작 y (중간 창 기준) = 잔액 높이 + 전체사용 높이 + (compact ? N : 0)
+입력 전체 가시 조건          = y + 실제 입력 높이 &lt;= Vh</code></pre>
+<p>실제 입력 컨테이너에는 48 높이의 지우기 버튼도 있다(<code>voting_dialog_widgets.dart:757–759</code>, <code>voting_dialog.dart:695–707</code>). 테두리를 포함하면 일반 입력의 최소 외곽 높이는 약 50, JMA는 약 52다. 티어 계산은 현재 코드의 I 공식을 그대로 사용하고, 가시성 추정은 이 차이를 반영했다. 새 구현은 임의의 8 여유값에 의존하지 않고 실제 자식·테두리·패딩을 함께 측정해야 한다.</p>
+<table><thead><tr><th>W×H / K / t</th><th>B</th><th>P / N / F / I</th><th>compact / full 임계값</th><th>판정과 첫 화면 (추정)</th></tr></thead><tbody>
+<tr><td>412×500 / 0 / 1</td><td>424.86</td><td>115.26 / 38.90 / 146.29 / 48</td><td>317.55 / 356.44</td><td><strong>full</strong>. 중앙 창 124.42, 입력 y=96부터 약 146까지. 하단 약 21.58 잘림. 전체 사용은 보임.</td></tr>
+<tr><td>412×448 / 0 / 1</td><td>372.86</td><td>동일</td><td>동일</td><td><strong>full</strong>. 중앙 창 72.42라 입력 시작 96에도 못 미침. 잔액 및 전체 사용 일부만 보임.</td></tr>
+<tr><td>412×430 / 0 / 1</td><td>354.86</td><td>동일</td><td>동일</td><td><strong>compact</strong>. 중앙 창 93.31, 이름을 포함한 입력 시작 134.90. 입력은 보이지 않음.</td></tr>
+<tr><td>851×393 / 0 / 1</td><td>317.86</td><td>204.62 / 38.90 / 213.31 / 48</td><td>473.94 / 512.83</td><td><strong>none</strong>. 입력 시작 P+N+96=339.52 &gt; B. 입력·제출 모두 첫 화면 아래.</td></tr>
+<tr><td>926×428 / 0 / 1</td><td>352.86</td><td>219.89 / 38.90 / 224.76 / 48</td><td>500.65 / 539.55</td><td><strong>none</strong>. 입력 시작 354.79 &gt; B. 키보드 없이도 재현 가능한 경로.</td></tr>
+<tr><td>320×568 / 280 / 1</td><td>212.86</td><td>80.84 / 38.90 / 64.56 / 48</td><td>201.39 / 240.29</td><td><strong>compact</strong>. 중앙 창 67.47, 입력 시작 134.90. 포커스 후 ensureVisible이 이동해야 보임.</td></tr>
+<tr><td>320×568 / 300 / 2</td><td>192.86</td><td>80.84 / 62.10 / 71.03 / 60.96</td><td>220.83 / 282.92</td><td><strong>none</strong>. PICNIC-2688의 극단적 키보드 폴백. 입력·버튼을 차례로 스크롤해 접근.</td></tr>
+</tbody></table>
+<p>851×393에서 카드 폭은 <code>345×851/393=747.06</code>, 초상화 높이는 173.23, 일반 로고는 129.92다. ‘폭이 좁아져 생긴 문제’로 단정할 수 없다. 이미 넓은 카드를 쓰면서도 한 열로 이미지를 크게 쌓아 세로 공간을 소모한다. 파트너는 일반 대비 로고 높이가 추가 <code>40*sx</code>이므로 더 빨리 불리한 티어로 바뀐다.</p>
+<h3>1.4 JMA는 같은 원칙의 결함이지만 구현·티어가 다름</h3>
+<p><code>git show 757507d49 --stat</code>의 PR #227 변경 파일은 일반 다이얼로그·공유 위젯·일반 presentation test 세 개다. <strong>JMA에 _PinnedChrome.full/compact/none가 도입되었다고 쓰면 사실과 다르다.</strong></p>
+<ul>
+<li><code>jma_voting_dialog.dart:297–339</code>: 키보드 없을 때 inset 합계 80, 있을 때 40. 예산은 <code>min((H-K)*(K&gt;0 ? .85 : .75), 실제 제약 높이 - hiddenChrome)</code>. 고정 티어는 예산 ≥360이면서 <code>textScaler.scale(14) ≤18.2</code>; 그 외는 전체 스크롤이다. t=2는 큰 화면에서도 항상 전체 스크롤이다.</li>
+<li><code>jma_voting_dialog.dart:374–415</code>: 고정 경로는 Expanded 중앙 스크롤, 대안은 모든 내용을 같은 순서로 스크롤한다. 일반처럼 실제 헤더·푸터·입력 높이를 모두 측정하지 않는다.</li>
+<li><code>jma_voting_dialog.dart:419–429, 792–955, 1628–1642</code>: 입력 앞에 잔액·교환 가능량 패널, 일일 한도, 전체 사용이 놓인다. 일반의 96보다 선행 콘텐츠가 훨씬 크다.</li>
+<li><code>jma_voting_dialog.dart:695–745, 493–502, 1601–1661</code>: 키보드가 없으면 초상화 60.w, 로고 60.w를 고정한다. 키보드가 있으면 초상화와 로고를 숨긴다. 일반 다이얼로그의 키보드 초상화 유지 정책과도 다르다.</li>
+<li>412×500, K=0은 <code>min(375, 500-80-27.14)=375</code>, 따라서 t=1·1.3은 고정 티어다. t=1의 헤더 약 120.57, 푸터 약 136.01을 빼면 중앙 창은 약 118.42이다. 잔액 패널 한 줄 모델만 약 130.22이고, 입력은 중앙 기준 약 222.73부터 시작해 첫 화면에서 보이지 않는다. 모든 텍스트 실측을 생략한 <strong>추정</strong>이어도 선행 패널만으로 창을 소모한다.</li>
+</ul>
+<h3>1.5 기존 테스트가 놓친 조건</h3>
+<p><code>voting_dialog_presentation_test.dart:106–157</code>은 프로덕션 ScreenUtil 설정과 DPR=3, 논리 뷰포트, 하나의 viewInsets 주입 지점을 재사용할 수 있다. 그러나 181–214행은 <code>tester.ensureVisible</code>을 먼저 호출하고, 322–342행의 ‘without scrolling’ 검사도 325–326행에서 포커스를 준 뒤 자동 스크롤이 끝난 상태를 검사한다. 482–515행은 포커스 후 내부 스크롤 창 포함을 검증한다. <strong>키보드 없음 + 첫 프레임 offset=0 + 내부 clip에 입력 전체 포함</strong>의 조합이 빠져 있다.</p>
+</section>
+<section id="matrix"><h2>2. 뷰포트 매트릭스</h2>
+<p><strong>기기 이름과 대응 크기는 추정 테스트 표본</strong>이다. 실제 제품·OS·화면 확대·작업 표시줄·힌지 설정마다 달라진다. 412×500도 플렉스 상단을 모델링한 값이며 특정 모델의 보증 사양이 아니다. iPad 분할 폭은 구분선 등을 감안한 예시다.</p>
+<div class="callout caution"><strong>모든 가시성·스크롤 표시는 코드 기반 추정이며 위젯 실행 결과가 아니다.</strong> 행별 전체 조합은 K={0,280} × t={1,1.3,2}. ScreenUtil과 부모는 같은 W/H, 추가 SafeArea=0, 짧은 한 줄 이름(그룹 없음), 한국어의 짧은 라벨·잔액, 입력 공백·오류 없음, JMA 정책 접힘을 모델링했다. 글꼴 반올림·긴 라벨·줄바꿈은 결과를 악화시킬 수 있다. 특히 V는 이 단순 모델에서의 전체 표시이며 실제 기기 표시의 보증이 아니다.</div>
+<p><strong>각 셀은 ‘티어 / 스크롤 / 입력 / 투표 버튼’.</strong> F=일반 full, C=일반 compact, N=일반 none. JF=JMA 고정, JN=JMA 전체 스크롤. S=콘텐츠 넘침으로 스크롤 범위 양수, –=추정상 스크롤 범위 0(위젯 자체는 존재). V=전체 표시, P=일부만 표시, X=미표시 또는 전체 표시 실패. 모두 포커스·ensureVisible 이전, offset=0 기준이다. JMA JN의 투표 X는 아래로 밀리거나 일부 잘림도 포함한다.</p>
+<h3>2.1 일반 VotingDialog — 기본 로고</h3>
+<div class="table-wrap"><table class="matrix"><thead><tr><th rowspan="2">논리 크기·용도 (기기 대응은 추정)</th><th colspan="3">키보드 없음 · K=0</th><th colspan="3">키보드 있음 · K=280</th></tr><tr><th>1.0×</th><th>1.3×</th><th>2.0×</th><th>1.0×</th><th>1.3×</th><th>2.0×</th></tr></thead><tbody><tr><th scope="row">Z Flip 플렉스 상단 절반<br><span class="muted">412 × 500</span></th><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / X / V</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">Z Flip 더 짧은 상단/부모<br><span class="muted">412 × 448</span></th><td><code>F / S / X / V</code></td><td><code>F / S / X / V</code></td><td><code>C / S / X / V</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">Fold 커버 A<br><span class="muted">360 × 800</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td></tr><tr><th scope="row">Fold 커버 B<br><span class="muted">373 × 819</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td></tr><tr><th scope="row">Fold 내부<br><span class="muted">768 × 832</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / V / V</code></td></tr><tr><th scope="row">듀얼 스크린 한 패널<br><span class="muted">540 × 720</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td></tr><tr><th scope="row">Android 휴대폰 가로 A<br><span class="muted">851 × 393</span></th><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">Android 휴대폰 가로 B<br><span class="muted">926 × 428</span></th><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">iPhone 가로<br><span class="muted">844 × 390</span></th><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">iPad 가로 A<br><span class="muted">1024 × 768</span></th><td><code>F / S / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / X / V</code></td><td><code>F / S / X / V</code></td><td><code>C / S / X / V</code></td></tr><tr><th scope="row">iPad 가로 B<br><span class="muted">1194 × 834</span></th><td><code>F / S / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / X / V</code></td></tr><tr><th scope="row">iPad 가로 C<br><span class="muted">1366 × 1024</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td></tr><tr><th scope="row">iPad 1/3 분할<br><span class="muted">320 × 768</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td></tr><tr><th scope="row">iPad 1/2 분할<br><span class="muted">507 × 768</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / V / V</code></td><td><code>F / S / P / V</code></td></tr><tr><th scope="row">Stage Manager 작은 창<br><span class="muted">600 × 500</span></th><td><code>F / S / X / V</code></td><td><code>C / S / X / V</code></td><td><code>C / S / X / V</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">Stage Manager 넓은 창<br><span class="muted">800 × 600</span></th><td><code>F / S / X / V</code></td><td><code>F / S / X / V</code></td><td><code>C / S / X / V</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">PICNIC-2688 작은 폰<br><span class="muted">320 × 568</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td><td><code>C / S / X / V</code></td><td><code>C / S / X / V</code></td><td><code>N / S / X / X</code></td></tr><tr><th scope="row">PICNIC-2688 기준 폰<br><span class="muted">375 × 812</span></th><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / – / V / V</code></td><td><code>F / S / V / V</code></td></tr><tr><th scope="row">좁은 창 경계<br><span class="muted">280 × 480</span></th><td><code>F / S / V / V</code></td><td><code>F / S / P / V</code></td><td><code>F / S / P / V</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td><td><code>N / S / X / X</code></td></tr></tbody></table></div>
+<p>파트너 기본값은 같은 표에서 F의 로고 항만 <code>60*sx → 100*sx</code>로 바꾸어 재계산한다. PIC 포털은 동일 레이아웃이므로 데이터만 분리한 회귀 사례가 필요하다. 일반 버블 한 줄의 높이는 <code>17.4*t + 23.5</code> 추정: bubble_box 0.5.3의 기본 패딩 위아래 16 + 화살표 6 + 테두리 반폭 합 1.5. 줄바꿈·파트너 두 번째 문장·오류 문구는 추가 높이다.</p>
+<h3>2.2 JmaVotingDialog — 자체 고정/전체 스크롤 티어</h3>
+<div class="table-wrap"><table class="matrix"><thead><tr><th rowspan="2">논리 크기·용도 (기기 대응은 추정)</th><th colspan="3">키보드 없음 · K=0</th><th colspan="3">키보드 있음 · K=280</th></tr><tr><th>1.0×</th><th>1.3×</th><th>2.0×</th><th>1.0×</th><th>1.3×</th><th>2.0×</th></tr></thead><tbody><tr><th scope="row">Z Flip 플렉스 상단 절반<br><span class="muted">412 × 500</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">Z Flip 더 짧은 상단/부모<br><span class="muted">412 × 448</span></th><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">Fold 커버 A<br><span class="muted">360 × 800</span></th><td><code>JF / – / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / V / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">Fold 커버 B<br><span class="muted">373 × 819</span></th><td><code>JF / – / V / V</code></td><td><code>JF / – / V / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">Fold 내부<br><span class="muted">768 × 832</span></th><td><code>JF / S / P / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / V / X</code></td></tr><tr><th scope="row">듀얼 스크린 한 패널<br><span class="muted">540 × 720</span></th><td><code>JF / S / P / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / P / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">Android 휴대폰 가로 A<br><span class="muted">851 × 393</span></th><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">Android 휴대폰 가로 B<br><span class="muted">926 × 428</span></th><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">iPhone 가로<br><span class="muted">844 × 390</span></th><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">iPad 가로 A<br><span class="muted">1024 × 768</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / P / X</code></td><td><code>JF / S / P / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">iPad 가로 B<br><span class="muted">1194 × 834</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / V / X</code></td></tr><tr><th scope="row">iPad 가로 C<br><span class="muted">1366 × 1024</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / – / V / V</code></td><td><code>JF / – / V / V</code></td><td><code>JN / S / V / V</code></td></tr><tr><th scope="row">iPad 1/3 분할<br><span class="muted">320 × 768</span></th><td><code>JF / – / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / P / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">iPad 1/2 분할<br><span class="muted">507 × 768</span></th><td><code>JF / S / V / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / P / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">Stage Manager 작은 창<br><span class="muted">600 × 500</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">Stage Manager 넓은 창<br><span class="muted">800 × 600</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">PICNIC-2688 작은 폰<br><span class="muted">320 × 568</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / P / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr><tr><th scope="row">PICNIC-2688 기준 폰<br><span class="muted">375 × 812</span></th><td><code>JF / – / V / V</code></td><td><code>JF / S / V / V</code></td><td><code>JN / S / V / X</code></td><td><code>JF / S / V / V</code></td><td><code>JF / S / P / V</code></td><td><code>JN / S / P / X</code></td></tr><tr><th scope="row">좁은 창 경계<br><span class="muted">280 × 480</span></th><td><code>JF / S / X / V</code></td><td><code>JF / S / X / V</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td><td><code>JN / S / X / X</code></td></tr></tbody></table></div>
+<p>JMA 표의 한 줄 하한 모델: <code>balance=12*sy+34.8*t+64+max(22,17.4*t)</code>, <code>beforeInput=32*sy+balance+2+17.4*t+48</code>, 실제 입력 추정 <code>max(52,23.2*t+16*sy+4)</code>. 64는 잔액 아이콘 행 40 + 구분 화살표 24다. 정책 토글 최소 48도 전체 높이에 포함했다. Wrap으로 잔액이 두 줄이 되거나 일일 한도·배지가 줄바꿈되면 P→X, V→P/X, –→S로 바뀔 수 있다. JF/JN 분기는 예산·텍스트 배율의 실제 상수에 따른다.</p>
+<h3>2.3 실기기 형태를 분리하는 추가 축</h3>
+<table><thead><tr><th>환경</th><th>주입 방식</th><th>현재 동작의 기대·확인점</th></tr></thead><tbody>
+<tr><td>플렉스 / 듀얼 스크린의 부분 부모</td><td>루트 412×1000, 부모 412×500 및 412×448. 별도 1114×720 루트에 폭 34 힌지, 한 패널 540×720.</td><td>부모 예산은 줄지만 전역 .w/.h는 큰 루트에 묶일 수 있다. 일반 티어는 같은 수식에 루트 sx/sy와 부모 budget을 각각 대입한다. 고정 기기명 분기를 만들지 않는다.</td></tr>
+<tr><td>실제 showDialog 경로·SafeArea</td><td>padding/viewPadding 상단 24·하단 24, iPhone 가로 좌우 44·하단 21. route builder 위에서 MediaQuery 한 번 주입.</td><td>route가 실제로 남긴 maxWidth/maxHeight를 관찰한다. 낮아진 budget으로 F→C→N이 바뀔 수 있다. Dialog inset과 키보드를 다시 빼지 않는다.</td></tr>
+<tr><td>회전·분할 창 동적 변경</td><td>393×852 ↔ 852×393, 1024×768 → 507×768 → 320×768 → 600×500</td><td>새 화면 크기에서 ScreenUtil 재설정·부모 constraints 갱신을 함께 검증한다. 열린 다이얼로그의 입력·체크·포커스가 유지되어야 한다.</td></tr>
+<tr><td>작은 키보드 잔여 공간</td><td>가로 851×393·K=280이면 일반 B≈37.86</td><td>48 이상 컨트롤 전체를 동시에 보여달라는 요구는 물리적으로 불가능하다. K&gt;0의 이 조합은 예외 없는 렌더·스크롤 접근·키보드 닫기 후 완전 복귀를 검증한다. 키보드 없는 모든 표본은 세 핵심 조작부 동시 표시를 요구한다.</td></tr>
+</tbody></table>
+</section>
+<section id="design"><h2>3. 설계</h2>
+<h3>3.1 조작부 우선, 장식·설명은 남은 공간 사용</h3>
+<ol>
+<li><strong>먼저 실제 사용 가능 영역을 확정:</strong> route/SafeArea/키보드 처리 뒤의 LayoutBuilder 제약을 사용한다. 상위 AlertDialog가 제거한 inset을 재차 차감하지 않는다. IntrinsicWidth 질의를 차단하는 유한 <code>SizedBox(width: ...)</code>도 유지한다.</li>
+<li><strong>입력·전체 사용·제출의 실제 높이를 먼저 측정:</strong> 글자 배율, 실제 내부 폭, 줄바꿈, 입력 border/clear 버튼, 활성 제출 아이콘까지 반영한다. 터치 영역은 최소 48, 일반 제출은 기존 최소 52를 유지한다. TextScaler를 제한하거나 FittedBox로 글자를 축소하지 않는다.</li>
+<li><strong>충분한 높이:</strong> 현재 순서와 초상화·이름·잔액·안내·로고의 모습을 유지한다. 전체 콘텐츠가 들어가는 경우 중앙 영역은 스크롤 범위 0이다. PICNIC-2688의 375×812·K336·1×처럼 여유가 있는 키보드 화면도 기존 초상화·버블을 모두 보인다.</li>
+<li><strong>첫 축소:</strong> 장식 로고와 부가 혜택/정책을 우선 스크롤 가능한 부가 영역으로 옮기고, 장식 여백을 줄인다. 짧은 화면에만 로고를 숨길 수 있으나 브랜드·정책 정보는 부가 영역으로 접근할 수 있게 남긴다. 단순히 K&gt;0일 때만 축소하지 않는다.</li>
+<li><strong>다음 축소:</strong> 초상화 최대 크기를 로컬 카드 폭·가용 높이로 제한한다. 일반 기준 80, JMA 기준 60 logical px를 상한 제안값으로 사용하고 부족할 때 32까지 줄인다. 글자·입력·터치 크기는 줄이지 않는다. 이름은 전체 텍스트를 남기고 줄바꿈을 허용한다. 짧은 모드에서는 카드 모서리 반경도 24 logical px로 제한하는 것을 제안한다. 기존 120.r 반경을 유지한 채 조작부를 위아래 끝까지 붙이면 bounding Rect가 들어가도 실제 페인트가 둥근 모서리에 잘릴 수 있다.</li>
+<li><strong>여전히 부족:</strong> 헤더(초상화·이름 포함), 잔액 상세, 로고, 혜택, JMA 설명·정책을 하나의 독립 스크롤 영역으로 옮긴다. <strong>입력·전체 사용·제출은 이 스크롤 밖에 고정</strong>한다. 짧은 상태에서는 입력 → 전체 사용 → 제출 순서의 조작부가 먼저 공간을 확보한다. 후보의 짧은 식별 문구는 공간이 허용하면 조작부와 함께 표시하고 전체 이름은 부가 영역·Semantics에서 보존한다. 280×280·200%처럼 핵심 조작부만 들어가는 경계에서는 후보 이름을 입력·제출의 Semantics label에 연결하고 별도 고정 이름 행을 강제하지 않는다.</li>
+<li><strong>물리적 하한:</strong> 유한한 임의의 모든 높이에 세 48px 컨트롤을 보장할 수는 없다. K=0의 인수 표본(최소 280×480 및 추가 280×280)은 반드시 동시 표시한다. 그보다 작은 자유 크기 창이나 큰 키보드로 핵심 높이 자체가 남은 공간보다 크면 조작부 우선 순서로 전체 스크롤 폴백을 사용한다. 클리핑·음수 높이·RenderFlex overflow를 허용하지 않는다.</li>
+</ol>
+<figure><div class="diagram"><div class="frame"><strong>충분한 높이</strong><div class="slot">초상화 · 후보 이름</div><div class="slot">잔액</div><div class="slot priority">전체 사용 · 금액 입력</div><div class="slot optional">혜택/안내</div><div class="slot priority">투표</div><div class="slot">로고</div></div><div class="frame"><strong>짧은 높이</strong><div class="slot optional">축소 초상화 · 이름 · 잔액 상세<br>로고 · 혜택 · 정책<br><small>이 영역만 필요할 때 스크롤</small></div><div class="slot priority">금액 입력<br>전체 사용<br>투표<br><small>먼저 높이 확보 · 항상 첫 화면</small></div></div></div><figcaption>레이아웃 개념도. 장식 이미지의 우선순위를 조작부보다 낮추고, 스크롤 시작 위치를 숨은 입력을 찾는 수단으로 사용하지 않는다.</figcaption></figure>
+<h3>3.2 가로형 폭 확장·2단 배치 결정</h3>
+<p><strong>이번 수정은 전체 팝업 2단 배치를 채택하지 않는다.</strong> 현재도 가로 851에서 카드가 약 747로 이미 넓다. 2단 자체는 이미지·로고 크기와 초기 우선순위 오류를 해결하지 않고, 좁은 Fold 커버·태블릿 1/3·200% 글자에서 또 다른 분기를 만든다. 먼저 1열 조작부를 보장하는 공통 구조로 해결한다.</p>
+<p>투표 팝업에만 <strong>논리 폭 상한 560</strong>을 도입하는 것을 권고한다. 초기 폭은 <code>min(345.w, 560, routeAvailableWidth)</code>, 세로 방향과 키보드 유무가 아닌 실제 폭으로 결정한다. 560은 <strong>설계 제안값</strong>이며 기존 상수가 아니다. <code>LargePopupWidget(width: resolvedWidth)</code>와 외부 SizedBox에 같은 값을 전달한다. 내부 패딩·초상화는 전역 .w 확대를 따르지 않도록 로컬 폭에서 상한을 정한다. 제출 버튼도 기존 172.w를 그대로 크게 만들지 말고 실제 영역에 맞춰 상한/최소 터치를 지킨다.</p>
+<p>이후 별도 UX 검증으로 2단을 도입하려면 최소 좌측 정보 폭 + 간격 + 200% 우측 입력 폭이 실제 제약에 들어갈 때만 선택한다. <code>orientation == landscape</code>나 화면비 상수는 선택 근거로 사용하지 않는다. 지금 계획의 통과 조건에 2단은 필요하지 않다.</p>
+<h3>3.3 공유 레이아웃과 상태 소유</h3>
+<table><thead><tr><th>파일 / 책임</th><th>구체적 변경</th></tr></thead><tbody>
+<tr><td><code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart</code> (신규 제안)</td><td>순수 높이 정책 <code>VoteDialogLayoutMetrics</code>/<code>VoteDialogLayoutMode</code>와 공통 <code>VoteDialogLayout</code>. 소비 값: 최종 card constraints, TextScaler에 따라 측정한 핵심/헤더/부가 높이, preferred width. 슬롯: header, balance, amount, useAll, details, submit, logo. 충분/조작부 고정/전체 스크롤 모드를 반환하고 optionalScrollKey를 노출한다. provider·투표 서비스 의존성은 두지 않는다.</td></tr>
+<tr><td><code>voting_dialog.dart</code></td><td><code>build</code>, <code>_pinnedChromeFor</code>, <code>_buildFixedChromeBody</code>, <code>_buildAllScrollBody</code>, <code>_buildScrollableMiddle</code>의 배치를 공통 위젯으로 위임한다. 입력·컨트롤러·포커스·검증·submit 콜백은 State에 남긴다. 충분 모드에서는 기존 순서를 유지하고 짧은 모드에서는 amount/useAll/submit을 고정한다.</td></tr>
+<tr><td><code>jma_voting_dialog.dart</code></td><td>360·130% 고정 임계값, .75/.85 상한 대신 같은 실측 예산 정책을 사용한다. <code>_buildVoteInputSection</code>을 amount/useAll과 일일 한도·계산·정책 details로 나눈다. 충분 모드에서 기존 선호 높이를 유지할 수 있으나 핵심 조작부를 가리면 실제 fits까지 높이 사용을 허용한다. JMA 30개 환산·일일 한도·보너스·활성 상태는 그대로 둔다.</td></tr>
+<tr><td><code>voting_dialog_widgets.dart</code></td><td>VotingArtistImage에 명시적 logicalSize, VotingMemberInfo/VotingSubmitButton에 실제 maxWidth 기반 preferredHeight를 전달할 수 있게 한다. 기본 인자는 기존 호출과 호환되게 유지한다. 입력 외곽·border·clear 48을 하나의 공유 측정 공식으로 정리한다.</td></tr>
+<tr><td><code>large_popup.dart</code></td><td>기존 width 인자를 사용하고 선택 인자 <code>BorderRadius? cardBorderRadius</code>를 추가한다. 미지정 기본은 기존 <code>BorderRadius.circular(120.r)</code> 그대로, 투표의 짧은 모드에서만 <code>BorderRadius.circular(24)</code>를 전달한다. 전역 defaultLargePopupWidth·숨김 strip 24·공유 캡처 기본 기하는 유지한다. 280×280 경계에서 추가 공간이 필요하면 투표 호출부의 inset만 제한적으로 줄인다.</td></tr>
+</tbody></table>
+<pre><code>// 제안 인터페이스. 값은 실측한 logical px를 전달한다.
+enum VoteDialogLayoutMode { comfortable, actionsPinned, allScroll }
+
+VoteDialogLayoutMode selectVoteDialogLayout({
+  required double bodyHeight,
+  required double fullContentHeight,
+  required double essentialHeight,
+}) {
+  if (fullContentHeight &lt;= bodyHeight) {
+    return VoteDialogLayoutMode.comfortable;
+  }
+  if (essentialHeight &lt;= bodyHeight) {
+    return VoteDialogLayoutMode.actionsPinned;
+  }
+  return VoteDialogLayoutMode.allScroll;
+}
+
+// actionsPinned 구조: essential은 텍스트/테두리/터치 크기를 포함해 선측정.
+Column(mainAxisSize: MainAxisSize.min, children: [
+  Flexible(fit: FlexFit.loose, child: SingleChildScrollView(
+    key: optionalScrollKey, child: optionalContent,
+  )),
+  essentialControls, // amount + useAll + submit; 이 그룹은 스크롤 밖
+]);</code></pre>
+<p>권고는 단순 임계값 함수만 공유하는 데 그치지 않고 <strong>실제 배치와 측정 경로도 공유</strong>하는 것이다. 첫 구현은 TextPainter와 위젯의 동일 스타일·패딩을 써서 측정한다. JMA Wrap·활성 아이콘 등 복잡한 자식은 실제 폭으로 측정하는 레이아웃 단계에서 높이를 얻고 두 번의 사후 setState로 모드를 흔들지 않는다. 측정치와 실제 Rect를 테스트로 대조한다.</p>
+<p>모드 전환 때 동일 TextEditingController, FocusNode, 입력 GlobalKey를 유지한다. 입력 위젯의 reparent로 조합 중 텍스트·선택·포커스가 사라지지 않는지 검증한다. 고정 입력에는 ensureVisible을 적용하지 않고, 실제 스크롤 조상 안에 있는 폴백에서만 필요한 만큼 이동한다. 포커스 없는 초기 화면에 강제 스크롤을 추가하지 않는다.</p>
+<h3>3.4 OTA 범위</h3>
+<p>구현은 Dart 레이아웃·테스트 변경으로 제한하고 새 플러그인, 네이티브 Activity/Info.plist/Manifest, 이미지·폰트 자산, pubspec 의존성 변경 없이 설계한다. 이 조건은 Shorebird OTA 검토가 가능한 범위라는 뜻이며 <strong>실제 OTA 호환·배포 성공을 확인한 것은 아니다.</strong> 버전·빌드·OTA 실행 단계에 들어갈 때는 지정 Flutter release 정책을 먼저 읽어야 한다. 이 계획 작업은 버전 결정이나 배포를 수행하지 않는다.</p>
+</section>
+<section id="steps"><h2>4. 구현 단계 — 테스트 먼저</h2>
+<p>아래 경로는 모두 저장소 루트 기준이다. 명령 블록은 별도 셸에서 실행한다. 체크박스는 다음 구현 작업자가 완료 시 갱신할 항목이다. 현재 작업에서는 아래 코드·테스트 파일을 생성하거나 수정하지 않았다.</p>
+<ol class="steps">
+<li><strong>□ 일반의 초기 가시성 실패를 먼저 고정</strong><br>수정: <code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart</code>. 기존 pumpCompactDialog에 412×500, 412×448, 851×393, 926×428, 1024×768·t2를 넣는다. K=0, 포커스 없음, 모든 ScrollPosition.pixels=0을 확인하고 amount/useAll/submit의 전체 Rect를 내부 clip과 대조한다. ensureVisible·showKeyboard·drag를 호출하기 전에 검사한다.
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart --plain-name PICNIC-2694</code></pre>
+기대 RED: 입력 외곽이 스크롤 viewport 하단을 넘거나 시작점부터 영역 밖이다. 네트워크·에셋 예외로 실패한 것은 유효한 RED로 세지 않는다.</li>
+<li><strong>□ JMA 및 부모 제약 실패를 별도로 고정</strong><br>수정: <code>picnic_lib/test/presentation/widgets/vote/voting/jma_voting_dialog_presentation_test.dart</code>. pumpCompactJma에 viewport 인자를 추가하고 기존 parentHeight를 재사용한다. 412×500·t1, 1024×768·t1, 851×393·t1과 t2, 루트 412×1000/부모500을 검사한다. 일일 사용량은 기존 mock으로 고정한다.
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting/jma_voting_dialog_presentation_test.dart --plain-name PICNIC-2694</code></pre>
+기대 RED: 앞선 잔액 패널 때문에 입력이 초기 화면 밖. 테스트 간 view 크기·DPR·inset은 addTearDown으로 복원한다.</li>
+<li><strong>□ 공통 배치 정책과 측정 구현 후 일반 연결</strong><br>생성: <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart</code>, <code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_layout_test.dart</code>. 수정: 일반 dialog·공유 widgets·<code>picnic_lib/lib/presentation/widgets/ui/large_popup.dart</code>의 선택적 cardBorderRadius 인자. 먼저 실제 48 터치·큰 글자·지우기 버튼을 가진 작은 테스트 슬롯으로 bodyHeight가 essentialHeight의 직전/같음/직후인 경계를 검증한다. 인터페이스는 3.3절을 사용하고 키보드가 아니라 fits로 모드를 결정한다. 초상화 32–80, 로컬 패딩 상한, 카드 폭 상한을 주입한다.
+<pre><code>testWidgets('PICNIC-2694 reserves the complete action group', (tester) async {
+  // 기존 pumpCompactDialog를 재사용하는 일반 presentation test 예시
+  await pumpCompactDialog(tester,
+    viewport: const Size(412, 500), keyboardInset: 0,
+    textScaler: const TextScaler.linear(2));
+  expect(tester.widget&lt;TextField&gt;(find.byType(TextField)).focusNode?.hasFocus,
+      isFalse);
+  for (final state in tester.stateList&lt;ScrollableState&gt;(
+      find.descendant(of: find.byType(VotingDialog),
+        matching: find.byType(Scrollable)))) {
+    expect(state.position.pixels, closeTo(0, 0.01));
+  }
+  // 5.2절의 Rect + clip + hitTest 검사를 같은 프레임에 모두 실행한다.
+  expect(tester.takeException(), isNull);
+});</code></pre>
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting/voting_dialog_layout_test.dart test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart</code></pre>
+기대 GREEN: 신규 RED와 기존 PICNIC-2688 테스트 모두 통과. 280×280·200%의 핵심 높이는 입력(약 64.4/66.4) + 전체사용 48 + 제출 약 60.2 + 조작부 간격·패딩 합계 최대 20 = 약 192.6/194.6이며, 외부 여백·strip·border를 뺀 예산 안에 있어야 한다. 이 수치는 한 줄 한국어 라벨의 설계 예산이며 실제 글꼴·폭으로 재측정한다. 단일 48 터치 버튼까지도 못 들어가는 작은 창은 물리적 폴백 조건으로 분리한다. 순수 helper 반환값만 확인하고 실제 배치를 확인하지 않는 테스트로 대체하지 않는다.</li>
+<li><strong>□ JMA를 같은 구조로 연결</strong><br>수정: <code>jma_voting_dialog.dart</code>. _buildScrollableMiddle/_buildVoteInputSection/_buildFixedHeader/_buildFixedFooter에서 슬롯을 추출하고 새로운 공통 배치에 전달한다. 일일 한도·오류·환산은 의미를 유지하며 상세 스크롤로 보내고 현재 오류 안내는 입력과 연결된 Semantics를 유지한다. 입력과 버튼의 콜백·provider는 변경하지 않는다.
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting/jma_voting_dialog_presentation_test.dart test/presentation/widgets/vote/voting/jma_voting_dialog_widget_test.dart test/presentation/widgets/vote/voting/jma_voting_dialog_render_test.dart</code></pre>
+기대 GREEN: 초기 표시, 정책 접기/펼치기, 사용량 계산·전체 사용·버튼 상태 회귀 통과.</li>
+<li><strong>□ 전체 매트릭스·동적 전환·공유 팝업 회귀 검증</strong><br>두 presentation test에 5절의 표본/배율/키보드·SafeArea·부분 부모·포털 조합을 파라미터화한다. 필요 시 두 파일만 공유하는 테스트 harness를 <code>picnic_lib/test/helpers/vote_dialog_viewport_harness.dart</code>에 추출한다. 새로운 harness에는 상태 공급자를 넣지 않고 크기·주입·Rect 검사만 넣는다. 회전·키보드 전환 중 입력값 123, 커서 위치, 전체 사용 상태를 보존한다.
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting
+flutter test test/presentation/widgets/ui/large_popup_test.dart test/presentation/widgets/ui/large_popup_presentation_test.dart
+flutter analyze</code></pre>
+최종 합격은 테스트 수·실패 0·analyze 결과와 함께 기록한다. 이번 작업에서 이 명령을 실행했다고 기재하지 않는다. 실제 수정 후 다른 공급자의 독립 리뷰에는 요구사항·diff·관련 파일·테스트 결과만 전달한다.</li>
+</ol>
+</section>
+<section id="acceptance"><h2>5. 인수 기준</h2>
+<h3>5.1 반드시 고정할 크기·배율·인셋</h3>
+<table><thead><tr><th>묶음</th><th>정확한 테스트 입력</th><th>통과 조건</th></tr></thead><tbody>
+<tr><td>키보드 없음 전체 행렬</td><td>2절의 19개 W×H × t={1.0,1.3,2.0} × K=0. 추가 412×430, 280×280. 일반·PIC·파트너 로고·JMA 네 변형.</td><td>세 핵심 조작부 모두 offset=0에서 전체 표시·터치 가능. 초상화·로고·정책이 그 영역을 빼앗지 않음. 입력이 비활성/공백이어도 동일.</td></tr>
+<tr><td>키보드 포함 행렬</td><td>19개 W×H × t={1.0,1.3,2.0} × K=280.</td><td>남은 높이가 essentialHeight 이상이면 조작부 모두 표시. 더 작으면 overflow 0, 스크롤로 입력/제출 접근, 키보드 닫을 때 offset=0 핵심 표시 복구. 실제 남은 높이가 한 컨트롤보다도 짧으면 전체 Rect 조건을 강제하지 않고 해당 컨트롤의 편집/탭 가능한 가시 영역을 검증.</td></tr>
+<tr><td>PICNIC-2688 필수 회귀</td><td>320×568·t2·K300; 320×568·t1·K280; 320×568·t2·K={280,284,288,292,296}; 375×812·t1·K336; 320×568·t1·K 0→300→0.</td><td>기존의 입력 전체 가시/접근, 초상화 유지 가능한 조건, 버튼 접근성, 캡슐 경계, 포커스·값 123 보존. 극단 폴백에서 필요한 경우에만 스크롤 허용.</td></tr>
+<tr><td>SafeArea·부분 창·힌지</td><td>412×1000 루트/부모500·448·300; 1114×720 루트/중앙34 힌지/각 패널540×720; 851×393과844×390의 좌우44·하단21; 320×568의 위24·아래24.</td><td>실제 route 부모 안에 팝업 전체 포함. root와 부모 크기 불일치에도 초상화·내부 패딩이 폭 비율로 과대 확대되지 않음. K를 한 번만 적용.</td></tr>
+<tr><td>동적·내용 경계</td><td>393×852↔852×393, 1024×768→507×768→320×768→600×500; t 1→2; 짧은 이름/‘아주긴아티스트이름’ 6회 + 그룹; 0/큰 잔액, 사용량 로딩/완료, 오류 표시, JMA 정책 접힘/펼침.</td><td>입력 텍스트·선택·포커스·전체 사용 상태 보존. 긴 이름은 부가영역 스크롤로 접근하며 조작부를 밀지 않음. 정책 펼침도 핵심 Rect를 움직이지 않음.</td></tr>
+</tbody></table>
+<p>모든 표본은 logical px다. 기존 방식대로 <code>tester.view.physicalSize = Size(W*3,H*3)</code>, <code>devicePixelRatio=3</code>, <code>designSize:kAppDesignSize</code>, <code>splitScreenMode:kAppSplitScreenMode</code>를 설정한다. 키보드 인셋과 TextScaler는 Navigator 위 한 지점에서 전달한다. 직접 위젯 주입 테스트 외에 실제 <code>showVotingDialog/showJmaVotingDialog</code> 경로도 포함한다. 호스트 Scaffold의 resizeToAvoidBottomInset과 Dialog가 중복해서 인셋을 소비하는 테스트 harness를 만들지 않는다.</p>
+<h3>5.2 ‘보임’의 검증을 외곽·내부 clip·히트 테스트로 분리</h3>
+<ol>
+<li>새 다이얼로그를 열고 필요한 한정 프레임만 pump한다. 반복 애니메이션 때문에 무제한 pumpAndSettle을 사용하지 않는다. 키보드 없는 첫 표시 검사 전에 showKeyboard/ensureVisible/drag는 금지한다.</li>
+<li>각 Scrollable의 offset은 0±0.01. amount는 TextFormField 글자 Rect가 아닌 테두리 포함 컨테이너 Rect를 잡는다. useAll은 GestureDetector의 터치 영역, submit은 표시 컨테이너를 잡는다.</li>
+<li>세 Rect 모두 <strong>카드 경계 내부</strong>, SafeArea·키보드 제외 실제 부모 경계 내부다. 입력에 스크롤 조상이 있으면 가장 가까운 Scrollable의 viewport Rect에도 전체 포함되어야 한다. 허용 오차는 0.5 logical px.</li>
+<li>카드의 둥근 클립(<code>120.r</code>)도 검사한다. 카드 RRect를 구성해 컨트롤의 실제 주요 페인트 영역이 안쪽인지 확인하거나 네 모서리 안쪽 1px·중앙의 hit test 결과로 클립과 겹침을 검증한다. 단순 <code>findsOneWidget</code>나 화면 안의 bounding box만으로 합격시키지 않는다.</li>
+<li>세 컨트롤 Rect가 서로 겹치지 않고 중심에서 hitTestable이어야 한다. 비활성 제출도 시각적으로 보이되 실제 투표 호출이 일어나지 않아야 한다. 전체 사용/지우기 탭 후 값과 포커스 동작을 검증하고 제출은 mock에만 연결한다.</li>
+<li>RenderFlex overflow를 포함한 예상 밖 예외 0. 기존 <code>suppressImageErrors/drainExpectedImageErrors</code>는 알려진 이미지 오류만 제거하고 신규 레이아웃 오류를 knownDefects에 등록하지 않는다.</li>
+</ol>
+<pre><code>// 두 presentation test의 기존 _amountInputSurface()와 함께 사용하는 검사 예시.
+void expectContained(Rect outer, Rect inner, String label) {
+  expect(inner.left, greaterThanOrEqualTo(outer.left - 0.5), reason: label);
+  expect(inner.top, greaterThanOrEqualTo(outer.top - 0.5), reason: label);
+  expect(inner.right, lessThanOrEqualTo(outer.right + 0.5), reason: label);
+  expect(inner.bottom, lessThanOrEqualTo(outer.bottom + 0.5), reason: label);
+}
+
+final field = _amountInputSurface();
+final amount = tester.getRect(field);
+// 신규 공통 위젯이 붙이는 실제 카드 콘텐츠 key. 숨김 strip은 제외한다.
+final capsule = tester.getRect(find.byKey(const ValueKey('vote-dialog-card')));
+expectContained(capsule, amount, 'initial amount inside capsule');
+final scrollAncestor = find.ancestor(of: field,
+  matching: find.byType(Scrollable));
+if (scrollAncestor.evaluate().isNotEmpty) {
+  expectContained(tester.getRect(scrollAncestor.first), amount,
+    'initial amount inside its scrolling viewport');
+}
+expect(field.hitTestable(), findsOneWidget);
+// 같은 프레임에서 use-all과 submit도 같은 포함 검사를 수행한다.
+expect(tester.takeException(), isNull);</code></pre>
+<h3>5.3 완료 판단과 이번 계획의 검증 범위</h3>
+<pre><code>cd picnic_lib
+flutter test test/presentation/widgets/vote/voting
+flutter analyze</code></pre>
+<p>최종 구현은 위 명령과 shared popup 회귀가 통과하고, 5.1의 키보드 없는 모든 조합에서 5.2를 만족해야 완료다. 이 계획 단계에서는 <strong>Flutter 테스트와 analyze를 실행하지 않았다.</strong> 현재 워크트리에 <code>picnic_lib/.dart_tool/package_config.json</code>이 없고, 의존성·빌드 캐시 등 다른 파일 쓰기를 금지한 작업 범위이므로 정적 코드 조사·상수 산술 계산·HTML 구조 검증만 수행한다. 실행 결과인 것처럼 표현하지 않는다.</p>
+</section>
+<section id="risk"><h2>6. 위험·회귀 및 기각한 대안</h2>
+<h3>6.1 PICNIC-2688를 유지해야 하는 구체 조건</h3>
+<ul>
+<li><strong>375×812, 1×, K336:</strong> 포커스 후 초상화·입력·투표·혜택 버블이 캡슐/중간 창 안에 남아야 한다. 잔액이 이름 뒤에 가려지지 않아야 한다. 키보드 동안 로고를 숨기고 내려오면 복구한다. 기존 <code>voting_dialog_presentation_test.dart:306–400</code>을 통째로 유지한다.</li>
+<li><strong>320×568, 1×, K280:</strong> 기존 compact는 초상화와 제출을 지켰다(441–475행). 새 구조도 초상화를 화면에 남겨야 한다. 32까지 축소하거나 이름·장식을 이동해 핵심 조작부 공간을 확보한다. 이 조건을 전체 스크롤로 쉽게 내려 기존 회귀를 재도입하지 않는다.</li>
+<li><strong>320×568, 2×, K300:</strong> 초상화·모든 설명까지 고정하라는 조건은 없다. 입력과 제출이 각각 접근 가능하고 입력 외곽이 해당 viewport에 완전히 들어가는 충분한 공간을 확보해야 한다. 키보드를 두 번 빼지 않고 popup 전체가 남은 화면 안에 있어야 한다.</li>
+<li><strong>280–296 키보드 경계:</strong> 입력의 실제 200% 높이를 무시해 48만 예약하면 재발한다. 기존 inset sweep(482–515행)과 입력 border/clear 높이 검사를 유지한다.</li>
+<li><strong>전환 상태:</strong> 기존 0→300→0·vote/pic 테스트(566–617행)는 모드 전환 시 컨트롤러/포커스 유지의 필수 기준이다. 위젯 트리 분기로 TextFormField State가 재생성되거나 선택 위치가 바뀌는 경우까지 검사한다.</li>
+</ul>
+<h3>6.2 기타 위험과 대응</h3>
+<table><thead><tr><th>위험</th><th>대응</th></tr></thead><tbody>
+<tr><td>후보를 모르는 상태에서 투표 조작만 강조</td><td>공간이 허용하면 짧은 식별 문구를 고정 조작부 주변에 유지하고 전체 이름·초상화는 부가 영역에 둔다. 극단적으로 낮은 창은 입력·제출 Semantics label에 후보 이름을 연결하고 초상화/전체 이름은 스크롤로 접근한다. 긴 이름 전체를 무리하게 고정해 핵심을 밀지 않는다.</td></tr>
+<tr><td>높이 측정과 실제 렌더 불일치</td><td>TextPainter의 locale/direction/TextScaler/폭을 실제 위젯과 공유한다. Wrap, 활성 제출 아이콘, 테두리와 clear 48 높이를 포함한다. 정책 임계점 ±1px 및 실제 Rect 검사를 추가한다. 사후 무한 재측정 setState 루프를 만들지 않는다.</td></tr>
+<tr><td>JMA의 일일 한도·환산 정보가 뒤로 이동</td><td>정보를 삭제하지 않는다. 현재 실패 원인과 사용 가능량은 접근 가능한 요약/오류로 남기고 상세 계산·정책만 스크롤로 이동한다. 검증·전체 사용 상한·30개 단위 환산은 기존 helper/테스트가 소유한다.</td></tr>
+<tr><td>글자 배율 또는 외부 언어로 폭 초과</td><td>1.0/1.3/2.0을 clamp하지 않는다. 한국어 외 기존 지원 언어의 긴 라벨도 검증한다. 버튼과 체크 문구는 Flexible/줄바꿈으로 전체 표시한다. 문자 수로 높이를 추정하는 런타임 코드는 금지한다.</td></tr>
+<tr><td>힌지·루트 ScreenUtil 불일치</td><td>PopupRoute의 DisplayFeatureSubScreen이 선택한 실제 부모와 폭을 따른다. UI 회전만 테스트하지 말고 부모만 줄어드는 경우도 검사한다. 전역 ScreenUtil 설정 변경은 전 앱 회귀를 유발하므로 하지 않는다.</td></tr>
+<tr><td>골든 및 공유 이미지 캡처 회귀</td><td>현재 <code>picnic_lib/test/presentation/widgets/vote/voting/</code>에는 matchesGoldenFile 기반 골든이 발견되지 않았다. 주변 wallet/store 골든은 존재한다. LargePopupWidget의 24 숨김 strip은 voting_complete 공유 이미지에 포함된다(<code>large_popup.dart:9–16,109–115</code>). 전역 기본을 바꾸지 않고 팝업 테스트·voting_complete 테스트를 실행한다. cardBorderRadius 미지정 시 기존 반경 유지, 지정 시 해당 카드에만 적용되는 테스트도 추가한다. 새 골든은 선택 보강이고 위젯 가시성 검사를 대신하지 않는다. 기존 이미지를 일괄 --update-goldens로 덮어쓰지 않는다.</td></tr>
+<tr><td>투표·권한·정산 코드까지 리팩터링 확대</td><td>이번 수정은 Dart 배치로 경계를 한정한다. 기존 _handleVote, 네트워크, 잔액·에러 복구는 유지한다. layout에 provider를 가져오지 않는다. 실제 구현의 독립 리뷰에서 이 경계를 diff로 확인한다.</td></tr>
+</tbody></table>
+<h3>6.3 대안 비교</h3>
+<table><thead><tr><th>대안</th><th>판정 / 이유</th></tr></thead><tbody>
+<tr><td>첫 프레임 ensureVisible 또는 초기 offset 조정</td><td><strong>기각.</strong> offset=0 요구를 만족하지 않고 잔액/이름을 가리는 증상을 바꿀 뿐이다. 자동 포커스는 필요 없는 키보드를 연다.</td></tr>
+<tr><td>pinned의 window를 입력+96으로만 확대</td><td><strong>단독 수정으로 기각.</strong> full→compact→none로 이동할 뿐이다. none의 입력 순서가 그대로라 가로 화면은 계속 실패한다. 실제 조작부 우선 배치가 필요하다.</td></tr>
+<tr><td>모든 화면 전체 스크롤</td><td><strong>기각.</strong> PICNIC-2688의 초상화·제출 가시성과 첫 화면 입력 보장을 잃는다.</td></tr>
+<tr><td>Flip/태블릿/가로 비율로 별도 분기</td><td><strong>기각.</strong> Stage Manager·분할 창·듀얼 패널에서 동일 모델도 여러 크기가 된다. constraints를 기준으로 한다.</td></tr>
+<tr><td>TextScaler 제한·전체 UI 축소·48 미만 터치 영역</td><td><strong>기각.</strong> 접근성 회귀이며 큰 글자 사용자가 핵심 조작을 읽기 어려워진다.</td></tr>
+<tr><td>전역 ScreenUtil splitScreenMode 해제·.w 규칙 변경</td><td><strong>기각.</strong> 전 앱과 공유 이미지에 광범위한 회귀. 투표 내부 장식 크기만 지역적으로 제한한다.</td></tr>
+<tr><td>항상 2단/넓은 카드</td><td><strong>이번 범위에서 보류.</strong> 넓은 카드만으로 높이 부족을 해결하지 못한다. 1열 핵심 조작부 고정을 먼저 입증하고 별도 UX 검증 후 도입할 수 있다.</td></tr>
+<tr><td>조작부 우선 배치 + 부가 영역만 스크롤</td><td><strong>권고.</strong> 실제 부모 크기에 따라 동일 정책을 적용할 수 있고 키보드 없는 첫 화면 요구를 직접 만족시킨다. 충분한 화면의 기존 순서는 보존한다.</td></tr>
+</tbody></table>
+<div class="callout"><strong>검토 결론:</strong> 원인은 스크롤 자체가 아니라, 작은 중앙 창에 입력 앞 콘텐츠를 남긴 채 초상화·로고를 우선 고정한 공간 배분이다. 일반/JMA 공통으로 핵심 조작부의 실제 크기를 먼저 보장하고, 장식과 상세 정보를 남는 공간으로 보내는 것이 재발 방지 기준이다.</div>
+</section>
+<footer>작성 범위: 지정 계획 HTML 1개 · 코드 변경 없음 · 커밋 없음 · 외부 쓰기 없음. 산술은 로컬 상수 기반, 화면 가시성은 명시된 한 줄 모델의 추정. 최종 구현 검증은 5절의 실제 위젯 테스트가 담당한다.</footer>
+</main></body></html>

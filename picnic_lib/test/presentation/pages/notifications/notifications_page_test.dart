@@ -1,11 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/notification_inbox_service.dart';
 import 'package:picnic_lib/data/models/user_notification.dart';
+import 'package:picnic_lib/data/storage/broadcast_notification_read_store.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+class _MemoryStorage implements LocalStorage {
+  final Map<String, String> values = {};
+
+  @override
+  Future<String?> loadData(String key, String? defaultValue) async =>
+      values[key] ?? defaultValue;
+  @override
+  Future<void> saveData(String key, String value) async => values[key] = value;
+  @override
+  Future<void> removeData(String key) async => values.remove(key);
+  @override
+  Future<void> clearStorage() async => values.clear();
+}
+
+NotificationInboxService _service() => NotificationInboxService(
+  readStore: BroadcastNotificationReadStore(storage: _MemoryStorage()),
+);
+
+Future<void> _pumpAsyncLoad(WidgetTester tester) async {
+  for (var index = 0; index < 20; index++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
+}
 
 void main() {
   setUpAll(() {
@@ -13,6 +41,7 @@ void main() {
   });
 
   setUp(() {
+    SharedPreferences.setMockInitialValues({});
     setupMockSupabase({
       'user_notifications': <Map<String, dynamic>>[
         {
@@ -34,10 +63,12 @@ void main() {
           'body': {'ko': '새 댓글이 달렸습니다', 'en': 'New comment'},
           'type': 'post',
           'is_read': true,
-          'created_at':
-              DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
-          'read_at':
-              DateTime.now().subtract(const Duration(minutes: 30)).toIso8601String(),
+          'created_at': DateTime.now()
+              .subtract(const Duration(hours: 1))
+              .toIso8601String(),
+          'read_at': DateTime.now()
+              .subtract(const Duration(minutes: 30))
+              .toIso8601String(),
           'action_url': null,
           'data': {'post_id': 'abc-123'},
         },
@@ -48,8 +79,9 @@ void main() {
           'body': {'ko': '답변이 등록되었습니다', 'en': 'Answer posted'},
           'type': 'qna',
           'is_read': false,
-          'created_at':
-              DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+          'created_at': DateTime.now()
+              .subtract(const Duration(hours: 2))
+              .toIso8601String(),
           'read_at': null,
           'action_url': null,
           'data': {'question_id': '42'},
@@ -66,7 +98,7 @@ void main() {
   group('NotificationsPage', () {
     testWidgets('renders page with AppBar', (tester) async {
       await tester.pumpWidget(
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
@@ -78,7 +110,7 @@ void main() {
 
     testWidgets('shows mark all read button in AppBar', (tester) async {
       await tester.pumpWidget(
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
@@ -86,24 +118,22 @@ void main() {
       expect(find.byType(TextButton), findsOneWidget);
     });
 
-    testWidgets('shows ListView for notification list', (tester) async {
+    testWidgets('shows scrollable true-empty state without authentication', (
+      tester,
+    ) async {
       await tester.pumpWidget(
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
-      // Wait for async load
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 2));
+      await _pumpAsyncLoad(tester);
 
-      // ListView should always be present (even with empty list)
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
     });
 
     testWidgets('shows RefreshIndicator for pull-to-refresh', (tester) async {
       await tester.pumpWidget(
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 1));
+      await _pumpAsyncLoad(tester);
 
       expect(find.byType(RefreshIndicator), findsOneWidget);
     });
@@ -116,7 +146,7 @@ void main() {
       });
 
       await tester.pumpWidget(
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
       await tester.pump();
       await tester.pump(const Duration(seconds: 2));
@@ -194,7 +224,7 @@ void main() {
       // Unread tiles get blue background, read get grey
       final unreadColor = Colors.blue.withValues(alpha: 0.08);
       final readColor = Colors.grey.withValues(alpha: 0.03);
-      expect(unreadColor.alpha, greaterThan(readColor.alpha));
+      expect(unreadColor.a, greaterThan(readColor.a));
     });
 
     test('UserNotification copyWith preserves data', () {
@@ -235,10 +265,7 @@ void main() {
       expect(isPicnicDomain('https://www.picnic.fan/post/abc'), isTrue);
       expect(isPicnicDomain('https://google.com'), isFalse);
       expect(isPicnicDomain(''), isFalse);
-      expect(
-        isPicnicDomain('http://applink.picnic.fan/something'),
-        isTrue,
-      );
+      expect(isPicnicDomain('http://applink.picnic.fan/something'), isTrue);
     });
 
     test('navigateByType data extraction for vote', () {

@@ -162,7 +162,7 @@
   "@goonghap_login_button": {
     "description": "Login button text on goonghap page"
   },
-  "achieve": "Achievements",
+  "achieve": "Achieved",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
@@ -638,6 +638,30 @@
         "type": "int"
       },
       "daily": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_hourly": "已达到每小时上限（{used}/{limit}次）",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "已达到每天上限（{used}/{limit}次）",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
         "type": "int"
       }
     }
@@ -1480,7 +1504,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "每 100 次投票和分享可获得 1 颗奖励星星糖果！",
+  "voting_share_benefit_text": "每 100 次投票可获得 1 颗奖励星星糖果！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1780,6 +1804,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。",
+  "purchase_payment_pending_message": "您的付款尚未完成。如果您选择了现金或银行转账等需要时间的付款方式，请到相应地点完成付款。\n付款成功后星星糖将自动到账，请勿重复付款。",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -2017,6 +2042,10 @@
   "withdrawal_success": "退订已成功处理。",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "账号注销失败，请稍后重试。",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "您已为该艺术家提交过申请。",
   "@vote_item_request_already_applied_artist": {
@@ -2399,9 +2428,31 @@
   "candy_boost_day": "糖果加倍日",
   "candy_boost_exact_double": "基础发放 + 额外奖励100%",
   "candy_boost_extra_bonus": "基础发放 + 额外奖励",
+  "candy_boost_multiplier": "{multiplier}倍奖励",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "正在确认促销活动",
   "candy_boost_purchase_pending": "同一商品的购买正在处理中。",
   "candy_boost_late_purchase_explanation": "认证耗时比预期长，但购买已正常完成。",
+  "candy_boost_total_multiplier": "活动奖励 +{multiplier}%",
+  "purchase_reward_base": "基础发放",
+  "purchase_reward_base_short": "基础",
+  "purchase_reward_event_short": "活动",
+  "purchase_reward_product_bonus": "基础奖励",
+  "purchase_reward_event_bonus": "活动奖励",
+  "purchase_reward_expected_total": "预计合计",
+  "purchase_reward_total_short": "合计",
+  "purchase_current_balance": "当前余额 {amount}",
+  "purchase_expected_balance": "购买后预计 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "此为预计数量。最终发放数量以支付完成时的服务器结果为准。",
+  "candy_reward_receipt_total": "共获得{amount}",
   "ad_reward_pending": "正在确认奖励",
   "ad_reward_granted": "已获得棉花糖",
   "ad_reward_not_granted": "奖励未发放",
@@ -2416,6 +2467,7 @@
     }
   },
   "candy_reward_receipt_balance": "当前持有 {amount}",
+  "candy_reward_receipt_purchase_balance": "购买后持有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2501,5 +2553,7 @@
   "expiry_quantity_description": "目前帳戶中預計到期的數量。",
   "expiry_policy_description": "各貨幣的到期標準。",
   "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
-  "expiry_tonight_at_midnight": "今晚午夜"
+  "expiry_tonight_at_midnight": "今晚午夜",
+  "error_ad_device_account_restricted_message": "此账号在此设备上的广告使用权限暂时受到限制。",
+  "profile_photo_change": "更换头像"
 }

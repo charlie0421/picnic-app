@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>지갑 작업자 패치 — main 통합 완료</title>
+<style>body{max-width:1020px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui,-apple-system,sans-serif;color:#172033}h1{font-size:28px}h2{font-size:21px;margin-top:28px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee7;padding:10px;text-align:left;vertical-align:top}th{background:#f1f4f8}code,pre{font:13px/1.6 ui-monospace,monospace;background:#f1f4f8;overflow-wrap:anywhere}pre{padding:14px;white-space:pre-wrap}a{color:#1756a9;overflow-wrap:anywhere}.boundary{background:#fff5df;border-left:4px solid #b77b00;padding:12px 16px}.muted{color:#526071}</style></head>
+<body>
+<h1>지갑 작업자 패치 — main 통합 완료</h1>
+<div class="boundary">후속 운영 사전점검(15:46–15:48 KST): 실제 wrapper ACL이 배포 도구의 고정 기준과 달라 preflight가 거부했다. 운영 migration·권한·플래그 변경 없이 중단했으며 배포 도구 기준의 재검토가 필요하다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/wallet-worker-production-preflight.html">최신 사전점검 결과</a>. main 머지 완료와 운영 적용 완료는 별개다.</div>
+<p>2026-09-09 15:39:28 KST. <a href="https://github.com/charlie0421/picnic-supabase/pull/140">PR #140 — fix(wallet): harden worker health release safety</a>를 사용자 “머지” 승인에 따라 <strong>main에 squash merge 완료</strong>했다. 반영 커밋은 <code>dc1edda2d0d2cb7868ce2d1ec1298a0cabda0c11</code>이며 15:39:54 원격 main과 일치함을 확인했다.</p>
+<div class="boundary">이번 승인은 패치의 Git 통합 범위다. Preview 부재를 알리고 격리 DB·독립 리뷰 검증으로 대체하는 확인을 요청한 뒤 사용자 “머지” 승인을 받았다. 이번 작업에서 운영 DB 조회·쓰기, 배포 workflow 실행, 플래그·역할·이관 registry 변경, 앱·버전·태그·OTA 작업은 하지 않았다.</div>
+<h2>1. 반영한 Git 작업</h2>
+<table><tr><th>항목</th><th>확인 결과</th></tr>
+<tr><td>대상 main</td><td><code>0399ab2a33d81423c1b41c430cc5579baccee396</code> — 다른 세션의 튜닝 PR #139까지 포함.</td></tr>
+<tr><td>패치 커밋</td><td><code>91b0901adcdf8480b3e0275741cb2583a59c7151</code> — 검토된 14개 파일만 커밋. 임시 보고서는 제외.</td></tr>
+<tr><td>main 동기화 및 PR head</td><td><code>e8a3860d6c7d4886ea2e1c386a62942e31ca6bf2</code> — 기존 작업 브랜치에서 최신 main을 정상 merge. 원격 브랜치 정상 fast-forward push, force push 없음.</td></tr>
+<tr><td>main 반영 커밋</td><td><code>dc1edda2d0d2cb7868ce2d1ec1298a0cabda0c11</code> — 정확한 PR head를 match-head-commit으로 고정한 squash merge. 부모는 기존 main <code>0399ab2a33d81423c1b41c430cc5579baccee396</code> 하나뿐이며 관리자 우회·auto-merge·branch 삭제는 사용하지 않음.</td></tr>
+<tr><td>최종 tree</td><td><code>96e08a00ef9214a3ed61dcc8e38f9a7acbb5c3af</code></td></tr>
+<tr><td>변경 범위</td><td>main 대비 정확히 14개 파일, 5574줄 추가·49줄 삭제. 나머지 main 파일 765개는 동일. 검토된 13개 파일의 SHA-256은 그대로이며 SQL runner에는 최신 main의 기존 등록을 모두 유지하고 worker 테스트 한 줄만 추가.</td></tr>
+<tr><td>보존</td><td>다른 튜닝·보안 변경, 작업 워크트리, 과거 HTML 보고서와 테스트 증거 보존. 추적 파일의 미커밋 변경 없음. 이미 squash-merge된 PR #135의 옛 커밋은 브랜치 계보에 남아 있으나 PR 최종 diff에는 재포함되지 않음. main에는 새 squash 커밋 하나로 반영. 후속 운영 적용과 미커밋 보고서 보존을 위해 워크트리·브랜치는 삭제하지 않았으며 후속 작업 완료 후 정리를 제안.</td></tr>
+</table>
+<h2>2. 검증 근거</h2>
+<ul>
+<li>사용자 머지 승인 뒤 새 재검증: 15:38:08–15:38:58 KST, offline 348 PASS / 32 DB-dependent SKIP / 0 FAIL. <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-lOVYye/result.json">실행 정보</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-lOVYye/output.log">로그</a>. 머지 후 실제 main의 전체 tree가 이 검증 tree와 정확히 동일함을 확인. 부모 대비 변경은 정확히 14개 파일이며 migration SHA-256도 동일.</li>
+<li>통합 전 재실행: offline 348 PASS / 32 DB-dependent SKIP / 0 FAIL. <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-5lkNgf/result.json">실행 정보</a>.</li>
+<li>최종 통합 tree 재실행: 15:30:41–15:31:31 KST, 24개 파일에서 offline 348 PASS / 32 DB-dependent SKIP / 0 FAIL. <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-z4Bbah/result.json">실행 정보</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-z4Bbah/output.log">로그</a>. 네트워크 EPERM 및 운영 자격증명 제외.</li>
+<li>최신 main에 14파일 적용 검사 PASS: <a href="/tmp/picnic-worker-release.rZhMfz/main-apply-6kyCdy/result.json">main·파일·원 검토 hash</a>. 실제 merge 뒤 exact 파일 목록, 기존 main 파일 765개, runner 한 줄 변경 및 index/tree 동일 검증 PASS.</li>
+<li>동일한 패치 본문의 앞선 격리 PG15 검증 11 PASS, 적용 후 SQL 5개 PASS, 실제 lock timeout 및 권한 변조 거부 확인과 Sol·Opus 승인: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/wallet-worker-release-tools-result.html">앞선 구현·검증 보고서</a>. DB 테스트는 이번 Git 통합 단계에서 다시 실행하지 않았다.</li>
+</ul>
+<p class="muted">전체 공유 SQL suite·migration 초기 재구축·전체 Edge suite·운영 실데이터·TestFlight E2E는 이번 검증 범위가 아니다. GitHub 환경 보호 API 테스트는 offline 선택에서 제외했다. GitHub 자동 검사 목록은 비어 있어 CI 통과로 표현하지 않는다. 두 운영 배포 workflow는 workflow_dispatch 전용이며 실행하지 않았다.</p>
+<h2>3. 머지 전 확인</h2>
+<p id="preview">PR 생성 직후 공통 지침대로 Vercel bot Preview URL을 8회 확인했으나 URL이 게시되지 않았다. 자동 GitHub 검사도 0개다. URL이나 검사가 없다는 사실을 검사 통과로 취급하지 않는다.</p>
+<p>UI/API 변경의 main merge 전 사용자 Preview 확인 지침을 적용해 멈춘 뒤, 서버 전용 패치의 기존 격리 DB·독립 리뷰·통합 후 offline 검증으로 대체해 머지할지 물었다. 사용자 “머지” 승인 후 main/head·14파일·검증 상태를 새로 확인하고 squash merge했다. merge SHA에 해당하는 GitHub Actions 실행은 확인 시점 0건이었다.</p>
+<h2>4. 이후 별도 작업</h2>
+<ol><li>별도 승인 후 main 반영 revision의 단일 migration 번들을 재생성하고 프로덕션 baseline·백업·작업자 상태 확인 후 write flags OFF로 적용.</li><li><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/admin-wallet-cutover-followup.html">관리자 웹의 명령·감사 계약 보완과 이관 증거</a> 확보.</li><li>전용 테스트 조건 확정 및 별도 ADMIN_ONLY 승인 후 TestFlight 테스트. 대상은 is_admin OR is_super_admin이며 일반 사용자는 제외.</li></ol>
+<pre>Backend worktree: /Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety
+Branch: fix/promotion-v2-release-safety
+PR: https://github.com/charlie0421/picnic-supabase/pull/140
+Migration: 20260909030430_wallet_worker_specific_release_health.sql
+SHA-256: e4459a652163676cd3458a7f03fac146d90230493d700860f9107189f3822b9f</pre>
+<p class="muted">Superpowers의 브랜치 마무리·완료 전 검증 절차에 따라 통합된 tree를 다시 테스트했고, PR 경로를 선택해 워크트리는 보존했다. 현재 운영 실행에 대한 승인을 이 보고서나 생성물로 대체하지 않는다.</p>
+</body></html>

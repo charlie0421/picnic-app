@@ -578,4 +578,63 @@ void main() {
       expect(headers['Authorization'], 'Bearer ');
     });
   });
+
+  group('resolveLaunchActionUrl', () {
+    // A local notification left on screen can be tapped after the app is
+    // killed; flutter_local_notifications reports it through
+    // getNotificationAppLaunchDetails() instead of FCM (PICNIC-2693).
+    test('returns the action_url when a notification launched the app', () {
+      expect(
+        PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: true,
+          payload: 'action_url: https://applink.picnic.fan/vote/detail/42',
+        ),
+        'https://applink.picnic.fan/vote/detail/42',
+      );
+    });
+
+    test('returns null when the app was not launched by a notification', () {
+      expect(
+        PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: false,
+          payload: 'action_url: https://applink.picnic.fan/vote/detail/42',
+        ),
+        isNull,
+      );
+    });
+
+    test('returns null for a payload without an action_url', () {
+      expect(
+        PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: true,
+          payload: '{title: hello}',
+        ),
+        isNull,
+      );
+    });
+
+    test('returns null for a missing payload', () {
+      expect(
+        PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: true,
+          payload: null,
+        ),
+        isNull,
+      );
+    });
+
+    test('accepts the payload shape buildNotificationPayload produces', () {
+      final payload = PushTokenHelper.buildNotificationPayload(
+        const {'action_url': 'https://applink.picnic.fan/vote/detail/7'},
+      );
+
+      expect(
+        PushTokenHelper.resolveLaunchActionUrl(
+          didNotificationLaunchApp: true,
+          payload: payload,
+        ),
+        'https://applink.picnic.fan/vote/detail/7',
+      );
+    });
+  });
 }

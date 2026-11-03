@@ -22,11 +22,16 @@ List<dynamic> defaultProviderOverrides({
   MediaQueryData? mediaQueryData,
   CommunityState? communityState,
   bool loggedIn = true,
+  /// `false` keeps the real [NavigationInfo], whose `setPortal` rebuilds the
+  /// portal stack. Tests that assert on navigation behaviour itself need the
+  /// real notifier; [MockNavigationInfo] stubs `setPortal` out.
+  bool overrideNavigation = true,
 }) {
   final nav = navigation ?? MockData.navigation();
   return [
     // Navigation (68 usages - overrideWith로 notifier 접근 가능)
-    navigationInfoProvider.overrideWith(() => MockNavigationInfo(nav)),
+    if (overrideNavigation)
+      navigationInfoProvider.overrideWith(() => MockNavigationInfo(nav)),
 
     // User Info (62 usages)
     userInfoProvider.overrideWith(

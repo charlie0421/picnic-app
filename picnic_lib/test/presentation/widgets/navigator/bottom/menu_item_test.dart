@@ -16,12 +16,12 @@ void main() {
         buildTestApp(
           const MenuItem(
             title: 'Vote',
-            assetPath: 'assets/icons/navigation/vote.svg',
+            assetPath: 'assets/icons/bottom/vote.svg',
             index: 0,
           ),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(MenuItem), findsOneWidget);
     });
@@ -31,13 +31,13 @@ void main() {
         buildTestApp(
           const MenuItem(
             title: 'MyPage',
-            assetPath: 'assets/icons/navigation/vote.svg',
+            assetPath: 'assets/icons/bottom/vote.svg',
             index: 2,
             needLogin: true,
           ),
         ),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(find.byType(MenuItem), findsOneWidget);
       expect(find.byType(InkWell), findsOneWidget);

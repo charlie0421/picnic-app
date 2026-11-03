@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 import 'package:picnic_lib/presentation/providers/notifications_unread_count_provider.dart';
 
@@ -40,8 +42,8 @@ class TopRightNotifications extends ConsumerWidget {
     }
 
     return SizedBox(
-      width: 40,
-      height: 40,
+      width: PicnicUi.minimumTapTarget,
+      height: PicnicUi.minimumTapTarget,
       child: IconButton(
         icon: bell,
         onPressed: () {
@@ -49,10 +51,9 @@ class TopRightNotifications extends ConsumerWidget {
             context,
           ).push(MaterialPageRoute(builder: (_) => const NotificationsPage()));
         },
-        tooltip: '알림',
+        tooltip: AppLocalizations.of(context).label_mypage_notifications,
         padding: EdgeInsets.zero,
-        constraints: const BoxConstraints(),
-        visualDensity: VisualDensity.compact,
+        constraints: const BoxConstraints.tightFor(width: 48, height: 48),
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image_helper.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
 import '../../helpers/test_environment.dart';
@@ -243,35 +244,27 @@ void main() {
 
   group('Load delay calculation logic', () {
     test('high priority has zero delay', () {
-      const priority = ImagePriority.high;
-      final delay = priority == ImagePriority.high
-          ? Duration.zero
-          : (priority == ImagePriority.normal
-              ? const Duration(milliseconds: 0)
-              : const Duration(milliseconds: 200));
+      final delay = PicnicCachedNetworkImageHelper.calculateLoadDelay(
+        ImagePriority.high,
+        baseDelay: const Duration(milliseconds: 600),
+      );
       expect(delay, Duration.zero);
     });
 
-    test('normal priority uses base delay', () {
-      const priority = ImagePriority.normal;
-      const baseDelay = Duration(milliseconds: 50);
-      final delay = priority == ImagePriority.high
-          ? Duration.zero
-          : (priority == ImagePriority.normal
-              ? baseDelay
-              : baseDelay + const Duration(milliseconds: 200));
-      expect(delay, const Duration(milliseconds: 50));
+    test('normal priority has no artificial initial delay', () {
+      final delay = PicnicCachedNetworkImageHelper.calculateLoadDelay(
+        ImagePriority.normal,
+        baseDelay: const Duration(milliseconds: 600),
+      );
+      expect(delay, Duration.zero);
     });
 
-    test('low priority adds 200ms to base delay', () {
-      const priority = ImagePriority.low;
-      const baseDelay = Duration(milliseconds: 50);
-      final delay = priority == ImagePriority.high
-          ? Duration.zero
-          : (priority == ImagePriority.normal
-              ? baseDelay
-              : baseDelay + const Duration(milliseconds: 200));
-      expect(delay, const Duration(milliseconds: 250));
+    test('low priority has no artificial initial delay', () {
+      final delay = PicnicCachedNetworkImageHelper.calculateLoadDelay(
+        ImagePriority.low,
+        baseDelay: const Duration(milliseconds: 600),
+      );
+      expect(delay, Duration.zero);
     });
   });
 

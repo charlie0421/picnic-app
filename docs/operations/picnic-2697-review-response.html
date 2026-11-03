@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2697 독립 리뷰 대응 결과</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5f6b76;
+      --line: #d9e0e6;
+      --panel: #f7f9fb;
+      --ok: #087f5b;
+      --warn: #a05a00;
+      --bad: #b42318;
+      --accent: #0b63ce;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0 auto;
+      max-width: 1100px;
+      padding: 40px 28px 72px;
+      color: var(--ink);
+      background: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans KR", sans-serif;
+      line-height: 1.62;
+    }
+    h1, h2, h3 { line-height: 1.3; }
+    h1 { margin: 0 0 8px; font-size: 2rem; }
+    h2 { margin-top: 42px; border-bottom: 2px solid var(--line); padding-bottom: 8px; }
+    h3 { margin-top: 28px; }
+    p { margin: 10px 0; }
+    .meta, .muted { color: var(--muted); }
+    .summary, .decision {
+      margin: 20px 0;
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .decision.ok { border-left-color: var(--ok); }
+    .decision.warn { border-left-color: var(--warn); }
+    .tag {
+      display: inline-block;
+      padding: 1px 8px;
+      border-radius: 999px;
+      font-size: .82rem;
+      font-weight: 700;
+      vertical-align: .08em;
+    }
+    .accept { color: #075f46; background: #dff7ed; }
+    .partial { color: #814600; background: #fff0d5; }
+    .leave { color: #44515d; background: #edf1f4; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 24px;
+      font-size: .94rem;
+    }
+    th, td {
+      border: 1px solid var(--line);
+      padding: 9px 11px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #eef3f8; }
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    code { background: #f1f4f7; padding: .08em .32em; border-radius: 4px; }
+    pre {
+      overflow-x: auto;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: #f6f8fa;
+      line-height: 1.5;
+    }
+    pre code { padding: 0; background: transparent; }
+    li { margin: 5px 0; }
+    .ok-text { color: var(--ok); font-weight: 700; }
+    .warn-text { color: var(--warn); font-weight: 700; }
+    .bad-text { color: var(--bad); font-weight: 700; }
+    .nowrap { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PICNIC-2697 독립 리뷰 대응 결과</h1>
+    <p class="meta">대상: <code>4a4535250</code> · 브랜치: <code>feat/vote-dialog-landscape-columns</code> · 작성일: 2026-09-15</p>
+  </header>
+
+  <section class="summary">
+    <strong>결론.</strong> 차단 지적 B1과 B2는 모두 실행으로 사실임을 확인해 수용했다.
+    B1은 2단 선택 예산은 그대로 두고 실제 프레임 제약으로 렌더 높이만 제한해 해결했다.
+    B2는 1단 pill을 flex share가 아닌 측정 콘텐츠 폭으로 되돌리되 7자리 잔액의 최소 폭을 우선 보존했다.
+    비차단 N1은 측정과 렌더가 같은 테두리 상수를 쓰도록 닫았고, N2는 폭 측정을 실제 2단 후보에서만 후보당 한 번 수행하도록 지연했다.
+  </section>
+
+  <section>
+    <h2>1. 작업 귀속과 검증 방식</h2>
+    <p>
+      B1과 B2의 초판 수정은 독립 리뷰를 작성한 다른 세션 <code>picnic-2694-07</code>이 사용자 지시에 따라 구현했다.
+      이 세션은 그 결과를 그대로 신뢰하지 않고 B2의 반례를 추가로 찾아 정밀화했으며, N1·N2 구현, 테스트 단언 정리, 전체 통합과 결과 기록을 담당했다.
+    </p>
+    <p>
+      작업자 샌드박스에서는 Flutter 테스트 러너가 요구하는 <code>127.0.0.1</code> 소켓 생성이 차단됐다.
+      따라서 모든 Flutter 실행은 코디네이터가 동일 워크트리의 비제한 환경에서 대행했고, 이 세션은 변경 diff와 실행 결과를 함께 검토했다.
+      정적 Dart 분석과 포맷·공백 검사는 작업자 환경에서도 별도로 확인했다.
+    </p>
+  </section>
+
+  <section>
+    <h2>2. 차단 지적 대응</h2>
+
+    <h3>B1 · 2단 body가 애니메이션 중 실제 높이를 무시함 <span class="tag accept">수용·수정</span></h3>
+    <div class="decision ok">
+      <strong>사실 확인:</strong> 수정 전 851×393, ko, 1.0x에서 키보드 즉시 해제는 248px, 점진 해제는 82px,
+      393×852에서 851×393으로 회전할 때는 198px의 하단 RenderFlex 오버플로가 재현됐다.
+      같은 해제 시퀀스의 1단 대조군과 2단에서 키보드가 나타나는 방향은 오류 0건이었다.
+    </div>
+    <p>
+      원인은 열 선택 시 계산한 중립 높이와 <code>Dialog</code>의 100ms <code>AnimatedPadding</code>이 해당 프레임에 실제로 내주는 높이를 혼동한 것이다.
+      <code>VoteDialogColumnsLayout.bodyHeight</code>를 고정 <code>SizedBox</code> 높이로 쓰면, 키보드 해제·회전 직후 실제 제약이 더 작은 동안 팝업 내부 <code>Column</code>이 넘친다.
+    </p>
+    <p>
+      수정은 열 선택과 렌더를 분리한다. 기존 중립 예산으로 1단/2단을 선택하는 로직은 그대로 두고,
+      내부 <code>LayoutBuilder</code>가 받은 실제 <code>constraints.maxHeight</code>에서 현재 닫기 버튼 chrome 높이를 뺀 값을
+      <code>renderedBodyHeight</code>로 전달한다. 최종 높이는 다음처럼 작은 쪽만 사용한다.
+    </p>
+    <pre><code>renderedBodyHeight = max(0, constraints.maxHeight - columnsChrome)
+paintedBodyHeight = min(layout.bodyHeight, renderedBodyHeight)</code></pre>
+    <p>
+      따라서 실제 높이가 열 선택 입력으로 되먹이지 않으며 경계 진동 가능성도 새로 만들지 않는다.
+      회귀 테스트는 280→0 즉시 해제의 16ms 중간 프레임, 280→220→160→100→40→0 점진 해제,
+      세로→가로 회전을 각각 검사한다. 최종 재확인에서는 모든 전이의 오버플로가 0프레임이었고,
+      회전 중 입력값 <code>123</code>과 포커스도 보존됐다.
+    </p>
+
+    <h3>B2 · 1단 recharge pill이 행의 절반으로 확대됨 <span class="tag accept">수용·수정</span></h3>
+    <div class="decision ok">
+      <strong>사실 확인:</strong> 수정 전 ko/1.0x에서 393×852, 375×812, 412×915의 pill 폭은 각각
+      128.6, 122.7, 134.8px로 모두 <code>(row − icon − gap) / 2</code>와 일치했다.
+      393×852의 ko 자연폭 70.2px와 비교하면 58.4px, 약 83% 확대였다.
+    </div>
+    <p>
+      리뷰가 제안한 “1단에서는 <code>Expanded(amount), recharge</code>로 되돌리고 내부 라벨을 <code>Flexible</code>로 둔다”는 최소 수정도 직접 검증했다.
+      긴 로케일과 큰 텍스트에서 가로 RenderFlex 오버플로 17건이 발생했으므로 그대로 수용하지 않았다.
+      명시적 <code>SizedBox(width: pillWidth)</code>로 비-flex 기하를 복구하되 부족한 폭에서는 안전하게 수축하는 구조를 선택했다.
+    </p>
+    <p>
+      첫 초판식 <code>min(contentWidth, room / 2)</code>도 충분하지 않았다. 확장 RED는 36개 조합 중 14개가 실패했다
+      (<code>+22 -14</code>). 특히 412×915의 th 1.0x·1.3x와 my 1.0x·1.3x에서 서로 다른 콘텐츠 폭인데도
+      실측 pill 폭이 모두 정확히 <code>134.75759079861703</code>px로 수렴했다. 즉 폭이 콘텐츠가 아니라 여전히 half-share로 결정된다는 반례였다.
+    </p>
+    <p>최종 폭은 다음 세 값으로 결정한다.</p>
+    <pre><code>room = rowWidth - iconWidth - gap
+amountMin = widthOf("9,999,999")
+pillWidth = min(contentWidth, max(room / 2, room - amountMin))</code></pre>
+    <p>
+      <code>amountMin</code>은 현재 지갑 값이 아니라 기존 열 선택과 같은 고정 fixture로 잰다.
+      실제 잔액으로 계산하면 지갑 재조회 한 번에 1단 기하가 움직여, 이 티켓에서 이미 확인된 “선택 fixture와 실제 렌더 값의 불일치”를 다시 만든다.
+      테스트는 ko/en/th/my × 1.0/1.3/2.0 × 393/375/412의 충분 구간 36건과 th/my 2.0x의 부족 구간 4건을 고정한다.
+    </p>
+
+    <h3>B2의 의도된 버마어 절충</h3>
+    <table>
+      <thead>
+        <tr><th>locale</th><th>콘텐츠 폭</th><th>출시 동작</th><th>초판 <code>min</code></th><th>최종</th><th>출시 대비</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>ko</td><td>70.2</td><td>70.2</td><td>70.2</td><td>70.2</td><td>0</td></tr>
+        <tr><td>en</td><td>106.6</td><td>106.6</td><td>106.6</td><td>106.6</td><td>0</td></tr>
+        <tr><td>th</td><td>158.0</td><td>158.0</td><td>128.6</td><td>158.0</td><td>0</td></tr>
+        <tr><td>my</td><td>186.0</td><td>186.0</td><td>128.6</td><td>177.4</td><td class="warn-text">−8.6</td></tr>
+      </tbody>
+    </table>
+    <p class="muted">조건: 393×852, 1.0x, row 293.2px, room 257.2px, room/2 128.6px, 7자리 amount 최소 폭 79.8px.</p>
+    <p>
+      따라서 승인 결정을 “모든 1단 기하 완전 불변”이라고 단정할 수는 없다. 버마어 pill은 186.0px에서 177.4px로 8.6px 줄고 라벨이 ellipsis 된다.
+      다만 출시 동작은 pill 186.0px을 먼저 주어 잔액에 71.2px만 남겼고, 이는 79.8px인 7자리 잔액도 담지 못했다.
+      잔액은 사용자의 재화이자 투표 수량 판단 근거이고 잘림 표시도 없는 반면, 충전 라벨은 <code>+</code> 아이콘이 의미를 보조하며 ellipsis가 명시된다.
+      1.0x와 1.3x에서 두 항목을 동시에 보존할 수 없는 폭에서는 잔액을 우선했다.
+    </p>
+    <div class="decision warn">
+      <strong>200% 배율의 물리적 한계:</strong> 393px 폭에서는 room이 257.2px인데 잔액 최소 폭이 159.66px,
+      pill의 half-share 바닥이 128.6px이라 합계가 room을 넘는다. 둘을 동시에 만족시킬 수 없어 현재 식은 pill을 바닥에 두고 잔액을 최소 폭 아래로 보낸다.
+      이 현상은 이번 변경이 만든 것이 아니며 출시 전 동작에서도 2.0x 잔액이 잘렸다. 다만 “잔액 우선”은 1.0x·1.3x에서만 관철되고 2.0x에서는 관철되지 않는다.
+    </div>
+    <p>
+      고정 fixture는 실제 잔액이 3자리인 버마어 사용자에게도 7자리 폭을 예약해 pill을 177.4px로 제한하는 과다 예약이 있다.
+      fixture를 낮춰 186.0px을 복원하는 대안은 7자리 계정의 잔액 잘림을 되살려 기각했다.
+      1단 잔액 <code>Text</code>에 <code>maxLines: 1</code>과 ellipsis를 추가한 뒤 pill을 완전 복원하는 안은 더 정교할 수 있으나,
+      출시 1단 텍스트 계약까지 바꾸고 별도 테스트가 필요하므로 후속 티켓 후보로 남긴다.
+    </p>
+
+    <h3>테스트 교훈 1 · 단언 품질</h3>
+    <ul>
+      <li>“half-share보다 작아야 한다”는 단언은 375×812 en 1.3x에서 콘텐츠와 half-share 차이가 약 0.001px이라 원리적으로 구별할 수 없었다.</li>
+      <li>테스트가 <code>min(content, max(room/2, room-amountMin))</code> 구현식을 그대로 복제한 단언은 식 자체만 다시 계산해 독립 계약을 고정하지 못했다.</li>
+      <li>구현식 대신 성질 1~4로 바꾼 뒤에도 과거 <code>min(content, room/2)</code>가 모두 통과했다. 성질 단언이라는 형식만으로 판정력이 생기지는 않았다.</li>
+    </ul>
+    <p>
+      구현식 복제는 다섯 가지 성질로 교체했다. pill은 (1) 콘텐츠보다 커지지 않고, (2) 콘텐츠가 필요로 하는 범위에서 half-share 아래로 눌리지 않으며,
+      (3) 행을 넘지 않고, (4) 실제로 양보했고 잔액 최소 폭과 pill 바닥이 동시에 성립할 때 남은 공간이 고정 잔액 최소 폭을 충족해야 한다.
+      (5) 콘텐츠와 잔액 최소 폭을 모두 담을 수 있다면 pill은 반드시 콘텐츠 폭과 일치해야 한다.
+      잔액 최소 폭도 테스트에서 fixture 측정식을 복제하지 않고 프로덕션의 <code>amountMinimumWidth</code>를 읽는다.
+      충분 구간에 무조건 <code>pill ≥ room/2</code>를 요구했던 초기 단언은 375×812 ko 2.0x에서 콘텐츠 92.38px보다
+      room/2 122.20px을 우선해 pill을 도로 부풀리는 구간 분류 오류였다. 조건에 프로덕션의 <code>max</code>식을 복제하는 대신 네 성질로 분기를 없앴다.
+      격리용 squeezed 그룹은 테스트가 one-column row 폭을 다시 유도한다는 약점이 남지만, 실제 다이얼로그를 통과하는 36조합 그룹이 그 공백을 보완하므로 이번에는 유지했다.
+    </p>
+    <p>
+      5번은 커밋 직전 과거 식을 적대적으로 다시 대입해 본 결과 1~4가 결함을 놓친다는 점을 이 세션이 발견해 추가했다.
+      실제로 프로덕션 식을 <code>min(content, room/2)</code>로 되돌려 실행하자 columns 스위트가 <code>+239 -8</code>이 됐고,
+      실패 8건은 모두 th/my에서 5번 성질이 냈다. 최종식 원복 뒤에는 <code>+247</code>로 전건 통과했다.
+      성질 단언도 “고친 결함을 되돌렸을 때 실제 실패하는가”를 직접 검증해야 판정력을 주장할 수 있다.
+    </p>
+
+    <h3>테스트 교훈 2 · 커버리지 축 누락</h3>
+    <ul>
+      <li><strong>B1:</strong> 8 viewport × 3 배율 × 4 locale × 2 키보드의 192 정적 조합은 많았지만 inset이 바뀌는 100ms 전이 프레임이 한 건도 없었다. 설계 문서가 중간 프레임 공백을 이미 지목했는데도 전이 축이 추가되지 않았다.</li>
+      <li><strong>B2 로케일 반례:</strong> 기존 <code>closeTo(contentWidth)</code> 단언은 옳았지만 ko만 실행해 th −29.4px, my −57.4px 반례를 놓쳤다. 4 locale × 3 배율로 넓히자 즉시 드러났다.</li>
+      <li><strong>1단 pill 기하:</strong> 기존 750건에는 이 위젯의 실제 폭을 재는 테스트 자체가 없었다. 단언 강도 이전에 측정 대상 축이 빠진 문제였다.</li>
+    </ul>
+    <p>
+      <strong>정적 조합 매트릭스는 전이 구간과 미측정 위젯을 원리적으로 덮지 못한다. 새 레이아웃 정책을 넣을 때는 조합 수를 늘리기 전에
+      (a) 라우트 제약이 변하는 전이 축과 (b) 그 정책이 폭·높이를 정하는 모든 위젯의 기하 단언이 있는지를 먼저 본다.</strong>
+    </p>
+  </section>
+
+  <section>
+    <h2>3. 비차단 9건 처리 결과</h2>
+    <table>
+      <thead>
+        <tr><th>항목</th><th>판정</th><th>처리와 근거</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="nowrap">N1</td>
+          <td><span class="tag accept">수용·수정</span></td>
+          <td>
+            <code>Border.all(1)</code>이 실제 박스의 양쪽 폭과 상하 높이에 더하는 2px을 측정식에도 포함했다.
+            <code>rechargePillBorderWidth</code> 하나를 최소 폭, 선호 높이, 실제 렌더가 공유한다.
+            정확한 최소 폭에서 라벨이 지정 줄 수를 넘지 않는 테스트와, my/3.0x에서 계산 선호 높이와 고유 렌더 높이가 일치하는 테스트를 추가했다.
+          </td>
+        </tr>
+        <tr>
+          <td>N2</td>
+          <td><span class="tag accept">수용·수정</span></td>
+          <td>
+            좌·우 최소 폭을 값이 아닌 <code>double Function()</code>으로 전달한다. 키보드 fallback과 여유 있는 1단 후보에서는 호출 0회,
+            실제 2단 후보에서는 좌·우 각각 정확히 1회임을 테스트했다. 기존 5.41ms 측정 비용을 불필요한 빌드에서 제거하고 후보 내 중복 평가도 막았다.
+          </td>
+        </tr>
+        <tr>
+          <td>N3</td>
+          <td><span class="tag leave">유지·제품 결정</span></td>
+          <td>
+            1,000만 이상 잔액의 1줄 ellipsis 한계는 사실이다. 다만 고정 <code>9,999,999</code> fixture는 열 선택과 1단 기하를 지갑 갱신에서 분리하는 안정성 계약이다.
+            축약 표기 또는 자릿수 단계화는 표기 정책 결정이 필요하고 투표 계산·지갑 로직 제한과도 맞물리므로 이번 범위에서 변경하지 않았다.
+          </td>
+        </tr>
+        <tr>
+          <td>N4</td>
+          <td><span class="tag leave">유지</span></td>
+          <td>
+            2단 경로에서 <code>VoteDialogShape.mode</code>가 소비되지 않는 것은 사실이나 동작상 무해하다.
+            공유 shape 모델을 정리하는 리팩터링은 이번 결함 수정과 독립적이고 회귀 면적만 넓히므로 남겼다.
+          </td>
+        </tr>
+        <tr>
+          <td>N5</td>
+          <td><span class="tag leave">유지</span></td>
+          <td>
+            <code>computeLineMetrics().length &lt;= maxLines</code>가 중복이고 48회 이분 탐색이 과한 지적은 타당하다.
+            N2로 1단·키보드 경로의 실행 자체를 제거해 사용자 영향은 직접 줄였다. 반복 횟수나 판정식을 바꾸려면 로케일·배율 정밀도 매트릭스가 별도로 필요하므로 알고리즘 변경은 보류했다.
+          </td>
+        </tr>
+        <tr>
+          <td>N6</td>
+          <td><span class="tag partial">부분 처리·유지</span></td>
+          <td>
+            1단 라벨은 <code>maxLines: 1</code>로 복원했다. padding·gap·icon의 card-scaled 기준은 560px 카드 cap과 일관되고 일반 폰에서는 기존 값과 같아 유지했다.
+            cap을 넘는 넓은 창에서 엄격한 과거 스케일을 복원할지는 디자인 결정으로 분리한다.
+          </td>
+        </tr>
+        <tr>
+          <td>N7</td>
+          <td><span class="tag leave">유지·기존 부채</span></td>
+          <td>
+            1단과 2단의 safe-area 높이 기준 차이는 사실이나 1단 쪽은 PICNIC-2694부터의 출시 동작이다.
+            이번에는 B1에서 2단의 최종 렌더를 실제 route 제약에 맞추는 데 한정했다. 실제 <code>showDialog</code> 하네스와 함께 1단 safe-area를 정리할 후속 작업이 적절하다.
+          </td>
+        </tr>
+        <tr>
+          <td>N8</td>
+          <td><span class="tag partial">3종 보강·1종 유지</span></td>
+          <td>
+            inset/회전 중간 프레임, 1단 pill 기하, 회전 시 입력값·포커스 보존을 새 테스트로 고정했다.
+            RTL은 지원 로케일 매트릭스에 없고 물리 <code>left</code> padding이 기존 동작이어서 이번 범위에서는 남겼다.
+            계승된 “Scrollable 조상 존재” 단언의 약함도 기존 테스트 계약을 낮추지 않은 채 별도 위험으로 유지한다.
+          </td>
+        </tr>
+        <tr>
+          <td>N9</td>
+          <td><span class="tag leave">수용 가능·유지</span></td>
+          <td>
+            th/2.0 예외 오라클은 구현과 별도 주석 근거가 있고 구현 변경 시 깨지므로 tautology가 아니다.
+            viewport 테스트의 기존 1단 ≤560 단언을 낮추지 않았으며, 경로별 ≤800 허용은 columns 매트릭스가 선택 회귀를 담당하므로 그대로 두었다.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. RED → GREEN 및 역방향 확인</h2>
+    <table>
+      <thead>
+        <tr><th>대상</th><th>RED / 이전 구현 재확인</th><th>GREEN 계약</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>B1</td>
+          <td>실제 제약 clamp가 없는 이전 경로에서 즉시 해제 248px, 점진 해제 82px, 회전 198px 오버플로.</td>
+          <td>세 전이의 16ms 프레임 모두 예외 0, 1단 대조군 0, 회전 중 입력값·포커스 유지.</td>
+        </tr>
+        <tr>
+          <td>B2</td>
+          <td>
+            기존 flex 경로는 ko에서 정확한 half-share. 초판 <code>min(content, room/2)</code> 확장 매트릭스는 <code>+22 -14</code>.
+            최종 5번 단언을 둔 역변이도 th/my 8건 RED(<code>+239 -8</code>).
+          </td>
+          <td>최종식으로 14건을 닫고 columns 단독 <code>+247</code>. 충분 구간 36건·부족 구간 4건의 콘텐츠 소유·양보 하한·containment 계약 통과.</td>
+        </tr>
+        <tr>
+          <td>N1</td>
+          <td>테두리를 측정에서 제외한 원식은 공식 폭 34px 대 실제 36px으로 2px 불일치하며, 줄 경계의 높이 예산도 같은 2px을 누락.</td>
+          <td>폭·높이·실제 렌더가 단일 테두리 상수를 공유하고 폭/고유 높이 probe 통과.</td>
+        </tr>
+        <tr>
+          <td>N2</td>
+          <td>이전 eager 인자에서는 fallback 전에도 좌·우 측정이 실행되고 호스트 기준 빌드당 5.41ms가 재현됨.</td>
+          <td>fallback 2종 호출 0회, 활성 2단 후보 좌·우 각 1회.</td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      테스트도 구현과 같은 함정에 빠질 수 있음을 확인했다. N1 높이 probe의 첫 버전은 width만 제한한 <code>Align</code> 아래에서 고유 높이가 아니라
+      전체 뷰포트 852px을 측정했다. <code>Column(mainAxisSize: MainAxisSize.min)</code>으로 고유 높이를 강제한 뒤 비교했다.
+    </p>
+  </section>
+
+  <section>
+    <h2>5. 측정 ↔ 렌더 불일치 계보</h2>
+    <p>
+      개발과 리뷰에서 확인된 다음 여섯 건은 우연한 개별 실수보다 구조적 약점을 가리킨다.
+      이 코드에서 경계 결함을 조사할 다음 작업자는 <strong>선택·측정에 쓴 값과 해당 프레임의 실제 렌더 제약이 같은지</strong>를 가장 먼저 확인해야 한다.
+    </p>
+    <ol>
+      <li>긴 잔액을 위한 고정 fixture 폭과 실제 잔액 렌더 폭의 차이.</li>
+      <li>충전 pill 고정 비용 누락으로 600×500에서 발생한 2px 오버플로.</li>
+      <li>2단 body 예산이 <code>AnimatedPadding</code>의 실제 프레임 제약을 무시해 발생한 최대 248px 오버플로(B1).</li>
+      <li>pill 테두리 2px가 최소 폭·높이 측정에서 빠진 불일치(N1).</li>
+      <li>th/my 콘텐츠 폭을 half-share가 덮어쓴 1단 pill 불일치(B2).</li>
+      <li>N1 검증 테스트가 위젯 고유 높이 대신 뷰포트 높이를 측정한 테스트 하네스 불일치.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>6. 최종 검증</h2>
+    <p class="muted">Flutter 3.41.4, <code>picnic_lib</code> 기준. Flutter 명령은 코디네이터의 비제한 환경에서 실행했다.</p>
+    <table>
+      <thead>
+        <tr><th>명령 / 범위</th><th>결과</th><th>판정</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>flutter analyze</code></td>
+          <td>521 issues</td>
+          <td><span class="ok-text">부모 기준선 521과 동일, 신규 0</span></td>
+        </tr>
+        <tr>
+          <td><code>flutter test test/presentation/widgets/vote/voting</code></td>
+          <td>799 passed, 0 failed</td>
+          <td><span class="ok-text">통과</span> · 750 → 799 (+49)</td>
+        </tr>
+        <tr>
+          <td><code>voting_dialog_columns_test.dart</code></td>
+          <td>247 passed, 0 failed</td>
+          <td><span class="ok-text">통과</span> · B2 역변이에서는 239 passed, 8 failed</td>
+        </tr>
+        <tr>
+          <td>공유 LargePopup·정책·탭 회귀 5파일</td>
+          <td>45 passed, 0 failed</td>
+          <td><span class="ok-text">통과</span></td>
+        </tr>
+        <tr>
+          <td><code>git diff --check</code></td>
+          <td>출력 없음</td>
+          <td><span class="ok-text">통과</span></td>
+        </tr>
+        <tr>
+          <td>OTA 변경 범위</td>
+          <td>Dart·테스트·문서만 변경</td>
+          <td><span class="ok-text">네이티브·에셋·pubspec 변경 0</span></td>
+        </tr>
+      </tbody>
+    </table>
+    <p>
+      공유 회귀 범위는 <code>large_popup_test</code>, <code>large_popup_presentation_test</code>,
+      <code>usage_policy_dialog_test</code>, <code>vote_detail_page_tap_test</code>,
+      <code>vote_detail_achieve_page_tap_test</code>다.
+      금지된 <code>jma_voting_dialog.dart</code>와 <code>voting_dialog_presentation_test.dart</code>는 수정하지 않았다.
+    </p>
+  </section>
+
+  <section>
+    <h2>7. 남은 위험과 후속 후보</h2>
+    <ul>
+      <li><strong>버마어 1단:</strong> 393×852, 1.0x에서 출시 대비 pill 라벨이 8.6px 줄어든다. 잔액의 무표식 잘림보다 라벨 ellipsis를 택한 의도된 우선순위다.</li>
+      <li><strong>200% 배율:</strong> 393px 폭의 amount 최소 159.66px과 pill 바닥 128.6px은 동시에 들어가지 않는다. 현재는 pill 바닥을 지켜 잔액이 최소 폭 아래로 내려가며, 1단 잔액에 ellipsis를 명시하는 후속안 C의 필요성을 강화한다.</li>
+      <li><strong>고정 잔액 fixture:</strong> 짧은 실제 잔액에도 7자리 폭을 예약한다. 기하 안정성과 공간 활용 사이의 절충이다.</li>
+      <li><strong>1,000만 이상 잔액:</strong> 현재 1줄 ellipsis 계약에서는 완전한 가독성을 보장하지 않는다. 축약 표기 또는 잔액 Text 계약 변경이 필요하다.</li>
+      <li><strong>safe area·RTL:</strong> 1단 높이 의미와 RTL 물리 padding은 기존 부채로 남았다. 실제 dialog route와 RTL locale을 포함한 후속 하네스가 필요하다.</li>
+      <li><strong>측정 알고리즘:</strong> N2로 불필요한 실행은 제거했지만 48회 이분 탐색과 중복 조건 자체는 정리되지 않았다.</li>
+    </ul>
+    <p>
+      투표 수량, 전체 사용 계산, 지갑, 분석, 요청 로직은 변경하지 않았다. PR 생성·머지·Jira 상태 변경도 이 작업 범위에 포함하지 않는다.
+    </p>
+    <p>
+      <strong>공통 원인은 하나다. 프로덕션과 테스트 어느 쪽이든 재는 값과 실제로 그려지는 값이 다른 층에서 결정됐고,
+      그 두 층을 잇는 테스트 축이 없었다.</strong>
+    </p>
+  </section>
+</body>
+</html>

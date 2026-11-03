@@ -319,25 +319,19 @@ void main() {
     });
   });
 
-  group('DeviceManagerHelper.buildLastSeenUpdate', () {
-    test('builds update map with last_seen key', () {
-      final result = DeviceManagerHelper.buildLastSeenUpdate(
+  group('DeviceManagerHelper.buildActivityUpdate', () {
+    test('records activity and the installed app version together', () {
+      final result = DeviceManagerHelper.buildActivityUpdate(
         '2026-03-13T10:00:00Z',
+        appVersion: '1.3.4',
+        buildNumber: '130404',
       );
-      expect(result, {'last_seen': '2026-03-13T10:00:00Z'});
-    });
-
-    test('contains only one key', () {
-      final result = DeviceManagerHelper.buildLastSeenUpdate(
-        '2026-01-01T00:00:00Z',
-      );
-      expect(result.length, 1);
-      expect(result.containsKey('last_seen'), isTrue);
-    });
-
-    test('handles empty string timestamp', () {
-      final result = DeviceManagerHelper.buildLastSeenUpdate('');
-      expect(result['last_seen'], '');
+      expect(result, {
+        'last_seen': '2026-03-13T10:00:00Z',
+        'app_version': '1.3.4',
+        'app_build_number': '130404',
+        'last_updated': '2026-03-13T10:00:00Z',
+      });
     });
   });
 

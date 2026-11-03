@@ -178,7 +178,7 @@ void main() {
       PurchaseCampaignAttempt(
         attemptId: id,
         productId: product,
-        displayedCampaign: null,
+        displayedPromotion: null,
       );
 
   PurchaseDetails transactionFor(String product) => PurchaseDetails(

@@ -1,16 +1,20 @@
 import 'dart:async';
 import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/widgets.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
+import 'package:picnic_lib/presentation/providers/config_service.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/analytics_service.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
+import 'package:picnic_lib/core/services/purchase_diagnostics.dart';
 import 'package:picnic_lib/core/services/purchase_service_helper.dart';
 import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
 // 🔥 복잡한 가드 시스템 제거 - 단순 중복 방지만 사용
@@ -65,6 +69,9 @@ enum PurchaseSweepTrigger {
   manual,
 }
 
+/// Where an Android PENDING token was observed.
+enum PendingIntakeSource { storeSurface, headless, sweep }
+
 enum PurchaseSweepOutcome {
   /// The store was asked and every transaction it returned was driven through
   /// verification.
@@ -111,6 +118,7 @@ class PurchaseSweepReport {
     this.preserved = 0,
     this.scanError,
     this.liveInFlight = 0,
+    this.unsettleableHeld = 0,
   });
 
   final PurchaseSweepTrigger trigger;
@@ -135,6 +143,11 @@ class PurchaseSweepReport {
   /// [UnfinishedPurchaseScan.liveInFlight].
   final int liveInFlight;
 
+  /// Transactions the store holds that are neither settleable nor a payment
+  /// in progress right now - Android PENDING and unclassifiable owned
+  /// purchases. See [UnfinishedPurchaseScan.unsettleableHeld].
+  final int unsettleableHeld;
+
   bool get ran => outcome == PurchaseSweepOutcome.completed;
 
   /// 이 스윕이 **"큐를 확인했고 애초에 아무것도 없었다"** 를 증명하는가.
@@ -150,18 +163,25 @@ class PurchaseSweepReport {
   /// Ask to Buy 승인을 기다리는 동안(deferred) 정산할 것은 없지만 결제는
   /// 살아 있다. 이 둘을 뭉개면 "큐가 비었다"가 진행 중인 정상 결제를 지워도
   /// 된다는 증거로 오독된다 (Sol 교차 리뷰 MAJOR, 2026-08-07).
+  /// [unsettleableHeld] 도 0 이어야 한다. Android PENDING(편의점 현금·계좌
+  /// 이체처럼 며칠 살아 있는 결제)과 스토어가 상태를 분류해 주지 않는 보유
+  /// 구매는 정산 대상이 아니지만 큐가 빈 것도 아니다. 이 값은 예전에
+  /// `liveInFlight` 에 섞여 있었는데, 그 필드의 뜻은 "지금 이 순간 결제가
+  /// 진행 중"이라 며칠짜리 대기 결제를 담으면 의미가 거짓이 된다.
   bool get verifiedEmpty =>
       outcome == PurchaseSweepOutcome.completed &&
       scanError == null &&
       found == 0 &&
       preserved == 0 &&
-      liveInFlight == 0;
+      liveInFlight == 0 &&
+      unsettleableHeld == 0;
 
   @override
   String toString() =>
       'PurchaseSweepReport(${trigger.name}, ${outcome.name}, '
       'source: $source, found: $found, settled: $settled, '
       'preserved: $preserved, liveInFlight: $liveInFlight, '
+      'unsettleableHeld: $unsettleableHeld, '
       'scanError: $scanError)';
 }
 
@@ -176,11 +196,29 @@ class PurchaseService {
     UnfinishedPurchaseSource? unfinishedPurchaseSource,
     DateTime Function() clock = DateTime.now,
     Duration resumeSweepInterval = const Duration(minutes: 5),
+    Future<bool?> Function()? pendingIntakeEnabled,
+    Duration pendingIntakeCacheDuration = const Duration(seconds: 30),
+    Duration pendingIntakeLookupTimeout = const Duration(seconds: 2),
     bool sweepOnStart = true,
+    Future<void> Function()? flushReceiptQueue,
   }) : unfinishedPurchaseSource =
            unfinishedPurchaseSource ?? defaultUnfinishedPurchaseSource(),
        _clock = clock,
-       _resumeSweepInterval = resumeSweepInterval {
+       _flushReceiptQueue =
+           flushReceiptQueue ?? (() => ReceiptQueueService().flushPending()),
+       _resumeSweepInterval = resumeSweepInterval,
+       _pendingIntakeCacheDuration = pendingIntakeCacheDuration,
+       _pendingIntakeLookupTimeout = pendingIntakeLookupTimeout {
+    _pendingIntakeEnabledLoader =
+        pendingIntakeEnabled ??
+        () async {
+          final raw = await container
+              .read(configServiceProvider)
+              .getConfig(pendingIntakeConfigKey);
+          if (raw == null) return null;
+          return raw.trim().toLowerCase() == 'true';
+        };
+
     inAppPurchaseService.initialize(onPurchaseUpdate);
     inAppPurchaseService.clearPendingPurchasesOnStartup();
 
@@ -195,8 +233,10 @@ class PurchaseService {
     // 시점에는 Supabase 초기화(runApp 이후 Phase 2)가 아직 끝나지 않았을 수
     // 있고, 그러면 큐 전송이 던진다. 큐는 durable 하므로 다음 플러시가
     // 재시도하지만, 미처리 async 예외로 새는 것은 막는다.
+    final receiptQueue = ReceiptQueueService();
+    receiptQueue.canFlushPendingIntake = _pendingIntakeEnabled;
     unawaited(
-      ReceiptQueueService().flushPending().catchError((Object e) {
+      receiptQueue.flushPending().catchError((Object e) {
         logger.w('영수증 큐 플러시 실패(다음 기회에 재시도): $e');
       }),
     );
@@ -245,7 +285,20 @@ class PurchaseService {
   final UnfinishedPurchaseSource? unfinishedPurchaseSource;
 
   final DateTime Function() _clock;
+
+  /// 스윕이 끝에서 돌리는 영수증 큐 플러시. 운영에서는
+  /// [ReceiptQueueService.flushPending] 이고, 테스트는 호출 여부만 센다 -
+  /// 실제 플러시는 모의 함수 호출이 응답하지 않는 FakeAsync 하네스에서 영원히
+  /// 끝나지 않는다.
+  final Future<void> Function() _flushReceiptQueue;
   final Duration _resumeSweepInterval;
+  static const String pendingIntakeConfigKey =
+      'PURCHASE_PENDING_INTAKE_ANDROID';
+  final Duration _pendingIntakeCacheDuration;
+  final Duration _pendingIntakeLookupTimeout;
+  late final Future<bool?> Function() _pendingIntakeEnabledLoader;
+  bool? _cachedPendingIntakeEnabled;
+  DateTime? _pendingIntakeCacheAt;
 
   bool _coldStartSweepDone = false;
   bool _sweepInFlight = false;
@@ -544,6 +597,12 @@ class PurchaseService {
       return {'success': true, 'wasCancelled': false, 'errorMessage': null};
     } catch (e, s) {
       logger.e('Error during purchase initiation: $e', stackTrace: s);
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.initiation,
+        productId: productId,
+        userId: currentUser.id,
+        error: e,
+      );
       _processingProducts.remove(productId);
       duplicatePreventionService.completePurchase(
         productId,
@@ -566,6 +625,12 @@ class PurchaseService {
   ) async {
     final error = purchaseDetails.error;
     logger.e('❌ 구매 에러: ${error?.message}, code: ${error?.code}');
+    PurchaseDiagnostics.reportFailure(
+      stage: PurchaseFailureStage.storeError,
+      productId: purchaseDetails.productID,
+      userId: _signedInUserIdOrNull(),
+      storeErrorCode: error?.code ?? 'unknown',
+    );
 
     // 🔥 에러 시에도 진행 상태에서 제거
     _processingProducts.remove(purchaseDetails.productID);
@@ -664,6 +729,10 @@ class PurchaseService {
     Future<void> Function()? onAlreadySettled,
   }) async {
     final platform = Platform.isIOS ? 'iOS' : 'Android';
+    // 실패 보고의 주인은 검증을 시작한 계정이다 - 검증이 도는 동안 로그아웃·
+    // 계정 전환이 일어나도 보고가 다른 계정으로 옮겨 가지 않게 첫 await 전에
+    // 잡아 둔다.
+    final attemptUserId = _signedInUserIdOrNull();
     logger.i('🎯 실제 구매 처리 시작 ($platform) - 영수증 검증');
     logger.i('  - Product ID: ${purchaseDetails.productID}');
     logger.i('  - Transaction ID: ${purchaseDetails.purchaseID}');
@@ -745,6 +814,13 @@ class PurchaseService {
         return true;
       }
 
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.unconfirmedDuplicate,
+        productId: purchaseDetails.productID,
+        userId: attemptUserId,
+        error: e,
+      );
+
       // 🛡️ 중복 방지 서비스에 실패 알림
       if (currentUser != null) {
         duplicatePreventionService.completePurchase(
@@ -770,6 +846,12 @@ class PurchaseService {
       return false;
     } catch (e, s) {
       logger.e('❌ 실제 구매 처리 중 오류 ($platform): $e', stackTrace: s);
+      PurchaseDiagnostics.reportFailure(
+        stage: PurchaseFailureStage.settlement,
+        productId: purchaseDetails.productID,
+        userId: attemptUserId,
+        error: e,
+      );
       _processingProducts.remove(purchaseDetails.productID);
 
       // 🛡️ 중복 방지 서비스에 실패 알림
@@ -807,6 +889,16 @@ class PurchaseService {
     _processingProducts.remove(purchaseDetails.productID);
 
     logger.i('✅ 복원된 구매 무시 완료');
+  }
+
+  /// 지금 로그인한 계정 id. 부팅 직후 Supabase 초기화 전이면 `supabase`
+  /// 게터가 던지므로 null 로 본다.
+  String? _signedInUserIdOrNull() {
+    try {
+      return supabase.auth.currentUser?.id;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// 사용자 인증 검증 (단순화 - 타임아웃 제거)
@@ -848,16 +940,132 @@ class PurchaseService {
     logger.i('🔍 영수증 검증 시작 (서버 검증 단계)');
     logger.i('Environment: $environment');
 
+    // 요청과 같은 자리에서 카탈로그 통화를 한 번 읽어 함께 보낸다. 별도 저장소나
+    // 시각 매칭이 아니라 이 거래의 요청 본문에 실리는 필드 하나라, "어느 시도의
+    // 값인지" 를 나중에 지목할 필요 자체가 없다. Google 은 provider 응답에
+    // 통화 필드가 없어 서버가 이 값을 마지막 폴백으로 쓴다.
+    final observedCurrency = _observedStoreCurrency(purchaseDetails.productID);
+
     // ReceiptVerificationService가 타임아웃 + 재시도 로직을 모두 처리
     final result = await receiptVerificationService.verifyReceipt(
       receiptData,
       purchaseDetails.productID,
       currentUser.id,
       environment,
+      clientObservedCurrency: observedCurrency,
     );
 
     logger.i('✅ 영수증 검증 완료');
     return result;
+  }
+
+  /// 이미 메모리에 로드된 스토어 카탈로그에서 이 상품의 통화를 읽는다.
+  ///
+  /// 카탈로그 future 를 기다리지 않는다. 결제 경로에서 조회가 지연되면 그만큼
+  /// 검증이 밀리고, 통화 하나 때문에 정산을 늦출 이유는 없다 — 없으면 없는
+  /// 대로 보내고 서버가 자기 소스로 채운다.
+  String? _observedStoreCurrency(String productId) =>
+      _cachedProduct(productId)?.currencyCode;
+
+  /// Durably records an Android PENDING token behind a fail-closed capability
+  /// gate. This path never verifies through [ReceiptVerificationService] and
+  /// never finalizes the store transaction.
+  Future<void> recordPendingPurchase(
+    PurchaseDetails purchase, {
+    required PendingIntakeSource source,
+  }) async {
+    if (kIsWeb ||
+        defaultTargetPlatform != TargetPlatform.android ||
+        purchase.status != PurchaseStatus.pending) {
+      return;
+    }
+    final token = purchase.verificationData.serverVerificationData;
+    if (token.isEmpty) return;
+
+    try {
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser == null) {
+        logger.i(
+          'Android pending 접수 보류(비로그인/${source.name}): '
+          '${purchase.productID}',
+        );
+        return;
+      }
+      if (!await _pendingIntakeEnabled()) {
+        logger.i(
+          'Android pending 접수 비활성(게이트 OFF/fail-closed, '
+          '${source.name}) - Play 큐에 보존: ${purchase.productID}',
+        );
+        return;
+      }
+
+      final environment = await receiptVerificationService.getEnvironment();
+      final receiptQueue = ReceiptQueueService();
+      await receiptQueue.enqueue(
+        platform: ReceiptQueueService.platformAndroid,
+        receipt: token,
+        productId: purchase.productID,
+        userId: currentUser.id,
+        environment: environment,
+        clientObservedCurrency: _observedStoreCurrency(purchase.productID),
+        pendingIntake: true,
+      );
+      unawaited(
+        receiptQueue.flushPending().catchError((Object e) {
+          logger.w('Android pending 접수 전송 실패(큐 보존): $e');
+        }),
+      );
+    } catch (e, s) {
+      // Play owns the unacknowledged token, so an intake failure is preserved
+      // for the next event/cold-start/resume sweep rather than surfaced as a
+      // terminal purchase failure.
+      logger.w(
+        'Android pending 접수 보류(${source.name}) - 다음 스윕에서 재시도: $e',
+        stackTrace: s,
+      );
+    }
+  }
+
+  Future<bool> _pendingIntakeEnabled() async {
+    final cached = _cachedPendingIntakeEnabled;
+    final cachedAt = _pendingIntakeCacheAt;
+    final now = _clock();
+    final cacheAge = cachedAt == null ? null : now.difference(cachedAt);
+    if (cached != null &&
+        cacheAge != null &&
+        !cacheAge.isNegative &&
+        cacheAge < _pendingIntakeCacheDuration) {
+      return cached;
+    }
+
+    try {
+      final loaded = await _pendingIntakeEnabledLoader().timeout(
+        _pendingIntakeLookupTimeout,
+      );
+      if (loaded == null) return false;
+      _cachedPendingIntakeEnabled = loaded;
+      _pendingIntakeCacheAt = now;
+      return loaded;
+    } catch (e, s) {
+      logger.w('Android pending 원격 게이트 조회 실패 - fail-closed: $e', stackTrace: s);
+      return false;
+    }
+  }
+
+  num? _observedStorePrice(String productId) =>
+      _cachedProduct(productId)?.rawPrice;
+
+  ProductDetails? _cachedProduct(String productId) {
+    try {
+      final cached = container.read(storeProductsProvider).value;
+      if (cached == null) return null;
+      for (final product in cached) {
+        if (product.id == productId) return product;
+      }
+    } catch (e, s) {
+      logger.w('카탈로그 상세 조회 실패 — 서버 소스에 맡긴다', error: e, stackTrace: s);
+    }
+    return null;
   }
 
   /// Runs the caller's settlement presentation and swallows whatever it throws.
@@ -998,8 +1206,8 @@ class PurchaseService {
     }
     if (productDetails == null) {
       logger.w(
-        'purchase analytics 카탈로그 상세 없음 — currency/value는 '
-        '생략하고 정산 payload를 outbox에 보존: ${purchaseDetails.productID}',
+        'purchase analytics 카탈로그 상세 없음 — 서버가 통화를 주지 않았다면 '
+        'outbox 에 보류로 남는다: ${purchaseDetails.productID}',
       );
     }
 
@@ -1009,17 +1217,84 @@ class PurchaseService {
         : BigInt.zero;
 
     logger.i('애널리틱스 로깅...');
-    await analyticsService.logPurchasePayload(
+    final stored = await analyticsService.logPurchasePayload(
       storeProductId: purchaseDetails.productID,
-      currency: productDetails?.currencyCode,
-      value: productDetails?.rawPrice,
+      // 서버가 확정한 통화·금액이 있으면 그것이 정본이다. 카탈로그 값은 서버가
+      // 통화를 주지 못했을 때만 쓰이며, 그때도 통화와 금액을 쌍으로만 쓴다.
+      serverCurrency: result.currency,
+      serverValue: result.value,
+      catalogCurrency: productDetails?.currencyCode,
+      catalogValue: productDetails?.rawPrice,
       transactionId: purchaseDetails.purchaseID,
       idempotencyFallbackKey: result.operationId,
       baseAmount: result.baseStarAmount.toInt(),
       bonusAmount: (result.baseBonusAmount + promoBonus).toInt(),
       sendTimeout: _analyticsBudget,
     );
-    logger.i('애널리틱스 로깅 완료');
+    logger.i('애널리틱스 로깅 완료: ${stored.name}');
+
+    // 매출 이벤트가 durable 하게 남은 뒤에만 영수증 큐의 복구 재료를 버린다.
+    // 저장에 실패했는데 큐까지 지우면 그 거래는 되살릴 방법이 없다.
+    if (stored != PurchaseOutboxResult.failed) {
+      await _releaseReceiptQueueEntry(result);
+    }
+  }
+
+  /// 부팅 큐 복구가 받은 정산의 매출 이벤트를 durable 하게 넘겨받는다.
+  ///
+  /// 이 경로에는 스토어 카탈로그가 로드돼 있다는 보장이 없다. 그래서 큐가
+  /// 요청 시점에 함께 저장해 둔 관측 통화가 서버 값 다음의 소스가 된다.
+  ///
+  /// `true` 를 돌려줄 때만 큐가 항목을 비운다. 저장 실패를 성공으로 답하면
+  /// 그 거래의 매출을 되살릴 재료가 사라진다.
+  Future<bool> adoptRecoveredSettlement(
+    PurchaseSettlementResultModel settlement, {
+    required String storeProductId,
+    required String? clientObservedCurrency,
+  }) async {
+    final promotion = settlement.promotion;
+    final promoBonus = promotion?.state == PurchasePromotionState.granted
+        ? promotion!.promoBonusAmount
+        : BigInt.zero;
+    try {
+      final stored = await analyticsService.logPurchasePayload(
+        storeProductId: storeProductId,
+        serverCurrency: settlement.currency,
+        serverValue: settlement.value,
+        catalogCurrency: _observedStoreCurrency(storeProductId),
+        catalogValue: _observedStorePrice(storeProductId),
+        clientObservedCurrency: clientObservedCurrency,
+        idempotencyFallbackKey: settlement.operationId,
+        baseAmount: settlement.baseStarAmount.toInt(),
+        bonusAmount: (settlement.baseBonusAmount + promoBonus).toInt(),
+        sendTimeout: _analyticsBudget,
+      );
+      return stored != PurchaseOutboxResult.failed;
+    } catch (e, s) {
+      logger.e('큐 복구 매출 이벤트 저장 실패', error: e, stackTrace: s);
+      return false;
+    }
+  }
+
+  /// 영수증 큐가 갖고 있던 이 정산의 복구 항목을 제거한다.
+  ///
+  /// 큐 항목은 "서버 정산 응답 확보"까지를 소유하고, analytics outbox 는 그
+  /// 뒤부터 "통화 확보와 GA4 전송 성공"까지를 소유한다. 소유권이 넘어간
+  /// 것을 확인하기 전에 큐를 비우면 그 사이의 실패가 곧 영구 유실이다.
+  Future<void> _releaseReceiptQueueEntry(
+    PurchaseSettlementResultModel result,
+  ) async {
+    final traceId = result.receiptQueueClientTraceId;
+    if (traceId == null || traceId.isEmpty) return;
+    try {
+      await receiptVerificationService.releaseQueuedReceipt(traceId);
+    } catch (e, s) {
+      logger.e(
+        '영수증 큐 항목 제거 실패 — 다음 부팅 flush 가 다시 정리한다: $traceId',
+        error: e,
+        stackTrace: s,
+      );
+    }
   }
 
   /// 구매 완료 처리
@@ -1063,6 +1338,11 @@ class PurchaseService {
   void dispose() {
     logger.i('🧹 PurchaseService 해제: ${_processingProducts.length}개 진행 상태 정리');
     _processingProducts.clear();
+
+    final receiptQueue = ReceiptQueueService();
+    if (receiptQueue.canFlushPendingIntake == _pendingIntakeEnabled) {
+      receiptQueue.canFlushPendingIntake = null;
+    }
 
     // 🛡️ 중복 방지 서비스 데이터 정리
     duplicatePreventionService.cleanupExpiredData();
@@ -1240,17 +1520,40 @@ class PurchaseService {
         source: source.label,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
-    if (scan.isEmpty) {
-      logger.i(
-        'ℹ️ 미완료 구매 없음 (${source.label}, 진행 중 ${scan.liveInFlight}건)',
-      );
+    if (scan.isEmpty && scan.pendingPurchases.isEmpty) {
+      logger.i('ℹ️ 미완료 구매 없음 (${source.label}, 진행 중 ${scan.liveInFlight}건)');
+      // 스토어에 미완료 거래가 없어도 영수증 큐에는 영수증이 남아 있을 수
+      // 있다 - 다른 경로가 거래를 먼저 finish 했거나, 이전 실행이 큐 적재 뒤
+      // 전송 전에 죽은 경우다. 그 영수증은 스윕이 다시 찾아 주지 못하므로
+      // 큐 flush 가 유일한 재시도 수단이다 (PICNIC-2743).
+      //
+      // 트레일링 flush 와 같은 규칙이다: 화면이 다시 붙어 자체 정리를 하는
+      // 중이면(shouldAbort) 서버 왕복을 만들지 않는다. 세션이 없으면 전송은
+      // 401 로 끝나고 백오프만 태우므로 로그인 뒤의 다음 계기에 맡긴다.
+      //
+      // 완료를 기다리지 않는다. 스토어 화면은 진입 시 이 스윕이 끝나야 구매
+      // 게이트를 여는데(RestorePurchaseHandler.performProactiveCleanup), 큐
+      // flush 는 항목마다 30초 전송을 직렬로 돌리고 전체 상한이 없다. 빈
+      // 스토어에서 그 완료를 기다리면 구매가 수십 초 막힌다 (Codex 리뷰).
+      // 생성자의 첫 프레임 flush 와 같이 백그라운드로 보내고 실패는 로그만
+      // 남긴다 - 큐는 durable 하므로 다음 계기가 다시 시도한다.
+      final abortedBeforeFlush = shouldAbort?.call() ?? false;
+      if (!abortedBeforeFlush && _signedInUserIdOrNull() != null) {
+        unawaited(
+          _flushReceiptQueue().catchError((Object e) {
+            logger.w('빈 스캔 뒤 영수증 큐 플러시 실패(다음 기회에 재시도): $e');
+          }),
+        );
+      }
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.completed,
         source: source.label,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1267,12 +1570,17 @@ class PurchaseService {
         preserved: scan.purchases.length,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
     final currentUser = supabase.auth.currentUser;
     if (currentUser == null) {
-      logger.w('ℹ️ 로그인되지 않아 미완료 구매 재검증 생략 (${scan.purchases.length}건 보존)');
+      logger.w(
+        'ℹ️ 로그인되지 않아 미완료 구매 재검증 생략 '
+        '(정산 ${scan.purchases.length}건, pending '
+        '${scan.pendingPurchases.length}건)',
+      );
       return PurchaseSweepReport(
         trigger: trigger,
         outcome: PurchaseSweepOutcome.notSignedIn,
@@ -1281,6 +1589,37 @@ class PurchaseService {
         preserved: scan.purchases.length,
         scanError: scan.error,
         liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
+      );
+    }
+
+    for (final pending in scan.pendingPurchases) {
+      if (shouldAbort?.call() ?? false) {
+        logger.i('⏭️ Android pending intake 중 스윕 조건 변경 - Play 큐에 보존');
+        return PurchaseSweepReport(
+          trigger: trigger,
+          outcome: PurchaseSweepOutcome.aborted,
+          source: source.label,
+          found: scan.purchases.length,
+          preserved: scan.purchases.length,
+          liveInFlight: scan.liveInFlight,
+          unsettleableHeld: scan.unsettleableHeld,
+        );
+      }
+      await recordPendingPurchase(pending, source: PendingIntakeSource.sweep);
+    }
+
+    if (scan.purchases.isEmpty) {
+      logger.i(
+        'ℹ️ 정산 가능한 구매 없음 (${source.label}, Android pending '
+        '${scan.pendingPurchases.length}건)',
+      );
+      return PurchaseSweepReport(
+        trigger: trigger,
+        outcome: PurchaseSweepOutcome.completed,
+        source: source.label,
+        liveInFlight: scan.liveInFlight,
+        unsettleableHeld: scan.unsettleableHeld,
       );
     }
 
@@ -1300,10 +1639,25 @@ class PurchaseService {
         logger.i('⏭️ 미완료 구매 스윕 중단(조건 변경) - 남은 항목 보존');
         break;
       }
+      // 스윕을 시작한 계정이 아직 로그인해 있는지 매 항목 전에 확인한다.
+      // 로그아웃·계정 전환 뒤의 항목을 이전 계정 id 로 정산하면 남의 결제가
+      // 엉뚱한 계정에 적립된다. 남은 항목은 손대지 않고 보존한다.
+      if (supabase.auth.currentUser?.id != currentUser.id) {
+        aborted = true;
+        preserved += scan.purchases.length - i;
+        logger.w('⏭️ 스윕 도중 로그인 계정이 바뀜 - 남은 미완료 구매 보존');
+        break;
+      }
       final p = scan.purchases[i];
       final receipt = p.verificationData.serverVerificationData;
-      if (receipt.isEmpty) continue;
       found++;
+      if (receipt.isEmpty) {
+        // 빈 영수증은 서버가 영구 거부한다 - 보내지 않는다. 그렇다고 건너뛰면
+        // 스토어가 들고 있는 거래가 "빈 큐"로 보고된다.
+        preserved++;
+        logger.w('미완료 구매에 검증 데이터가 없어 보존: ${p.productID}');
+        continue;
+      }
 
       // 서버는 트랜잭션(구매 토큰 / 트랜잭션 ID) 기준으로 멱등하므로 직접
       // 재검증한다. (verifyReceipt가 내부에서 큐 적재→성공 시 제거를
@@ -1350,10 +1704,22 @@ class PurchaseService {
         } else {
           preserved++;
           logger.w('미완료 구매 중복이나 지급 미확인 - 완료 처리 보류: ${p.productID}');
+          PurchaseDiagnostics.reportFailure(
+            stage: PurchaseFailureStage.sweepVerification,
+            productId: p.productID,
+            userId: currentUser.id,
+            error: e,
+          );
         }
       } catch (e) {
         preserved++;
         logger.w('미완료 구매 재검증 실패(트랜잭션·큐 유지): ${p.productID} ($e)');
+        PurchaseDiagnostics.reportFailure(
+          stage: PurchaseFailureStage.sweepVerification,
+          productId: p.productID,
+          userId: currentUser.id,
+          error: e,
+        );
       }
     }
 
@@ -1367,7 +1733,7 @@ class PurchaseService {
     // 중단됐으면 큐 플러시도 건너뛴다 - 화면이 다시 붙어 자체 정리를 하는
     // 중일 수 있는 상황에서 굳이 서버 왕복을 더 만들 이유가 없다.
     if (!aborted) {
-      await ReceiptQueueService().flushPending();
+      await _flushReceiptQueue();
     }
 
     return PurchaseSweepReport(
@@ -1381,6 +1747,7 @@ class PurchaseService {
       preserved: preserved,
       scanError: scan.error,
       liveInFlight: scan.liveInFlight,
+      unsettleableHeld: scan.unsettleableHeld,
     );
   }
 

@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/notification_inbox_service.dart';
+import 'package:picnic_lib/data/storage/broadcast_notification_read_store.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+class _MemoryStorage implements LocalStorage {
+  final Map<String, String> values = {};
+
+  @override
+  Future<String?> loadData(String key, String? defaultValue) async =>
+      values[key] ?? defaultValue;
+
+  @override
+  Future<void> saveData(String key, String value) async => values[key] = value;
+
+  @override
+  Future<void> removeData(String key) async => values.remove(key);
+
+  @override
+  Future<void> clearStorage() async => values.clear();
+}
+
+NotificationInboxService _service() => NotificationInboxService(
+  readStore: BroadcastNotificationReadStore(storage: _MemoryStorage()),
+);
 
 void main() {
   late void Function() restore;
@@ -30,8 +54,9 @@ void main() {
       'body': {'ko': '새 댓글이 달렸습니다', 'en': 'New comment'},
       'type': 'post',
       'is_read': true,
-      'created_at':
-          DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
+      'created_at': DateTime.now()
+          .subtract(const Duration(hours: 1))
+          .toIso8601String(),
       'read_at': DateTime.now()
           .subtract(const Duration(minutes: 30))
           .toIso8601String(),
@@ -45,8 +70,9 @@ void main() {
       'body': {'ko': '답변이 등록되었습니다', 'en': 'Answer posted'},
       'type': 'qna',
       'is_read': false,
-      'created_at':
-          DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+      'created_at': DateTime.now()
+          .subtract(const Duration(hours: 2))
+          .toIso8601String(),
       'read_at': null,
       'action_url': null,
       'data': {'question_id': '42'},
@@ -95,12 +121,12 @@ void main() {
     },
   ];
 
-  setUp(() {
+  setUp(() async {
     initTestColors();
-    setupMockSupabase({
+    await setupMockSupabaseWithAuth({
       'user_notifications': mockNotifications,
       'broadcast_notifications': <Map<String, dynamic>>[],
-    });
+    }, userId: 'test-user-id');
     restore = suppressImageErrors();
   });
 
@@ -114,15 +140,17 @@ void main() {
     // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
     // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
     await pumpWidgetAndIgnoreErrors(tester, widget);
-    await tester.pump(const Duration(seconds: 1));
-    drainExpectedImageErrors(tester);
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+      drainExpectedImageErrors(tester);
+    }
   }
 
   group('NotificationsPage render interactions', () {
     testWidgets('tap mark all read button', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       final markAllReadBtn = find.byType(TextButton);
@@ -137,18 +165,19 @@ void main() {
     testWidgets('tap back button exists', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       final backBtn = find.byIcon(Icons.arrow_back);
       expect(backBtn, findsOneWidget);
     });
 
-    testWidgets('renders notification items with icons',
-        (WidgetTester tester) async {
+    testWidgets('renders notification items with icons', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -157,11 +186,12 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('shows different icons for notification types',
-        (WidgetTester tester) async {
+    testWidgets('shows different icons for notification types', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -171,11 +201,10 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('pull to refresh triggers reload',
-        (WidgetTester tester) async {
+    testWidgets('pull to refresh triggers reload', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.drag(find.byType(ListView), const Offset(0, 300));
@@ -189,7 +218,7 @@ void main() {
     testWidgets('renders unread indicator dots', (WidgetTester tester) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -201,16 +230,17 @@ void main() {
   });
 
   group('NotificationsPage with emoji titles', () {
-    testWidgets('renders notifications with emoji in title',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders notifications with emoji in title', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': mockNotificationsWithEmojis,
         'broadcast_notifications': <Map<String, dynamic>>[],
-      });
+      }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -221,16 +251,17 @@ void main() {
   });
 
   group('NotificationsPage with action URL', () {
-    testWidgets('renders notifications with action URL',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders notifications with action URL', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': mockNotificationsWithActionUrl,
         'broadcast_notifications': <Map<String, dynamic>>[],
-      });
+      }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -242,14 +273,14 @@ void main() {
 
   group('NotificationsPage empty state', () {
     testWidgets('renders with no notifications', (WidgetTester tester) async {
-      setupMockSupabase({
+      await setupMockSupabaseWithAuth({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': <Map<String, dynamic>>[],
-      });
+      }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -264,7 +295,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           locale: const Locale('ko'),
         ),
       );
@@ -279,7 +310,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           locale: const Locale('en'),
         ),
       );
@@ -292,9 +323,10 @@ void main() {
   });
 
   group('NotificationsPage mixed read/unread', () {
-    testWidgets('renders mix of read and unread with different styling',
-        (WidgetTester tester) async {
-      setupMockSupabase({
+    testWidgets('renders mix of read and unread with different styling', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           ...mockNotifications,
           {
@@ -323,11 +355,11 @@ void main() {
           },
         ],
         'broadcast_notifications': <Map<String, dynamic>>[],
-      });
+      }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));

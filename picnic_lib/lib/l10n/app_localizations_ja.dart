@@ -370,6 +370,16 @@ class AppLocalizationsJa extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '1時間あたりの上限に達しました（$used/$limit回）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '1日の上限に達しました（$used/$limit回）';
+  }
+
+  @override
   String get label_ads_load_fail => '広告の読み込みに失敗しました。もう一度お試しください。';
 
   @override
@@ -413,7 +423,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_button_view_policy => 'ポリシーを見る';
 
   @override
-  String get label_button_vote => '投票する';
+  String get label_button_vote => '投票';
 
   @override
   String get label_celeb_gallery => 'アーティストギャラリー';
@@ -1009,8 +1019,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get vote_completed_message => '投票しました！';
 
   @override
-  String get voting_share_benefit_text =>
-      '100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！';
+  String get voting_share_benefit_text => '100票ごとにボーナスキャンディ1個をプレゼント！';
 
   @override
   String get cancel => 'Cancel';
@@ -1248,6 +1257,10 @@ class AppLocalizationsJa extends AppLocalizations {
       'まだ決済が確認できていません。ストアの決済画面で決済が完了していない可能性があります。\nすでにお支払いを完了された場合は、処理が完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。';
 
   @override
+  String get purchase_payment_pending_message =>
+      'お支払いはまだ完了していません。コンビニ現金払いや銀行振込など、時間のかかる支払い方法を選択された場合は、その場所でお支払いを完了してください。\nお支払いが完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。';
+
+  @override
   String get label_tabbar_vote_upcoming => '予定';
 
   @override
@@ -1415,6 +1428,9 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get withdrawal_success => '退会が正常に処理されました。';
+
+  @override
+  String get withdrawal_failed => '退会処理に失敗しました。しばらくしてからもう一度お試しください。';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1839,6 +1855,11 @@ class AppLocalizationsJa extends AppLocalizations {
   String get candy_boost_extra_bonus => '基本付与 + 追加ボーナス';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'プロモーションを確認中';
 
   @override
@@ -1847,6 +1868,56 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       '認証に時間がかかりましたが、購入は正常に完了しました。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'イベントボーナス +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本付与';
+
+  @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => 'イベント';
+
+  @override
+  String get purchase_reward_product_bonus => '基本ボーナス';
+
+  @override
+  String get purchase_reward_event_bonus => 'イベントボーナス';
+
+  @override
+  String get purchase_reward_expected_total => '予想合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '現在の残高 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購入後の予想 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      '予想数量です。最終的な付与数量は決済完了時にサーバー基準で確定します。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '合計$amount獲得';
+  }
 
   @override
   String get ad_reward_pending => '報酬を確認しています';
@@ -1871,6 +1942,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '現在の保有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購入後の保有 $amount';
   }
 
   @override
@@ -1946,4 +2022,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'この端末での現在のアカウントによる広告の利用は、一時的に制限されています。';
+
+  @override
+  String get profile_photo_change => 'プロフィール写真を変更';
 }

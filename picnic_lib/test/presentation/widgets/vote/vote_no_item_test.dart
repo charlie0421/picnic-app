@@ -26,7 +26,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(VoteNoItem), findsOneWidget);
-      expect(find.byType(Container), findsWidgets);
+      expect(find.text('현재 진행 중인 투표가 없습니다.'), findsOneWidget);
+      // A 100 minimum that keeps its natural height (not the whole screen).
+      expect(tester.getSize(find.byType(VoteNoItem)).height, 100);
     });
 
     testWidgets('renders with end status', (tester) async {

@@ -480,6 +480,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "Has alcanzado el límite por hora ({used}/{limit})",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "Has alcanzado el límite diario ({used}/{limit})",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "No se pudo cargar anuncio. Por favor intente de nuevo.",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -1170,7 +1194,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "Ahorrar",
+  "save": "Guardar",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -1322,7 +1346,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos y comparta!",
+  "voting_share_benefit_text": "¡Obtenga 1 caramelo estrella de bonificación por cada 100 votos!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1638,6 +1662,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Aún no hemos confirmado tu pago. Es posible que no hayas completado el pago en la pantalla de pago de la tienda.\nSi ya pagaste, tus Star Candy se acreditarán automáticamente cuando termine el procesamiento; por favor, no vuelvas a pagar.",
+  "purchase_payment_pending_message": "Tu pago aún no se ha completado. Si elegiste un método de pago lento, como efectivo o transferencia bancaria, termina de pagar en la tienda o el banco.\nTus Star Candy se acreditarán automáticamente cuando se confirme el pago. Por favor, no vuelvas a pagar.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1875,6 +1900,10 @@
   "withdrawal_success": "El Unfrenscribe se procesó con éxito.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "No se pudo procesar la baja. Vuelve a intentarlo en unos momentos.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "Ya has solicitado este artista.",
   "@vote_item_request_already_applied_artist": {
@@ -2403,9 +2432,31 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Recompensa base + bono extra del 100%",
   "candy_boost_extra_bonus": "Recompensa base + bono extra",
+  "candy_boost_multiplier": "Bono de {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "Verificando la promoción",
   "candy_boost_purchase_pending": "Ya hay una compra de este producto en proceso.",
   "candy_boost_late_purchase_explanation": "La autenticación tardó más de lo esperado, pero la compra se completó correctamente.",
+  "candy_boost_total_multiplier": "Bono del evento +{multiplier}%",
+  "purchase_reward_base": "Recompensa base",
+  "purchase_reward_base_short": "Base",
+  "purchase_reward_event_short": "Evento",
+  "purchase_reward_product_bonus": "Bonificación base",
+  "purchase_reward_event_bonus": "Bono del evento",
+  "purchase_reward_expected_total": "Total estimado",
+  "purchase_reward_total_short": "Total",
+  "purchase_current_balance": "Saldo actual {amount}",
+  "purchase_expected_balance": "Previsto tras la compra {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "Es una estimación. El servidor confirma la cantidad final cuando se completa el pago.",
+  "candy_reward_receipt_total": "Total recibido {amount}",
   "ad_reward_pending": "Verificando tu recompensa",
   "ad_reward_granted": "Cotton Candy recibido",
   "ad_reward_not_granted": "La recompensa no fue otorgada",
@@ -2420,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "Saldo actual {amount}",
+  "candy_reward_receipt_purchase_balance": "Nuevo saldo {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2505,5 +2557,7 @@
   "expiry_quantity_description": "Cantidades programadas para vencer en la cuenta actual.",
   "expiry_policy_description": "Criterios de vencimiento por moneda.",
   "bonus_expiry_policy_summary": "Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.",
-  "expiry_tonight_at_midnight": "Esta noche a medianoche"
+  "expiry_tonight_at_midnight": "Esta noche a medianoche",
+  "error_ad_device_account_restricted_message": "El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.",
+  "profile_photo_change": "Cambiar foto de perfil"
 }

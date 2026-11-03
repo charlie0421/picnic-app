@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/qna/qna_thread.dart';
 import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
-import 'package:picnic_lib/presentation/common/no_item_container.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_create_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_detail_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_card.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_submit_button.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
@@ -17,8 +20,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class QnaThreadListPage extends ConsumerStatefulWidget {
   final String userId;
+  final QnaRepository? repository;
 
-  const QnaThreadListPage({super.key, required this.userId});
+  const QnaThreadListPage({super.key, required this.userId, this.repository});
 
   @override
   ConsumerState<QnaThreadListPage> createState() => _QnaThreadListPageState();
@@ -26,15 +30,18 @@ class QnaThreadListPage extends ConsumerStatefulWidget {
 
 class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     with RouteAwareStateMixin<QnaThreadListPage> {
-  final QnaRepository _repository = QnaRepository();
+  static const int _pageSize = 20;
+  late final QnaRepository _repository = widget.repository ?? QnaRepository();
   final ScrollController _scrollController = ScrollController();
   List<QnaThread> _threadList = [];
   bool _isLoading = true;
+  bool _isRefreshing = false;
   bool _isMoreLoading = false;
   bool _hasMore = true;
   String? _errorMessage;
   String? _currentTitle;
   RealtimeChannel? _threadListChannel;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -85,6 +92,7 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
 
   @override
   void dispose() {
+    _loadGeneration++;
     try {
       _threadListChannel?.unsubscribe();
     } catch (_) {}
@@ -114,15 +122,23 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
   }
 
   Future<void> _loadThreads({bool isInitial = false}) async {
-    if (_isMoreLoading || !_hasMore) return;
+    if (!isInitial &&
+        (_isLoading || _isRefreshing || _isMoreLoading || !_hasMore)) {
+      return;
+    }
+
+    final generation = isInitial ? ++_loadGeneration : _loadGeneration;
 
     try {
-      if (isInitial && _threadList.isEmpty) {
+      if (!mounted) return;
+      if (isInitial) {
         setState(() {
-          _isLoading = true;
+          _isLoading = _threadList.isEmpty;
+          _isRefreshing = true;
+          _isMoreLoading = false;
           _errorMessage = null;
         });
-      } else if (!isInitial) {
+      } else {
         setState(() {
           _isMoreLoading = true;
           _errorMessage = null;
@@ -132,25 +148,37 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
       final lastId = isInitial || _threadList.isEmpty
           ? null
           : _threadList.last.id;
+      final lastCreatedAt = isInitial || _threadList.isEmpty
+          ? null
+          : _threadList.last.createdAt;
       final threads = await _repository.getQaThreadList(
         userId: widget.userId,
         lastId: lastId,
+        lastCreatedAt: lastCreatedAt,
+        limit: _pageSize,
       );
 
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         if (isInitial) {
           _threadList = threads;
         } else {
-          _threadList.addAll(threads);
+          final existingIds = _threadList.map((thread) => thread.id).toSet();
+          _threadList.addAll(
+            threads.where((thread) => existingIds.add(thread.id)),
+          );
         }
-        _hasMore = threads.isNotEmpty;
+        _hasMore = threads.length == _pageSize;
         _isLoading = false;
+        _isRefreshing = false;
         _isMoreLoading = false;
-        if (isInitial) _errorMessage = null;
+        _errorMessage = null;
       });
     } catch (e) {
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         _isLoading = false;
+        _isRefreshing = false;
         _isMoreLoading = false;
         _errorMessage = e.toString();
       });
@@ -162,10 +190,12 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     if (!mounted) return;
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => QnaThreadCreatePage(userId: widget.userId),
+        builder: (context) =>
+            QnaThreadCreatePage(userId: widget.userId, repository: _repository),
       ),
     );
-    if (result == true) _loadThreads(isInitial: true);
+    if (!mounted) return;
+    if (result == true) await _loadThreads(isInitial: true);
   }
 
   void _navigateToThreadDetail(QnaThread thread) {
@@ -181,19 +211,33 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
     if (title == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-            pageTitle: title,
-          );
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: title);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: QnaSubmitButton.fab(
-        context,
-        onPressed: _navigateToCreateThread,
+      backgroundColor: PicnicUi.surface,
+      // Reserve the action's actual height, including large text, so the last
+      // inquiry and retry controls remain reachable above it.
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: PicnicUi.horizontal(16),
+            vertical: PicnicUi.vertical(8),
+          ),
+          child: Center(
+            heightFactor: 1,
+            child: QnaSubmitButton.fab(
+              context,
+              onPressed: _navigateToCreateThread,
+            ),
+          ),
+        ),
       ),
       body: _buildBody(),
     );
@@ -217,8 +261,14 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverFillRemaining(
-                child: NoItemContainer(
-                  message: AppLocalizations.of(context).qna_no_inquiries,
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(PicnicUi.horizontal(16)),
+                    child: PicnicFeedback(
+                      message: AppLocalizations.of(context).qna_no_inquiries,
+                      icon: Icons.inbox_outlined,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -228,14 +278,17 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
         return ListView.separated(
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: PicnicUi.horizontal(16),
+            vertical: PicnicUi.vertical(16),
+          ),
           itemCount: _threadList.length + (_isMoreLoading ? 1 : 0),
           itemBuilder: (context, index) {
             if (index == _threadList.length) {
               return const Center(
                 child: Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
+                  child: MediumPulseLoadingIndicator(),
                 ),
               );
             }
@@ -246,72 +299,69 @@ class _QnaThreadListPageState extends ConsumerState<QnaThreadListPage>
               onTap: () => _navigateToThreadDetail(thread),
             );
           },
-          separatorBuilder: (context, index) => const SizedBox(height: 12),
+          separatorBuilder: (context, index) =>
+              SizedBox(height: PicnicUi.vertical(12)),
         );
       }(),
     );
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        padding: const EdgeInsets.all(16.0),
-        itemCount: 5,
-        itemBuilder: (context, index) => Container(
-          padding: const EdgeInsets.all(16.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12.0),
-          ),
+    return ListView.separated(
+      padding: EdgeInsets.symmetric(
+        horizontal: PicnicUi.horizontal(16),
+        vertical: PicnicUi.vertical(16),
+      ),
+      itemCount: 5,
+      itemBuilder: (context, index) => PicnicSurface(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: Shimmer.fromColors(
+          enabled: !MediaQuery.disableAnimationsOf(context),
+          baseColor: AppColors.grey200,
+          highlightColor: AppColors.grey100,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
+                key: ValueKey('qna-skeleton-title-$index'),
                 width: double.infinity,
-                height: 20.0,
-                color: Colors.white,
+                height: 20,
+                color: AppColors.grey200,
               ),
-              const SizedBox(height: 8.0),
-              Container(width: 150.0, height: 16.0, color: Colors.white),
+              SizedBox(height: PicnicUi.vertical(8)),
+              FractionallySizedBox(
+                widthFactor: 0.55,
+                child: Container(
+                  key: ValueKey('qna-skeleton-detail-$index'),
+                  height: 16,
+                  color: AppColors.grey200,
+                ),
+              ),
             ],
           ),
         ),
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
       ),
+      separatorBuilder: (context, index) =>
+          SizedBox(height: PicnicUi.vertical(12)),
     );
   }
 
   Widget _buildErrorView() {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, color: Colors.red[400], size: 60),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(context).qna_load_fail_title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            _errorMessage!,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.grey[600]),
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () => _loadThreads(isInitial: true),
-            icon: const Icon(Icons.refresh),
-            label: Text(AppLocalizations.of(context).retry),
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: AppColors.primary500,
-            ),
-          ),
-        ],
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
+        ),
+        child: PicnicFeedback(
+          message: AppLocalizations.of(context).qna_load_fail_title,
+          icon: Icons.error_outline,
+          actionLabel: AppLocalizations.of(context).retry,
+          onAction: () => _loadThreads(isInitial: true),
+        ),
       ),
     );
   }

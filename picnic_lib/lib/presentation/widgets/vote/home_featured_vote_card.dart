@@ -10,6 +10,7 @@ import 'package:picnic_lib/l10n.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/common/share_section.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_achieve_page.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
@@ -18,6 +19,7 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_with_icon.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 /// 홈 화면 전용 "현재 진행중인 투표" 요약 카드.
 ///
@@ -30,6 +32,42 @@ class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
 
   /// 1위 항목의 득표 점유율(0.0 ~ 1.0).
   final double percent;
+  final PicnicImageRequest? heroImageRequest;
+
+  static double heroWidth(double cardWidth) => cardWidth - 2 - 32.w;
+
+  /// The hero keeps its distinctive frame in both loaded and loading states.
+  static BoxDecoration get frameDecoration => BoxDecoration(
+    borderRadius: BorderRadius.circular(20.r),
+    border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.primary500.withValues(alpha: 0.18),
+        blurRadius: 24,
+        spreadRadius: 1,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  );
+
+  static PicnicImageRequest? imageRequestFor(
+    BuildContext context,
+    VoteModel vote,
+    double imageWidth,
+  ) {
+    final items = vote.voteItem;
+    if (items == null || items.isEmpty || imageWidth <= 0) return null;
+    final item = items.first;
+    final url = item.artist?.image ?? item.artistGroup?.image ?? '';
+    if (url.trim().isEmpty) return null;
+    // Width remains stable while the save/share controls change hero height.
+    return PicnicImageRequest.resolve(
+      context: context,
+      imageUrl: url,
+      width: imageWidth,
+      cdnVariant: PicnicCdnImageVariant.large,
+    );
+  }
 
   /// 카드 프레임(테두리 + 라운드 + 글로우)을 그리는 최상위 [Container].
   ///
@@ -44,6 +82,7 @@ class HomeFeaturedVoteCard extends ConsumerStatefulWidget {
     super.key,
     required this.vote,
     this.percent = 0,
+    this.heroImageRequest,
   });
 
   @override
@@ -102,39 +141,28 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
   /// 카드 탭 시 해당 투표 상세로 이동.
   void _openVote() {
     final vote = widget.vote;
-    ref.read(navigationInfoProvider.notifier).setCurrentPage(
+    ref
+        .read(navigationInfoProvider.notifier)
+        .setCurrentPage(
           vote.voteCategory == VoteCategory.achieve.name
               ? VoteDetailAchievePage(
                   voteId: vote.id,
                   votePortal: VotePortal.vote,
                 )
-              : VoteDetailPage(
-                  voteId: vote.id,
-                  votePortal: VotePortal.vote,
-                ),
+              : VoteDetailPage(voteId: vote.id, votePortal: VotePortal.vote),
         );
   }
 
   @override
   Widget build(BuildContext context) {
     final vote = widget.vote;
-    final topItem =
-        (vote.voteItem?.isNotEmpty ?? false) ? vote.voteItem!.first : null;
+    final topItem = (vote.voteItem?.isNotEmpty ?? false)
+        ? vote.voteItem!.first
+        : null;
 
     return Container(
       key: HomeFeaturedVoteCard.frameKey,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary500.withValues(alpha: 0.18),
-            blurRadius: 24,
-            spreadRadius: 1,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: HomeFeaturedVoteCard.frameDecoration,
       clipBehavior: Clip.antiAlias,
       child: RepaintBoundary(
         key: _globalKey,
@@ -142,72 +170,74 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
         child: ColoredBox(
           color: AppColors.grey00,
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: _openVote,
-                child: RepaintBoundary(
-                  key: _shareKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                    // 제목 + 남은시간 (고정)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(16.w, 16, 16.w, 8),
-                      child: Column(
-                        children: [
-                          Text(
-                            getLocaleTextFromJson(vote.title, context),
-                            style: getTextStyle(
-                                AppTypo.title18B, AppColors.grey900),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _openVote,
+                  child: RepaintBoundary(
+                    key: _shareKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // 제목 + 남은시간 (고정)
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(16.w, 16, 16.w, 8),
+                          child: Column(
+                            children: [
+                              Text(
+                                getLocaleTextFromJson(vote.title, context),
+                                style: PicnicUi.text(
+                                  size: 18,
+                                  weight: FontWeight.w600,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                textAlign: TextAlign.center,
+                              ),
+                              // 저장 이미지에서는 타이머 제외(_isSaving 동안 숨김)
+                              if (!_isSaving && vote.stopAt != null) ...[
+                                const SizedBox(height: 8),
+                                CountdownTimer(
+                                  endTime: vote.stopAt!,
+                                  status: VoteStatus.active,
+                                ),
+                              ],
+                            ],
                           ),
-                          // 저장 이미지에서는 타이머 제외(_isSaving 동안 숨김)
-                          if (!_isSaving && vote.stopAt != null) ...[
-                            const SizedBox(height: 8),
-                            CountdownTimer(
-                              endTime: vote.stopAt!,
-                              status: VoteStatus.active,
-                            ),
-                          ],
-                        ],
-                      ),
+                        ),
+                        // 1위 큰 이미지 (남은 공간 채움)
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(16.w, 4, 16.w, 0),
+                            child: topItem != null
+                                ? _buildHeroItem(topItem)
+                                : const SizedBox.shrink(),
+                          ),
+                        ),
+                      ],
                     ),
-                    // 1위 큰 이미지 (남은 공간 채움)
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(16.w, 4, 16.w, 0),
-                        child: topItem != null
-                            ? _buildHeroItem(topItem)
-                            : const SizedBox.shrink(),
-                      ),
-                    ),
-                    ],
                   ),
                 ),
               ),
-            ),
-            if (!_isSaving)
-              Transform.translate(
-                offset: const Offset(0, -10),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: ShareSection(
-                    saveButtonText: AppLocalizations.of(context).save,
-                    shareButtonText: AppLocalizations.of(context).share,
-                    onSave: _handleSaveImage,
-                    onShare: _handleShareToTwitter,
+              if (!_isSaving)
+                Transform.translate(
+                  offset: const Offset(0, -10),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: ShareSection(
+                      saveButtonText: AppLocalizations.of(context).save,
+                      shareButtonText: AppLocalizations.of(context).share,
+                      onSave: _handleSaveImage,
+                      onShare: _handleShareToTwitter,
+                    ),
                   ),
                 ),
-              ),
-            // 저장 시엔 ShareSection이 빠져 hero가 카드 밑단까지 커지며 이름/퍼센트가
-            // 잘린다. 하단 여백을 줘서 캡처 이미지에서 잘리지 않게 한다.
-            if (_isSaving) const SizedBox(height: 16),
-          ],
+              // 저장 시엔 ShareSection이 빠져 hero가 카드 밑단까지 커지며 이름/퍼센트가
+              // 잘린다. 하단 여백을 줘서 캡처 이미지에서 잘리지 않게 한다.
+              if (_isSaving) const SizedBox(height: 16),
+            ],
           ),
         ),
       ),
@@ -218,8 +248,8 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
     final name = item.artist?.name != null
         ? getLocaleTextFromJson(item.artist!.name)
         : (item.artistGroup?.name != null
-            ? getLocaleTextFromJson(item.artistGroup!.name)
-            : '');
+              ? getLocaleTextFromJson(item.artistGroup!.name)
+              : '');
     final imageUrl = item.artist?.image ?? item.artistGroup?.image ?? '';
     final percentText = widget.percent > 0
         ? '${(widget.percent * 100).toStringAsFixed(1)}%'
@@ -230,9 +260,25 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          PicnicCachedNetworkImage(
-            imageUrl: imageUrl,
-            fit: BoxFit.cover,
+          LayoutBuilder(
+            builder: (context, constraints) => PicnicCachedNetworkImage(
+              imageUrl: imageUrl,
+              imageRequest:
+                  widget.heroImageRequest ??
+                  HomeFeaturedVoteCard.imageRequestFor(
+                    context,
+                    widget.vote,
+                    constraints.maxWidth,
+                  ),
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              cdnVariant: PicnicCdnImageVariant.large,
+              fit: BoxFit.cover,
+              // 캐러셀 옆 카드와 스크롤·페이지에 가려진 카드는 보일 때까지
+              // 받지 않는다. 다음 카드는 캐러셀의 +1 프리페치가 데운다.
+              lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+              priority: ImagePriority.high,
+            ),
           ),
           // 하단 그라디언트 (이름/퍼센트 가독성)
           const DecoratedBox(
@@ -259,26 +305,53 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
             left: 16,
             right: 16,
             bottom: 14,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: Text(
-                    name,
-                    style: getTextStyle(AppTypo.title18B, AppColors.grey00),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final artistName = Text(
+                  name,
+                  style: PicnicUi.text(
+                    size: 18,
+                    weight: FontWeight.w600,
+                    color: AppColors.grey00,
                   ),
-                ),
-                SizedBox(width: 8.w),
-                if (percentText.isNotEmpty)
-                  Text(
-                    percentText,
-                    style: getTextStyle(
-                            AppTypo.title18B, AppColors.secondary500)
-                        .copyWith(fontSize: 26.sp, height: 1),
-                  ),
-              ],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                );
+                if (percentText.isEmpty) return artistName;
+                final percentStyle = PicnicUi.text(
+                  size: 26,
+                  weight: FontWeight.w700,
+                  color: AppColors.secondary500,
+                ).copyWith(height: 1);
+                final percent = Text(percentText, style: percentStyle);
+                final painter = TextPainter(
+                  text: TextSpan(text: percentText, style: percentStyle),
+                  textDirection: Directionality.of(context),
+                  textScaler: MediaQuery.textScalerOf(context),
+                )..layout();
+                final needsSecondLine =
+                    painter.width + 8.w + 64 > constraints.maxWidth;
+                painter.dispose();
+                if (needsSecondLine) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      artistName,
+                      const SizedBox(height: 4),
+                      Align(alignment: Alignment.centerRight, child: percent),
+                    ],
+                  );
+                }
+                return Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Expanded(child: artistName),
+                    SizedBox(width: 8.w),
+                    percent,
+                  ],
+                );
+              },
             ),
           ),
         ],

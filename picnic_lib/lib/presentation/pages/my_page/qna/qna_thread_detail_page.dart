@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
@@ -14,6 +15,8 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_message_list_view.
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -21,14 +24,24 @@ import 'package:picnic_lib/core/utils/snackbar_util.dart';
 // Re-export for backward compatibility with existing tests
 export 'package:picnic_lib/presentation/pages/my_page/qna/qna_detail_utils.dart';
 
+typedef QnaThreadStatusSubscriber =
+    VoidCallback Function({
+      required int threadId,
+      required ValueChanged<String> onStatusChanged,
+    });
+
 class QnaThreadDetailPage extends ConsumerStatefulWidget {
   final QnaThread thread;
   final bool syncNavigation;
+  final QnaRepository? repository;
+  final QnaThreadStatusSubscriber? statusSubscriber;
 
   const QnaThreadDetailPage({
     super.key,
     required this.thread,
     this.syncNavigation = true,
+    this.repository,
+    this.statusSubscriber,
   });
 
   @override
@@ -37,7 +50,7 @@ class QnaThreadDetailPage extends ConsumerStatefulWidget {
 }
 
 class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
-  final QnaRepository _repository = QnaRepository();
+  late final QnaRepository _repository = widget.repository ?? QnaRepository();
   final TextEditingController _messageController = TextEditingController();
 
   late QnaThread _thread;
@@ -47,12 +60,15 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   bool _isLoading = true;
   bool _isSending = false;
   bool _isAttaching = false;
-  String? _errorMessage;
+  bool _hasLoadError = false;
+  bool _detailLoadInFlight = false;
   String? _categoryLabel;
   String? _prevPageTitle;
   String? _prevMyPageTitle;
   static const int _maxFileSizeInBytes = 10 * 1024 * 1024; // 10MB
-  RealtimeChannel? _threadStatusChannel;
+  VoidCallback? _cancelThreadStatusSubscription;
+  int _loadGeneration = 0;
+  int _statusRevision = 0;
 
   @override
   void initState() {
@@ -76,56 +92,89 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   void _setupRealtimeSubscription() {
     try {
-      final supabase = Supabase.instance.client;
-      _threadStatusChannel = supabase.channel('qna_thread_status_${_thread.id}')
-        ..onPostgresChanges(
-          event: PostgresChangeEvent.update,
-          schema: 'public',
-          table: 'qna_threads',
-          filter: PostgresChangeFilter(
-            type: PostgresChangeFilterType.eq,
-            column: 'id',
-            value: _thread.id,
-          ),
-          callback: (payload) {
-            final newStatus = payload.newRecord['status'] as String?;
-            if (newStatus != null && mounted) {
-              setState(() {
-                _thread = _thread.copyWith(status: newStatus);
-              });
-            }
-          },
-        )
-        ..subscribe();
+      _cancelThreadStatusSubscription =
+          (widget.statusSubscriber ?? _subscribeToThreadStatus)(
+            threadId: _thread.id,
+            onStatusChanged: _handleStatusChanged,
+          );
     } catch (e) {
       debugPrint('QnA 스레드 상태 Realtime 구독 실패: $e');
     }
   }
 
+  VoidCallback _subscribeToThreadStatus({
+    required int threadId,
+    required ValueChanged<String> onStatusChanged,
+  }) {
+    final client = supabase;
+    final channel = client.channel('qna_thread_status_$threadId')
+      ..onPostgresChanges(
+        event: PostgresChangeEvent.update,
+        schema: 'public',
+        table: 'qna_threads',
+        filter: PostgresChangeFilter(
+          type: PostgresChangeFilterType.eq,
+          column: 'id',
+          value: threadId,
+        ),
+        callback: (payload) {
+          final newStatus = payload.newRecord['status'] as String?;
+          if (newStatus != null) onStatusChanged(newStatus);
+        },
+      )
+      ..subscribe();
+
+    return () {
+      unawaited(client.removeChannel(channel).catchError((_) => 'error'));
+    };
+  }
+
+  void _handleStatusChanged(String newStatus) {
+    if (!mounted) return;
+    setState(() {
+      _statusRevision++;
+      _thread = _thread.copyWith(status: newStatus);
+    });
+  }
+
   Future<void> _loadThreadDetails() async {
+    if (!mounted || _detailLoadInFlight) return;
+
+    _detailLoadInFlight = true;
+    final generation = ++_loadGeneration;
+    final statusRevisionAtStart = _statusRevision;
+
     try {
       setState(() {
         _isLoading = true;
-        _errorMessage = null;
+        _hasLoadError = false;
       });
 
-      final threadWithMessages = await _repository.getQaThreadById(
-        _thread.id,
-      );
+      final threadWithMessages = await _repository.getQaThreadById(_thread.id);
+      if (!mounted || generation != _loadGeneration) return;
+
+      final loadedThread = statusRevisionAtStart == _statusRevision
+          ? threadWithMessages.thread
+          : threadWithMessages.thread.copyWith(status: _thread.status);
       setState(() {
-        _thread = threadWithMessages.thread;
-        _messages = threadWithMessages.messages;
+        _thread = loadedThread;
+        _messages = List<QnaMessage>.of(threadWithMessages.messages);
         _categoryLabel = threadWithMessages.categoryLabel;
         _isLoading = false;
       });
       if (_syncNavigation) {
         _applyNavigation(_thread.title);
       }
-    } catch (e) {
+    } catch (_) {
+      if (!mounted || generation != _loadGeneration) return;
       setState(() {
         _isLoading = false;
-        _errorMessage = e.toString();
+        _hasLoadError = true;
       });
+    } finally {
+      if (mounted && generation == _loadGeneration) {
+        _detailLoadInFlight = false;
+      }
     }
   }
 
@@ -142,33 +191,43 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
   }
 
   Future<void> _sendMessage() async {
+    if (!mounted ||
+        _isSending ||
+        _isLoading ||
+        _hasLoadError ||
+        !_thread.isOpen) {
+      return;
+    }
+
     final content = _messageController.text.trim();
     if (content.isEmpty && _attachments.isEmpty) return;
 
+    String? userId;
+    try {
+      userId = supabase.auth.currentUser?.id;
+    } catch (_) {
+      userId = null;
+    }
+    if (userId == null) {
+      SnackbarUtil().error(
+        AppLocalizations.of(context).error_user_not_authenticated,
+        context: context,
+      );
+      return;
+    }
+
     FocusScope.of(context).unfocus();
     setState(() => _isSending = true);
+    final attachments = List<File>.of(_attachments);
 
-    final userId = Supabase.instance.client.auth.currentUser!.id;
-
+    late final QnaMessage newMessage;
     try {
-      final newMessage = await _repository.createQaMessage(
+      newMessage = await _repository.createQaMessage(
         threadId: _thread.id,
         userId: userId,
         content: content,
-        attachments: _attachments,
+        attachments: attachments,
       );
-
-      _messageController.clear();
-      if (mounted) {
-        setState(() {
-          _messages.add(newMessage);
-          _attachments = [];
-        });
-        SnackbarUtil().success(
-          AppLocalizations.of(context).qna_message_sent_success,
-          context: context,
-        );
-      }
     } catch (e) {
       if (mounted) {
         SnackbarUtil().error(
@@ -176,9 +235,21 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
           context: context,
         );
       }
+      return;
     } finally {
       if (mounted) setState(() => _isSending = false);
     }
+
+    if (!mounted) return;
+    _messageController.clear();
+    setState(() {
+      _messages.add(newMessage);
+      _attachments = [];
+    });
+    SnackbarUtil().success(
+      AppLocalizations.of(context).qna_message_sent_success,
+      context: context,
+    );
   }
 
   Future<void> _pickMedia() async {
@@ -203,8 +274,9 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   @override
   void dispose() {
+    _loadGeneration++;
     try {
-      _threadStatusChannel?.unsubscribe();
+      _cancelThreadStatusSubscription?.call();
     } catch (_) {}
     _messageController.dispose();
     super.dispose();
@@ -233,25 +305,30 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
                 ),
               ],
             ),
-            body: Column(
-              children: [
-                if (_categoryLabel != null && _categoryLabel!.isNotEmpty)
-                  QnaCategoryChip(label: _categoryLabel!),
-                Expanded(child: _buildBody()),
-                QnaMessageInput(
-                  isThreadOpen: _thread.isOpen,
-                  showAutoCloseNotice: shouldShowAutoCloseNotice(
-                    threadStatus: _thread.status,
-                    messages: _messages,
+            body: LayoutBuilder(
+              builder: (context, constraints) => Column(
+                children: [
+                  Expanded(child: _buildBody()),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: constraints.maxHeight * 0.6,
+                    ),
+                    child: QnaMessageInput(
+                      isThreadOpen: _thread.isOpen,
+                      showAutoCloseNotice: shouldShowAutoCloseNotice(
+                        threadStatus: _thread.status,
+                        messages: _messages,
+                      ),
+                      isSending: _isSending,
+                      attachments: _attachments,
+                      messageController: _messageController,
+                      onSend: _sendMessage,
+                      onPickMedia: _pickMedia,
+                      onRemoveAttachment: _removeAttachment,
+                    ),
                   ),
-                  isSending: _isSending,
-                  attachments: _attachments,
-                  messageController: _messageController,
-                  onSend: _sendMessage,
-                  onPickMedia: _pickMedia,
-                  onRemoveAttachment: _removeAttachment,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           if (_isSending || _isAttaching)
@@ -284,20 +361,75 @@ class _QaThreadDetailPageState extends ConsumerState<QnaThreadDetailPage> {
 
   Widget _buildBody() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return const Center(child: MediumPulseLoadingIndicator());
     }
-    if (_errorMessage != null) {
-      return Center(child: Text(_errorMessage!));
+    if (_hasLoadError) {
+      return _buildErrorView();
     }
     if (_messages.isEmpty) {
-      return Center(
-        child: Text(AppLocalizations.of(context).qna_no_answer_yet),
+      return ListView(
+        children: [
+          if (_categoryLabel?.isNotEmpty ?? false)
+            QnaCategoryChip(label: _categoryLabel!),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Text(
+              AppLocalizations.of(context).qna_no_answer_yet,
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
       );
     }
     return QnaMessageListView(
       messages: _messages,
-      currentUserId: Supabase.instance.client.auth.currentUser!.id,
+      currentUserId: _currentUserId,
       getPublicUrl: _repository.getPublicUrl,
+      categoryLabel: _categoryLabel,
+    );
+  }
+
+  String get _currentUserId {
+    try {
+      return supabase.auth.currentUser?.id ?? '';
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Widget _buildErrorView() {
+    return Center(
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, color: Colors.red[400], size: 60),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context).qna_load_fail_title,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton.icon(
+                onPressed: _loadThreadDetails,
+                icon: const Icon(Icons.refresh),
+                label: Text(AppLocalizations.of(context).retry),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: AppColors.primary500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

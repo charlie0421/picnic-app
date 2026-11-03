@@ -37,6 +37,14 @@ final List<Uri> capturedMockRequests = [];
 /// auth 복구)를 결정론적으로 만들 때 쓴다.
 final Map<String, List<int>> functionStatusQueues = {};
 
+/// 테이블별 REST 응답 지연. 위젯 테스트의 fake async 위에서 돌기 때문에
+/// `tester.pump(delay)` 로 시간을 흘려보내기 전까지 응답이 오지 않는다.
+///
+/// "서버가 느릴 때 사용자가 그 사이에 또 탭한다" 같은 경쟁 시나리오를
+/// 결정론적으로 만들 때 쓴다 (예: 투표 다이얼로그 다회 표출, PICNIC-2655).
+/// [setupMockSupabase] 와 [tearDownMockSupabase] 가 비운다.
+final Map<String, Duration> tableResponseDelays = {};
+
 /// Supabase 테스트용 Mock HTTP 응답 설정
 ///
 /// 사용법:
@@ -91,6 +99,7 @@ void _setupClient(Map<String, dynamic> tableResponses, {
   final fakeJwt = userId != null ? _createFakeJwt(userId) : null;
   capturedMockRequests.clear();
   functionStatusQueues.clear();
+  tableResponseDelays.clear();
 
   final mockClient = MockClient((request) async {
     final uri = request.url;
@@ -174,6 +183,11 @@ void _setupClient(Map<String, dynamic> tableResponses, {
       final acceptHeader = request.headers['Accept'] ?? request.headers['accept'] ?? '';
       final isSingle = acceptHeader.contains('vnd.pgrst.object');
 
+      final delay = tableResponseDelays[tableName];
+      if (delay != null) {
+        await Future<void>.delayed(delay);
+      }
+
       // Check if this table should return an error status code
       final tableStatusCode = tableStatusCodes?[tableName];
       if (tableStatusCode != null && tableStatusCode >= 400) {
@@ -247,4 +261,5 @@ void tearDownMockSupabase() {
   testSupabaseClient = null;
   capturedMockRequests.clear();
   functionStatusQueues.clear();
+  tableResponseDelays.clear();
 }

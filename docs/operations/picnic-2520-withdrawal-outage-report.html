@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2520 회원탈퇴 전면 불가 — 진단·수정 리포트</title>
+<style>
+  body { font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif; max-width: 960px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #222; }
+  h1 { font-size: 1.6rem; border-bottom: 2px solid #333; padding-bottom: .3em; }
+  h2 { font-size: 1.25rem; margin-top: 2em; border-left: 4px solid #4b6cb7; padding-left: .5em; }
+  h3 { font-size: 1.05rem; margin-top: 1.4em; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: .95rem; }
+  th, td { border: 1px solid #ccc; padding: 6px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f5f9; }
+  code, pre { font-family: "SF Mono", Menlo, monospace; font-size: .88rem; }
+  code { background: #f4f4f4; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #f6f8fa; padding: 12px; overflow-x: auto; border-radius: 4px; }
+  .warn { background: #fff7e6; border-left: 4px solid #e8a317; padding: 8px 12px; }
+  .ok { background: #eefaf0; border-left: 4px solid #2e9d4f; padding: 8px 12px; }
+  .meta { color: #666; font-size: .9rem; }
+</style>
+</head>
+<body>
+<h1>PICNIC-2520 회원탈퇴 전면 불가 — 진단·수정 리포트</h1>
+<p class="meta">작성 2026-09-02 · Jira <a href="https://picnic-team.atlassian.net/browse/PICNIC-2520">PICNIC-2520</a> · Sentry PICNIC-APP-5GA · CS QnA #383</p>
+
+<h2>1. 요약</h2>
+<div class="warn">
+<p><strong>2026-08-12 이후 앱 회원탈퇴가 한 건도 성공하지 않았다.</strong> CS 문의의 "버튼 비활성"은 증상일 뿐이고, 원인은 지갑 1b 컷오버로 들어간 <code>auth.users</code> 삭제 트리거가 감사 로그 611만 행을 전체 스캔해 인증 서버의 10초 제한을 넘기는 것이었다. 앱은 그 실패를 화면에 보여주지 않았다.</p>
+</div>
+<table>
+<tr><th>항목</th><th>결과</th></tr>
+<tr><td>서버 수정</td><td><a href="https://github.com/charlie0421/picnic-supabase/pull/121">picnic-supabase PR #121</a> — 감사 마스킹을 1분 주기 큐로 분리. 교차 리뷰 5라운드 끝에 approve. <strong>2026-09-02 20:45 KST 프로덕션 적용 완료, 탈퇴 복구 확인</strong></td></tr>
+<tr><td>앱 수정</td><td><a href="https://github.com/charlie0421/picnic-app/pull/190">picnic-app PR #190</a> — 실패 안내·중복 탭 방지·시트 이탈 방어. 교차 리뷰 approve. Shorebird OTA 대상</td></tr>
+<tr><td>영향</td><td>8/12~9/2 탈퇴 성공 0건. 로그로 확인된 실패 사용자 5명(8/28·8/29·8/31×2·9/1), Sentry 7명·179회</td></tr>
+</table>
+
+<h2>2. 증상과 조사 경로</h2>
+<ol>
+<li>QnA #383: "버튼이 활성화가 안 돼서 클릭이 안 먹혀요". 사용자 <code>ed8b9618-…</code>, 8/29 15:39 UTC.</li>
+<li>앱 코드: 확인 버튼은 <code>onPressed</code> 가 항상 설정돼 있어 비활성이 아님. 배경색 grey300 이 비활성처럼 보임. 실패 시 예외를 <code>rethrow</code> 만 하고 UI 피드백 없음.</li>
+<li>Edge Function 로그: 8/29 15:37 에 <code>delete-user</code> 500 이 16초 동안 50회 이상(사용자가 연타). 8/28·8/30·8/31·9/1 에도 같은 패턴.</li>
+<li>Auth 로그: GoTrue <code>DELETE /admin/users/:id</code> 가 <code>context deadline exceeded</code>(10초, 504). 같은 request_id 로 504 여러 번 뒤 200 이 찍히지만 DB 상태는 미변경 — 그 200 은 성공이 아님.</li>
+<li>DB: <code>auth.audit_log_entries</code> 6,117,340행 · 3.5GB, 인덱스는 pkey·instance_id 뿐. 트리거의 마스킹 UPDATE 는 Seq Scan + 행마다 28갈래 jsonb 경로 함수 평가. 동일 술어의 SELECT count 가 68초를 넘겨 취소.</li>
+<li><code>wallet_audit_events.ANONYMIZE_ACCOUNT</code> 는 8/12 백필 1,629건이 전부 → 8/12 이후 성공 0건 확정.</li>
+</ol>
+
+<h2>3. 근본 원인</h2>
+<pre>탈퇴 → auth.users BEFORE DELETE 트리거
+     → update auth.audit_log_entries … where auth_audit_targets_user(payload::jsonb, …)  (6.1M 행 Seq Scan, 68초+)
+     → GoTrue request timeout 10초 → 504 → 트랜잭션 롤백
+     → Edge Function delete-user 500 "Account deletion failed"
+     → 앱: 예외 삼킴, 화면 무반응</pre>
+<p>컷오버 리허설은 소규모 데이터에서만 검증됐고, 감사 로그 마스킹이 삭제 트랜잭션과 동기 결합돼 있었다.</p>
+
+<h2>4. 서버 수정 (picnic-supabase PR #121)</h2>
+<p>브랜치 <code>fix/picnic-2520-auth-audit-async-mask</code>, 커밋 6개. 트리거는 큐에 한 줄 적고 즉시 끝나며 마스킹은 pg_cron 워커가 배치로 처리한다.</p>
+<table>
+<tr><th>구성</th><th>내용</th></tr>
+<tr><td>큐 <code>wallet_private.auth_audit_mask_queue</code></td><td>user_id pk, 연락처(pending 동안만, 성공 시 null), 식별자별 cutoff(탈퇴 시각), attempts / next_attempt_at(지수 백오프) / dead-letter, skipped_rows / skipped_row_ids</td></tr>
+<tr><td>술어 <code>auth_audit_targets_any</code></td><td>기존 <code>auth_audit_targets_user</code> 의 매칭 의미를 집합 버전으로 일반화. 기존 함수는 얇은 래퍼</td></tr>
+<tr><td>워커 <code>process_auth_audit_mask_queue(p_limit)</code></td><td>전역 advisory lock 아래 행 잠금 없이 스냅샷 → 배치당 1회 스캔 semi-join 마스킹(<code>created_at &lt;= cutoff</code>) → enqueued_at 조건부 완료. 빠른 경로가 캐스트 오류로 죽은 배치만 <code>safe_jsonb</code> 안전 경로로 재실행해 손상 행 skip·기록. <code>query_canceled</code> 명시 핸들러</td></tr>
+<tr><td>cron</td><td><code>wallet-auth-audit-mask-processor</code> 매 1분, statement_timeout 600s</td></tr>
+<tr><td>롤백 가드 <code>assert_auth_audit_mask_queue_drained()</code></td><td>첫 문장 SHARE ROW EXCLUSIVE 잠금, 미처리 행 또는 skipped_rows&gt;0 이면 거부</td></tr>
+<tr><td>권한</td><td>wallet_private CREATE 대여/반납 쌍. PR #115 마이그레이션(20260831120000)의 누락된 대여도 별도 커밋으로 보강</td></tr>
+<tr><td>적용 패키지</td><td><code>supabase/prod-cutover/20260902-auth-audit-async-mask/</code> — README, apply/01(마이그레이션과 바이트 동일), verify/post.sql(DO ASSERT), rollback/01, evidence/(explain analyze 원문)</td></tr>
+</table>
+<h3>교차 리뷰 이력 (Codex Sol ultra, 읽기 전용)</h3>
+<table>
+<tr><th>라운드</th><th>판정</th><th>핵심 지적</th></tr>
+<tr><td>1차</td><td>request-changes</td><td>[blocker] created_at 상한 부재로 재가입자 감사 행 오염, [major] 독약 배치 굶김·timeout 취소 시 attempts 미기록, 성공 후 PII 잔존, 스캔 중 큐 행 잠금이 트리거를 막아 GoTrue 타임아웃 재현, 유니코드 이스케이프 프리필터 누락, README 의 미지원 플래그</td></tr>
+<tr><td>2차</td><td>request-changes</td><td>[major] 손상 JSON 행 하나가 전체 배치를 dead-letter, [minor] verify 단언 부재</td></tr>
+<tr><td>3차</td><td>request-changes</td><td>[major] 롤백이 skipped_row_ids 증거를 삭제</td></tr>
+<tr><td>4차</td><td>request-changes</td><td>[major] 가드→DROP 사이 동시 enqueue 경합</td></tr>
+<tr><td>5차</td><td><strong>approve</strong></td><td>남은 차단 작업 없음</td></tr>
+</table>
+<p>Antigravity(Gemini 3.1 Pro) 독립 조사의 반례 5건(재가입 오염·권한·독약 큐·cron 중복·PII 창)은 1차 리뷰에 검증 항목으로 반영됐다.</p>
+<h3>검증(코디네이터 직접 실행, HEAD c64f85f)</h3>
+<ul>
+<li>fresh <code>supabase db reset</code> 135개 마이그레이션 42501 없이 적용</li>
+<li>wallet SQL 46개 파일 개별 실행 42 PASS. FAIL 4건은 main 의 선행 결함(<code>wallet_release_gates</code> frozen contract, <code>grant_verified_purchase</code>·<code>purchase_intake_idempotent_replay</code>·<code>refund_credit_concurrency</code> 의 fixture 가 wallet_private CREATE 회수에 막힘)</li>
+<li>verify/post.sql rc=0, 롤백 리허설(begin…rollback) rc=0, apply/01 바이트 동일</li>
+<li>프로덕션 PostgreSQL 15.8 — PG16+ 기능 미사용 확인</li>
+</ul>
+
+<h2>5. 앱 수정 (picnic-app PR #190)</h2>
+<p>브랜치 <code>fix/picnic-2520-withdrawal-feedback</code>, 커밋 2개 + 이 리포트.</p>
+<ul>
+<li>실패(비-200/예외) 시 로컬라이즈된 다이얼로그 <code>withdrawal_failed</code>(14개 언어)</li>
+<li>요청 중 확인·취소 버튼 잠금 + 로딩, 완료/실패 후 복구. 활성 배경 primary500</li>
+<li>예외는 <code>Sentry.captureException</code> 으로 계속 보고</li>
+<li>진행 중 시트 이탈 방어 3겹: <code>isDismissible/enableDrag false</code>, <code>PopScope</code>, 성공 시 시트 route 가 <code>isCurrent</code> 일 때만 pop (1차 리뷰 P1)</li>
+<li>회귀 테스트 6건. 2차 리뷰 approve</li>
+</ul>
+
+<h2>6. 프로덕션 적용 기록 (2026-09-02)</h2>
+<div class="ok">
+<ol>
+<li>PR #121 squash 머지 (main 8a0190c)</li>
+<li><code>supabase link</code> → <code>begin; apply/01; rollback;</code> 리허설 rc=0, 롤백 후 상태 미변경 확인(큐 없음·cron 0·CREATE 미대여)</li>
+<li>20:45:35 KST <code>supabase db query --file apply/01 --linked</code> rc=0 → 큐 테이블·함수 4개·cron 잡 #78 활성, CREATE 대여 반납</li>
+<li><code>verify/post.sql</code> rc=0(DO ASSERT 통과), 이력 <code>20260902093000</code> 기록, 트리거 정의에서 감사 스캔 제거·큐 삽입 확인</li>
+<li>실경로 테스트: GoTrue 관리자 DELETE 로 테스트 계정 2건 탈퇴 — <strong>200, 0.61초 / 0.05초</strong>. 톰스톤·프로필 스크럽·ANONYMIZE_ACCOUNT·큐 인입 확인</li>
+<li>워커 첫 배치(2건): 11:48:00 UTC 시작, 약 6분 45초 소요 후 processed_at 기록·연락처 null. 이후 빈 큐 실행 10ms. 대기 중이던 cron 실행은 advisory lock 해제 후 즉시 종료</li>
+</ol>
+</div>
+<p class="warn">운영 메모: 첫 배치가 statement_timeout 600초의 약 68% 를 썼다. 며칠간 <code>cron.job_run_details</code> 의 소요 시간과 큐의 attempts/next_attempt_at 을 관찰하고, 여유가 줄면 timeout 상향 또는 배치 크기 조정을 검토한다. 테스트 계정 2건(<code>picnic2520-e2e-*@example.com</code>)은 톰스톤 행으로 남아 있다.</p>
+
+<h2>7. 남은 작업</h2>
+<ol>
+<li><strong>앱 PR #190 머지 → Shorebird OTA</strong>(Dart 전용).</li>
+<li>실패 사용자 재시도 안내(QnA #383 포함).</li>
+<li>선택: 8/12 백필 1,629명 소급 마스킹(약 326 배치 × 3.5GB 스캔, 한산한 시간대에 <code>p_limit</code> 상향 후 실행). README 참고.</li>
+<li>선행 결함 정리(별도 이슈): <code>wallet_release_gates</code> frozen contract 드리프트, wallet SQL fixture 3건의 wallet_private CREATE 의존.</li>
+</ol>
+
+<h2>8. 참고</h2>
+<ul>
+<li>Orca Run <code>run_f206b7727863</code> — Task 15개(구현 2·조사 1·리뷰 7·수정 5) 전부 completed</li>
+<li>모드 claude-heavy 풀부스트: 구현 Opus max, 리뷰 Codex Sol ultra, 보조 Antigravity Gemini 3.1 Pro</li>
+</ul>
+</body>
+</html>

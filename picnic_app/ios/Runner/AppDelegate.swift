@@ -7,7 +7,7 @@ import PincruxOfferwall
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
     private var pangleAdManager: PangleAdManager?
     private var pincruxOfferwallManager: PincruxOfferwallManager?
 
@@ -15,14 +15,21 @@ import UIKit
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
+        // 푸시 등록은 엔진과 무관한 앱 생명주기에서 유지한다.
+        UNUserNotificationCenter.current().delegate = self
+        application.registerForRemoteNotifications()
+        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+    }
 
-        let controller: FlutterViewController = window?.rootViewController as! FlutterViewController
+    func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+        GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+        let messenger = engineBridge.applicationRegistrar.messenger()
 
         #if canImport(PAGAdSDK)
         // Pangle 채널 생성 및 저장
         let pangleChannel = FlutterMethodChannel(
             name: "pangle_native_channel",
-            binaryMessenger: controller.binaryMessenger)
+            binaryMessenger: messenger)
 
         // Pangle 광고 매니저 초기화
         pangleAdManager = PangleAdManager(channel: pangleChannel)
@@ -36,7 +43,7 @@ import UIKit
         // Pincrux 채널 생성 및 저장
         let pincruxChannel = FlutterMethodChannel(
             name: "com.pincrux.offerwall.flutter",
-            binaryMessenger: controller.binaryMessenger)
+            binaryMessenger: messenger)
 
         // Pincrux 오퍼월 매니저 초기화
         pincruxOfferwallManager = PincruxOfferwallManager(channel: pincruxChannel)
@@ -45,12 +52,6 @@ import UIKit
         pincruxChannel.setMethodCallHandler { [weak self] call, result in
             self?.pincruxOfferwallManager?.handleMethodCall(call, result: result)
         }
-
-        GeneratedPluginRegistrant.register(with: self)
-        // iOS 푸시 수신 및 토큰 등록을 위해 Delegate 설정 및 APNs 등록
-        UNUserNotificationCenter.current().delegate = self
-        application.registerForRemoteNotifications()
-        return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
 
     // iOS 포그라운드 알림 표시 설정

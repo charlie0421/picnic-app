@@ -46,4 +46,66 @@ void main() {
     );
     expect(formatWalletAmount(BigInt.from(-1234567)), '-1,234,567');
   });
+
+  group('requireContractKeys', () {
+    const required = {'a', 'b'};
+    const optional = {'c'};
+
+    test('accepts exactly the required keys and normalises optionals to null', () {
+      final result = requireContractKeys(
+        {'a': 1, 'b': 2},
+        required: required,
+        optional: optional,
+      );
+      expect(result.keys.toSet(), {'a', 'b', 'c'});
+      expect(result['c'], isNull);
+    });
+
+    test('accepts required plus a named optional key', () {
+      final result = requireContractKeys(
+        {'a': 1, 'b': 2, 'c': 3},
+        required: required,
+        optional: optional,
+      );
+      expect(result['c'], 3);
+    });
+
+    test('treats an explicit null optional the same as an absent one', () {
+      final result = requireContractKeys(
+        {'a': 1, 'b': 2, 'c': null},
+        required: required,
+        optional: optional,
+      );
+      expect(result['c'], isNull);
+    });
+
+    test('still rejects a missing required key', () {
+      expect(
+        () => requireContractKeys(
+          {'a': 1, 'c': 3},
+          required: required,
+          optional: optional,
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('still rejects an unnamed extra key', () {
+      expect(
+        () => requireContractKeys(
+          {'a': 1, 'b': 2, 'z': 9},
+          required: required,
+          optional: optional,
+        ),
+        throwsA(isA<FormatException>()),
+      );
+    });
+
+    test('does not loosen requireExactContractKeys', () {
+      expect(
+        () => requireExactContractKeys({'a': 1, 'b': 2, 'c': 3}, required),
+        throwsA(isA<FormatException>()),
+      );
+    });
+  });
 }

@@ -484,6 +484,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "တစ်နာရီအကန့်အသတ် ပြည့်သွားပါပြီ ({used}/{limit})",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "တစ်နေ့အကန့်အသတ် ပြည့်သွားပါပြီ ({used}/{limit})",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "ကြော်ငြာတင်ရန်မအောင်မြင်ပါ ကျေးဇူးပြုပြီးထပ်ကြိုးစားပါ",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -540,7 +564,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "မဲပေးပဲှ",
+  "label_button_vote": "မဲပေး",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
@@ -1174,7 +1198,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "ကယ်ဆယ်",
+  "save": "Save",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -1182,7 +1206,7 @@
   "@seconds": {
     "description": "Auto-generated metadata for key 'seconds'."
   },
-  "share": "ခဲှဝေ",
+  "share": "Share",
   "@share": {
     "description": "Auto-generated metadata for key 'share'."
   },
@@ -1646,6 +1670,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "သင့်ငွေပေးချေမှုကို အတည်ပြုနိုင်ခြင်း မရှိသေးပါ။ စတိုး၏ ငွေပေးချေမှုစာမျက်နှာတွင် ငွေပေးချေမှု မပြီးဆုံးသေးခြင်း ဖြစ်နိုင်ပါသည်။\nငွေပေးချေပြီးဖြစ်ပါက လုပ်ဆောင်မှုပြီးဆုံးသည်နှင့် ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးမည်ဖြစ်၍ ထပ်မံ ငွေမပေးချေပါနှင့်။",
+  "purchase_payment_pending_message": "သင့်ငွေပေးချေမှု မပြီးဆုံးသေးပါ။ ငွေသားဖြင့်ပေးချေခြင်း သို့မဟုတ် ဘဏ်လွှဲပြောင်းခြင်းကဲ့သို့ အချိန်ကြာသည့် နည်းလမ်းကို ရွေးချယ်ထားပါက ဆိုင် သို့မဟုတ် ဘဏ်တွင် ငွေပေးချေမှုကို ပြီးမြောက်အောင် လုပ်ဆောင်ပါ။\nငွေပေးချေမှု အောင်မြင်ပါက ကြယ်ပွင့်သကြားလုံးများ အလိုအလျောက် ထည့်သွင်းပေးမည်ဖြစ်၍ ထပ်မံ ငွေမပေးချေပါနှင့်။",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1883,6 +1908,10 @@
   "withdrawal_success": "အဆိုပါ unsubscribe အောင်မြင်စွာလုပ်ငန်းများ၌ခဲ့သည်။",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "အကောင့်ဖျက်ခြင်း မအောင်မြင်ပါ။ ခဏအကြာတွင် ထပ်မံကြိုးစားပါ။",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "သင်ဤအနုပညာရှင်အတွက်လျှောက်ထားပြီးပြီ",
   "@vote_item_request_already_applied_artist": {
@@ -2402,9 +2431,31 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ် 100%",
   "candy_boost_extra_bonus": "အခြေခံဆု + ထပ်ဆောင်းဘောနပ်",
+  "candy_boost_multiplier": "ဘောနပ် {multiplier}×",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "ပရိုမိုးရှင်းကို စစ်ဆေးနေပါသည်",
   "candy_boost_purchase_pending": "ဤကုန်ပစ္စည်းအတွက် ဝယ်ယူမှုတစ်ခုကို လုပ်ဆောင်နေပြီးဖြစ်ပါသည်။",
   "candy_boost_late_purchase_explanation": "အတည်ပြုချက် မျှော်လင့်ထားသည်ထက် ကြာခဲ့သော်လည်း ဝယ်ယူမှု အောင်မြင်စွာ ပြီးဆုံးပါပြီ။",
+  "candy_boost_total_multiplier": "အစီအစဉ် ဘောနပ်စ် +{multiplier}%",
+  "purchase_reward_base": "အခြေခံဆုလာဘ်",
+  "purchase_reward_base_short": "အခြေခံ",
+  "purchase_reward_event_short": "အီဗင့်",
+  "purchase_reward_product_bonus": "အခြေခံ ဘောနပ်စ်",
+  "purchase_reward_event_bonus": "အီဗင့် ဘောနပ်စ်",
+  "purchase_reward_expected_total": "ခန့်မှန်း စုစုပေါင်း",
+  "purchase_reward_total_short": "စုစုပေါင်း",
+  "purchase_current_balance": "လက်ရှိလက်ကျန် {amount}",
+  "purchase_expected_balance": "ဝယ်ယူပြီး ခန့်မှန်း {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "ခန့်မှန်းအရေအတွက်ဖြစ်ပါသည်။ နောက်ဆုံးအရေအတွက်ကို ငွေပေးချေမှုပြီးဆုံးချိန်တွင် ဆာဗာက အတည်ပြုပါမည်။",
+  "candy_reward_receipt_total": "စုစုပေါင်း {amount} ရရှိ",
   "ad_reward_pending": "သင့်ဆုကို စစ်ဆေးနေပါသည်",
   "ad_reward_granted": "ဝါဂွမ်းသကြားလုံး ရရှိပါပြီ",
   "ad_reward_not_granted": "ဆုမပေးအပ်ခဲ့ပါ",
@@ -2419,6 +2470,7 @@
     }
   },
   "candy_reward_receipt_balance": "လက်ရှိလက်ကျန် {amount}",
+  "candy_reward_receipt_purchase_balance": "လက်ကျန်အသစ် {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2504,5 +2556,7 @@
   "expiry_quantity_description": "လက်ရှိအကောင့်တွင် သက်တမ်းကုန်ရန် သတ်မှတ်ထားသော ပမာဏများ။",
   "expiry_policy_description": "ငွေကြေးအမျိုးအစားအလိုက် သက်တမ်းကုန်စည်းမျဉ်းများ။",
   "bonus_expiry_policy_summary": "၁–၁၄ ရက်အတွင်း ရရှိသောပမာဏသည် နောက်လ ၁၅ ရက်တွင်၊ ၁၅ ရက်မှ လကုန်အတွင်း ရရှိသောပမာဏသည် နောက်တစ်လကျော် ၁၅ ရက် 00:00 (KST) တွင် သက်တမ်းကုန်မည်။",
-  "expiry_tonight_at_midnight": "ယနေ့ည သန်းခေါင်ယံ"
+  "expiry_tonight_at_midnight": "ယနေ့ည သန်းခေါင်ယံ",
+  "error_ad_device_account_restricted_message": "ဤစက်တွင် ယခုအကောင့်ဖြင့် ကြော်ငြာကြည့်ရှုခြင်းကို ယာယီကန့်သတ်ထားပါသည်။",
+  "profile_photo_change": "ပရိုဖိုင်ဓာတ်ပုံ ပြောင်းရန်"
 }

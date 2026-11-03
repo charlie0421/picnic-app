@@ -258,6 +258,9 @@ TAG_SOFT_DEFAULT = re.compile(r"\$\{CM_TAG\s*:?[-=+]")
 TAG_ASSIGNMENT = re.compile(
     r"(?<![\w./-])(?:export\s+|declare\s+|typeset\s+|readonly\s+)?CM_TAG="
 )
+SAFE_TAG_RESOLVER_ASSIGNMENT = re.compile(
+    r'^CM_TAG="\$\(bash scripts/resolve_release_tag\.sh\)"$'
+)
 
 # The one sanctioned way the derived target crosses a step boundary. This file
 # already uses the idiom for SIGNING_PROFILE_NAME; anything else -- a literal
@@ -904,7 +907,9 @@ def check_deploy_target_derived_from_tag(
                         f"deploy target from it; only "
                         f'`${{{TAG_VARIABLE}:?...}}` is allowed: {line.text!r}'
                     )
-                if TAG_ASSIGNMENT.search(line.text):
+                if TAG_ASSIGNMENT.search(line.text) and not SAFE_TAG_RESOLVER_ASSIGNMENT.match(
+                    line.text
+                ):
                     failures.append(
                         f"{where}: the workflow assigns {TAG_VARIABLE} itself, so the "
                         f"deploy target stops following the tag that started the "
@@ -961,6 +966,20 @@ def check_deploy_target_derived_from_tag(
             continue
         labels, bodies, case_head, esac = parsed
         lines = list(scan(derive_script))
+
+        resolver_assignments = [
+            line
+            for line in lines
+            if SAFE_TAG_RESOLVER_ASSIGNMENT.match(line.text) and line.depth == 0
+        ]
+        if expected_targets is None and (
+            len(resolver_assignments) != 1
+            or resolver_assignments[0].lineno > case_head.lineno
+        ):
+            failures.append(
+                f"{where}: must resolve the webhook or rebuild tag exactly once "
+                "before mapping it with `bash scripts/resolve_release_tag.sh`"
+            )
 
         tag_asserts = [
             line
@@ -1580,6 +1599,63 @@ def check_app_guard_tests_run(workflows, dual_target):
     return failures
 
 
+def check_release_test_policy(workflows, dual_target):
+    """Codemagic must keep release-tag guards but never run the full app suite."""
+    failures = []
+    policy_test_command = (
+        "python3 -m unittest -v test_release_tag_resolver.py "
+        "test_codemagic_no_full_unit_tests.py"
+    )
+
+    for name in dual_target:
+        steps = list(script_blocks(workflows[name]))
+        policy_test_runs = [
+            (step_index, step_name, line)
+            for step_index, (step_name, script) in enumerate(steps)
+            for line in scan(script)
+            if line.text == policy_test_command
+        ]
+        if len(policy_test_runs) != 1:
+            failures.append(
+                f"{name}: must run the release tag and Rebuild policy tests "
+                f"exactly once in Codemagic; found {len(policy_test_runs)} runs"
+            )
+        elif policy_test_runs[0][2].depth != 0:
+            failures.append(
+                f"{name} / {policy_test_runs[0][1]!r}: release policy tests are "
+                "nested inside a block, so they may not run"
+            )
+
+        full_suite_steps = [
+            step_name
+            for step_name, script in steps
+            if any("flutter test --coverage" in line.text for line in scan(script))
+        ]
+        if full_suite_steps:
+            failures.append(
+                f"{name}: Codemagic must not run the picnic_lib full coverage "
+                f"suite; found it in {full_suite_steps}"
+            )
+
+    for name, workflow in workflows.items():
+        for step_name, script in script_blocks(workflow):
+            commands = [line.text for line in scan(script)]
+            enters_picnic_lib = any(
+                re.fullmatch(r"cd\s+picnic_lib/?", command)
+                for command in commands
+            )
+            runs_flutter_tests = any(
+                FLUTTER_TEST.search(command) for command in commands
+            )
+            if enters_picnic_lib and runs_flutter_tests:
+                failures.append(
+                    f"{name} / {step_name!r}: Codemagic must not run "
+                    "picnic_lib Flutter tests"
+                )
+
+    return failures
+
+
 def check_patch_release_version_is_full(workflows):
     """Patch workflows must target the full release version.
 
@@ -1606,6 +1682,90 @@ def check_patch_release_version_is_full(workflows):
                         "build number, but shorebird releases use the full "
                         "version - the patch cannot find its release"
                     )
+    return failures
+
+
+def check_patch_split_debug_info_gate(workflows):
+    """Production patches must mirror the release's --split-debug-info flag.
+
+    1.3.0+130008 부터 프로덕션 릴리스는 항상 --split-debug-info 로 빌드된다.
+    패치가 다른 빌드 인자로 컴파일되면 릴리스와 어긋난 패치가 나가므로,
+    게이트는 (a) MmPPBB 6자리가 아닌 빌드 번호를 실패시키고 (b) 130008
+    이상에서만 플래그를 전달해야 한다. 정적 검사 대신 게이트 블록을 실제
+    bash 로 실행해 행동을 검증한다 — "숫자면 통과" 같은 완화가 재발하면
+    13008 (자릿수 오타) 케이스가 잡아낸다.
+    """
+    import subprocess
+
+    failures = []
+    cases = [
+        # (RELEASE_VERSION, expect_exit_zero, expect_flag)
+        ("1.3.0+130007", True, False),
+        ("1.3.0+130008", True, True),
+        ("1.4.0+140001", True, True),
+        ("1.3.12+131201", True, True),  # PP 두 자리
+        ("1.3.0+13008", False, None),  # 자릿수 오타 — 조용히 구릴리스 취급 금지
+        ("1.3.0+abc", False, None),
+        ("1.3.0+99999999", False, None),  # MmPPBB 범위 밖
+        ("1.4.0+120000", False, None),  # 표시 버전과 빌드 번호 불일치
+        ("1.4.0+000001", False, None),  # 표시 버전과 빌드 번호 불일치
+    ]
+    for name, workflow in workflows.items():
+        for step_name, script in script_blocks(workflow):
+            if (
+                "shorebird patch android" not in script
+                or 'EXTRA_BUILD_ARGS=""' not in script
+            ):
+                continue
+            lines = script.splitlines()
+            start = next(
+                i for i, l in enumerate(lines) if l.strip() == 'EXTRA_BUILD_ARGS=""'
+            )
+            # EXTRA_BUILD_ARGS="" 부터, 임계값(-ge 130008) if 를 닫는 fi 까지가
+            # 게이트 블록이다 — 중간 검증 if 의 개수에 의존하지 않는다.
+            block, seen_threshold, complete = [], False, False
+            for line in lines[start:]:
+                block.append(line)
+                if "-ge 130008" in line:
+                    seen_threshold = True
+                if seen_threshold and line.strip() == "fi":
+                    complete = True
+                    break
+            gate = "\n".join(block)
+            if not complete:
+                failures.append(
+                    f"{name} / {step_name}: split-debug-info 게이트 블록을 "
+                    "추출하지 못했다 (임계값 if 미발견)"
+                )
+                continue
+            for version, expect_ok, expect_flag in cases:
+                proc = subprocess.run(
+                    [
+                        "bash",
+                        "-c",
+                        f'RELEASE_VERSION="{version}"\n'
+                        f'PATCH_BUILD_NUMBER=${{RELEASE_VERSION#*+}}\n'
+                        f"{gate}\n"
+                        'printf "OUT:%s" "$EXTRA_BUILD_ARGS"',
+                    ],
+                    capture_output=True,
+                    text=True,
+                )
+                ok = proc.returncode == 0
+                if ok != expect_ok:
+                    failures.append(
+                        f"{name} / {step_name}: 버전 {version} 은 "
+                        f"{'통과' if expect_ok else '실패'}해야 하는데 "
+                        f"exit={proc.returncode}"
+                    )
+                    continue
+                if expect_ok:
+                    has_flag = "--split-debug-info=build/symbols" in proc.stdout
+                    if has_flag != expect_flag:
+                        failures.append(
+                            f"{name} / {step_name}: 버전 {version} 의 플래그 "
+                            f"기대={expect_flag}, 실제={has_flag}"
+                        )
     return failures
 
 
@@ -1641,7 +1801,9 @@ def run_checks(text=None):
     failures += check_guard_failure_fails_the_step(workflows)
     failures += check_isolation_guard_runs_in_ci(workflows, tag_driven)
     failures += check_app_guard_tests_run(workflows, tag_driven)
+    failures += check_release_test_policy(workflows, dual_target)
     failures += check_patch_release_version_is_full(workflows)
+    failures += check_patch_split_debug_info_gate(workflows)
     return failures
 
 
@@ -1868,6 +2030,37 @@ def mutate_drop_tag_requirement(text):
     return "\n".join(
         line for line in text.splitlines() if ': "${CM_TAG:?' not in line
     ) + "\n"
+
+
+def mutate_drop_tag_resolver(text):
+    """Remove rebuild tag recovery while leaving the webhook-only path intact."""
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if line.strip() != 'CM_TAG="$(bash scripts/resolve_release_tag.sh)"'
+    ) + "\n"
+
+
+def mutate_drop_release_policy_tests(text):
+    """Let the tested Rebuild tag policy rot outside Codemagic."""
+    return "\n".join(
+        line
+        for line in text.splitlines()
+        if "test_release_tag_resolver.py" not in line
+    ) + "\n"
+
+
+def mutate_reintroduce_picnic_lib_tests(text):
+    """Reintroduce the expensive suite without the old coverage spelling."""
+    marker = "      - name: Install CocoaPods dependencies\n"
+    injected = """\
+      - name: Run picnic_lib unit tests
+        script: |
+          cd picnic_lib
+          flutter test
+
+"""
+    return text.replace(marker, injected + marker, 1)
 
 
 def mutate_default_tag_variable(text):
@@ -2310,6 +2503,13 @@ SELF_TESTS = (
     ),
     ("derived target never handed to the later steps", mutate_drop_cm_env_export, True),
     ("tag variable no longer required", mutate_drop_tag_requirement, True),
+    ("rebuild tag resolver removed", mutate_drop_tag_resolver, True),
+    ("release policy tests not run in Codemagic", mutate_drop_release_policy_tests, True),
+    (
+        "picnic_lib unit tests reintroduced without coverage",
+        mutate_reintroduce_picnic_lib_tests,
+        True,
+    ),
     ("tag variable given a default", mutate_default_tag_variable, True),
     (
         "consumer steps read DEPLOY_TARGET with no assert of their own",

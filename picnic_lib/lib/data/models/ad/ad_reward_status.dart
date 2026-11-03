@@ -5,13 +5,14 @@ import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 part '../../../generated/providers/models/ad/ad_reward_status.freezed.dart';
 part '../../../generated/providers/models/ad/ad_reward_status.g.dart';
 
-enum AdRewardReferenceType { pangleClaim, internalImpression }
+enum AdRewardReferenceType { pangleClaim, admobClaim, internalImpression }
 
 enum AdRewardState { pending, granted, denied, expired, abandoned }
 
 extension AdRewardReferenceTypeWire on AdRewardReferenceType {
   String get wireValue => switch (this) {
     AdRewardReferenceType.pangleClaim => 'PANGLE_CLAIM',
+    AdRewardReferenceType.admobClaim => 'ADMOB_CLAIM',
     AdRewardReferenceType.internalImpression => 'INTERNAL_IMPRESSION',
   };
 }
@@ -22,6 +23,7 @@ class AdRewardReferenceTypeConverter
   @override
   AdRewardReferenceType fromJson(String value) => switch (value) {
     'PANGLE_CLAIM' => AdRewardReferenceType.pangleClaim,
+    'ADMOB_CLAIM' => AdRewardReferenceType.admobClaim,
     'INTERNAL_IMPRESSION' => AdRewardReferenceType.internalImpression,
     _ => throw FormatException('Unknown ad reference type: $value'),
   };
@@ -83,6 +85,7 @@ abstract class PangleClaimModel with _$PangleClaimModel {
     @JsonKey(name: 'signed_token') required String signedToken,
     @JsonKey(name: 'expires_at') required DateTime expiresAt,
   }) = _PangleClaimModel;
+
   /// Pangle 네이티브 로더가 요구하는 `<userId>,<platform>,v2.<token>` 형식.
   ///
   /// [platform] 은 **반드시 소문자**여야 한다. 네이티브 검증기가 정확 일치를
@@ -101,11 +104,36 @@ abstract class PangleClaimModel with _$PangleClaimModel {
   String mediaExtra(String userId) =>
       '$userId,${platform.toLowerCase()},v2.$signedToken';
   factory PangleClaimModel.fromJson(Map<String, dynamic> json) =>
-      _decodeContract(
-        () => _$PangleClaimModelFromJson(
+      _decodeContract(() {
+        final claim = _$PangleClaimModelFromJson(
           requireExactContractKeys(json, _claimKeys),
-        ),
-      );
+        );
+        if (claim.reference.type != AdRewardReferenceType.pangleClaim) {
+          throw const FormatException('Expected PANGLE_CLAIM reference');
+        }
+        return claim;
+      });
+}
+
+/// AdMob SSV callback에 전달할 서명 토큰이 포함된 서버 발급 클레임.
+@freezed
+abstract class AdmobClaimModel with _$AdmobClaimModel {
+  const factory AdmobClaimModel({
+    required AdRewardReference reference,
+    required String platform,
+    @JsonKey(name: 'signed_token') required String signedToken,
+    @JsonKey(name: 'expires_at') required DateTime expiresAt,
+  }) = _AdmobClaimModel;
+  factory AdmobClaimModel.fromJson(Map<String, dynamic> json) =>
+      _decodeContract(() {
+        final claim = _$AdmobClaimModelFromJson(
+          requireExactContractKeys(json, _claimKeys),
+        );
+        if (claim.reference.type != AdRewardReferenceType.admobClaim) {
+          throw const FormatException('Expected ADMOB_CLAIM reference');
+        }
+        return claim;
+      });
 }
 
 @freezed

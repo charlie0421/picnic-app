@@ -9,11 +9,13 @@ import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../helpers/ignore_image_errors.dart';
 import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
 import '../../../../helpers/test_app.dart';
@@ -53,12 +55,20 @@ class _ControllableWalletSummary extends WalletSummary {
 
   final WalletSummaryModel summary;
   final Future<void> Function() onRefresh;
+  int _calls = 0;
 
   @override
   Future<WalletSummaryModel> build() async => summary;
 
+  /// The dialog also refreshes once when it opens, to keep "use all" off a
+  /// stale snapshot. That call is not what these tests are about, so only the
+  /// second refresh - the post-failure one - runs the scripted behaviour.
   @override
-  Future<void> refresh() => onRefresh();
+  Future<void> refresh() {
+    _calls += 1;
+    if (_calls == 1) return Future<void>.value();
+    return onRefresh();
+  }
 }
 
 /// Vote repository that fails, but only once the test opens [gate]. Holding the
@@ -155,7 +165,7 @@ Future<void> _submitVoteAndHoldInFlight(
   await tester.tap(find.byType(VotingSubmitButton));
   // No pumpAndSettle from here on: the loading overlay runs repeating
   // animations, so the tree never settles while a vote is in flight.
-  await tester.pump();
+  await pumpAndIgnoreErrors(tester);
   await tester.pump(const Duration(milliseconds: 16));
 
   // Sanity check that we really are mid-vote: overlay up, button spinning.
@@ -167,7 +177,7 @@ Future<void> _submitVoteAndHoldInFlight(
   expect(
     find.descendant(
       of: find.byType(VotingSubmitButton),
-      matching: find.byType(CircularProgressIndicator),
+      matching: find.byType(SmallPulseLoadingIndicator),
     ),
     findsOneWidget,
     reason: '_isVoting should be true while the vote is in flight',

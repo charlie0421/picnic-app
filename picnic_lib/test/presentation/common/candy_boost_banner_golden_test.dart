@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/candy_boost_banner.dart';
-import 'package:visibility_detector/visibility_detector.dart';
 
+import '../../helpers/image_test_harness.dart';
 import '../../helpers/load_test_fonts.dart';
 import '../../helpers/test_environment.dart';
 
@@ -18,40 +18,26 @@ final activeCampaignFixture = ActivePromotionCampaignsModel.fromJson(
   loadGoldenFixture(
     'test/fixtures/wallet_contracts/promotion_surfaces_active_v1.json',
   ),
-).visibleHomeItems('ko').single;
+).visibleHomeItems('ko').single.homeCreative!;
 
-Widget buildCampaignGoldenApp(ActivePromotionCampaignModel campaign) =>
-    MaterialApp(
-      theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
-      locale: const Locale('ko'),
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      home: SizedBox(
-        height: 200,
-        child: ColoredBox(
-          color: const Color(0xFFFF7FA8),
-          child: CandyBoostBanner(campaign: campaign),
-        ),
-      ),
-    );
+Widget buildCampaignGoldenApp(PromotionCreativeModel creative) => MaterialApp(
+  theme: ThemeData(fontFamily: 'packages/picnic_lib/Pretendard'),
+  locale: const Locale('ko'),
+  localizationsDelegates: AppLocalizations.localizationsDelegates,
+  supportedLocales: AppLocalizations.supportedLocales,
+  home: SizedBox(
+    height: 200,
+    child: ColoredBox(
+      color: const Color(0xFFFF7FA8),
+      child: CandyBoostBanner(creative: creative),
+    ),
+  ),
+);
 
 void main() {
-  late Duration originalVisibilityInterval;
-
   setUpAll(() async {
-    // PicnicCachedNetworkImage 가 절대 URL 의 호스트를 CDN 과 비교하려면
-    // Environment.cdnUrl 을 읽어야 한다 — 초기화하지 않으면 late field 접근으로 죽는다.
     initTestColors();
     await loadTestFonts();
-    originalVisibilityInterval =
-        VisibilityDetectorController.instance.updateInterval;
-    VisibilityDetectorController.instance.updateInterval =
-        const Duration(hours: 1);
-  });
-
-  tearDownAll(() {
-    VisibilityDetectorController.instance.updateInterval =
-        originalVisibilityInterval;
   });
 
   testWidgets('left-aligned candy boost banner golden', (tester) async {
@@ -59,6 +45,16 @@ void main() {
     tester.view.devicePixelRatio = 3;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
+    final harness = await ImageTestHarness.create();
+    addTearDown(harness.dispose);
+    // Hold bytes so the existing golden continues to verify the loading
+    // surface, even though campaign images now start loading immediately.
+    await tester.runAsync(
+      () => harness.respondPng(
+        activeCampaignFixture.localizedImage('ko')!,
+        held: true,
+      ),
+    );
     await tester.pumpWidget(buildCampaignGoldenApp(activeCampaignFixture));
     final title = tester.widget<Text>(find.text('캔디 부스트 데이'));
     expect(title.textAlign, TextAlign.left);
@@ -66,5 +62,14 @@ void main() {
       find.byType(CandyBoostBanner),
       matchesGoldenFile('../../goldens/candy_boost_banner.png'),
     );
+    harness.release(activeCampaignFixture.localizedImage('ko')!);
+    for (var frame = 0; frame < 8; frame++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

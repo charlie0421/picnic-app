@@ -122,7 +122,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'achieve'.
   ///
   /// In en, this message translates to:
-  /// **'Achievements'**
+  /// **'Achieved'**
   String get achieve;
 
   /// Auto-generated metadata for key 'ads_available_time'.
@@ -821,6 +821,18 @@ abstract class AppLocalizations {
   /// **'{hourly} per hour, {daily} per day'**
   String label_ads_limits(int hourly, int daily);
 
+  /// Shown in the ad-limit dialog when the hourly cap is the one that was hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Hourly limit reached ({used}/{limit})'**
+  String label_ads_limit_reached_hourly(int used, int limit);
+
+  /// Shown in the ad-limit dialog when the daily cap is the one that was hit.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily limit reached ({used}/{limit})'**
+  String label_ads_limit_reached_daily(int used, int limit);
+
   /// Auto-generated metadata for key 'label_ads_load_fail'.
   ///
   /// In en, this message translates to:
@@ -1154,7 +1166,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'label_retry'.
   ///
   /// In en, this message translates to:
-  /// **'Retrying'**
+  /// **'Retry'**
   String get label_retry;
 
   /// Auto-generated metadata for key 'label_setting_alarm'.
@@ -2072,7 +2084,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'voting_share_benefit_text'.
   ///
   /// In en, this message translates to:
-  /// **'Get 1 bonus star candy for every 100 votes and share!'**
+  /// **'Get 1 bonus star candy for every 100 votes!'**
   String get voting_share_benefit_text;
 
   /// Auto-generated metadata for key 'cancel'.
@@ -2519,6 +2531,12 @@ abstract class AppLocalizations {
   /// **'Your payment has not been confirmed yet. You may not have completed the payment on the store\'s payment screen.\nIf you have already paid, your Star Candy will be credited automatically once processing finishes — please do not pay again.'**
   String get purchase_payment_unconfirmed_message;
 
+  /// Shown when Google Play reports an Android purchase as PENDING (purchaseState=2): the user completed the store flow but chose a deferred payment method (cash at a convenience store, bank transfer) and has not paid yet. Must tell them to finish paying at the store/bank, must NOT claim the payment was received, and must still forbid paying again.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment is still being completed. If you chose a slow payment method such as cash or a bank transfer, please finish paying at the store or bank.\nYour Star Candy will be credited automatically once the payment goes through — please do not pay again.'**
+  String get purchase_payment_pending_message;
+
   /// Auto-generated metadata for key 'label_tabbar_vote_upcoming'.
   ///
   /// In en, this message translates to:
@@ -2824,6 +2842,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The unsubscribe was processed successfully.'**
   String get withdrawal_success;
+
+  /// Shown when the account withdrawal request fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account deletion failed. Please try again in a moment.'**
+  String get withdrawal_failed;
 
   /// Auto-generated metadata for key 'vote_item_request_already_applied_artist'.
   ///
@@ -3581,6 +3605,12 @@ abstract class AppLocalizations {
   /// **'Base reward + extra bonus'**
   String get candy_boost_extra_bonus;
 
+  /// No description provided for @candy_boost_multiplier.
+  ///
+  /// In en, this message translates to:
+  /// **'{multiplier}× bonus'**
+  String candy_boost_multiplier(String multiplier);
+
   /// No description provided for @candy_boost_promotion_checking.
   ///
   /// In en, this message translates to:
@@ -3598,6 +3628,84 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Authentication took longer than expected, but the purchase completed successfully.'**
   String get candy_boost_late_purchase_explanation;
+
+  /// Compact pill showing the extra bonus-star-candy percentage during a candy boost event.
+  ///
+  /// In en, this message translates to:
+  /// **'+{multiplier}% EVENT BONUS'**
+  String candy_boost_total_multiplier(String multiplier);
+
+  /// No description provided for @purchase_reward_base.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward'**
+  String get purchase_reward_base;
+
+  /// No description provided for @purchase_reward_base_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get purchase_reward_base_short;
+
+  /// No description provided for @purchase_reward_event_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get purchase_reward_event_short;
+
+  /// No description provided for @purchase_reward_product_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Base bonus'**
+  String get purchase_reward_product_bonus;
+
+  /// No description provided for @purchase_reward_event_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Event bonus'**
+  String get purchase_reward_event_bonus;
+
+  /// No description provided for @purchase_reward_expected_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. total'**
+  String get purchase_reward_expected_total;
+
+  /// No description provided for @purchase_reward_total_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get purchase_reward_total_short;
+
+  /// No description provided for @purchase_current_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance {amount}'**
+  String purchase_current_balance(Object amount);
+
+  /// No description provided for @purchase_expected_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected after purchase {amount}'**
+  String purchase_expected_balance(Object amount);
+
+  /// A reward amount added on top of the base reward.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String purchase_reward_plus_amount(String amount);
+
+  /// No description provided for @purchase_reward_estimate_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate. The final amount is confirmed by the server when your payment completes.'**
+  String get purchase_reward_estimate_note;
+
+  /// Sum of every currency added by a single settlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Total added {amount}'**
+  String candy_reward_receipt_total(String amount);
 
   /// No description provided for @ad_reward_pending.
   ///
@@ -3640,6 +3748,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current balance {amount}'**
   String candy_reward_receipt_balance(String amount);
+
+  /// No description provided for @candy_reward_receipt_purchase_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'New balance {amount}'**
+  String candy_reward_receipt_purchase_balance(Object amount);
 
   /// No description provided for @candy_reward_receipt_balance_unavailable.
   ///
@@ -3752,6 +3866,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.'**
   String get bonus_expiry_policy_summary;
+
+  /// No description provided for @error_ad_device_account_restricted_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad access for this account on this device is temporarily restricted.'**
+  String get error_ad_device_account_restricted_message;
+
+  /// No description provided for @profile_photo_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get profile_photo_change;
 }
 
 class _AppLocalizationsDelegate

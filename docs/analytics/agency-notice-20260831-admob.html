@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AdMob 지면 계측 안내</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root{
+    --ground:#F7F8FA; --panel:#FFFFFF; --ink:#1B2028; --ink-mute:#5A6472; --ink-faint:#87919F;
+    --rule:#DDE3EA; --rule-soft:#EDF0F4; --accent:#0F6E7A; --accent-soft:#E4F0F1; --caut:#9A6410;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#12161C; --panel:#181D25; --ink:#E8ECF2; --ink-mute:#9DA8B6; --ink-faint:#77828F;
+      --rule:#28313C; --rule-soft:#1E252E; --accent:#5FBFC9; --accent-soft:#143134; --caut:#D7A254;
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#12161C; --panel:#181D25; --ink:#E8ECF2; --ink-mute:#9DA8B6; --ink-faint:#77828F;
+    --rule:#28313C; --rule-soft:#1E252E; --accent:#5FBFC9; --accent-soft:#143134; --caut:#D7A254;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--ground); color:var(--ink); margin:0;
+       font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',system-ui,sans-serif;
+       font-size:16px; line-height:1.8; -webkit-font-smoothing:antialiased}
+  main{max-width:62ch; margin:0 auto; padding:64px 24px 96px; display:flex; flex-direction:column; gap:20px}
+  .eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11.5px; font-weight:500;
+           letter-spacing:.14em; text-transform:uppercase; color:var(--accent); margin:0}
+  h1{font-size:1.72rem; line-height:1.34; font-weight:800; letter-spacing:-.02em; text-wrap:balance; margin:0}
+  h2{font-size:1.14rem; font-weight:700; letter-spacing:-.012em; margin:14px 0 0; text-wrap:balance}
+  p{margin:0}
+  .lede{font-size:1.06rem; color:var(--ink-mute)}
+  .meta{font-size:13.5px; color:var(--ink-faint); line-height:1.72}
+  code{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.88em;
+       background:var(--rule-soft); padding:1.5px 5px; border-radius:4px}
+  .tw{overflow-x:auto; border:1px solid var(--rule); border-radius:8px; background:var(--panel)}
+  table{border-collapse:collapse; width:100%; font-size:14px}
+  th,td{padding:10px 13px; text-align:left; border-bottom:1px solid var(--rule-soft); vertical-align:top}
+  thead th{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.08em;
+           text-transform:uppercase; color:var(--ink-faint); font-weight:500; background:var(--rule-soft)}
+  tbody tr:last-child td{border-bottom:none}
+  .num{text-align:right; font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums}
+  .box{border:1px solid var(--rule); border-radius:8px; background:var(--panel);
+       padding:15px 18px; display:flex; flex-direction:column; gap:9px}
+  .box>*{margin:0}
+  .key{border-left:3px solid var(--accent); background:var(--accent-soft)}
+  .warn{border-left:3px solid var(--caut)}
+  .t{font-weight:700}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+</head>
+<body>
+<main>
+  <p class="eyebrow">Picnic → 대행사 · 2026-08-31 · 안내</p>
+  <h1>AdMob 광고 이벤트가 들어오고 있습니다</h1>
+  <p class="lede">AdMob이 다시 켜지면서 <b>저희가 보내지 않는 광고 이벤트</b>가 GA4에 쌓이고 있습니다.
+    저희는 이를 <b>분석 대상에 포함</b>하기로 했습니다. 리포트 작성 시 참고를 부탁드립니다.</p>
+  <p class="meta">회신은 필요하지 않습니다.</p>
+
+  <h2>지금 들어오는 것</h2>
+  <div class="tw">
+    <table>
+      <thead><tr><th>이벤트</th><th class="num">당사</th><th class="num">AdMob</th></tr></thead>
+      <tbody>
+        <tr><td><code>ad_impression</code></td><td class="num">303,964</td><td class="num">34,164</td></tr>
+        <tr><td><code>ad_reward</code></td><td class="num">—</td><td class="num">22,227</td></tr>
+        <tr><td><code>ad_click</code></td><td class="num">—</td><td class="num">3,384</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="meta">2026-08-03 ~ 08-30 (28일) · 당사 = 자체 숏폼 + Pangle<br>
+    AdMob 자동 수집은 위 3개뿐입니다(27개 이벤트 전수 확인).</p>
+
+  <div class="key box">
+    <p class="t">📌 리포트 작성 시 — 지면을 반드시 나눠 주세요</p>
+    <p><code>ad_impression</code>은 <b>자체 숏폼 217,384 · Pangle 86,580 · AdMob 34,164</b>가
+      한 이름 아래 섞여 들어옵니다. 합산하면 지면 구분이 사라집니다.</p>
+    <div class="tw">
+      <table>
+        <thead><tr><th>이벤트</th><th>구분 방법</th></tr></thead>
+        <tbody>
+          <tr><td><code>ad_impression</code> · <code>ad_cta_click</code> · <code>ad_click</code></td>
+              <td><code>ad_platform</code>으로 분리<br>
+                <span class="meta">internal-shortform / Pangle / AdMob</span></td></tr>
+          <tr><td><code>ad_reward</code></td>
+              <td>전량 AdMob<br>
+                <span class="meta"><code>ad_platform</code>이 없고 <code>ad_unit_code</code>를 씀</span></td></tr>
+          <tr><td><code>ad_request</code> · <code>earn_virtual_currency</code></td>
+              <td><code>ad_platform</code> 없음이 <b>정상</b><br>
+                <span class="meta">스펙대로이며, 구좌 구분은 <code>section_name</code> / <code>ad_category</code></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="warn box">
+    <p class="t">스펙과 어긋나는 부분</p>
+    <p><b><code>ad_reward</code>는 스펙에 없습니다.</b> AdMob이 자동 생성하는 이벤트입니다.
+      스프레드시트에 추가하실지는 판단에 맡기겠습니다.</p>
+    <p><b><code>ad_click</code>은 이름이 겹칩니다.</b> 스펙에는 자체 숏폼 CTA로 정의돼 있었으나
+      지금 그 이름으로 들어오는 것은 AdMob 클릭입니다. 저희 CTA는
+      <code>ad_cta_click</code>으로 따로 나갑니다.</p>
+    <p><b>B-4 회신의 전제가 바뀌었습니다</b> — "광고 플랫폼 값은 AdMob이 아니다"라고
+      확인해 주셨으나, 현재는 AdMob이 실제로 운영 중입니다.</p>
+  </div>
+
+  <p class="meta">앞서 승인해 주신 <code>ad_cta_click</code> 개명은 8/28 배포됐고
+    정상 수집을 확인했습니다(파라미터 7개 모두 스펙대로).</p>
+</main>
+</body>
+</html>

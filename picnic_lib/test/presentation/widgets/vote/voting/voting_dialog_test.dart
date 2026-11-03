@@ -87,6 +87,7 @@ void main() {
           genericMessage: 'Vote failed',
           endedMessage: 'Voting ended',
           upcomingMessage: 'Voting not started',
+          insufficientBalanceMessage: 'Requires charging.',
         );
 
         expect(message, localizedMessage);

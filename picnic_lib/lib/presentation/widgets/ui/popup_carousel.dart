@@ -1,9 +1,11 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:picnic_lib/presentation/providers/popup_provider.dart';
 import 'package:picnic_lib/data/models/common/popup.dart';
@@ -123,9 +125,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
       children: [
         // 어두운 배경
         Positioned.fill(
-          child: Container(
-            color: Colors.black.withAlpha((0.5 * 255).toInt()),
-          ),
+          child: Container(color: Colors.black.withAlpha((0.5 * 255).toInt())),
         ),
         // 다이얼로그 기준 바깥 좌우에 버튼 배치
         Positioned(
@@ -142,7 +142,7 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                         setState(() {
                           _currentIndex =
                               (_currentIndex - 1 + _filteredPopups.length) %
-                                  _filteredPopups.length;
+                              _filteredPopups.length;
                         });
                         HapticFeedback.selectionClick();
                       }
@@ -163,8 +163,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                   ),
                   child: Icon(
                     Icons.chevron_left,
-                    color:
-                        _filteredPopups.length > 1 ? Colors.white : Colors.grey,
+                    color: _filteredPopups.length > 1
+                        ? Colors.white
+                        : Colors.grey,
                     size: 24,
                   ),
                 ),
@@ -206,8 +207,9 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                   ),
                   child: Icon(
                     Icons.chevron_right,
-                    color:
-                        _filteredPopups.length > 1 ? Colors.white : Colors.grey,
+                    color: _filteredPopups.length > 1
+                        ? Colors.white
+                        : Colors.grey,
                     size: 24,
                   ),
                 ),
@@ -235,106 +237,176 @@ class _PopupCarouselState extends ConsumerState<PopupCarousel> {
                 child: Container(
                   constraints: BoxConstraints(
                     maxWidth: maxWidth,
-                    maxHeight: maxHeight, // 팝업 높이 고정 (원하는 값으로 조정)
+                    maxHeight: maxHeight,
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(24),
-                            topRight: Radius.circular(24),
-                          ),
-                          child: imageUrl.isNotEmpty
-                              ? PicnicCachedNetworkImage(
-                                  imageUrl: imageUrl, fit: BoxFit.cover)
-                              : Image.asset(
-                                  package: 'picnic_lib',
-                                  'assets/images/logo.png',
-                                  fit: BoxFit.contain,
-                                ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          popup.title[lang] ?? popup.title['en'] ?? '',
-                          style:
-                              getTextStyle(AppTypo.body16B, AppColors.grey900),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Expanded(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Text(
-                              popup.content[lang] ?? popup.content['en'] ?? '',
-                              style: getTextStyle(
-                                  AppTypo.body14R, AppColors.grey900),
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: OutlinedButton(
-                                style: OutlinedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  side: const BorderSide(
-                                      color: Color(0xFFDDDDDD)),
-                                ),
-                                onPressed: _close,
-                                child: Text(
-                                    AppLocalizations.of(context)
-                                        .label_popup_close,
-                                    style: const TextStyle(fontSize: 16)),
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              flex: 2,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  textStyle: const TextStyle(fontSize: 16),
-                                ),
-                                onPressed: _hideCurrentPopupFor7Days,
-                                child: Text(AppLocalizations.of(context)
-                                    .label_popup_hide_7days),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                    ],
-                  ),
+                  child: _buildCardBody(context, popup, lang, imageUrl),
                 ),
               );
             },
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildCardBody(
+    BuildContext context,
+    Popup popup,
+    String lang,
+    String imageUrl,
+  ) {
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AspectRatio(
+          aspectRatio: 16 / 9,
+          child: ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: imageUrl.isNotEmpty
+                ? PicnicCachedNetworkImage(
+                    imageUrl: imageUrl,
+                    cdnVariant: PicnicCdnImageVariant.large,
+                    fit: BoxFit.cover,
+                  )
+                : Image.asset(
+                    'assets/images/logo.png',
+                    package: 'picnic_lib',
+                    fit: BoxFit.contain,
+                  ),
+          ),
+        ),
+        SizedBox(height: PicnicUi.vertical(16)),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                popup.title[lang] ?? popup.title['en'] ?? '',
+                style: PicnicUi.text(size: 16, weight: FontWeight.w700),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: PicnicUi.vertical(8)),
+              Text(
+                popup.content[lang] ?? popup.content['en'] ?? '',
+                style: PicnicUi.text(size: 14),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+    final actions = Padding(
+      padding: EdgeInsets.all(0).copyWith(
+        left: PicnicUi.horizontal(16),
+        right: PicnicUi.horizontal(16),
+        top: PicnicUi.vertical(16),
+        bottom: PicnicUi.vertical(16),
+      ),
+      child: _buildActions(context),
+    );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final actionWidth = math.max(
+          0.0,
+          constraints.maxWidth - PicnicUi.horizontal(32),
+        );
+        final actionsHeight =
+            _actionsHeight(context, actionWidth) + PicnicUi.vertical(32);
+        // Keep actions visible whenever they fit. In a shorter window, allow
+        // the complete card to scroll instead of overflowing the action group.
+        if (actionsHeight + PicnicUi.vertical(8) >= constraints.maxHeight) {
+          return SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [content, actions],
+            ),
+          );
+        }
+        return Column(
+          children: [
+            Expanded(child: SingleChildScrollView(child: content)),
+            actions,
+          ],
+        );
+      },
+    );
+  }
+
+  bool _stackActions(BuildContext context, double width) =>
+      width < 200 || MediaQuery.textScalerOf(context).scale(14) > 18.2;
+
+  double _actionsHeight(BuildContext context, double width) {
+    final l10n = AppLocalizations.of(context);
+    double height(String label, double buttonWidth) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: PicnicUi.text(size: 14, weight: FontWeight.w600),
+        ),
+        textDirection: Directionality.of(context),
+        textScaler: MediaQuery.textScalerOf(context),
+      )..layout(maxWidth: math.max(0.0, buttonWidth - PicnicUi.horizontal(32)));
+      final result = math.max(
+        PicnicUi.minimumTapTarget,
+        painter.height + PicnicUi.vertical(24),
+      );
+      painter.dispose();
+      return result;
+    }
+
+    if (_stackActions(context, width)) {
+      return height(l10n.label_popup_close, width) +
+          height(l10n.label_popup_hide_7days, width) +
+          PicnicUi.vertical(8);
+    }
+    final unit = (width - PicnicUi.horizontal(16)) / 3;
+    return math.max(
+      height(l10n.label_popup_close, unit),
+      height(l10n.label_popup_hide_7days, unit * 2),
+    );
+  }
+
+  /// 닫기 / 7일간 보지 않기.
+  ///
+  /// 320 폭에서 카드는 좌우 48 마진을 빼고 224 밖에 되지 않아, 1:2 로 나눈 칸은
+  /// 실제 배포 중인 태국어 "อย่าดูเป็นเวลา 7 วัน" 을 200% 글자로 담지 못하고
+  /// 카드 예산 밖으로 밀려났다. 글자가 커지면 두 버튼을 세로로 쌓아 각자 전체
+  /// 폭을 쓰게 하고, 평소 폭·글자에서는 기존 1:2 한 줄 배치를 그대로 둔다.
+  Widget _buildActions(BuildContext context) {
+    final close = PicnicActionButton(
+      label: AppLocalizations.of(context).label_popup_close,
+      onPressed: _close,
+      variant: PicnicActionVariant.secondary,
+    );
+    final hide = PicnicActionButton(
+      label: AppLocalizations.of(context).label_popup_hide_7days,
+      onPressed: _hideCurrentPopupFor7Days,
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final stacked = _stackActions(context, constraints.maxWidth);
+        if (stacked) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              hide,
+              SizedBox(height: PicnicUi.vertical(8)),
+              close,
+            ],
+          );
+        }
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(child: close),
+            SizedBox(width: PicnicUi.horizontal(16)),
+            Expanded(flex: 2, child: hide),
+          ],
+        );
+      },
     );
   }
 

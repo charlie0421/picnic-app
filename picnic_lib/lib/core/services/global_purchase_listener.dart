@@ -1,11 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/services/in_app_purchase_service.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
+import 'package:picnic_lib/core/analytics/analytics_outbox.dart';
+import 'package:picnic_lib/core/analytics/store_catalogue_currency_resolver.dart';
 import 'package:picnic_lib/core/services/receipt_queue_service.dart';
 import 'package:picnic_lib/core/services/receipt_verification_service.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -196,6 +197,16 @@ class GlobalPurchaseListener {
     // 스토어 화면이 떠 있는 동안 일어나면 그 화면의 자체 복원 정리와
     // 경합해서는 안 되는데, `hasSurface` 를 아는 건 이 클래스뿐이다.
     ReceiptQueueService().onItemsEvicted = _onQueueItemsEvicted;
+    // 큐 복구가 받은 정산의 매출 이벤트도 여기서 이어받는다. 큐는
+    // `PurchaseService` 를 알지 못하므로(역방향 의존 방지) 상위가 연결한다.
+    ReceiptQueueService().onSettlementRecovered =
+        purchaseService.adoptRecoveredSettlement;
+    // 보류된 매출 이벤트가 통화를 되찾을 유일한 경로. 이게 없으면
+    // awaiting_currency 는 같은 거래가 다시 전달되지 않는 한 만료될 때까지
+    // 그대로 남는다.
+    AnalyticsOutbox.configureCurrencyResolver(
+      StoreCatalogueCurrencyResolver(container),
+    );
   }
 
   /// The app-level Riverpod container.
@@ -236,12 +247,13 @@ class GlobalPurchaseListener {
 
   /// 무화면 정산 대기열 깊이. 이벤트를 버리진 않지만, 정산이 밀리기
   /// 시작하면(임계값 도달) 관측할 수 있게 경고 로그를 남긴다.
-  final HeadlessQueueDepthTracker _headlessQueueDepth = HeadlessQueueDepthTracker(
-    onWarn: (depth) => logger.w(
-      '[GlobalPurchaseListener] 무화면 정산 대기열이 $depth건까지 쌓임 - '
-      '정산이 이벤트 도착 속도를 못 따라가는 중',
-    ),
-  );
+  final HeadlessQueueDepthTracker _headlessQueueDepth =
+      HeadlessQueueDepthTracker(
+        onWarn: (depth) => logger.w(
+          '[GlobalPurchaseListener] 무화면 정산 대기열이 $depth건까지 쌓임 - '
+          '정산이 이벤트 도착 속도를 못 따라가는 중',
+        ),
+      );
 
   /// Whether a store screen currently owns presentation.
   bool get hasSurface => _surface != null;
@@ -364,8 +376,7 @@ class GlobalPurchaseListener {
     final generationAtStart = _surfaceGeneration;
     return purchaseService.sweepUnfinishedPurchases(
       trigger: trigger,
-      shouldAbort: () =>
-          hasSurface || _surfaceGeneration != generationAtStart,
+      shouldAbort: () => hasSurface || _surfaceGeneration != generationAtStart,
     );
   }
 
@@ -387,7 +398,11 @@ class GlobalPurchaseListener {
     _headlessWork = _headlessWork.then(
       (_) => _settleQueuedWithoutSurface(purchases),
       onError: (Object e, StackTrace s) {
-        logger.e('[GlobalPurchaseListener] 이전 무화면 정산 실패', error: e, stackTrace: s);
+        logger.e(
+          '[GlobalPurchaseListener] 이전 무화면 정산 실패',
+          error: e,
+          stackTrace: s,
+        );
         return _settleQueuedWithoutSurface(purchases);
       },
     );
@@ -434,9 +449,24 @@ class GlobalPurchaseListener {
           inAppPurchaseService: purchaseService.inAppPurchaseService,
         );
       case PurchaseStatus.pending:
+        if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+          await purchaseService.recordPendingPurchase(
+            details,
+            source: PendingIntakeSource.headless,
+          );
+          logger.i(
+            '[GlobalPurchaseListener] Android pending 무화면 접수 시도: '
+            '${details.productID}',
+          );
+        } else {
+          // iOS pending/deferred 는 기존대로 무화면에서 손대지 않는다.
+          logger.i(
+            '[GlobalPurchaseListener] 무화면에서 무시: '
+            '${details.productID} (${details.status})',
+          );
+        }
       case PurchaseStatus.restored:
-        // pending 은 아직 돈이 아니고, restored 는 소비형에서 나오지 않는다.
-        // 어느 쪽도 무화면에서 손댈 이유가 없다 (스토어 화면과 동일).
+        // restored 는 소비형에서 나오지 않으므로 무화면에서 손대지 않는다.
         logger.i(
           '[GlobalPurchaseListener] 무화면에서 무시: '
           '${details.productID} (${details.status})',
@@ -557,6 +587,11 @@ class GlobalPurchaseListener {
     // 항상 참을 보장하지는 않으므로(구현에 따라 다름) `==`를 쓴다 - Dart는
     // 메서드 tear-off의 동등성(`==`)은 "같은 리시버 + 같은 메서드"면 항상
     // 참이라고 보장한다.
+    AnalyticsOutbox.configureCurrencyResolver(null);
+    if (ReceiptQueueService().onSettlementRecovered ==
+        purchaseService.adoptRecoveredSettlement) {
+      ReceiptQueueService().onSettlementRecovered = null;
+    }
     if (ReceiptQueueService().onItemsEvicted == _onQueueItemsEvicted) {
       ReceiptQueueService().onItemsEvicted = null;
     }

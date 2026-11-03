@@ -1,7 +1,27 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_safety_manager.dart';
+
+/// A store plugin that never delivers anything and finishes at once. The
+/// cleanup under test now resolves its platform branch through
+/// `defaultTargetPlatform`, which is `android` in a host test; without this
+/// fake, `InAppPurchase.instance` would register the real Play Billing
+/// implementation and try to open a billing connection on the test host.
+class _IdlePlatform extends InAppPurchasePlatform {
+  final _controller = StreamController<List<PurchaseDetails>>.broadcast();
+
+  @override
+  Stream<List<PurchaseDetails>> get purchaseStream => _controller.stream;
+
+  @override
+  Future<void> completePurchase(PurchaseDetails purchase) => Future.value();
+}
 
 /// Coverage tests targeting remaining uncovered lines in PurchaseSafetyManager:
 /// - _handleSafetyTimeout (lines 78-87) - callback invocation
@@ -15,6 +35,15 @@ void main() {
   late PurchaseSafetyManager manager;
   late int resetCallCount;
 
+  setUpAll(() {
+    // Create the InAppPurchase singleton while no real platform matches, so
+    // nothing registers the Android or StoreKit implementation on the host.
+    debugDefaultTargetPlatformOverride = TargetPlatform.linux;
+    InAppPurchasePlatform.instance = _IdlePlatform();
+    InAppPurchase.instance;
+    debugDefaultTargetPlatformOverride = null;
+  });
+
   setUp(() {
     resetCallCount = 0;
     manager = PurchaseSafetyManager(
@@ -24,23 +53,25 @@ void main() {
   });
 
   group('handleSafetyTimeout triggers reset and callback', () {
-    testWidgets('safety timeout invokes onTimeoutUIReset and resetPurchaseState',
-        (tester) async {
-      bool callbackCalled = false;
-      manager.onTimeoutUIReset = (_) {
-        callbackCalled = true;
-      };
+    testWidgets(
+      'safety timeout invokes onTimeoutUIReset and resetPurchaseState',
+      (tester) async {
+        bool callbackCalled = false;
+        manager.onTimeoutUIReset = (_) {
+          callbackCalled = true;
+        };
 
-      // Use fake async to trigger the timeout
-      // Start timer with short test delay
-      manager.startSafetyTimer();
+        // Use fake async to trigger the timeout
+        // Start timer with short test delay
+        manager.startSafetyTimer();
 
-      // Fast forward time by pumping beyond the safety timeout
-      // The timer is 90 seconds, but we can't easily wait that long
-      // Instead, verify the state is consistent
-      expect(manager.isSafetyTimeoutTriggered, isFalse);
-      manager.disposeSafetyTimer();
-    });
+        // Fast forward time by pumping beyond the safety timeout
+        // The timer is 90 seconds, but we can't easily wait that long
+        // Instead, verify the state is consistent
+        expect(manager.isSafetyTimeoutTriggered, isFalse);
+        manager.disposeSafetyTimer();
+      },
+    );
   });
 
   group('canAttemptPurchaseForProduct expired override removal', () {
@@ -187,11 +218,7 @@ void main() {
 
     testWidgets('success path starts safety timer', (tester) async {
       await manager.handlePurchaseResult(
-        {
-          'success': true,
-          'wasCancelled': false,
-          'errorMessage': null,
-        },
+        {'success': true, 'wasCancelled': false, 'errorMessage': null},
         true,
         (msg) async {},
       );

@@ -50,7 +50,7 @@ class CommentsNotifier extends _$CommentsNotifier {
         created_at,
         updated_at,
         deleted_at,
-        user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
+        user_profiles:user_profiles_public!comments_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
         comment_likes!left(comment_id, user_id, deleted_at),
         post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
@@ -85,7 +85,7 @@ class CommentsNotifier extends _$CommentsNotifier {
         created_at,
         updated_at,
         deleted_at,
-        user_profiles(nickname,avatar_url,created_at,updated_at,deleted_at),
+        user_profiles:user_profiles_public!comments_user_id_fkey(nickname,avatar_url,created_at,updated_at,deleted_at),
         comment_reports!left(comment_id),
         comment_likes!left(comment_id, user_id, deleted_at),
         post:posts(post_id,board_id,title,created_at,updated_at,deleted_at)
@@ -318,7 +318,7 @@ class UserCommentsNotifier extends _$UserCommentsNotifier {
       final response = await supabase
           .from('comments')
           .select('''
-          *, post:posts(*, boards!inner(board_id,name, artist_id, description)), user:user_profiles!comments_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at)
+          *, post:posts(*, boards!inner(board_id,name, artist_id, description)), user:user_profiles_public!comments_user_id_fkey(id,nickname,avatar_url,created_at,updated_at,deleted_at)
           ''')
           .eq('user_id', userId)
           .isFilter('deleted_at', null)

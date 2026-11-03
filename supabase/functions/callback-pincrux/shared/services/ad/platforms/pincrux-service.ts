@@ -1,4 +1,5 @@
 import { BaseAdService } from '../base-ad-service.ts';
+import { getPincruxRewardExpiry } from '../utils/date.ts';
 export class PincruxService extends BaseAdService {
   constructor(secretKey){
     super(secretKey);
@@ -67,15 +68,25 @@ export class PincruxService extends BaseAdService {
     }
   }
   async processTransaction(params) {
-    await this.updateUserReward(params.usrKey, parseInt(params.coin, 10));
-    await this.addRewardHistory(params.usrKey, parseInt(params.coin, 10), params.transid);
+    const rewardAmount = parseInt(params.coin, 10);
+    await this.updateUserReward(params.usrKey, rewardAmount);
+    await this.creditBonus({
+      sourceKey: 'pincrux_reward',
+      operationKey: `pincrux:${params.transid}`,
+      userId: params.usrKey,
+      rewardAmount,
+      referenceType: 'PINCRUX_TRANSACTION',
+      referenceId: params.transid,
+      writer: 'callback-pincrux',
+      bonusExpiresAt: getPincruxRewardExpiry(params.transid)
+    });
     const { error } = await this.supabase.from('transaction_pincrux').insert({
       transaction_id: params.transid,
       app_key: params.appkey,
       pub_key: params.pubkey,
       app_title: params.app_title,
       menu_category1: params.menu_category1,
-      usrKey: params.usrKey
+      usr_key: params.usrKey
     });
     if (error) throw error;
   }

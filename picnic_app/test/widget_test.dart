@@ -5,11 +5,15 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/branch_link_service.dart';
+import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
 
 void main() {
@@ -60,4 +64,151 @@ void main() {
     await tester.pump(const Duration(seconds: 5));
     await tester.pump();
   });
+
+  testWidgets('SDK failure UI retries once despite tap spam and then succeeds',
+      (
+    tester,
+  ) async {
+    final retryCompletion = Completer<void>();
+    final attempts = <bool>[];
+
+    Future<void> initialize({required bool retry}) {
+      attempts.add(retry);
+      if (attempts.length == 1) {
+        return Future<void>.error(StateError('sdk unavailable'));
+      }
+      return retryCompletion.future;
+    }
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: App(
+          startupAttempt: initialize,
+          portalBuilder: (_) => const Text('startup-ready'),
+        ),
+      ),
+    );
+    for (var i = 0;
+        i < 20 &&
+            find
+                .byKey(const Key('initialization-error-screen'))
+                .evaluate()
+                .isEmpty;
+        i++) {
+      await tester.pump();
+    }
+
+    expect(
+      find.byKey(const Key('initialization-error-screen')),
+      findsOneWidget,
+    );
+    final retryButton = find.byKey(const Key('initialization-retry-button'));
+    await tester.tap(retryButton);
+    await tester.tap(retryButton);
+    await tester.tap(retryButton);
+    expect(attempts, [false, true]);
+
+    await tester.pump();
+    expect(find.text('startup-ready'), findsNothing);
+    retryCompletion.complete();
+    for (var i = 0;
+        i < 20 && find.text('startup-ready').evaluate().isEmpty;
+        i++) {
+      await tester.pump();
+    }
+
+    expect(find.text('startup-ready'), findsOneWidget);
+    expect(attempts, [false, true]);
+  });
+
+  testWidgets('late startup completion after App dispose is ignored', (
+    tester,
+  ) async {
+    final completion = Completer<void>();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: App(
+          startupAttempt: ({required retry}) => completion.future,
+          portalBuilder: (_) => const Text('must-not-render'),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    completion.complete();
+    await tester.pump();
+
+    expect(find.text('must-not-render'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Branch handler opens only for a ready healthy Portal', (
+    tester,
+  ) async {
+    final startup = Completer<void>();
+    final container = ProviderContainer();
+    addTearDown(container.dispose);
+    await tester.pumpWidget(
+      UncontrolledProviderScope(
+        container: container,
+        child: App(
+          startupAttempt: ({required retry}) => startup.future,
+          portalBuilder: (_) => const Text('branch-ready-portal'),
+        ),
+      ),
+    );
+    await tester.pump();
+    expect(BranchLinkService.instance.isHandlerReady, isFalse);
+
+    startup.complete();
+    for (var i = 0;
+        i < 20 && find.text('branch-ready-portal').evaluate().isEmpty;
+        i++) {
+      await tester.pump();
+    }
+    await tester.pump();
+    expect(BranchLinkService.instance.isHandlerReady, isTrue);
+
+    container
+        .read(appInitializationProvider.notifier)
+        .updateState(hasNetwork: false);
+    await tester.pump();
+    await tester.pump();
+    expect(BranchLinkService.instance.isHandlerReady, isFalse);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    expect(BranchLinkService.instance.isHandlerReady, isFalse);
+  });
+
+  testWidgets(
+    'Phoenix-style App remount keeps the replacement Branch owner attached',
+    (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      Widget app(Key key, String label) => UncontrolledProviderScope(
+        container: container,
+        child: App(
+          key: key,
+          startupAttempt: ({required retry}) async {},
+          portalBuilder: (_) => Text(label),
+        ),
+      );
+
+      await tester.pumpWidget(app(const ValueKey('old'), 'old-portal'));
+      await tester.pump();
+      await tester.pump();
+      expect(BranchLinkService.instance.isHandlerReady, isTrue);
+
+      // A keyed replacement is inflated before finalizeTree disposes old App.
+      await tester.pumpWidget(app(const ValueKey('new'), 'new-portal'));
+      await tester.pump();
+      expect(find.text('new-portal'), findsOneWidget);
+      expect(BranchLinkService.instance.isHandlerReady, isTrue);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      expect(BranchLinkService.instance.isHandlerReady, isFalse);
+    },
+  );
 }

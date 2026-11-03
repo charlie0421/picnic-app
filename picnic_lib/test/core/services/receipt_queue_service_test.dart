@@ -20,9 +20,11 @@ void main() {
     service = ReceiptQueueService();
     // 싱글턴이라 테스트 간 상태가 새지 않게 프로덕션 기본값으로 되돌린다.
     service.flushInvokeTimeout = PurchaseConstants.verificationTimeout;
+    service.canFlushPendingIntake = null;
   });
 
   tearDown(() {
+    service.canFlushPendingIntake = null;
     tearDownMockSupabase();
   });
 
@@ -110,6 +112,36 @@ void main() {
 
         expect(traceId1, isNot(equals(traceId2)));
       });
+
+      test(
+        'the same purchase token reuses one deterministic queue item',
+        () async {
+          final traceId1 = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'same-purchase-token',
+            productId: 'product-1',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+          final traceId2 = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'same-purchase-token',
+            productId: 'product-1',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          expect(traceId2, traceId1);
+          expect(traceId1, matches(RegExp(r'^android-[0-9a-f]{32}$')));
+
+          final prefs = await SharedPreferences.getInstance();
+          final raw = prefs.getString('receipt_queue_v1');
+          final items = (json.decode(raw!) as List)
+              .cast<Map<String, dynamic>>();
+          expect(items, hasLength(1));
+          expect(items.single['receipt'], 'same-purchase-token');
+        },
+      );
     });
 
     group('removeByClientTraceId', () {
@@ -173,6 +205,211 @@ void main() {
       });
     });
 
+    group('Android pending intake flush gate', () {
+      int verificationRequests() => capturedMockRequests
+          .where((uri) => uri.path.endsWith('/functions/v1/verify-receipt-v2'))
+          .length;
+
+      Future<List<Map<String, dynamic>>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? []
+            : (json.decode(raw) as List).cast<Map<String, dynamic>>();
+      }
+
+      test(
+        'persisted pending rows are never sent while the gate is OFF',
+        () async {
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'pending-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+          service.canFlushPendingIntake = () async => false;
+
+          await service.flushPending();
+
+          expect(verificationRequests(), 0);
+          final queue = await queuedItems();
+          expect(queue, hasLength(1));
+          expect(queue.single['pending_intake'], isTrue);
+          expect(queue.single['attempt'], 0);
+        },
+      );
+
+      test(
+        'a plain purchased re-enqueue must NOT reset the settlement backoff',
+        () async {
+          // Regression: the promotion reset was first written inside the
+          // refreshAndroidSettlement branch, which is true for EVERY Android
+          // purchased enqueue. An owned token is re-enqueued by every
+          // cold-start and 5-minute resume sweep, so the reset wiped the
+          // backoff of a persistently failing settlement on every sweep and
+          // 2 -> 4 -> ... -> 300s could never accumulate.
+          tearDownMockSupabase();
+          setupMockSupabase(
+            {
+              'functions:verify-receipt-v2': {'error': 'UPSTREAM'},
+            },
+            functionStatusCodes: {'functions:verify-receipt-v2': 503},
+          );
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          await service.flushPending();
+          final afterFailure = await queuedItems();
+          expect(afterFailure, hasLength(1));
+          expect(afterFailure.single['attempt'], 1);
+          expect(afterFailure.single['nextAt'], isNot(0));
+
+          // The next sweep re-enqueues the same still-owned token.
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'owned-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+          );
+
+          final afterReEnqueue = await queuedItems();
+          expect(afterReEnqueue, hasLength(1));
+          expect(
+            afterReEnqueue.single['attempt'],
+            1,
+            reason: 'backoff must survive a plain purchased re-enqueue',
+          );
+          expect(afterReEnqueue.single['nextAt'], isNot(0));
+        },
+      );
+
+      test(
+        'a 422 on a pending intake keeps the row so the sweep cannot re-create it',
+        () async {
+          // The Android key is derived from the purchase token, so the row's
+          // existence is what stops the next cold-start/resume sweep from
+          // enqueuing the same token again. Dropping it on 422 would let the
+          // sweep re-intake every five minutes for Play's three-day pending
+          // window.
+          tearDownMockSupabase();
+          setupMockSupabase(
+            {
+              'functions:verify-receipt-v2': {'error': 'PURCHASE_REJECTED'},
+            },
+            functionStatusCodes: {'functions:verify-receipt-v2': 422},
+          );
+          final trace = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'rejected-pending-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+          service.canFlushPendingIntake = () async => true;
+
+          await service.flushPending();
+
+          final afterReject = await queuedItems();
+          expect(afterReject, hasLength(1), reason: 'row must survive the 422');
+          expect(afterReject.single['intake_rejected'], isTrue);
+          expect(verificationRequests(), 1);
+
+          // A second flush must not spend another request on it.
+          await service.flushPending();
+          expect(verificationRequests(), 1);
+          expect(await queuedItems(), hasLength(1));
+
+          // Re-intake from a later sweep joins the surviving row instead of
+          // creating a new one.
+          final again = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'rejected-pending-token',
+            productId: 'STAR100',
+            userId: 'user-1',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+          expect(again, trace);
+          expect(await queuedItems(), hasLength(1));
+        },
+      );
+
+      test('gate lookup exceptions are fail-closed at flush time', () async {
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'pending-token',
+          productId: 'STAR100',
+          userId: 'user-1',
+          environment: 'sandbox',
+          pendingIntake: true,
+        );
+        service.canFlushPendingIntake = () async => throw StateError('offline');
+
+        await service.flushPending();
+
+        expect(verificationRequests(), 0);
+        expect(await queuedItems(), hasLength(1));
+      });
+
+      test(
+        'a later purchased enqueue promotes the same token and can flush',
+        () async {
+          final pendingTrace = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'transition-token',
+            productId: 'STAR100',
+            userId: 'pending-observer',
+            environment: 'sandbox',
+            pendingIntake: true,
+          );
+
+          final purchasedTrace = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'transition-token',
+            productId: 'STAR100',
+            userId: 'wrong-session',
+            environment: 'sandbox',
+          );
+          final ownerRetryTrace = await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'transition-token',
+            productId: 'STAR100',
+            userId: 'settlement-owner',
+            environment: 'production',
+          );
+          service.canFlushPendingIntake = () async => false;
+
+          expect(purchasedTrace, pendingTrace);
+          expect(ownerRetryTrace, pendingTrace);
+          final promoted = await queuedItems();
+          expect(promoted, hasLength(1));
+          expect(promoted.single['pending_intake'], isFalse);
+          expect(promoted.single['user_id'], 'settlement-owner');
+          expect(promoted.single['environment'], 'production');
+          // A promoted row is a NEW request. Backoff accumulated while the
+          // user had not paid yet must not delay the settlement that is now
+          // due (the cap is five minutes).
+          expect(promoted.single['attempt'], 0);
+          expect(promoted.single['nextAt'], 0);
+          expect(promoted.single['intake_rejected'], isFalse);
+
+          await service.flushPending();
+
+          expect(verificationRequests(), 1);
+          expect(await queuedItems(), isEmpty);
+        },
+      );
+    });
+
     group('_loadQueue edge cases', () {
       test('returns empty list when no data in SharedPreferences', () async {
         // flushPending on empty queue should not throw
@@ -199,22 +436,21 @@ void main() {
 
     group('queue growth bound (TTL/count cap)', () {
       Map<String, dynamic> itemAged(String traceId, Duration age) => {
-            'client_trace_id': traceId,
-            'receipt': 'receipt-for-$traceId',
-            'productId': 'STAR100',
-            'user_id': 'user-1',
-            'platform': 'android',
-            'environment': 'sandbox',
-            'format': 'google_play',
-            'attempt': 5,
-            // 아직 도래하지 않은 백오프 - 실제 정산 시도 없이 순수하게
-            // 정리(prune) 로직만 관찰한다.
-            'nextAt': DateTime.now()
-                .add(const Duration(hours: 1))
-                .millisecondsSinceEpoch,
-            'createdAt':
-                DateTime.now().subtract(age).toIso8601String(),
-          };
+        'client_trace_id': traceId,
+        'receipt': 'receipt-for-$traceId',
+        'productId': 'STAR100',
+        'user_id': 'user-1',
+        'platform': 'android',
+        'environment': 'sandbox',
+        'format': 'google_play',
+        'attempt': 5,
+        // 아직 도래하지 않은 백오프 - 실제 정산 시도 없이 순수하게
+        // 정리(prune) 로직만 관찰한다.
+        'nextAt': DateTime.now()
+            .add(const Duration(hours: 1))
+            .millisecondsSinceEpoch,
+        'createdAt': DateTime.now().subtract(age).toIso8601String(),
+      };
 
       Future<List<dynamic>> queuedItems() async {
         final prefs = await SharedPreferences.getInstance();
@@ -224,8 +460,7 @@ void main() {
             : json.decode(raw) as List<dynamic>;
       }
 
-      test(
-          'flushPending drops entries older than receiptQueueMaxAge, keeps '
+      test('flushPending drops entries older than receiptQueueMaxAge, keeps '
           'fresh ones', () async {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(
@@ -253,8 +488,7 @@ void main() {
         );
       });
 
-      test(
-          'flushPending caps total entries at receiptQueueMaxEntries, '
+      test('flushPending caps total entries at receiptQueueMaxEntries, '
           'evicting the oldest first', () async {
         final seedCount = PurchaseConstants.receiptQueueMaxEntries + 3;
         final seeded = List.generate(
@@ -280,10 +514,8 @@ void main() {
         );
       });
 
-      test(
-          'overflow eviction goes by actual createdAt, not list position - '
-          'a stray old entry out of order is still the one dropped',
-          () async {
+      test('overflow eviction goes by actual createdAt, not list position - '
+          'a stray old entry out of order is still the one dropped', () async {
         // 리스트 순서와 실제 나이가 어긋난 상황(동시 쓰기·복구된 데이터
         // 등)을 흉내낸다: 목록의 첫 항목이 오히려 가장 최근이고, 목록
         // 중간의 항목이 실제로는 가장 오래됐다.
@@ -350,42 +582,43 @@ void main() {
         );
       });
 
-      test('onItemsEvicted fires when pruning actually drops entries',
-          () async {
-        var evictedCallCount = 0;
-        service.onItemsEvicted = () => evictedCallCount++;
-        addTearDown(() => service.onItemsEvicted = null);
+      test(
+        'onItemsEvicted fires when pruning actually drops entries',
+        () async {
+          var evictedCallCount = 0;
+          service.onItemsEvicted = () => evictedCallCount++;
+          addTearDown(() => service.onItemsEvicted = null);
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString(
-          'receipt_queue_v1',
-          json.encode([
-            itemAged(
-              'stale',
-              PurchaseConstants.receiptQueueMaxAge + const Duration(days: 1),
-            ),
-          ]),
-        );
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(
+            'receipt_queue_v1',
+            json.encode([
+              itemAged(
+                'stale',
+                PurchaseConstants.receiptQueueMaxAge + const Duration(days: 1),
+              ),
+            ]),
+          );
 
-        await service.flushPending();
+          await service.flushPending();
 
-        expect(
-          evictedCallCount,
-          1,
-          reason:
-              '잘려나간 항목의 실제 결제 복구는 다음 콜드스타트/재개까지 '
-              '기다리지 않고, 이 콜백을 통해 즉시 리컨사일을 걸 수 있어야 '
-              '한다',
-        );
-      });
+          expect(
+            evictedCallCount,
+            1,
+            reason:
+                '잘려나간 항목의 실제 결제 복구는 다음 콜드스타트/재개까지 '
+                '기다리지 않고, 이 콜백을 통해 즉시 리컨사일을 걸 수 있어야 '
+                '한다',
+          );
+        },
+      );
 
       // Codex Frontier 리뷰 지적 (PR #137): enqueue()가 새 항목을 더한 뒤
       // 상한을 다시 넘는 극단적 상황을 방어하려고 sublist(overflow)로 한 번
       // 더 잘라내는데, 이 경로는 onItemsEvicted를 호출하지 않았다. 그러면
       // 잘린 결제의 회수용 리컨사일이 즉시 걸리지 않고 다음 콜드스타트/
       // 재개까지 미뤄진다 - _pruneStale의 정리와 같은 보장을 못 받는다.
-      test(
-          'onItemsEvicted also fires when enqueue itself has to trim the '
+      test('onItemsEvicted also fires when enqueue itself has to trim the '
           'freshly-added item back down to the cap', () async {
         var evictedCallCount = 0;
         service.onItemsEvicted = () => evictedCallCount++;
@@ -410,7 +643,8 @@ void main() {
         expect(
           evictedCallCount,
           1,
-          reason: '_pruneStale 경로와 동일하게, 이 트림도 실제로 항목을 '
+          reason:
+              '_pruneStale 경로와 동일하게, 이 트림도 실제로 항목을 '
               '잘라냈으니 즉시 리컨사일을 걸 수 있어야 한다',
         );
       });
@@ -431,7 +665,8 @@ void main() {
         expect(
           evictedCallCount,
           0,
-          reason: '아무것도 안 잘렸는데 매번 리컨사일을 걸면 정상적인 '
+          reason:
+              '아무것도 안 잘렸는데 매번 리컨사일을 걸면 정상적인 '
               '연속 구매마다 불필요한 스토어 조회가 발생한다',
         );
       });
@@ -446,8 +681,7 @@ void main() {
             : json.decode(raw) as List<dynamic>;
       }
 
-      test(
-          'two concurrent enqueue calls for different receipts both survive '
+      test('two concurrent enqueue calls for different receipts both survive '
           '(no lost update)', () async {
         // await 없이 동시에 호출한다 - 실제 구매 도중 enqueue 가, 다른
         // 스레드가 아니라 같은 이벤트 루프에서 겹치는 상황(예: 연속
@@ -480,8 +714,7 @@ void main() {
         );
       });
 
-      test(
-          'enqueue racing with _dropItem (as flushPending would call it) '
+      test('enqueue racing with _dropItem (as flushPending would call it) '
           'does not lose the new enqueue', () async {
         final existingTraceId = await service.enqueue(
           platform: ReceiptQueueService.platformAndroid,
@@ -506,7 +739,8 @@ void main() {
         expect(
           items.map((e) => e['productId']),
           contains('new-product'),
-          reason: '동시에 진행 중인 제거 작업이 새로 적재된 영수증까지 '
+          reason:
+              '동시에 진행 중인 제거 작업이 새로 적재된 영수증까지 '
               '함께 지워서는 안 된다',
         );
         expect(
@@ -549,8 +783,9 @@ void main() {
       test('skips items whose nextAt has not been reached', () async {
         // Manually enqueue an item with a future nextAt
         final prefs = await SharedPreferences.getInstance();
-        final futureNextAt =
-            DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch;
+        final futureNextAt = DateTime.now()
+            .add(const Duration(hours: 1))
+            .millisecondsSinceEpoch;
         final items = [
           {
             'client_trace_id': 'test-trace-id',
@@ -570,8 +805,8 @@ void main() {
 
         // Item should still be in queue (not yet time to send)
         final raw = prefs.getString('receipt_queue_v1');
-        final remaining =
-            (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        final remaining = (json.decode(raw!) as List)
+            .cast<Map<String, dynamic>>();
         expect(remaining.length, 1);
         expect(remaining[0]['client_trace_id'], 'test-trace-id');
       });
@@ -582,8 +817,9 @@ void main() {
         });
 
         final prefs = await SharedPreferences.getInstance();
-        final pastNextAt =
-            DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch;
+        final pastNextAt = DateTime.now()
+            .subtract(const Duration(hours: 1))
+            .millisecondsSinceEpoch;
         final items = [
           {
             'client_trace_id': 'test-trace-id',
@@ -602,8 +838,8 @@ void main() {
         await service.flushPending();
 
         final raw = prefs.getString('receipt_queue_v1');
-        final remaining =
-            (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        final remaining = (json.decode(raw!) as List)
+            .cast<Map<String, dynamic>>();
         // Successful send should remove from queue
         expect(remaining, isEmpty);
       });
@@ -625,49 +861,76 @@ void main() {
 
         final prefs = await SharedPreferences.getInstance();
         final raw = prefs.getString('receipt_queue_v1');
-        final remaining =
-            (json.decode(raw!) as List).cast<Map<String, dynamic>>();
+        final remaining = (json.decode(raw!) as List)
+            .cast<Map<String, dynamic>>();
         expect(remaining, isEmpty);
       });
     });
 
     group('flushPending wallet.v1 success', () {
-      test('wallet.v1 settlement response (success 키 없음) removes item',
-          () async {
-        setupMockSupabase({
-          'functions:verify-receipt-v2': {
-            'contract_version': 'wallet.v1',
-            'operation_id': '00000000-0000-4000-8000-000000000001',
-            'replayed': true,
-            'base_star_amount': '100',
-            'base_bonus_amount': '0',
-            'promotion': null,
-            'wallet': {},
-          },
-        });
+      test(
+        'wallet.v1 settlement response (success 키 없음) removes item',
+        () async {
+          setupMockSupabase({
+            'functions:verify-receipt-v2': {
+              'contract_version': 'wallet.v1',
+              'operation_id': '00000000-0000-4000-8000-000000000001',
+              'replayed': true,
+              'base_star_amount': '100',
+              'base_bonus_amount': '0',
+              // 큐는 이제 이 본문을 파싱해 analytics 로 넘긴 뒤에만 항목을
+              // 제거한다 — 계약을 만족하는 본문이어야 성공 경로가 된다.
+              'promotion': {
+                'resolution_id': '00000000-0000-4000-8000-000000000611',
+                'state': 'ELIGIBLE',
+                'campaign_version_id': null,
+                'promo_bonus_amount': '0',
+                'domain_code': null,
+              },
+              'wallet': {
+                'contract_version': 'wallet.v1',
+                'star': '100',
+                'bonus': '0',
+                'cotton': '0',
+                'cotton_expiring_amount': '0',
+                'cotton_next_expires_at': null,
+                'snapshot_at': '2026-08-24T00:00:00.000Z',
+              },
+            },
+          });
+          service.onSettlementRecovered =
+              (
+                settlement, {
+                required String storeProductId,
+                required String? clientObservedCurrency,
+              }) async => true;
+          addTearDown(() => service.onSettlementRecovered = null);
 
-        await service.enqueue(
-          platform: ReceiptQueueService.platformAndroid,
-          receipt: 'test-receipt',
-          productId: 'test-product',
-          userId: 'test-user',
-          environment: 'sandbox',
-        );
+          await service.enqueue(
+            platform: ReceiptQueueService.platformAndroid,
+            receipt: 'test-receipt',
+            productId: 'test-product',
+            userId: 'test-user',
+            environment: 'sandbox',
+          );
 
-        await service.flushPending();
+          await service.flushPending();
 
-        final prefs = await SharedPreferences.getInstance();
-        final raw = prefs.getString('receipt_queue_v1');
-        final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
-        expect(items, isEmpty);
-      });
+          final prefs = await SharedPreferences.getInstance();
+          final raw = prefs.getString('receipt_queue_v1');
+          final items = (json.decode(raw!) as List)
+              .cast<Map<String, dynamic>>();
+          expect(items, isEmpty);
+        },
+      );
     });
 
     group('flushPending non-2xx handling', () {
-      // verify-receipt-v2 는 409 를 반환하지 않는다(엔진 grep 0건). 죽은
-      // 제거 분기를 없앤 뒤에는 409 도 "정체 불명의 실패" = 유지 + 백오프다.
-      // 지급 확정 여부를 알 수 없는 응답으로 과금된 영수증의 유일한 durable
-      // 기록을 지우지 않는 쪽이 안전한 기본값이다.
+      // verify-receipt-v2 는 v33(2026-10-21)부터 이미 지급된 구매가 다시 오면
+      // 409 + `grant_confirmed: true` 로 답한다. 큐는 이 구조화된 필드만
+      // 제거 신호로 쓴다. 필드가 없는 옛 형식 409 는 지급 확정 여부를 알 수
+      // 없으므로 유지 + 백오프다 — 그런 응답으로 과금된 영수증의 유일한
+      // durable 기록을 지우지 않는 쪽이 안전한 기본값이다.
       test('409(지급 확정 문구)는 더 이상 제거 신호가 아니다 - 유지 + 백오프', () async {
         setupMockSupabase(
           {
@@ -724,6 +987,116 @@ void main() {
         final items = (json.decode(raw!) as List).cast<Map<String, dynamic>>();
         expect(items.length, 1);
         expect(items[0]['attempt'], 1);
+      });
+
+      // verify-receipt-v2 v33 의 실제 409 본문(이미 지급된 레거시 구매).
+      const grantedConflictBody = {
+        'error': 'PURCHASE_ALREADY_GRANTED',
+        'retryable': false,
+        'grant_confirmed': true,
+      };
+
+      int verificationRequests() => capturedMockRequests
+          .where((uri) => uri.path.endsWith('/functions/v1/verify-receipt-v2'))
+          .length;
+
+      Future<List<Map<String, dynamic>>> queuedItems() async {
+        final prefs = await SharedPreferences.getInstance();
+        final raw = prefs.getString('receipt_queue_v1');
+        return raw == null || raw.isEmpty
+            ? []
+            : (json.decode(raw) as List).cast<Map<String, dynamic>>();
+      }
+
+      test(
+        '409 + grant_confirmed:true 는 지급 확정 중복이다 - 제거하고 다시 보내지 않는다',
+        () async {
+          // 서버가 "이미 지급까지 끝난 구매"라고 확인한 답이다. 남겨 두면 앱을
+          // 열 때마다 같은 409 를 다시 받는다(PICNIC-3006 운영 관측: 같은
+          // 영수증으로 409 8회). 적립·정산 본문이 없으므로 매출 인계도 없다.
+          setupMockSupabase(
+            {'functions:verify-receipt-v2': grantedConflictBody},
+            functionStatusCodes: {'functions:verify-receipt-v2': 409},
+          );
+          var handOffs = 0;
+          service.onSettlementRecovered =
+              (
+                settlement, {
+                required String storeProductId,
+                required String? clientObservedCurrency,
+              }) async {
+                handOffs++;
+                return true;
+              };
+          addTearDown(() => service.onSettlementRecovered = null);
+
+          await service.enqueue(
+            platform: ReceiptQueueService.platformIOS,
+            receipt: 'legacy-receipt-without-app-account-token',
+            productId: 'STAR100',
+            userId: 'test-user',
+            environment: 'sandbox',
+          );
+
+          await service.flushPending();
+          await service.flushPending();
+
+          expect(await queuedItems(), isEmpty);
+          expect(verificationRequests(), 1, reason: '제거한 항목은 다시 보내지 않는다');
+          expect(handOffs, 0, reason: '409 에는 넘길 정산이 없다');
+        },
+      );
+
+      test('409 + grant_confirmed:false 는 유지 + 백오프', () async {
+        setupMockSupabase(
+          {
+            'functions:verify-receipt-v2': {
+              'error': 'PURCHASE_CONFLICT',
+              'grant_confirmed': false,
+            },
+          },
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
+        );
+
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'test-receipt',
+          productId: 'test-product',
+          userId: 'test-user',
+          environment: 'sandbox',
+        );
+
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items, hasLength(1));
+        expect(items.single['attempt'], 1);
+      });
+
+      test('pending 접수 행이 409 지급 확정을 받으면 행을 남기고 재전송을 멈춘다', () async {
+        // 422 와 같은 이유다: Android 키는 구매 토큰에서 결정적으로 나오므로
+        // 행이 남아 있어야 다음 스윕이 같은 토큰을 다시 접수하지 않는다.
+        setupMockSupabase(
+          {'functions:verify-receipt-v2': grantedConflictBody},
+          functionStatusCodes: {'functions:verify-receipt-v2': 409},
+        );
+        await service.enqueue(
+          platform: ReceiptQueueService.platformAndroid,
+          receipt: 'granted-pending-token',
+          productId: 'STAR100',
+          userId: 'user-1',
+          environment: 'sandbox',
+          pendingIntake: true,
+        );
+        service.canFlushPendingIntake = () async => true;
+
+        await service.flushPending();
+        await service.flushPending();
+
+        final items = await queuedItems();
+        expect(items, hasLength(1), reason: 'row must survive the 409');
+        expect(items.single['intake_rejected'], isTrue);
+        expect(verificationRequests(), 1);
       });
 
       // 헬퍼 자체는 남는다: 레거시 verify_receipt(v162)의 409 를 만나는
@@ -844,7 +1217,7 @@ void main() {
       });
     });
 
-    group('_generateClientTraceId', () {
+    group('Android deterministic client trace ID', () {
       test('generated trace IDs have expected format', () async {
         final traceId = await service.enqueue(
           platform: ReceiptQueueService.platformAndroid,
@@ -854,12 +1227,7 @@ void main() {
           environment: 'e',
         );
 
-        expect(traceId, startsWith('android-'));
-        final parts = traceId.split('-');
-        // android-<timestamp>-<hexRandom>
-        expect(parts.length, greaterThanOrEqualTo(3));
-        // Timestamp part should be a valid number
-        expect(int.tryParse(parts[1]), isNotNull);
+        expect(traceId, matches(RegExp(r'^android-[0-9a-f]{32}$')));
       });
     });
   });
@@ -907,8 +1275,11 @@ void main() {
 
       await authService.flushPending();
 
-      expect(refreshCalls(), greaterThanOrEqualTo(1),
-          reason: '401 이면 refresh_token 갱신이 일어나야 한다');
+      expect(
+        refreshCalls(),
+        greaterThanOrEqualTo(1),
+        reason: '401 이면 refresh_token 갱신이 일어나야 한다',
+      );
       expect(verifyCalls(), 2, reason: '401 1회 + 갱신 후 재시도 1회');
 
       final prefs = await SharedPreferences.getInstance();

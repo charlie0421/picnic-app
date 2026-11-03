@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Duo·Fold8 상세 화면 UI 점검</title>
+<style>body{font-family:system-ui,sans-serif;line-height:1.65;max-width:1000px;margin:36px auto;padding:0 20px;color:#20252c}h1{font-size:28px}h2{margin-top:32px}table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid #dce1e7;text-align:left;padding:10px;vertical-align:top}th{background:#f3f5f8}code{overflow-wrap:anywhere;background:#f2f4f7}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f4f7;padding:16px}figure{margin:18px 0}img{max-width:100%;height:auto;border:1px solid #dce1e7}a{color:#245fc2}.note{padding:16px;background:#f2f5fa;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px}</style></head><body>
+<h1>Duo·Fold8 상세 화면 UI 점검</h1><p>2026-10-29 · 기존 한 열 구성 · 최대 본문 폭 600 · 글자 배율 최대 2.6</p>
+<p><a href="#device-qa">내부 테스터용 Fold8 실기기 확인 절차</a> · <a href="2026-10-29-foldable-ui-extended.html">이전 점검 보고서</a></p>
+<p class="note">고객문의 상세·입력·첨부 삭제, 달성형 투표, 제휴 투표 입력을 점검했다. 커뮤니티·댓글은 제외했다. 검증에는 로컬 데이터와 서비스 대역을 사용했다. 실제 문의·투표 전송, 결제, 광고 요청은 실행하지 않았다.</p>
+<h2>확인한 문제와 수정</h2>
+<table><thead><tr><th>영역</th><th>재현 조건</th><th>수정</th></tr></thead><tbody>
+<tr><td>고객문의 입력</td><td>좁거나 낮은 창, 글자 2.6배, 키보드 표시. 안내문과 분류명이 고정 공간을 차지해 본문·입력 영역이 최대 154px 넘쳤다.</td><td>분류명을 대화 목록에서 스크롤한다. 입력 영역은 사용 가능한 본문 높이의 최대 60%로 제한하고, 안내·첨부·입력을 스크롤할 수 있게 했다. 입력란은 아래쪽에서 바로 접근한다.</td></tr>
+<tr><td>고객문의 오류·첨부</td><td>큰 글씨에서 오류 안내와 재시도 버튼이 최대 95px 넘쳤다. 첨부 미리보기와 입력을 함께 표시하면 최대 101px 넘쳤다.</td><td>오류 화면과 입력 영역에 스크롤을 제공한다. 재시도·첨부 삭제·전송 버튼의 접근성을 테스트했다. 실제 전송은 하지 않았다.</td></tr>
+<tr><td>달성형 투표</td><td>긴 제목·큰 글씨에서 고정 헤더가 최대 580px 넘쳐 보상 목록에 접근하지 못했다.</td><td>제목·후보·보상 목록을 같은 페이지에서 스크롤한다. 당겨서 새로고침과 투표 폴링을 유지한다. 숫자 애니메이션의 중첩 스크롤 알림은 페이지 폴링 제어에서 제외한다.</td></tr>
+<tr><td>달성 목표 숫자</td><td>글자 2.6배에서 123,456,789가 고정 50px 높이를 벗어나 잘렸다.</td><td>실제 글꼴·배율로 목표 숫자 높이를 측정해 단계 높이를 늘린다. 진행 막대에도 같은 단계 높이를 적용한다. 숫자는 생략하거나 축소하지 않는다. 큰 글씨의 긴 숫자는 여러 줄로 표시한다.</td></tr>
+<tr><td>제휴 투표 입력</td><td>키보드가 표시된 상태의 창 크기 전환.</td><td>위젯 검증 18개에서 입력값과 커서가 유지됐다. 화면 코드의 추가 수정은 없었다.</td></tr>
+</tbody></table>
+<h2>검증 결과</h2><div id="verification"><table><thead><tr><th>검증</th><th>결과</th></tr></thead><tbody><tr><td>신규 위젯 검증</td><td>92개 통과. 320×600·800×600·600×400, 글자 1·2.6배, 한국어·영어·스페인어. 문의 초안·종료·재시도 54개, 첨부 버튼 1개, 긴 문의의 분류명 접근 1개, 달성형·제휴 36개.</td></tr><tr><td>관련 전체 회귀</td><td>신규 92개를 포함해 474개 통과, 기존 skip 1개. QnA 생명주기·전송 가드, 달성형 새로고침·폴링·탭·로딩 기하를 포함한다. skip은 기존 <code>timer ticks for countdown</code> 테스트다. 저장소 전체 테스트 실행은 아니다.</td></tr><tr><td>Duo iOS 27.1 Simulator</td><td>시나리오 1개 통과. 466×678 → 951×669 문의 펼침, 반대 방향 제휴 입력 접힘. 실제 OS 키보드, 초안·커서 유지, 입력란 위치 확인. 글자 2.6배.</td></tr><tr><td>Android API 35 에뮬레이터</td><td>시나리오 1개 통과. 400×640 → 800×600 문의 펼침, 반대 방향 제휴 입력 접힘. 실제 OS 키보드, 초안·커서 유지, 입력란 위치 확인. 글자 2.6배.</td></tr><tr><td>정적 분석</td><td>변경 화면·헬퍼·신규 테스트의 분석 통과.</td></tr><tr><td>독립 리뷰</td><td id="review-result">Claude Opus 5.5/high의 독립 리뷰와 1회 재검토 통과. 최초 Medium 1건·Low 7건 중 7건 수정, 분류명 위치 변경 1건은 읽기·스크롤 검증 근거로 수용됐다. 차단 이슈 없음.</td></tr></tbody></table><p>첫 네이티브 실행은 제휴 입력 포맷터 처리 전에 커서를 설정해 커서 검증이 실패했다. 포맷터 처리 후 커서를 설정하고, 전환 직전 위치를 검증하도록 테스트를 고쳤다. 이후 두 플랫폼에서 통과했다.</p></div>
+<p>독립 리뷰 후에는 테스트 보강과 글자 높이 측정의 중복 제거를 적용했다. 최종 위젯·회귀 검증은 이 변경을 포함한다. 네이티브 화면 증거는 측정 중복 제거 직전 실행에서 수집했다.</p><h2>검증 범위의 한계</h2>
+<ul><li>Duo는 iOS 27.1 Simulator를 사용한다. Galaxy Fold8은 Android API 35 에뮬레이터에서 커버 400×640과 펼침 800×600 비율을 재현한다. 실제 Fold8 하드웨어·One UI 결과로 해석하지 않는다.</li><li>사용자 확인: Duo 실기기는 확보할 수 없다. 현재 확보 가능한 검증 범위는 시뮬레이터·자동화 테스트이며, Duo 실기기 호환성을 확인했다고 표시하지 않는다. Duo 실기기 확보를 이번 작업의 필수 대기 조건으로 두지 않는다.</li><li>사용자 확인: 내부 테스터가 Galaxy Fold8 실기기를 보유한다. 실기기 결과는 아직 받지 않았다. 아래 절차로 One UI·키보드·접기 전환을 확인한다. 앞선 자동화 실행 당시 연결된 SM-G781N(Android 13)은 변경하지 않았다.</li><li>첨부 검증은 선택된 파일의 미리보기·삭제 UI를 포함한다. OS 사진 선택기의 권한 전환, 실제 파일 업로드, 영상 재생·전체 화면 이미지 탐색의 폴드 전환은 이번 검증에 포함하지 않았다.</li><li>실제 문의·투표·결제·광고 기능의 서버 통합은 별도 검증이 필요하다.</li></ul>
+<section id="device-qa">
+<h2>내부 테스터용 Fold8 실기기 확인 절차</h2>
+<p class="note"><strong>현재 상태:</strong> 실기기 보유 확인 · 내부 베타 배포 후 테스터가 진행한다. 문제가 발견되면 사용자가 별도 Jira 이슈를 만든다. 테스트 빌드와 테스터 결과는 아직 확인하지 않았다. 아래 항목은 수행할 절차이며, 통과 결과가 아니다. Duo는 확보 가능한 시뮬레이터 검증 범위로 관리한다.</p>
+<h3>시작 전 기록</h3>
+<ul><li>기기 모델명, Android·One UI 버전, 앱 버전·빌드번호, 설치 경로를 기록한다.</li><li>앱 빌드에 <code>PR #303</code>의 UI 수정이 포함됐는지 빌드 소스 커밋과 PR의 최종 병합 커밋으로 확인한다. 버전·빌드번호만으로 포함 여부를 추정하지 않는다. 기존 기록의 <code>510bdfb14</code>는 rebase 전 검증 커밋이다. 기존 자동화용 테스트 앱이 아닌 일반 앱 진입점으로 빌드한 Picnic 앱을 사용한다.</li><li>키보드 종류, 글자 크기, 화면 확대 설정, 접은 뒤 커버 화면에서 앱을 이어 쓰는 설정 상태를 기록한다.</li><li>답변이 있는 테스트용 고객문의와 달성형·제휴 투표 데이터를 준비한다. 필요한 데이터가 없으면 해당 항목은 미실행으로 기록한다.</li></ul>
+<p>일반 글자 크기로 확인한 뒤 큰 글자·화면 확대 조건에서도 확인한다. OS 설정 단계와 앱의 글자 배율 2.6을 같은 값으로 간주하지 않는다. 각 항목은 통과·실패·미실행 중 하나로 기록한다. 이 절차는 UI 점검이며 실제 문의 전송·투표 확정·결제는 포함하지 않는다.</p>
+<table><thead><tr><th>항목</th><th>테스터 행동</th><th>기대 결과</th></tr></thead><tbody>
+<tr><td>1. 주요 화면</td><td>홈·투표·충전·마이페이지를 접힌 화면과 펼친 화면에서 연다.</td><td>기존 한 열 구성이 유지된다. 본문·버튼·하단 메뉴가 겹치거나 화면 밖으로 밀리지 않는다.</td></tr>
+<tr><td>2. 고객문의 입력</td><td>고객문의 답변 입력란에 초안을 입력한다. 커서를 문장 중간에 둔다. 키보드를 띄운 상태로 펼친다. 다시 접는다.</td><td>앱을 이어 쓰는 설정에서 초안과 커서가 유지된다. 입력란과 전송 버튼에 접근할 수 있다. 긴 안내문은 스크롤해서 읽을 수 있다. 화면이 꺼지는 OS 동작은 앱 레이아웃 오류와 구분해 기록한다.</td></tr>
+<tr><td>3. 문의 첨부·종료</td><td>테스트 이미지 선택 화면을 연다. 이미지를 선택하거나 선택을 취소한다. 선택한 첨부를 삭제한다. 종료된 문의를 연다.</td><td>선택·취소 후 앱 화면으로 돌아온다. 미리보기와 삭제 버튼에 접근할 수 있다. 종료 안내를 읽을 수 있고 입력은 차단된다. 파일은 전송하지 않는다.</td></tr>
+<tr><td>4. 문의 로딩 오류</td><td>테스트용 데이터에서 로딩 실패를 재현할 수 있으면 오류 화면을 연다. 초안을 입력한다. 연결 복구 후 재시도를 누른다.</td><td>오류 안내와 재시도 버튼에 접근할 수 있다. 재시도 후 초안이 유지된다. 재현하지 못하면 통과 대신 미실행으로 기록한다.</td></tr>
+<tr><td>5. 달성형 투표</td><td>제목이 긴 달성형 투표를 연다. 목표 숫자와 보상 목록까지 스크롤한다. 접기·펼치기 후 화면을 확인한다.</td><td>제목 때문에 목록에 접근하지 못하는 현상이 없다. 목표 숫자의 모든 자릿수를 읽을 수 있다. 큰 글씨에서 줄바꿈은 허용하지만 잘림·겹침은 없어야 한다. 진행 막대와 단계 표시가 어긋나지 않는다.</td></tr>
+<tr><td>6. 제휴 투표 입력</td><td>제휴 투표 입력창을 연다. 수량을 입력한 뒤 커서를 중간에 둔다. 키보드가 열린 상태로 접고 펼친다. 확정하지 않고 닫는다.</td><td>입력 수량과 커서가 유지된다. 키보드가 입력란·닫기 동작을 가리지 않는다.</td></tr>
+<tr><td>7. 회전·분할 화면</td><td>고객문의와 투표 화면에서 지원되는 가로 화면 또는 분할 화면으로 전환한다. 원래 크기로 복귀한다.</td><td>짧은 화면에서도 필요한 내용과 버튼에 스크롤로 접근할 수 있다. 복귀 후 화면이 비거나 겹치지 않는다. 지원하지 않는 모드는 미실행으로 기록한다.</td></tr>
+<tr><td>8. 앱 복귀</td><td>초안 입력 중 홈 화면으로 이동한다. 기기를 접거나 펼친다. 최근 앱에서 Picnic으로 복귀한다.</td><td>앱 프로세스가 유지된 상태에서 화면과 초안이 유지된다. 새로 시작한 경우에는 종료·재실행 여부를 따로 기록한다.</td></tr>
+</tbody></table>
+<h3>결과를 전달할 때</h3>
+<p>빌드·기기 정보를 함께 적는다. 실패한 항목은 접힘/펼침 상태, 키보드·글자 크기, 재현 순서, 기대 결과와 실제 결과를 기록한다. 가능하면 문제 전후 화면 녹화 또는 스크린샷을 첨부한다. 테스트용 데이터를 사용하고 계정 정보가 화면에 노출되지 않게 한다.</p>
+<pre>앱 버전 / 빌드번호 / 수정 커밋 포함 여부:
+기기 모델 / Android / One UI:
+키보드 / 글자 크기 / 화면 확대 / 커버 화면 앱 연속 사용 설정:
+항목별 결과(1~8, 통과·실패·미실행):
+실패 재현 순서 / 기대 결과 / 실제 결과:
+화면 자료:
+미실행 항목과 이유:</pre>
+<p>내부 테스터의 결과를 받은 뒤 실기기 검증 상태를 갱신한다. 현재 시뮬레이터·에뮬레이터 결과를 실기기 통과로 대체하지 않는다.</p>
+</section>
+<section id="merge-verification"><h2>PR #303 병합 전 재검증</h2>
+<p>2026-10-29 · 최신 <code>main</code>(<code>446d8d048</code>)을 충돌 없이 반영했다. 기존 구현과 비교한 실행 코드 차이는 main의 기존 앱 빌드번호뿐이다. 배포 태그·신규 빌드는 생성하지 않았다. 다음 내부 베타 후 Fold8 실기기 QA를 진행한다.</p>
+<table><thead><tr><th>대상</th><th>결과</th></tr></thead><tbody><tr><td>Picnic 앱 전체 테스트</td><td>70개 통과.</td></tr><tr><td>TTJA 전체 테스트</td><td>1개 통과.</td></tr><tr><td>공통 라이브러리 전체 테스트</td><td>17,207개 통과 · 13개 실패 · 6개 건너뜀. 전체 실행 종료 코드는 1이다. 실패 13건은 기존 기준 실행과 같은 항목이다. 12개 golden 테스트의 이미지 비교 13개는 차이 비율·픽셀 수가 모두 기준 실행과 같다. 나머지 1건은 기존 번역 checksum 검사다. 새 실패 항목은 없다. 전체 통과로 표시하지 않는다.</td></tr><tr><td>변경 Dart 파일 정적 분석</td><td>60개 파일, 문제 없음(공통 49·Picnic 10·TTJA 1).</td></tr></tbody></table>
+<p>각 패키지에서 <code>flutter test --no-pub --reporter expanded</code>를 실행했다. 공통 라이브러리에는 <code>--concurrency 4</code>를 적용했다. 네이티브 검증은 앞선 결과를 유지하며 이번 병합 단계에서 재실행하지 않았다.</p>
+<details><summary>병합 전 실행 로그 SHA256</summary><pre>picnic-fold-merge-lib-tests.log
+565622ba3cfd8dad590740009a32854efa5a24bffecc8a37e877e323ad8337c1
+picnic-fold-merge-app-tests.log
+bb4b9b07e49372b955330e49e02a3ee7ea49288555fdd003ab003d8da537b531
+picnic-fold-merge-ttja-tests.log
+a27f0a71d59945b98bf9e78871391803f3afb379c8214aeafde0ba54e39d0cae</pre></details></section>
+<h2>화면 증거</h2><div id="captures" class="grid"><figure><a href="2026-10-29-foldable-detail-ui-assets/duo-detail-qna-before.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/duo-detail-qna-before.png" alt="Duo iOS Simulator 접힘 · 고객문의 · OS 키보드"></a><figcaption>Duo iOS Simulator — 접힘 · 고객문의 · OS 키보드</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/duo-detail-qna-after.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/duo-detail-qna-after.png" alt="Duo iOS Simulator 펼침 · 고객문의 · OS 키보드"></a><figcaption>Duo iOS Simulator — 펼침 · 고객문의 · OS 키보드</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/duo-detail-partner-after.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/duo-detail-partner-after.png" alt="Duo iOS Simulator 접힘 · 제휴 투표 입력"></a><figcaption>Duo iOS Simulator — 접힘 · 제휴 투표 입력</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/duo-detail-achievement.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/duo-detail-achievement.png" alt="Duo iOS Simulator 달성형 목표 숫자 · 2.6배"></a><figcaption>Duo iOS Simulator — 달성형 목표 숫자 · 2.6배</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/android-detail-qna-before.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/android-detail-qna-before.png" alt="Fold8 비율 Android 에뮬레이터 접힘 · 고객문의 · OS 키보드"></a><figcaption>Fold8 비율 Android 에뮬레이터 — 접힘 · 고객문의 · OS 키보드</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/android-detail-qna-after.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/android-detail-qna-after.png" alt="Fold8 비율 Android 에뮬레이터 펼침 · 고객문의 · OS 키보드"></a><figcaption>Fold8 비율 Android 에뮬레이터 — 펼침 · 고객문의 · OS 키보드</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/android-detail-partner-after.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/android-detail-partner-after.png" alt="Fold8 비율 Android 에뮬레이터 접힘 · 제휴 투표 입력"></a><figcaption>Fold8 비율 Android 에뮬레이터 — 접힘 · 제휴 투표 입력</figcaption></figure><figure><a href="2026-10-29-foldable-detail-ui-assets/android-detail-achievement.png"><img loading="lazy" src="2026-10-29-foldable-detail-ui-assets/android-detail-achievement.png" alt="Fold8 비율 Android 에뮬레이터 달성형 목표 숫자 · 2.6배"></a><figcaption>Fold8 비율 Android 에뮬레이터 — 달성형 목표 숫자 · 2.6배</figcaption></figure></div>
+<h2>재실행</h2><pre>cd picnic_lib
+flutter test test/presentation/layout/detail_ui_foldable_test.dart test/presentation/layout/vote_variants_foldable_test.dart test/presentation/pages/my_page/qna test/presentation/pages/vote/vote_detail_achieve_page*_test.dart
+
+cd ../picnic_app
+flutter test integration_test/device/detail_ui_device_test.dart -d &lt;owned-device-id&gt; --dart-define=VERIFY_FOLD_TRANSITION=true</pre><p>네이티브 검증은 로그의 RESIZE 신호에 맞춰 실제 시뮬레이터/에뮬레이터 창을 접거나 펼쳐야 한다. 테스트는 크기 전환, OS 키보드, 입력값, 커서, 입력란 위치를 확인한다. 본문 HTML에는 이미지를 내장하지 않는다.</p>
+</body></html>

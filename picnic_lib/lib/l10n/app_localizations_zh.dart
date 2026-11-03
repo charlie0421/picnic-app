@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time => '下次可观看广告时间';
@@ -365,6 +365,16 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小时， $daily 每天';
+  }
+
+  @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已达到每小时上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已达到每天上限（$used/$limit次）';
   }
 
   @override
@@ -1003,7 +1013,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get vote_completed_message => 'I voted!';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可获得 1 颗奖励星星糖果！';
 
   @override
   String get cancel => 'Cancel';
@@ -1238,6 +1248,10 @@ class AppLocalizationsZh extends AppLocalizations {
       '尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。';
 
   @override
+  String get purchase_payment_pending_message =>
+      '您的付款尚未完成。如果您选择了现金或银行转账等需要时间的付款方式，请到相应地点完成付款。\n付款成功后星星糖将自动到账，请勿重复付款。';
+
+  @override
   String get label_tabbar_vote_upcoming => 'Upcoming';
 
   @override
@@ -1406,6 +1420,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get withdrawal_success => '退订已成功处理。';
+
+  @override
+  String get withdrawal_failed => '账号注销失败，请稍后重试。';
 
   @override
   String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
@@ -1811,6 +1828,11 @@ class AppLocalizationsZh extends AppLocalizations {
   String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍奖励';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '正在确认促销活动';
 
   @override
@@ -1818,6 +1840,55 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
 
   @override
   String get ad_reward_pending => '正在确认奖励';
@@ -1842,6 +1913,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -1917,6 +1993,13 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2280,6 +2363,16 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小时， $daily 每天';
+  }
+
+  @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已达到每小时上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已达到每天上限（$used/$limit次）';
   }
 
   @override
@@ -2800,7 +2893,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get reward => '奖励';
 
   @override
-  String get save => '节省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒钟';
@@ -2918,7 +3011,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get vote_completed_message => '我已投票！';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可获得 1 颗奖励星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可获得 1 颗奖励星星糖果！';
 
   @override
   String get cancel => 'Cancel';
@@ -3153,6 +3246,10 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
       '尚未确认您的付款。您可能尚未在商店的付款页面完成付款。\n如果您已完成付款，处理完成后星星糖将自动到账，请勿重复付款。';
 
   @override
+  String get purchase_payment_pending_message =>
+      '您的付款尚未完成。如果您选择了现金或银行转账等需要时间的付款方式，请到相应地点完成付款。\n付款成功后星星糖将自动到账，请勿重复付款。';
+
+  @override
   String get label_tabbar_vote_upcoming => '即将推出';
 
   @override
@@ -3321,6 +3418,9 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get withdrawal_success => '退订已成功处理。';
+
+  @override
+  String get withdrawal_failed => '账号注销失败，请稍后重试。';
 
   @override
   String get vote_item_request_already_applied_artist => '您已为该艺术家提交过申请。';
@@ -3726,6 +3826,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get candy_boost_extra_bonus => '基础发放 + 额外奖励';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍奖励';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '正在确认促销活动';
 
   @override
@@ -3733,6 +3838,55 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
 
   @override
   String get ad_reward_pending => '正在确认奖励';
@@ -3757,6 +3911,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -3832,6 +3991,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日获得的部分于下月15日到期；15日至月底获得的部分于下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4195,6 +4361,16 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String label_ads_limits(int hourly, int daily) {
     return '$hourly 每小時， $daily 每天';
+  }
+
+  @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '已達到每小時上限（$used/$limit次）';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '已達到每天上限（$used/$limit次）';
   }
 
   @override
@@ -4715,7 +4891,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reward => '獎勵';
 
   @override
-  String get save => '節省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒鐘';
@@ -4833,7 +5009,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get vote_completed_message => '我已投票！';
 
   @override
-  String get voting_share_benefit_text => '每 100 次投票和分享可獲得 1 顆獎勵星星糖果！';
+  String get voting_share_benefit_text => '每 100 次投票可獲得 1 顆獎勵星星糖果！';
 
   @override
   String get cancel => 'Cancel';
@@ -5068,6 +5244,10 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
       '尚未確認您的付款。您可能尚未在商店的付款頁面完成付款。\n如果您已完成付款，處理完成後星星糖將自動入帳，請勿重複付款。';
 
   @override
+  String get purchase_payment_pending_message =>
+      '您的付款尚未完成。如果您選擇了現金或銀行轉帳等需要時間的付款方式，請至相應地點完成付款。\n付款成功後星星糖將自動入帳，請勿重複付款。';
+
+  @override
   String get label_tabbar_vote_upcoming => '即將推出';
 
   @override
@@ -5236,6 +5416,9 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get withdrawal_success => '退訂已成功處理。';
+
+  @override
+  String get withdrawal_failed => '帳號註銷失敗，請稍後再試。';
 
   @override
   String get vote_item_request_already_applied_artist => '您已為該藝術家提交過申請。';
@@ -5642,6 +5825,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get candy_boost_extra_bonus => '基礎發放 + 額外獎勵';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier倍獎勵';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '正在確認促銷活動';
 
   @override
@@ -5649,6 +5837,55 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get candy_boost_late_purchase_explanation => '認證耗時比預期長，但購買已正常完成。';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活動獎勵 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本發放';
+
+  @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => '活動';
+
+  @override
+  String get purchase_reward_product_bonus => '基本獎勵';
+
+  @override
+  String get purchase_reward_event_bonus => '活動獎勵';
+
+  @override
+  String get purchase_reward_expected_total => '預估合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '目前餘額 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購買後預計 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此為預估數量。最終發放數量以付款完成時的伺服器結果為準。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共獲得$amount';
+  }
 
   @override
   String get ad_reward_pending => '正在確認獎勵';
@@ -5673,6 +5910,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '目前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購買後持有 $amount';
   }
 
   @override
@@ -5748,4 +5990,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此帳號在此裝置上的廣告使用權限暫時受到限制。';
+
+  @override
+  String get profile_photo_change => '更換頭像';
 }

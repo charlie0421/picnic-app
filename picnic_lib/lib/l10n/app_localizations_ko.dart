@@ -371,6 +371,16 @@ class AppLocalizationsKo extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return '시간당 한도에 도달했습니다 ($used/$limit회)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return '일일 한도에 도달했습니다 ($used/$limit회)';
+  }
+
+  @override
   String get label_ads_load_fail => '광고 로드에 실패했습니다. 다시 시도해주세요.';
 
   @override
@@ -1009,7 +1019,7 @@ class AppLocalizationsKo extends AppLocalizations {
   String get vote_completed_message => '투표했습니다!';
 
   @override
-  String get voting_share_benefit_text => '100표마다 보너스 별사탕 1개 획득 및 공유!';
+  String get voting_share_benefit_text => '100표마다 보너스 별사탕 1개 획득!';
 
   @override
   String get cancel => '취소';
@@ -1246,6 +1256,10 @@ class AppLocalizationsKo extends AppLocalizations {
       '아직 결제가 확인되지 않았습니다. 스토어 결제 화면에서 결제가 완료되지 않았을 수 있습니다.\n이미 결제하셨다면 처리가 끝나는 대로 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.';
 
   @override
+  String get purchase_payment_pending_message =>
+      '결제가 아직 완료되지 않았습니다. 편의점 현금 결제나 계좌 이체처럼 시간이 걸리는 결제 수단을 선택하셨다면, 해당 장소에서 결제를 마쳐 주세요.\n결제가 완료되면 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.';
+
+  @override
   String get label_tabbar_vote_upcoming => '예정됨';
 
   @override
@@ -1415,6 +1429,9 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get withdrawal_success => '회원탈퇴가 성공적으로 처리되었습니다.';
+
+  @override
+  String get withdrawal_failed => '탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1837,6 +1854,11 @@ class AppLocalizationsKo extends AppLocalizations {
   String get candy_boost_extra_bonus => '기본 지급 + 추가 보너스';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return '$multiplier배';
+  }
+
+  @override
   String get candy_boost_promotion_checking => '프로모션 확인 중';
 
   @override
@@ -1845,6 +1867,56 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       '인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '이벤트 보너스 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '기본 지급';
+
+  @override
+  String get purchase_reward_base_short => '기본';
+
+  @override
+  String get purchase_reward_event_short => '이벤트';
+
+  @override
+  String get purchase_reward_product_bonus => '기본 보너스';
+
+  @override
+  String get purchase_reward_event_bonus => '이벤트 보너스';
+
+  @override
+  String get purchase_reward_expected_total => '예상 합계';
+
+  @override
+  String get purchase_reward_total_short => '합계';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '현재 잔액 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '구매 후 예상 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      '예상 수량이에요. 최종 지급 수량은 결제가 완료되는 시점에 서버 기준으로 확정돼요.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '총 적립 $amount';
+  }
 
   @override
   String get ad_reward_pending => '보상을 확인하고 있어요';
@@ -1869,6 +1941,11 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '현재 보유 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '구매 후 보유 $amount';
   }
 
   @override
@@ -1945,4 +2022,11 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다.';
+
+  @override
+  String get profile_photo_change => '프로필 사진 변경';
 }

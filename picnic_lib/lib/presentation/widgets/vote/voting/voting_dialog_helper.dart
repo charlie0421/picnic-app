@@ -121,6 +121,7 @@ class VotingDialogHelper {
     required String genericMessage,
     required String endedMessage,
     required String upcomingMessage,
+    required String insufficientBalanceMessage,
   }) {
     if (error is EdgeAuthRecoveryException) return reLoginMessage;
     if (error is FunctionException) {
@@ -129,6 +130,15 @@ class VotingDialogHelper {
       if (error.status == 403) {
         if (reason == 'ended') return endedMessage;
         if (reason == 'not_started') return upcomingMessage;
+      }
+      // The Edge Function answers `{"error": "WALLET_INSUFFICIENT_BALANCE"}`,
+      // which carries no `message`, so this used to fall through to the generic
+      // "vote failed" title — the most common vote failure in production told
+      // the user nothing. Matched against the stringified details so a JSON
+      // string body reads the same as a decoded map.
+      if (error.status == 409 &&
+          '$details'.contains('WALLET_INSUFFICIENT_BALANCE')) {
+        return insufficientBalanceMessage;
       }
       final serverMessage = details is Map ? details['message'] : null;
       if (serverMessage is String && serverMessage.trim().isNotEmpty) {

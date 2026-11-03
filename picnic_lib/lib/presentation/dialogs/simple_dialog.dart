@@ -4,6 +4,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class DialogType {
@@ -19,12 +20,27 @@ Widget buildDialogButton(
 ) {
   return Expanded(
     flex: 1,
-    child: SizedBox(
-      child: TextButton(
-        onPressed: onPressed,
-        child: Text(
-          buttonText,
-          style: getTextStyle(AppTypo.body16B, textColor),
+    child: TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        foregroundColor: textColor,
+        minimumSize: const Size(
+          PicnicUi.minimumTapTarget,
+          PicnicUi.minimumTapTarget,
+        ),
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(12),
+          vertical: PicnicUi.vertical(8),
+        ),
+      ),
+      child: Text(
+        buttonText,
+        textAlign: TextAlign.center,
+        softWrap: true,
+        style: PicnicUi.text(
+          size: 16,
+          weight: FontWeight.w700,
+          color: textColor,
         ),
       ),
     ),
@@ -47,12 +63,15 @@ void showSimpleDialog({
   }
 
   // 에러 타입일 때 사용할 색상
-  final backgroundColor =
-      type == DialogType.error ? AppColors.grey00 : Colors.white;
-  final titleColor =
-      type == DialogType.error ? AppColors.point900 : AppColors.grey900;
-  final contentColor =
-      type == DialogType.error ? AppColors.point900 : AppColors.grey700;
+  final backgroundColor = type == DialogType.error
+      ? AppColors.grey00
+      : Colors.white;
+  final titleColor = type == DialogType.error
+      ? AppColors.point900
+      : AppColors.grey900;
+  final contentColor = type == DialogType.error
+      ? AppColors.point900
+      : AppColors.grey700;
 
   showGeneralDialog(
     context: context,
@@ -88,16 +107,15 @@ void showSimpleDialog({
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow:
-                    type == DialogType.error
-                        ? [
-                          BoxShadow(
-                            color: AppColors.grey300,
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ]
-                        : null,
+                boxShadow: type == DialogType.error
+                    ? [
+                        BoxShadow(
+                          color: AppColors.grey300,
+                          blurRadius: 10,
+                          spreadRadius: 2,
+                        ),
+                      ]
+                    : null,
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -114,7 +132,11 @@ void showSimpleDialog({
                     if (title != null)
                       Text(
                         title,
-                        style: getTextStyle(AppTypo.title18B, titleColor),
+                        style: PicnicUi.text(
+                          size: 18,
+                          weight: FontWeight.w700,
+                          color: titleColor,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     if (titleWidget != null) titleWidget,
@@ -122,7 +144,7 @@ void showSimpleDialog({
                       const SizedBox(height: 12),
                       Text(
                         content,
-                        style: getTextStyle(AppTypo.body14R, contentColor),
+                        style: PicnicUi.text(size: 14, color: contentColor),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -177,10 +199,9 @@ void showSimpleErrorDialog(
   String displayMessage = message;
   if (error != null) {
     final errorMsg = error.toString();
-    final truncatedError =
-        truncateError && errorMsg.length > 150
-            ? '${errorMsg.substring(0, 150)}...'
-            : errorMsg;
+    final truncatedError = truncateError && errorMsg.length > 150
+        ? '${errorMsg.substring(0, 150)}...'
+        : errorMsg;
     displayMessage = '$message\n\n$truncatedError';
   }
 

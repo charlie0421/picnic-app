@@ -1,17 +1,23 @@
 import 'package:picnic_lib/core/constants/purchase_constants.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/data/models/purchase/purchase_settlement_result.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 
 class PurchaseCampaignAttempt {
   const PurchaseCampaignAttempt({
     required this.attemptId,
     required this.productId,
-    required this.displayedCampaign,
+    required this.displayedPromotion,
   });
   final String attemptId;
   final String productId;
-  final ActivePromotionCampaignModel? displayedCampaign;
+
+  /// The exact V2-first badge resolution shown before StoreKit/Play launches.
+  ///
+  /// It is captured once before the confirmation dialog opens and carried
+  /// through settlement so provider refreshes cannot rewrite what this attempt
+  /// advertised to the user.
+  final ResolvedPaymentBadgePromotion? displayedPromotion;
 }
 
 class PurchaseExecutionContext {
@@ -259,7 +265,9 @@ class PurchaseCampaignAttemptRegistry {
     Duration delay = const Duration(milliseconds: 200),
   }) async {
     var attempt = bind(purchase);
-    while (attempt == null && retries-- > 0 && _hasPendingLaunchRace(purchase)) {
+    while (attempt == null &&
+        retries-- > 0 &&
+        _hasPendingLaunchRace(purchase)) {
       await Future.delayed(delay);
       attempt = bind(purchase);
     }
@@ -438,13 +446,13 @@ abstract interface class PurchaseReceiptDialogs {
   /// 🎉 The plain receipt for a purchase that settled inside the safety window.
   Future<void> showSuccessDialog({
     required PurchaseSettlementResultModel result,
-    required ActivePromotionCampaignModel? displayedCampaign,
+    required ResolvedPaymentBadgePromotion? displayedPromotion,
   });
 
   /// ⏰ The receipt for a purchase the user was already told had timed out.
   Future<void> showLatePurchaseSuccessDialog({
     required PurchaseSettlementResultModel result,
-    required ActivePromotionCampaignModel? displayedCampaign,
+    required ResolvedPaymentBadgePromotion? displayedPromotion,
   });
 }
 
@@ -462,10 +470,10 @@ class PurchaseSettlementPresentation {
   }) => isLate
       ? dialogs.showLatePurchaseSuccessDialog(
           result: result,
-          displayedCampaign: attempt.displayedCampaign,
+          displayedPromotion: attempt.displayedPromotion,
         )
       : dialogs.showSuccessDialog(
           result: result,
-          displayedCampaign: attempt.displayedCampaign,
+          displayedPromotion: attempt.displayedPromotion,
         );
 }

@@ -25,6 +25,30 @@ void main() {
     expect(AdRewardStatusModel.fromJson(json).state, AdRewardState.pending);
   });
 
+  test('AdMob claim accepts only its ADMOB_CLAIM reference channel', () {
+    final claim = {
+      'reference': {
+        'type': 'ADMOB_CLAIM',
+        'id': '00000000-0000-4000-8000-000000000403',
+      },
+      'platform': 'android',
+      'signed_token': 'opaque-token',
+      'expires_at': '2030-01-01T00:00:00.000Z',
+    };
+
+    expect(AdmobClaimModel.fromJson(claim).signedToken, 'opaque-token');
+    expect(
+      () => AdmobClaimModel.fromJson({
+        ...claim,
+        'reference': {
+          ...Map<String, dynamic>.from(claim['reference'] as Map),
+          'type': 'PANGLE_CLAIM',
+        },
+      }),
+      throwsFormatException,
+    );
+  });
+
   test('granted fixture parses decimal strings and nested wallet', () {
     final json = fixture('ad_reward_granted_v1.json');
     final status = AdRewardStatusModel.fromJson(json);

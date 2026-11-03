@@ -7,7 +7,9 @@ import 'package:picnic_lib/data/models/admin/payment_breakdown.dart';
 import 'package:picnic_lib/presentation/pages/my_page/charge_history_page.dart';
 import 'package:picnic_lib/presentation/providers/admin_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
+import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
@@ -75,7 +77,8 @@ void main() {
     tester,
   ) async {
     final loading = Completer<List<PaymentBreakdownItem>>();
-    await tester.pumpWidget(
+    await pumpWidgetAndIgnoreErrors(
+      tester,
       buildTestApp(
         const ChargeHistoryPage(),
         userProfile: MockData.userProfile(isAdmin: true),
@@ -83,7 +86,7 @@ void main() {
       ),
     );
     await tester.pump();
-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    expect(find.byType(MediumPulseLoadingIndicator), findsOneWidget);
 
     loading.completeError(StateError('offline'));
     await tester.pumpAndSettle();

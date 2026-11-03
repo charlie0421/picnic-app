@@ -1,9 +1,9 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:picnic_lib/presentation/widgets/vote/list/vote_card_layout.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 /// 투표 카드 스켈레톤 상태
 enum VoteCardStatus {
@@ -16,118 +16,75 @@ enum VoteCardStatus {
 class VoteCardSkeleton extends StatelessWidget {
   final VoteCardStatus status;
 
-  const VoteCardSkeleton({
-    super.key,
-    this.status = VoteCardStatus.ongoing,
-  });
+  const VoteCardSkeleton({super.key, this.status = VoteCardStatus.ongoing});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       margin: EdgeInsets.only(top: 8, bottom: 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // 상단 헤더 카드 (제목, 시간 정보)
-          SizedBox(
-            width: double.infinity,
-            child: Padding(
-              padding: EdgeInsets.all(16.r),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 48.h),
-                  _buildHeaderSkeleton(),
-                ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          if (!constraints.hasBoundedHeight) {
+            return _buildContents(context, bounded: false);
+          }
+          // 로딩 중에도 헤더·푸터와 최소 한 행이 들어갈 높이를 확보한다.
+          // 짧은 창에서는 스크롤하고, 여유가 있으면 기존처럼 높이를 채운다.
+          return SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: _buildContents(context, bounded: true),
               ),
             ),
-          ),
-
-          // 투표 아이템 컨테이너 (진행중/종료 상태만)
-          if (status != VoteCardStatus.upcoming) ...[
-            SizedBox(height: 24.h),
-            _buildVoteItemsContainer(),
-
-            // 하단 정보 컨테이너 (진행중/종료 상태용)
-            SizedBox(height: 16.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.grey[300]!, width: 1.r),
-              ),
-              child: _buildFooterSkeleton(),
-            ),
-          ],
-
-          // 예정 썸네일 그리드 자리 표시자. 실카드
-          // (`vote_info_card.dart` `_buildUpcomingThumbnailGrid`)와 같은 세로
-          // 치수 — 마진 16 + 패딩 12/12 + clamp(200, 340, 화면높이×0.36).
-          // 이 블록이 없던 시절엔 스켈레톤이 실카드보다 386px 짧아서 데이터
-          // 도착 순간 리스트가 그만큼 점프했다. 치수 일치는
-          // vote_card_skeleton_extent_test.dart 가 실카드를 직접 측정해
-          // 고정한다.
-          if (status == VoteCardStatus.upcoming)
-            Container(
-              width: double.infinity,
-              margin: const EdgeInsets.only(top: 16),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(40),
-                border: Border.all(color: Colors.grey[300]!, width: 1.5.w),
-              ),
-              child: SizedBox(
-                height: math.max(
-                  200.0,
-                  math.min(
-                    340.0,
-                    MediaQuery.of(context).size.height * 0.36,
-                  ),
-                ),
-                child: Shimmer.fromColors(
-                  baseColor: AppColors.grey300,
-                  highlightColor: AppColors.grey100,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-
-          // 하단 정보 (예정 투표용)
-          if (status == VoteCardStatus.upcoming) ...[
-            SizedBox(height: 12.h),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20.r),
-                border: Border.all(color: Colors.grey[300]!, width: 1.r),
-              ),
-              child: _buildFooterSkeleton(),
-            ),
-          ],
-        ],
+          );
+        },
       ),
+    );
+  }
+
+  Widget _buildContents(BuildContext context, {required bool bounded}) {
+    final body = status == VoteCardStatus.upcoming
+        ? _buildUpcomingGridSkeleton(context, bounded: bounded)
+        : Padding(
+            padding: const EdgeInsets.only(top: 24),
+            child: _buildVoteItemsContainer(),
+          );
+    final cardCapture = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _buildHeaderSkeleton(),
+        if (bounded) Flexible(fit: FlexFit.loose, child: body) else body,
+      ],
+    );
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (bounded)
+          Flexible(fit: FlexFit.loose, child: cardCapture)
+        else
+          cardCapture,
+        _buildFooterSkeleton(context),
+      ],
     );
   }
 
   Widget _buildHeaderSkeleton() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 제목 스켈레톤 (Shimmer 적용)
-        Shimmer.fromColors(
-          baseColor: AppColors.grey300,
-          highlightColor: AppColors.grey100,
-          child: Center(
+        Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          constraints: BoxConstraints(
+            minHeight: status == VoteCardStatus.ongoing ? 48 : 0,
+          ),
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(
+            horizontal: status == VoteCardStatus.ongoing ? 48 : 0,
+          ),
+          child: Shimmer.fromColors(
+            baseColor: AppColors.grey300,
+            highlightColor: AppColors.grey100,
             child: Container(
               height: 22.h,
               width: 200.w,
@@ -138,43 +95,131 @@ class VoteCardSkeleton extends StatelessWidget {
             ),
           ),
         ),
-        SizedBox(height: 24.h),
-
-        // 타이머 영역 (개별 숫자 박스들)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 일(D) 부분: 08D
-            _buildTimerBox(18.w), // 0
-            SizedBox(width: 2.w),
-            _buildTimerBox(18.w), // 8
-            SizedBox(width: 2.w),
-            _buildTimerBox(18.w), // D
-            SizedBox(width: 8.w),
-
-            // 시간(:) 부분: 04:18:20
-            _buildTimerBox(18.w), // 0
-            SizedBox(width: 2.w),
-            _buildTimerBox(18.w), // 4
-            SizedBox(width: 6.w),
-            _buildTimerBox(18.w), // 4
-
-            SizedBox(width: 8.w),
-
-            _buildTimerBox(18.w), // 1
-            SizedBox(width: 2.w),
-            _buildTimerBox(18.w), // 8
-            SizedBox(width: 6.w),
-            _buildTimerBox(18.w), // 4
-
-            SizedBox(width: 8.w),
-
-            _buildTimerBox(18.w), // 2
-            SizedBox(width: 2.w),
-            _buildTimerBox(18.w), // 0
-          ],
-        ),
+        if (status == VoteCardStatus.upcoming)
+          Container(
+            height: 20,
+            margin: const EdgeInsets.only(bottom: 16),
+            alignment: Alignment.center,
+            child: Shimmer.fromColors(
+              baseColor: AppColors.grey300,
+              highlightColor: AppColors.grey100,
+              child: Container(
+                width: 72.w,
+                height: 12.h,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4.r),
+                ),
+              ),
+            ),
+          ),
+        if (status == VoteCardStatus.ended)
+          Shimmer.fromColors(
+            baseColor: AppColors.grey300,
+            highlightColor: AppColors.grey100,
+            child: Container(
+              width: 72.w,
+              height: 17,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+          ),
+        if (status != VoteCardStatus.ended) _buildTimerSkeleton(),
       ],
+    );
+  }
+
+  Widget _buildTimerSkeleton() {
+    return SizedBox(
+      height: 18,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          _buildTimerBox(18),
+          const SizedBox(width: 2),
+          _buildTimerBox(18),
+          const SizedBox(width: 6),
+          _buildTimerBox(18),
+          const SizedBox(width: 2),
+          _buildTimerBox(18),
+          const SizedBox(width: 10),
+          _buildTimerBox(18),
+          const SizedBox(width: 2),
+          _buildTimerBox(18),
+          const SizedBox(width: 10),
+          _buildTimerBox(18),
+          const SizedBox(width: 2),
+          _buildTimerBox(18),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUpcomingGridSkeleton(
+    BuildContext context, {
+    required bool bounded,
+  }) {
+    final grid = Shimmer.fromColors(
+      baseColor: AppColors.grey300,
+      highlightColor: AppColors.grey100,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(28),
+        ),
+      ),
+    );
+    return Container(
+      width: double.infinity,
+      constraints: bounded
+          ? BoxConstraints(
+              minHeight:
+                  VoteCardLayout.thumbnailGridExtent(context, 1) +
+                  VoteCardLayout.thumbnailPagerHeight +
+                  24 +
+                  3.w,
+            )
+          : null,
+      margin: const EdgeInsets.only(top: 16),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: PicnicUi.border, width: 1.5.w),
+      ),
+      child: Column(
+        mainAxisSize: bounded ? MainAxisSize.max : MainAxisSize.min,
+        children: [
+          if (bounded)
+            Expanded(child: grid)
+          else
+            SizedBox(
+              height: VoteCardLayout.thumbnailGridExtent(
+                context,
+                VoteCardLayout.maximumThumbnailRows,
+              ),
+              child: grid,
+            ),
+          SizedBox(
+            height: VoteCardLayout.thumbnailPagerHeight,
+            child: Center(
+              child: Shimmer.fromColors(
+                baseColor: AppColors.grey300,
+                highlightColor: AppColors.grey100,
+                child: Container(
+                  width: 96.w,
+                  height: 18,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(9.r),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -182,7 +227,7 @@ class VoteCardSkeleton extends StatelessWidget {
   Widget _buildTimerBox(double width) {
     return Container(
       width: width,
-      height: 20.h,
+      height: 18,
       decoration: BoxDecoration(
         color: AppColors.grey300,
         borderRadius: BorderRadius.circular(4.r),
@@ -191,228 +236,67 @@ class VoteCardSkeleton extends StatelessWidget {
   }
 
   Widget _buildVoteItemsSkeleton() {
-    switch (status) {
-      case VoteCardStatus.upcoming:
-        // 예정: 간단한 목록 형태 (2개)
-        return Column(
-          children:
-              List.generate(2, (index) => _buildUpcomingVoteItemSkeleton()),
-        );
-      case VoteCardStatus.ongoing:
-        // 진행 중: 투표 버튼과 실시간 정보 포함 (3개)
-        return Column(
-          children:
-              List.generate(3, (index) => _buildOngoingVoteItemSkeleton()),
-        );
-      case VoteCardStatus.ended:
-        // 종료: 결과와 순위 정보 포함 (3개)
-        return Column(
-          children:
-              List.generate(3, (index) => _buildEndedVoteItemSkeleton(index)),
-        );
-    }
-  }
-
-  Widget _buildUpcomingVoteItemSkeleton() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 8.h),
-      child: Row(
-        children: [
-          // 아티스트 이미지 스켈레톤
-          Container(
-            width: 30.w,
-            height: 30.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름 영역
-          Expanded(
-            child: Container(
-              height: 14.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(4.r),
-              ),
-            ),
-          ),
-        ],
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.bottomCenter,
+      child: SizedBox(
+        width: 240,
+        height: 220,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            _buildRankedVoteSkeleton(2),
+            _buildRankedVoteSkeleton(1),
+            _buildRankedVoteSkeleton(3),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildOngoingVoteItemSkeleton() {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
+  Widget _buildRankedVoteSkeleton(int rank) {
+    final barHeight =
+        220 *
+        (rank == 1
+            ? .65
+            : rank == 2
+            ? .50
+            : .40);
+    return SizedBox(
+      width: 80,
+      height: 220,
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        clipBehavior: Clip.none,
         children: [
-          // 순위 영역
-          SizedBox(
-            width: 30.w,
+          Positioned(
+            bottom: 0,
+            child: Container(width: 80, height: barHeight, color: Colors.white),
+          ),
+          if (status == VoteCardStatus.ended)
+            Positioned(
+              bottom: barHeight + 76,
+              child: Container(width: 48, height: 12, color: Colors.white),
+            ),
+          Positioned(
+            bottom: barHeight + 58,
+            child: Container(width: 36, height: 12, color: Colors.white),
+          ),
+          Positioned(
+            bottom: barHeight - 32,
             child: Container(
-              width: 16.w,
-              height: 16.h,
-              decoration: BoxDecoration(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(4.r),
+                shape: BoxShape.circle,
               ),
             ),
           ),
-          SizedBox(width: 6.w),
-
-          // 아티스트 이미지 스켈레톤
-          Container(
-            width: 35.w,
-            height: 35.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름과 투표수 영역
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 아티스트 이름 스켈레톤
-                Container(
-                  height: 14.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-
-                // 투표수와 퍼센트 스켈레톤
-                Row(
-                  children: [
-                    Container(
-                      height: 16.h,
-                      width: 60.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      height: 12.h,
-                      width: 30.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          SizedBox(width: 12.w),
-
-          // 투표 버튼 스켈레톤
-          Container(
-            width: 24.w,
-            height: 24.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12.r),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildEndedVoteItemSkeleton(int index) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 12.h),
-      child: Row(
-        children: [
-          // 순위 메달/숫자 영역 (1,2,3위는 다른 크기)
-          SizedBox(
-            width: 35.w,
-            child: Container(
-              width: index < 3 ? 20.w : 16.w,
-              height: index < 3 ? 20.h : 16.h,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(index < 3 ? 10.r : 4.r),
-              ),
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 아티스트 이미지 스켈레톤 (1위는 조금 더 크게)
-          Container(
-            width: index == 0 ? 40.w : 35.w,
-            height: index == 0 ? 40.h : 35.h,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Colors.white,
-            ),
-          ),
-          SizedBox(width: 8.w),
-
-          // 이름과 결과 영역
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 아티스트 이름 스켈레톤
-                Container(
-                  height: 14.h,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(4.r),
-                  ),
-                ),
-                SizedBox(height: 4.h),
-
-                // 최종 투표수와 퍼센트
-                Row(
-                  children: [
-                    Container(
-                      height: 16.h,
-                      width: 70.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Container(
-                      height: 14.h,
-                      width: 40.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(4.r),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // 결과 아이콘 영역 (트로피나 체크 등)
-          Container(
-            width: 20.w,
-            height: 20.h,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4.r),
-            ),
+          Positioned(
+            bottom: 10,
+            child: Container(width: 56, height: 12, color: Colors.white),
           ),
         ],
       ),
@@ -430,12 +314,9 @@ class VoteCardSkeleton extends StatelessWidget {
       height: 260,
       padding: const EdgeInsets.only(left: 36, right: 36, top: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: PicnicUi.surface,
         borderRadius: BorderRadius.circular(40),
-        border: Border.all(
-          color: Colors.grey[300]!,
-          width: 1.5,
-        ),
+        border: Border.all(color: PicnicUi.border, width: 1.5),
       ),
       child: Shimmer.fromColors(
         baseColor: AppColors.grey300,
@@ -445,67 +326,41 @@ class VoteCardSkeleton extends StatelessWidget {
     );
   }
 
-  Widget _buildFooterSkeleton() {
-    switch (status) {
-      case VoteCardStatus.upcoming:
-        // 예정: 참여 예정자 수 정보
-        return Shimmer.fromColors(
+  Widget _buildFooterSkeleton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 16),
+      child: SizedBox(
+        height: VoteCardLayout.shareSectionExtent(context) - 16,
+        child: Shimmer.fromColors(
           baseColor: AppColors.grey300,
           highlightColor: AppColors.grey100,
-          child: Row(
-            children: [
-              Container(
-                height: 12.h,
-                width: 80.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 120.w,
+                  height: 32,
+                  margin: EdgeInsets.only(right: 16.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      case VoteCardStatus.ongoing:
-        // 진행 중: 총 참여자 수와 남은 시간
-        return Shimmer.fromColors(
-          baseColor: AppColors.grey300,
-          highlightColor: AppColors.grey100,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                height: 12.h,
-                width: 100.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
+                Container(
+                  width: 120.w,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
                 ),
-              ),
-              Container(
-                height: 12.h,
-                width: 60.w,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(4.r),
-                ),
-              ),
-            ],
-          ),
-        );
-      case VoteCardStatus.ended:
-        // 종료: 총 참여자 수와 종료 정보
-        return Shimmer.fromColors(
-          baseColor: AppColors.grey300,
-          highlightColor: AppColors.grey100,
-          child: Container(
-            height: 12.h,
-            width: 120.w,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(4.r),
+              ],
             ),
           ),
-        );
-    }
+        ),
+      ),
+    );
   }
 }

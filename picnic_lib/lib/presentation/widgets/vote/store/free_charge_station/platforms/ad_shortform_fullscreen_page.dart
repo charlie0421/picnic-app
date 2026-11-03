@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:picnic_lib/ui/style.dart';
@@ -9,7 +10,6 @@ import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay.dart';
-import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
@@ -18,10 +18,87 @@ import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_overlay.dart';
 import 'package:picnic_lib/presentation/dialogs/candy_reward_receipt_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/ad_reward_dialog_host.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure_reporter.dart';
+
+/// '더보기'를 눌렀을 때 광고주 랜딩으로 보내고, 그 클릭을 서버에 기록한다.
+///
+/// [reportClick] 은 **launch 이전에** 시작한다. 외부 브라우저가 뜨는 순간 앱이
+/// 백그라운드로 밀리고 iOS 는 진행 중이던 요청을 정지시킬 수 있어, launch 뒤에
+/// 시작하면 클릭이 통계에서 통째로 누락된다. 대신 launch 가 실패하는 드문 경우
+/// 클릭이 소폭 과다 집계될 수 있다 — 통계 누락보다 낫다고 보고 택한 쪽이다.
+/// GA4 `ad_cta_click` 은 로컬 버퍼에 쌓였다가 나중에 전송되므로 기존대로 이동
+/// 성공 이후에 남긴다.
+///
+/// "시작"이 "요청이 소켓에 실렸다"를 뜻하지는 않는다. `functions_client` 의
+/// `invoke` 는 `request.send()` 전에 body 를 isolate 에서 인코딩하며
+/// (`functions_client/lib/src/functions_client.dart` 의 `_isolate.encode`),
+/// 그 await 지점에서 제어가 돌아오기 때문에 launch 가 먼저 실행될 수 있다.
+/// body 가 수십 바이트고 launch 자체가 플랫폼 채널 왕복이라 실제로는 대개 먼저
+/// 나가지만, 보장은 아니다 — 그래서 실패한 기록은 재시도할 수 있어야 한다
+/// ([AdCtaClickReporter]).
+///
+/// 기록 실패는 삼킨다. 통계용 쓰기가 광고주 랜딩 이동을 막아선 안 된다.
+///
+/// 반환값은 실제로 이동했는지 여부. [launch] 가 external/in-app 두 경로 모두
+/// 예외를 던지면 그대로 전파된다(호출자가 이동 실패로 처리).
+@visibleForTesting
+Future<bool> openAdCta(
+  String url, {
+  required Future<bool> Function(Uri uri, {required bool external}) launch,
+  Future<void> Function()? reportClick,
+}) async {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return false;
+  if (reportClick != null) {
+    unawaited(Future.sync(reportClick).catchError((_) {}));
+  }
+  try {
+    return await launch(uri, external: true);
+  } catch (_) {
+    return await launch(uri, external: false);
+  }
+}
+
+/// '더보기' 서버 기록의 단발 가드 — **성공 1회** 기준.
+///
+/// "시청 건당 1회"를 시도 기준으로 세면, 첫 탭이 타임아웃·5xx·백그라운드 정지로
+/// 실패했을 때 그 시청 건의 클릭이 영구히 사라진다. 사용자가 랜딩에서 돌아와 다시
+/// 눌러도 요청이 나가지 않기 때문이다. 서버 기록은 멱등하므로(같은 임프레션의
+/// 두 번째 호출은 `recorded:false`) 재시도에 비용이 없다.
+///
+/// 진행 중 래치는 따로 둔다 — 연타로 같은 요청이 두 번 나가는 것만 막고,
+/// 끝난 뒤의 재시도는 막지 않는다.
+@visibleForTesting
+class AdCtaClickReporter {
+  AdCtaClickReporter(this._report);
+
+  /// 서버 기록을 시도하고 성공 여부를 돌려준다.
+  final Future<bool> Function() _report;
+
+  bool _reported = false;
+  bool _inFlight = false;
+
+  /// 이 시청 건의 클릭이 서버에 남았는가.
+  bool get reported => _reported;
+
+  Future<void> call() async {
+    if (_reported || _inFlight) return;
+    _inFlight = true;
+    try {
+      _reported = await _report();
+    } finally {
+      // 예외가 나가도 래치는 반드시 풀어, 다음 탭이 재시도할 수 있게 한다.
+      _inFlight = false;
+    }
+  }
+}
 
 /// Pure logic helpers for AdShortformFullscreenPage, testable without widget tree.
 @visibleForTesting
@@ -43,27 +120,35 @@ class AdShortformLogic {
 
   /// Applies the credited reward to the wallet summary (별사탕 파우치).
   ///
-  /// Runs through the app-level [ProviderContainer], captured while the page
-  /// was mounted - the same move as the purchase flow's
-  /// `ContainerWalletSummaryApplier` - because the candy was credited
-  /// server-side the moment the view callback settled: even if the user
-  /// already left the ad route, the pouch must reflect the new balance.
+  /// Takes the purchase flow's [WalletSummaryApplier]/[WalletSummaryRefresher]
+  /// rather than a container, for the two reasons that seam exists. The candy
+  /// was credited server-side the moment the view callback settled, so the
+  /// pouch must be written **whether or not this route is still mounted** -
+  /// `ConsumerState.ref` throws once unmounted, so the write goes through
+  /// something captured earlier.
+  ///
+  /// That capture is also where the **account** is decided (PICNIC-2664). The
+  /// user can sign out or switch while the callback is in flight, and a reward
+  /// owner A watched must not land in owner B's pouch. Taking the applier -
+  /// captured in `initState`, when the ad started - rather than a container to
+  /// read at apply time is what makes that check mean anything.
   ///
   /// A wallet-aware response carries the settled balance and is written as-is;
   /// a legacy response carries no wallet snapshot, so the summary is re-read
   /// from the server. (Was: legacy path refreshed the user profile only,
   /// which left `walletSummaryProvider` - and the pouch it drives - stale.)
   static Future<void> applyRewardOutcome({
-    required ProviderContainer container,
+    required WalletSummaryApplier applyWallet,
+    required WalletSummaryRefresher refreshWallet,
     required InternalShortformViewResponse response,
   }) async {
     final wallet = walletSummaryToApply(response);
     if (wallet != null) {
-      container.read(walletSummaryProvider.notifier).setSummary(wallet);
+      applyWallet(wallet);
       return;
     }
     if (shouldRefreshLegacyProfile(response)) {
-      await container.read(walletSummaryProvider.notifier).refresh();
+      await refreshWallet.refresh();
     }
   }
 
@@ -267,6 +352,27 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   final Future<void> Function(AdRewardStatusModel status)?
   onWalletRewardPresented;
 
+  /// '더보기'로 이동할 때 그 클릭을 서버에 기록한다 (시청 1회당 **성공** 1번).
+  /// 어드민 캠페인 리포트의 `more_clicks` 가 여기서 채워진다.
+  /// 기록에 성공했으면 true — 실패는 [AdCtaClickReporter] 가 재시도로 남겨둔다.
+  final Future<bool> Function()? onCtaClick;
+
+  /// "광고 로드에 실패했습니다" 가 뜨는 모든 경로에서 정확히 한 번 불린다.
+  /// null 이면 [reportAdShortformLoadFailure](Sentry) 로 간다. 던져도 다이얼로그는
+  /// 그대로 뜬다 — 통계가 광고 흐름을 막아선 안 된다.
+  final void Function(AdShortformLoadFailure failure)? onLoadFailure;
+
+  /// [VideoPlayerController.initialize] 의 타임아웃. initialize 자체엔 타임아웃이
+  /// 없어 네트워크 stall 시 영구 hang 이다. 15초였을 때 19초 광고의 1080p 첫
+  /// 세그먼트(2.6MB)가 1Mbps 이하 망에서 이 안에 못 들어와 저속망 사용자가
+  /// 매번 실패했다(QnA 395).
+  static const Duration initializeTimeout = Duration(seconds: 30);
+
+  /// 워치독: 발급(`loadAd`)부터 컨트롤러 준비까지 이 시간 안에 못 끝나면 단일
+  /// 오류+종료. [initializeTimeout] 보다 발급 왕복만큼(5초) 길어야 initialize
+  /// 타임아웃이 먼저 잡혀 `initialize` 단계로 분류된다.
+  static const Duration watchdogTimeout = Duration(seconds: 35);
+
   const AdShortformFullscreenPage({
     super.key,
     required this.videoUrl,
@@ -275,6 +381,8 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.loadAd,
     this.ga4,
     this.onWalletRewardPresented,
+    this.onCtaClick,
+    this.onLoadFailure,
   });
 
   @override
@@ -296,37 +404,43 @@ class _AdShortformFullscreenPageState
   final GlobalKey<LoadingOverlayState> _loadingOverlayKey =
       GlobalKey<LoadingOverlayState>();
 
-  /// Watchdog: if the controller never initializes within this window (server
-  /// failure / network stall anywhere in initialize/setLooping/setVolume/play),
-  /// force a single error+exit so the loader can never pulse forever.
-  static const Duration _watchdogTimeout = Duration(seconds: 20);
-
-  /// Timeout for the underlying [VideoPlayerController.initialize] call, which
-  /// itself has no timeout (cf. pangle_platform.dart's 5s guard).
-  static const Duration _initializeTimeout = Duration(seconds: 15);
-
   Timer? _watchdog;
   bool _errorDialogShown = false;
 
+  /// 페이지 진입 시각. 로드 실패 리포트의 `elapsed_ms` 기준점이다.
+  /// `Stopwatch` 대신 `clock` 을 쓰는 이유는 위젯 테스트의 가짜 시간을 따르게
+  /// 하기 위해서다(워치독 35초를 실제로 기다리지 않는다).
+  late final DateTime _loadStartedAt;
+
   /// GA4 단발 발송 가드. 위젯 리빌드/리스너 재호출로 같은 시청 건의
-  /// ad_impression·earn_virtual_currency·ad_click 이 2번 나가지 않게 한다.
+  /// ad_impression·earn_virtual_currency·ad_cta_click 이 2번 나가지 않게 한다.
   bool _impressionLogged = false;
   bool _earnLogged = false;
   bool _earnLogging = false;
-  bool _adClickLogged = false;
+  bool _adCtaClickLogged = false;
 
-  /// App-level Riverpod container, captured while this route is mounted, so a
-  /// reward that settles after the user already closed the ad can still update
-  /// the wallet summary (cf. `ContainerWalletSummaryApplier` in the purchase
-  /// settlement path - `ConsumerState.ref` throws once unmounted).
-  late final ProviderContainer _rewardContainer;
+  /// 서버 클릭 기록(`callback-ad-shortform-more`) 단발 가드 — 성공 1회 기준.
+  late final AdCtaClickReporter _ctaClickReporter = AdCtaClickReporter(
+    () async => await widget.onCtaClick?.call() ?? false,
+  );
+
+  /// Wallet writes for a reward that settles after the user closed the ad.
+  ///
+  /// Captured while this route is mounted, which is both why they work at all
+  /// (`ConsumerState.ref` throws once unmounted) and how they know whose
+  /// reward this is - the capture happens when the ad starts, so an account
+  /// switch during the view callback is visible to [WalletSummary.setSummary].
+  late final WalletSummaryApplier _applyWallet;
+  late final WalletSummaryRefresher _refreshWallet;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _rewardContainer = ProviderScope.containerOf(context, listen: false);
+    _applyWallet = ContainerWalletSummaryApplier.of(context);
+    _refreshWallet = ContainerWalletSummaryRefresher.of(context);
     _enterImmersive();
+    _loadStartedAt = clock.now();
     _startWatchdog();
     _initializeFlow();
   }
@@ -335,12 +449,13 @@ class _AdShortformFullscreenPageState
   /// on dispose, or once an error dialog is shown.
   void _startWatchdog() {
     _watchdog?.cancel();
-    _watchdog = Timer(_watchdogTimeout, () {
+    _watchdog = Timer(AdShortformFullscreenPage.watchdogTimeout, () {
       if (!mounted) return;
       if (_controller != null) return; // controller arrived in time
       if (_errorDialogShown) return; // error path already handled exit
       _showVideoLoadErrorDialog(
         TimeoutException('ad-shortform watchdog: controller never initialized'),
+        stage: AdShortformLoadStage.watchdog,
       );
     });
   }
@@ -371,9 +486,13 @@ class _AdShortformFullscreenPageState
           _resolvedVideoUrl = result.videoUrl;
           _resolvedCtaUrl = result.ctaUrl;
           blocked = result.blocked;
-        } catch (e) {
+        } catch (e, s) {
           // loadAd 자체가 throw (anti-abuse 아님) → 에러 다이얼로그 + pop.
-          _showVideoLoadErrorDialog(e);
+          _showVideoLoadErrorDialog(
+            e,
+            stage: AdShortformLoadStage.loadAd,
+            stackTrace: s,
+          );
           return;
         }
       } else {
@@ -391,6 +510,7 @@ class _AdShortformFullscreenPageState
         )) {
           _showVideoLoadErrorDialog(
             StateError('ad-shortform: empty video_url'),
+            stage: AdShortformLoadStage.emptyUrl,
           );
         }
         return;
@@ -398,8 +518,12 @@ class _AdShortformFullscreenPageState
       if (!mounted) return;
       try {
         await _initPlayer(resolvedUrl);
-      } catch (e) {
-        _showVideoLoadErrorDialog(e);
+      } catch (e, s) {
+        _showVideoLoadErrorDialog(
+          e,
+          stage: AdShortformLoadStage.initialize,
+          stackTrace: s,
+        );
         return;
       }
     } finally {
@@ -413,15 +537,31 @@ class _AdShortformFullscreenPageState
 
   Future<void> _initPlayer(String videoUrl) async {
     final ctrl = VideoPlayerController.networkUrl(Uri.parse(videoUrl));
+    // 워치독을 initialize 시작 시점으로 다시 맞춘다. 페이지 진입 기준으로 두면
+    // 발급이 5초 넘게 걸린 뒤 initialize 가 멈췄을 때 35초 워치독이 30초
+    // initialize 타임아웃보다 먼저 울려 `initialize` 대신 `watchdog` 으로
+    // 분류된다. 워치독은 initialize 뒤 setLooping·setVolume·play 의 정지도
+    // 계속 덮는다.
+    _startWatchdog();
     try {
       // initialize() 자체엔 타임아웃이 없어 네트워크 stall 시 영구 hang.
       // TimeoutException 은 아래 generic catch 로 흘러 에러 다이얼로그로 이어진다.
-      await ctrl.initialize().timeout(_initializeTimeout);
-    } on PlatformException catch (e) {
-      _showVideoLoadErrorDialog(e);
+      await ctrl.initialize().timeout(
+        AdShortformFullscreenPage.initializeTimeout,
+      );
+    } catch (e, s) {
+      _showVideoLoadErrorDialog(
+        e,
+        stage: AdShortformLoadStage.initialize,
+        stackTrace: s,
+      );
       return;
-    } catch (e) {
-      _showVideoLoadErrorDialog(e);
+    }
+    // 오류 다이얼로그(워치독)나 페이지 종료 뒤에 늦게 끝난 initialize 는 재생으로
+    // 이어지면 안 된다 — 다이얼로그 뒤에서 소리만 나거나, 닫힌 페이지가 보상 흐름을
+    // 시작한다.
+    if (!mounted || _errorDialogShown) {
+      unawaited(ctrl.dispose().catchError((_) {}));
       return;
     }
     try {
@@ -430,6 +570,12 @@ class _AdShortformFullscreenPageState
     try {
       await ctrl.setVolume(1.0);
     } catch (_) {}
+    // setLooping/setVolume 이 워치독을 넘겨 멈췄다가 늦게 돌아온 경우도 같다 —
+    // 다이얼로그가 이미 떠 있으면 컨트롤러를 등록하거나 재생하지 않는다.
+    if (!mounted || _errorDialogShown) {
+      unawaited(ctrl.dispose().catchError((_) {}));
+      return;
+    }
     ctrl.addListener(_onProgress);
     // 컨트롤러가 준비됐으니 워치독 해제 — 단일 탈출 경로 유지.
     _cancelWatchdog();
@@ -438,11 +584,12 @@ class _AdShortformFullscreenPageState
     });
     try {
       await ctrl.play();
-    } on PlatformException catch (e) {
-      _showVideoLoadErrorDialog(e);
-      return;
-    } catch (e) {
-      _showVideoLoadErrorDialog(e);
+    } catch (e, s) {
+      _showVideoLoadErrorDialog(
+        e,
+        stage: AdShortformLoadStage.play,
+        stackTrace: s,
+      );
       return;
     }
     // ad_impression (스펙 §2-6): 재생이 실제로 시작된 시점이 자체 숏폼 광고의
@@ -469,13 +616,19 @@ class _AdShortformFullscreenPageState
     );
   }
 
-  void _showVideoLoadErrorDialog(dynamic error) {
+  void _showVideoLoadErrorDialog(
+    Object error, {
+    required AdShortformLoadStage stage,
+    StackTrace? stackTrace,
+  }) {
+    // 이미 닫힌 페이지(사용자가 로딩 중 X 를 누른 경우)는 실패가 아니라 취소다.
     if (!mounted) return;
     // 워치독·initialize 타임아웃·loadAd 예외 등 여러 경로에서 호출될 수 있으므로
     // 중복 다이얼로그를 막는다.
     if (_errorDialogShown) return;
     _errorDialogShown = true;
     _cancelWatchdog();
+    _reportLoadFailure(error, stage: stage, stackTrace: stackTrace);
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
     void closePage() {
       final c = navigatorKey.currentContext;
@@ -490,6 +643,32 @@ class _AdShortformFullscreenPageState
       onOk: closePage,
       onCancel: closePage,
     );
+  }
+
+  /// 로드 실패를 분류해 [AdShortformFullscreenPage.onLoadFailure](없으면 Sentry)
+  /// 로 넘긴다. 리포터가 던져도 여기서 삼킨다 — 다이얼로그가 우선이다.
+  void _reportLoadFailure(
+    Object error, {
+    required AdShortformLoadStage stage,
+    StackTrace? stackTrace,
+  }) {
+    final failure = AdShortformLoadFailure.classify(
+      error: error,
+      stage: stage,
+      elapsed: clock.now().difference(_loadStartedAt),
+      videoUrl: _resolvedVideoUrl,
+      stackTrace: stackTrace,
+    );
+    try {
+      final report = widget.onLoadFailure;
+      if (report != null) {
+        report(failure);
+      } else {
+        unawaited(reportAdShortformLoadFailure(failure));
+      }
+    } catch (_) {
+      // 통계용 보고가 광고 흐름을 깨서는 안 된다.
+    }
   }
 
   void _onProgress() {
@@ -549,7 +728,8 @@ class _AdShortformFullscreenPageState
     // 지갑을 쓰는 것과 같은 이유. (기존엔 mounted 뒤에서 프로필만 갱신해
     // 광고를 닫고 상점으로 돌아오면 파우치가 이전 잔액으로 남았다.)
     await AdShortformLogic.applyRewardOutcome(
-      container: _rewardContainer,
+      applyWallet: _applyWallet,
+      refreshWallet: _refreshWallet,
       response: response,
     );
     if (AdShortformLogic.shouldRefreshLegacyProfile(response) && mounted) {
@@ -604,7 +784,7 @@ class _AdShortformFullscreenPageState
       child: AnimatedOpacity(
         duration: const Duration(milliseconds: 150),
         opacity: visible ? 1.0 : 0.0,
-        child: const Center(child: MediumPulseLoadingIndicator()),
+        child: Center(child: AdLoadingOverlay.indicator),
       ),
     );
   }
@@ -709,27 +889,26 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _openCta(String url) async {
-    // ad_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
+    final launched = await openAdCta(
+      url,
+      launch: (uri, {required external}) => external
+          ? launchUrl(uri, mode: LaunchMode.externalApplication)
+          : launchUrl(uri),
+      reportClick: _ctaClickReporter.call,
+    );
+    // ad_cta_click (스펙 §2-8): '더보기'로 실제 이동한 시점. launchUrl 이 두 경로 모두
     // 실패하면(예외) 이동하지 않으므로 발송하지 않는다.
-    final uri = Uri.tryParse(url);
-    if (uri == null) return;
-    bool launched;
-    try {
-      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (_) {
-      launched = await launchUrl(uri);
-    }
     // 이동에 실패했으면(false 반환) 클릭 이벤트를 보내지 않는다.
-    if (launched) _logAdClick(url);
+    if (launched) _logAdCtaClick(url);
   }
 
-  /// `ad_click` — 시청 건당 1회.
-  void _logAdClick(String url) {
+  /// `ad_cta_click` — 시청 건당 1회.
+  void _logAdCtaClick(String url) {
     final ga4 = widget.ga4;
-    if (ga4 == null || _adClickLogged) return;
-    _adClickLogged = true;
+    if (ga4 == null || _adCtaClickLogged) return;
+    _adCtaClickLogged = true;
     unawaited(
-      PicnicAnalytics.instance.logAdClick(
+      PicnicAnalytics.instance.logAdCtaClick(
         adPlatform: ga4.adPlatform,
         adSource: ga4.adSource,
         adFormat: ga4.adFormat,
@@ -955,7 +1134,7 @@ class _AdShortformFullscreenPageState
                             onPressed: enabled
                                 ? () async {
                                     debugPrint('[internal] more pressed');
-                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_click`
+                                    // '더보기'는 광고주 랜딩으로 보내고 `ad_cta_click`
                                     // 을 남기는 것이 전부다. 추가 적립은 하지
                                     // 않기로 확정됐다(PICNIC-2377) - 적립은 재생
                                     // 종료 시 시청 보상 한 건으로만 처리된다.

@@ -479,6 +479,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "1時間あたりの上限に達しました（{used}/{limit}回）",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "1日の上限に達しました（{used}/{limit}回）",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "広告の読み込みに失敗しました。もう一度お試しください。",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -535,7 +559,7 @@
   "@label_button_view_policy": {
     "description": "Auto-generated metadata for key 'label_button_view_policy'."
   },
-  "label_button_vote": "投票する",
+  "label_button_vote": "投票",
   "@label_button_vote": {
     "description": "Auto-generated metadata for key 'label_button_vote'."
   },
@@ -1321,7 +1345,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "100個以上投票してシェアすると、100個につき1個のボーナスお菓子をプレゼント！",
+  "voting_share_benefit_text": "100票ごとにボーナスキャンディ1個をプレゼント！",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1694,6 +1718,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "まだ決済が確認できていません。ストアの決済画面で決済が完了していない可能性があります。\nすでにお支払いを完了された場合は、処理が完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。",
+  "purchase_payment_pending_message": "お支払いはまだ完了していません。コンビニ現金払いや銀行振込など、時間のかかる支払い方法を選択された場合は、その場所でお支払いを完了してください。\nお支払いが完了するとスターキャンディが自動的に付与されますので、もう一度お支払いしないでください。",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1931,6 +1956,10 @@
   "withdrawal_success": "退会が正常に処理されました。",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "退会処理に失敗しました。しばらくしてからもう一度お試しください。",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "このアーティストへの応募は既に完了しています。",
   "@vote_item_request_already_applied_artist": {
@@ -2459,9 +2488,31 @@
   "candy_boost_day": "キャンディブーストデー",
   "candy_boost_exact_double": "基本付与 + 追加ボーナス100%",
   "candy_boost_extra_bonus": "基本付与 + 追加ボーナス",
+  "candy_boost_multiplier": "{multiplier}倍",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "プロモーションを確認中",
   "candy_boost_purchase_pending": "同じ商品の購入処理が進行中です。",
   "candy_boost_late_purchase_explanation": "認証に時間がかかりましたが、購入は正常に完了しました。",
+  "candy_boost_total_multiplier": "イベントボーナス +{multiplier}%",
+  "purchase_reward_base": "基本付与",
+  "purchase_reward_base_short": "基本",
+  "purchase_reward_event_short": "イベント",
+  "purchase_reward_product_bonus": "基本ボーナス",
+  "purchase_reward_event_bonus": "イベントボーナス",
+  "purchase_reward_expected_total": "予想合計",
+  "purchase_reward_total_short": "合計",
+  "purchase_current_balance": "現在の残高 {amount}",
+  "purchase_expected_balance": "購入後の予想 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "予想数量です。最終的な付与数量は決済完了時にサーバー基準で確定します。",
+  "candy_reward_receipt_total": "合計{amount}獲得",
   "ad_reward_pending": "報酬を確認しています",
   "ad_reward_granted": "コットンキャンディを獲得しました",
   "ad_reward_not_granted": "報酬は付与されませんでした",
@@ -2476,6 +2527,7 @@
     }
   },
   "candy_reward_receipt_balance": "現在の保有 {amount}",
+  "candy_reward_receipt_purchase_balance": "購入後の保有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2561,5 +2613,7 @@
   "expiry_quantity_description": "現在のアカウントで失効予定の数量です。",
   "expiry_policy_description": "通貨ごとの失効基準です。",
   "bonus_expiry_policy_summary": "1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。",
-  "expiry_tonight_at_midnight": "今夜0時"
+  "expiry_tonight_at_midnight": "今夜0時",
+  "error_ad_device_account_restricted_message": "この端末での現在のアカウントによる広告の利用は、一時的に制限されています。",
+  "profile_photo_change": "プロフィール写真を変更"
 }

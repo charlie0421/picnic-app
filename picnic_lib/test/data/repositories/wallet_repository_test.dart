@@ -107,4 +107,35 @@ void main() {
     expect(summary.bonus, BigInt.zero);
     expect(summary.cotton, BigInt.zero);
   });
+
+  // The empty wallet above is the server's *own* answer for a request it
+  // understood. A permission denial is not: it says the caller had no business
+  // asking. Reading it as a zero balance would turn a revoked grant, a role
+  // regression, or a broken migration into a silently empty pouch, and would
+  // hide it from every alert that watches wallet reads fail.
+  test('getSummary surfaces a permission denial instead of zeroing', () async {
+    final client = SupabaseClient(
+      'http://localhost:54321',
+      'test-anon-key',
+      httpClient: MockClient(
+        (request) async => http.Response(
+          jsonEncode({
+            'code': '42501',
+            'message': 'permission denied for function get_wallet_summary',
+            'details': null,
+            'hint': null,
+          }),
+          403,
+          headers: {'content-type': 'application/json'},
+          request: request,
+        ),
+      ),
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+    );
+
+    await expectLater(
+      WalletRepository(client).getSummary(),
+      throwsA(isA<PostgrestException>().having((e) => e.code, 'code', '42501')),
+    );
+  });
 }

@@ -453,6 +453,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                 imageUrl: fortune.artist.image ?? '',
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),
+                cdnVariant: PicnicCdnImageVariant.large,
               ),
             ),
           ),

@@ -55,6 +55,7 @@ class ArtistSearchResultItem extends StatelessWidget {
         width: 48.w,
         height: 48.w,
         imageUrl: artist.image ?? 'artist/${artist.id}/image.png',
+        cdnVariant: PicnicCdnImageVariant.avatar,
         fit: BoxFit.cover, // ✅ 이미지 맞춤 최적화
         priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
         lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩

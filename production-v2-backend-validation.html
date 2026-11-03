@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Candy Boost V2 프로덕션 우선 백엔드 검증</title>
+  <style>
+    :root { color-scheme: light; --ink:#1f2937; --muted:#5b6472; --line:#d8dee8; --bg:#f5f7fb; --card:#fff; --bad:#9f1239; --warn:#92400e; --good:#166534; --code:#111827; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.58 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { max-width:1100px; margin:0 auto; padding:40px 24px 72px; }
+    h1,h2,h3 { line-height:1.25; color:#111827; }
+    h1 { margin:0 0 8px; font-size:30px; }
+    h2 { margin:34px 0 12px; font-size:22px; border-bottom:1px solid var(--line); padding-bottom:8px; }
+    h3 { margin:22px 0 8px; font-size:17px; }
+    p { margin:8px 0 12px; }
+    .meta,.muted { color:var(--muted); }
+    .verdict { margin:24px 0; padding:18px 20px; border-left:6px solid var(--bad); background:#fff1f2; border-radius:8px; }
+    .verdict strong { color:var(--bad); font-size:18px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin:14px 0; }
+    .tag { display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; font-weight:700; }
+    .blocker { background:#ffe4e6; color:var(--bad); }
+    .medium { background:#fef3c7; color:var(--warn); }
+    .pass { background:#dcfce7; color:var(--good); }
+    table { width:100%; border-collapse:collapse; margin:12px 0 20px; background:#fff; }
+    th,td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { background:#eef2f7; }
+    code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:#eef2f7; padding:1px 4px; border-radius:4px; }
+    pre { overflow:auto; white-space:pre-wrap; background:var(--code); color:#eef2ff; padding:14px 16px; border-radius:8px; font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace; }
+    ul,ol { padding-left:22px; }
+    li { margin:6px 0; }
+    .nowrap { white-space:nowrap; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>백엔드 검증 — 최신 root 재검증</h1>
+  <div class="card"><p>최신 통합 판정은 <a href="production-v2-readiness.html">프로덕션 사전 검증 보고서</a>를 따른다. 운영 쓰기·배포는 없다.</p><p>Root가 네트워크 없는 PostgreSQL 15 복제본에서 V2 SQL 6개와 V1·결제·환불 SQL 5개를 모두 통과시켰다. 모든 테스트는 롤백됐다. 기존 공유 로컬 DB는 웹훅 2개가 있어 테스트하지 않았으며 변경하지 않았다. 복제 과정의 PG17→15 변환과 로컬 manifest 보정 한계는 통합 보고서에 명시했다.</p><p>Safety 전체 root 재실행은 53/57 통과이며 4건은 오래된 fixture 절대경로 ENOENT다. 운영 권한의 소유권 이전 실패는 재현됐다. V2 표시·판정 플래그와 별도로 실제 지급에는 candy 쓰기 가드가 있으며, 미준비 상태에서 이 쓰기 가드를 켜려는 API 호출은 정상 거부됐다. 운영 준비는 미충족이고 배포 승인 상태는 아니다.</p></div>
+  <details><summary>초기 Sol 작업자 기록 — 당시 환경 제한과 정적 검토 (위 재검증 결과가 우선)</summary>
+  <h1>Candy Boost V2 프로덕션 우선 백엔드 검증</h1>
+  <p class="meta">2026-09-07 KST · 읽기 전용 검증 · 대상 checkout <code>/Users/charlie.hyun/Repositories/picnic-supabase-candy-boost-scheduling</code></p>
+
+  <div class="verdict">
+    <strong>판정: NO-GO — 프로덕션 실행 증거 미완료</strong>
+    <p>이는 V2 정산 로직의 실패 판정이 아니라, 로컬 웹훅 가드와 SQL 테스트를 실제 DB에서 완료하지 못한 데 따른 검증 보류다. 프로덕션 쓰기·배포·플래그 활성화는 수행하지 않았고 승인하지 않는다.</p>
+  </div>
+
+  <h2>1. 범위와 기준선</h2>
+  <table>
+    <tr><th>항목</th><th>확인값</th></tr>
+    <tr><td>지정 HEAD</td><td><code>a620974ed165e21c8cf904d7065d5c51efe8a1e5</code> (<code>feat/candy-boost-admin-scheduling</code>)</td></tr>
+    <tr><td>로컬 <code>origin/main</code> ref</td><td><code>2caa043a6f69d0483502d7f4e9b2cb0157c72d81</code>; 네트워크 금지 때문에 fetch하지 않았음</td></tr>
+    <tr><td>공통 조상</td><td><code>73b93ff0409e04f679ef4ed040bdebb21e991463</code></td></tr>
+    <tr><td>분기량</td><td><code>git rev-list --left-right --count HEAD...origin/main</code> → <code>15 109</code></td></tr>
+    <tr><td>기존 dirty 상태</td><td><code>M package-lock.json</code>만 존재; name 변경 diff를 그대로 보존</td></tr>
+    <tr><td>금지 작업 준수</td><td>DB reset, migration apply, 원격 자격증명 사용, 원격/프로덕션 DB 호출, 배포, flag 변경, commit 모두 없음</td></tr>
+  </table>
+
+  <h2>2. 주요 발견</h2>
+
+  <section class="card">
+    <h3><span class="tag blocker">BLOCKER</span> 로컬 DB 검증 증거가 없음</h3>
+    <p>원격 관련 환경변수를 제거하면 로컬 target guard는 통과했다. 그러나 outbound-webhook guard가 <code>127.0.0.1:54322</code>에 연결할 때 샌드박스가 <code>Operation not permitted</code>로 차단했다. 두 가드 통과가 SQL 실행의 선행조건이므로 6개 V2 SQL 테스트와 V1/refund SQL 테스트를 실행하지 않았다.</p>
+    <p>따라서 로컬 DB가 V2 스키마와 일치하는지, 또는 어떤 migration이 누락됐는지는 관찰할 수 없었다. 이는 확인된 schema mismatch가 아니라 환경 제한이며, 기존 <code>picnic-local</code> DB는 reset하지 않았다.</p>
+  </section>
+
+  <section class="card">
+    <h3><span class="tag medium">HIGH</span> 지정 브랜치는 현재 main 배포 기준선으로 부적합</h3>
+    <p>지정 HEAD는 로컬 <code>origin/main</code>보다 109개 main-side commit 뒤에 있으며 양방향 diff는 155개 파일에 걸친다. 전체 checkout을 프로덕션 배포 입력으로 쓰면 이후 main 변경이 대량 누락된다.</p>
+    <p>반면 검토 대상 6개 V2 migration과 V2 테스트/fixture 산출물은 로컬 <code>origin/main</code>과 byte-identical하다. 즉 migration 내용 자체의 main 병합 드리프트는 없지만, 실행은 최신 원격 <code>main</code>의 검증된 SHA에서 다시 수행해야 한다.</p>
+  </section>
+
+  <section class="card">
+    <h3><span class="tag medium">MEDIUM</span> 전체 safety suite의 비이식적 절대경로 4건</h3>
+    <p><code>npm run test:wallet:safety</code>는 57개 중 52개 통과, 5개 실패했다. 그중 4개는 <code>scripts/safety/wallet-release-artifacts.test.mjs</code>가 삭제된 별도 checkout <code>/Users/charlie.hyun/Repositories/picnic-app-cotton-candy-policy/...</code>를 하드코딩해 <code>ENOENT</code>가 난 genuine test-harness failure다. 동일 fixture는 현재 <code>/Users/charlie.hyun/Repositories/picnic-app/picnic_app/integration_test/fixtures/wallet_contract_fixtures.g.dart</code>에 존재한다.</p>
+    <p>백엔드 V2 동작 실패 증거는 아니지만, 프로덕션 전 safety gate를 환경 독립적으로 재현할 수 없으므로 수정 후 녹색 결과가 필요하다.</p>
+  </section>
+
+  <section class="card">
+    <h3><span class="tag medium">ENV</span> Dart telemetry 쓰기 제한 1건</h3>
+    <p><code>wallet-contract-verifier.test.mjs</code>의 Dart format 검사는 처음에는 Flutter SDK <code>engine.stamp</code>, SDK 내부 Dart를 직접 선택한 재시도에서는 <code>~/.dart-tool/dart-flutter-telemetry-session.json</code> 쓰기가 샌드박스에서 차단되어 실패했다. 나머지 4개 verifier test는 통과했고, 이는 코드 assertion failure가 아닌 실행 환경 제한이다.</p>
+  </section>
+
+  <section class="card">
+    <h3><span class="tag medium">LOW</span> public schedule 테이블의 RLS 방어 계층 부재</h3>
+    <p><code>promotion_schedule_v2_grants</code>에는 RLS가 켜져 있지만 <code>promotion_campaign_schedule_versions</code>와 <code>promotion_campaign_schedule_weekdays</code>에는 <code>ENABLE ROW LEVEL SECURITY</code>가 없다. 현재 migration은 <code>PUBLIC</code>, <code>anon</code>, <code>authenticated</code>, <code>service_role</code>의 직접 권한을 revoke하고 전용 owner/read role만 사용하므로 즉시 확인된 권한 우회는 없다. 다만 Supabase의 exposed <code>public</code> schema 방어심층 기준에는 못 미치므로, 독립 보안 검토에서 별도 forward migration 필요 여부를 결정해야 한다.</p>
+  </section>
+
+  <h2>3. V2 계약 정적 검토</h2>
+  <table>
+    <tr><th>영역</th><th>검토 결과</th><th>근거</th></tr>
+    <tr><td>지급 수학</td><td><span class="tag pass">정적 양호</span></td><td><code>gross=max(base+1,floor(base×tenths/10))</code>. 1.1x, 1.5x truncation, 2.5x, 3.0x, 큰 bigint 결과, 0/음수 거부가 테스트에 있음.</td></tr>
+    <tr><td>시간/KST</td><td><span class="tag pass">정적 양호</span></td><td><code>[event_starts_at,event_ends_at)</code>, KST 자정 전후, 선택/비선택 ISO weekday, 연말 경계를 명시적으로 단언함. provider time NULL은 fail-closed.</td></tr>
+    <tr><td>version 선택</td><td><span class="tag pass">정적 양호</span></td><td><code>effective_from desc, version desc</code>로 최신 유효 version을 고르고 최신 version이 비활성/비요일이면 이전 version으로 새지 않음.</td></tr>
+    <tr><td>중복/replay</td><td><span class="tag pass">정적 양호</span></td><td>snapshot당 grant unique, conflict-safe insert/re-read, operation key 불일치 거부, admin request byte-identical replay, financial/allocation 중복 방지 단언.</td></tr>
+    <tr><td>refund</td><td><span class="tag pass">정적 양호</span></td><td>1.5x에서 고정된 extra 7을 이후 3.0x version과 무관하게 7만 reverse하며 immutable grant가 바뀌지 않음을 테스트함.</td></tr>
+    <tr><td>OFF rollback</td><td><span class="tag pass">정적 양호</span></td><td>flag OFF의 새 결정은 V1으로 fallback, 이후 ON에서도 V1 replay가 V2로 이동하지 않음. 이미 grant가 있는 V2 결정은 OFF 후에도 고정 V2 경로로 replay.</td></tr>
+    <tr><td>권한</td><td><span class="tag pass">ACL 정적 양호</span></td><td>public client/service roles의 table 및 private function 직접 실행을 revoke하고 public read/admin RPC만 최소 역할에 grant. 모든 security-definer 함수는 빈 <code>search_path</code>를 사용.</td></tr>
+    <tr><td>outbound side effect</td><td><span class="tag pass">없음</span></td><td>6개 migration에서 <code>supabase_functions.http_request</code>, <code>net.http</code>, <code>pg_net</code>, HTTP URL 패턴이 검출되지 않음.</td></tr>
+  </table>
+
+  <h2>4. Migration/main 호환성</h2>
+  <p>아래 SHA-256은 지정 HEAD와 로컬 <code>origin/main</code>에서 각각 계산했으며 모두 동일했다.</p>
+  <table>
+    <tr><th>Migration</th><th>SHA-256</th></tr>
+    <tr><td><code>20260821100000_promotion_schedule_v2_schema.sql</code></td><td><code>cbb2137408f80d5b905fdead4a88f9c581b120985971e25c300b283d99ca5ac3</code></td></tr>
+    <tr><td><code>20260821103000_promotion_schedule_v2_evaluator_and_math.sql</code></td><td><code>5af3f9ecca1d6cc1ed6a695dd5fad903dc696b19a4defa1100792fd66428e9ca</code></td></tr>
+    <tr><td><code>20260821110000_promotion_schedule_v2_read_rpc.sql</code></td><td><code>48333a43b9ff7d104f2c41f276daa4767200c2269b1a9e7faa449b22f993d296</code></td></tr>
+    <tr><td><code>20260821113000_promotion_schedule_v2_admin_read_rpcs.sql</code></td><td><code>ccc1b2d202167196910e10d5e35b0fa0ce9402091f268ff4d198e5a4105330eb</code></td></tr>
+    <tr><td><code>20260821120000_promotion_schedule_v2_admin_write_rpc.sql</code></td><td><code>bbfdc29bf47da927742baa42302d57482724f51773ee99ef07040ba8c43dca41</code></td></tr>
+    <tr><td><code>20260821123000_promotion_schedule_v2_grant_snapshot.sql</code></td><td><code>8e1d98702cc32438fd145322a00fdc18506f6aa0a885a08043a1f71774b5c097</code></td></tr>
+  </table>
+  <p>로컬 <code>origin/main</code>에는 이 migration들이 squash commit <code>3c93ed7</code>로 이미 포함되어 있으며 이후 해당 6개 파일 수정 이력은 없다. 후속 <code>20260824060000_purchase_analytics_grant.sql</code>은 canonical purchase flow에서 V2 wrapper인 <code>build_purchase_result</code>와 <code>transition_purchase_promotion_resolution</code>를 계속 호출하므로 정적 순서 호환은 유지된다. 실제 적용 호환성은 로컬 DB 접속 제한으로 검증하지 못했다.</p>
+
+  <h2>5. 테스트 inventory와 지속성</h2>
+  <p>요청에는 “7개 V2 SQL 테스트”라고 되어 있으나 저장소에서 V2 SQL 파일은 아래 6개뿐이다. 일곱 번째 V2 표식 테스트는 <code>scripts/safety/wallet-contract-v2-fixtures.test.mjs</code>인 Node 테스트이며 SQL이 아니다.</p>
+  <table>
+    <tr><th>V2 SQL</th><th>지속성 검사</th><th>실행</th></tr>
+    <tr><td><code>promotion_campaign_schedule_v2_constraints.test.sql</code></td><td><code>BEGIN</code> 첫 줄 / <code>ROLLBACK</code> 마지막 줄</td><td>가드 미완료로 생략</td></tr>
+    <tr><td><code>promotion_campaign_schedule_v2_evaluator.test.sql</code></td><td>동일</td><td>가드 미완료로 생략</td></tr>
+    <tr><td><code>promotion_schedule_v2_surface_contract.test.sql</code></td><td>동일</td><td>가드 미완료로 생략</td></tr>
+    <tr><td><code>promotion_schedule_v2_admin_read.test.sql</code></td><td>동일</td><td>가드 미완료로 생략</td></tr>
+    <tr><td><code>promotion_schedule_v2_admin_commands.test.sql</code></td><td>동일</td><td>가드 미완료로 생략</td></tr>
+    <tr><td><code>promotion_schedule_v2_grant_snapshot.test.sql</code></td><td>동일</td><td>가드 미완료로 생략</td></tr>
+  </table>
+  <p>V1/refund에서 <code>promotion_campaign_evaluator</code>, <code>promotion_surface_contract</code>, <code>grant_verified_purchase</code>, <code>purchase_intake_idempotent_replay</code>, <code>refund_verified_purchase</code>는 외부 commit 없는 rollback형으로 확인했다. 반면 <code>promotion_campaign_constraints</code>, <code>refund_credit_concurrency</code>, <code>purchase_promotion_race</code>는 dblink 별도 세션 commit 또는 명시적 fixture 잔존을 사용하므로 이번 비영속 조건에서는 선택 대상에서 제외했다.</p>
+
+  <h2>6. 실행 명령과 결과</h2>
+  <table>
+    <tr><th>명령</th><th>결과</th><th>분류</th></tr>
+    <tr><td><code>npm run test:wallet:safety</code></td><td>exit 1; tests 57, pass 52, fail 5</td><td>4 genuine harness portability failures + 1 sandbox environment limitation</td></tr>
+    <tr><td><code>npm run guard:wallet:local</code></td><td>exit 1; <code>NO-GO: unsafe Supabase target (SUPABASE_ACCESS_TOKEN)</code></td><td>가드 정상 동작; 값은 읽거나 출력하지 않음</td></tr>
+    <tr><td><code>env -u SUPABASE_ACCESS_TOKEN -u SUPABASE_URL -u SUPABASE_API_URL -u SUPABASE_DB_URL -u DATABASE_URL -u SUPABASE_PROJECT_REF -u SUPABASE_PROJECT_ID -u PROJECT_REF npm run guard:wallet:local</code></td><td>exit 0</td><td>로컬 target guard 통과</td></tr>
+    <tr><td><code>env -u SUPABASE_ACCESS_TOKEN -u SUPABASE_URL -u SUPABASE_API_URL -u SUPABASE_DB_URL -u DATABASE_URL -u SUPABASE_PROJECT_REF -u SUPABASE_PROJECT_ID -u PROJECT_REF npm run guard:no-webhooks</code></td><td>exit 2; localhost:54322 <code>Operation not permitted</code></td><td>샌드박스 환경 제한; 웹훅 부재 미검증</td></tr>
+    <tr><td><code>node --test scripts/safety/wallet-contract-v2-fixtures.test.mjs scripts/safety/wallet-contract-fixture-shapes.test.mjs</code></td><td>exit 0; tests 10, pass 10, fail 0</td><td>V2/fixture 정적 계약 통과</td></tr>
+    <tr><td><code>PATH=/opt/homebrew/share/flutter/bin/cache/dart-sdk/bin:$PATH node --test scripts/safety/wallet-contract-verifier.test.mjs</code></td><td>5개 중 4 통과, 1 실패; <code>~/.dart-tool</code> telemetry write denied</td><td>환경 제한 재현</td></tr>
+    <tr><td><code>git diff --check origin/main...HEAD</code></td><td>exit 0</td><td>whitespace 오류 없음</td></tr>
+    <tr><td><code>git diff --quiet origin/main -- &lt;6 migrations&gt;</code></td><td>각 파일 exit 0</td><td>로컬 main과 byte-identical</td></tr>
+    <tr><td><code>git status --short</code> (최종 전)</td><td><code>M package-lock.json</code></td><td>기존 dirty 변경만 유지</td></tr>
+  </table>
+
+  <h2>7. 최소 다음 단계</h2>
+  <ol>
+    <li>localhost loopback만 허용되고 원격 자격증명이 제거된 환경에서 local target guard와 webhook guard를 다시 통과시킨다. webhook trigger가 발견되거나 schema가 다르면 중지하고 mismatch를 보고하며 DB reset은 하지 않는다.</li>
+    <li>가드 통과 후 위 6개 rollback형 V2 SQL과 안전한 V1/refund 5개만 개별 <code>psql -v ON_ERROR_STOP=1 -f</code>로 실행한다. dblink commit/fixture-retaining 테스트와 전체 <code>test:wallet:sql</code>은 이 비영속 검증에서 제외한다.</li>
+    <li>절대경로를 제거한 뒤 정상 개발 환경에서 <code>npm run test:wallet:safety</code> 57/57을 확보한다. Dart telemetry 쓰기 허용 또는 조직 표준 비활성화 설정도 필요하다.</li>
+    <li>독립 리뷰 결과와 위 실행 증거를 최신 원격 <code>main</code> SHA에 다시 묶는다. 지정 feature branch 전체는 배포 입력으로 사용하지 않는다.</li>
+    <li>그 전까지 <code>promotion_schedule_v2_enabled=false</code>를 유지한다. 어떤 production deploy/write/flag activation도 이 보고서로 승인되지 않는다.</li>
+  </ol>
+
+  <h2>8. 최종 무결성 메모</h2>
+  <p>검증 중 저장소 파일은 수정하지 않았다. 테스트가 만든 임시 파일은 시스템 임시 디렉터리에만 있었고, 사용자 소유의 <code>package-lock.json</code> dirty diff는 시작과 끝 모두 동일한 한 줄 name 변경으로 남아 있다.</p>
+  </details>
+</main>
+</body>
+</html>

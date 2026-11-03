@@ -10,10 +10,12 @@ import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/usage_policy_dialog.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../../../../helpers/ignore_image_errors.dart';
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_app.dart';
 import '../../../../../helpers/test_environment.dart';
@@ -90,7 +92,8 @@ void main() {
     testWidgets('renders UsagePolicyPopup directly', (
       WidgetTester tester,
     ) async {
-      await tester.pumpWidget(
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestAppPage(
           const Material(color: Colors.transparent, child: UsagePolicyPopup()),
           loggedIn: false,
@@ -270,7 +273,8 @@ void main() {
       WidgetTester tester,
     ) async {
       await setupMockSupabaseWithAuth({}, userId: 'test-user-id');
-      await tester.pumpWidget(
+      await pumpWidgetAndIgnoreErrors(
+        tester,
         buildTestAppPage(
           const Material(color: Colors.transparent, child: UsagePolicyPopup()),
           loggedIn: true,
@@ -282,11 +286,10 @@ void main() {
           ],
         ),
       );
-      await tester.pump();
-      await tester.pump();
+      await pumpAndIgnoreErrors(tester);
 
       expect(find.text('Picnic! 캔디 정책'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(MediumPulseLoadingIndicator), findsOneWidget);
 
       // 파우치 읽기에는 상한(kWalletSummaryReadTimeout)이 걸려 있다. 그 타이머를
       // 흘려보내지 않으면 테스트 종료 시 'Timer is still pending' 으로 깨진다

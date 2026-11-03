@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class PicnicListItem extends StatelessWidget {
   final String leading;
@@ -20,40 +20,70 @@ class PicnicListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final label = Text(
+      leading,
+      style: PicnicUi.text(size: 16, weight: FontWeight.w500),
+    );
+    final trailing =
+        tailing ??
+        SvgPicture.asset(
+          package: 'picnic_lib',
+          assetPath,
+          width: 20,
+          height: 20,
+          colorFilter: ColorFilter.mode(PicnicUi.ink, BlendMode.srcIn),
+        );
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            InkWell(
-              onTap: onTap,
-              child: SizedBox(
-                height: 61,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(leading, style: getTextStyle(AppTypo.body16M)),
-                    Expanded(child: title ?? const SizedBox.shrink()),
-                    tailing ??
-                        SvgPicture.asset(
-                          package: 'picnic_lib',
-                          assetPath,
-                          width: 20,
-                          height: 20,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.grey900,
-                            BlendMode.srcIn,
+        InkWell(
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 61),
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: PicnicUi.vertical(12)),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final stacked =
+                      title != null &&
+                      (constraints.maxWidth < 320 ||
+                          MediaQuery.textScalerOf(context).scale(16) > 20.8);
+                  return Row(
+                    children: [
+                      if (stacked)
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              label,
+                              SizedBox(height: PicnicUi.vertical(4)),
+                              title!,
+                            ],
                           ),
+                        )
+                      else if (title == null)
+                        Expanded(child: label)
+                      else ...[
+                        ConstrainedBox(
+                          constraints: BoxConstraints(
+                            maxWidth: constraints.maxWidth * 0.45,
+                          ),
+                          child: label,
                         ),
-                  ],
-                ),
+                        SizedBox(width: PicnicUi.horizontal(8)),
+                        Expanded(child: title!),
+                      ],
+                      SizedBox(width: PicnicUi.horizontal(8)),
+                      trailing,
+                    ],
+                  );
+                },
               ),
             ),
-          ],
+          ),
         ),
-        const Divider(color: AppColors.grey200),
+        Divider(color: PicnicUi.border),
       ],
     );
   }

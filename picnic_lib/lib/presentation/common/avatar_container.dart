@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,6 +13,7 @@ class ProfileImageContainer extends StatelessWidget {
     required this.width,
     required this.height,
     this.border,
+    this.cdnVariant = PicnicCdnImageVariant.avatar,
   });
 
   final String? avatarUrl;
@@ -21,6 +21,7 @@ class ProfileImageContainer extends StatelessWidget {
   final double? width;
   final double? height;
   final Border? border;
+  final PicnicCdnImageVariant cdnVariant;
 
   @override
   Widget build(BuildContext context) {
@@ -56,15 +57,7 @@ class ProfileImageContainer extends StatelessWidget {
       return NoAvatar(width: width, height: height, borderRadius: borderRadius);
     }
 
-    if (_isHttpUrl(resolvedUrl)) {
-      return CachedNetworkImage(
-        imageUrl: resolvedUrl,
-        width: width,
-        height: height,
-        fit: BoxFit.cover,
-      );
-    }
-
+    final isHttpImage = _isHttpUrl(resolvedUrl);
     return PicnicCachedNetworkImage(
       key: ValueKey(
         'avatar_${resolvedUrl}_${width}_$height',
@@ -72,13 +65,14 @@ class ProfileImageContainer extends StatelessWidget {
       imageUrl: resolvedUrl,
       width: width,
       height: height,
+      cdnVariant: cdnVariant,
       fit: BoxFit.cover,
       priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
-      lazyLoadingStrategy: LazyLoadingStrategy.viewport, // ✅ 뷰포트 기반 지연로딩
+      lazyLoadingStrategy: isHttpImage
+          ? LazyLoadingStrategy.none
+          : LazyLoadingStrategy.viewport,
       enableMemoryOptimization: true, // ✅ 메모리 최적화 활성화
       enableProgressiveLoading: true, // ✅ 점진적 로딩으로 빠른 표시
-      memCacheWidth: width?.toInt() ?? 48, // ✅ 메모리 캐시 크기 지정
-      memCacheHeight: height?.toInt() ?? 48, // ✅ 메모리 캐시 크기 지정
       timeout: const Duration(seconds: 10), // ✅ 타임아웃 설정
       maxRetries: 2, // ✅ 재시도 횟수 설정
       borderRadius: borderRadius != null
@@ -103,7 +97,8 @@ class ProfileImageContainer extends StatelessWidget {
   }
 
   bool _isHttpUrl(String url) {
-    return url.startsWith('http://') || url.startsWith('https://');
+    final scheme = Uri.tryParse(url)?.scheme.toLowerCase();
+    return scheme == 'http' || scheme == 'https';
   }
 }
 

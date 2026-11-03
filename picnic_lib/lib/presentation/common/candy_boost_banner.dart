@@ -2,18 +2,23 @@ import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/utils/app_initializer.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class CandyBoostBanner extends ConsumerWidget {
-  const CandyBoostBanner({super.key, required this.campaign});
-  final ActivePromotionCampaignModel campaign;
+  const CandyBoostBanner({
+    super.key,
+    required this.creative,
+    this.imageRequest,
+  });
+  final PromotionCreativeModel creative;
+  final PicnicImageRequest? imageRequest;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = Localizations.localeOf(context).languageCode;
-    final creative = campaign.homeCreative!;
     final image = creative.localizedImage(locale)!;
     final title = creative.localizedTitle(locale)!;
     return GestureDetector(
@@ -31,7 +36,16 @@ class CandyBoostBanner extends ConsumerWidget {
         fit: StackFit.expand,
         alignment: Alignment.centerLeft,
         children: [
-          PicnicCachedNetworkImage(imageUrl: image, fit: BoxFit.cover),
+          PicnicCachedNetworkImage(
+            imageUrl: image,
+            imageRequest: imageRequest,
+            cdnVariant: PicnicCdnImageVariant.large,
+            fit: BoxFit.cover,
+            // 일반 배너처럼 보일 때만 받는다. 가려진 홈이나 화면 밖 배너가
+            // 큰 변형을 먼저 받아 다른 이미지와 대역폭을 다투지 않게 한다.
+            lazyLoadingStrategy: LazyLoadingStrategy.viewport,
+            priority: ImagePriority.high,
+          ),
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(

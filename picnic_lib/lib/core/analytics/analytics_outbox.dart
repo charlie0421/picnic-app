@@ -5,12 +5,96 @@ import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/core/analytics/analytics_send_markers.dart';
 import 'package:picnic_lib/core/analytics/ga4_purchase_item.dart';
 import 'package:picnic_lib/core/analytics/ga4_sink.dart';
+import 'package:picnic_lib/core/analytics/iso_4217_currency.dart';
 import 'package:picnic_lib/core/analytics/ga4_taxonomy.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
 
 enum AnalyticsOutboxEventKind { purchase, earnVirtualCurrency, login, signUp }
+
+/// purchase 항목이 GA4 로 나갈 수 있는 상태인지.
+///
+/// 검증·지급이 끝난 스토어 구매는 전부 revenue-bearing 이다. 통화를 아직
+/// 확보하지 못한 매출 이벤트를 "필드만 빼고 전송 성공"으로 흡수하면 그 거래의
+/// 매출은 GA4 에서 영영 0 이다 — 보내지 않고 기다리는 편이 복구 가능하다.
+enum AnalyticsOutboxDeliveryState {
+  /// ISO 4217 통화를 확보했다. 다음 drain 에서 sink 로 나간다.
+  ready,
+
+  /// 통화가 없어 보류 중이다. sink 대상이 아니며 resolver 재시도를 탄다.
+  awaitingCurrency,
+}
+
+/// [AnalyticsOutbox.enqueueOrMergePurchase] 의 durable 저장 결과.
+///
+/// 호출부(`PurchaseService`)는 `ready` 또는 `deferred` 를 확인한 뒤에만 영수증
+/// 큐 항목을 제거한다. `failed` 는 복구 재료를 아직 버리면 안 된다는 뜻이다.
+enum PurchaseOutboxResult { ready, deferred, failed }
+
+/// 통화를 확보하지 못한 이유. 원문 예외나 영수증은 저장하지 않는다.
+enum PurchaseCurrencyError {
+  catalogUnavailable,
+  productMissing,
+  invalidIso4217,
+  resolverTimeout,
+}
+
+/// 보류 중인 purchase 의 통화를 나중에 다시 찾아보는 경로.
+///
+/// 정산 시점에 스토어 카탈로그가 메모리에 없어 통화를 못 구한 복구 구매가
+/// 대상이다. 앱이 이후 카탈로그를 확보하면 같은 항목이 그대로 되살아난다.
+abstract class PurchaseCurrencyResolver {
+  Future<String?> resolve(String storeProductId);
+}
+
+/// 만료된 purchase 의 요약. payload·영수증은 담지 않는다.
+///
+/// 만료를 조용한 삭제로 처리하면 "왜 이 거래의 매출이 없는가"에 답할 수 없다.
+@immutable
+class AnalyticsDeadLetter {
+  const AnalyticsDeadLetter({
+    required this.id,
+    required this.aliases,
+    required this.attempts,
+    required this.reason,
+    required this.expiredAt,
+  });
+
+  final String id;
+  final List<String> aliases;
+  final int attempts;
+  final String reason;
+  final DateTime expiredAt;
+
+  Map<String, Object?> toJson() => <String, Object?>{
+    'id': id,
+    'aliases': aliases,
+    'attempts': attempts,
+    'reason': reason,
+    'expired_at': expiredAt.toIso8601String(),
+  };
+
+  static AnalyticsDeadLetter? fromJson(Object? raw) {
+    if (raw is! Map) return null;
+    try {
+      final map = Map<String, dynamic>.from(raw);
+      return AnalyticsDeadLetter(
+        id: map['id'] as String,
+        aliases: <String>[
+          for (final value in map['aliases'] as List<dynamic>)
+            if (value is String && value.isNotEmpty) value,
+        ],
+        attempts: (map['attempts'] as num?)?.toInt() ?? 0,
+        reason: map['reason'] as String? ?? '',
+        expiredAt: DateTime.parse(map['expired_at'] as String).toUtc(),
+      );
+    } catch (e, s) {
+      logger.e('GA4 outbox dead letter 파싱 실패: $raw', error: e, stackTrace: s);
+      return null;
+    }
+  }
+}
 
 /// GA4 로 보낼 수 있을 만큼 완성된 payload 를 담는 durable outbox 항목.
 ///
@@ -28,6 +112,12 @@ class AnalyticsOutboxEntry {
     required this.userId,
     required this.createdAt,
     this.deliveryConfirmed = false,
+    this.deliveryState = AnalyticsOutboxDeliveryState.ready,
+    this.storeProductId,
+    this.candidateValue,
+    this.currencyAttempts = 0,
+    this.currencyNextAt,
+    this.lastCurrencyError,
   });
 
   factory AnalyticsOutboxEntry.event({
@@ -52,6 +142,12 @@ class AnalyticsOutboxEntry {
     );
   }
 
+  /// GA4 매출 이벤트 하나.
+  ///
+  /// [currency] 가 ISO 4217 이 아니면(없는 경우 포함) 항목은 전송 대상이 아니라
+  /// [AnalyticsOutboxDeliveryState.awaitingCurrency] 로 만들어지고, [value] 는
+  /// payload 가 아니라 [candidateValue] 로만 보존된다. 통화 없는 매출 이벤트를
+  /// payload 에 담아 둘 수 있게 하면 어느 경로로든 sink 에 닿을 수 있다.
   factory AnalyticsOutboxEntry.purchase({
     required String id,
     required List<String> aliases,
@@ -59,6 +155,8 @@ class AnalyticsOutboxEntry {
     required String? currency,
     required num? value,
     required List<Ga4PurchaseItem> items,
+    String? storeProductId,
+    num? candidateValue,
     DateTime? createdAt,
   }) {
     final payload = <String, Object>{
@@ -74,8 +172,13 @@ class AnalyticsOutboxEntry {
           },
       ],
     };
-    if (currency != null) payload['currency'] = currency;
-    if (value != null) payload['value'] = value;
+    final iso = normalizeIso4217(currency);
+    if (iso != null) {
+      payload['currency'] = iso;
+      // B-3: value 는 Number 파라미터라 결측 시 그 키만 생략한다. currency 를
+      // 억지로 같이 지울 근거가 없다.
+      if (value != null) payload['value'] = value;
+    }
     return AnalyticsOutboxEntry._(
       kind: AnalyticsOutboxEventKind.purchase,
       id: id,
@@ -83,6 +186,11 @@ class AnalyticsOutboxEntry {
       payload: payload,
       userId: null,
       createdAt: (createdAt ?? DateTime.now()).toUtc(),
+      deliveryState: iso == null
+          ? AnalyticsOutboxDeliveryState.awaitingCurrency
+          : AnalyticsOutboxDeliveryState.ready,
+      storeProductId: storeProductId,
+      candidateValue: iso == null ? (candidateValue ?? value) : null,
     );
   }
 
@@ -102,18 +210,55 @@ class AnalyticsOutboxEntry {
   /// outbox에서 사라지지 않는다.
   final bool deliveryConfirmed;
 
+  /// purchase 전용. 다른 종류는 항상 [AnalyticsOutboxDeliveryState.ready] 다.
+  final AnalyticsOutboxDeliveryState deliveryState;
+
+  /// 카탈로그 재조회 키. GA4 `item_id` 로 정규화하기 전의 실제 스토어 상품 ID.
+  final String? storeProductId;
+
+  /// 통화보다 먼저 얻은 금액. payload 가 아니라 여기에만 둔다.
+  final num? candidateValue;
+
+  final int currencyAttempts;
+  final DateTime? currencyNextAt;
+  final PurchaseCurrencyError? lastCurrencyError;
+
   String get processKey => '${kind.name}:$id';
 
-  AnalyticsOutboxEntry copyWith({bool? deliveryConfirmed}) =>
-      AnalyticsOutboxEntry._(
-        kind: kind,
-        id: id,
-        aliases: aliases,
-        payload: payload,
-        userId: userId,
-        createdAt: createdAt,
-        deliveryConfirmed: deliveryConfirmed ?? this.deliveryConfirmed,
-      );
+  bool get isAwaitingCurrency =>
+      deliveryState == AnalyticsOutboxDeliveryState.awaitingCurrency;
+
+  AnalyticsOutboxEntry copyWith({
+    bool? deliveryConfirmed,
+    List<String>? aliases,
+    Map<String, Object>? payload,
+    AnalyticsOutboxDeliveryState? deliveryState,
+    String? storeProductId,
+    num? candidateValue,
+    bool clearCandidateValue = false,
+    int? currencyAttempts,
+    DateTime? currencyNextAt,
+    bool clearCurrencyNextAt = false,
+    PurchaseCurrencyError? lastCurrencyError,
+  }) => AnalyticsOutboxEntry._(
+    kind: kind,
+    id: id,
+    aliases: aliases ?? this.aliases,
+    payload: payload ?? this.payload,
+    userId: userId,
+    createdAt: createdAt,
+    deliveryConfirmed: deliveryConfirmed ?? this.deliveryConfirmed,
+    deliveryState: deliveryState ?? this.deliveryState,
+    storeProductId: storeProductId ?? this.storeProductId,
+    candidateValue: clearCandidateValue
+        ? null
+        : (candidateValue ?? this.candidateValue),
+    currencyAttempts: currencyAttempts ?? this.currencyAttempts,
+    currencyNextAt: clearCurrencyNextAt
+        ? null
+        : (currencyNextAt ?? this.currencyNextAt),
+    lastCurrencyError: lastCurrencyError ?? this.lastCurrencyError,
+  );
 
   Map<String, Object?> toJson() => <String, Object?>{
     'kind': kind.name,
@@ -123,6 +268,14 @@ class AnalyticsOutboxEntry {
     'user_id': userId,
     'created_at': createdAt.toIso8601String(),
     'delivery_confirmed': deliveryConfirmed,
+    'delivery_state': deliveryState.name,
+    if (storeProductId != null) 'store_product_id': storeProductId,
+    if (candidateValue != null) 'candidate_value': candidateValue,
+    if (currencyAttempts > 0) 'currency_attempts': currencyAttempts,
+    if (currencyNextAt != null)
+      'currency_next_at': currencyNextAt!.toIso8601String(),
+    if (lastCurrencyError != null)
+      'last_currency_error': lastCurrencyError!.name,
   };
 
   static AnalyticsOutboxEntry? fromJson(Object? raw) {
@@ -142,6 +295,23 @@ class AnalyticsOutboxEntry {
       ).entries) {
         if (item.value != null) payload[item.key] = item.value as Object;
       }
+      var candidateValue = map['candidate_value'] as num?;
+      final rawState = map['delivery_state'] as String?;
+      var state = AnalyticsOutboxDeliveryState.ready;
+      if (rawState != null) {
+        state = AnalyticsOutboxDeliveryState.values.byName(rawState);
+      } else if (kind == AnalyticsOutboxEventKind.purchase &&
+          !isIso4217(payload['currency'])) {
+        // storage v1 에는 이 상태가 없다. 통화 없이 저장돼 있던 매출 이벤트는
+        // 마이그레이션 시점에 보류로 내리고, 이미 담겨 있던 금액은 payload 가
+        // 아니라 candidate 로 옮겨 sink 에 닿지 않게 한다.
+        state = AnalyticsOutboxDeliveryState.awaitingCurrency;
+        candidateValue ??= payload['value'] as num?;
+        payload.remove('currency');
+        payload.remove('value');
+      }
+      final rawError = map['last_currency_error'] as String?;
+      final rawNextAt = map['currency_next_at'] as String?;
       return AnalyticsOutboxEntry._(
         kind: kind,
         id: id,
@@ -150,6 +320,16 @@ class AnalyticsOutboxEntry {
         userId: map['user_id'] as String?,
         createdAt: DateTime.parse(map['created_at'] as String).toUtc(),
         deliveryConfirmed: map['delivery_confirmed'] == true,
+        deliveryState: state,
+        storeProductId: map['store_product_id'] as String?,
+        candidateValue: candidateValue,
+        currencyAttempts: (map['currency_attempts'] as num?)?.toInt() ?? 0,
+        currencyNextAt: rawNextAt == null
+            ? null
+            : DateTime.parse(rawNextAt).toUtc(),
+        lastCurrencyError: rawError == null
+            ? null
+            : PurchaseCurrencyError.values.byName(rawError),
       );
     } catch (e, s) {
       logger.e(
@@ -199,15 +379,21 @@ class _DeliveredEntry {
 }
 
 class _OutboxState {
-  _OutboxState({required this.pending, required this.delivered});
+  _OutboxState({
+    required this.pending,
+    required this.delivered,
+    required this.deadLetters,
+  });
 
   final List<AnalyticsOutboxEntry> pending;
   final List<_DeliveredEntry> delivered;
+  final List<AnalyticsDeadLetter> deadLetters;
 
   Map<String, Object> toJson() => <String, Object>{
-    'version': 1,
+    'version': 2,
     'pending': pending.map((entry) => entry.toJson()).toList(),
     'delivered': delivered.map((entry) => entry.toJson()).toList(),
+    'dead_letters': deadLetters.map((entry) => entry.toJson()).toList(),
   };
 }
 
@@ -237,11 +423,17 @@ class AnalyticsOutbox {
     this.purchasePendingMaxAge = const Duration(days: 365),
     this.deliveredMaxAge = const Duration(days: 180),
     this.retryDelay = const Duration(seconds: 30),
+    this.currencyRetryDelay = const Duration(seconds: 30),
+    this.maxCurrencyRetryDelay = const Duration(minutes: 5),
+    this.currencyResolveTimeout = const Duration(seconds: 3),
+    this.maxDeadLetters = 50,
+    PurchaseCurrencyResolver? currencyResolver,
     DateTime Function()? clock,
     String? Function()? activeUserIdReader,
     String? Function()? activeLanguageReader,
   }) : _storage = storage,
        _sink = sink,
+       _currencyResolver = currencyResolver,
        _clock = clock ?? DateTime.now,
        _activeUserIdReader = activeUserIdReader,
        _activeLanguageReader = activeLanguageReader;
@@ -251,6 +443,7 @@ class AnalyticsOutbox {
   static AnalyticsOutbox _instance = AnalyticsOutbox();
   static String? Function()? _globalActiveUserIdReader;
   static String? Function()? _globalActiveLanguageReader;
+  static PurchaseCurrencyResolver? _globalCurrencyResolver;
 
   static AnalyticsOutbox get instance => _instance;
 
@@ -266,6 +459,16 @@ class AnalyticsOutbox {
     _globalActiveLanguageReader = languageReader;
   }
 
+  /// 보류 중인 매출 이벤트가 통화를 되찾을 유일한 경로를 등록한다.
+  ///
+  /// 이 등록이 없으면 `awaiting_currency` 항목은 같은 거래가 다시 전달되지
+  /// 않는 한 영원히 보류로 남았다가 만료된다 — 상태 머신은 있는데 그걸
+  /// 진행시킬 것이 아무것도 없는 상태다. 싱글턴은 스토어 카탈로그를 알지
+  /// 못하므로 상위 오케스트레이션이 연결한다.
+  static void configureCurrencyResolver(PurchaseCurrencyResolver? resolver) {
+    _globalCurrencyResolver = resolver;
+  }
+
   @visibleForTesting
   static void overrideInstance(AnalyticsOutbox outbox) {
     _instance._retryTimer?.cancel();
@@ -278,6 +481,7 @@ class AnalyticsOutbox {
     _instance = AnalyticsOutbox();
     _globalActiveUserIdReader = null;
     _globalActiveLanguageReader = null;
+    _globalCurrencyResolver = null;
   }
 
   final LocalStorage? _storage;
@@ -293,6 +497,14 @@ class AnalyticsOutbox {
   final Duration purchasePendingMaxAge;
   final Duration deliveredMaxAge;
   final Duration retryDelay;
+
+  /// 보류 중인 매출 이벤트의 통화 재조회 백오프. 첫 실패 뒤 이만큼 기다리고,
+  /// 실패마다 두 배로 늘리되 [maxCurrencyRetryDelay] 에서 멈춘다.
+  final Duration currencyRetryDelay;
+  final Duration maxCurrencyRetryDelay;
+  final Duration currencyResolveTimeout;
+  final int maxDeadLetters;
+  final PurchaseCurrencyResolver? _currencyResolver;
 
   LocalStorage get _s => _storage ?? globalStorage;
 
@@ -354,6 +566,151 @@ class AnalyticsOutbox {
     return stored;
   }
 
+  /// 매출 purchase 를 durable 하게 저장하거나, 같은 거래의 기존 항목을 보강한다.
+  ///
+  /// tx/op alias 가 하나라도 겹치는 pending 항목이 있으면 새 항목을 만들지 않고
+  /// 같은 mutex 안에서 비어 있던 통화·금액만 채운다. 같은 거래가 foreground
+  /// 응답과 큐 복구 양쪽으로 도착해도 이벤트는 하나다.
+  ///
+  /// 통화 우선순위는 §7 그대로다.
+  ///
+  /// 1. 서버 통화가 있으면 무조건 서버 값 — 금액도 서버 것만 쓴다. 카탈로그
+  ///    가격을 끌어와 "서버 통화 + 클라이언트 금액"으로 짜깁기하지 않는다.
+  ///    카탈로그 가격은 카탈로그 자신의 통화 기준이라 쌍 자체가 틀려진다.
+  /// 2. 서버 통화가 없으면 카탈로그의 통화·금액을 **쌍으로** 쓴다(오늘의 동작).
+  /// 3. 그것도 없으면 요청과 함께 관측한 storefront 통화를 통화만 쓴다.
+  /// 4. 어느 것도 없으면 저장은 하되 보류한다 — 전송하지 않는다.
+  Future<PurchaseOutboxResult> enqueueOrMergePurchase({
+    required String id,
+    required List<String> aliases,
+    required String transactionId,
+    required List<Ga4PurchaseItem> items,
+    String? serverCurrency,
+    num? serverValue,
+    String? catalogCurrency,
+    num? catalogValue,
+    String? clientObservedCurrency,
+    String? storeProductId,
+    DateTime? createdAt,
+  }) async {
+    if (id.trim().isEmpty) {
+      logger.e('GA4 outbox purchase 저장 거부 — idempotency key 가 비어 있음');
+      return PurchaseOutboxResult.failed;
+    }
+
+    final server = normalizeIso4217(serverCurrency);
+    final catalog = normalizeIso4217(catalogCurrency);
+    final observed = normalizeIso4217(clientObservedCurrency);
+    final String? currency = server ?? catalog ?? observed;
+    final num? value = server != null
+        ? serverValue
+        : (catalog != null ? catalogValue : null);
+    final num? candidate = currency == null
+        ? (serverValue ?? catalogValue)
+        : null;
+
+    final incoming = AnalyticsOutboxEntry.purchase(
+      id: id,
+      aliases: aliases,
+      transactionId: transactionId,
+      currency: currency,
+      value: value,
+      items: items,
+      storeProductId: storeProductId,
+      candidateValue: candidate,
+      createdAt: createdAt,
+    );
+
+    return AnalyticsMarkerMutex.runExclusive(storageKey, () async {
+      final state = await _load();
+      if (state == null) return PurchaseOutboxResult.failed;
+      _pruneExpired(state);
+
+      if (_deliveredInProcess.contains(incoming.processKey) ||
+          _deliveredContains(state, incoming)) {
+        // 이미 GA4 로 나간 거래다. 다시 큐에 넣지 않지만, 호출부 입장에서는
+        // "durable 하게 처리됐다"가 맞으므로 성공으로 답한다.
+        await _save(state);
+        return PurchaseOutboxResult.ready;
+      }
+
+      final index = state.pending.indexWhere(
+        (candidate) =>
+            candidate.kind == AnalyticsOutboxEventKind.purchase &&
+            _overlaps(candidate.aliases, incoming.aliases),
+      );
+      if (index < 0) {
+        if (state.pending.length >= maxPendingEntries) {
+          logger.e(
+            'GA4 outbox 용량 상한($maxPendingEntries) 도달 — '
+            '미전송 기존 항목을 밀어내지 않고 신규 항목 거부: '
+            '${incoming.processKey}',
+          );
+          return PurchaseOutboxResult.failed;
+        }
+        state.pending.add(incoming);
+        if (!await _save(state)) return PurchaseOutboxResult.failed;
+        return incoming.isAwaitingCurrency
+            ? PurchaseOutboxResult.deferred
+            : PurchaseOutboxResult.ready;
+      }
+
+      final merged = _mergePurchase(state.pending[index], incoming);
+      state.pending[index] = merged;
+      if (!await _save(state)) return PurchaseOutboxResult.failed;
+      return merged.isAwaitingCurrency
+          ? PurchaseOutboxResult.deferred
+          : PurchaseOutboxResult.ready;
+    });
+  }
+
+  /// 기존 항목을 정본으로 두고 비어 있던 것만 채운다.
+  ///
+  /// 이미 통화가 확정된 항목은 재전달이 덮어쓰지 않는다 — 최초 확정값이
+  /// 정본이고, 뒤늦게 도착한 다른 값으로 갈아타면 같은 거래의 매출이 세션마다
+  /// 달라진다.
+  AnalyticsOutboxEntry _mergePurchase(
+    AnalyticsOutboxEntry existing,
+    AnalyticsOutboxEntry incoming,
+  ) {
+    final aliases = <String>[
+      ...existing.aliases,
+      for (final alias in incoming.aliases)
+        if (!existing.aliases.contains(alias)) alias,
+    ];
+    if (!existing.isAwaitingCurrency) {
+      return existing.copyWith(
+        aliases: aliases,
+        storeProductId: existing.storeProductId ?? incoming.storeProductId,
+      );
+    }
+
+    final incomingCurrency = incoming.payload['currency'] as String?;
+    if (incomingCurrency == null) {
+      return existing.copyWith(
+        aliases: aliases,
+        storeProductId: existing.storeProductId ?? incoming.storeProductId,
+        candidateValue: existing.candidateValue ?? incoming.candidateValue,
+      );
+    }
+
+    final payload = Map<String, Object>.from(existing.payload)
+      ..['currency'] = incomingCurrency;
+    // 들어온 쌍만 쓴다. 보류 중 모아 둔 candidate 금액을 이 통화 옆에 붙이면
+    // 서로 다른 출처의 통화와 금액이 한 쌍이 된다 — 서버가 통화만 준
+    // 정상 케이스(Google 폴백)에서 예전 카탈로그 금액이 서버 매출로 둔갑한다.
+    final value = incoming.payload['value'] as num?;
+    if (value != null) payload['value'] = value;
+    return existing.copyWith(
+      aliases: aliases,
+      payload: payload,
+      storeProductId: existing.storeProductId ?? incoming.storeProductId,
+      deliveryState: AnalyticsOutboxDeliveryState.ready,
+      clearCandidateValue: true,
+      clearCurrencyNextAt: true,
+    );
+  }
+
   /// 남은 모든 항목을 한 번씩 시도한다. 항목 하나의 timeout/실패가 다음 항목을
   /// 막지 않으며, 같은 항목은 저장소 키 전역 in-flight set 으로 원자 예약된다.
   Future<void> flush() async {
@@ -380,7 +737,16 @@ class AnalyticsOutbox {
       return;
     }
     for (final entry in List<AnalyticsOutboxEntry>.of(state.pending)) {
-      final lastFailure = _lastSinkFailureAt[entry.processKey];
+      var current = entry;
+      if (current.isAwaitingCurrency) {
+        // 통화가 없는 매출 이벤트는 sink 대상이 아니다. 이 자리에서 한 번
+        // 되찾아 보고, 실패하면 다음 항목으로 넘어간다 — 하나가 막혀도 나머지
+        // drain 은 계속돼야 한다.
+        final resolved = await _resolveDeferredCurrency(current);
+        if (resolved == null) continue;
+        current = resolved;
+      }
+      final lastFailure = _lastSinkFailureAt[current.processKey];
       if (lastFailure != null &&
           _clock().toUtc().difference(lastFailure) < retryDelay) {
         // 직전에 실패한 항목을 같은 세션의 연쇄 flush 가 즉시 다시 보내면
@@ -388,8 +754,224 @@ class AnalyticsOutbox {
         _scheduleRetry();
         continue;
       }
-      await _sendOne(entry);
+      await _sendOne(current);
     }
+  }
+
+  /// 보류 중인 매출 이벤트의 통화를 한 번 되찾아 본다.
+  ///
+  /// 성공하면 payload 를 원자 보강한 항목을, 실패하면 `null` 을 돌려준다.
+  /// 실패는 시도 횟수와 다음 시각으로 영속화돼 재시작 뒤에도 이어진다.
+  Future<AnalyticsOutboxEntry?> _resolveDeferredCurrency(
+    AnalyticsOutboxEntry entry,
+  ) async {
+    final now = _clock().toUtc();
+    final nextAt = entry.currencyNextAt;
+    if (nextAt != null && now.isBefore(nextAt)) {
+      _scheduleRetry();
+      return null;
+    }
+
+    final resolver = _currencyResolver ?? _globalCurrencyResolver;
+    final productId = entry.storeProductId ?? _productIdFromItems(entry);
+    String? resolved;
+    var failure = PurchaseCurrencyError.catalogUnavailable;
+    if (resolver == null) {
+      failure = PurchaseCurrencyError.catalogUnavailable;
+    } else if (productId == null || productId.isEmpty) {
+      failure = PurchaseCurrencyError.productMissing;
+    } else {
+      try {
+        final raw = await resolver
+            .resolve(productId)
+            .timeout(currencyResolveTimeout);
+        resolved = normalizeIso4217(raw);
+        if (resolved == null) {
+          failure = raw == null
+              ? PurchaseCurrencyError.productMissing
+              : PurchaseCurrencyError.invalidIso4217;
+        }
+      } on TimeoutException {
+        failure = PurchaseCurrencyError.resolverTimeout;
+      } catch (e, s) {
+        logger.w(
+          'GA4 outbox 통화 재조회 실패: ${entry.processKey}',
+          error: e,
+          stackTrace: s,
+        );
+        failure = PurchaseCurrencyError.catalogUnavailable;
+      }
+    }
+
+    if (resolved == null) {
+      await _recordCurrencyFailure(entry.processKey, failure);
+      _scheduleRetry();
+      return null;
+    }
+    return _promoteToReady(entry.processKey, resolved);
+  }
+
+  /// storage v1 에서 올라온 항목에는 `store_product_id` 가 없다. 그 시절에도
+  /// item_name 에는 canonical 스토어 상품 ID 가 들어가 있었으므로 재조회 키로
+  /// 쓴다. 맞지 않으면 resolver 가 못 찾을 뿐이고, 없는 것보다 나쁘지 않다.
+  String? _productIdFromItems(AnalyticsOutboxEntry entry) {
+    final items = entry.payload['items'];
+    if (items is! List || items.isEmpty) return null;
+    final first = items.first;
+    if (first is! Map) return null;
+    final name = first['item_name'];
+    return name is String && name.isNotEmpty ? name : null;
+  }
+
+  /// 다음 재조회까지의 간격. 30초에서 시작해 두 배씩, 5분에서 멈춘다.
+  Duration _currencyBackoff(int attempts) {
+    var delay = currencyRetryDelay;
+    for (var i = 1; i < attempts && delay < maxCurrencyRetryDelay; i++) {
+      delay *= 2;
+    }
+    return delay > maxCurrencyRetryDelay ? maxCurrencyRetryDelay : delay;
+  }
+
+  Future<void> _recordCurrencyFailure(
+    String processKey,
+    PurchaseCurrencyError error,
+  ) {
+    return AnalyticsMarkerMutex.runExclusive(storageKey, () async {
+      final state = await _load();
+      if (state == null) return;
+      final index = state.pending.indexWhere(
+        (entry) => entry.processKey == processKey,
+      );
+      if (index < 0) return;
+      final attempts = state.pending[index].currencyAttempts + 1;
+      state.pending[index] = state.pending[index].copyWith(
+        currencyAttempts: attempts,
+        currencyNextAt: _clock().toUtc().add(_currencyBackoff(attempts)),
+        lastCurrencyError: error,
+      );
+      await _save(state);
+    });
+  }
+
+  Future<AnalyticsOutboxEntry?> _promoteToReady(
+    String processKey,
+    String currency,
+  ) {
+    return AnalyticsMarkerMutex.runExclusive(storageKey, () async {
+      final state = await _load();
+      if (state == null) return null;
+      final index = state.pending.indexWhere(
+        (entry) => entry.processKey == processKey,
+      );
+      if (index < 0) return null;
+      final entry = state.pending[index];
+      if (!entry.isAwaitingCurrency) {
+        // resolver 를 await 하는 동안 같은 거래의 재전달이 서버 통화로 이미
+        // 승격시켰다. 그 값이 정본이다 — 늦게 끝난 카탈로그 조회 결과로
+        // 덮어쓰면 서버가 확정한 통화와 금액 쌍이 어긋난다.
+        return entry;
+      }
+      final payload = Map<String, Object>.from(entry.payload)
+        ..['currency'] = currency;
+      final value = entry.candidateValue;
+      if (value != null) payload['value'] = value;
+      final promoted = entry.copyWith(
+        payload: payload,
+        deliveryState: AnalyticsOutboxDeliveryState.ready,
+        clearCandidateValue: true,
+        clearCurrencyNextAt: true,
+      );
+      state.pending[index] = promoted;
+      if (!await _save(state)) return null;
+      return promoted;
+    });
+  }
+
+  /// payload 의 통화가 더 이상 ISO 4217 이 아니면 다시 보류로 내린다.
+  Future<void> _demoteToAwaitingCurrency(String processKey) {
+    return AnalyticsMarkerMutex.runExclusive(storageKey, () async {
+      final state = await _load();
+      if (state == null) return;
+      final index = state.pending.indexWhere(
+        (entry) => entry.processKey == processKey,
+      );
+      if (index < 0) return;
+      final entry = state.pending[index];
+      final payload = Map<String, Object>.from(entry.payload);
+      final value = payload.remove('value') as num?;
+      payload.remove('currency');
+      state.pending[index] = entry.copyWith(
+        payload: payload,
+        deliveryState: AnalyticsOutboxDeliveryState.awaitingCurrency,
+        candidateValue: entry.candidateValue ?? value,
+        lastCurrencyError: PurchaseCurrencyError.invalidIso4217,
+      );
+      await _save(state);
+    });
+  }
+
+  void _recordDeadLetter(
+    _OutboxState state,
+    AnalyticsOutboxEntry entry,
+    DateTime now,
+  ) {
+    _purchaseCurrencyDeadLetterTotal++;
+    state.deadLetters.add(
+      AnalyticsDeadLetter(
+        id: entry.id,
+        aliases: entry.aliases,
+        attempts: entry.currencyAttempts,
+        reason:
+            entry.lastCurrencyError?.name ??
+            (entry.isAwaitingCurrency ? 'awaiting_currency' : 'sink_failure'),
+        expiredAt: now,
+      ),
+    );
+    while (state.deadLetters.length > maxDeadLetters) {
+      state.deadLetters.removeAt(0);
+    }
+  }
+
+  static int _purchaseCurrencyDeadLetterTotal = 0;
+
+  /// `ga4_purchase_currency_dead_letter_total` — 만료로 끝난 매출 이벤트 수.
+  static int get purchaseCurrencyDeadLetterTotal =>
+      _purchaseCurrencyDeadLetterTotal;
+
+  @visibleForTesting
+  Future<int> awaitingCurrencyCount() async {
+    final state = await AnalyticsMarkerMutex.runExclusive(
+      storageKey,
+      () => _load(),
+    );
+    return state?.pending.where((entry) => entry.isAwaitingCurrency).length ?? 0;
+  }
+
+  @visibleForTesting
+  Future<int> awaitingCurrencyAttempts(String id) async {
+    final state = await AnalyticsMarkerMutex.runExclusive(
+      storageKey,
+      () => _load(),
+    );
+    for (final entry in state?.pending ?? const <AnalyticsOutboxEntry>[]) {
+      if (entry.id == id) return entry.currencyAttempts;
+    }
+    return 0;
+  }
+
+  @visibleForTesting
+  Future<Duration?> currencyRetryDelayFor(String id) async {
+    final attempts = await awaitingCurrencyAttempts(id);
+    return attempts == 0 ? null : _currencyBackoff(attempts);
+  }
+
+  @visibleForTesting
+  Future<List<AnalyticsDeadLetter>> deadLetters() async {
+    final state = await AnalyticsMarkerMutex.runExclusive(
+      storageKey,
+      () => _load(),
+    );
+    return state?.deadLetters ?? const <AnalyticsDeadLetter>[];
   }
 
   @visibleForTesting
@@ -437,6 +1019,20 @@ class AnalyticsOutbox {
   Future<void> _deliverClaimed(AnalyticsOutboxEntry original) async {
     var entry = await _readCurrent(original.processKey);
     if (entry == null || _deliveredInProcess.contains(original.processKey)) {
+      return;
+    }
+
+    // 최종 방어선. 저장 이후 어떤 경로로 payload 가 바뀌었든, 통화 없는 매출
+    // 이벤트가 sink 에 닿는 일은 없어야 한다 — GA4 는 그런 purchase 의 매출을
+    // 통째로 무시하므로 "보냈지만 매출은 0" 이 조용히 만들어진다.
+    if (entry.kind == AnalyticsOutboxEventKind.purchase &&
+        !isIso4217(entry.payload['currency'])) {
+      logger.e(
+        'GA4 outbox 매출 purchase 의 통화가 ISO 4217 이 아님 — '
+        '전송하지 않고 보류로 되돌림: ${entry.processKey}',
+      );
+      await _demoteToAwaitingCurrency(entry.processKey);
+      _scheduleRetry();
       return;
     }
 
@@ -518,7 +1114,9 @@ class AnalyticsOutbox {
       return _sink
           .logPurchase(
             transactionId: entry.payload['transaction_id'] as String?,
-            currency: entry.payload['currency'] as String?,
+            // 저장된 철자가 아니라 관문을 통과한 값을 보낸다. v1 에서 올라온
+            // 항목이나 손으로 만든 저장소 값은 ' krw ' 같은 모양일 수 있다.
+            currency: normalizeIso4217(entry.payload['currency']),
             value: entry.payload['value'] as num?,
             items: <Ga4PurchaseItem>[
               for (final raw in rawItems)
@@ -734,6 +1332,12 @@ class AnalyticsOutbox {
           'GA4 outbox 미전송 항목 만료($maxAge) — '
           '관측 가능하게 제거: ${entry.processKey}',
         );
+        if (entry.kind == AnalyticsOutboxEventKind.purchase) {
+          // 만료돼도 통화 없이 보내는 폴백은 없다. 대신 왜 이 거래의 매출이
+          // 없는지 나중에 답할 수 있게 요약만 남긴다. payload·영수증은 담지
+          // 않는다.
+          _recordDeadLetter(state, entry, now);
+        }
       }
       return expired;
     });
@@ -768,13 +1372,16 @@ class AnalyticsOutbox {
       return _OutboxState(
         pending: <AnalyticsOutboxEntry>[],
         delivered: <_DeliveredEntry>[],
+        deadLetters: <AnalyticsDeadLetter>[],
       );
     }
     try {
       final decoded = jsonDecode(raw);
       if (decoded is! Map) throw const FormatException('root is not object');
       final map = Map<String, dynamic>.from(decoded);
-      if (map['version'] != 1) {
+      // v1 은 currency/value 보류 상태가 없던 형태다. 항목 파서가 마이그레이션을
+      // 담당하므로 여기서는 읽기만 허용하면 된다.
+      if (map['version'] != 1 && map['version'] != 2) {
         throw FormatException('unsupported version: ${map['version']}');
       }
       final pending = <AnalyticsOutboxEntry>[];
@@ -787,7 +1394,17 @@ class AnalyticsOutbox {
         final entry = _DeliveredEntry.fromJson(rawEntry);
         if (entry != null) delivered.add(entry);
       }
-      return _OutboxState(pending: pending, delivered: delivered);
+      final deadLetters = <AnalyticsDeadLetter>[];
+      for (final rawEntry in (map['dead_letters'] as List<dynamic>?) ??
+          const <dynamic>[]) {
+        final entry = AnalyticsDeadLetter.fromJson(rawEntry);
+        if (entry != null) deadLetters.add(entry);
+      }
+      return _OutboxState(
+        pending: pending,
+        delivered: delivered,
+        deadLetters: deadLetters,
+      );
     } catch (e, s) {
       // 깨진 목록 위에 빈 목록을 저장하면 모든 미전송 이벤트가 조용히 사라진다.
       logger.e('GA4 outbox 파싱 실패 — 기존 값을 덮어쓰지 않음', error: e, stackTrace: s);

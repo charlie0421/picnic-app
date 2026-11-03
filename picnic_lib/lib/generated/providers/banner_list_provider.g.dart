@@ -50,7 +50,7 @@ final class AsyncBannerListProvider
   }
 }
 
-String _$asyncBannerListHash() => r'85b2efcc225349363e39c90e1c47d89c133ebe30';
+String _$asyncBannerListHash() => r'f3a49e8c902a6334f054c61d533ef09e051ac93a';
 
 final class AsyncBannerListFamily extends $Family
     with

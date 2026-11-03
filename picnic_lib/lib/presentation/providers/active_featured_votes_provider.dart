@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/supabase_options.dart';
@@ -53,7 +55,10 @@ class AsyncActiveFeaturedVotes extends _$AsyncActiveFeaturedVotes {
           .order('stop_at', ascending: true)
           .limit(_limit);
 
-      if (response.isEmpty) return <FeaturedVoteEntry>[];
+      if (response.isEmpty) {
+        _retainSuccessfulResult(const <VoteModel>[]);
+        return <FeaturedVoteEntry>[];
+      }
 
       final votes = response.map((row) {
         final map = Map<String, dynamic>.from(row);
@@ -97,6 +102,7 @@ class AsyncActiveFeaturedVotes extends _$AsyncActiveFeaturedVotes {
         }
       }
 
+      _retainSuccessfulResult(votes);
       return votes
           .map((v) => FeaturedVoteEntry(vote: v, totalVotes: totals[v.id] ?? 0))
           .toList();
@@ -104,5 +110,34 @@ class AsyncActiveFeaturedVotes extends _$AsyncActiveFeaturedVotes {
       logger.e('active featured votes load error', error: e, stackTrace: s);
       rethrow;
     }
+  }
+
+  void _retainSuccessfulResult(List<VoteModel> votes) {
+    final link = ref.keepAlive();
+    Timer? cacheExpiry;
+    Timer? voteExpiry;
+    ref.onCancel(() {
+      cacheExpiry?.cancel();
+      cacheExpiry = Timer(const Duration(minutes: 2), link.close);
+    });
+    ref.onResume(() {
+      cacheExpiry?.cancel();
+      cacheExpiry = null;
+    });
+
+    final now = DateTime.now();
+    final expirations = votes
+        .map((vote) => vote.stopAt)
+        .whereType<DateTime>()
+        .where((stopAt) => stopAt.isAfter(now))
+        .toList();
+    if (expirations.isNotEmpty) {
+      expirations.sort();
+      voteExpiry = Timer(expirations.first.difference(now), ref.invalidateSelf);
+    }
+    ref.onDispose(() {
+      cacheExpiry?.cancel();
+      voteExpiry?.cancel();
+    });
   }
 }

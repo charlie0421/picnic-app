@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_media_picker.dart';
@@ -9,6 +8,8 @@ import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/loading_view.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
@@ -40,8 +41,9 @@ bool isCategorySelectionRequired({
 
 class QnaThreadCreatePage extends ConsumerStatefulWidget {
   final String userId;
+  final QnaRepository? repository;
 
-  const QnaThreadCreatePage({super.key, required this.userId});
+  const QnaThreadCreatePage({super.key, required this.userId, this.repository});
 
   @override
   ConsumerState<QnaThreadCreatePage> createState() =>
@@ -53,7 +55,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _scrollController = ScrollController();
-  final QnaRepository _repository = QnaRepository();
+  late final QnaRepository _repository = widget.repository ?? QnaRepository();
 
   final List<File> _attachments = [];
   bool _isSubmitting = false;
@@ -62,6 +64,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
   List<QnaCategory> _categories = [];
   QnaCategory? _selectedCategory;
   bool _categoryError = false;
+  String? _lastAppliedTemplate;
 
   @override
   void dispose() {
@@ -87,6 +90,42 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
     } catch (_) {
       // 카테고리 로드는 실패해도 폼 사용은 가능해야 함
     }
+  }
+
+  void _selectCategory(String? value) {
+    final currentText = _contentController.text;
+    final canApplyTemplate =
+        currentText.isEmpty ||
+        (_lastAppliedTemplate != null && currentText == _lastAppliedTemplate);
+
+    setState(() {
+      if (value == null || value.isEmpty) {
+        _selectedCategory = null;
+        _categoryError = true;
+        if (!canApplyTemplate || currentText.isEmpty) {
+          _lastAppliedTemplate = null;
+        }
+        return;
+      }
+
+      final found = _categories.firstWhere(
+        (category) => category.code == value,
+        orElse: () => _categories.first,
+      );
+      _selectedCategory = found;
+      _categoryError = false;
+
+      final template = found.questionTemplate;
+      if (canApplyTemplate && template != null && template.isNotEmpty) {
+        _contentController.value = TextEditingValue(
+          text: template,
+          selection: TextSelection.collapsed(offset: template.length),
+        );
+        _lastAppliedTemplate = template;
+      } else if (!canApplyTemplate) {
+        _lastAppliedTemplate = null;
+      }
+    });
   }
 
   Future<void> _pickMedia() async {
@@ -202,16 +241,25 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
               elevation: 0,
               scrolledUnderElevation: 0,
               foregroundColor: AppColors.grey900,
-              actions: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
+            ),
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.viewInsetsOf(context).bottom,
+              ),
+              child: SafeArea(
+                top: false,
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: PicnicUi.horizontal(16),
+                    vertical: PicnicUi.vertical(8),
+                  ),
                   child: QnaSubmitButton.primary(
                     context,
                     onPressed: _submitThread,
                     isLoading: _isSubmitting,
                   ),
                 ),
-              ],
+              ),
             ),
             body: SingleChildScrollView(
               controller: _scrollController,
@@ -227,25 +275,7 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
                         children: [
                           CustomDropdown(
                             value: (_selectedCategory?.code ?? ''),
-                            onChanged: (value) {
-                              setState(() {
-                                if (value == null || value.isEmpty) {
-                                  _selectedCategory = null;
-                                  _categoryError = true;
-                                  _contentController.clear();
-                                } else {
-                                  final found = _categories.firstWhere(
-                                    (c) => c.code == value,
-                                    orElse: () => _categories.first,
-                                  );
-                                  _selectedCategory = found;
-                                  _categoryError = false;
-                                  final tmpl = found.questionTemplate;
-                                  // 템플릿이 없더라도 입력창을 항상 업데이트 (없으면 빈 문자열로 초기화)
-                                  _contentController.text = (tmpl ?? '');
-                                }
-                              });
-                            },
+                            onChanged: _selectCategory,
                             items: [
                               CustomDropdownMenuItem(
                                 value: '',
@@ -353,10 +383,11 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        ElevatedButton.icon(
+        PicnicActionButton(
           onPressed: _pickMedia,
+          variant: PicnicActionVariant.secondary,
           icon: const Icon(Icons.perm_media),
-          label: Text(AppLocalizations.of(context).qna_attach_media),
+          label: AppLocalizations.of(context).qna_attach_media,
         ),
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
@@ -413,20 +444,31 @@ class _QnaThreadCreatePageState extends ConsumerState<QnaThreadCreatePage> {
                       Positioned(
                         top: 0,
                         right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            _removeAttachment(index);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: const BoxDecoration(
-                              color: Colors.black54,
-                              shape: BoxShape.circle,
+                        child: SizedBox.square(
+                          dimension: PicnicUi.minimumTapTarget,
+                          child: IconButton(
+                            onPressed: () => _removeAttachment(index),
+                            tooltip: AppLocalizations.of(
+                              context,
+                            ).popup_label_delete,
+                            constraints: const BoxConstraints.tightFor(
+                              width: 48,
+                              height: 48,
                             ),
-                            child: const Icon(
-                              Icons.close,
-                              color: Colors.white,
-                              size: 12,
+                            padding: const EdgeInsets.all(12),
+                            icon: const DecoratedBox(
+                              decoration: BoxDecoration(
+                                color: Colors.black54,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(4),
+                                child: Icon(
+                                  Icons.close,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                              ),
                             ),
                           ),
                         ),

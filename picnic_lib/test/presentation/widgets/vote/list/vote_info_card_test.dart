@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_info_card.dart';
 import 'package:visibility_detector/visibility_detector.dart';
@@ -107,8 +108,33 @@ Future<void> _ignoreRenderErrors(Future<void> Function() callback) async {
   }
 }
 
+/// 카드 갱신이 요청한 [VoteDetailItems] 를 기록하는 가짜 상세 provider.
+/// `items` 를 넘긴 패밀리 인스턴스에만 override 하므로, 카드가 `items` 를
+/// 빼먹으면(기본 none) 이 가짜가 아니라 실제 provider 가 돌아 갱신이 반영되지 않는다.
+final List<VoteDetailItems> _requestedDetailItems = [];
+
+class _RefreshedVoteDetail extends AsyncVoteDetail {
+  @override
+  Future<VoteModel?> build({
+    required int voteId,
+    VotePortal votePortal = VotePortal.vote,
+    VoteDetailItems items = VoteDetailItems.none,
+  }) async {
+    _requestedDetailItems.add(items);
+    return _buildVote(
+      id: voteId,
+      voteItemJsons: [
+        _voteItemJson(id: 1, voteTotal: 9, artistNameKo: '갱신일위'),
+        _voteItemJson(id: 2, voteTotal: 8, artistNameKo: '갱신이위', artistId: 11),
+        _voteItemJson(id: 3, voteTotal: 7, artistNameKo: '갱신삼위', artistId: 12),
+      ],
+    );
+  }
+}
+
 void main() {
   setUp(() {
+    _requestedDetailItems.clear();
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     setupMockSupabase({});
@@ -494,6 +520,52 @@ void main() {
     test('has expected values', () {
       expect(VoteCategory.achieve.name, 'achieve');
       expect(VoteCategory.birthday.name, 'birthday');
+    });
+  });
+
+  group('VoteInfoCard refresh (PICNIC-2748)', () {
+    testWidgets('active card refresh asks for top3 items and renders them',
+        (tester) async {
+      _setMobileViewSize(tester);
+      addTearDown(() => tester.view.resetPhysicalSize());
+
+      final vote = _buildVote(voteItemJsons: [
+        _voteItemJson(id: 1, voteTotal: 3, artistNameKo: '초기일위'),
+        _voteItemJson(id: 2, voteTotal: 2, artistNameKo: '초기이위', artistId: 11),
+        _voteItemJson(id: 3, voteTotal: 1, artistNameKo: '초기삼위', artistId: 12),
+      ]);
+
+      await _ignoreRenderErrors(() async {
+        await tester.pumpWidget(
+          buildTestApp(
+            Builder(
+              builder: (ctx) => VoteInfoCard(
+                context: ctx,
+                vote: vote,
+                status: VoteStatus.active,
+              ),
+            ),
+            extraOverrides: [
+              asyncVoteDetailProvider(
+                voteId: vote.id,
+                items: VoteDetailItems.top3,
+              ).overrideWith(_RefreshedVoteDetail.new),
+            ],
+          ),
+        );
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        expect(find.textContaining('초기일위'), findsWidgets);
+
+        await tester.tap(find.byType(IconButton).first);
+        await tester.pump();
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pump(const Duration(seconds: 1));
+
+        expect(_requestedDetailItems, [VoteDetailItems.top3]);
+        expect(find.textContaining('갱신일위'), findsWidgets);
+        expect(find.textContaining('초기일위'), findsNothing);
+      });
     });
   });
 }

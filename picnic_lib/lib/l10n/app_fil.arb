@@ -479,6 +479,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "Naabot na ang limitasyon kada oras ({used}/{limit})",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "Naabot na ang limitasyon kada araw ({used}/{limit})",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "Nabigong mag -load ng ad. Mangyaring subukang muli.",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -1169,7 +1193,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "I -save",
+  "save": "I-save",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -1321,7 +1345,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "Kumuha ng 1 bonus star candy para sa bawat 100 boto at ibahagi!",
+  "voting_share_benefit_text": "Kumuha ng 1 bonus star candy para sa bawat 100 boto!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1638,6 +1662,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "Hindi pa nakukumpirma ang iyong bayad. Maaaring hindi mo pa natapos ang pagbabayad sa payment screen ng store.\nKung nakabayad ka na, awtomatikong maikakredito ang iyong Star Candy kapag natapos ang pagproseso. Huwag nang magbayad muli.",
+  "purchase_payment_pending_message": "Hindi pa tapos ang iyong bayad. Kung pumili ka ng mabagal na paraan ng pagbabayad tulad ng cash o bank transfer, pakitapos ang pagbabayad sa tindahan o bangko.\nAwtomatikong maikakredito ang iyong Star Candy kapag natuloy ang bayad. Huwag nang magbayad muli.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -1875,6 +1900,10 @@
   "withdrawal_success": "Ang unsubscribe ay matagumpay na naproseso.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "Nabigo ang pag-alis ng account. Pakisubukang muli maya-maya.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "Nag -apply ka na para sa artist na ito.",
   "@vote_item_request_already_applied_artist": {
@@ -2403,9 +2432,31 @@
   "candy_boost_day": "Candy Boost Day",
   "candy_boost_exact_double": "Batayang gantimpala + dagdag na 100% bonus",
   "candy_boost_extra_bonus": "Batayang gantimpala + dagdag na bonus",
+  "candy_boost_multiplier": "{multiplier}× na bonus",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "Sinusuri ang promosyon",
   "candy_boost_purchase_pending": "May pinoprosesong pagbili na para sa produktong ito.",
   "candy_boost_late_purchase_explanation": "Mas natagalan ang authentication kaysa inaasahan, pero matagumpay na nakumpleto ang pagbili.",
+  "candy_boost_total_multiplier": "Event bonus +{multiplier}%",
+  "purchase_reward_base": "Batayang reward",
+  "purchase_reward_base_short": "Batayan",
+  "purchase_reward_event_short": "Event",
+  "purchase_reward_product_bonus": "Batayang bonus",
+  "purchase_reward_event_bonus": "Bonus ng event",
+  "purchase_reward_expected_total": "Tinatayang kabuuan",
+  "purchase_reward_total_short": "Kabuuan",
+  "purchase_current_balance": "Kasalukuyang balanse {amount}",
+  "purchase_expected_balance": "Inaasahan pagkatapos bumili {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "Tinatayang halaga ito. Kinukumpirma ng server ang panghuling dami kapag nakumpleto na ang bayad.",
+  "candy_reward_receipt_total": "Kabuuang natanggap {amount}",
   "ad_reward_pending": "Sinusuri ang iyong gantimpala",
   "ad_reward_granted": "Nakatanggap ng Cotton Candy",
   "ad_reward_not_granted": "Hindi naibigay ang gantimpala",
@@ -2420,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "Kasalukuyang balanse {amount}",
+  "candy_reward_receipt_purchase_balance": "Bagong balanse {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2505,5 +2557,7 @@
   "expiry_quantity_description": "Mga halagang nakatakdang mag-expire sa kasalukuyang account.",
   "expiry_policy_description": "Pamantayan ng pag-expire ayon sa currency.",
   "bonus_expiry_policy_summary": "Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.",
-  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi"
+  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi",
+  "error_ad_device_account_restricted_message": "Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito.",
+  "profile_photo_change": "Palitan ang larawan sa profile"
 }

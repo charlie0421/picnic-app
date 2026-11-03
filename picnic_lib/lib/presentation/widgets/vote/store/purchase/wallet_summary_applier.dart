@@ -58,17 +58,29 @@ final class ContainerWalletSummaryRefresher implements WalletSummaryRefresher {
 /// The capture has to happen up front - holding the [BuildContext] and looking
 /// the container up on demand is the same bug, because the lookup itself needs
 /// a live element.
+/// The capture is also *when the account is decided* (PICNIC-2664).
+///
+/// Outliving the route is the point, but it is also the hazard: between the tap
+/// and the verified receipt the user can sign out or switch accounts, and this
+/// adapter would happily write the first account's balance onto the second's
+/// screen. So the same constructor that captures the container captures the
+/// owner, and [WalletSummary.setSummary] drops the write if it no longer holds.
+/// Capturing here rather than at [call] time is what makes the check mean
+/// anything - at call time the answer is always "yes, current".
 final class ContainerWalletSummaryApplier implements WalletSummaryApplier {
   /// Captures the container behind [context]. Call this while the widget that
   /// owns [context] is mounted - `initState` is the natural place.
   ContainerWalletSummaryApplier.of(BuildContext context)
     : this.forContainer(ProviderScope.containerOf(context, listen: false));
 
-  const ContainerWalletSummaryApplier.forContainer(this._container);
+  ContainerWalletSummaryApplier.forContainer(this._container)
+    : _owner = _container.read(walletSummaryProvider.notifier).captureOwner();
 
   final ProviderContainer _container;
+  final WalletWriteToken _owner;
 
   @override
-  void call(WalletSummaryModel wallet) =>
-      _container.read(walletSummaryProvider.notifier).setSummary(wallet);
+  void call(WalletSummaryModel wallet) => _container
+      .read(walletSummaryProvider.notifier)
+      .setSummary(wallet, owner: _owner);
 }

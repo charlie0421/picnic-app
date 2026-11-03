@@ -541,6 +541,30 @@
       }
     }
   },
+  "label_ads_limit_reached_hourly": "시간당 한도에 도달했습니다 ({used}/{limit}회)",
+  "@label_ads_limit_reached_hourly": {
+    "description": "Shown in the ad-limit dialog when the hourly cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "label_ads_limit_reached_daily": "일일 한도에 도달했습니다 ({used}/{limit}회)",
+  "@label_ads_limit_reached_daily": {
+    "description": "Shown in the ad-limit dialog when the daily cap is the one that was hit.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
   "label_ads_load_fail": "광고 로드에 실패했습니다. 다시 시도해주세요.",
   "@label_ads_load_fail": {
     "description": "Auto-generated metadata for key 'label_ads_load_fail'."
@@ -1600,7 +1624,7 @@
   "@vote_completed_message": {
     "description": "Auto-generated metadata for key 'vote_completed_message'."
   },
-  "voting_share_benefit_text": "100표마다 보너스 별사탕 1개 획득 및 공유!",
+  "voting_share_benefit_text": "100표마다 보너스 별사탕 1개 획득!",
   "@voting_share_benefit_text": {
     "description": "Auto-generated metadata for key 'voting_share_benefit_text'."
   },
@@ -1780,6 +1804,7 @@
     "description": "Shown when a purchase has been charged/accepted but the server settlement has not completed yet. Must NOT invite a retry: repeating a consumable purchase double-charges."
   },
   "purchase_payment_unconfirmed_message": "아직 결제가 확인되지 않았습니다. 스토어 결제 화면에서 결제가 완료되지 않았을 수 있습니다.\n이미 결제하셨다면 처리가 끝나는 대로 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.",
+  "purchase_payment_pending_message": "결제가 아직 완료되지 않았습니다. 편의점 현금 결제나 계좌 이체처럼 시간이 걸리는 결제 수단을 선택하셨다면, 해당 장소에서 결제를 마쳐 주세요.\n결제가 완료되면 스타캔디가 자동으로 적립되니, 다시 결제하지 마세요.",
   "@purchase_payment_unconfirmed_message": {
     "description": "Shown when the 90s purchase safety timeout fires while the app has never returned to the foreground since the purchase was launched (Android: the user may still be inside the Play payment sheet). Must not assert the payment was received; must still forbid paying again in case it actually completed."
   },
@@ -2024,6 +2049,10 @@
   "withdrawal_success": "회원탈퇴가 성공적으로 처리되었습니다.",
   "@withdrawal_success": {
     "description": "Auto-generated metadata for key 'withdrawal_success'."
+  },
+  "withdrawal_failed": "탈퇴 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+  "@withdrawal_failed": {
+    "description": "Shown when the account withdrawal request fails."
   },
   "vote_item_request_already_applied_artist": "이미 해당 아티스트에 대해 신청하셨습니다.",
   "@vote_item_request_already_applied_artist": {
@@ -2545,9 +2574,31 @@
   "candy_boost_day": "캔디 부스트 데이",
   "candy_boost_exact_double": "기본 지급 + 추가 보너스 100%",
   "candy_boost_extra_bonus": "기본 지급 + 추가 보너스",
+  "candy_boost_multiplier": "{multiplier}배",
+  "@candy_boost_multiplier": {
+    "description": "Auto-generated metadata for key 'candy_boost_multiplier'.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
   "candy_boost_promotion_checking": "프로모션 확인 중",
   "candy_boost_purchase_pending": "동일 상품의 구매가 처리 중입니다.",
   "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",
+  "candy_boost_total_multiplier": "이벤트 보너스 +{multiplier}%",
+  "purchase_reward_base": "기본 지급",
+  "purchase_reward_base_short": "기본",
+  "purchase_reward_event_short": "이벤트",
+  "purchase_reward_product_bonus": "기본 보너스",
+  "purchase_reward_event_bonus": "이벤트 보너스",
+  "purchase_reward_expected_total": "예상 합계",
+  "purchase_reward_total_short": "합계",
+  "purchase_current_balance": "현재 잔액 {amount}",
+  "purchase_expected_balance": "구매 후 예상 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "예상 수량이에요. 최종 지급 수량은 결제가 완료되는 시점에 서버 기준으로 확정돼요.",
+  "candy_reward_receipt_total": "총 적립 {amount}",
   "ad_reward_pending": "보상을 확인하고 있어요",
   "ad_reward_granted": "코튼캔디를 받았어요",
   "ad_reward_not_granted": "보상이 지급되지 않았어요",
@@ -2562,6 +2613,7 @@
     }
   },
   "candy_reward_receipt_balance": "현재 보유 {amount}",
+  "candy_reward_receipt_purchase_balance": "구매 후 보유 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2647,5 +2699,7 @@
   "expiry_quantity_title": "내 소멸 예정 캔디",
   "expiry_quantity_description": "현재 계정에서 예정된 소멸 수량입니다.",
   "expiry_policy_description": "재화별 소멸 기준입니다.",
-  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다."
+  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.",
+  "error_ad_device_account_restricted_message": "이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다.",
+  "profile_photo_change": "프로필 사진 변경"
 }

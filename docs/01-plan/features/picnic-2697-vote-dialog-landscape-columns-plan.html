@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2697 투표 팝업 조건부 2단 배치 계획</title>
+<style>
+:root{color-scheme:light;--ink:#202a38;--muted:#526173;--line:#d9e0e8;--accent:#185b92;--paper:#fff;--soft:#f1f6fa}*{box-sizing:border-box}body{margin:0;background:#edf1f5;color:var(--ink);font:15px/1.75 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif}main{max-width:1260px;margin:28px auto;padding:42px;background:var(--paper);border:1px solid var(--line);border-radius:14px}h1{font-size:29px;line-height:1.35;margin:0 0 12px}h2{font-size:23px;border-top:2px solid var(--line);padding-top:26px;margin-top:38px}h3{font-size:18px;margin:25px 0 8px}p{margin:10px 0}a{color:var(--accent);overflow-wrap:anywhere}code{background:#edf2f7;border-radius:4px;padding:2px 4px;font:13px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#172638;color:#e4eef8;padding:18px;border-radius:8px;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace}pre code{color:inherit;background:transparent;padding:0}table{border-collapse:collapse;width:100%;margin:15px 0;font-size:13px}th,td{padding:10px;border:1px solid var(--line);vertical-align:top;text-align:left}th{background:#eaf0f6;font-weight:700}tbody tr:nth-child(even){background:#fafbfd}.scroll{overflow-x:auto}.matrix{min-width:1100px}.matrix td{padding:7px}.muted,figcaption{color:var(--muted);font-size:13px}.callout{background:var(--soft);border-left:4px solid var(--accent);padding:16px 20px;margin:18px 0}.decision{background:#fff6e8;border-left:4px solid #a46c13;padding:14px 18px}.pill{display:inline-block;border:1px solid var(--line);border-radius:99px;padding:2px 9px;margin-right:6px;font-size:12px}.diagram{display:grid;grid-template-columns:2fr 3fr;gap:16px;background:#eaf0f6;padding:16px;border:1px solid #bac8d6;border-radius:12px}.column{background:white;border:1px solid #b8c9db;border-radius:8px;padding:14px}.slot{margin:8px 0;padding:10px;border:1px solid #c3d3e2;border-radius:6px}.optional{border-style:dashed;background:#f7fafc}.main-action{background:#e5f3ef}.small{font-size:12px}li{margin:5px 0}nav a{display:inline-block;margin:4px 12px 4px 0}@media(max-width:700px){main{margin:0;padding:20px;border:0;border-radius:0}.diagram{grid-template-columns:1fr}h1{font-size:25px}}@media print{body{background:white}main{margin:0;border:0;max-width:none;padding:0}.scroll{overflow:visible}.matrix{min-width:0;font-size:10px}h2{break-after:avoid}tr{break-inside:avoid}pre{background:#f3f5f7;color:#172638}}
+</style>
+</head>
+<body><main>
+<header>
+<p class="muted">2026-09-15 · 읽기 전용 분석 및 구현 계획 · 디자인 확인 전 비교안</p>
+<h1>PICNIC-2697 — 투표 팝업의 조건부 2단 배치</h1>
+<p><span class="pill">목표: 넓고 짧은 제약에서 정보와 조작부 동시 표시</span><span class="pill">코드·테스트 변경 없음</span><span class="pill">커밋·push·Jira 변경 없음</span></p>
+<p><strong>목표:</strong> 1단이 장식 축소·스크롤을 요구할 때, 두 열의 실제 최소 폭과 높이를 확보할 수 있으면 좌열의 후보·잔액과 우열의 투표 조작부를 나란히 배치한다. 방향·화면비·기기명은 선택 인자가 아니다.</p>
+<p><strong>구조:</strong> 기존 1단 <code>VoteDialogBands</code>를 보존하고 공통 측정·선택 계층과 조건부 열 배치를 추가하는 안이다. 투표·검증·포커스·라우트 상태는 기존 각 다이얼로그 State가 소유한다. <strong>기술:</strong> Flutter/Dart, LayoutBuilder, TextPainter, 기존 ScreenUtil·Riverpod 환경.</p>
+<p class="muted">기준 main/현재 HEAD: <code>c83a3ee1d296de2bb411705c705d9e31b5765658</code> · 2695 조사 HEAD: <code>5c5b59fdf8fa9a2a3ac3b53fd6cd33021ede49b9</code> · 공통 조상: <code>2e5ccdc20f1c3cf00a51b2c673eb68e59ee45835</code>. 아래 main 파일:라인은 이 시점 기준이다. 2695 파일:라인은 별도로 표기한다.</p>
+<div class="callout"><strong>검토 결론:</strong> “세로 압박 AND 2단 최소 폭”이라는 전제는 방향 분기 없이 표현할 수 있다. 다만 현재 측정값만으로는 부족하며, cap 적용 전 가용 폭·실제 좌열 높이·우열 폭별 조작부 높이가 추가로 필요하다. <strong>851×393 + K280은 입력+버튼 한 줄만으로 해결되지 않는다.</strong> 전체 사용·입력 피드백·닫기 영역까지 포함해야 한다.</div>
+<nav><a href="#current">1 현재 구조</a><a href="#trigger">2 전환 조건</a><a href="#layout">3 배치안</a><a href="#matrix">4 매트릭스</a><a href="#steps">5 구현 단계</a><a href="#risks">6 위험·회귀</a><a href="#dependency">7 선행 의존성</a></nav>
+</header>
+<section id="current"><h2>1. 현재 구조와 측정값</h2>
+<h3>1.1 실제 구현은 2개 세로 모드다</h3>
+<table><thead><tr><th>대상·근거</th><th>실제 동작</th><th>2단에서의 처리</th></tr></thead><tbody>
+<tr><td><code>voting_dialog_layout.dart:29,46</code></td><td><code>actionsPinned</code>와 <code>allScroll</code>만 있다. 계획서의 <code>comfortable</code>는 구현되지 않았다. 기본 선택은 <code>essentialHeight &lt;= bodyHeight</code>.</td><td>기존 세로 모드를 1단 경로에 유지. 열 수와 우열 조작부 방향을 별도 결정값으로 둔다.</td></tr>
+<tr><td><code>voting_dialog_layout.dart:182,220,249</code></td><td>실제 호출은 <code>resolveVoteDialogShape</code>가 모서리 clearance를 body에서 빼고 모드·반경을 함께 정한다. pinned는 actions/submit/tail을 먼저 자연 높이로 배치하고 남은 높이를 Flexible.loose 장식 스크롤에 준다. allScroll은 actions → submit → decoration → tail 순서다.</td><td>“스크롤해야 하는지”는 enum 하나로 완전히 알 수 없다. pinned에서도 장식이 스크롤한다. 전체 콘텐츠 높이는 현재 측정하지 않는다.</td></tr>
+<tr><td><code>voting_dialog.dart:210,256,268,283,354,383</code></td><td>라우트 inset은 조작부+hidden chrome+초상화 최소 32를 기준으로 24에서 8까지 양보. body는 실제 content constraints에서 chrome을 한 번 뺀다. <code>logoInTail</code>은 essential+로고+초상화·이름·잔액 선호 높이가 들어갈 때만 true.</td><td>1단의 가상 예산과 장식 압박 신호를 재사용할 수 있다. 현재 <code>_essentialHeight</code>에는 오류 표시 상태가 들어가므로 그대로 열 전환에 쓰면 입력에 따라 열이 바뀐다.</td></tr>
+<tr><td><code>jma_voting_dialog.dart:299,350,367,372,565</code></td><td>선호 높이 0.75·0.85는 유지하지만 <code>min(max(preferred, essential), fits)</code>로 조작부를 우선한다. preferred 비율은 body 높이 취향이며 방향/화면비 판별식이 아니다.</td><td>1단은 이 식을 그대로 유지. 2단에서는 자연 열 높이를 쓰되 실제 fits를 넘지 않게 한다. 0.75/0.85를 2단 트리거로 재해석하지 않는다.</td></tr>
+<tr><td><code>jma_voting_dialog.dart:528,547,943,1040</code></td><td>JMA <code>_headerChromeHeight</code>는 배지 문구·여백만 계산한다. 이름 높이가 빠지고 배지 아이콘과 줄바꿈도 정확히 모델링하지 않는다. <code>_decorationComfortHeight</code>는 잔액 전체 패널 대신 48만 더한다. 실제 잔액은 제목·Wrap·환산·사용 가능량의 여러 행이다. 키보드 때 초상화는 실제 렌더에서 숨지만 comfort에는 60이 포함된다.</td><td>현재 값은 로고 배치용 근사치다. 이름·잔액까지 처음부터 다 보인다는 2단 인수 조건의 근거로 그대로 쓸 수 없다.</td></tr>
+<tr><td><code>voting_dialog_layout.dart:26,54,64,72,87,147</code></td><td>카드 폭 <code>min(345.w,560)</code>; 장식 <code>min(designExtent.w,designExtent)</code>; 카드 내부 extent는 560 cap 비율에 맞춰 축소. 초상화는 기본 80/60과 최소 32 사이. 반경 함수는 실제로 <code>voteDialogCardRadius</code>·<code>resolveVoteDialogShape</code>이며 <code>voteDialogCardBorderRadius</code>라는 함수는 없다.</td><td>초상화 크기 제한과 1단 폭 정책 재사용. 2단 폭을 전역 cap 함수에 끼워 넣으면 버튼·패딩까지 커지므로 2단 전용 로컬 치수를 분리한다.</td></tr>
+<tr><td><code>large_popup.dart:16,22,26,34,74</code></td><td>숨김 strip 24 + 테두리 2.r×2가 chrome. Container는 실제로 Clip.antiAlias로 RRect를 자른다. 2695는 이 strip을 위쪽 48 닫기로 바꾼다.</td><td>body 높이와 shape에 동일 chrome·border 값을 전달해야 한다. shared popup의 전역 기본 폭·캡처 경로는 바꾸지 않는다.</td></tr>
+</tbody></table>
+<h3>1.2 재사용 가능 / 새로 필요</h3>
+<table><thead><tr><th>재사용 가능</th><th>새로 측정하거나 분리할 값</th></tr></thead><tbody>
+<tr><td>최종 content <code>constraints.maxHeight/maxWidth</code>, <code>largePopupCardBorderWidth</code>, 실제 chrome, inset resolver, 모서리 clearance.</td><td><strong>560을 적용하기 전</strong> 라우트 가용 폭. 현재 SizedBox 안의 LayoutBuilder는 이미 cap된 폭만 보므로 2단 폭 확보를 판단할 수 없다.</td></tr>
+<tr><td><code>measureVotingTextHeight</code>(widgets:19)는 locale·Directionality·TextScaler를 TextPainter에 전달. 일반 이름 높이(widgets:324), useAll(widgets:734), input(일반:402/JMA:578), submit(widgets:663/JMA:590) 공식.</td><td>TextPainter 기반 폭 측정 함수; 실제 두 열 폭에서 재측정한 이름/배지/잔액·checkAll·버튼 줄바꿈, clear 48·입력 아이콘·패딩·border의 가로 합. 세로 측정 함수만으로 최소 폭은 나오지 않는다.</td></tr>
+<tr><td><code>jmaValidationBandHeight</code>(JMA:1938)는 icon 20, padding, 가로·세로 border를 모두 반영.</td><td>validation 모든 도달 상태와 숫자 자릿수별 높이, 실제 우열 폭을 넣은 검증. 일반 오류(widgets:799)도 별도로 측정. 최장 로케일을 문자 개수로 판단하지 않는다.</td></tr>
+<tr><td>일반 <code>_decorationComfortHeight</code>, 로고 치수, 기존 입력 GlobalKey·controller·FocusNode.</td><td>입력값에 독립적인 중립 상태의 1단 압박 지표, 좌열 후보·잔액 요약의 실제 높이, 긴 이름·잔액 상세가 좌열 viewport보다 길 때의 하한·스크롤 정책.</td></tr>
+</tbody></table>
+<p>2694 계획 <code>docs/01-plan/features/picnic-2694-vote-dialog-viewport-plan.html:115</code>(3.2)는 당시 747 폭에도 .w 장식 과확대와 우선순위 문제가 남는다는 이유로 2단을 보류했다. 현재는 80/60 상한과 조작부 우선 밴드가 적용되어 그 선행 조건을 확보했으므로, 조건부 2단을 별도로 검증할 이유가 있다. 단순 560→800 변경으로는 세로 구조가 그대로다.</p>
+</section>
+<section id="trigger"><h2>2. 전환 조건 설계</h2>
+<h3>2.1 내용의 압박과 실제 제약으로만 선택</h3>
+<p>아래는 <strong>제안 의사 코드</strong>다. <code>single</code>은 현재 1단 폭·여백 정책을 적용해 계산한 가상 기준이고, <code>columns</code>는 별도 후보 폭으로 측정한 값이다. 어느 쪽을 렌더했는지로 다음 프레임의 판단을 되먹이지 않는다.</p>
+<pre><code>// 모두 logical px. empty/neutral은 입력값·활성·로딩 상태에 독립적이다.
+final singleWidth = min(routeAvailableWidth, min(defaultLargePopupWidth(), 560));
+final columnsWidth = min(routeAvailableWidth, design.columnsMaxWidth);
+final single = measureSingleCandidate(singleWidth, neutralState, chrome);
+final columns = measureColumnsCandidate(columnsWidth, neutralState, chrome);
+
+final singleIsUnderPressure =
+    single.essentialHeight + single.cornerClearance &gt; single.bodyHeight ||
+    single.essentialHeight + single.preferredIdentityAndBalanceHeight +
+        single.preferredTailLogoHeight &gt; single.bodyHeight;
+
+final enoughWidth = columnsWidth &gt;= columns.minimumCardWidth;
+final usefulColumnsFit =
+    columns.actionHeight + columns.cornerClearance &lt;= columns.bodyHeight &amp;&amp;
+    columns.minimumIdentityAndBalanceHeight &lt;= columns.bodyHeight;
+final useColumns = singleIsUnderPressure &amp;&amp; enoughWidth &amp;&amp; usefulColumnsFit;
+
+// useColumns=false이면 기존 VoteDialogBands와 shape/inset 계산으로 복귀.
+// inlineActions는 세로 합이 안 들어가고 한 행 배치가 들어갈 때만 선택.
+final inlineActions = useColumns &amp;&amp;
+    columns.stackedActionHeight &gt; columns.bodyHeight &amp;&amp;
+    columns.inlineActionHeight &lt;= columns.bodyHeight &amp;&amp;
+    columns.inlineMinimumWidth &lt;= columns.rightWidth;</code></pre>
+<p>장식 전체 길이 또는 <code>ScrollPosition.maxScrollExtent</code>를 트리거로 쓰지 않는다. 정책을 펼쳤다는 이유만으로 넉넉한 창도 2단으로 바뀌기 때문이다. 압박은 1단의 <strong>후보 식별·잔액·기존 로고 자리</strong>를 유지할 수 없는 상황으로 정의한다. 키보드에서 기존에 숨기는 로고는 preferredTailLogoHeight=0이다. M의 single.preferredIdentityAndBalanceHeight는 기존 _decorationComfortHeight를 중립 상태에서 호출한 값이다. 로고 이동·선호 초상화 압박을 보수적으로 포착하는 신호로만 사용하며 “실제로 장식 스크롤이 전혀 없다”는 증거로 쓰지 않는다. 새로운 좌열 실측은 columns.minimumIdentityAndBalanceHeight에 적용해 잘못된 2단 진입을 막는다. 1단 렌더 정책 자체는 변경하지 않는다.</p>
+<p>폭 후보를 얻는 외부 LayoutBuilder는 AlertDialog의 IntrinsicWidth 밖에 두고, 그 부모가 이미 적용한 SafeArea는 다시 차감하지 않는다. 미적용 dialog inset 및 viewInsets의 수평분만 한 번 차감한 값이 routeAvailableWidth다. 열 선택용 body도 이 외부 제약에서 중립 inset으로 가상 계산하며, 입력 오류로 바뀐 실제 AlertDialog의 내부 높이를 열 선택에 되먹이지 않는다. 최종 렌더 높이는 기존 content LayoutBuilder의 실제 constraints를 따라 안전하게 제한한다.</p>
+<p>추가 <code>usefulColumnsFit</code>는 “폭만 넓으니 2단”으로 더 나쁜 스크롤을 만들지 않기 위한 조건이다. 본문이 0이거나 한 컨트롤조차 담지 못하면 기존 1단 폴백을 유지한다. 무한 폭/높이 제약은 현재 경로로 돌리고 임의 화면비를 넣지 않는다.</p>
+<div class="decision"><strong>전제 검증의 한계와 선택지:</strong> 기존 수치로 M의 보수적 압박 신호는 만들 수 있지만, “모든 실제 장식 축소/스크롤”을 정확히 탐지한다는 전제는 성립하지 않는다. JMA의 근사 comfort가 잔액 전체 높이를 과소평가하고 정책/계산 전문의 길이는 측정하지 않기 때문이다. 선택 A(M)는 기존 신호로 대상 표본을 열고 실제 두 열 적합성만 새로 검사해 기존 여유 화면을 보존한다. 선택 B는 1단의 실제 후보·잔액 전체도 새로 측정해 압박 판정을 넓힌다. B는 놓치는 경우를 줄이지만 1194×834 K280·2.0처럼 기존 근사상 여유였던 화면까지 2단이 될 수 있어 아래 “바뀌지 않음” 표를 그대로 적용할 수 없다. M은 중립 상태에서는 여유였다가 오류 문구가 생겨 압박이 커지는 순간에도 열 전환을 하지 않아 추가 2단 기회를 놓칠 수 있다. 반대로 실제 상태를 트리거에 넣으면 입력 한 글자로 열이 바뀔 수 있다. 어느 보존 범위를 제품 계약으로 삼을지는 디자인 확인 대상이다.</div>
+<h3>2.2 최소 가용 폭 산출</h3>
+<pre><code>minimumCardWidth = 2 * border + leftPadding + rightPadding
+                 + minLeftWidth + columnGap + minRightWidth
+minLeftWidth = max(identityWidthNeeded, balanceSummaryWidthNeeded, design.leftFloor)
+minRightWidth = max(useAllWidthNeeded, inputWidthNeeded,
+                    activeSubmitWidthNeeded, feedbackWidthNeeded, design.rightFloor)
+inlineRightWidth = max(useAllWidthNeeded,
+                       inputWidthNeeded + actionGap + activeSubmitWidthNeeded,
+                       feedbackWidthNeeded)
+inputWidthNeeded = leadingSlot + horizontalPadding * 2 + border * 2
+                 + minimumEditableTextWidth + clearTarget48
+activeSubmitWidthNeeded = labelWidthAtAllowedLineCount + horizontalPadding * 2
+                        + iconSlot + iconGap
+</code></pre>
+<p>폭을 넘지 않는 40:60 목표 분배 후 각 열의 최소 폭을 clamp한다. <code>L=clamp(0.4×(innerWidth-gap), Lmin, innerWidth-gap-Rmin)</code>, R은 나머지다. 고정 40:60만 강제하지 않는다. JMA 잔액 Wrap의 한 child가 폭을 넘지 않는지도 별도 검사한다.</p>
+<table><thead><tr><th>비교용 M 치수 — 모두 신규 디자인 제안/추정</th><th>1.0×</th><th>1.3×</th><th>2.0×</th></tr></thead><tbody>
+<tr><td>좌열 최소 폭 (짧은 한국어 이름/잔액 요약)</td><td>200</td><td>216</td><td>240</td></tr>
+<tr><td>우열 최소 폭 (세로 조작부)</td><td>320</td><td>328</td><td>360</td></tr>
+<tr><td>좌우 padding 16씩 + gap 16 + 양 border 약 3.14일 때 최소 카드 폭</td><td>571.14</td><td>595.14</td><td>651.14</td></tr>
+</tbody></table>
+<p><strong>위 세 숫자 집합을 배율 분기 상수로 구현하지 않는다.</strong> 매트릭스 비교용 추정치이며 런타임은 현재 TextScaler와 실제 폰트/locale를 사용해 계산한다. 지원 로케일 전체, 특히 ko/th/my의 전체 사용·투표·충전·한도 문구, 200% 텍스트를 측정한다. 긴 이름은 2줄/무제한 중 디자인 결정을 받아 높이로 처리하고 전문을 접근 가능하게 남긴다. 무한히 긴 이름까지 고정 최소 폭 하나로 보장할 수 없다. 줄 수/height 한계를 넘으면 이 표의 2단 예상도 1단으로 폴백할 수 있다.</p>
+<p>입력 가로 최소치는 한 자리 '0'만으로 정하지 않는다. '0'은 현재 <em>높이</em> 측정용이다. 힌트, 현재 지원 숫자 범위, 천 단위 쉼표·caret 영역·clear 48을 포함한 편집 가능 폭을 제품에서 정해야 한다. 기본 M은 로컬 padding 12씩과 최소 편집 영역 128을 비교 출발점으로 사용한다(추정·디자인 확인 대상). 모든 자릿수를 동시에 보이는 정책과 TextField 내부 가로 스크롤을 허용하는 정책은 서로 다른 최소 폭을 만든다.</p>
+<h3>2.3 히스테리시스와 입력 중 안정성</h3>
+<ul>
+<li><strong>현재 상태 그대로 연결하면 입력 중 모드 변경 가능.</strong> 일반 <code>_essentialHeight</code>는 _canVote/_hasValue, JMA는 validation/hint에 따라 바뀌고 inset도 바뀐다. <code>voting_dialog_viewport_test.dart:139</code>는 100ms AnimatedPadding을 지난 뒤 검사하므로 중간 프레임은 미검증이다.</li>
+<li><strong>제안:</strong> 열 수 판정에는 입력이 비어 있는 중립 조작부 측정과 고정된 후보/잔액 요약 geometry를 쓴다. 입력·활성·로딩·정책 펼침·일일 카운트 로딩은 열 선택 키에 넣지 않는다. 우열 내부는 실제 오류 높이를 포함해 pinned/scroll을 정한다. 오류가 커지면 우열 내부 스크롤은 허용하되 1단↔2단 재배치는 하지 않는다. 피드백은 입력 바로 아래 동일 열/스크롤에 남긴다.</li>
+<li>좌열 잔액은 지원 자릿수/줄 수별 폭을 예약하거나 기존 summary 형상 안에서 갱신한다. 새 계정/후보·locale·textScale·외부 제약 변경은 재측정 사건이다. 네트워크 값 한 번 바뀔 때마다 중립 측정 형상을 다시 정하면 안정성 보장이 사라진다.</li>
+<li>1단/2단 폭은 외부 제약에서 독립적으로 계산하고, 초기 레이아웃을 재서 postFrame setState로 모드를 바꾸지 않는다. 이 설계에는 내부 피드백에 의한 진동이 없어 히스테리시스가 필수는 아니다. 실제 resize의 소수점 잡음은 경계 ±0.5/1px sweep으로 먼저 확인한다.</li>
+<li>선택지: 경계 흔들림이 실측되면 2단 진입에 여분 8px(추정)을 요구하고 최소 폭 아래에서는 즉시 1단으로 이탈하는 비대칭 밴드를 추가할 수 있다. 이력에 따라 동일 크기의 모습이 달라지고 추가 상태가 생기는 대가가 있다. 측정 근거 없이 기본 도입하지 않는다.</li>
+<li>키보드가 실제 가용 높이를 바꾸거나 사용자가 창을 줄이면 편집 중에도 배치 변경이 필요하다. FocusNode/controller/입력 GlobalKey를 유지하고 IME composing·선택을 검사한다. “입력 중 어떤 변화에도 모드 고정”은 잘림을 만들므로 약속하지 않는다.</li>
+</ul>
+</section>
+<section id="layout"><h2>3. 배치안과 키보드 높이 검증</h2>
+<h3>3.1 비교안 M — 공통 구조, 좌열 정보 / 우열 조작부</h3>
+<figure><div class="diagram"><div class="column"><strong>좌열 · 목표 약 40%</strong><div class="slot">후보 초상화 + 이름/그룹<br>JMA 배지</div><div class="slot">잔액 요약 · 일반 충전<br>JMA 기본/보너스 잔액·사용 가능 표</div><div class="slot optional">스크롤 상세<br>잔액 환산 상세 · 정책 · 로고 · 혜택</div></div><div class="column"><strong>우열 · 목표 약 60%</strong><div class="slot main-action">전체 사용 — 48 이상</div><div class="slot main-action">금액 입력 + 지우기 — 실제 높이</div><div class="slot main-action">입력 바로 아래 유효성/예정 안내</div><div class="slot main-action">투표 버튼</div><div class="slot optional">JMA 일일 한도 · 계산 상세<br>남는 높이에서 스크롤</div></div></div><figcaption>디자인 확인용 구조. 열 높이를 독립적으로 제한하며 우열 하단 정보가 조작부를 밀지 않게 한다. 이 그림은 실제 앱 렌더가 아니다.</figcaption></figure>
+<table><thead><tr><th>항목</th><th>M 배치와 읽기 계약</th><th>디자인 선택지</th></tr></thead><tbody>
+<tr><td>초상화·이름</td><td>좌열 맨 위 하나의 identity 블록. 일반 80/JMA 60 상한 유지, 로컬 폭에서 축소할 때 32 하한. 스크롤 경계가 초상화의 윗부분만 남기는 초기 상태를 2단 합격으로 보지 않는다. 이름은 이미지와 가로로 놓고 Expanded로 감싸 실제 줄 수를 측정한다.</td><td>이름 아래 초상화의 세로형 배치도 가능하나 좌열 높이를 더 쓴다. 이름을 2줄로 요약할 경우 전문을 바로 볼 수 있는 경로·접근성 확인이 필요하므로 임의 확정하지 않는다.</td></tr>
+<tr><td>JMA 잔액</td><td>좌열 위쪽에 기본·보너스·사용 가능량을 모두 읽을 수 있는 요약, 원래 환산 패널의 전체 항목은 같은 좌열 상세에 유지. 단순 제목만 보이는 것을 잔액 표시 성공으로 세지 않는다.</td><td>기존 전체 패널을 그대로 좌열 위에 놓으면 2.0×에서 초상화+패널 전체 동시 표시가 어려울 수 있다. 요약+상세 재구성(M)과 원형 패널 전체 스크롤(A)의 정보 밀도·인지 비용을 디자인에서 비교한다.</td></tr>
+<tr><td>JMA 일일 한도</td><td>우열 조작부 아래 첫 상세. 한도 초과 원인은 입력 바로 아래 validation에도 계속 표시. M의 K0 표본에서는 첫 줄 표시를 목표로 하나, 조작부·오류보다 우선하지 않는다.</td><td>좌열 잔액 아래로 두면 자원 정보를 모아 읽기 좋으나 좌열만 길어진다. 오류 조건을 설명하는 문구는 위치 선택과 무관하게 우열에 남긴다.</td></tr>
+<tr><td>JMA 계산·정책</td><td>admin 조건부 30:1 계산은 우열 상세, 정책과 브랜드는 좌열 상세. <code>_buildCalculationSection</code>(JMA:1264)의 조건·계산 및 <code>_buildJmaInformation</code>(JMA:883)의 펼침 상태 유지.</td><td>계산도 좌열에 두면 상태 데이터와 조작부 분리가 단순해지나 좌열 길이 불균형이 심해진다. 정책 전체를 고정 높이로 예약하면 2단 이득이 사라진다.</td></tr>
+<tr><td>공통 구조</td><td><code>VoteDialogBands</code> 외부에 제안 <code>VoteDialogPresentation</code> 결과(열 수·각 열 폭·조작부 방향·body·shape)를 소비하는 공통 <code>VoteDialogColumns</code>. 슬롯은 identity, balance, useAll, amount, feedback, submit, leftDetails, rightDetails. 기존 State는 위젯/콜백을 공급한다.</td><td>새 파일로 분리하거나 기존 layout.dart에 추가할 수 있다. 우선 같은 layout.dart에 순수 측정/정책과 열 배치를 두되 사업 로직은 옮기지 않는다.</td></tr>
+</tbody></table>
+<p>두 열에 같은 body maxHeight를 주고 <code>CrossAxisAlignment.start</code>로 시작한다. 좌열 길이로 우열의 높이를 키우거나 두 ScrollController를 연결하지 않는다. identity·잔액 최소 블록이 body에 안 들어가면 2단 후보를 거절한다. 아주 긴 상세는 각 열 내에서 스크롤하며 첫 offset=0을 강제 이동하지 않는다.</p>
+<h3>3.2 카드 폭 상한은 조건부로만 확장</h3>
+<table><thead><tr><th>선택지</th><th>이득</th><th>대가·보류 결정</th></tr></thead><tbody>
+<tr><td>560 유지</td><td>기존 팝업 인상·폭 함수 재사용.</td><td>M의 571 이상 최소 폭에도 못 미쳐 목표 표본에서 2단을 거의 열지 못한다. 넓은 창의 291px 공백 문제가 남는다.</td></tr>
+<tr><td>2단 후보에만 760 또는 800 상한</td><td>851에서 가용 라우트 폭 <code>851−32×851/393=781.71</code>. 상한 800이면 카드 781.71, 560 대비 약 221.71을 더 활용한다. 926에서는 800. 초상화는 여전히 80/60 상한이다.</td><td>800은 기존 상수가 아닌 디자인 제안. 좌열·우열의 실제 최소 폭, 손가락 이동 거리, 캡슐 인상을 비교해야 한다. 1단은 560을 그대로 사용한다.</td></tr>
+<tr><td><code>345.w</code>까지만 복원</td><td>851에서 747.06으로도 두 열 가능. 기존 디자인 폭 스케일의 범위.</td><td>가로 여유를 덜 쓰고 큰 글자·긴 라벨의 폭 압박이 빨리 온다. 747.06에서도 충분한지는 실제 열 측정으로 결정.</td></tr>
+</tbody></table>
+<p>원래 851−560=291(34.20%)의 차이 전부가 쓸 수 있는 공간은 아니다. 라우트 좌우 inset 약 69.29는 남겨야 하므로 상한 800안이 회수하는 폭은 약 221.71이다. SafeArea 좌우 padding이 있으면 더 줄어든다. 외부 SizedBox와 LargePopupWidget에 <strong>동일한 최종 카드 폭</strong>을 전달한다.</p>
+<h3>3.3 “입력+버튼 52 한 줄”의 실제 계산</h3>
+<p>프로덕션 기준은 <code>app_builder.dart:17,20</code>의 designSize=393×892, splitScreenMode=true. 설치된 <code>flutter_screenutil-5.9.3/lib/src/screen_util.dart:216,219,245</code>는 <code>sx=W/393</code>, <code>sy=max(H,700)/892</code>, <code>r=min(sx,sy)</code>다. 글자는 <code>PicnicUi.text</code>(presentation_tokens.dart:64)에 고정 fontSize와 height=1.45를 쓰므로 .sp로 확대하지 않는다.</p>
+<pre><code>// 851×393, safe padding=0, K=280, inset 하한 8
+sy = 700 / 892 = 0.784753
+hiddenChrome = 24 + 4 * min(851/393, sy) = 27.139013
+bodyMax2694 = 393 - 280 - 2*8 - hiddenChrome = 69.860987
+bodyMaxWithTopClose = 393 - 280 - 2*8 - (48 + 4*r) = 45.860987
+// safe padding 합이 8이면 각각 61.860987, 37.860987.
+
+inputGeneral = max(48, textLine16 + 2 * 8.h) + 2 * 1
+inputJma     = max(48, textLine16 + 2 * 8.h) + 2 * 2
+submitGeneral = max(52, textLine18 + 2 * 4.h)
+submitJma     = max(48, max(20, textLine18) + 2 * 4.h)
+inlinePair = max(input, submit) // 동일 행에 놓는 경우에만 max
+</code></pre>
+<table><thead><tr><th>배율</th><th>일반 입력 / 버튼</th><th>JMA 입력 / 버튼</th><th>입력+버튼 한 줄</th></tr></thead><tbody>
+<tr><td>1.0</td><td>50 / 52</td><td>52 / 48</td><td>일반 52 / JMA 52</td></tr>
+<tr><td>1.3</td><td>50 / 52</td><td>52 / 48</td><td>일반 52 / JMA 52</td></tr>
+<tr><td>2.0</td><td>60.956 / 58.478</td><td>62.956 / 58.478</td><td>일반 60.956 / JMA 62.956</td></tr>
+</tbody></table>
+<p class="muted">위 텍스트 의존 수치는 한국어 라벨 1줄, 16×1.45×scale 및 18×1.45×scale을 대입한 <strong>추정</strong>이며, 실제 폰트 shaping·TextPainter·RenderBox 결과가 아니다. 48·52·border·padding 상수와 bodyMax 산술은 코드에서 직접 계산했다. 실제 text line 및 입력 외곽 높이가 우선한다.</p>
+<ul>
+<li><strong>52 한 줄만</strong> 보면 1.0/1.3에서는 61.86에 들어간다. 2.0에서는 JMA 입력만 약 62.96으로 이미 초과한다. 긴 로케일이 버튼을 두 줄로 만들면 더 커진다.</li>
+<li><strong>전체 조작부:</strong> useAll을 위 행에 유지하면 <code>48 + max(input,button)</code>만으로 최소 100이다. M의 로컬 위/아래 8씩, 행 간격 4, 피드백 gap 4를 포함한 중립 inline 높이는 124 이상(추정)이다. 유효성 밴드는 추가된다. 따라서 62 또는 69.86에 들어가지 않는다.</li>
+<li>일반 오류 1줄은 약 17.4, JMA 오류는 <code>max(20,17.4)+16.h+2=34.556</code>(추정). 이를 좌열로 빼거나 숨겨야만 “52”를 주장할 수 있으나 입력 바로 아래 설명이라는 2694 계약을 깨므로 M에서는 하지 않는다.</li>
+<li><strong>2695 이후:</strong> 851×393에서 body 최대 45.86(안전영역 8이면 37.86)이므로 48 터치 영역 하나도 온전히 담지 못한다. 926×428에서는 최대 80.86, 844×390에서는 42.86이다. 926의 입력+버튼 한 줄은 가능할 수 있어도 useAll+feedback까지 담는 M은 불가다.</li>
+<li>대안으로 useAll·입력·버튼을 세 칸 한 행에 놓으면 높이는 줄지만 우열 폭은 세 컨트롤 폭+간격의 합이 된다. 좌열까지 더하면 200%·긴 로케일에서 851 폭을 넘을 수 있고 피드백 위치 문제도 남는다. 2695의 48 닫기 영역까지 유지한 851 표본은 이 방법으로도 열리지 않는다.</li>
+</ul>
+<p><strong>판정:</strong> 851×393 + K280의 완전한 조작부 동시 가시성은 이 조건부 2단안으로 열리지 않는다. 2단의 효용은 K0 표본의 후보·잔액 가시성과, 충분한 높이/폭이 함께 남는 중간 키보드 구간에서 별도로 검증한다. 기존 보고서의 “어떤 레이아웃으로도 불가능”은 1단 세로 합만으로 모든 배치를 부정한 과도한 표현이지만, 제안된 두 컨트롤 한 행이 현재 전체 계약을 만족하지 못한다는 결론은 유지된다. 62가 안전영역에 따라 달라진다는 정정은 <code>picnic-2694-sol-recheck.html</code> 6절에도 명시되어 있다.</p>
+</section>
+<section id="matrix"><h2>4. 뷰포트 매트릭스 — 60개 조합</h2>
+<p><strong>표는 M 비교안의 추정이며 렌더 검증 결과가 아니다.</strong> 한국어, MockData 기본 짧은 이름(지민), 빈 입력/오류 없음, 일반 잔액 550/JMA 별사탕 3000·보너스50, 정책 접힘, safe padding=0, 루트=부모, K를 단 한 번 차감하는 조건이다. 각 행은 일반/JMA 두 변형을 포함하므로 120개 다이얼로그 시나리오다. 긴 이름·th/my·실제 SafeArea는 아래 별도 확장 규칙을 따른다.</p>
+<p><strong>기호:</strong> U=전체 사용, I=금액 입력(지우기 포함), V=투표. ○=전체 표시 예상, △=일부/경계/스크롤 필요, −=첫 화면 밖, ∅=가용 높이 0. P=기존 pinned, S=기존 allScroll, 2=새 2단. G/J=일반/JMA. 1단 S에서 I/V는 스크롤로 접근하며 한 컨트롤보다 viewport가 작으면 전체 Rect를 약속하지 않는다. <strong>1단 행은 기존 코드 경로·폭·정보 순서가 바뀌지 않음</strong>을 검증할 대조군이다.</p>
+<p>본문 B열은 main c83의 상수/중립 텍스트 추정으로 계산한 일반/JMA 예산이다. “2695 반영”은 48 top strip + 2694 적응형 inset 유지 + 일반 키보드 선호 inset12/JMA20을 결합한 <strong>미머지 통합 가정</strong>이다. 추가 chrome을 2697 탓으로 숨기지 않기 위해 별도 열로 적는다. 최종 2695 통합 정책이 다르면 해당 열을 다시 계산한다.</p>
+<div class="scroll"><table class="matrix"><thead><tr><th>뷰포트</th><th>배율</th><th>K</th><th>c83 본문 B<br>G / J</th><th>M 열·세로<br>G / J</th><th>U I V<br>G / J</th><th>후보·잔액</th><th>2695 반영 B<br>G / J · 조작부</th><th>2697 변화</th></tr></thead><tbody>
+<tr><td>851×393</td><td>1.0</td><td>0</td><td>317.86 / 285.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>293.86 / 261.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>851×393</td><td>1.0</td><td>280</td><td>69.86 / 69.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>45.86 / 45.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>851×393</td><td>1.3</td><td>0</td><td>317.86 / 285.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>293.86 / 261.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>851×393</td><td>1.3</td><td>280</td><td>69.86 / 69.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>45.86 / 45.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>851×393</td><td>2.0</td><td>0</td><td>317.86 / 285.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>293.86 / 261.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>851×393</td><td>2.0</td><td>280</td><td>69.86 / 69.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>45.86 / 45.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>926×428</td><td>1.0</td><td>0</td><td>352.86 / 320.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>328.86 / 296.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>926×428</td><td>1.0</td><td>280</td><td>104.86 / 104.86</td><td>1-S / 1-S</td><td>○ ○ − / ○ ○ −</td><td>G/J: 기존 스크롤</td><td>80.86 / 80.86<br>○ △ − / ○ △ −</td><td>바뀌지 않음</td></tr>
+<tr><td>926×428</td><td>1.3</td><td>0</td><td>352.86 / 320.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>328.86 / 296.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>926×428</td><td>1.3</td><td>280</td><td>104.86 / 104.86</td><td>1-S / 1-S</td><td>○ ○ − / ○ ○ −</td><td>G/J: 기존 스크롤</td><td>80.86 / 80.86<br>○ △ − / ○ △ −</td><td>바뀌지 않음</td></tr>
+<tr><td>926×428</td><td>2.0</td><td>0</td><td>352.86 / 320.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>328.86 / 296.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>926×428</td><td>2.0</td><td>280</td><td>104.86 / 104.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>80.86 / 80.86<br>○ △ − / ○ △ −</td><td>바뀌지 않음</td></tr>
+<tr><td>844×390</td><td>1.0</td><td>0</td><td>314.86 / 282.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>290.86 / 258.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>844×390</td><td>1.0</td><td>280</td><td>66.86 / 66.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>42.86 / 42.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>844×390</td><td>1.3</td><td>0</td><td>314.86 / 282.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>290.86 / 258.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>844×390</td><td>1.3</td><td>280</td><td>66.86 / 66.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>42.86 / 42.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>844×390</td><td>2.0</td><td>0</td><td>314.86 / 282.86</td><td>2 / 2</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 후보·잔액 요약 ○</td><td>290.86 / 258.86<br>○ ○ ○ / ○ ○ ○</td><td>2단 확장 (추정)</td></tr>
+<tr><td>844×390</td><td>2.0</td><td>280</td><td>66.86 / 66.86</td><td>1-S / 1-S</td><td>○ △ − / ○ △ −</td><td>G/J: 기존 스크롤</td><td>42.86 / 42.86<br>△ − − / △ − −</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>1.0</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>1.0</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>1.3</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>1.3</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>2.0</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>1194×834</td><td>2.0</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>1.0</td><td>0</td><td>756.27 / 624.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>732.27 / 624.00<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>1.0</td><td>280</td><td>476.27 / 469.20</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>476.27 / 460.27<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>1.3</td><td>0</td><td>756.27 / 624.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>732.27 / 624.00<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>1.3</td><td>280</td><td>476.27 / 469.20</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>476.27 / 460.27<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>2.0</td><td>0</td><td>756.27 / 624.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>732.27 / 624.00<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>768×832</td><td>2.0</td><td>280</td><td>476.27 / 469.20</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>476.27 / 460.27<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>1.0</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>1.0</td><td>280</td><td>176.86 / 176.86</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>1.3</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>1.3</td><td>280</td><td>176.86 / 176.86</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>2.0</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>600×500</td><td>2.0</td><td>280</td><td>176.86 / 176.86</td><td>1-S / 1-S</td><td>○ ○ △ / ○ ○ △</td><td>G/J: 기존 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>1.0</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>1.0</td><td>280</td><td>176.86 / 176.86</td><td>1-P / 1-S</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>1.3</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>1.3</td><td>280</td><td>176.86 / 176.86</td><td>1-P / 1-S</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>2.0</td><td>0</td><td>424.86 / 375.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>400.86 / 368.86<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>412×500</td><td>2.0</td><td>280</td><td>176.86 / 176.86</td><td>1-S / 1-S</td><td>○ ○ △ / ○ ○ △</td><td>G/J: 기존 스크롤</td><td>152.86 / 152.86<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>1.0</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>1.0</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>1.3</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>1.3</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>2.0</td><td>0</td><td>758.26 / 625.50</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: ○/○</td><td>734.26 / 625.50<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>375×834</td><td>2.0</td><td>280</td><td>478.26 / 470.90</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G: ○/○ · J: 초상화 숨김/기존 스크롤</td><td>478.26 / 462.26<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>1.0</td><td>0</td><td>405.15 / 360.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>381.15 / 349.15<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>1.0</td><td>280</td><td>157.15 / 157.15</td><td>1-S / 1-S</td><td>○ ○ △ / ○ ○ △</td><td>G/J: 기존 스크롤</td><td>133.15 / 133.15<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>1.3</td><td>0</td><td>405.15 / 360.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>381.15 / 349.15<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>1.3</td><td>280</td><td>157.15 / 157.15</td><td>1-S / 1-S</td><td>○ ○ △ / ○ ○ △</td><td>G/J: 기존 스크롤</td><td>133.15 / 133.15<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>2.0</td><td>0</td><td>405.15 / 360.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>381.15 / 349.15<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×480</td><td>2.0</td><td>280</td><td>157.15 / 157.15</td><td>1-S / 1-S</td><td>○ ○ △ / ○ ○ △</td><td>G/J: 기존 스크롤</td><td>133.15 / 133.15<br>○ ○ △ / ○ ○ △</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>1.0</td><td>0</td><td>207.15 / 203.15</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>207.15 / 203.15<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>1.0</td><td>280</td><td>0.00 / 0.00</td><td>1-S / 1-S</td><td>∅ ∅ ∅ / ∅ ∅ ∅</td><td>G/J: ∅</td><td>0.00 / 0.00<br>∅ ∅ ∅ / ∅ ∅ ∅</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>1.3</td><td>0</td><td>207.15 / 203.15</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>207.15 / 203.15<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>1.3</td><td>280</td><td>0.00 / 0.00</td><td>1-S / 1-S</td><td>∅ ∅ ∅ / ∅ ∅ ∅</td><td>G/J: ∅</td><td>0.00 / 0.00<br>∅ ∅ ∅ / ∅ ∅ ∅</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>2.0</td><td>0</td><td>225.15 / 210.00</td><td>1-P / 1-P</td><td>○ ○ ○ / ○ ○ ○</td><td>G/J: 기존 정보 스크롤</td><td>213.15 / 210.00<br>○ ○ ○ / ○ ○ ○</td><td>바뀌지 않음</td></tr>
+<tr><td>280×280</td><td>2.0</td><td>280</td><td>0.00 / 0.00</td><td>1-S / 1-S</td><td>∅ ∅ ∅ / ∅ ∅ ∅</td><td>G/J: ∅</td><td>0.00 / 0.00<br>∅ ∅ ∅ / ∅ ∅ ∅</td><td>바뀌지 않음</td></tr>
+</tbody></table></div>
+<h3>4.1 읽는 방법과 “바뀌지 않음”의 범위</h3>
+<ul>
+<li>851×393·926×428·844×390의 K0에서만 M의 2단을 예상한다. 후보 블록·잔액 <em>요약 숫자</em>가 모두 보이는 것이 새 합격 조건이다. 두 열의 minimumIdentityAndBalanceHeight가 body에 실제로 들어간다는 조건부 예상이며 M 요약 UI 자체를 아직 렌더한 결과는 아니다. 잔액 원본 패널 전체·정책 전문까지 고정 표시한다고 주장하지 않는다.</li>
+<li>1194×834·768×832는 폭이 충분해도 M이 사용하는 기존 1단 핵심/comfort 예산이 들어가므로 세 배율·두 K 모두 1단 그대로다. 이는 기존 근사 측정 기준의 보존 조건이며, JMA 전체 잔액 패널까지 항상 들어간다는 뜻은 아니다. 키보드 없는 600×500도 폭이 M 최소보다 좁아 1단이다.</li>
+<li>412·375·280 폭은 열 최소 폭 부족으로 무조건 기존 1단. 280×280 K280은 남는 높이가 0이므로 UI 전체 표시/터치를 인수 요구로 걸 수 없다. 열 배치 전환으로 해결되는 문제가 아니다.</li>
+<li>600/412×500 K280 2.0의 일반 버튼은 산술상 0.02px 이내 경계라 △로 표기했다. 프레임·폰트 측정 없이 ○로 승격하지 않는다. JMA는 버튼 일부가 스크롤 아래로 내려간다. 2695의 추가 24 chrome은 두 변형 모두 1.0에서도 폴백으로 바꿀 수 있으므로 선행 통합에서 별도 회귀 확인이 필요하다.</li>
+<li>표의 1단 후보/잔액 “기존 스크롤”은 더 잘 보인다는 주장이 아니다. 현재 JMA 큰 패널과 극단 짧은 창의 정보 가시성 한계는 유지된다. 변경 없음을 golden/Rect 대조로 입증하고 이를 개선했다고 보고하지 않는다.</li>
+</ul>
+<h3>4.2 긴 로케일·부모 제약 확장</h3>
+<table><thead><tr><th>추가 축</th><th>모드·가시성 판정</th><th>필수 관찰</th></tr></thead><tbody>
+<tr><td>ko/th/my × 1.0/1.3/2.0</td><td>실측 최소 폭이 route 폭보다 크면 1단. 위 2단 표기를 강제로 유지하지 않는다.</td><td>비활성/활성/로딩에서 라벨이 동일 폭을 받고 버튼 높이가 유지되는지. 태국어 280폭·2.0의 큰 버튼 선행 한계를 별도 표시.</td></tr>
+<tr><td>긴 이름/그룹, 혼합 CJK·라틴</td><td>“아주긴아티스트이름”×6 fixture와 긴 그룹명 사용. 좌열 최소 identity가 높이를 넘으면 1단 폴백; 전문 접근 보존.</td><td>초상화 전체·이름과의 비겹침·좌열 스크롤 viewport containment. 짧은 이름 표의 ○를 자동 재사용하지 않음.</td></tr>
+<tr><td>가로 SafeArea 좌우44/하단21, 루트851×393·부모 높이300…320, 루트412×1000·부모500</td><td>ScreenUtil 루트 폭과 실제 부모 폭을 구별. body/route 폭을 실제 constraints에서 계산.</td><td>힌지/분할 패널의 실제 폭도 별도 전달. SafeArea·K 이중 차감 0. 경계에서 유효 폭 부족 시 1단 유지.</td></tr>
+<tr><td>빈 입력 → 5 → 최대+1 → 지우기 → 로딩, 정책 펼침</td><td>같은 외부 제약에서는 열 수·카드 폭 유지. 오류 높이는 우열 내부 pinned/scroll에만 반영.</td><td>입력 오류가 아래 같은 열에 남음, 로딩 close geometry 고정, 모든 실제 상태 예산≥렌더 높이.</td></tr>
+</tbody></table>
+</section>
+<section id="steps"><h2>5. 구현 단계 — TDD 순서와 검증</h2>
+<p>이 문서는 구현 승인이 아니다. 아래 단계는 7절 선행 통합과 디자인 선택 후 실행한다. 구현 담당자는 Superpowers subagent-driven-development 또는 executing-plans 절차를 사용하되 실제 여러 공급자 작업자 관리가 필요하면 Orca 및 usage-aware-orchestration을 따른다. 각 단계는 RED 확인 → 최소 변경 → GREEN의 순서다. 지금은 아래 코드/테스트를 만들거나 실행하지 않았다.</p>
+<table><thead><tr><th>단계·소유 파일/함수</th><th>독립적인 완료 조건과 TDD 작업</th><th>검증 명령 (picnic_lib에서 실행)</th></tr></thead><tbody>
+<tr><td>0. 선행 기준 확정<br><code>large_popup.dart</code>, 양 dialog, presentation test</td><td>2695를 최신 main에 통합한 HEAD에서 기존 135 viewport + 전체 voting·LargePopup 회귀를 실행해 기준선 기록. 닫기 chrome 인자화와 8 inset 하한을 보존. 아직 2단 추가 금지.</td><td><code>flutter test test/presentation/widgets/vote/voting</code><br><code>flutter test test/presentation/widgets/ui/large_popup_test.dart test/presentation/widgets/ui/large_popup_presentation_test.dart</code></td></tr>
+<tr><td>1. 인수 RED<br><code>voting_dialog_viewport_test.dart</code>의 _viewports, pumpAt, visibility helpers</td><td>851/926/844 K0에서 카드 폭&gt;560, 후보 전체·잔액 숫자 offset0 표시, 좌열/우열 x영역 분리 단언을 추가. 1194/768/600/좁은 창의 mode·Rect 불변 대조도 동시에 작성. 기존 기능으로 ○ 검사만 통과하는 테스트는 유효한 RED가 아니다.</td><td><code>flutter test test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart --plain-name PICNIC-2697</code><br>기대 RED: 넓은 창에서 열 분리 또는 후보/잔액 포함 실패.</td></tr>
+<tr><td>2. 측정·선택<br><code>voting_dialog_layout.dart</code>에 제안 VoteDialogPresentation/열 측정·선택, <code>voting_dialog_widgets.dart</code> 폭·높이 측정</td><td>같은 외부 제약으로 W1/W2 후보를 측정. orientation/aspectRatio 없이 2절 조건을 구현. 일반 VotingSubmitButton에 실제 allottedWidth를 넘겨 측정·렌더 일치. JMA 라벨 폭은 활성 아이콘 slot을 제외한 폭과 일치. 폭 경계 ±1과 텍스트2× RED→GREEN.</td><td><code>flutter test test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart --plain-name PICNIC-2697</code><br><code>flutter analyze lib/presentation/widgets/vote/voting/voting_dialog_layout.dart lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart</code></td></tr>
+<tr><td>3. 일반 2단<br><code>voting_dialog.dart</code> build/_buildDecoration/_buildActions/_buildSubmit, layout.dart 제안 VoteDialogColumns</td><td>AlertDialog 위에서 폭 후보를 확보하되 content SizedBox의 tight width는 유지해 IntrinsicWidth 질의를 차단. identity/balance/details 슬롯을 나누고 기존 controller·focus·key를 한 입력 인스턴스에 연결. 1단 경로는 기존 메서드 그대로. 실제 RRect/스크롤 viewport로 GREEN.</td><td><code>flutter test test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code><br><code>flutter test test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart</code></td></tr>
+<tr><td>4. JMA 적용<br><code>jma_voting_dialog.dart</code> _buildFixedHeader/_buildStarCandyInfo/_buildDailyLimitInfo/_buildCalculationSection/_buildInputFeedback/_buildJmaVoteButton</td><td>한도/잔액 계산 로직을 옮기지 않고 표현 슬롯만 나눔. _headerChromeHeight 근사치와 실제 좌열 측정 경로를 분리. 요약+원본 상세 정책은 디자인 승인안 적용. validation width/height 상한·active/idle label 폭·IME 테스트를 먼저 RED로 추가한 뒤 GREEN.</td><td><code>flutter test test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code><br><code>flutter test test/presentation/widgets/vote/voting/jma_voting_dialog_presentation_test.dart</code></td></tr>
+<tr><td>5. 키보드·전환·최종 회귀<br>동일 viewport test + 양 presentation/dismiss guard tests</td><td>60 조합·실제 route·SafeArea·부분 부모·1px sweep·16ms 중간 프레임·회전·IME·키보드0→280→0. inline은 전체 useAll+feedback+close가 들어가는 구간에만 켠다. 851 K280 실패 범위도 명시적으로 유지. 새 기준에서 2695 닫기·동일 프레임 재진입 guard 검사.</td><td><code>flutter test test/presentation/widgets/vote/voting</code><br><code>flutter test test/presentation/widgets/ui/large_popup_test.dart test/presentation/widgets/ui/large_popup_presentation_test.dart test/presentation/pages/vote/vote_detail_page_tap_test.dart</code><br><code>flutter analyze</code><br><code>git diff --check</code></td></tr>
+</tbody></table>
+<h3>5.1 실제 동작을 증명하는 테스트 형태</h3>
+<pre><code>// 신규 테스트의 의도 예시. 기존 pumpAt/plainDialog/plainControls 재사용.
+await pumpAt(tester, plainDialog(),
+    viewport: const Size(851, 393), textScale: 1.0);
+_expectControlsVisibleAtRest(tester, plainControls(), 'PICNIC-2697 851');
+final candidate = tester.getRect(find.byType(VotingArtistImage));
+final amount = tester.getRect(_amountInputSurface());
+expect(candidate.right, lessThan(amount.left)); // 실제로 두 열이어야 함
+expect(tester.getRect(_capsuleCard()).width, greaterThan(560));
+// 신규 helper _expectPaintVisible는 ancestor viewport 전부와 RRect를 검사.
+// 잔액 금액 Text와 초상화에도 적용; find.text가 존재한다는 사실만 검사하지 않음.
+
+// 변경 없는 화면은 열 enum만 보지 말고 2695 통합 기준 Rect와 비교한다.
+// 1194×834 / 768×832: useColumns=false, before/after controls Rect ±0.5.
+// 입력 변화 후에는 mode/cardWidth/focus/controller/선택/composing 모두 비교.
+</code></pre>
+<p><code>_expectControlsVisibleAtRest</code>(viewport test:159)는 offset0·캡슐 포함·RRect·hitTest·비겹침을 이미 확인하므로 재사용한다. 비인터랙티브 이미지/이름에는 hitTest 요구 대신 동일 paint containment를 쓰는 helper를 추가한다. 중첩 scroll은 가장 가까운 것 하나뿐 아니라 모든 조상 viewport를 검사한다. <code>_capsuleCard</code>(:78)를 계속 사용하고 LargePopup 전체 Rect로 바꾸지 않는다.</p>
+<h3>5.2 기존 135건 확장 수</h3>
+<p>현재 파일의 기본 행렬은 11크기×3배율×일반/JMA=66건이며 나머지는 PIC·파트너·긴 이름·SafeArea·키보드·invalid·상태·IME 등 69건이다. 요청한 10크기 중 9개는 기존 기본 행렬에 있고 <strong>768×832만 신규</strong>다. K0은 요청 크기와 겹치는 기존 54개 표본을 열/가시성 검사로 확장하고 768×832의 6건을 추가한다. K280은 요청 10×3×2=60건을 체계화하되 기존 412×500 1.0의 2건과 851×393 2.0 폴백 2건을 재사용하면 새로 56건이다. 따라서 <strong>135+6+56=197건</strong>이 기본 목표이며, 추가 경계·locale·상태/진동 검사는 별도다. 현재 393×852 키보드 2건·412×448/430 및 PIC·기존 경계는 삭제하지 않는다.</p>
+<p>기존 851의 “카드≤560” 검사(:438)는 무조건 삭제하지 말고 1단 대조군에 남기고, 2단에는 resolved width/route containment와 초상화80 상한을 검사한다. 기존 851 K280 extreme(:659)는 모든 조합 완전 가시성으로 바꾸지 않는다. 135 통과는 기존 <code>picnic-2694-recheck-response.html:300</code>의 기록이며 이번 계획에서 재실행한 결과가 아니다. 전체 analyze의 기존 522 issues 기록도 신규 완료 판정으로 재사용하지 말고 최종 통합 HEAD에서 기준선을 비교한다.</p>
+</section>
+<section id="risks"><h2>6. 위험·회귀와 대안</h2>
+<h3>6.1 2694 차단 지적 6건을 각각 보존</h3>
+<p>원 리뷰 4건 + 재검증 신규 2건이다. “활성 버튼 폭 상태 불변”은 현재 <em>전체 버튼 폭</em>이 동일하다는 뜻이 아니다. 활성/로딩 때 20+8.w만큼 넓혀 <strong>라벨 가용 폭과 높이를 일정하게</strong> 만든 상태 불변식이다(JMA:614–645,1538). 이 구분을 유지해야 한다.</p>
+<table><thead><tr><th>원 지적</th><th>현재 증거</th><th>2단에서 유지할 계약·검증</th></tr></thead><tbody>
+<tr><td>1. 짧은 창 JMA 버튼 잘림</td><td><code>picnic-2694-review-response.html:68</code>; layout:112,131의 여백 하한8</td><td>preferred inset은 들어갈 때만 유지. 새 close chrome까지 실제 requiredRouteHeight에 반영하고 8 아래로 줄이지 않는다. 280×280 3배율은 1단 그대로 Rect/RRect 검사. 2단 minHeight도 body를 넘기지 않는다.</td></tr>
+<tr><td>2. validation이 장식 스크롤로 사라짐</td><td>JMA:471,1448,1461의 입력 바로 아래·liveRegion</td><td>feedback을 우열 입력 바로 아래, 같은 스크롤/고정 그룹에 둔다. 좌열 상세로 보내지 않는다. invalid 상태에서 입력·오류가 모두 가시 viewport 안인지 검사.</td></tr>
+<tr><td>3. 활성 아이콘이 라벨 폭을 줄여 높이 과소 예산</td><td>JMA:590,626,639; viewport:795,828</td><td>rightWidth에서 실제 icon20+gap+padding을 뺀 폭으로 TextPainter를 호출. 넓힌 버튼이 input과 나란할 때 rightWidth를 넘지 않게 배분. active labelHeight≤budget 검증.</td></tr>
+<tr><td>4. 행렬 공백·RRect clip·outer Rect 폴백</td><td>viewport:78,106,159; layout:147,157,182</td><td>두 열 네 모서리 모두 검사. 기존 pinned는 위 장식이 clearance를 제공했지만 2단 우열 상단은 useAll일 수 있으므로 그대로 쓰면 잘린다. 두 열의 최외곽 inset/윗아래 padding으로 radius를 clamp하거나 정확한 clearance를 높이에 예약. 단순 Rect 포함으로 대체 금지.</td></tr>
+<tr><td>5. validation 밴드가 실제 Row 높이의 상한이 아님</td><td>JMA:1938; viewport:930,981; recheck-response:113</td><td>실제 rightWidth를 contentWidth로 넘겨 border2·icon20·padding 전부 포함. 원래 jmaVoteDialogContentWidth(resolveVoteDialogWidth())를 2단에도 쓰면 넓게 재서 줄 수를 과소 계산한다. 300…320 부모 sweep + locale×scale에서 budget≥actual 검증.</td></tr>
+<tr><td>6. 활성 폭을 idle 예산에 잘못 적용해 여백·밴드 순서 점프</td><td>JMA:614–645; viewport:1017,1060; recheck-response:224</td><td>비활성/활성/로딩 라벨 가용 폭과 높이를 동등하게 맞춘다. 2단에서는 최종 slot 폭을 세 상태에 고정하고 아이콘 자리만 내부 예약하는 선택지도 가능(디자인 확인). 상태 변화로 최소 카드 폭·열 수를 다시 결정하지 않는다. 280×320 th/my 불변 테스트 유지.</td></tr>
+</tbody></table>
+<h3>6.2 새 위험과 실패 조건</h3>
+<ul>
+<li><strong>좌열이 우열보다 길 때:</strong> IntrinsicHeight나 긴 좌열의 자연 높이로 카드 전체를 키우면 input이 다시 아래로 밀린다. body maxHeight를 먼저 고정하고 좌열 상세만 독립 스크롤한다. 우열 조작부 rect는 좌열 정책 펼침 전후 동일해야 한다.</li>
+<li><strong>짧은 초상화 조각:</strong> 최소32를 계산해도 실제 잔여 viewport가32보다 작으면 원 일부만 보인다. 2단에서는 identity+잔액 최소 높이 검사를 통과해야 하며 초상화 전체 Rect와 모든 clip 조상을 검사한다. 좌열 최초 offset0에서 원·이름이 겹치지 않게 한다.</li>
+<li><strong>원시 .w 확장:</strong> JMA의 16.w padding과 일반 잔액의32.w 아이콘·충전 pill은 작은 열에서도 전체 창 폭으로 커진다. 2단 슬롯에는 실제 열 폭 기준의 로컬 패딩/아이콘 치수를 사용한다. 1단에는 기존 치수를 유지한다.</li>
+<li><strong>넓은 잔액 child:</strong> Wrap 자체가 있더라도 내부 Row에 긴 숫자가 있으면 단일 child가 열보다 커질 수 있다(JMA:1069). 자릿수 범위·줄바꿈/내부 스크롤을 실측하고 최소 열 폭 계산에 포함한다.</li>
+<li><strong>포커스와 IME:</strong> 한 프레임에 GlobalKey가 중복되면 assert, 다른 key로 바꾸면 편집 세션이 끊길 수 있다. 분기에서 입력 위젯 하나만 마운트. 기존 IME 테스트(:1154)는 text와 selection만 단언하므로 composing range와 primaryFocus도 추가한다.</li>
+<li><strong>100ms inset 애니메이션:</strong> settle 후만 테스트하면 순간 overflow를 놓친다. 16ms 간격으로 Rect·exceptions·열 수를 기록한다. 두 후보는 애니메이션 중의 자기 크기가 아닌 외부 목표 제약으로 판단해 왕복을 막는다.</li>
+<li><strong>읽기·키보드 순서:</strong> 두 열 렌더 순서가 스크린리더나 Tab 순서를 끊지 않도록 후보/잔액 → 전체사용 → 입력/clear → 피드백 → 제출 → 상세 순서로 Semantics/FocusTraversal을 검증한다. 정책을 열어도 focus를 이동하지 않는다.</li>
+<li><strong>텍스트 확대/아이콘 테마:</strong> 200%를 clamp하지 않고 폰트·아이콘 scaling 정책이 실제 측정과 일치해야 한다. IconTheme applyTextScaling 변경 시 icon20 상수 전제가 깨질 수 있다(기존 recheck-response:338).</li>
+</ul>
+<h3>6.3 대안과 기각/보류 사유</h3>
+<table><thead><tr><th>대안</th><th>평가</th></tr></thead><tbody>
+<tr><td>항상 2단, landscape 또는 W/H 비율 분기</td><td>절대 제약 위반. 넉넉한 태블릿·좁은 분할 창을 함께 바꿔 회귀 범위를 넓히므로 기각.</td></tr>
+<tr><td>폭만560→800, 기존 1단</td><td>높이 합이 줄지 않아 useAll/입력/버튼 문제를 해결하지 못함. 초상화 cap 제거와 결합하면 원인 재도입이므로 단독안 기각.</td></tr>
+<tr><td>기존 JMA 전체 패널을 통째로 좌열 이동</td><td>가장 작은 코드 변화지만 2.0·긴 이름에서 잔액이 다시 스크롤 아래로 간다. M의 요약+전문 유지안과 함께 디자인 비교. 잔액 전체 패널 첫 화면 보장을 약속하지 않는 조건에서 선택 가능.</td></tr>
+<tr><td>모든 화면을 bottom sheet/fullscreen으로 전환</td><td>chrome 문제를 다룰 수 있지만 기존 팝업 경험·닫기·경로 전부 바뀐다. 2697의 제한적 2단 범위를 넘으므로 별도 UX 안으로 보류.</td></tr>
+<tr><td>useAll/오류 숨김·글자 축소·48 미만 터치</td><td>새 레이아웃이 들어간다는 수치를 위해 정보/접근성 계약을 줄이므로 기각.</td></tr>
+<tr><td>키보드 때 세 조작부 모두 한 행</td><td>52 높이 가능성은 있지만 폭과 오류 위치·close 예산이 남는다. 851+2695는48 컨트롤 자체가 안 들어가므로 이번 핵심 해법으로 채택 불가. 충분한 폭·높이에서 별도 프로토타입 비교 가능.</td></tr>
+</tbody></table>
+<div class="decision"><strong>디자인 확인 대상:</strong> 2단 cap760/800/345.w, 목표 열 비율과 최소 편집 폭, JMA 잔액 요약+상세 여부, 한도/계산 좌우 위치, 키보드 때 초상화 유지 여부, 오류 공간 사전 예약 여부, 긴 이름의 요약 허용 여부. M은 비교 수치를 만들기 위한 안이며 이 선택을 확정하지 않는다.</div>
+</section>
+<section id="dependency"><h2>7. 선행 의존성 — PICNIC-2695 충돌과 머지 순서</h2>
+<p><strong>권고 순서: 2695를 최신 main(2694 포함)에 먼저 통합·검증 → 2695 main 머지 → 그 결과에서 2697 구현.</strong> 닫기/투표 진행 중 guard가 먼저 확정돼야 본문 높이와 route·focus 수명 정책을 안정적으로 재사용할 수 있다. 디자인 승인은 별도이며, 여기서는 머지/리베이스를 실행하지 않았다.</p>
+<p>요청한 <code>git diff origin/main...fix/vote-dialog-close-picnic-2695</code>와 각 파일의 해당 branch blob을 읽었다. 이 세 점 diff는 main c83와 2695 tip의 직접 비교가 아니라 공통 조상2e5ccdc20→2695 변경이다. 2695는 아직 2694의 VoteDialogBands·560 cap·shape·적응형 inset 구조를 포함하지 않는다. 따라서 충돌 시 파일 전체를 한쪽 버전으로 교체하면 다른 쪽 수정이 사라진다. <code>../picnic-2695</code>는 작업 중이므로 아래 조사 HEAD와 최종 diff가 달라질 수 있다.</p>
+<table><thead><tr><th>충돌 지점</th><th>main c83 파일:라인</th><th>2695 HEAD 파일:라인</th><th>통합 방향 및 검증</th></tr></thead><tbody>
+<tr><td>일반 body 선택·폭·chrome</td><td><code>voting_dialog.dart:256–329</code>: resolveVoteDialogWidth/shape/VoteDialogBands, hidden chrome</td><td><code>voting_dialog.dart:361–408</code>: defaultLargePopupWidth, top chrome, <code>_pinnedChromeFor</code>와 _buildFixedChromeBody/_buildAllScrollBody 유지</td><td>main의 밴드·폭/반경 흐름에 2695의 close props/chrome만 결합. 2697은 그 안쪽에 열 선택을 추가. _PinnedChrome를 되살리지 않음.</td></tr>
+<tr><td>일반 inset</td><td><code>voting_dialog.dart:210–225,246–249</code>: essential 기반 resolver, 하한8</td><td><code>voting_dialog.dart:105–122,349–354</code>: 기본24, 키보드12(48−24 차이를 양쪽에12씩 보상)</td><td>2695의 preferred12를 적응형 resolver의 선호값으로 넣을지, 기존24를 유지할지 선행 통합에서 결정. requiredRouteHeight에는 실제 close chrome 사용. 851에서는 이미 하한8이라 추가24를 전부 돌려받을 수 없음.</td></tr>
+<tr><td>JMA body·모드·가드</td><td><code>jma_voting_dialog.dart:299–307,350–414</code>: 동적 inset/실측 essential/shape/밴드</td><td><code>jma_voting_dialog.dart:348–376,384–457</code>: PopScope 신규, inset20/40 고정, <code>min(preferred,fits)</code>, budget360/scale18.2 compact 분기</td><td>PopScope·onClose 가드는 채택하되 main의 삭제된 높이/배율 임계값을 복원하지 않음. 2697이 같은 build를 다시 편집하므로 동시 구현보다 선행 통합 권고.</td></tr>
+<tr><td>LargePopup Container 구조·반경</td><td><code>large_popup.dart:45–61,74–85</code>: nullable cardBorderRadius와 clip</td><td><code>large_popup.dart:73–102,105–135</code>: close 옵션 추가, card를 로컬 변수로 추출, 반경은120.r 고정</td><td>2695의 top strip/card 순서를 살리면서 nullable cardBorderRadius를 추출된 card Container에 연결. 2697의 우열 상단 RRect clearance를 무효화하지 않음. 기본 bottom/hidden 공유 캡처 형태 그대로.</td></tr>
+<tr><td>라우트/포커스 수명</td><td><code>voting_dialog.dart:233–235,760–769</code>, JMA build:310</td><td><code>voting_dialog.dart:202–278,312–337,868–873</code>; <code>jma_voting_dialog.dart:265–331,348–376</code></td><td>_requestClose, _dismissOwnRoute, _routeIsActive, owned-node unfocus 및 동일 프레임 guard는 레이아웃 밖에 유지. 우열 input reparent가 새 focus를 만들거나 backdrop guard를 우회하지 않도록 한다. 성공/실패·covered route·mounted 조건을 변경하지 않음.</td></tr>
+<tr><td>presentation 회귀</td><td><code>voting_dialog_presentation_test.dart:55–69</code>의 실제 capsule helper 및 기존 2688/2694 입력 포함 경계</td><td><code>voting_dialog_presentation_test.dart:181–228</code>: 320×568 K280 close48 hitTest 및 제출 시작 전후 close/popup geometry 동일</td><td>새 close 검사는 유지. 후보/조작부 포함 검사는 LargePopup 전체가 아니라 capsule 기준 유지. 로딩에서 버튼·close 자리 고정, blur 직후 키보드 변화는 16ms 중간 프레임과 함께 검증.</td></tr>
+<tr><td>공유 route-height helper</td><td><code>voting_dialog_layout.dart:118–121</code>는 hidden chrome 하드코딩</td><td>2695에는 이 파일이 없고 두 dialog에서 <code>largePopupTopCloseChromeHeight</code>를 사용</td><td>높이 helper에 실제 chrome 인자를 넘기거나 공통 presentation metrics에서 close placement별 한 번만 선택. body는48을 빼고 inset은24로 예약하는 불일치 방지. 2695 통합 때부터 필요한 변경이다.</td></tr>
+</tbody></table>
+<h3>7.1 닫기 영역에 따른 필수 재검증</h3>
+<table><thead><tr><th>표본</th><th>2694 최대 body (safe=0)</th><th>top close 도입 후 최대 body (inset8)</th><th>의미</th></tr></thead><tbody>
+<tr><td>851×393 K280</td><td>69.86</td><td>45.86</td><td>52 한 줄도 불가. SafeArea8이면37.86까지 감소.</td></tr>
+<tr><td>926×428 K280</td><td>104.86</td><td>80.86</td><td>입력+버튼만 한 줄로는 가능성 있으나 전체사용+피드백 포함 M은 불가.</td></tr>
+<tr><td>844×390 K280</td><td>66.86</td><td>42.86</td><td>48 터치 영역 자체보다 작다.</td></tr>
+<tr><td>412×500 K280</td><td>176.86</td><td>152.86</td><td>기존1.0 pinned 표본도 폴백으로 바뀔 수 있음. 2697이 1단을 유지해도 2695 통합 자체의 회귀가 남을 수 있다.</td></tr>
+</tbody></table>
+<p>2695를 그대로 먼저 머지하라는 뜻은 아니다. <strong>2694 회귀를 보존하는 통합이 선행 조건</strong>이다. 닫기48과 기존 극단 뷰포트 보장이 물리적으로 양립하지 않으면, 키보드 표시 중의 사용 흐름/별도 전체화면 편집/폴백 계약을 디자인에서 선택해야 한다.</p>
+
+<h3>7.3 갱신 — 2026-09-15 실측과 사용자 결정</h3>
+<p><strong>이 절의 초판은 닫기 영역을 캡슐 위에 겹치는 변경을 승인하지 않는다고 적었다. 그 판단은 철회한다.</strong> 초판은 최대 본문 높이만 비교했고, 아래 두 가지를 반영하지 못했다.</p>
+<ul>
+<li><strong>예측 범위가 과했다.</strong> 851&times;393, 844&times;390, 926&times;428 의 K280 은 2694 에서 이미 스크롤 폴백 경로이고, 그 구간의 계약은 &ldquo;오프셋 0 에서 전부 보임&rdquo; 이 아니라 &ldquo;오버플로 0 + 스크롤로 입력 도달&rdquo; 이다. 닫기 48 이 그 판정을 바꾸지 않아 실제로는 실패하지 않았다.</li>
+<li><strong>2695 가 하단 strip 을 이미 제외한다.</strong> <code>large_popup.dart</code> 는 상단 닫기를 쓸 때 후행 strip 을 렌더하지 않는다. 이중 차감은 없다.</li>
+</ul>
+<p>2695 브랜치의 실측 실패는 4 건이었고 성격이 셋으로 나뉘었다.</p>
+<table>
+<thead><tr><th>실패</th><th>성격</th><th>실측</th></tr></thead>
+<tbody>
+<tr><td>보너스 버블 순서 불변식 (PICNIC-2688)</td><td>일반 아이폰 375&times;812 K336 의 <strong>실제 회귀</strong></td><td>main 에서는 통과</td></tr>
+<tr><td>JMA 유효성 예산 경계</td><td>임계값 이동이 아닌 <strong>실제 컨테이너 초과</strong></td><td>851&times;393 부모 300~320 스윕에서 조작부 Rect 328.04 vs 허용 307.0, 21px 초과</td></tr>
+<tr><td>플립 412&times;500 K280 일반 / JMA</td><td>극단 표본의 계약 문제</td><td>216.99 vs 212.5, 4.49px 초과</td></tr>
+</tbody>
+</table>
+<p><strong>2026-09-15 최종 — 겹치기는 채택되지 않았다.</strong> 사용자가 한때 겹치기를 선택했으나, 아래 1 번 지적이 2695 브랜치에서 실측으로 확인되어 철회됐다. 가로 851 에서 장식을 끝까지 스크롤하면 잔액 행 우측 <code>665</code> 가 닫기 X 좌측 <code>649.5</code> 아래로 들어간다. 안전하게 만들려면 반경에 따라 <code>63~83</code> 을 비워야 해 줄 배치의 24 보다 비싸다.</p>
+<p><strong>채택된 최종안은 조건부 표시다</strong>(PICNIC-2695, main <code>0819c3a92</code>). 닫기 strip 은 카드 위 별도 영역이며 겹치지 않는다. 두 다이얼로그가 각자 <code>showTopClose</code> 를 계산해 <code>LargePopupWidget</code> 에 넘긴다. 조건은 <code>available - topCloseChrome &gt;= essential + decorationComfort</code> 이고, 거짓이면 기존 숨김 strip 으로 돌아간다. <code>largePopupTopCloseChromeHeight</code> 는 숨김보다 24 크므로 닫기가 보이는 경우 본문 예산이 24 줄어든다. 보너스 안내는 조건에 넣지 않았다 — 넣으면 일반 기기에서 키패드를 올릴 때 X 가 사라진다(갤럭시 S20 FE, 360&times;800, 인셋 294 에서 실측).</p>
+<p><strong>2 단 배치에서의 함의.</strong> 조작부가 좌우로 나뉘면 세로 예산이 남으므로 닫기 표시 조건이 더 자주 참이 된다. 매트릭스에 닫기 표시/숨김 두 경우를 모두 넣고, <strong>조건이 거짓일 때 사용자의 탈출구는 배리어 탭과 시스템 뒤로가기뿐</strong>이라는 점도 함께 기록한다.</p>
+<p>아래 4 건은 겹치기가 철회된 뒤에도 유효하다. 1 번은 철회의 근거였고, 2~4 번은 닫기 strip 이 카드 위에 있어도 2 단 우열 상단 기하를 정할 때 같은 검사가 필요하다.</p>
+
+<p><strong>겹치기 구현 시 확인할 것 4 건.</strong> &ldquo;카드 우상단이 비어 있다&rdquo; 는 전제는 성립하지 않는다.</p>
+<ol>
+<li><strong>충전 버튼이 그 자리로 올라온다(최우선).</strong> <code>VotingStarCandyInfo</code> 는 <code>spaceBetween</code> 이고 오른쪽 끝이 48 탭 타깃의 충전 버튼이다(<code>voting_dialog_widgets.dart:514</code> 부근). 장식 밴드 순서가 초상화 &rarr; 이름 &rarr; 잔액이라 장식이 스크롤되는 짧은 화면에서 잔액 행이 밴드 최상단까지 올라온다. Stack 은 나중 자식이 히트테스트를 이기므로 충전을 누르면 팝업이 닫히고 입력한 금액이 사라진다. <em>해법:</em> 닫기가 있을 때 장식 밴드에 상단 인셋을 준다. 장식은 양보하는 밴드라 조작부 필수 높이를 건드리지 않는다. 2단의 우열 상단 여백과 같은 값을 쓴다.</li>
+<li><strong>카드 반경은 상수가 아니다.</strong> <code>resolveVoteDialogShape</code> 가 <code>min(120.r, bodyHeight/4)</code> 로 클램프한다. 본문이 넉넉하면 반경 120 이라 우상단이 크게 둥글고, 48 박스를 안쪽 모서리에 그대로 놓으면 <code>Clip.antiAlias</code> 에 깎인다. 1 차 적대적 리뷰 4 번 지적이 정확히 이 RRect 모서리 clip 이었고 실측 6.0 / 6.0 / 8.5px 이었다. 실제 해결된 반경을 기준으로 위치를 잡는다.</li>
+<li><strong>JMA 배지가 상단에서 넓게 뻗는다.</strong> JMA 는 <code>titleWidget</code> 을 쓰지 않고 배지를 content 최상단에 직접 그린다. 280 계열의 좁은 카드에서는 배지 오른쪽 끝이 닫기 자리에 닿을 수 있다.</li>
+<li><strong>스크롤 콘텐츠가 닫기 밑을 지나간다.</strong> 이름과 잔액 텍스트가 <code>Clip.antiAlias</code> 안에서 흐르므로, 1 번의 상단 인셋을 두지 않는다면 스크림이나 배경 처리가 필요하다.</li>
+</ol>
+<p><code>voting_complete</code> 는 <code>showCloseButton: false</code> 라 겹침 분기를 타지 않으므로 공유 이미지 캡처 기하는 영향받지 않는다. 하단 숨김 strip 24 를 유지하면 본문 높이가 2694 와 같아지는 것도 계산상 맞다.</p>
+<h3>7.2 범위와 전달 점검</h3>
+<ul>
+<li>생성 파일은 이 HTML 하나다. 코드·테스트·기존 보고서·2695 워크트리는 변경하지 않는다.</li>
+<li>이번 검증은 코드/리뷰/브랜치 diff 읽기, 코드 상수 산술, HTML 구조·60행 조합 점검이다. 실제 Flutter 렌더·새 테스트·에뮬레이터 재촬영은 수행하지 않았다.</li>
+<li>Orca CLI 연결은 간헐적으로 <code>runtime_unavailable</code>을 반환했다. 마지막으로 성공한 완료 전 check에서 후속 지시 0건을 확인했으며, lifecycle 보고 전달 여부는 CLI 응답으로 별도 확인한다.</li>
+<li>다음 작업에 남는 것: 디자인 선택, 최신2695 diff 재확인·선행 통합, 실제 글꼴/locale 측정으로 추정 표 교체, TDD·기기 캡처·다른 공급자의 독립 리뷰. 커밋·push·Jira 상태 전환은 요청 범위 밖이다.</li>
+</ul>
+<p class="muted">주요 참고 파일: <code>docs/operations/picnic-2694-implementation-result.html</code>, <code>picnic-2694-sol-review.html</code>, <code>picnic-2694-review-response.html</code>, <code>picnic-2694-sol-recheck.html</code>, <code>picnic-2694-recheck-response.html</code>, <code>docs/operations/picnic-2694-captures/README.html:278–318</code>. 캡처 README의 JMA 가로 after 설명도 “스크롤 헤더는 잘리지만”이라고 기록하며, 이 계획은 그 잔여 정보 가시성을 다룬다.</p>
+</section>
+<footer><p class="muted">저장 위치: /Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2694/docs/01-plan/features/picnic-2697-vote-dialog-landscape-columns-plan.html</p></footer>
+</main></body></html>

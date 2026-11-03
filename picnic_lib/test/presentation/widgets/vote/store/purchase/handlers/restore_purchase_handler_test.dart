@@ -784,7 +784,9 @@ class _FakeVerification extends ReceiptVerificationService {
     String productId,
     String userId,
     String environment,
-  ) async =>
+  {
+    String? clientObservedCurrency,
+  }) async =>
       PurchaseSettlementResultModel(
         contractVersion: 'wallet.v1',
         operationId: 'operation',

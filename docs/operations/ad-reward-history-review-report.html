@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>작업 2 — 사용자 광고 적립 내역 독립 코드 리뷰</title>
+<style>
+  body{max-width:1080px;margin:40px auto;padding:0 24px;font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;color:#172132}
+  h1,h2,h3{line-height:1.3}
+  h1{border-bottom:3px solid #376ac3;padding-bottom:10px}
+  h2{margin-top:44px;border-bottom:1px solid #ccd4df;padding-bottom:6px}
+  table{border-collapse:collapse;width:100%;margin:16px 0;font-size:15px}
+  th,td{border:1px solid #ccd4df;padding:9px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f7}
+  code{background:#f1f4f8;padding:1px 5px;border-radius:3px;font-size:.92em}
+  pre{background:#f1f4f8;padding:14px;white-space:pre-wrap;border-radius:5px;font-size:14px;overflow-x:auto}
+  .verdict{border-left:5px solid #376ac3;background:#f6f9ff;padding:14px 18px;margin:18px 0}
+  .fail{border-left-color:#c0392b;background:#fdf4f3}
+  .pass{border-left-color:#1e8449;background:#f2f9f5}
+  .sev{display:inline-block;padding:2px 9px;border-radius:11px;color:#fff;font-size:12.5px;font-weight:700;white-space:nowrap}
+  .s-high{background:#c0392b}.s-medhigh{background:#d35400}.s-med{background:#b7791f}.s-low{background:#5b6b80}
+  .finding{border:1px solid #ccd4df;border-radius:7px;padding:4px 20px 16px;margin:22px 0;background:#fff}
+  .finding h3{margin-top:16px}
+  .meta{font-size:14px;color:#4a5768;margin:6px 0 0}
+  .unverified{background:#fff8e6;border-left:4px solid #b7791f;padding:9px 13px;font-size:14.5px;margin:12px 0}
+  ul.tight li{margin-bottom:5px}
+  .good li{margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<h1>작업 2 — 일반 사용자 광고 적립 내역: 독립 코드 리뷰</h1>
+
+<p class="meta">
+2026-09-08 · 대상 워크트리 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/hotfix-ad-reward-recovery-load</code> ·
+요구사항 <code>ad-reward-app-redesign-plan.html</code> (목표·범위 + 작업 2) ·
+diff <code>ad-reward-history-review.diff</code> (작업 트리와 일치 확인) ·
+읽기 전용 리뷰. 파일 수정·커밋·푸시·API 실행 없음.
+</p>
+
+<h2>판정</h2>
+
+<div class="verdict fail">
+<strong>Spec compliance — 부분 FAIL.</strong>
+명시된 변경 요구 5개 중 4개(일반 로그인 사용자 접근, 선택 통화만 on-demand 조회, 비로그인 0 RPC,
+새로고침·계정전환 뒤 응답/cursor 미혼합)는 충족되고 실제로 테스트로 고정돼 있다.
+충족되지 않은 것은 계획의 <em>작업 2 §4</em> “내역에 결제·작업 내부 ID 같은 구현값을 임의 노출하지 않는다”와
+<em>목표·범위</em>의 “기존 현지화 문자열을 사용한다 / 사용자 흐름에 내부 구현 설명을 노출하지 않는다”이다.
+행 렌더러(<code>currency_history_list_item.dart</code>)가 관리자 전용 시절 그대로 남은 채 접근 범위만 전체 로그인 사용자로 열렸다 (F1).
+“오류 재시도”는 UI 요소로는 존재하지만 프로덕션 재시도 정책 아래에서 실제로 도달 가능한지가 검증되지 않았다 (F2·F3).
+</div>
+
+<div class="verdict pass">
+<strong>Code quality — PASS (유보 있음).</strong>
+정적 분석·포맷 무결, 테스트 78/78 통과를 현재 트리 기준으로 독립 재확인했다.
+provider 계층의 소유자 전환·늦은 응답·refresh 방어는 구현 서술이 아니라 실제 반례를 재현하는 회귀 테스트로 고정돼 있어 품질이 높다.
+유보 사유는 오류 경로다. 이 레포가 이미 파우치에서 진단하고 고쳤던 결함(무제한 타임아웃 + riverpod 기본 재시도)이
+새 사용자 대면 페이지에 그대로 남아 있고 (F2), 해당 경로의 위젯 테스트는 프로덕션과 다른 재시도 정책·다른 예외 타입으로 돌아 이를 관측하지 못한다 (F3).
+</div>
+
+<h2>독립 검증 증거</h2>
+
+<table>
+<thead><tr><th>검증</th><th>명령</th><th>결과</th></tr></thead>
+<tbody>
+<tr><td>diff ↔ 작업 트리 일치</td><td><code>git diff --stat -- picnic_lib/lib picnic_lib/test</code></td><td>6 files, +587/−104. <code>ad-reward-history-review.diff</code>의 lib 3개 파일 내용과 현재 소스가 일치</td></tr>
+<tr><td>정적 분석</td><td><code>flutter analyze --no-pub</code> (변경 6개 파일)</td><td><strong>No issues found</strong> (4.5s) — 계획서의 “재확인중” 항목 종결</td></tr>
+<tr><td>포맷</td><td><code>dart format --set-exit-if-changed</code> (변경 6개 파일)</td><td><strong>0 changed</strong></td></tr>
+<tr><td>테스트</td><td><code>flutter test --no-pub</code> (wallet_provider / currency_history_page / my_page_render / my_page)</td><td><strong>+78: All tests passed</strong> — 현재 트리 기준 재확인</td></tr>
+</tbody>
+</table>
+
+<h2>요구사항 대조</h2>
+
+<table>
+<thead><tr><th>요구</th><th>판정</th><th>근거</th></tr></thead>
+<tbody>
+<tr>
+<td>일반 로그인 사용자가 마이페이지에서 광고 코튼 포함 본인 내역을 연다</td>
+<td>충족(단, F1)</td>
+<td><code>my_page.dart:160-170</code> <code>if (data?.id != null)</code> 진입점, <code>wallet_history_title</code> 사용.
+<code>currency_history_page.dart:10-14</code> <code>cottonCandy</code> 탭 추가.
+<code>my_page_render_test.dart</code> “regular user opens history from the menu without prefetching”가 메뉴→페이지→<code>[cottonCandy]</code> 1회 호출까지 확인.
+<strong>단 표시 내용이 관리자용 그대로 (F1)</strong></td>
+</tr>
+<tr>
+<td>선택한 통화만 on-demand 조회</td>
+<td>충족</td>
+<td><code>TabBarView</code> 제거 → 동시에 마운트되는 탭은 1개(<code>currency_history_page.dart:67-72</code>).
+<code>currency_history_page_test.dart</code>가 <code>repository.calls == [cottonCandy]</code> → 탭 전환 후 <code>[cottonCandy, bonusStarCandy]</code> 로 고정.
+앱 시작·백그라운드 프리페치 없음(<code>currencyHistoryProvider</code> 참조는 이 페이지가 유일, grep 확인)</td>
+</tr>
+<tr>
+<td>비로그인 0 RPC</td>
+<td>충족 (3중 방어)</td>
+<td>(1) <code>my_page.dart:160</code> 진입점 자체가 숨겨짐.
+(2) <code>currency_history_page.dart:45-47</code> 게이트로 탭 미마운트 → provider 미구독.
+(3) <code>wallet_provider.dart:257-259</code> repository 접근 전에 throw.
+<code>wallet_provider_test.dart:514-535</code>가 <code>repository.cursors</code> 가 비어 있음을 직접 확인</td>
+</tr>
+<tr>
+<td>새로고침 / 계정전환 뒤 이전 페이지 응답·cursor 미혼합</td>
+<td>충족 (강함)</td>
+<td>세션 객체 identity + build 세대 이중 가드. 요청 <em>전</em>(<code>wallet_provider.dart:268-269</code>)과 await <em>후</em>(<code>280-284</code>) 양쪽 검사.
+회귀 테스트 3건: <code>wallet_provider_test.dart:410</code>(refresh 후 늦은 cursor 페이지 폐기, 기존 계약을 의도적으로 뒤집음),
+<code>:537</code>(A→B 전환), <code>:575</code>(A→B→A + signOut). 동일 사용자 <code>tokenRefreshed</code> 는 재조회를 만들지 않음(<code>firstPageCalls == 2</code>)</td>
+</tr>
+<tr>
+<td>오류 재시도</td>
+<td>부분 충족</td>
+<td>첫 페이지 재시도 버튼(<code>currency_history_page.dart:139-144</code>), 다음 페이지 실패 후 재시도(<code>:173-183</code>), pull-to-refresh(<code>:149-150</code>) 모두 존재하고 테스트됨.
+<strong>다만 그 테스트들이 프로덕션 재시도 정책을 꺼놓고 돌아 실제 도달 가능성이 미검증 (F2·F3)</strong></td>
+</tr>
+<tr>
+<td>서버 <code>get_currency_history</code> 계약 변경 없음 (authenticated / app_user_id 필터 / COTTON_READ_ENABLED)</td>
+<td>충족</td>
+<td><code>wallet_repository.dart:34-49</code> 무변경. diff에 서버·마이그레이션 파일 없음</td>
+</tr>
+<tr>
+<td><code>WalletSummary</code> 공개 인터페이스 무변경 (작업 1과의 소유권 경계)</td>
+<td>충족</td>
+<td><code>wallet_provider.dart:84-211</code> 무변경. 추가는 <code>WalletHistorySession</code>/<code>walletHistorySessionProvider</code>(213-244)와 <code>CurrencyHistory</code>(246-311) 뿐</td>
+</tr>
+<tr>
+<td>내부 구현값 미노출 / 기존 현지화 문자열 사용</td>
+<td><strong>미충족</strong></td>
+<td>F1 참조</td>
+</tr>
+</tbody>
+</table>
+
+<h2>지적 사항</h2>
+
+<div class="finding">
+<h3>F1 <span class="sev s-high">High</span> 관리자용 행 렌더러가 그대로 전체 로그인 사용자에게 노출된다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/widgets/wallet/currency_history_list_item.dart:39, 56, 67, 80</code>
+(원인이 되는 접근 범위 변경은 <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:41-47</code>)</p>
+
+<p>이전 <code>currency_history_page.dart</code>는 <code>hasAdminAccess</code> 가 아니면 <code>SizedBox.shrink()</code> 를 돌려줬다.
+이번 변경은 그 게이트를 “로그인 사용자 == 세션 소유자”로 바꿔 페이지를 열되, 행을 그리는 위젯은 손대지 않았다(diff 6개 파일에 없음).
+그 결과 일반 사용자가 보는 각 행이 다음을 그대로 노출한다.</p>
+
+<pre>Row 1: '${_currencyLabel(context)} · ${item.eventType}'   // "코튼캔디 · GRANT"  ← 미번역 대문자 enum
+Row 2: item.origin                                        // "ad_reward" / "admin_grant" 등 원시 토큰
+Row 3: 'Expires: 2026.10.06 00:00:00'                     // 하드코딩 영문 라벨
+Row 4: 'Support: 4f2c8e1a-....' + 복사 아이콘               // 내부 operation_id(uuid) + Clipboard 복사</pre>
+
+<p><code>event_type</code> 도메인은 <code>docs/superpowers/specs/2026-07-21-cotton-candy-and-candy-boost-design.md:249</code> 에서
+<code>'GRANT' | 'CONSUME' | 'EXPIRE'</code>, <code>operation_id</code> 는 <code>:593</code> 에서 <code>uuid</code> 로 고정돼 있다.
+같은 문서 <code>:548</code> 은 사용자 대면 내역이 “<strong>공개 가능한 사유</strong>”를 실어야 한다고 적고 있다.</p>
+
+<p><strong>재현</strong>: ko 로케일 비관리자 계정 로그인 → 마이페이지 → “캔디 내역” → 코튼캔디 탭.
+첫 행이 <code>코튼캔디 · GRANT / ad_reward / Support: &lt;uuid&gt;</code> 로 보인다.
+(교차 계정 유출은 아니다 — 본인 데이터다. 위반 대상은 계획의 “내부 구현값 미노출”·“기존 현지화 문자열 사용”이다.)</p>
+
+<p><strong>최소 수정 방향</strong>: <code>_currencyLabel</code> 과 같은 방식으로 <code>eventType</code>·<code>origin</code> 을 l10n 라벨로 매핑하는 switch 를 추가하고,
+<code>Expires:</code> 는 기존 만료 문자열로 교체, <code>Support: &lt;operation_id&gt;</code> 행은 삭제하거나
+<code>hasAdminAccess</code> 뒤 또는 상세/롱프레스 뒤로 옮긴다. 행 위젯 1개 수정으로 끝난다.</p>
+</div>
+
+<div class="finding">
+<h3>F2 <span class="sev s-medhigh">Med-High</span> 내역 조회에 읽기 타임아웃도, 유한 재시도 정책도 없다 — 파우치에서 이미 고친 결함의 재발</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/providers/wallet_provider.dart:246, 260, 276-278</code> ·
+<code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:132-133</code></p>
+
+<p>같은 파일이 <code>WalletSummary</code> 에 대해 두 가지 방어를 이미 문서화하고 적용해 뒀다.</p>
+<ul class="tight">
+<li><code>wallet_provider.dart:23-30</code> — “postgrest 는 타임아웃 없는 <code>http.Client</code> 를 그대로 쓴다 … <code>rpc()</code> 의 Future 는 <strong>완결되지 않는다</strong>” → <code>_read</code>(<code>:149-150</code>)가 <code>.timeout(kWalletSummaryReadTimeout)</code>.</li>
+<li><code>wallet_provider.dart:71-82</code> — riverpod 3 기본 재시도는 10회·200ms→6.4s → <code>walletSummaryRetry</code>(<code>:81-84</code>)로 1회 400ms 로 제한. 이 근거는 <code>wallet_provider_test.dart:671-675</code> 가 “riverpod's default (10 tries, up to 6.4s apart) hides the failure behind more than a minute of skeleton” 로 못박고 있다.</li>
+</ul>
+
+<p><code>CurrencyHistory</code> 에는 둘 다 없다. <code>@riverpod</code>(<code>:246</code>) → 기본 재시도, <code>getHistory(...)</code>(<code>:260</code>, <code>:276-278</code>) → 타임아웃 없음.
+그리고 페이지의 <code>loading</code> 분기는 취소도 안내도 없는 <code>CircularProgressIndicator</code> 하나(<code>currency_history_page.dart:133</code>)다.</p>
+
+<p><strong>재현 A (응답이 오지 않는 소켓)</strong>: Android doze 복귀·네트워크 전환 직후 “캔디 내역” 진입 →
+<code>get_currency_history</code> 의 Future 가 완결되지 않음 → 스피너 무한, 재시도 버튼 도달 불가, 강제 종료 외 회복 수단 없음.
+이는 <code>wallet_provider_test.dart:614-616</code> 이 기록한 실제 사고(“1.3.0+130000 patch 9 … a force-stop cleared”)와 동일 유형이며,
+그때 파우치만 고쳐졌고 이 경로는 남아 있었다. 이번 변경이 그 경로를 관리자 전용에서 전체 사용자용으로 승격시킨다.</p>
+
+<p><strong>재현 B (RPC 가 실패하는 경우)</strong>: 오프라인 상태로 진입 → <code>build</code> 가 <code>PostgrestException</code>/<code>SocketException</code> 으로 실패 →
+riverpod 기본 정책이 최대 10회(200·400·800·1600·3200·6400ms…, 합계 약 38초) 재시도.
+<code>when(skipLoadingOnRefresh: false)</code>(<code>currency_history_page.dart:132</code>) 때문에 재시도마다 오류 UI가 스피너로 교체되므로,
+<code>currency-history-retry</code> 버튼은 재시도 사이 짧은 순간에만 눌리고 사용자에겐 30초 넘는 스피너로 보인다. 서버로는 RPC 가 10회 더 나간다.</p>
+
+<p><strong>부수 효과</strong>: 같은 이유로 <code>skipLoadingOnRefresh: false</code> 는 <code>RefreshIndicator</code>(<code>:149</code>)의 의미를 없앤다 —
+pull-to-refresh 를 시작하는 순간 목록 전체가 중앙 스피너로 교체되어 당김 인디케이터 자체가 사라진다.
+<code>loadNext</code>(<code>:276-278</code>)도 타임아웃이 없어, 응답이 오지 않으면 <code>_loadingNext</code> 가 <code>finally</code> 에서만 풀리므로
+“다음 페이지” 버튼이 “로딩 중…” 으로 영구 비활성 상태가 된다.</p>
+
+<p><strong>최소 수정 방향</strong>: <code>@Riverpod(retry: walletSummaryRetry)</code> 로 바꾸고(또는 내역 전용 유한 정책 추가),
+<code>build</code> 와 <code>loadNext</code> 의 <code>getHistory(...)</code> 두 곳을 <code>.timeout(kWalletSummaryReadTimeout)</code> 으로 감싼다.
+그 위에서 <code>skipLoadingOnRefresh</code> 를 기본값으로 되돌리고 오류 분기에서만 <code>history.isLoading</code> 으로 스피너를 보이면 재시도 버튼 깜빡임과 RefreshIndicator 무력화가 함께 해소된다.</p>
+</div>
+
+<div class="finding">
+<h3>F3 <span class="sev s-med">Medium</span> 오류 경로 위젯 테스트가 프로덕션 재시도 정책을 끄고, 프로덕션이 던지지 않는 예외 타입을 쓴다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart:494, 524, 557</code> (<code>retry: (_, _) =&gt; null</code>) ·
+<code>:386, :389</code> (<code>StateError</code>) · 하네스 근거 <code>picnic_lib/test/helpers/test_app.dart:44-54</code></p>
+
+<p><code>buildTestApp</code> 의 <code>retry</code> 인자는 그대로 <code>ProviderScope(retry: retry)</code> 로 들어간다(<code>test_app.dart:54</code>).
+같은 파일 <code>:44-51</code> 주석이 “기본값 null 은 riverpod 기본 retry(… 최대 10회 재시도) 그대로”이며
+에러 경로 테스트는 이를 꺼야 “터미널 AsyncError 가 결정적으로 즉시 관찰된다”고 적고 있다.
+즉 <em>테스트가 통과하는 이유 자체가</em> 프로덕션에는 없는 조건이다.</p>
+
+<p>추가로 <code>_HistoryRepository</code> 는 <code>StateError('offline')</code>/<code>StateError('next page offline')</code> 를 던진다.
+프로덕션 <code>WalletRepository.getHistory</code>(<code>wallet_repository.dart:34-49</code>)가 낼 수 있는 것은
+<code>PostgrestException</code>·<code>SocketException</code>(F2 수정 시 <code>TimeoutException</code>)이며 모두 <code>Exception</code> 이다.</p>
+
+<p><strong>결과</strong>: “first-page failure offers a working retry” 는 <em>프로덕션이 쓰지 않는 재시도 정책 아래에서</em> 버튼이 동작함을 증명할 뿐,
+F2의 두 재현 시나리오 중 어느 것도 잡지 못한다. 세 개의 오류 경로 테스트 전부 동일하다.</p>
+
+<p><strong>최소 수정 방향</strong>: 기본 retry 정책을 그대로 둔 채 <code>Exception</code> 을 던지는 테스트 1건을 추가해,
+(a) 유한 시간 안에 재시도 어포던스가 관측 가능하고 (b) repository 호출 횟수가 상한 N 을 넘지 않음을 고정한다.
+<code>fakeAsync</code> 는 <code>wallet_provider_test.dart:644-677</code> 에 이미 같은 패턴이 있다.</p>
+
+<div class="unverified"><strong>검증 불가로 구분</strong> — riverpod 3.0.3 의 <code>defaultRetry</code> 가 <code>Exception</code> 만 재시도하고 <code>Error</code> 는 건너뛰는지는 이 세션에서 확인하지 못했다(pub cache 읽기 차단). 그 답과 무관하게 <code>retry: (_, _) =&gt; null</code> 로 정책이 꺼진다는 사실은 <code>test_app.dart:54</code> 로 확정된다.</div>
+</div>
+
+<div class="finding">
+<h3>F4 <span class="sev s-med">Medium</span> 페이지 계층의 소유자 게이트는 “비로그인”만 커버된다 — 계정 전환 위젯 테스트가 없다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:41-47</code> ·
+<code>picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart:359-366</code> ·
+<code>picnic_lib/test/presentation/pages/my_page/my_page_render_test.dart:737-739</code></p>
+
+<p>계획 목표는 “다른 계정의 잔액·내역·광고 결과가 노출되지 않도록 세션 전환, 로그아웃, A→B→A 및 늦게 도착한 응답을 검증한다”이다.
+provider 계층은 이를 충실히 만족한다(<code>wallet_provider_test.dart:514/537/575</code>).
+그러나 <strong>실제로 행을 그리는 페이지 계층</strong>에서는 소유자 불일치가 한 번도 구동되지 않는다.</p>
+<ul class="tight">
+<li><code>_HistoryAuth.authStateChanges</code> 가 <code>const Stream.empty()</code> 라 위젯 테스트에서 소유자 변경 이벤트가 발생할 수 없다.</li>
+<li><code>my_page_render_test.dart</code> 는 <code>walletHistorySessionProvider</code> 를 통째로 <code>overrideWithValue</code> 해 실제 로직을 우회한다.</li>
+<li><code>does not request history for a logged-out user</code> 는 <code>loggedIn: false</code> 로 <code>userId == null</code> 분기만으로도 통과한다 — 세션 로직이 망가져도 통과하는 over-determined 테스트다.</li>
+</ul>
+
+<p><strong>재현/노출 조건</strong>: 코드상 게이트는 <code>userInfoProvider.id</code> 와 auth 세션 <em>두 독립 출처의 AND</em> 라 한쪽이 지연되면 blank 로 fail-closed 하며,
+서버도 <code>app_user_id</code> 로 필터하므로 <em>현재 코드에 실제 유출 경로는 확인되지 않았다</em>.
+지적 대상은 결함이 아니라 <strong>이 보장이 회귀로부터 보호되지 않는다</strong>는 점이다. 게이트 한 줄이 뒤집혀도 78개 테스트가 전부 초록이다.</p>
+
+<p><strong>최소 수정 방향</strong>: <code>_MutableHistoryAuth</code> 계열 페이크로 owner A 로 pump → 목록 확인 → owner B 로 전환 →
+B 데이터 요청이 나가기 전에 목록이 사라지는지 확인하는 위젯 테스트 1건.</p>
+</div>
+
+<div class="finding">
+<h3>F5 <span class="sev s-low">Low</span> 탭 라벨과 통화 목록이 인덱스로만 묶인 병렬 리스트다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:10-14, 59-65</code></p>
+<p><code>_historyCurrencies</code> 와 <code>tabs:</code> 는 손으로 유지하는 두 리스트이고 <code>onTap: (index) =&gt; _historyCurrencies[index]</code> 로만 연결된다.
+한쪽만 재정렬·추가하면 컴파일도 되고 분석도 통과하지만 사용자가 고른 탭과 조회되는 통화가 어긋난다.
+현재 순서는 일치하므로 결함은 아니다(유지보수 위험).</p>
+<p><strong>최소 수정 방향</strong>: <code>tabs: _historyCurrencies.map((c) =&gt; Tab(text: _label(l10n, c))).toList()</code> 로 단일 출처화.</p>
+</div>
+
+<div class="finding">
+<h3>F6 <span class="sev s-low">Low</span> 게이트가 잠깐이라도 닫히면 탭 인디케이터와 표시 목록이 어긋난다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:45-51</code></p>
+<p><code>DefaultTabController</code> 가 소유자 게이트 <em>안쪽</em>에서 만들어진다. 게이트가 닫히면 그 State 가 dispose 되고
+다시 열릴 때 <code>initialIndex: 0</code> 으로 새로 생성되는데, <code>_selectedCurrency</code> 를 들고 있는 <code>_CurrencyHistoryPageState</code> 는 살아남는다.
+결과적으로 인디케이터는 “코튼캔디”, 목록은 “보너스 스타캔디”가 될 수 있다.</p>
+<div class="unverified"><strong>검증 불가로 구분</strong> — 재현 트리거를 이 세션에서 확정하지 못했다.
+<code>userInfoProvider</code> 는 <code>invalidate</code> 시 이전 값을 유지하므로, 게이트가 닫히려면
+<code>user_info_provider.dart:66</code> 의 <code>state = AsyncValue.error(...)</code> 경로가 페이지 노출 중에 발생해야 한다. 이론상 도달 가능, 실측 미확인.</div>
+<p><strong>최소 수정 방향</strong>: <code>DefaultTabController</code> 를 게이트 위로 올리거나, 명시적 <code>TabController</code> 를 만들어 index 를 <code>_selectedCurrency</code> 에서 파생시킨다.</p>
+</div>
+
+<div class="finding">
+<h3>F7 <span class="sev s-low">Low</span> 빈 페이지에 cursor 가 남아 있으면 더 못 넘긴다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:153-161</code></p>
+<p><code>itemCount</code> 가 <code>items.isEmpty</code> 이면 <code>nextCursor</code> 와 무관하게 1 이라, 서버가 “빈 items + 다음 cursor”를 돌려주면
+사용자에게는 “아직 내역이 없습니다.” 만 보이고 다음 페이지로 갈 수단이 없다.</p>
+<div class="unverified"><strong>검증 불가로 구분</strong> — <code>get_currency_history</code> 가 그런 페이지를 낼 수 있는지는 서버 계약이고,
+이 레포에 해당 함수 정의·마이그레이션이 없어 확인하지 못했다(설계 문서 <code>:593</code> 에도 명시 없음). 배제할 수 없는 상태.</div>
+<p><strong>최소 수정 방향</strong>: <code>itemCount: items.length + (nextCursor == null ? 0 : 1)</code> 로 두고,
+빈 안내는 <code>items.isEmpty &amp;&amp; nextCursor == null</code> 일 때만 별도 분기로 그린다.</p>
+</div>
+
+<div class="finding">
+<h3>F8 <span class="sev s-low">Low</span> 관리자 메뉴에 같은 페이지로 가는 중복·비현지화 진입점이 남았다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/admin_menu_page.dart:78-80, 116-120</code></p>
+<p>관리자 메뉴는 여전히 하드코딩 <code>'캔디 내역'</code> 으로 같은 <code>CurrencyHistoryPage</code> 를 연다.
+그런데 그 페이지는 이번 변경으로 “본인 내역”만 보여주므로, 관리자에게는 마이페이지와 관리자 메뉴에 <em>동일 기능</em> 진입점이 두 개 생기고
+관리자 메뉴 쪽은 더 이상 관리자 고유 기능이 아니다.
+<code>my_page_render_test.dart</code> 의 <code>keeps administrator tools separate from public history</code> 는 마이페이지 진입점만 확인하고 이 중복은 다루지 않는다.</p>
+<p><strong>최소 수정 방향</strong>: 관리자 메뉴 항목을 제거하거나(권장), 남긴다면 <code>wallet_history_title</code> 로 현지화하고 “내 내역” 임을 라벨에 반영한다.</p>
+</div>
+
+<div class="finding">
+<h3>F9 <span class="sev s-low">Low</span> <code>loadNext()</code> 의 <code>bool</code> 이 “성공”과 “아무것도 안 함”을 같은 값으로 합친다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/providers/wallet_provider.dart:267, 269, 272, 283, 298</code> ·
+소비 지점 <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:114-119</code></p>
+<p><code>true</code> 를 돌려주는 경우가 5가지다: 이미 로딩 중 / 세션 불일치 / cursor 없음 / 늦게 도착해 폐기 / 실제 성공.
+위젯은 이를 <code>_nextPageFailed = !succeeded</code> 로 읽으므로 이름이 뜻하는 것과 값이 뜻하는 것이 다르다.
+현재는 버튼이 <code>nextCursor != null</code> 일 때만 렌더되고 위젯 자체 세대 가드가 있어 <strong>실제 오동작은 재현되지 않는다</strong>.</p>
+<p><strong>최소 수정 방향</strong>: <code>enum LoadNextOutcome { loaded, declined, failed }</code> 같은 3값 결과로 바꿔 “선언적으로 아무것도 안 함”을 성공과 분리한다.</p>
+</div>
+
+<div class="finding">
+<h3>F10 <span class="sev s-low">Low</span> <code>_nextPageFailed</code> 를 <code>setState</code> 밖에서 바꾼다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:117-124</code></p>
+<p><code>_nextPageFailed</code> 대입은 <code>setState</code> 밖이고, 화면에 반영되는 것은 뒤따르는 <code>finally</code> 의 <code>setState(() =&gt; _loadingNext = false)</code> 덕분이다.
+동작은 맞지만 두 문장의 순서에 암묵적으로 의존한다.</p>
+<p><strong>최소 수정 방향</strong>: 두 대입을 <code>finally</code> 의 단일 <code>setState</code> 안으로 합친다.</p>
+</div>
+
+<div class="finding">
+<h3>F11 <span class="sev s-low">Low</span> ABA 보장의 전제(값 동등성 없음 + <code>identical</code>)가 테스트로 고정돼 있지 않다 / 세대 카운터가 둘이다</h3>
+<p class="meta"><strong>파일/행</strong> <code>picnic_lib/lib/presentation/providers/wallet_provider.dart:213-218, 269, 282</code> ·
+<code>picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart:93</code></p>
+<p>A→B→A 방어는 전적으로 <code>WalletHistorySession</code> 이 <code>==</code>/<code>hashCode</code> 를 재정의하지 <em>않는다</em>는 사실과
+호출부가 <code>identical</code> 을 쓴다는 사실 위에 서 있다. <code>:213-214</code> 주석이 의도를 적어 뒀지만,
+나중에 freezed/Equatable 로 바뀌면 riverpod 의 <code>updateShouldNotify</code> 가 A→B→A 에서 재빌드를 건너뛰게 되고 목록이 재로그인 후에도 낡은 채 남는다(교차 계정 유출은 아님).
+또 같은 역할의 세대 카운터가 <code>_requestGeneration</code>(위젯)과 <code>_generation</code>(provider) 둘로 존재해 추적이 어렵다.</p>
+<p><strong>최소 수정 방향</strong>: <code>expect(WalletHistorySession('a') == WalletHistorySession('a'), isFalse)</code> 한 줄짜리 테스트로 불변식을 고정한다.</p>
+</div>
+
+<h2>잘 된 부분 (회귀 시 지켜야 할 계약)</h2>
+<ul class="good">
+<li><strong>비로그인 0 RPC 가 3중으로 강제된다</strong> — UI 진입점, 페이지 게이트, provider 의 repository 접근 전 throw. 그리고 provider 계층 테스트가 “repository 가 호출되지 않았다”를 직접 확인한다(간접 증거가 아님).</li>
+<li><strong>늦은 응답·ABA 방어가 실제 반례를 재현한다</strong> — 세션 identity(요청 전·후 2회 검사) + build 세대의 이중 가드이며, refresh 케이스는 세대 가드로만 잡히고 계정 전환은 identity 로만 잡히는 <em>서로 다른</em> 경로가 각각 테스트로 덮여 있다. 특히 <code>wallet_provider_test.dart:410</code> 은 기존 계약(늦은 페이지를 새 목록에 이어붙임)을 “cursor 는 자기 스냅샷 소유”로 <em>뒤집는</em> 판단이며, 이번 요구사항에 비춰 옳은 방향이다.</li>
+<li><strong>페이지 게이트가 fail-closed 다</strong> — 프로필 id 와 auth 세션 id 의 AND 라 어느 쪽이 지연되든 빈 화면으로 떨어진다. 두 출처가 프로덕션에서 같은 값임은 <code>user_info_provider.dart:50</code>(<code>user_profiles.id == auth.currentUser.id</code>)으로 확인했다.</li>
+<li><strong>동일 사용자 token refresh 가 재조회를 만들지 않는다</strong> — <code>walletHistorySessionProvider</code> 는 이벤트 종류가 아니라 소유자 변화만 본다. gotrue <code>BehaviorSubject</code> 리플레이로 인한 자기 무효화 루프(같은 파일 <code>:104-113</code> 에 기록된 실제 사고)를 구조적으로 피했고, <code>firstPageCalls == 2</code> 로 고정돼 있다.</li>
+<li><strong>on-demand 단일 통화 조회가 구조로 강제된다</strong> — <code>TabBarView</code> 제거로 동시에 마운트되는 탭이 1개뿐이라 “실수로 3통화 조회”가 불가능하다.</li>
+<li><strong>빈 목록에서도 pull-to-refresh 가 동작한다</strong> — <code>AlwaysScrollableScrollPhysics</code>(<code>:152</code>). 놓치기 쉬운 디테일.</li>
+<li><code>flutter analyze</code> 무결, <code>dart format</code> 무결, 78/78 통과를 현재 트리에서 재확인했다.</li>
+</ul>
+
+<h2>차단 사유가 아닌 관찰</h2>
+<ul class="tight">
+<li>무한 스크롤 자동 로드가 명시적 “다음 페이지” 버튼으로 바뀌었다(<code>NotificationListener&lt;ScrollEndNotification&gt;</code> 제거). 요구사항은 충족하지만 UX 변경이므로 제품 확인이 필요하다.</li>
+<li>버튼 라벨로 <code>MaterialLocalizations.nextPageTooltip</code>(툴팁 문자열)을 재사용한다. 현지화는 되지만 의미상 맞는 문자열은 아니다.</li>
+<li>빈 상태가 공용 <code>NoItemContainer</code> 대신 평문 <code>Text</code> 로 바뀌었다(import 제거). 다른 화면과 시각적으로 어긋난다.</li>
+<li>탭을 왕복하면 그때마다 해당 통화를 다시 조회한다(autoDispose). 이번 작업의 취지가 호출량 감소인 만큼, 짧은 유지 시간을 두는 편이 나을 수 있다.</li>
+<li>오류 화면에는 <code>RefreshIndicator</code> 가 없어 당겨서 새로고침이 불가하다(버튼만 가능).</li>
+<li><code>isScrollable: true</code> 인 3탭 <code>TabBar</code> 는 좌측 정렬되어 우측 여백이 크게 남는다.</li>
+</ul>
+
+<h2>리뷰 범위와 방법</h2>
+<ul class="tight">
+<li>범위: 위 diff 의 6개 파일과 그 변경이 계약을 바꾸는 인접 파일(<code>currency_history_list_item.dart</code>, <code>admin_menu_page.dart</code>, <code>wallet_repository.dart</code>, <code>user_info_provider.dart</code>, <code>test_app.dart</code>).</li>
+<li>다른 워커 소유의 광고·lifecycle 파일(<code>ad_reward_earn_recorder.dart</code>, <code>wallet_resume_refresher.dart</code>, <code>app.dart</code> 계열)과 그 테스트는 열지 않았고 판정에 포함하지 않았다.</li>
+<li>구현자의 자기평가·사고 과정은 입력으로 받지 않았다. 요구사항 문서, diff, 소스, 기존 테스트, 레포 내 설계 문서만 근거로 삼았다.</li>
+<li>수정·커밋·푸시·프로덕션 호출은 하지 않았다. 실행한 것은 읽기 전용 검증 3종(<code>analyze</code>, <code>dart format --set-exit-if-changed</code>, 지정 4개 파일 <code>flutter test</code>)뿐이다.</li>
+<li>새 테스트 파일을 만드는 것이 허용되지 않아 F2·F6·F7 은 실행 재현 대신 소스·레포 내 기존 증거로만 논증했고, 확정하지 못한 부분은 각 항목에 “검증 불가”로 명시했다.</li>
+</ul>
+
+</body>
+</html>

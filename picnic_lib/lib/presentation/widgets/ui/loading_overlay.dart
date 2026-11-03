@@ -22,7 +22,7 @@ class LoadingOverlay extends StatefulWidget {
   /// 오버레이 배경 색상 (기본: Colors.black54)
   final Color barrierColor;
 
-  /// 커스텀 로딩 위젯 (기본: CircularProgressIndicator)
+  /// 커스텀 로딩 위젯 (기본: MediumPulseLoadingIndicator)
   final Widget? loadingWidget;
 
   /// 배경 터치로 오버레이 해제 가능 여부 (기본: false)
@@ -45,8 +45,9 @@ class LoadingOverlay extends StatefulWidget {
     final state = context.findAncestorStateOfType<LoadingOverlayState>();
     if (state == null) {
       throw FlutterError(
-          'LoadingOverlay.of() called with a context that does not contain a LoadingOverlay.\n'
-          'Make sure your widget is wrapped with LoadingOverlay.');
+        'LoadingOverlay.of() called with a context that does not contain a LoadingOverlay.\n'
+        'Make sure your widget is wrapped with LoadingOverlay.',
+      );
     }
     return state;
   }
@@ -76,13 +77,9 @@ class LoadingOverlayState extends State<LoadingOverlay>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
   }
 
   @override

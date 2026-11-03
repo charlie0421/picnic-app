@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>광고 어뷰징 탐지 파이프라인 핸드오프</title>
+<style>
+  :root{
+    --bg:#f5f7f9; --card:#fff; --fg:#151a21; --muted:#5b6572;
+    --line:#dde3ea; --line2:#c3ccd6; --accent:#25567f; --accent-soft:#e8eff6;
+    --crit:#9d3630; --crit-soft:#f8ecea; --warn:#8a6218; --warn-soft:#f9f2e4;
+    --ok:#2c6448; --ok-soft:#e9f2ec; --code:#eef1f5;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#101419; --card:#181d24; --fg:#e6eaef; --muted:#98a2b0;
+    --line:#2a323c; --line2:#3b4552; --accent:#7aa9d4; --accent-soft:#1a2732;
+    --crit:#e08981; --crit-soft:#2b1c1a; --warn:#d6ab5f; --warn-soft:#271f11;
+    --ok:#7cc09b; --ok-soft:#15251d; --code:#1f252d;
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Segoe UI",sans-serif;
+    font-size:15.5px;line-height:1.62;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:920px;margin:0 auto;padding:56px 22px 104px}
+  code,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+  header{border-bottom:2px solid var(--line2);padding-bottom:26px;margin-bottom:36px}
+  .kick{font-family:ui-monospace,monospace;font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--crit);font-weight:600;margin:0 0 14px}
+  h1{font-size:32px;line-height:1.18;letter-spacing:-.015em;font-weight:700;margin:0 0 12px}
+  .sub{color:var(--muted);font-size:14.5px;margin:0;max-width:70ch}
+  .sub code{font-size:13px;background:var(--code);padding:1px 5px;border-radius:3px}
+  h2{font-size:21px;font-weight:650;margin:48px 0 8px;letter-spacing:-.01em}
+  h2 .num{font-family:ui-monospace,monospace;font-size:14px;color:var(--accent);margin-right:10px}
+  h3{font-size:15.5px;font-weight:600;margin:26px 0 6px}
+  p{margin:0 0 14px;max-width:72ch}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+    background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:26px 0}
+  .stat{background:var(--card);padding:16px 18px}
+  .stat .k{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--muted);margin-bottom:7px}
+  .stat .v{font-family:ui-monospace,monospace;font-size:25px;font-weight:600;line-height:1;letter-spacing:-.02em}
+  .stat .n{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.4}
+  .stat.crit .v{color:var(--crit)}
+  .box{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--line2);
+    border-radius:0 8px 8px 0;padding:16px 20px;margin:18px 0}
+  .box.crit{border-left-color:var(--crit)}.box.warn{border-left-color:var(--warn)}
+  .box.ok{border-left-color:var(--ok)}.box.acc{border-left-color:var(--accent);background:var(--accent-soft)}
+  .box>:last-child{margin-bottom:0}
+  .box .t{font-weight:600;margin-bottom:6px}
+  .scroll{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:8px;background:var(--card)}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:520px}
+  th,td{text-align:left;padding:8px 13px;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:none}
+  th{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--muted);font-weight:600;background:var(--accent-soft);border-bottom:1px solid var(--line2)}
+  td.mono{font-family:ui-monospace,monospace;font-size:12.5px}
+  pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:16px 0}
+  pre code{font-size:12.8px;line-height:1.6}
+  p code,li code,td code{background:var(--code);padding:1.5px 5px;border-radius:3px;font-size:13px}
+  ol,ul{margin:0 0 16px;padding-left:22px;max-width:72ch}li{margin-bottom:7px}
+  footer{margin-top:60px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:12.8px}
+  @media (max-width:600px){h1{font-size:26px}.wrap{padding:38px 17px 76px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <p class="kick">핸드오프 · anti-abuse · 2026-08-25</p>
+  <h1>광고 어뷰징 탐지 파이프라인 — 만성 고장 + 설계 공백</h1>
+  <p class="sub">매일 도는 <code>detect-ad-anomaly</code> cron 이 조용히 죽어 있었다. 그런데 살려도 지금 설계로는 아무것도 못 잡고 아무에게도 안 알린다. 2026-08-24 재배포 검증 중 파생 발견. <strong>이 세션(지갑·인증 사고 대응)의 범위 밖이라 응급 처치도 하지 않고 통째로 넘긴다.</strong></p>
+</header>
+
+<div class="stats">
+  <div class="stat crit"><div class="k">cron 실제 상태</div><div class="v">500</div><div class="n">매 실행 permission denied</div></div>
+  <div class="stat"><div class="k">마지막 정상 실행</div><div class="v">6/25</div><div class="n">이후 성공 기록 0</div></div>
+  <div class="stat crit"><div class="k">탐지 결과(정상시)</div><div class="v">0명</div><div class="n">6회 전부 후보 0</div></div>
+  <div class="stat crit"><div class="k">알림 채널</div><div class="v">없음</div><div class="n">웹훅 env 미설정</div></div>
+</div>
+
+<h2><span class="num">01</span>이 파이프라인이 원래 하려던 것</h2>
+<p>과거 <strong>2026-04-11 에 686개 어뷰징 계정으로 AdMob 이 셧다운</strong>된 이력이 있는 서비스다(<code>admob-shutdown-reason</code> 참조). 그 재발을 막으려고 만든 자동 탐지 라인이다.</p>
+<pre><code>cron 57 (0 21 * * * = 매일 06:00 KST)
+  → detect-ad-anomaly 엣지 함수 호출 (service_role Bearer)
+    → detect_abuser_candidates() RPC 실행
+      → 최근 30일 하루 200건+ 광고보너스를 3일+ 반복한 계정 탐지
+      → custom_logs 에 요약·후보 기록 (항상)
+      → 미밴 후보 &gt; 0 이고 AD_ANOMALY_WEBHOOK_URL 있으면 → Slack 알림</code></pre>
+<p><strong>자동 조치(밴·회수)는 없다.</strong> 탐지 → 기록 → 알림까지고, 실제 밴/보너스 회수는 사람이 알림을 보고 어드민 콘솔에서 수동 판단하는 구조다.</p>
+
+<h2><span class="num">02</span>발견한 것 — 네 겹으로 깨져 있다</h2>
+
+<div class="box crit">
+  <div class="t">① cron 이 매 실행 500 인데 "succeeded" 로 위장</div>
+  <p>함수가 <code>permission denied for function detect_abuser_candidates</code> 로 500 을 반환한다. 그런데 <code>cron.job_run_details</code> 는 172회 전부 <strong>succeeded</strong> 다 — <code>net.http_post</code> 이 fire-and-forget 이라 "요청 전송 성공"만 기록하고 함수 응답은 안 본다. 그래서 아무도 몰랐다. 실제 함수 응답은 <code>function_edge_logs</code> 에서만 보이고, 어제(v20)·오늘 수동(v24) 둘 다 500 이었다. <strong>custom_logs 의 마지막 정상 기록이 6/25</strong> — 그 무렵부터 죽었다.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">② ACL 증발 — 재정의 때마다 grant 가 날아간다</div>
+  <p><code>detect_abuser_candidates</code> 의 현재 권한은 <code>{postgres=X/postgres}</code> — service_role 도 authenticated 도 EXECUTE 가 없다. anti-abuse RPC 17개 중 <strong>이 함수와 <code>revoke_abuser_bonus</code> 딱 둘만</strong> 이 상태고, 나머지 15개는 service_role EXECUTE 를 갖는다.</p>
+  <p>원인: 이 함수는 <code>DROP FUNCTION</code> + <code>CREATE</code> 로 재정의되는 패턴이라(RETURNS TABLE 타입 변경 때문) 재정의 때마다 ACL 이 초기화된다. 마이그레이션 <code>20260506135605_fix_detect_abuser_candidates</code> 가 <code>GRANT ... TO authenticated</code> 로 복원했지만, 그 뒤 또 재정의되며 다시 사라졌다. <strong>grant 한 줄로 지금 열어도 다음 재정의 때 또 터진다.</strong></p>
+</div>
+
+<div class="box warn">
+  <div class="t">③ 소비자 불일치 — grant 대상과 호출자가 다르다</div>
+  <p>마이그레이션은 <code>authenticated</code> 에 grant 하는데, cron/엣지 함수는 <code>service_role</code> 로 호출한다. 즉 마이그레이션이 살아 있었어도 <strong>cron 경로는 애초에 안 맞았다.</strong> authenticated grant 는 어드민 콘솔이 이 RPC 를 직접 부르는 용도로 보인다(<code>revoke_abuser_bonus</code> 가 엣지에서 안 불리고 authenticated 여야 하는 것과 같은 맥락). 두 소비자가 다른 롤인데 grant 전략이 하나뿐이다.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">④ 실효성 미검증 — 살아 있었을 때도 0명, 임계값이 현실의 3배</div>
+  <p>정상 실행 6회(5/6~6/25) 전부 <code>total_candidates: 0</code>. 이유: 임계값이 <strong>하루 200건</strong>인데 실제 <code>type='AD'</code> 적립의 하루 최대가 <strong>65건</strong>이다 — 넘을 계정이 구조적으로 없다.</p>
+  <p>더 나쁜 단서: <code>parent_id is null</code> 전체(타입 무관)로 보면 하루 최대 <strong>514건</strong>이고, <code>type=null</code> 이 최근 30일 27,158건으로 최다다(<code>type='AD'</code> 는 13,052건). <strong><code>type='AD'</code> 필터가 실제 광고 적립의 상당수를 놓치고 있을 가능성</strong>이 크다. 임계값과 타입 필터 둘 다 실데이터로 재보정해야 한다.</p>
+</div>
+
+<div class="box crit">
+  <div class="t">⑤ 잡아도 알림이 안 간다</div>
+  <p><code>AD_ANOMALY_WEBHOOK_URL</code> 이 엣지 secrets 에 <strong>없다.</strong> 다른 웹훅(<code>ANTI_ABUSE_WEBHOOK_URL</code>·<code>WALLET_ALERT_WEBHOOK_URL</code>·Slack 4종)은 다 있는데 이것만 빠졌다. 함수를 살리고 탐지가 후보를 찾아도 custom_logs 에 조용히 쌓일 뿐 아무에게도 안 알린다.</p>
+</div>
+
+<h2><span class="num">03</span>응급 완화는 가능하나 반쪽이다</h2>
+<p>안전하게 지금 적용할 수 있는 것은 grant 한 줄뿐이다. 읽기전용 함수·service_role 한정·멱등적이고, 다른 세션이 이 grant 를 건드리지 않음을 확인했다.</p>
+<pre><code>grant execute on function public.detect_abuser_candidates(integer,integer,integer) to service_role;</code></pre>
+<p>그러나 이것만으로는 <strong>"0명 탐지하는 함수를 다시 돌게 했다"</strong>에 그친다. ②(재발), ④(0명), ⑤(알림 부재)가 남아 실질 방어가 안 된다. 그래서 이 세션은 응급 grant 도 하지 않고 통째로 넘긴다 — 반쪽 복구가 "고쳤다"는 착시를 주는 게 더 위험하다.</p>
+
+<h2><span class="num">04</span>다음 세션이 할 일 (권장 순서)</h2>
+<ol>
+  <li><strong>타입·임계값 재보정 (먼저).</strong> 실제 광고 적립이 <code>type='AD'</code> 로만 기록되는지, <code>type=null</code>(최다)에 광고가 섞였는지 규명. <code>transaction_id</code> 패턴으로 광고 출처를 식별할 수 있는지 확인. 그 위에서 임계값을 실분포 기반으로 정한다. <strong>이게 안 되면 나머지는 무의미하다.</strong></li>
+  <li><strong>ACL 증발 영구 차단.</strong> grant 를 마이그레이션 말미가 아니라 함수 재정의와 <em>같은 트랜잭션</em>에 묶거나, 재정의를 <code>CREATE OR REPLACE</code>(ACL 보존)로 바꿔 RETURNS TABLE 변경 없이 유지. <code>revoke_abuser_bonus</code> 도 같은 상태이므로 함께 처리.</li>
+  <li><strong>소비자별 grant 명시.</strong> cron 경로 = service_role, 어드민 콘솔 경로 = authenticated. 둘 다 필요하면 둘 다 grant 하고 각 경로를 실호출로 검증.</li>
+  <li><strong>알림 채널 신설.</strong> <code>AD_ANOMALY_WEBHOOK_URL</code> secret 설정. 기존 <code>ANTI_ABUSE_WEBHOOK_URL</code> 을 재사용할지 별도 채널로 분리할지 결정.</li>
+  <li><strong>cron 성공 판정 개선.</strong> pg_net fire-and-forget 이라 함수 500 이 succeeded 로 보인다. 실패를 실제로 감지하려면 함수가 실패 시 별도 알람을 쏘거나, <code>net._http_response</code> status 를 후속 확인하는 감시를 둔다.</li>
+</ol>
+
+<h2><span class="num">05</span>검증에 쓴 쿼리</h2>
+<div class="scroll"><table>
+  <thead><tr><th>확인</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="mono">detect_abuser_candidates proacl</td><td class="mono">{postgres=X/postgres} — svc/auth 모두 없음</td></tr>
+    <tr><td class="mono">anti-abuse RPC 17개 중 격리된 것</td><td>detect_abuser_candidates · revoke_abuser_bonus (2개)</td></tr>
+    <tr><td class="mono">cron.job_run_details jobid=57</td><td>172회 전부 succeeded (pg_net 위장)</td></tr>
+    <tr><td class="mono">function_edge_logs detect-ad-anomaly</td><td>어제 v20·오늘 v24 모두 500</td></tr>
+    <tr><td class="mono">custom_logs DETECT_AD_ANOMALY</td><td>6건, 전부 후보 0, 마지막 6/25</td></tr>
+    <tr><td class="mono">type='AD' 하루 최대/유저 (30일)</td><td>65건 — 임계값 200 미달</td></tr>
+    <tr><td class="mono">parent_id null 하루 최대 (30일)</td><td>514건 (type 무관)</td></tr>
+    <tr><td class="mono">AD_ANOMALY_WEBHOOK_URL</td><td>secrets 에 없음</td></tr>
+  </tbody>
+</table></div>
+
+<footer>
+  <p>발견 경위 · 2026-08-24 <code>detect-ad-anomaly</code> 재배포(v24, 폐기 웨이브 폭탄 예방) 후 cron 실동작을 수동 트리거로 검증하다 500 을 발견. 재배포와 무관한 선재 결함이다.</p>
+  <p>관련 · <code>admob-shutdown-reason</code>(686계정 어뷰징 셧다운) · <code>picnic-supabase</code> b70b5ea(anti-abuse Plan 1) · 마이그레이션 <code>20260506135605_fix_detect_abuser_candidates</code>.</p>
+</footer>
+</div>
+</body>
+</html>

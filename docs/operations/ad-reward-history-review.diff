@@ -1,0 +1,1285 @@
+diff --git a/picnic_lib/lib/generated/providers/wallet_provider.g.dart b/picnic_lib/lib/generated/providers/wallet_provider.g.dart
+index a506eb9b5..5c7b8ff4a 100644
+--- a/picnic_lib/lib/generated/providers/wallet_provider.g.dart
++++ b/picnic_lib/lib/generated/providers/wallet_provider.g.dart
+@@ -110,7 +110,7 @@ final class CurrencyHistoryProvider
+     required CurrencyHistoryFamily super.from,
+     required WalletCurrency super.argument,
+   }) : super(
+-         retry: null,
++         retry: currencyHistoryRetry,
+          name: r'currencyHistoryProvider',
+          isAutoDispose: true,
+          dependencies: null,
+@@ -142,7 +142,7 @@ final class CurrencyHistoryProvider
+   }
+ }
+ 
+-String _$currencyHistoryHash() => r'4d9a77529e8e369c5a75959254cf3b1d3ff43c44';
++String _$currencyHistoryHash() => r'258dbaf3a9d2ae7ff0cfb5763ea9338445848c92';
+ 
+ final class CurrencyHistoryFamily extends $Family
+     with
+@@ -155,7 +155,7 @@ final class CurrencyHistoryFamily extends $Family
+         > {
+   const CurrencyHistoryFamily._()
+     : super(
+-        retry: null,
++        retry: currencyHistoryRetry,
+         name: r'currencyHistoryProvider',
+         dependencies: null,
+         $allTransitiveDependencies: null,
+diff --git a/picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart b/picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart
+index a69e8fc66..7b5d827a2 100644
+--- a/picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart
++++ b/picnic_lib/lib/presentation/pages/my_page/currency_history_page.dart
+@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+ import 'package:picnic_lib/l10n/app_localizations.dart';
+-import 'package:picnic_lib/presentation/common/no_item_container.dart';
+ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+ import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+ import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_item.dart';
+ 
+ const _historyCurrencies = [
++  WalletCurrency.cottonCandy,
+   WalletCurrency.starCandy,
+   WalletCurrency.bonusStarCandy,
+ ];
+@@ -22,6 +22,7 @@ class CurrencyHistoryPage extends ConsumerStatefulWidget {
+ }
+ 
+ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
++  WalletCurrency _selectedCurrency = WalletCurrency.cottonCandy;
+   @override
+   void didChangeDependencies() {
+     super.didChangeDependencies();
+@@ -37,33 +38,37 @@ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
+ 
+   @override
+   Widget build(BuildContext context) {
+-    final hasAdminAccess =
+-        ref.watch(
+-          userInfoProvider.select((state) => state.value?.hasAdminAccess),
+-        ) ??
+-        false;
+-    if (!hasAdminAccess) return const SizedBox.shrink();
++    final userId = ref.watch(
++      userInfoProvider.select((state) => state.value?.id),
++    );
++    final session = ref.watch(walletHistorySessionProvider);
++    if (userId == null || userId != session.userId) {
++      return const SizedBox.shrink();
++    }
+ 
+     final l10n = AppLocalizations.of(context);
+     return DefaultTabController(
+       length: _historyCurrencies.length,
++      initialIndex: _historyCurrencies.indexOf(_selectedCurrency),
+       child: Padding(
+         key: const Key('currency-history-content'),
+         padding: const EdgeInsets.symmetric(horizontal: 16),
+         child: Column(
+           children: [
+             TabBar(
++              isScrollable: true,
++              onTap: (index) =>
++                  setState(() => _selectedCurrency = _historyCurrencies[index]),
+               tabs: [
++                Tab(text: l10n.wallet_cotton_candy),
+                 Tab(text: l10n.wallet_star_candy),
+                 Tab(text: l10n.wallet_bonus_star_candy),
+               ],
+             ),
+-            const Expanded(
+-              child: TabBarView(
+-                children: [
+-                  _CurrencyHistoryTab(currency: WalletCurrency.starCandy),
+-                  _CurrencyHistoryTab(currency: WalletCurrency.bonusStarCandy),
+-                ],
++            Expanded(
++              child: _CurrencyHistoryTab(
++                key: ValueKey((session, _selectedCurrency)),
++                currency: _selectedCurrency,
+               ),
+             ),
+           ],
+@@ -73,32 +78,113 @@ class _CurrencyHistoryPageState extends ConsumerState<CurrencyHistoryPage> {
+   }
+ }
+ 
+-class _CurrencyHistoryTab extends ConsumerWidget {
+-  const _CurrencyHistoryTab({required this.currency});
++class _CurrencyHistoryTab extends ConsumerStatefulWidget {
++  const _CurrencyHistoryTab({super.key, required this.currency});
+ 
+   final WalletCurrency currency;
+ 
+   @override
+-  Widget build(BuildContext context, WidgetRef ref) {
+-    final history = ref.watch(currencyHistoryProvider(currency));
++  ConsumerState<_CurrencyHistoryTab> createState() =>
++      _CurrencyHistoryTabState();
++}
++
++class _CurrencyHistoryTabState extends ConsumerState<_CurrencyHistoryTab> {
++  bool _loadingNext = false;
++  bool _nextPageFailed = false;
++  int _requestGeneration = 0;
++
++  Future<void> _refresh() async {
++    setState(() {
++      _requestGeneration++;
++      _loadingNext = false;
++      _nextPageFailed = false;
++    });
++    try {
++      ref.invalidate(currencyHistoryProvider(widget.currency));
++      await ref.read(currencyHistoryProvider(widget.currency).future);
++    } catch (_) {
++      // The provider renders the error and retry control.
++    }
++  }
++
++  Future<void> _loadNext() async {
++    if (_loadingNext) return;
++    final generation = _requestGeneration;
++    setState(() => _loadingNext = true);
++    try {
++      final succeeded = await ref
++          .read(currencyHistoryProvider(widget.currency).notifier)
++          .loadNext();
++      if (mounted && generation == _requestGeneration) {
++        _nextPageFailed = !succeeded;
++      }
++    } finally {
++      if (mounted && generation == _requestGeneration) {
++        setState(() => _loadingNext = false);
++      }
++    }
++  }
++
++  @override
++  Widget build(BuildContext context) {
++    final l10n = AppLocalizations.of(context);
++    final history = ref.watch(currencyHistoryProvider(widget.currency));
+     return history.when(
++      skipLoadingOnRefresh: false,
+       loading: () => const Center(child: CircularProgressIndicator()),
+-      error: (error, stackTrace) =>
+-          Center(child: Text(AppLocalizations.of(context).wallet_load_failed)),
++      error: (error, stackTrace) => Center(
++        child: Column(
++          mainAxisSize: MainAxisSize.min,
++          children: [
++            Text(l10n.wallet_load_failed),
++            TextButton(
++              key: const Key('currency-history-retry'),
++              onPressed: () =>
++                  ref.invalidate(currencyHistoryProvider(widget.currency)),
++              child: Text(l10n.common_retry_label),
++            ),
++          ],
++        ),
++      ),
+       data: (page) {
+-        if (page.items.isEmpty) return const NoItemContainer();
+-        return NotificationListener<ScrollEndNotification>(
+-          onNotification: (notification) {
+-            if (notification.metrics.extentAfter == 0 &&
+-                page.nextCursor != null) {
+-              ref.read(currencyHistoryProvider(currency).notifier).loadNext();
+-            }
+-            return false;
+-          },
++        return RefreshIndicator(
++          onRefresh: _refresh,
+           child: ListView.builder(
+-            itemCount: page.items.length,
+-            itemBuilder: (context, index) =>
+-                CurrencyHistoryListItem(item: page.items[index]),
++            physics: const AlwaysScrollableScrollPhysics(),
++            itemCount: page.items.isEmpty
++                ? 1
++                : page.items.length + (page.nextCursor == null ? 0 : 1),
++            itemBuilder: (context, index) {
++              if (page.items.isEmpty) {
++                return Padding(
++                  padding: const EdgeInsets.all(32),
++                  child: Center(child: Text(l10n.wallet_history_empty)),
++                );
++              }
++              if (index < page.items.length) {
++                return CurrencyHistoryListItem(item: page.items[index]);
++              }
++              return Column(
++                children: [
++                  if (_nextPageFailed)
++                    Text(
++                      l10n.wallet_load_failed,
++                      key: const Key('currency-history-next-error'),
++                    ),
++                  TextButton(
++                    key: const Key('currency-history-next'),
++                    onPressed: _loadingNext ? null : _loadNext,
++                    child: Text(
++                      _loadingNext
++                          ? l10n.loading
++                          : _nextPageFailed
++                          ? l10n.common_retry_label
++                          : MaterialLocalizations.of(context).nextPageTooltip,
++                    ),
++                  ),
++                ],
++              );
++            },
+           ),
+         );
+       },
+diff --git a/picnic_lib/lib/presentation/pages/my_page/my_page.dart b/picnic_lib/lib/presentation/pages/my_page/my_page.dart
+index ca909ca92..83831ffee 100644
+--- a/picnic_lib/lib/presentation/pages/my_page/my_page.dart
++++ b/picnic_lib/lib/presentation/pages/my_page/my_page.dart
+@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_list_page.d
+ import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
++import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
+@@ -158,6 +159,16 @@ class _MyPageState extends ConsumerState<MyPage>
+                         .setCurrentMyPage(QnaThreadListPage(userId: data.id!)),
+                   ),
+ 
++                if (data?.id != null)
++                  PicnicListItem(
++                    key: const Key('my-page-currency-history'),
++                    leading: AppLocalizations.of(context).wallet_history_title,
++                    assetPath: 'assets/icons/arrow_right_style=line.svg',
++                    onTap: () => ref
++                        .read(navigationInfoProvider.notifier)
++                        .setCurrentMyPage(const CurrencyHistoryPage()),
++                  ),
++
+                 // Voting History
+                 PicnicListItem(
+                   leading: AppLocalizations.of(context).label_my_vote_history,
+diff --git a/picnic_lib/lib/presentation/providers/wallet_provider.dart b/picnic_lib/lib/presentation/providers/wallet_provider.dart
+index eade1452c..70deeb1e8 100644
+--- a/picnic_lib/lib/presentation/providers/wallet_provider.dart
++++ b/picnic_lib/lib/presentation/providers/wallet_provider.dart
+@@ -210,28 +210,88 @@ class WalletSummary extends _$WalletSummary {
+   }
+ }
+ 
+-@riverpod
++/// Identity changes on every observed owner transition, including A → B → A.
++/// A same-owner token refresh keeps the existing history session.
++class WalletHistorySession {
++  WalletHistorySession(this.userId);
++  final String? userId;
++}
++
++final walletHistorySessionProvider = Provider.autoDispose<WalletHistorySession>(
++  (ref) {
++    final gateway = ref.watch(walletAuthGatewayProvider);
++    if (!gateway.isEnabled) return WalletHistorySession(null);
++    var observedOwner = gateway.currentSession?.user.id;
++    final session = WalletHistorySession(observedOwner);
++    final subscription = gateway.authStateChanges.listen(
++      (change) {
++        final nextOwner = change.session?.user.id;
++        if (nextOwner == observedOwner) return;
++        observedOwner = nextOwner;
++        ref.invalidateSelf();
++      },
++      onError: (Object error, StackTrace stack) {
++        logger.w(
++          'Wallet history auth event failed',
++          error: error,
++          stackTrace: stack,
++        );
++      },
++    );
++    ref.onDispose(subscription.cancel);
++    return session;
++  },
++);
++
++/// History is requested explicitly. Keep failures visible for manual retry
++/// instead of multiplying requests through Riverpod's default retry policy.
++Duration? currencyHistoryRetry(int retryCount, Object error) => null;
++
++const kCurrencyHistoryReadTimeout = Duration(seconds: 6);
++
++@Riverpod(retry: currencyHistoryRetry)
+ class CurrencyHistory extends _$CurrencyHistory {
++  int _generation = 0;
++  WalletHistorySession? _session;
++
+   @override
+   Future<CurrencyHistoryPageModel> build(WalletCurrency currency) {
+-    return ref.watch(walletRepositoryProvider).getHistory(currency: currency);
++    final session = ref.watch(walletHistorySessionProvider);
++    _session = session;
++    _generation++;
++    _loadingNext = false;
++    if (session.userId == null) {
++      throw StateError('Wallet history requires an authenticated user');
++    }
++    return ref
++        .watch(walletRepositoryProvider)
++        .getHistory(currency: currency)
++        .timeout(kCurrencyHistoryReadTimeout);
+   }
+ 
+   bool _loadingNext = false;
+ 
+-  Future<void> loadNext() async {
++  Future<bool> loadNext() async {
+     // 스크롤 끝 알림이 연달아 들어와도 페이지 요청은 한 번만 (PICNIC-APP-4R8)
+-    if (_loadingNext) return;
++    if (_loadingNext) return true;
++    final session = ref.read(walletHistorySessionProvider);
++    if (session.userId == null || !identical(session, _session)) return true;
++    final generation = _generation;
+     final current = state.value;
+-    if (current == null || current.nextCursor == null) return;
++    if (current == null || current.nextCursor == null) return true;
+ 
+     _loadingNext = true;
+     try {
+       final next = await ref
+           .read(walletRepositoryProvider)
+-          .getHistory(currency: currency, cursor: current.nextCursor);
++          .getHistory(currency: currency, cursor: current.nextCursor)
++          .timeout(kCurrencyHistoryReadTimeout);
+       // async gap 중 provider 가 dispose 되었으면 state 접근 금지
+-      if (!ref.mounted) return;
++      if (!ref.mounted ||
++          generation != _generation ||
++          !identical(session, ref.read(walletHistorySessionProvider))) {
++        return true;
++      }
+       // 응답이 도착한 시점의 state 기준으로 병합 (await 이전 스냅샷 사용 금지)
+       final latest = state.value ?? current;
+       final seen = latest.items.map((item) => item.id).toSet();
+@@ -245,6 +305,7 @@ class CurrencyHistory extends _$CurrencyHistory {
+           totalCount: next.totalCount,
+         ),
+       );
++      return true;
+     } catch (e, s) {
+       // 이미 불러온 페이지는 유지하고 실패만 보고한다.
+       logger.e(
+@@ -252,8 +313,9 @@ class CurrencyHistory extends _$CurrencyHistory {
+         error: e,
+         stackTrace: s,
+       );
++      return false;
+     } finally {
+-      _loadingNext = false;
++      if (generation == _generation) _loadingNext = false;
+     }
+   }
+ }
+diff --git a/picnic_lib/lib/presentation/widgets/wallet/currency_history_list_item.dart b/picnic_lib/lib/presentation/widgets/wallet/currency_history_list_item.dart
+index e10a98937..7e3634af8 100644
+--- a/picnic_lib/lib/presentation/widgets/wallet/currency_history_list_item.dart
++++ b/picnic_lib/lib/presentation/widgets/wallet/currency_history_list_item.dart
+@@ -1,5 +1,4 @@
+ import 'package:flutter/material.dart';
+-import 'package:flutter/services.dart';
+ import 'package:flutter_screenutil/flutter_screenutil.dart';
+ import 'package:picnic_lib/core/utils/date.dart';
+ import 'package:picnic_lib/data/models/wallet/currency_history.dart';
+@@ -36,7 +35,7 @@ class CurrencyHistoryListItem extends StatelessWidget {
+             children: [
+               Expanded(
+                 child: Text(
+-                  '${_currencyLabel(context)} · ${item.eventType}',
++                  _currencyLabel(context),
+                   style: getTextStyle(AppTypo.body14B, AppColors.grey900),
+                 ),
+               ),
+@@ -52,11 +51,6 @@ class CurrencyHistoryListItem extends StatelessWidget {
+             ],
+           ),
+           SizedBox(height: 6.h),
+-          Text(
+-            item.origin,
+-            style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+-          ),
+-          SizedBox(height: 4.h),
+           Text(
+             formatLocalDateTime(item.createdAt, format: 'yyyy.MM.dd HH:mm:ss'),
+             style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+@@ -64,31 +58,10 @@ class CurrencyHistoryListItem extends StatelessWidget {
+           if (item.expiresAt != null) ...[
+             SizedBox(height: 2.h),
+             Text(
+-              'Expires: ${formatLocalDateTime(item.expiresAt, format: 'yyyy.MM.dd HH:mm:ss')}',
++              '${AppLocalizations.of(context).bonus_candy_expiration_policy_expiration_date}: ${formatLocalDateTime(item.expiresAt, format: 'yyyy.MM.dd HH:mm:ss')}',
+               style: getTextStyle(AppTypo.caption12R, AppColors.grey500),
+             ),
+           ],
+-          SizedBox(height: 8.h),
+-          InkWell(
+-            onTap: () =>
+-                Clipboard.setData(ClipboardData(text: item.operationId)),
+-            child: Row(
+-              children: [
+-                Expanded(
+-                  child: SelectionArea(
+-                    child: Text(
+-                      'Support: ${item.operationId}',
+-                      style: getTextStyle(
+-                        AppTypo.caption12R,
+-                        AppColors.grey600,
+-                      ),
+-                    ),
+-                  ),
+-                ),
+-                Icon(Icons.copy, size: 16.w, color: AppColors.grey500),
+-              ],
+-            ),
+-          ),
+         ],
+       ),
+     );
+diff --git a/picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart b/picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart
+index 3a164d5ba..d13ae80bb 100644
+--- a/picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart
++++ b/picnic_lib/test/presentation/pages/my_page/currency_history_page_test.dart
+@@ -1,3 +1,5 @@
++import 'dart:async';
++
+ import 'package:flutter/material.dart';
+ import 'package:flutter_test/flutter_test.dart';
+ import 'package:picnic_lib/data/models/wallet/currency_history.dart';
+@@ -13,10 +15,59 @@ import '../../../helpers/mock_data.dart';
+ 
+ class _UnusedSupabaseClient extends Fake implements SupabaseClient {}
+ 
++class _HistoryUser extends Fake implements User {
++  _HistoryUser([this.id = 'test-user-id']);
++  @override
++  final String id;
++}
++
++class _HistorySession extends Fake implements Session {
++  _HistorySession([String owner = 'test-user-id']) : user = _HistoryUser(owner);
++  @override
++  final User user;
++}
++
++class _HistoryAuth extends Fake implements WalletAuthGateway {
++  @override
++  bool get isEnabled => true;
++  @override
++  Session get currentSession => _HistorySession();
++  @override
++  Stream<AuthState> get authStateChanges => const Stream.empty();
++}
++
++class _MutableHistoryAuth extends Fake implements WalletAuthGateway {
++  final events = StreamController<AuthState>.broadcast(sync: true);
++  Session? session = _HistorySession();
++
++  @override
++  bool get isEnabled => true;
++  @override
++  Session? get currentSession => session;
++  @override
++  Stream<AuthState> get authStateChanges => events.stream;
++
++  void signIn(bool signedIn, {String owner = 'test-user-id'}) {
++    session = signedIn ? _HistorySession(owner) : null;
++    events.add(
++      AuthState(
++        signedIn ? AuthChangeEvent.signedIn : AuthChangeEvent.signedOut,
++        session,
++      ),
++    );
++  }
++}
++
+ class _HistoryRepository extends WalletRepository {
+   _HistoryRepository() : super(_UnusedSupabaseClient());
+ 
+   final calls = <WalletCurrency>[];
++  bool failFirst = false;
++  bool hasNext = false;
++  bool failNext = false;
++  bool stallFirst = false;
++  bool stallNext = false;
++  final cursors = <String?>[];
+ 
+   @override
+   Future<CurrencyHistoryPageModel> getHistory({
+@@ -25,6 +76,18 @@ class _HistoryRepository extends WalletRepository {
+     int limit = 20,
+   }) async {
+     calls.add(currency);
++    cursors.add(cursor);
++    if (failFirst) {
++      failFirst = false;
++      throw const PostgrestException(message: 'offline');
++    }
++    if (cursor != null && failNext) {
++      failNext = false;
++      throw const PostgrestException(message: 'next page offline');
++    }
++    if ((cursor == null && stallFirst) || (cursor != null && stallNext)) {
++      return Completer<CurrencyHistoryPageModel>().future;
++    }
+     final delta = switch (currency) {
+       WalletCurrency.cottonCandy => BigInt.from(30),
+       _ => BigInt.from(-10),
+@@ -32,7 +95,7 @@ class _HistoryRepository extends WalletRepository {
+     return CurrencyHistoryPageModel(
+       items: [
+         CurrencyHistoryItemModel(
+-          id: currency.wireValue,
++          id: '${currency.wireValue}:${cursor ?? 'first'}',
+           currency: currency,
+           eventType: 'TEST',
+           origin: 'widget_test',
+@@ -43,7 +106,7 @@ class _HistoryRepository extends WalletRepository {
+         ),
+       ],
+       totalCount: BigInt.one,
+-      nextCursor: null,
++      nextCursor: hasNext && cursor == null ? 'next' : null,
+       snapshotAt: DateTime.utc(2026, 7, 23),
+     );
+   }
+@@ -52,44 +115,178 @@ class _HistoryRepository extends WalletRepository {
+ void main() {
+   setUpAll(initTestColors);
+ 
+-  testWidgets('shows only star candy tabs and never requests cotton candy', (
++  testWidgets('an owner mismatch hides rows while the profile catches up', (
+     tester,
+   ) async {
+     final repository = _HistoryRepository();
++    final auth = _MutableHistoryAuth();
++    addTearDown(auth.events.close);
+     await tester.pumpWidget(
+       buildTestApp(
+         const CurrencyHistoryPage(),
+-        userProfile: MockData.userProfile(isAdmin: true),
+         extraOverrides: [
+           walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(auth),
+         ],
+       ),
+     );
+     await tester.pumpAndSettle();
++    expect(find.text('+30'), findsOneWidget);
+ 
+-    expect(find.text('스타캔디'), findsOneWidget);
+-    expect(find.text('보너스 스타캔디'), findsOneWidget);
+-    expect(find.text('코튼캔디'), findsNothing);
+-    expect(find.text('-10'), findsOneWidget);
++    auth.signIn(true, owner: 'another-user');
++    await tester.pumpAndSettle();
++    expect(find.byType(TabBar), findsNothing);
++    expect(find.text('+30'), findsNothing);
++    // The still-subscribed provider can begin one read for the new auth
++    // owner before Flutter unmounts it. Neither owner's rows may be shown
++    // while the profile and auth session disagree, and no reads repeat.
++    final callsAfterSwitch = repository.calls.length;
++    expect(callsAfterSwitch, lessThanOrEqualTo(2));
++    await tester.pump(const Duration(seconds: 30));
++    expect(repository.calls.length, callsAfterSwitch);
++    expect(find.text('+30'), findsNothing);
++  });
++
++  testWidgets(
++    'a stalled first page reaches manual retry without automatic requests',
++    (tester) async {
++      final repository = _HistoryRepository()..stallFirst = true;
++      await tester.pumpWidget(
++        buildTestApp(
++          const CurrencyHistoryPage(),
++          extraOverrides: [
++            walletRepositoryProvider.overrideWithValue(repository),
++            walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++          ],
++        ),
++      );
++      await tester.pump();
++      await tester.pump(const Duration(seconds: 7));
++      await tester.pump();
++      final retry = find.byKey(const Key('currency-history-retry'));
++      expect(retry, findsOneWidget);
++      await tester.pump(const Duration(seconds: 30));
++      expect(repository.calls, [WalletCurrency.cottonCandy]);
++      repository.stallFirst = false;
++      await tester.tap(retry);
++      await tester.pumpAndSettle();
++      expect(find.text('+30'), findsOneWidget);
++      expect(repository.calls.length, 2);
++    },
++  );
+ 
++  testWidgets('a stalled next page keeps rows and unlocks manual retry', (
++    tester,
++  ) async {
++    final repository = _HistoryRepository()
++      ..hasNext = true
++      ..stallNext = true;
++    await tester.pumpWidget(
++      buildTestApp(
++        const CurrencyHistoryPage(),
++        extraOverrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++        ],
++      ),
++    );
++    await tester.pumpAndSettle();
++    final next = find.byKey(const Key('currency-history-next'));
++    await tester.tap(next);
++    await tester.pump(const Duration(seconds: 7));
++    await tester.pump();
++    expect(find.text('+30'), findsOneWidget);
++    expect(
++      find.byKey(const Key('currency-history-next-error')),
++      findsOneWidget,
++    );
++    repository.stallNext = false;
++    await tester.tap(next);
++    await tester.pumpAndSettle();
++    expect(repository.cursors, [null, 'next', 'next']);
++    expect(find.text('+30'), findsNWidgets(2));
++  });
++
++  testWidgets('selected tab matches data after the session is restored', (
++    tester,
++  ) async {
++    final repository = _HistoryRepository();
++    final auth = _MutableHistoryAuth();
++    addTearDown(auth.events.close);
++    await tester.pumpWidget(
++      buildTestApp(
++        const CurrencyHistoryPage(),
++        extraOverrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(auth),
++        ],
++      ),
++    );
++    await tester.pumpAndSettle();
+     await tester.tap(find.text('보너스 스타캔디'));
+     await tester.pumpAndSettle();
+ 
+-    expect(repository.calls, contains(WalletCurrency.bonusStarCandy));
+-    expect(repository.calls, isNot(contains(WalletCurrency.cottonCandy)));
++    auth.signIn(false);
++    await tester.pumpAndSettle();
++    expect(find.byType(TabBar), findsNothing);
++    auth.signIn(true);
++    await tester.pumpAndSettle();
+ 
+-    final content = tester.widget<Padding>(
+-      find.byKey(const Key('currency-history-content')),
++    final controller = DefaultTabController.of(
++      tester.element(find.byType(TabBar)),
+     );
+-    expect(content.padding, const EdgeInsets.symmetric(horizontal: 16));
++    expect(controller.index, 2);
++    expect(repository.calls.last, WalletCurrency.bonusStarCandy);
++    expect(find.text('-10'), findsOneWidget);
+   });
+ 
+-  testWidgets('blocks currency history for a regular user', (tester) async {
++  testWidgets(
++    'regular user opens cotton history and loads only the selected currency',
++    (tester) async {
++      final repository = _HistoryRepository();
++      await tester.pumpWidget(
++        buildTestApp(
++          const CurrencyHistoryPage(),
++          userProfile: MockData.userProfile(isAdmin: false),
++          extraOverrides: [
++            walletRepositoryProvider.overrideWithValue(repository),
++            walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++          ],
++        ),
++      );
++      await tester.pumpAndSettle();
++
++      expect(find.text('스타캔디'), findsOneWidget);
++      expect(find.text('보너스 스타캔디'), findsOneWidget);
++      expect(
++        find.descendant(of: find.byType(TabBar), matching: find.text('코튼캔디')),
++        findsOneWidget,
++      );
++      expect(find.text('+30'), findsOneWidget);
++      expect(repository.calls, [WalletCurrency.cottonCandy]);
++
++      await tester.tap(find.text('보너스 스타캔디'));
++      await tester.pumpAndSettle();
++
++      expect(repository.calls, [
++        WalletCurrency.cottonCandy,
++        WalletCurrency.bonusStarCandy,
++      ]);
++      expect(find.text('-10'), findsOneWidget);
++
++      final content = tester.widget<Padding>(
++        find.byKey(const Key('currency-history-content')),
++      );
++      expect(content.padding, const EdgeInsets.symmetric(horizontal: 16));
++    },
++  );
++
++  testWidgets('does not request history for a logged-out user', (tester) async {
+     final repository = _HistoryRepository();
+     await tester.pumpWidget(
+       buildTestApp(
+         const CurrencyHistoryPage(),
+-        userProfile: MockData.userProfile(isAdmin: false),
++        loggedIn: false,
+         extraOverrides: [
+           walletRepositoryProvider.overrideWithValue(repository),
+         ],
+@@ -100,4 +297,84 @@ void main() {
+     expect(find.text('스타캔디'), findsNothing);
+     expect(repository.calls, isEmpty);
+   });
++
++  testWidgets('first-page failure offers a working retry', (tester) async {
++    final repository = _HistoryRepository()..failFirst = true;
++    await tester.pumpWidget(
++      buildTestApp(
++        const CurrencyHistoryPage(),
++        userProfile: MockData.userProfile(isAdmin: false),
++        extraOverrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++        ],
++      ),
++    );
++    await tester.pumpAndSettle();
++    final retry = find.byKey(const Key('currency-history-retry'));
++    expect(retry, findsOneWidget);
++    await tester.tap(retry);
++    await tester.pumpAndSettle();
++    expect(repository.calls, [
++      WalletCurrency.cottonCandy,
++      WalletCurrency.cottonCandy,
++    ]);
++    expect(find.text('+30'), findsOneWidget);
++  });
++
++  testWidgets('next-page failure keeps items and offers retry', (tester) async {
++    final repository = _HistoryRepository()
++      ..hasNext = true
++      ..failNext = true;
++    await tester.pumpWidget(
++      buildTestApp(
++        const CurrencyHistoryPage(),
++        userProfile: MockData.userProfile(isAdmin: false),
++        extraOverrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++        ],
++      ),
++    );
++    await tester.pumpAndSettle();
++    await tester.tap(find.byKey(const Key('currency-history-next')));
++    await tester.pumpAndSettle();
++    expect(find.text('+30'), findsOneWidget);
++    expect(
++      find.byKey(const Key('currency-history-next-error')),
++      findsOneWidget,
++    );
++    await tester.tap(find.byKey(const Key('currency-history-next')));
++    await tester.pumpAndSettle();
++    expect(repository.cursors, [null, 'next', 'next']);
++    expect(find.text('+30'), findsNWidgets(2));
++    expect(find.byKey(const Key('currency-history-next')), findsNothing);
++  });
++
++  testWidgets(
++    'pull-to-refresh failure stays in the error UI without an uncaught future',
++    (tester) async {
++      final repository = _HistoryRepository();
++      await tester.pumpWidget(
++        buildTestApp(
++          const CurrencyHistoryPage(),
++          userProfile: MockData.userProfile(isAdmin: false),
++          extraOverrides: [
++            walletRepositoryProvider.overrideWithValue(repository),
++            walletAuthGatewayProvider.overrideWithValue(_HistoryAuth()),
++          ],
++        ),
++      );
++      await tester.pumpAndSettle();
++      repository.failFirst = true;
++      final indicator = tester.state<RefreshIndicatorState>(
++        find.byType(RefreshIndicator),
++      );
++      final refresh = indicator.show();
++      await tester.pumpAndSettle();
++      await refresh;
++      expect(tester.takeException(), isNull);
++      expect(find.byKey(const Key('currency-history-retry')), findsOneWidget);
++    },
++  );
+ }
+diff --git a/picnic_lib/test/presentation/pages/my_page/my_page_render_test.dart b/picnic_lib/test/presentation/pages/my_page/my_page_render_test.dart
+index e90c51b1b..44cdc133b 100644
+--- a/picnic_lib/test/presentation/pages/my_page/my_page_render_test.dart
++++ b/picnic_lib/test/presentation/pages/my_page/my_page_render_test.dart
+@@ -4,6 +4,13 @@ import 'package:picnic_lib/data/models/common/navigation.dart';
+ import 'package:picnic_lib/data/models/vote/artist.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
+ import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
++import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
++import 'package:picnic_lib/data/models/wallet/currency_history.dart';
++import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
++import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
++import 'package:picnic_lib/data/repositories/wallet_repository.dart';
++import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
++import 'package:supabase_flutter/supabase_flutter.dart';
+ import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
+ import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
+ import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
+@@ -19,6 +26,37 @@ class MockBookmarkedArtists extends AsyncBookmarkedArtists {
+   Future<List<ArtistModel>> build() async => [];
+ }
+ 
++class _UnusedHistoryClient extends Fake implements SupabaseClient {}
++
++class _MenuHistoryRepository extends WalletRepository {
++  _MenuHistoryRepository() : super(_UnusedHistoryClient());
++  final historyCalls = <WalletCurrency>[];
++  @override
++  Future<WalletSummaryModel> getSummary() async => WalletSummaryModel(
++    contractVersion: 'wallet.v1',
++    star: BigInt.zero,
++    bonus: BigInt.zero,
++    cotton: BigInt.zero,
++    cottonExpiringAmount: BigInt.zero,
++    cottonNextExpiresAt: null,
++    snapshotAt: DateTime.utc(2026, 9, 8),
++  );
++  @override
++  Future<CurrencyHistoryPageModel> getHistory({
++    required WalletCurrency currency,
++    String? cursor,
++    int limit = 20,
++  }) async {
++    historyCalls.add(currency);
++    return CurrencyHistoryPageModel(
++      items: [],
++      totalCount: BigInt.zero,
++      nextCursor: null,
++      snapshotAt: DateTime.utc(2026, 9, 8),
++    );
++  }
++}
++
+ void main() {
+   late void Function() restore;
+ 
+@@ -50,42 +88,41 @@ void main() {
+       expect(find.byType(MyPage), findsOneWidget);
+     });
+ 
+-    testWidgets(
+-      'shows the shared candy pouch without history for a regular user',
+-      (WidgetTester tester) async {
+-        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+-        await tester.pumpWidget(
+-          buildTestAppPage(
+-            const MyPage(),
+-            userProfile: MockData.userProfile(isAdmin: false),
+-            extraOverrides: [
+-              asyncBookmarkedArtistsProvider.overrideWith(
+-                MockBookmarkedArtists.new,
+-              ),
+-            ],
+-          ),
+-        );
+-        await pumpAndIgnoreErrors(tester);
+-        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
++    testWidgets('shows candy history and the shared pouch for a regular user', (
++      WidgetTester tester,
++    ) async {
++      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
++      await tester.pumpWidget(
++        buildTestAppPage(
++          const MyPage(),
++          userProfile: MockData.userProfile(isAdmin: false),
++          extraOverrides: [
++            asyncBookmarkedArtistsProvider.overrideWith(
++              MockBookmarkedArtists.new,
++            ),
++          ],
++        ),
++      );
++      await pumpAndIgnoreErrors(tester);
++      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+ 
+-        expect(find.byType(StorePointInfo), findsOneWidget);
+-        await tester.scrollUntilVisible(
+-          find.text('알림함'),
+-          300,
+-          scrollable: find.byType(Scrollable).first,
+-        );
+-        expect(find.text('알림함'), findsOneWidget);
+-        await tester.scrollUntilVisible(
+-          find.text('설정'),
+-          300,
+-          scrollable: find.byType(Scrollable).first,
+-        );
+-        expect(find.text('캔디 내역'), findsNothing);
+-        expect(find.text('관리자'), findsNothing);
+-      },
+-    );
++      expect(find.byType(StorePointInfo), findsOneWidget);
++      await tester.scrollUntilVisible(
++        find.text('알림함'),
++        300,
++        scrollable: find.byType(Scrollable).first,
++      );
++      expect(find.text('알림함'), findsOneWidget);
++      await tester.scrollUntilVisible(
++        find.text('설정'),
++        300,
++        scrollable: find.byType(Scrollable).first,
++      );
++      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
++      expect(find.text('관리자'), findsNothing);
++    });
+ 
+-    testWidgets('shows only the administrator entry for an admin user', (
++    testWidgets('keeps administrator tools separate from public history', (
+       WidgetTester tester,
+     ) async {
+       await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+@@ -111,7 +148,7 @@ void main() {
+         scrollable: find.byType(Scrollable).first,
+       );
+       expect(find.text('관리자'), findsOneWidget);
+-      expect(find.text('캔디 내역'), findsNothing);
++      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
+       expect(find.text('충전 내역'), findsNothing);
+       expect(find.text('Ad Inspector'), findsNothing);
+       expect(find.text('Reset & Reload GDPR'), findsNothing);
+@@ -121,6 +158,44 @@ void main() {
+       expect(find.byType(AdminMenuPage), findsOneWidget);
+     });
+ 
++    testWidgets(
++      'regular user opens history from the menu without prefetching',
++      (tester) async {
++        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
++        final repository = _MenuHistoryRepository();
++        await tester.pumpWidget(
++          buildTestAppPage(
++            const MyPageScreen(),
++            navigation: Navigation.initial(),
++            userProfile: MockData.userProfile(isAdmin: false),
++            extraOverrides: [
++              asyncBookmarkedArtistsProvider.overrideWith(
++                MockBookmarkedArtists.new,
++              ),
++              walletRepositoryProvider.overrideWithValue(repository),
++              walletHistorySessionProvider.overrideWithValue(
++                WalletHistorySession('test-user-id'),
++              ),
++            ],
++          ),
++        );
++        await pumpAndIgnoreErrors(tester);
++        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
++        final entry = find.byKey(const Key('my-page-currency-history'));
++        await tester.scrollUntilVisible(
++          entry,
++          300,
++          scrollable: find.byType(Scrollable).first,
++        );
++        expect(repository.historyCalls, isEmpty);
++        await tester.tap(entry);
++        await pumpAndIgnoreErrors(tester);
++        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
++        expect(find.byType(CurrencyHistoryPage), findsOneWidget);
++        expect(repository.historyCalls, [WalletCurrency.cottonCandy]);
++      },
++    );
++
+     testWidgets('renders logged-out state', (WidgetTester tester) async {
+       await tester.pumpWidget(
+         buildTestAppPage(
+diff --git a/picnic_lib/test/presentation/providers/wallet_provider_test.dart b/picnic_lib/test/presentation/providers/wallet_provider_test.dart
+index 0b9804c04..254a1f352 100644
+--- a/picnic_lib/test/presentation/providers/wallet_provider_test.dart
++++ b/picnic_lib/test/presentation/providers/wallet_provider_test.dart
+@@ -178,6 +178,26 @@ class _SilentAuthGateway implements WalletAuthGateway {
+       StreamController<AuthState>().stream;
+ }
+ 
++class _MutableHistoryAuth implements WalletAuthGateway {
++  _MutableHistoryAuth(String? owner)
++    : session = owner == null ? null : _FakeSession(owner);
++  Session? session;
++  final changes = StreamController<AuthState>.broadcast(sync: true);
++  @override
++  bool get isEnabled => true;
++  @override
++  Session? get currentSession => session;
++  @override
++  Stream<AuthState> get authStateChanges => changes.stream;
++  void change(
++    String? owner, {
++    AuthChangeEvent event = AuthChangeEvent.signedIn,
++  }) {
++    session = owner == null ? null : _FakeSession(owner);
++    changes.add(AuthState(event, session));
++  }
++}
++
+ class _FailingHistoryRepository extends WalletRepository {
+   _FailingHistoryRepository({required this.firstPage, required this.error})
+     : super(_UnusedSupabaseClient());
+@@ -272,7 +292,12 @@ void main() {
+         },
+       );
+       final container = ProviderContainer(
+-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(
++            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
++          ),
++        ],
+       );
+       addTearDown(container.dispose);
+ 
+@@ -308,7 +333,12 @@ void main() {
+         },
+       );
+       final container = ProviderContainer(
+-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(
++            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
++          ),
++        ],
+       );
+       addTearDown(container.dispose);
+ 
+@@ -378,7 +408,7 @@ void main() {
+   // while that request is still outstanding. This is the case the merge in
+   // `loadNext` reads `state.value` for instead of its pre-await snapshot.
+   test(
+-    'a page landing after a rebuild extends the rebuilt list, not the snapshot',
++    'a page from before refresh cannot overwrite the new history snapshot',
+     () async {
+       final repository = _ControlledWalletRepository(
+         pages: {
+@@ -392,7 +422,12 @@ void main() {
+         ),
+       );
+       final container = ProviderContainer(
+-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(
++            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
++          ),
++        ],
+       );
+       addTearDown(container.dispose);
+ 
+@@ -420,12 +455,11 @@ void main() {
+       final page = container.read(provider).value!;
+       expect(
+         [for (final item in page.items) item.id],
+-        ['1', '9', '2'],
++        ['1', '9'],
+         reason:
+-            'the late page must extend the list it actually landed in; merging '
+-            'into the pre-await snapshot would drop the refreshed item',
++            'a cursor belongs to its original snapshot and must be discarded after refresh',
+       );
+-      expect(page.nextCursor, isNull);
++      expect(page.nextCursor, 'cursor-2');
+     },
+   );
+ 
+@@ -438,7 +472,12 @@ void main() {
+         error: failure,
+       );
+       final container = ProviderContainer(
+-        overrides: [walletRepositoryProvider.overrideWithValue(repository)],
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(
++            _ReplayingAuthGateway(session: _FakeSession('owner-a')),
++          ),
++        ],
+       );
+       addTearDown(container.dispose);
+ 
+@@ -472,6 +511,106 @@ void main() {
+     },
+   );
+ 
++  test('history does not call the server without a signed-in owner', () async {
++    final repository = _FakeWalletRepository(
++      summaries: [],
++      pages: {null: _page([], null)},
++    );
++    final auth = _MutableHistoryAuth(null);
++    final container = ProviderContainer(
++      overrides: [
++        walletRepositoryProvider.overrideWithValue(repository),
++        walletAuthGatewayProvider.overrideWithValue(auth),
++      ],
++    );
++    addTearDown(container.dispose);
++    addTearDown(auth.changes.close);
++    await expectLater(
++      container.read(
++        currencyHistoryProvider(WalletCurrency.cottonCandy).future,
++      ),
++      throwsStateError,
++    );
++    expect(repository.cursors, isEmpty);
++  });
++
++  test(
++    'history account switch discards the previous owner cursor response',
++    () async {
++      final repository = _ControlledWalletRepository(
++        pages: {
++          null: _page([_item('owner-a')], 'a-next'),
++          'a-next': _page([_item('a-private')], null),
++        },
++        firstPageOnRebuild: _page([_item('owner-b')], null),
++      );
++      final auth = _MutableHistoryAuth('owner-a');
++      final container = ProviderContainer(
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(auth),
++        ],
++      );
++      addTearDown(container.dispose);
++      addTearDown(auth.changes.close);
++      final provider = currencyHistoryProvider(WalletCurrency.cottonCandy);
++      container.listen(provider, (_, _) {});
++      await container.read(provider.future);
++      final pending = container.read(provider.notifier).loadNext();
++      auth.change('owner-b');
++      await _flush();
++      final next = await container.read(provider.future);
++      expect(next.items.map((item) => item.id), ['owner-b']);
++      repository.completeLatest('a-next');
++      await pending;
++      expect(container.read(provider).value!.items.map((item) => item.id), [
++        'owner-b',
++      ]);
++      auth.change('owner-b', event: AuthChangeEvent.tokenRefreshed);
++      await _flush();
++      expect(repository.firstPageCalls, 2);
++    },
++  );
++
++  test(
++    'history A to B to A does not reuse a cursor from the first session',
++    () async {
++      final repository = _ControlledWalletRepository(
++        pages: {
++          null: _page([_item('a-before')], 'a-next'),
++          'a-next': _page([_item('obsolete')], null),
++        },
++        firstPageOnRebuild: _page([_item('a-after')], null),
++      );
++      final auth = _MutableHistoryAuth('owner-a');
++      final container = ProviderContainer(
++        overrides: [
++          walletRepositoryProvider.overrideWithValue(repository),
++          walletAuthGatewayProvider.overrideWithValue(auth),
++        ],
++      );
++      addTearDown(container.dispose);
++      addTearDown(auth.changes.close);
++      final provider = currencyHistoryProvider(WalletCurrency.cottonCandy);
++      container.listen(provider, (_, _) {});
++      await container.read(provider.future);
++      final pending = container.read(provider.notifier).loadNext();
++      auth.change('owner-b');
++      auth.change('owner-a');
++      await _flush();
++      await container.read(provider.future);
++      repository.completeLatest('a-next');
++      await pending;
++      expect(container.read(provider).value!.items.map((item) => item.id), [
++        'a-after',
++      ]);
++      auth.change(null, event: AuthChangeEvent.signedOut);
++      await _flush();
++      await expectLater(container.read(provider.future), throwsStateError);
++      expect(repository.firstPageCalls, 2);
++    },
++  );
++
+   // The pouch showed an infinite loading state on Android (1.3.0+130000 patch
+   // 9) that a force-stop cleared. Every await in the summary path is bounded
+   // now, and every terminal state is one the user can act on.
+diff --git a/picnic_lib/test/presentation/widgets/wallet/currency_history_list_item_test.dart b/picnic_lib/test/presentation/widgets/wallet/currency_history_list_item_test.dart
+index d2c8ff404..0e9ae4423 100644
+--- a/picnic_lib/test/presentation/widgets/wallet/currency_history_list_item_test.dart
++++ b/picnic_lib/test/presentation/widgets/wallet/currency_history_list_item_test.dart
+@@ -1,4 +1,5 @@
+ import 'package:flutter_test/flutter_test.dart';
++import 'package:picnic_lib/l10n/app_localizations.dart';
+ import 'package:picnic_lib/data/models/wallet/currency_history.dart';
+ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+ import 'package:picnic_lib/presentation/widgets/wallet/currency_history_list_item.dart';
+@@ -22,7 +23,9 @@ CurrencyHistoryItemModel _item({required BigInt delta}) =>
+ void main() {
+   setUpAll(initTestColors);
+ 
+-  testWidgets('renders signed delta and support reference', (tester) async {
++  testWidgets('shows public transaction details without internal metadata', (
++    tester,
++  ) async {
+     await tester.pumpWidget(
+       buildTestApp(
+         CurrencyHistoryListItem(item: _item(delta: BigInt.from(30))),
+@@ -30,9 +33,19 @@ void main() {
+     );
+ 
+     expect(find.text('+30'), findsOneWidget);
+-    expect(find.textContaining('operation-123'), findsOneWidget);
+-    expect(find.textContaining('VOTE'), findsOneWidget);
+-    expect(find.text('general_vote'), findsOneWidget);
++    final l10n = AppLocalizations.of(
++      tester.element(find.byType(CurrencyHistoryListItem)),
++    );
++    expect(find.text(l10n.wallet_cotton_candy), findsOneWidget);
++    expect(find.textContaining('2026.07.23'), findsOneWidget);
++    expect(
++      find.textContaining(l10n.bonus_candy_expiration_policy_expiration_date),
++      findsOneWidget,
++    );
++    expect(find.textContaining('operation-123'), findsNothing);
++    expect(find.textContaining('VOTE'), findsNothing);
++    expect(find.text('general_vote'), findsNothing);
++    expect(find.textContaining('Support:'), findsNothing);
+   });
+ 
+   testWidgets('keeps the minus sign for debits', (tester) async {

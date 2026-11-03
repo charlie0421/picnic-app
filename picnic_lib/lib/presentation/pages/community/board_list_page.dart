@@ -357,6 +357,7 @@ class _BoardPageState extends ConsumerState<BoardListPage>
                       imageUrl: artist.image ?? '',
                       width: 32,
                       height: 32,
+                      cdnVariant: PicnicCdnImageVariant.avatar,
                       fit: BoxFit.cover, // ✅ 이미지 맞춤 최적화
                       priority: ImagePriority.normal, // ✅ 안정적인 normal 우선순위
                       lazyLoadingStrategy:

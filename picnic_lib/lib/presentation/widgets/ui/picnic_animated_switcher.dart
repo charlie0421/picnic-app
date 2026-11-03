@@ -19,16 +19,23 @@ class _PicnicAnimatedSwitcherState
   Widget build(BuildContext context) {
     final navigationInfo = ref.watch(navigationInfoProvider);
 
-    logger.d('🔄 PicnicAnimatedSwitcher build - portalType: ${navigationInfo.portalType}');
-    logger.d('🔄 voteNavigationStack length: ${navigationInfo.voteNavigationStack?.length ?? 0}');
+    logger.d(
+      '🔄 PicnicAnimatedSwitcher build - portalType: ${navigationInfo.portalType}',
+    );
+    logger.d(
+      '🔄 voteNavigationStack length: ${navigationInfo.voteNavigationStack?.length ?? 0}',
+    );
 
     // 모든 포털이 voteNavigationStack을 공유
-    List<Widget> stackChildren = navigationInfo.voteNavigationStack?.items ?? const [];
+    List<Widget> stackChildren =
+        navigationInfo.voteNavigationStack?.items ?? const [];
 
     // 스택이 비어있으면 기본 홈 페이지를 fallback으로 사용
     // 이는 로그인 후 간헐적 블랙 스크린 문제를 방지함
     if (stackChildren.isEmpty) {
-      logger.w('⚠️ PicnicAnimatedSwitcher: Navigation stack is empty, using fallback page');
+      logger.w(
+        '⚠️ PicnicAnimatedSwitcher: Navigation stack is empty, using fallback page',
+      );
       stackChildren = [const VoteHomePage()];
     }
 
@@ -36,10 +43,8 @@ class _PicnicAnimatedSwitcherState
 
     return Container(
       padding: navigationInfo.showBottomNavigation
-          ? const EdgeInsets.only(
-              bottom:
-                  NavBarConstants.bottomNavHeight +
-                  NavBarConstants.bottomNavOuterMargin,
+          ? EdgeInsets.only(
+              bottom: NavBarConstants.contentBottomPadding(context),
             )
           : EdgeInsets.zero,
       child: IndexedStack(index: currentIndex, children: stackChildren),
@@ -69,9 +74,7 @@ class DrawerAnimatedSwitcher extends ConsumerWidget {
       layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
         return currentChild ?? const SizedBox.shrink();
       },
-      child: hasContent
-          ? drawerStack.peek()
-          : const SizedBox.shrink(),
+      child: hasContent ? drawerStack.peek() : const SizedBox.shrink(),
     );
   }
 }
@@ -98,9 +101,7 @@ class SignUpAnimatedSwitcher extends ConsumerWidget {
       layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
         return currentChild ?? const SizedBox.shrink();
       },
-      child: hasContent
-          ? signUpStack.peek()
-          : const SizedBox.shrink(),
+      child: hasContent ? signUpStack.peek() : const SizedBox.shrink(),
     );
   }
 }

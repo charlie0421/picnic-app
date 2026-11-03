@@ -377,6 +377,16 @@ class AppLocalizationsTh extends AppLocalizations {
   }
 
   @override
+  String label_ads_limit_reached_hourly(int used, int limit) {
+    return 'ถึงขีดจำกัดต่อชั่วโมงแล้ว ($used/$limit)';
+  }
+
+  @override
+  String label_ads_limit_reached_daily(int used, int limit) {
+    return 'ถึงขีดจำกัดต่อวันแล้ว ($used/$limit)';
+  }
+
+  @override
   String get label_ads_load_fail => 'ไม่สามารถโหลดโฆษณาได้ โปรดลองอีกครั้ง';
 
   @override
@@ -421,7 +431,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_button_view_policy => 'ดูนโยบาย';
 
   @override
-  String get label_button_vote => 'ลงคะแนนเสียง';
+  String get label_button_vote => 'โหวต';
 
   @override
   String get label_celeb_gallery => 'แกลเลอรีศิลปิน';
@@ -1030,7 +1040,7 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get voting_share_benefit_text =>
-      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนนและแบ่งปัน!';
+      'รับ 1 ลูกอมโบนัสสตาร์สำหรับทุก ๆ 100 คะแนน!';
 
   @override
   String get cancel => 'ยกเลิก';
@@ -1273,6 +1283,10 @@ class AppLocalizationsTh extends AppLocalizations {
       'ยังไม่สามารถยืนยันการชำระเงินของคุณได้ คุณอาจยังทำการชำระเงินไม่เสร็จสิ้นในหน้าชำระเงินของสโตร์\nหากคุณชำระเงินแล้ว ลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อประมวลผลเสร็จสิ้น กรุณาอย่าชำระเงินซ้ำ';
 
   @override
+  String get purchase_payment_pending_message =>
+      'การชำระเงินของคุณยังไม่เสร็จสมบูรณ์ หากคุณเลือกวิธีชำระเงินที่ใช้เวลา เช่น เงินสดหรือโอนผ่านธนาคาร กรุณาชำระเงินให้เสร็จสิ้นที่ร้านค้าหรือธนาคาร\nลูกอมดาวจะเข้าบัญชีโดยอัตโนมัติเมื่อการชำระเงินสำเร็จ กรุณาอย่าชำระเงินซ้ำ';
+
+  @override
   String get label_tabbar_vote_upcoming => 'ที่กำลังจะมาถึง';
 
   @override
@@ -1453,6 +1467,10 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get withdrawal_success => 'การยกเลิกการสมัครถูกประมวลผลสำเร็จ';
+
+  @override
+  String get withdrawal_failed =>
+      'การยกเลิกบัญชีล้มเหลว กรุณาลองใหม่อีกครั้งในภายหลัง';
 
   @override
   String get vote_item_request_already_applied_artist =>
@@ -1887,6 +1905,11 @@ class AppLocalizationsTh extends AppLocalizations {
   String get candy_boost_extra_bonus => 'รางวัลพื้นฐาน + โบนัสเพิ่ม';
 
   @override
+  String candy_boost_multiplier(String multiplier) {
+    return 'โบนัส $multiplier×';
+  }
+
+  @override
   String get candy_boost_promotion_checking => 'กำลังตรวจสอบโปรโมชั่น';
 
   @override
@@ -1896,6 +1919,56 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get candy_boost_late_purchase_explanation =>
       'การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว';
+
+  @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'โบนัสอีเวนต์ +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'รางวัลพื้นฐาน';
+
+  @override
+  String get purchase_reward_base_short => 'พื้นฐาน';
+
+  @override
+  String get purchase_reward_event_short => 'อีเวนต์';
+
+  @override
+  String get purchase_reward_product_bonus => 'โบนัสพื้นฐาน';
+
+  @override
+  String get purchase_reward_event_bonus => 'โบนัสอีเวนต์';
+
+  @override
+  String get purchase_reward_expected_total => 'ยอดรวมโดยประมาณ';
+
+  @override
+  String get purchase_reward_total_short => 'รวม';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'คาดว่าหลังซื้อ $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'เป็นจำนวนโดยประมาณ จำนวนสุดท้ายจะยืนยันโดยเซิร์ฟเวอร์เมื่อชำระเงินเสร็จสมบูรณ์';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'ได้รับรวม $amount';
+  }
 
   @override
   String get ad_reward_pending => 'กำลังตรวจสอบรางวัลของคุณ';
@@ -1920,6 +1993,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'ยอคงเหลือใหม่ $amount';
   }
 
   @override
@@ -1998,4 +2076,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว';
+
+  @override
+  String get profile_photo_change => 'เปลี่ยนรูปโปรไฟล์';
 }

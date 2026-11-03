@@ -28,8 +28,12 @@ class CommentInput extends ConsumerStatefulWidget {
   final PagingController<int, CommentModel> pagingController;
   final String id;
   final Function(
-          String postId, String? parentId, String locale, String content)?
-      onPostComment;
+    String postId,
+    String? parentId,
+    String locale,
+    String content,
+  )?
+  onPostComment;
 
   @override
   ConsumerState<CommentInput> createState() => _CommentInputState();
@@ -95,28 +99,19 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       style: getTextStyle(AppTypo.body16R, AppColors.grey900),
       decoration: InputDecoration(
         hintText: AppLocalizations.of(context).label_hint_comment,
-        hintStyle: TextStyle(
-          fontSize: 16.sp,
-          color: AppColors.grey400,
-        ),
+        hintStyle: TextStyle(fontSize: 16.sp, color: AppColors.grey400),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(
-            color: AppColors.primary500,
-            width: 1,
-          ),
+          borderSide: BorderSide(color: AppColors.primary500, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: const BorderSide(
-            color: AppColors.grey300,
-            width: 1,
-          ),
+          borderSide: const BorderSide(color: AppColors.grey300, width: 1),
         ),
         contentPadding: EdgeInsets.only(
           left: 10.w,
           right: 80.w,
-          bottom: 30.h,
+          bottom: _counterSpace(),
         ),
         counterText: '',
       ),
@@ -136,6 +131,20 @@ class _CommentInputState extends ConsumerState<CommentInput> {
         ),
       ),
     );
+  }
+
+  double _counterSpace() {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: '$_currentLength/$_maxLength',
+        style: getTextStyle(AppTypo.caption12R, AppColors.grey400),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final height = painter.height + 8.h + 4;
+    painter.dispose();
+    return height > 30.h ? height : 30.h;
   }
 
   Widget _buildSendButton() {
@@ -182,8 +191,12 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       if (isFlagged) {
         OverlayLoadingProgress.stop();
         showSimpleDialog(
-          title: AppLocalizations.of(navigatorKey.currentContext!).dialog_caution,
-          content: AppLocalizations.of(navigatorKey.currentContext!).post_flagged,
+          title: AppLocalizations.of(
+            navigatorKey.currentContext!,
+          ).dialog_caution,
+          content: AppLocalizations.of(
+            navigatorKey.currentContext!,
+          ).post_flagged,
         );
         return;
       }
@@ -206,7 +219,8 @@ class _CommentInputState extends ConsumerState<CommentInput> {
       _focusNode.unfocus();
 
       SnackbarUtil().info(
-          AppLocalizations.of(context).post_comment_registered_comment);
+        AppLocalizations.of(context).post_comment_registered_comment,
+      );
     } catch (e, s) {
       if (!mounted) return;
 
@@ -230,16 +244,11 @@ class _CommentInputState extends ConsumerState<CommentInput> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      constraints: const BoxConstraints(minHeight: 60),
       padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
       width: getPlatformScreenSize(context).width,
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey[300]!,
-            width: 1,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Colors.grey[300]!, width: 1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

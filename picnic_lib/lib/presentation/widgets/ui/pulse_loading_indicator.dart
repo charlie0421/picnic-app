@@ -6,16 +6,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class PulseLoadingIndicator extends StatefulWidget {
   /// 로딩 인디케이터 크기 (기본: 40)
   final double size;
-  
+
   /// 애니메이션 지속 시간 (기본: 800ms)
   final Duration duration;
-  
+
   /// 최소 스케일 값 (기본: 0.98)
   final double minScale;
-  
+
   /// 최대 스케일 값 (기본: 1.02)
   final double maxScale;
-  
+
   const PulseLoadingIndicator({
     super.key,
     this.size = 40,
@@ -34,43 +34,53 @@ class _PulseLoadingIndicatorState extends State<PulseLoadingIndicator>
   late AnimationController _fadeController;
   late Animation<double> _scaleAnimation;
   late Animation<double> _fadeAnimation;
+  bool _animationsDisabled = false;
 
   @override
   void initState() {
     super.initState();
-    
+
     // 스케일 애니메이션 컨트롤러
     _scaleController = AnimationController(
       duration: widget.duration,
       vsync: this,
     );
-    
+
     // 페이드 애니메이션 컨트롤러
     _fadeController = AnimationController(
       duration: widget.duration,
       vsync: this,
     );
-    
+
     // 스케일 애니메이션 (부드러운 pulse 효과)
-    _scaleAnimation = Tween<double>(
-      begin: widget.minScale,
-      end: widget.maxScale,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _scaleAnimation =
+        Tween<double>(begin: widget.minScale, end: widget.maxScale).animate(
+          CurvedAnimation(parent: _scaleController, curve: Curves.easeInOut),
+        );
+
     // 페이드 애니메이션 (투명도 변화)
-    _fadeAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
-    
+    _fadeAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
+
     // 애니메이션 시작
     _startAnimations();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final animationsDisabled = MediaQuery.disableAnimationsOf(context);
+    if (_animationsDisabled == animationsDisabled) return;
+
+    _animationsDisabled = animationsDisabled;
+    if (_animationsDisabled) {
+      _scaleController.stop();
+      _fadeController.stop();
+    } else {
+      _startAnimations();
+    }
   }
 
   void _startAnimations() {
@@ -88,32 +98,37 @@ class _PulseLoadingIndicatorState extends State<PulseLoadingIndicator>
 
   @override
   Widget build(BuildContext context) {
+    final maxPaintScale = widget.maxScale > 1 ? widget.maxScale : 1.0;
+
     return Center(
-      child: AnimatedBuilder(
-        animation: Listenable.merge([_scaleAnimation, _fadeAnimation]),
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Opacity(
-              opacity: _fadeAnimation.value,
-              child: Container(
-                width: widget.size.w,
-                height: widget.size.w,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                ),
-                child: ClipOval(
-                  child: Image.asset(
-                    'assets/app_icon_128.png',
-                    width: widget.size.w,
-                    height: widget.size.w,
-                    fit: BoxFit.cover,
+      widthFactor: 1,
+      heightFactor: 1,
+      child: SizedBox.square(
+        dimension: widget.size.w,
+        child: FractionallySizedBox(
+          widthFactor: _animationsDisabled ? 1 : 1 / maxPaintScale,
+          heightFactor: _animationsDisabled ? 1 : 1 / maxPaintScale,
+          child: AnimatedBuilder(
+            animation: Listenable.merge([_scaleAnimation, _fadeAnimation]),
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _animationsDisabled ? 1 : _scaleAnimation.value,
+                child: Opacity(
+                  opacity: _animationsDisabled ? 1 : _fadeAnimation.value,
+                  child: Container(
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    child: ClipOval(
+                      child: Image.asset(
+                        'assets/app_icon_128.png',
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          );
-        },
+              );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -121,10 +136,7 @@ class _PulseLoadingIndicatorState extends State<PulseLoadingIndicator>
 
 /// 작은 크기의 pulse 로딩 인디케이터 (24px)
 class SmallPulseLoadingIndicator extends StatelessWidget {
-  
-  const SmallPulseLoadingIndicator({
-    super.key,
-  });
+  const SmallPulseLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -139,10 +151,7 @@ class SmallPulseLoadingIndicator extends StatelessWidget {
 
 /// 중간 크기의 pulse 로딩 인디케이터 (40px) - 기본값
 class MediumPulseLoadingIndicator extends StatelessWidget {
-  
-  const MediumPulseLoadingIndicator({
-    super.key,
-  });
+  const MediumPulseLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -157,10 +166,7 @@ class MediumPulseLoadingIndicator extends StatelessWidget {
 
 /// 큰 크기의 pulse 로딩 인디케이터 (60px)
 class LargePulseLoadingIndicator extends StatelessWidget {
-  
-  const LargePulseLoadingIndicator({
-    super.key,
-  });
+  const LargePulseLoadingIndicator({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -171,4 +177,4 @@ class LargePulseLoadingIndicator extends StatelessWidget {
       maxScale: 1.04,
     );
   }
-} 
+}

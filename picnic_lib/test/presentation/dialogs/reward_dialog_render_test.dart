@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/reward.dart';
+import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
 import 'package:picnic_lib/presentation/dialogs/reward_dialog.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -47,6 +48,134 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     drainExpectedImageErrors(tester);
   }
+
+  group('RewardDialog CDN variant', () {
+    // 우리 CDN 이미지는 원본을 요청하지 않는다. 다이얼로그의 모든 이미지는 홈
+    // 리워드 그리드와 같은 고정 변형(q=80&w=1000)이라, 같은 파일이면 그리드가
+    // 받아 둔 캐시 키를 그대로 쓴다. 외부 서명 URL 만 원형을 유지한다.
+    List<String> collectRequestUrls(WidgetTester tester) {
+      return tester
+          .widgetList<PicnicCachedNetworkImage>(
+            find.descendant(
+              of: find.byType(RewardDialog),
+              matching: find.byType(PicnicCachedNetworkImage),
+            ),
+          )
+          .map((widget) => widget.imageRequest?.url ?? '<layout-dependent>')
+          .toList();
+    }
+
+    RewardModel makeFullReward() => makeReward(
+      thumbnail: '/reward/thumb.png',
+      overviewImages: ['/reward/overview-1.png', '/reward/overview-2.png'],
+      location: {
+        'ko': {
+          'map': ['/reward/map.png'],
+          'address': ['서울시 강남구'],
+          'images': ['/reward/location.png'],
+          'desc': ['설명'],
+        },
+      },
+      sizeGuide: {
+        'ko': [
+          {
+            'image': ['/reward/size.png'],
+            'desc': ['사이즈'],
+          },
+        ],
+      },
+    );
+
+    testWidgets('every first-party image requests the reward grid variant', (
+      tester,
+    ) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(RewardDialog(data: makeFullReward())),
+      );
+
+      expect(collectRequestUrls(tester), [
+        for (final path in [
+          'thumb',
+          'overview-1',
+          'overview-2',
+          'map',
+          'location',
+          'size',
+        ])
+          'https://test-cdn.example.com/reward/$path.png?q=80&w=1000',
+      ]);
+    });
+
+    testWidgets('external signed images keep their URL verbatim', (
+      tester,
+    ) async {
+      const signedUrl =
+          'https://images.example.com/reward.png?X-Amz-Signature=a%2Bb&e=9';
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(
+            data: makeReward(thumbnail: signedUrl, overviewImages: [signedUrl]),
+          ),
+        ),
+      );
+
+      expect(collectRequestUrls(tester), [signedUrl, signedUrl]);
+    });
+
+    testWidgets('decode stays bounded to the source size', (tester) async {
+      await pumpAndDrain(
+        tester,
+        buildTestApp(RewardDialog(data: makeFullReward())),
+      );
+
+      final requests = tester
+          .widgetList<PicnicCachedNetworkImage>(
+            find.descendant(
+              of: find.byType(RewardDialog),
+              matching: find.byType(PicnicCachedNetworkImage),
+            ),
+          )
+          .map((widget) => widget.imageRequest!);
+      for (final request in requests) {
+        expect(request.decodeWidth, 1000, reason: request.url);
+      }
+      expect(RewardDialogConstants.imageDecodeWidth, 1000);
+    });
+
+    testWidgets('variant key does not change with device pixel ratio', (
+      tester,
+    ) async {
+      final reward = makeFullReward();
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(data: reward),
+          mediaQueryData: const MediaQueryData(
+            size: Size(393, 852),
+            devicePixelRatio: 3,
+          ),
+        ),
+      );
+      final urlsAt3x = collectRequestUrls(tester);
+
+      await pumpAndDrain(
+        tester,
+        buildTestApp(
+          RewardDialog(data: reward),
+          mediaQueryData: const MediaQueryData(
+            size: Size(360, 780),
+            devicePixelRatio: 2,
+          ),
+        ),
+      );
+      final urlsAt2x = collectRequestUrls(tester);
+
+      expect(urlsAt3x, isNotEmpty);
+      expect(urlsAt2x, urlsAt3x);
+    });
+  });
 
   group('RewardDialog render', () {
     testWidgets('renders basic RewardDialog', (WidgetTester tester) async {
@@ -252,8 +381,9 @@ void main() {
   });
 
   group('RewardSection.hasContent', () {
-    testWidgets('overview returns true when images present',
-        (WidgetTester tester) async {
+    testWidgets('overview returns true when images present', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(
         overviewImages: ['https://example.com/img.jpg'],
       );
@@ -275,8 +405,9 @@ void main() {
       expect(section.hasContent(capturedContext), isTrue);
     });
 
-    testWidgets('overview returns false when no images',
-        (WidgetTester tester) async {
+    testWidgets('overview returns false when no images', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(overviewImages: null);
       final section = RewardSection(type: RewardType.overview, data: reward);
 
@@ -296,8 +427,9 @@ void main() {
       expect(section.hasContent(capturedContext), isFalse);
     });
 
-    testWidgets('location returns false when no location data',
-        (WidgetTester tester) async {
+    testWidgets('location returns false when no location data', (
+      WidgetTester tester,
+    ) async {
       final reward = makeReward(location: null);
       final section = RewardSection(type: RewardType.location, data: reward);
 

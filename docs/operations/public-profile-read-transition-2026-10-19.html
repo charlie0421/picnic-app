@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>공개 프로필 앱 조회 전환 — 2026-10-19</title>
+<style>
+body{font-family:system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif;max-width:1060px;margin:36px auto;padding:0 24px;line-height:1.65;color:#192638;background:#fff}h1{font-size:1.8rem}h2{margin-top:2rem;font-size:1.25rem}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #bac4ce;padding:10px;text-align:left;vertical-align:top}th,pre{background:#f2f5f8}code,pre{font-family:ui-monospace,SFMono-Regular,monospace;font-size:.9em}code{overflow-wrap:anywhere}pre{padding:16px;white-space:pre-wrap;overflow-wrap:anywhere}.notice{padding:16px 20px;background:#edf4ff;border-left:4px solid #376bc4}.muted{color:#526171}a{color:#135ca5}
+</style>
+</head>
+<body>
+<h1>공개 프로필 앱 조회 전환</h1>
+<p class="muted">2026-10-19 · picnic-app · 기준 커밋 <code>601d48efda0a5f24fb71068af174276655162d6f</code></p>
+<p class="notice">게시글·댓글의 공개 작성자 조회 7곳을 <code>user_profiles_public</code> 뷰로 전환했다. 앱 관련 테스트 255개와 별도 DB 검증 72개가 통과했다. 독립 코드 리뷰에서 이 변경의 병합을 막는 신규 문제는 없었다. 앱 배포와 운영 RLS 활성화는 이번 변경에 포함하지 않는다.</p>
+
+<h2>변경 범위</h2>
+<p>운영 DB의 공개 뷰는 <a href="https://github.com/charlie0421/picnic-supabase/pull/243">picnic-supabase PR #243</a>에서 먼저 추가됐다. 뷰의 공개 열은 <code>id, nickname, avatar_url, created_at, updated_at, deleted_at</code>이다. 이번 앱 변경은 각 조회의 기존 열 목록과 JSON 별칭을 유지한다.</p>
+<table>
+<tr><th>조회</th><th>변경한 관계와 별칭</th></tr>
+<tr><td>아티스트별·게시판별·검색 게시글, 게시글 상세: 4곳</td><td><code>user_profiles:user_profiles_public!posts_user_id_fkey(...)</code></td></tr>
+<tr><td>댓글·대댓글: 2곳</td><td><code>user_profiles:user_profiles_public!comments_user_id_fkey(...)</code></td></tr>
+<tr><td>내 댓글: 1곳</td><td><code>user:user_profiles_public!comments_user_id_fkey(...)</code></td></tr>
+</table>
+<ul>
+<li>수정 파일: <code>picnic_lib/lib/presentation/providers/community/post_provider.dart</code>, <code>comments_provider.dart</code>. 소스 변경은 조회 문자열 7개다.</li>
+<li>호출처가 없는 <code>picnic_lib/lib/presentation/widgets/community/common/post_list_provider.dart</code>를 삭제했다. 이 파일은 원본 프로필의 모든 열을 읽었다. 삭제 전 저장소 전체에서 참조가 없음을 확인했다.</li>
+<li>본인 글·스크랩은 호출 화면에서 <code>supabase.auth.currentUser!.id</code>를 전달한다. 해당 조회와 프로필 모델, 필터, 페이지 처리, 조회수 RPC는 유지했다.</li>
+</ul>
+
+<h2>검증 결과</h2>
+<table>
+<tr><th>검증</th><th>결과와 한계</th></tr>
+<tr><td>회귀 테스트 11개</td><td>변경 전에는 11개 모두 공개 뷰 관계가 없는 실제 요청 조건 때문에 실패했다. 변경 후에는 모두 통과했다. 실제 Riverpod provider가 보낸 HTTP 조회 조건과 응답 해석을 검사한다. 비로그인·테스트 로그인 상태, 검색 로캘, 댓글 트리, 작성자 null을 포함한다.</td></tr>
+<tr><td>앱 관련 테스트</td><td>provider·helper·화면·모델 테스트 11개 파일, 총 255개 통과. Flutter 3.41.4 / Dart 3.11.1. 전체 앱 테스트 또는 실기기 검증 결과는 아니다.</td></tr>
+<tr><td>정적 분석</td><td>수정한 provider 2개와 새 테스트 파일에서 오류 0개. 기존 <code>invalid_use_of_visible_for_testing_member</code> 경고 27개가 변경 전후 완전히 같다. 분석 명령의 종료 코드는 경고 때문에 2다. 새 테스트 포맷과 <code>git diff --check</code>는 통과했다.</td></tr>
+<tr><td>DB·PostgREST</td><td>격리된 PostgreSQL 15.8 / PostgREST v14.8에서 72개 검사 통과. 합성 데이터와 테스트 JWT로 anon·authenticated의 공개 조회, 비공개 열·쓰기 차단, RLS ON/OFF, 적용·롤백을 검사했다. 운영 로그인 세션이나 운영 PostgREST 버전을 검증한 결과는 아니다.</td></tr>
+<tr><td>독립 코드 리뷰</td><td>Claude Opus 5.5/high가 구현했고 Codex gpt-6.1-sol/high가 읽기 전용으로 검토했다. 17:20 KST에 이번 변경은 병합 가능하다고 판정했다. 아래 기존 문제 2개는 별도 수정 대상으로 남았다.</td></tr>
+</table>
+<p>새 테스트: <code>picnic_lib/test/presentation/providers/community/public_author_embed_test.dart</code>.</p>
+<pre>cd picnic_lib
+flutter test \
+  test/presentation/providers/community/public_author_embed_test.dart \
+  test/presentation/providers/community/post_provider_test.dart \
+  test/presentation/providers/community/comments_provider_test.dart \
+  test/presentation/providers/community/post_provider_helper_test.dart \
+  test/presentation/providers/community/comments_provider_helper_test.dart \
+  test/presentation/pages/community/community_presentation_test.dart \
+  test/data/models/community/post_test.dart \
+  test/data/models/community/post_model_test.dart \
+  test/data/models/common/comment_test.dart \
+  test/data/models/common/comment_model_test.dart \
+  test/data/models/user_profiles_test.dart
+
+dart analyze lib/presentation/providers/community/post_provider.dart \
+  lib/presentation/providers/community/comments_provider.dart \
+  test/presentation/providers/community/public_author_embed_test.dart</pre>
+<p>DB 검증은 picnic-supabase <code>d02606e4e764c5844380288a173f01d1194012a6</code>에서 다음 명령으로 수행했다.</p>
+<pre>python3 scripts/security/user-profiles-public.test.py --postgres-image postgres:15.8</pre>
+
+<h2>배포와 RLS에 남은 조건</h2>
+<ol>
+<li><strong>배포 경로 확정.</strong> <code>picnic_app/pubspec.yaml</code>은 <code>1.3.6+130601</code>이다. 2026-10-19 17:12 KST에 해당 앱의 Shorebird 릴리스 193개를 조회했으나 이 버전은 없었다. 목록의 최신 릴리스는 <code>1.3.5+130504</code>이며 iOS·Android가 active다. 따라서 기존 인계 문서의 현재 버전 OTA 절차를 그대로 실행할 수 없다. 이전 버전에 main을 임의로 패치하지 않는다. 새 바이너리 배포 준비 또는 별도 구버전 패치 범위를 먼저 확정해야 한다.</li>
+<li><strong>배포 승인과 실환경 확인.</strong> 배포할 앱·전체 버전·플랫폼·커밋을 확정한 뒤 승인을 받는다. 로그인·비로그인 상태의 다른 작성자 게시글·댓글·대댓글과 본인 프로필을 실제 환경에서 확인한다. 새 앱이 뷰를 사용하기 시작하면 뷰를 삭제하는 기존 사전 소비자 롤백을 실행하지 않는다.</li>
+<li><strong>RLS 정책 검증.</strong> 이 테스트의 본인 행 정책은 검증용이다. 운영에 잠복한 기존 정책을 그대로 켜면 재귀 오류가 발생할 수 있다. 최신 정책 교체안, 기존 앱 호출 관측, pocapop·picnic-web·관리자·Edge·Realtime 소비자 확인이 별도로 필요하다. 운영 RLS는 변경하지 않았다.</li>
+</ol>
+<h2>리뷰에서 확인한 기존 문제</h2>
+<p>다음 두 문제는 기준 커밋에도 존재한다. 이번 조회 전환의 신규 회귀는 아니며, 별도 변경과 회귀 테스트가 필요하다.</p>
+<ul>
+<li><strong>P2 · 댓글 차단.</strong> <code>comments_provider.dart</code>의 루트·대댓글 조회에 최상위 <code>user_id</code>가 없다. 따라서 <code>comment.userId</code>가 null이고 <code>comments_provider_helper.dart</code>의 차단 사용자 필터가 작성자를 비교하지 못한다. 조회 열에 <code>user_id</code>를 추가하고 실제 응답 형태로 차단을 테스트해야 한다. 대댓글까지 완전히 차단하려면 자식 목록 필터도 필요하다.</li>
+<li><strong>P3 · 내 댓글 작성자.</strong> 내 댓글 조회는 작성자를 <code>user</code>로 받지만 <code>CommentModel</code>은 <code>user_profiles</code>를 읽으므로 <code>CommentModel.user</code>는 null이다. 별칭 또는 파서를 별도 변경에서 맞춰야 한다. 이번 테스트에는 현재 동작을 명시했다.</li>
+</ul>
+
+<h2>근거</h2>
+<ul>
+<li><a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/security/user-profiles-handoff-2026-10-19.html">원래 공개 프로필 인계 문서</a>: 5.2절 앱 변경 범위. 이후 진행 상황은 아래 대조 문서를 우선한다.</li>
+<li><a href="https://github.com/charlie0421/picnic-supabase/blob/main/docs/security/rls-prep-reconciliation-2026-10-19.html">RLS 준비 브랜치와 현재 상태 대조</a>: 공개 뷰 운영 반영 및 남은 RLS 단계.</li>
+<li><a href="https://supabase.com/docs/reference/dart/select">Supabase Dart select 문서</a>: 뷰 조회와 응답 별칭.</li>
+</ul>
+</body>
+</html>

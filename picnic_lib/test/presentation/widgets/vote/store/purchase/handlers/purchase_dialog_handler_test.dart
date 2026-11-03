@@ -12,6 +12,7 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart';
 
 import '../../../../../../helpers/test_app.dart';
@@ -34,6 +35,12 @@ void main() {
     windowEndsAt: DateTime.utc(2027),
     showInStore: true,
     showHomeBanner: false,
+  );
+  ResolvedPaymentBadgePromotion displayedPromotion() => const (
+    displayName: {'en': 'Boost'},
+    code: 'CANDY_BOOST_DAY',
+    multiplierTenths: 15,
+    extraBonusBps: null,
   );
   PurchaseSettlementResultModel result({
     PurchasePromotionState? state,
@@ -72,6 +79,68 @@ void main() {
     ),
   );
 
+  group('purchase confirmation promotion snapshot', () {
+    testWidgets('quotes the amounts of the captured V2 snapshot', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        buildTestApp(const SizedBox.shrink(), locale: const Locale('en')),
+      );
+      await tester.pumpAndSettle();
+
+      const selectedV2 = (
+        displayName: {'ko': 'V2 캔디 부스트', 'en': 'Selected V2 Candy Boost'},
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 15,
+        extraBonusBps: null,
+      );
+      final handler = PurchaseDialogHandler(
+        context: navigatorKey.currentContext!,
+        purchaseService: _MockPurchaseService(),
+      );
+
+      final confirmation = handler.showPurchaseConfirmDialog(
+        serverProduct: const {
+          'id': 'STAR100',
+          'price': 1.99,
+          'star_candy': 100,
+          'star_candy_bonus': 0,
+          'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+        },
+        storeProducts: const [],
+        displayedPromotion: selectedV2,
+      );
+      await tester.pumpAndSettle();
+
+      // floor(100 * 15 / 10) = 150, but unlike currencies are not displayed
+      // as one total: 100 star candy and 50 bonus star candy stay separate.
+      expect(find.text('100'), findsOneWidget);
+      expect(
+        find.byKey(const Key('purchase-confirm-bonus-total')),
+        findsOneWidget,
+      );
+      expect(find.text('Total 50'), findsOneWidget);
+      expect(
+        find.byKey(const Key('purchase-confirm-event-bonus')),
+        findsOneWidget,
+      );
+      expect(
+        find.byKey(const Key('purchase-confirm-product-bonus')),
+        findsNothing,
+      );
+      expect(find.text('Event 50'), findsOneWidget);
+      expect(find.text('150'), findsNothing);
+      expect(find.text('+50%'), findsOneWidget);
+      expect(find.text('Selected V2 Candy Boost'), findsNothing);
+
+      await tester.tap(
+        find.text(AppLocalizations.of(navigatorKey.currentContext!).cancel),
+      );
+      await tester.pumpAndSettle();
+      expect(await confirmation, isFalse);
+    });
+  });
+
   group('receipt presentation wiring', () {
     testWidgets('success selects checking message and awaits presenter', (
       tester,
@@ -108,7 +177,7 @@ void main() {
       final future = handler
           .showSuccessDialog(
             result: result(state: PurchasePromotionState.pendingTime),
-            displayedCampaign: campaign(),
+            displayedPromotion: displayedPromotion(),
           )
           .then((_) => completed = true);
       await tester.pump();
@@ -124,6 +193,171 @@ void main() {
       await future;
       expect(completed, isTrue);
     });
+
+    testWidgets(
+      'eligible displayed promotion selects the localized checking message',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        CandyRewardReceipt? presentedReceipt;
+        String? presentedMessage;
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            presentedReceipt = receipt;
+            presentedMessage = supportingMessage;
+          },
+        );
+
+        await handler.showSuccessDialog(
+          result: result(state: PurchasePromotionState.eligible),
+          displayedPromotion: displayedPromotion(),
+        );
+
+        expect(presentedReceipt, isNotNull);
+        expect(
+          presentedMessage,
+          AppLocalizations.of(context).candy_boost_promotion_checking,
+        );
+      },
+    );
+
+    testWidgets(
+      'undisplayed pending and eligible promotions show the base receipt without checking guidance',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        final receipts = <CandyRewardReceipt>[];
+        final messages = <String?>[];
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            receipts.add(receipt);
+            messages.add(supportingMessage);
+          },
+        );
+
+        await handler.showSuccessDialog(
+          result: result(state: PurchasePromotionState.pendingTime),
+          displayedPromotion: null,
+        );
+        await handler.showSuccessDialog(
+          result: result(state: PurchasePromotionState.eligible),
+          displayedPromotion: null,
+        );
+
+        expect(messages, <String?>[null, null]);
+        expect(receipts, hasLength(2));
+        for (final receipt in receipts) {
+          expect(receipt.referenceKey, 'PURCHASE:operation');
+          expect(
+            receipt.items.map((item) => (item.currency, item.grantedAmount)),
+            [
+              (WalletCurrency.starCandy, BigInt.from(100)),
+              (WalletCurrency.bonusStarCandy, BigInt.from(20)),
+            ],
+          );
+        }
+      },
+    );
+
+    testWidgets(
+      'terminal promotion states keep truthful server-awarded receipt amounts without checking guidance',
+      (tester) async {
+        late BuildContext context;
+        await tester.pumpWidget(
+          MaterialApp(
+            locale: const Locale('ko'),
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: Builder(
+              builder: (value) {
+                context = value;
+                return const SizedBox();
+              },
+            ),
+          ),
+        );
+        final receipts = <CandyRewardReceipt>[];
+        final messages = <String?>[];
+        final handler = PurchaseDialogHandler(
+          context: context,
+          purchaseService: _MockPurchaseService(),
+          receiptContext: () => context,
+          receiptPresenter: (context, receipt, {supportingMessage}) async {
+            receipts.add(receipt);
+            messages.add(supportingMessage);
+          },
+        );
+
+        await handler.showSuccessDialog(
+          result: result(),
+          displayedPromotion: null,
+        );
+        await handler.showSuccessDialog(
+          result: result(state: PurchasePromotionState.ineligible),
+          displayedPromotion: displayedPromotion(),
+        );
+        await handler.showSuccessDialog(
+          result: result(
+            state: PurchasePromotionState.granted,
+            amount: BigInt.from(30),
+          ),
+          displayedPromotion: null,
+        );
+
+        expect(messages, <String?>[null, null, null]);
+        expect(
+          receipts.map(
+            (receipt) => receipt.items
+                .map((item) => (item.currency, item.grantedAmount))
+                .toList(),
+          ),
+          [
+            [
+              (WalletCurrency.starCandy, BigInt.from(100)),
+              (WalletCurrency.bonusStarCandy, BigInt.from(20)),
+            ],
+            [
+              (WalletCurrency.starCandy, BigInt.from(100)),
+              (WalletCurrency.bonusStarCandy, BigInt.from(20)),
+            ],
+            [
+              (WalletCurrency.starCandy, BigInt.from(100)),
+              (WalletCurrency.bonusStarCandy, BigInt.from(50)),
+            ],
+          ],
+        );
+      },
+    );
 
     testWidgets('late success selects late explanation', (tester) async {
       late BuildContext context;
@@ -155,8 +389,8 @@ void main() {
       var completed = false;
       final future = handler
           .showLatePurchaseSuccessDialog(
-            result: result(),
-            displayedCampaign: null,
+            result: result(state: PurchasePromotionState.pendingTime),
+            displayedPromotion: displayedPromotion(),
           )
           .then((_) => completed = true);
       await tester.pump();
@@ -223,7 +457,7 @@ void main() {
 
         await handler.showLatePurchaseSuccessDialog(
           result: result(replayed: true),
-          displayedCampaign: null,
+          displayedPromotion: null,
         );
         await tester.pump();
 
@@ -264,7 +498,7 @@ void main() {
             amount: BigInt.from(30),
             replayed: true,
           ),
-          displayedCampaign: campaign(),
+          displayedPromotion: displayedPromotion(),
         );
         await tester.pump();
 
@@ -281,7 +515,7 @@ void main() {
         unawaited(
           handler.showLatePurchaseSuccessDialog(
             result: result(replayed: true),
-            displayedCampaign: null,
+            displayedPromotion: null,
           ),
         );
         await tester.pumpAndSettle();
@@ -302,7 +536,7 @@ void main() {
         unawaited(
           handler.showSuccessDialog(
             result: result(replayed: true),
-            displayedCampaign: null,
+            displayedPromotion: null,
           ),
         );
         await tester.pumpAndSettle();
@@ -328,7 +562,7 @@ void main() {
               replayed: true,
               replayCausedByRetry: true,
             ),
-            displayedCampaign: campaign(),
+            displayedPromotion: displayedPromotion(),
           ),
         );
         await tester.pumpAndSettle();
@@ -356,7 +590,7 @@ void main() {
         unawaited(
           handler.showLatePurchaseSuccessDialog(
             result: result(replayed: true, replayCausedByRetry: true),
-            displayedCampaign: null,
+            displayedPromotion: null,
           ),
         );
         await tester.pumpAndSettle();
@@ -384,7 +618,7 @@ void main() {
               state: PurchasePromotionState.pendingTime,
               replayed: true,
             ),
-            displayedCampaign: campaign(),
+            displayedPromotion: displayedPromotion(),
           ),
         );
         await tester.pumpAndSettle();
@@ -406,7 +640,7 @@ void main() {
         unawaited(
           handler.showLatePurchaseSuccessDialog(
             result: result(),
-            displayedCampaign: null,
+            displayedPromotion: null,
           ),
         );
         await tester.pumpAndSettle();
@@ -429,7 +663,7 @@ void main() {
         final l10n = AppLocalizations.of(navigatorKey.currentContext!);
 
         unawaited(
-          handler.showSuccessDialog(result: result(), displayedCampaign: null),
+          handler.showSuccessDialog(result: result(), displayedPromotion: null),
         );
         await tester.pumpAndSettle();
 

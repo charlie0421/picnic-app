@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_visible_for_testing_member
+
 import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
@@ -16,7 +18,7 @@ class QnaRepository {
   final SupabaseClient _client;
 
   QnaRepository({SupabaseClient? client})
-      : _client = client ?? Supabase.instance.client;
+    : _client = client ?? Supabase.instance.client;
 
   void _logDebug(String message) {
     if (kDebugMode) {
@@ -28,32 +30,38 @@ class QnaRepository {
   Future<List<QnaThread>> getQaThreadList({
     required String userId,
     int? lastId,
+    DateTime? lastCreatedAt,
     int limit = 20,
   }) async {
     try {
       var query = _client.from('qna_threads').select().eq('user_id', userId);
 
       if (lastId != null) {
-        final lastItemResponse = await _client
-            .from('qna_threads')
-            .select('created_at')
-            .eq('id', lastId)
-            .single();
-        final lastCreatedAt = lastItemResponse['created_at'] as String;
+        var cursorCreatedAt = lastCreatedAt?.toUtc().toIso8601String();
+        if (cursorCreatedAt == null) {
+          final lastItemResponse = await _client
+              .from('qna_threads')
+              .select('created_at')
+              .eq('id', lastId)
+              .single();
+          cursorCreatedAt = lastItemResponse['created_at'] as String;
+        }
 
         query = query.or(
-          'created_at.lt.$lastCreatedAt,and(created_at.eq.$lastCreatedAt,id.lt.$lastId)',
+          'created_at.lt.$cursorCreatedAt,and(created_at.eq.$cursorCreatedAt,id.lt.$lastId)',
         );
       }
 
       final response = await query
           .order('created_at', ascending: false)
+          .order('id', ascending: false)
           .limit(limit);
 
       return (response).map((item) {
         final map = Map<String, dynamic>.from(item as Map);
         map['status'] = QnaRepositoryHelper.normalizeThreadStatus(
-            map['status'] as String?);
+          map['status'] as String?,
+        );
         return QnaThread.fromJson(map);
       }).toList();
     } catch (e) {
@@ -108,7 +116,9 @@ class QnaRepository {
           .maybeSingle();
       if (row == null) return null;
       return QnaRepositoryHelper.resolveCategoryLabel(
-          row['label'], getLocaleTextFromJson);
+        row['label'],
+        getLocaleTextFromJson,
+      );
     } catch (e) {
       _logDebug('error fetching label for code=$code: $e');
       return null;
@@ -166,7 +176,9 @@ class QnaRepository {
       final list = (response as List<dynamic>).map((raw) {
         final Map<String, dynamic> row = raw as Map<String, dynamic>;
         final parsed = QnaRepositoryHelper.parseCategoryRow(
-            row, getLocaleTextFromJson);
+          row,
+          getLocaleTextFromJson,
+        );
 
         if (kDebugMode &&
             ui.PlatformDispatcher.instance.locale.languageCode.toLowerCase() ==
@@ -217,7 +229,10 @@ class QnaRepository {
         for (final file in attachments) {
           final safeName = _generateUuidName(p.extension(file.path));
           final filePath = QnaRepositoryHelper.buildAttachmentPath(
-              userId, newMessage.id, safeName);
+            userId,
+            newMessage.id,
+            safeName,
+          );
 
           await _client.storage
               .from('qna_attachments')
@@ -231,13 +246,15 @@ class QnaRepository {
                 ),
               );
 
-          attachmentRecords.add(QnaRepositoryHelper.buildAttachmentRecord(
-            messageId: newMessage.id,
-            fileName: safeName,
-            filePath: filePath,
-            fileType: lookupMimeType(file.path),
-            fileSize: await file.length(),
-          ));
+          attachmentRecords.add(
+            QnaRepositoryHelper.buildAttachmentRecord(
+              messageId: newMessage.id,
+              fileName: safeName,
+              filePath: filePath,
+              fileType: lookupMimeType(file.path),
+              fileSize: await file.length(),
+            ),
+          );
         }
         await _client.from('qna_attachments').insert(attachmentRecords);
       }

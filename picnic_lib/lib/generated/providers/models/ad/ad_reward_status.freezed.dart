@@ -569,6 +569,296 @@ $AdRewardReferenceCopyWith<$Res> get reference {
 
 
 /// @nodoc
+mixin _$AdmobClaimModel {
+
+ AdRewardReference get reference; String get platform;@JsonKey(name: 'signed_token') String get signedToken;@JsonKey(name: 'expires_at') DateTime get expiresAt;
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$AdmobClaimModelCopyWith<AdmobClaimModel> get copyWith => _$AdmobClaimModelCopyWithImpl<AdmobClaimModel>(this as AdmobClaimModel, _$identity);
+
+  /// Serializes this AdmobClaimModel to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AdmobClaimModel&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.platform, platform) || other.platform == platform)&&(identical(other.signedToken, signedToken) || other.signedToken == signedToken)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,reference,platform,signedToken,expiresAt);
+
+@override
+String toString() {
+  return 'AdmobClaimModel(reference: $reference, platform: $platform, signedToken: $signedToken, expiresAt: $expiresAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class $AdmobClaimModelCopyWith<$Res>  {
+  factory $AdmobClaimModelCopyWith(AdmobClaimModel value, $Res Function(AdmobClaimModel) _then) = _$AdmobClaimModelCopyWithImpl;
+@useResult
+$Res call({
+ AdRewardReference reference, String platform,@JsonKey(name: 'signed_token') String signedToken,@JsonKey(name: 'expires_at') DateTime expiresAt
+});
+
+
+$AdRewardReferenceCopyWith<$Res> get reference;
+
+}
+/// @nodoc
+class _$AdmobClaimModelCopyWithImpl<$Res>
+    implements $AdmobClaimModelCopyWith<$Res> {
+  _$AdmobClaimModelCopyWithImpl(this._self, this._then);
+
+  final AdmobClaimModel _self;
+  final $Res Function(AdmobClaimModel) _then;
+
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? reference = null,Object? platform = null,Object? signedToken = null,Object? expiresAt = null,}) {
+  return _then(_self.copyWith(
+reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
+as AdRewardReference,platform: null == platform ? _self.platform : platform // ignore: cast_nullable_to_non_nullable
+as String,signedToken: null == signedToken ? _self.signedToken : signedToken // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AdRewardReferenceCopyWith<$Res> get reference {
+
+  return $AdRewardReferenceCopyWith<$Res>(_self.reference, (value) {
+    return _then(_self.copyWith(reference: value));
+  });
+}
+}
+
+
+/// Adds pattern-matching-related methods to [AdmobClaimModel].
+extension AdmobClaimModelPatterns on AdmobClaimModel {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _AdmobClaimModel value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _AdmobClaimModel() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _AdmobClaimModel value)  $default,){
+final _that = this;
+switch (_that) {
+case _AdmobClaimModel():
+return $default(_that);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _AdmobClaimModel value)?  $default,){
+final _that = this;
+switch (_that) {
+case _AdmobClaimModel() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( AdRewardReference reference,  String platform, @JsonKey(name: 'signed_token')  String signedToken, @JsonKey(name: 'expires_at')  DateTime expiresAt)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _AdmobClaimModel() when $default != null:
+return $default(_that.reference,_that.platform,_that.signedToken,_that.expiresAt);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( AdRewardReference reference,  String platform, @JsonKey(name: 'signed_token')  String signedToken, @JsonKey(name: 'expires_at')  DateTime expiresAt)  $default,) {final _that = this;
+switch (_that) {
+case _AdmobClaimModel():
+return $default(_that.reference,_that.platform,_that.signedToken,_that.expiresAt);case _:
+  throw StateError('Unexpected subclass');
+
+}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( AdRewardReference reference,  String platform, @JsonKey(name: 'signed_token')  String signedToken, @JsonKey(name: 'expires_at')  DateTime expiresAt)?  $default,) {final _that = this;
+switch (_that) {
+case _AdmobClaimModel() when $default != null:
+return $default(_that.reference,_that.platform,_that.signedToken,_that.expiresAt);case _:
+  return null;
+
+}
+}
+
+}
+
+/// @nodoc
+@JsonSerializable()
+
+class _AdmobClaimModel implements AdmobClaimModel {
+  const _AdmobClaimModel({required this.reference, required this.platform, @JsonKey(name: 'signed_token') required this.signedToken, @JsonKey(name: 'expires_at') required this.expiresAt});
+  factory _AdmobClaimModel.fromJson(Map<String, dynamic> json) => _$AdmobClaimModelFromJson(json);
+
+@override final  AdRewardReference reference;
+@override final  String platform;
+@override@JsonKey(name: 'signed_token') final  String signedToken;
+@override@JsonKey(name: 'expires_at') final  DateTime expiresAt;
+
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$AdmobClaimModelCopyWith<_AdmobClaimModel> get copyWith => __$AdmobClaimModelCopyWithImpl<_AdmobClaimModel>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$AdmobClaimModelToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AdmobClaimModel&&(identical(other.reference, reference) || other.reference == reference)&&(identical(other.platform, platform) || other.platform == platform)&&(identical(other.signedToken, signedToken) || other.signedToken == signedToken)&&(identical(other.expiresAt, expiresAt) || other.expiresAt == expiresAt));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,reference,platform,signedToken,expiresAt);
+
+@override
+String toString() {
+  return 'AdmobClaimModel(reference: $reference, platform: $platform, signedToken: $signedToken, expiresAt: $expiresAt)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$AdmobClaimModelCopyWith<$Res> implements $AdmobClaimModelCopyWith<$Res> {
+  factory _$AdmobClaimModelCopyWith(_AdmobClaimModel value, $Res Function(_AdmobClaimModel) _then) = __$AdmobClaimModelCopyWithImpl;
+@override @useResult
+$Res call({
+ AdRewardReference reference, String platform,@JsonKey(name: 'signed_token') String signedToken,@JsonKey(name: 'expires_at') DateTime expiresAt
+});
+
+
+@override $AdRewardReferenceCopyWith<$Res> get reference;
+
+}
+/// @nodoc
+class __$AdmobClaimModelCopyWithImpl<$Res>
+    implements _$AdmobClaimModelCopyWith<$Res> {
+  __$AdmobClaimModelCopyWithImpl(this._self, this._then);
+
+  final _AdmobClaimModel _self;
+  final $Res Function(_AdmobClaimModel) _then;
+
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? reference = null,Object? platform = null,Object? signedToken = null,Object? expiresAt = null,}) {
+  return _then(_AdmobClaimModel(
+reference: null == reference ? _self.reference : reference // ignore: cast_nullable_to_non_nullable
+as AdRewardReference,platform: null == platform ? _self.platform : platform // ignore: cast_nullable_to_non_nullable
+as String,signedToken: null == signedToken ? _self.signedToken : signedToken // ignore: cast_nullable_to_non_nullable
+as String,expiresAt: null == expiresAt ? _self.expiresAt : expiresAt // ignore: cast_nullable_to_non_nullable
+as DateTime,
+  ));
+}
+
+/// Create a copy of AdmobClaimModel
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$AdRewardReferenceCopyWith<$Res> get reference {
+
+  return $AdRewardReferenceCopyWith<$Res>(_self.reference, (value) {
+    return _then(_self.copyWith(reference: value));
+  });
+}
+}
+
+
+/// @nodoc
 mixin _$AdRewardGrantModel {
 
  String get id;@WalletCurrencyConverter() WalletCurrency get currency;@WalletAmountConverter() BigInt get amount;@JsonKey(name: 'granted_at') DateTime get grantedAt;@JsonKey(name: 'expires_at') DateTime get expiresAt;
@@ -1455,6 +1745,7 @@ as DateTime,
 
 }
 
+
 /// @nodoc
 mixin _$InternalShortformViewResponse {
 
@@ -1465,6 +1756,8 @@ mixin _$InternalShortformViewResponse {
 @pragma('vm:prefer-inline')
 $InternalShortformViewResponseCopyWith<InternalShortformViewResponse> get copyWith => _$InternalShortformViewResponseCopyWithImpl<InternalShortformViewResponse>(this as InternalShortformViewResponse, _$identity);
 
+  /// Serializes this InternalShortformViewResponse to a JSON map.
+  Map<String, dynamic> toJson();
 
 
 @override
@@ -1472,7 +1765,7 @@ bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is InternalShortformViewResponse&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.rewardAdded, rewardAdded) || other.rewardAdded == rewardAdded)&&(identical(other.impressionId, impressionId) || other.impressionId == impressionId)&&(identical(other.newBonus, newBonus) || other.newBonus == newBonus)&&(identical(other.reward, reward) || other.reward == reward));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,ok,rewardAdded,impressionId,newBonus,reward);
 
@@ -1663,11 +1956,11 @@ return $default(_that.ok,_that.rewardAdded,_that.impressionId,_that.newBonus,_th
 }
 
 /// @nodoc
-
+@JsonSerializable()
 
 class _InternalShortformViewResponse implements InternalShortformViewResponse {
   const _InternalShortformViewResponse({required this.ok, @JsonKey(name: 'reward_added') required this.rewardAdded, @JsonKey(name: 'impression_id') required this.impressionId, @JsonKey(name: 'new_bonus') required this.newBonus, this.reward});
-
+  factory _InternalShortformViewResponse.fromJson(Map<String, dynamic> json) => _$InternalShortformViewResponseFromJson(json);
 
 @override final  bool ok;
 @override@JsonKey(name: 'reward_added') final  int rewardAdded;
@@ -1681,14 +1974,17 @@ class _InternalShortformViewResponse implements InternalShortformViewResponse {
 @pragma('vm:prefer-inline')
 _$InternalShortformViewResponseCopyWith<_InternalShortformViewResponse> get copyWith => __$InternalShortformViewResponseCopyWithImpl<_InternalShortformViewResponse>(this, _$identity);
 
-
+@override
+Map<String, dynamic> toJson() {
+  return _$InternalShortformViewResponseToJson(this, );
+}
 
 @override
 bool operator ==(Object other) {
   return identical(this, other) || (other.runtimeType == runtimeType&&other is _InternalShortformViewResponse&&(identical(other.ok, ok) || other.ok == ok)&&(identical(other.rewardAdded, rewardAdded) || other.rewardAdded == rewardAdded)&&(identical(other.impressionId, impressionId) || other.impressionId == impressionId)&&(identical(other.newBonus, newBonus) || other.newBonus == newBonus)&&(identical(other.reward, reward) || other.reward == reward));
 }
 
-
+@JsonKey(includeFromJson: false, includeToJson: false)
 @override
 int get hashCode => Object.hash(runtimeType,ok,rewardAdded,impressionId,newBonus,reward);
 
