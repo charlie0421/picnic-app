@@ -12,7 +12,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
 <p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 관련 자동 검증과 독립 코드 리뷰는 완료했다.</p>
-<p class="note"><strong>남은 조건:</strong> 실제 모바일 앱의 SDK 실패 → 앱 재시도 → FCM 등록 연결은 기기에서 검증하지 않았다. iOS·Android 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+<p class="note"><strong>남은 조건:</strong> Android 격리 패키지의 네이티브 Firebase 테스트는 통과했다. 실제 모바일 앱의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
 <p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
@@ -88,6 +88,33 @@ flutter test --no-pub --test-randomize-ordering-seed 42 \
   test/core/services/push_token_firebase_readiness_test.dart
 cd ../picnic_app
 flutter test --no-pub test/widget_test.dart</pre>
+</section>
+
+<section id="device-qa"><h2>기기 검증 준비와 실행 범위</h2>
+<p>Android 검증은 <code>scripts/qa/run_firebase_device_android.py</code>로 생성하는 별도 패키지 <code>io.picnic.qa.firebase_readiness</code>에서 수행한다. 현재 라이브러리의 의존성 버전을 대조하며 운영 앱의 패키지·설정·서명·계정 파일을 사용하지 않는다.</p>
+<p>Android 실기기에서 네이티브 Firebase Core의 실패·재시도, 실제 core SDK 단계와 푸시 준비 가드를 검증했다. 권한, FCM 토큰, 서버 등록과 알림 입력은 제어된 테스트 값으로 대체했다. 이 결과는 운영 FCM 등록이나 전체 앱 재시도 연결의 성공을 의미하지 않는다.</p>
+<table><thead><tr><th>검증</th><th>결과</th><th>근거와 제한</th></tr></thead><tbody>
+<tr><td>실행기 회귀 테스트</td><td>구현자 보고: 33개 통과, 1개 생략</td><td>환경 격리, 프로세스 종료, PID 재사용, 조회 실패, Kotlin 템플릿 변환. 생략된 실제 Gradle 검증은 아래에서 별도로 실행했다.</td></tr>
+<tr><td>실제 Gradle 8.14.1 · JDK 21 검증</td><td>조정자 실행: 1개 통과 · exit 0 · 61.718초</td><td>타임아웃 후 별도 프로세스 그룹에 남은 JVM이 전용 Gradle home의 정리 명령으로 종료됐다. 잔여 프로세스는 없고, 무관한 비교용 프로세스는 유지됐다.</td></tr>
+<tr><td>실행기 독립 리뷰</td><td>Sol/high · APPROVE</td><td>프로세스 소유권, 조회 실패 시 성공 금지, 정리 명령의 잔여 프로세스 반영, 생성 프로젝트의 Kotlin JVM 17 설정 수정에 대한 코드 승인이다. 실제 Android 빌드 통과를 대신하지 않는다.</td></tr>
+<tr id="android-native-result"><td>Android 네이티브 테스트</td><td>조정자 실행: 1개 통과 · exit 0</td><td>Android 13 실기기. 빌드·설치·테스트 단계 739.5초, 테스트 출력 <code>00:01 +1: All tests passed!</code>. 첫 시도의 Kotlin 설정 오류를 수정한 뒤 Kotlin 2.4.21·AGP 8.9.1·Gradle 8.14.1·JDK 17로 빌드했다.</td></tr>
+</tbody></table>
+<ol>
+<li>Firebase 기본 앱이 없을 때 initialize/resume를 반복해도 coordinator를 만들지 않고, 제어된 로컬 실행 알림 목적지를 한 번 전달했다.</li>
+<li>설정이 없는 네이티브 Core 초기화가 실패하고 같은 오류가 호출자에게 전달되는 것을 확인했다. 실패한 단계는 성공으로 저장되지 않았다. 이 누락 설정 오류는 운영 앱의 일시적 초기화 실패 원인을 재현한 것은 아니다.</li>
+<li>테스트용 FirebaseOptions로 같은 단계 그룹을 재시도해 기본 앱을 만들었다. 이미 성공한 독립 단계와 전체 성공 이후 호출은 중복 실행되지 않았다.</li>
+<li>resume만으로 coordinator가 생성되고 제어된 토큰 등록이 재개됐다. 초기·실시간·로컬 실행 알림의 목적지는 각 소스에서 한 번 전달됐다.</li>
+</ol>
+<p>최종 병합 AndroidManifest에서 별도 패키지 ID와 Messaging 자동 초기화·Analytics 수집 비활성화 값을 확인했다. 테스트 뒤 Gradle 정리는 <code>verified=true</code>였고 남은 프로세스와 강제 PID 신호는 없었다. QA 패키지는 제거됐으며 기존 운영 앱의 버전과 설치·갱신 시각은 실행 전후 같았다. 검토한 세 파일의 SHA256도 실행 뒤 일치했다.</p>
+<p>실행기는 각 작업의 프로세스 그룹과 전용 <code>GRADLE_USER_HOME</code>을 사용한다. Gradle daemon의 명령, 열린 파일과 시작 시각으로 소유권을 확인한다. 소유권이나 종료 여부가 불명확하면 성공으로 기록하지 않는다. Android 실행의 <code>DEVELOPER_DIR</code>은 해당 자식 프로세스에만 Command Line Tools로 지정한다.</p>
+<h3>iOS 개발 환경 복구</h3>
+<p>사용자 승인과 macOS 관리자 인증 후 Xcode 27.2의 필수 구성요소를 설치했다. CoreSimulator는 <code>1174.9.2 → 1174.21</code>, XcodeSystemResources는 27.1 계열에서 27.2 계열로 갱신됐다. <code>xcodebuild -checkFirstLaunchStatus</code>와 <code>simctl list</code>가 exit 0으로 종료됐다.</p>
+<p>새 <code>Picnic Firebase QA</code> 시뮬레이터는 iOS 27.1에서 <code>bootstatus: Finished</code>를 확인했고 Flutter가 지원 기기로 인식했다. 기존 시뮬레이터의 데이터 마이그레이션 실패 기록은 별도로 남기고 데이터를 지우지 않았다. 이 결과는 개발 환경 복구에 한정하며 iOS 앱·Firebase·FCM 테스트 통과를 의미하지 않는다.</p>
+<h3>QA 실행 명령</h3>
+<pre>python3 scripts/qa/test_run_firebase_device_android.py -v
+QA_RUN_GRADLE_PROBE=1 python3 scripts/qa/test_run_firebase_device_android.py -v -k GradleDaemonProbe
+python3 scripts/qa/run_firebase_device_android.py --device &lt;adb-serial&gt;</pre>
+<p class="meta">실제 Gradle 종료 검증에는 설치된 JDK 21과 캐시된 Gradle 8.14.1 경로를 명시했다. Android 빌드에서는 Flutter가 선택한 JDK 17을 실제 daemon 기록으로 확인했다. 두 실행을 같은 JDK 검증으로 합치지 않았다. 기기 식별자·원시 로그·계정 정보는 Git 산출물에 포함하지 않는다.</p>
 </section>
 
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
