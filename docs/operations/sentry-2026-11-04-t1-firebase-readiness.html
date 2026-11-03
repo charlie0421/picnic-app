@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T1 Firebase 초기화 순서 수정 — 2026-11-04</title>
+<style>
+body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-system,sans-serif}main{max-width:1100px;margin:auto;padding:36px 24px}h1{font-size:30px;line-height:1.4}h2{margin-top:34px;font-size:23px}h3{font-size:18px}a{color:#2453a1}section{background:white;padding:20px 24px;margin:20px 0;border:1px solid #d3dce7;border-radius:10px}table{border-collapse:collapse;width:100%;margin:14px 0}th,td{border:1px solid #ccd5df;padding:10px;text-align:left;vertical-align:top}th{background:#edf2f8}.scroll{overflow-x:auto}.note{border-left:4px solid #ae720c;background:#fff4d9;padding:14px 18px}.result{border-left:4px solid #28774e;background:#eaf6ef;padding:14px 18px}.meta{color:#526171;font-size:14px}code,pre{background:#edf1f6;border-radius:4px;overflow-wrap:anywhere}code{padding:1px 4px}pre{white-space:pre-wrap;padding:14px;font-size:13px;line-height:1.6}li{margin:7px 0}@media print{body{background:white}main{padding:0}section{break-inside:avoid}tr{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
+<p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
+<p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 관련 자동 검증과 독립 코드 리뷰는 완료했다.</p>
+<p class="note"><strong>남은 조건:</strong> 실제 모바일 앱의 SDK 실패 → 앱 재시도 → FCM 등록 연결은 기기에서 검증하지 않았다. iOS·Android 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+
+<section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
+<p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
+<div class="scroll"><table><thead><tr><th>소스 기준</th><th>커밋</th><th>Firebase Core</th><th>Messaging</th><th>Analytics</th></tr></thead><tbody>
+<tr><td><code>picnic-v1.3.5+130504-skip-tests</code></td><td><code>2717a5ae5</code></td><td>4.5.0</td><td>16.1.2</td><td>12.1.3</td></tr>
+<tr><td><code>picnic-v1.3.6+130605-skip-tests</code></td><td><code>5ba7464e8</code></td><td>4.5.0</td><td>16.1.2</td><td>12.1.3</td></tr>
+<tr><td>SDK 업그레이드 직전 <code>efd476907^</code></td><td><code>446d8d048</code></td><td>4.5.0</td><td>16.1.2</td><td>12.1.3</td></tr>
+<tr><td>T1 수정 전 현재 소스</td><td><code>d544f015b</code></td><td>5.1.0</td><td>17.0.1</td><td>13.0.1</td></tr>
+</tbody></table></div>
+<p><code>130504 → 130605</code>는 이 표의 Firebase SDK 버전을 바꾸지 않았다. Core 5.1.0·Messaging 17.0.1은 그 이후 SDK 업그레이드에서 들어왔다. 네 기준점의 <code>PushTokenService.resume()</code>은 같았고 Firebase 준비 확인이 없었다.</p>
+<p>설치된 Messaging 16.1.2와 17.0.1의 소스는 모두 <code>FirebaseMessaging.instance → Firebase.app()</code>으로 기본 앱을 조회한다. Core platform interface 6.0.2와 8.1.1은 기본 앱이 없으면 <code>core/no-app</code>을 발생시킨다. 따라서 SDK 업그레이드는 이 호출 순서 결함을 해결하지 않는다. 네이티브 SDK 변경이 발생 빈도에 영향을 주는지는 기기 증거가 없어 판단하지 않았다.</p>
+<h3>미배포 수정과의 관계</h3>
+<p>기존 SDK 업그레이드가 사용자에게 아직 전달되지 않았다는 사실만으로 이 두 오류를 설명할 수는 없다. 업그레이드된 현재 SDK에서도 같은 오류가 재현됐기 때문이다. 이번 T1 가드는 기존 SDK 업그레이드와 별도의 Dart 수정이다. 설치된 구버전 앱의 해결 여부는 이 수정의 실제 전달과 등록·알림 동작을 확인한 뒤 판단해야 한다.</p>
+<p class="meta">130605는 소스 비교 기준이다. 제공된 두 이슈의 릴리스 표본에 130605가 없다는 사실을 무발생·해결·미배포의 증거로 사용하지 않았다. 이번 T1에서 스토어 배포 상태를 새로 조회하지 않았다. 구 SDK 태그에 이 변경을 적용한 실행 검증이나 OTA 호환성 판정도 수행하지 않았다.</p>
+</section>
+
+<section id="evidence"><h2>Sentry 표본과 로컬 재현</h2>
+<p>Sentry 증거는 2026-11-03 19:35 KST에 수집한 최근 7일 집계와 각 이슈의 최신 이벤트 표본이다. 현재 시각의 재조회 결과가 아니다.</p>
+<table><thead><tr><th>이슈</th><th>7일 이벤트</th><th>7일 사용자</th><th>최신 표본</th></tr></thead><tbody>
+<tr><td><a href="https://icon-casting.sentry.io/issues/7736943395/">PICNIC-APP-5K3</a></td><td>422</td><td>146</td><td>iOS · 앱 1.3.5+130504 · 패치 표기 none</td></tr>
+<tr><td><a href="https://icon-casting.sentry.io/issues/7734920192/">PICNIC-APP-5JZ</a></td><td>49</td><td>32</td><td>Android · 앱 1.3.5+130504 · 패치 표기 none</td></tr>
+</tbody></table>
+<p>두 표본의 호출 경로는 같다. 사용자 수에는 중복이 있을 수 있으므로 합산하지 않았다.</p>
+<pre>runApp()
+  → SDK 초기화가 진행되는 동안 앱 resumed 수신
+  → _AppState.didChangeAppLifecycleState
+  → PushTokenService.resume()
+  → _createCoordinator()
+  → _messaging.onTokenRefresh
+  → FirebaseMessaging.instance
+  → Firebase.app()
+  → [core/no-app]</pre>
+<p>수정 전 현재 코드에서 Firebase 앱이 없는 상태로 실제 <code>PushTokenService.resume()</code>을 호출했다. 팩토리나 메시지 소스를 대체하지 않은 테스트가 같은 <code>core/no-app</code> 스택으로 실패했다. 이 실행에는 Core 5.1.0·Messaging 17.0.1이 사용됐다. SDK 초기화 지연·실패와 resume의 순서가 오류를 만드는 것은 재현됐지만, 각 Sentry 이벤트에서 최초 초기화가 지연되거나 실패한 구체적 원인은 확정하지 않았다.</p>
+</section>
+
+<section id="change"><h2>수정 범위</h2>
+<p>제품 변경은 <a href="../../picnic_lib/lib/core/services/push_token_service.dart">push_token_service.dart</a> 한 파일이다. 기존 <code>initialize()</code>·<code>resume()</code> 인터페이스를 유지했다.</p>
+<ul>
+<li>기존 coordinator가 있으면 그대로 사용한다. 없으면 <code>Firebase.apps</code>에 <code>[DEFAULT]</code>가 있을 때만 생성한다. 보조 앱만 있는 상태는 준비 완료로 보지 않는다.</li>
+<li>미준비 상태를 성공으로 저장하지 않는다. 준비 후 <code>initialize()</code> 또는 <code>resume()</code>이 coordinator 생성과 토큰 등록을 재개한다.</li>
+<li>Firebase가 미준비여도 초기화의 콜백 설치, 대기 중인 알림 탭 전달, 로컬 실행 알림 읽기는 유지한다. 권한 요청 중 합류와 dispose 이후 이전 작업 무효화도 유지한다.</li>
+<li>예상 밖의 팩토리·SDK 오류를 숨기는 catch를 추가하지 않았다. 최초 SDK 초기화 실패 보고와 앱 resume의 기존 전역 zone 오류 보고 경로를 유지한다.</li>
+</ul>
+<p>SDK 버전, lockfile, 네이티브 코드와 앱의 초기화 연결은 바꾸지 않았다. SDK 설정·reset을 위한 테스트 전용 제품 API도 추가하지 않았다. Firebase 상태 격리 helper는 <code>test/helpers</code>에만 두었다.</p>
+</section>
+
+<section id="validation"><h2>자동 검증과 독립 리뷰</h2>
+<table><thead><tr><th>검증</th><th>확인 결과</th><th>범위</th></tr></thead><tbody>
+<tr><td>관련 라이브러리 테스트</td><td>72/72 · exit 0</td><td>푸시 서비스·coordinator·탭 전달·탭 내비게이션·core SDK 단계·background 작업·startup readiness</td></tr>
+<tr><td>readiness 순서 변경</td><td>seed 42 · 8/8 · exit 0</td><td>준비된 앱 테스트가 먼저 실행돼도 미준비·보조 앱·등록 복구 테스트 통과. 72개에 포함된 사례의 추가 실행이다.</td></tr>
+<tr><td>앱 widget 테스트</td><td>5/5 · exit 0</td><td>앱 재시도 UI·dispose 등의 회귀. 전체 SDK→푸시 연결 검증은 아니다.</td></tr>
+<tr><td>변경 Dart 파일 정적 분석</td><td>오류·경고 없음, 기존 정보 3건</td><td><code>onTokenRefresh</code>·<code>getToken</code>의 deprecated_member_use. 도구 종료 코드는 1이다.</td></tr>
+<tr><td>diff 검사</td><td><code>git diff --check</code> 통과</td><td>검토한 코드 7파일의 SHA256이 재검증 대상과 일치한다.</td></tr>
+</tbody></table>
+<p>위 실행 결과는 조정자가 직접 확인했다. 구현자가 별도로 보고한 seed 7·선택 실행·core SDK seed 42 통과와 임시 변이 검출은 추가 근거다. 이를 조정자의 직접 실행으로 표기하지 않았다. 전체 저장소 테스트나 기기 테스트의 통과를 주장하지 않는다.</p>
+<table><thead><tr><th>독립 리뷰 지적</th><th>조치와 판정</th></tr></thead><tbody>
+<tr><td>P2-1 · 테스트 간 Firebase 상태 누수</td><td>테스트마다 빈 Firebase 플랫폼을 설치하고 종료 시 원래 플랫폼을 복원했다. 최초 seed 42의 5실패가 제거됐고, 원 리뷰어가 FIXED로 판정했다.</td></tr>
+<tr><td>P2-2 · 실제 앱 재시도부터 푸시 등록까지 통합 검증 없음</td><td>실제 core SDK 단계에서 첫 Firebase 실패, 동일 오류·stack 전달, 실패 단계만 재시도, 기본 앱 생성, 성공 후 중복 실행 방지를 검증했다. 준비 후 initialize/resume의 등록 복구도 확인했다. 원 리뷰어는 단일 가드의 코드 승인 범위 조정을 수용했다. 전체 모바일 연결 공백은 해결 또는 통합 통과로 기록하지 않는다.</td></tr>
+</tbody></table>
+<p>Fable 5.1/high가 버전 비교와 수정 설계를 검토했고 Opus 5.5/high가 구현했다. 다른 공급자인 Sol/high가 읽기 전용 리뷰와 같은 리뷰어의 1회 재검증을 수행했다. 최종 판정은 <strong>APPROVE</strong>이며 각 작업자의 완료 정산을 확인했다. 이 승인은 현재 코드와 테스트 범위에 한정한다.</p>
+<h3>재현 가능한 검증 명령</h3>
+<pre>cd picnic_lib
+flutter test --no-pub --reporter expanded \
+  test/core/services/push_token_firebase_readiness_test.dart \
+  test/core/services/push_token_service_test.dart \
+  test/core/services/push_token_initialization_coordinator_test.dart \
+  test/core/services/push_token_tap_delivery_test.dart \
+  test/core/services/push_tap_navigation_test.dart \
+  test/core/utils/main_initializer_test.dart \
+  test/core/utils/app_initializer_background_test.dart \
+  test/core/utils/startup_readiness_test.dart
+flutter test --no-pub --test-randomize-ordering-seed 42 \
+  test/core/services/push_token_firebase_readiness_test.dart
+cd ../picnic_app
+flutter test --no-pub test/widget_test.dart</pre>
+</section>
+
+<section id="remaining"><h2>배포 전 남은 기기 검증</h2>
+<p>iOS와 Android 테스트 빌드에서 아래 항목을 확인해야 한다. 사용자 ID·FCM/APNs 토큰 원문 없이 단계 기록과 등록 성공 응답을 남긴다.</p>
+<ol>
+<li>Firebase 최초 초기화를 지연하거나 실패시킨 상태에서 앱을 복귀시켜 <code>core/no-app</code>이 발생하지 않는지 확인한다.</li>
+<li>실제 앱 재시도로 Firebase를 준비시킨 뒤 <code>MainInitializer → App → AppInitializer → PushTokenService</code> 연결에서 FCM 등록 성공을 확인한다.</li>
+<li>권한 창 중 연속 resume가 한 작업에 합류하고, dispose 뒤 늦은 완료가 이전 owner를 갱신하지 않는지 확인한다.</li>
+<li>Firebase 준비 전후의 cold remote 알림과 local launch 알림 목적지가 각 소스에서 한 번 전달되는지 확인한다.</li>
+</ol>
+<p>배포 후보·버전·OTA 호환성과 승인 절차는 <a href="sentry-2026-11-03-remediation-plan.html#T8">T8</a>에서 다룬다. 현재 코드의 검증 결과를 구 SDK 바이너리나 이미 설치된 앱의 해결 증거로 사용하지 않는다.</p>
+</section>
+<footer class="meta"><a href="sentry-2026-11-03-remediation-plan.html#T1">수정 계획 T1</a> · <a href="sentry-2026-11-03-analysis.html">초기 Sentry 분석</a> · <a href="../superpowers/plans/2026-10-29-firebase-foldable-regression.html">기존 Firebase SDK 업그레이드 검증 기록</a><br>원시 Sentry·계정·실행 증거와 임시 스킬 복사본은 이 문서의 Git 산출물에 포함하지 않는다.</footer>
+</main></body>
+</html>

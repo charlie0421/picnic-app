@@ -1,13 +1,72 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/consent_service.dart';
 import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/startup_readiness.dart';
 
+import '../../helpers/fake_firebase_platform.dart';
+
 void main() {
   group('MainInitializer', () {
+    // Catches: a core SDK group that swallows the Firebase error (or loses its
+    // stack trace), a failed stage that is latched as successful, a retry that
+    // re-runs stages that already succeeded, and a retry after success.
+    // Only `Firebase.initializeApp()` is controlled, at the platform boundary.
+    // This covers the core SDK stages, not the App or AppInitializer wiring.
+    test(
+      'core SDK group reports a Firebase failure and re-runs only that stage',
+      () async {
+        final firebase = installFakeFirebasePlatform(initializeAppFailures: 1);
+        final stages = RetryableStartupStages();
+        var supabaseCalls = 0;
+        var firebaseCalls = 0;
+        Future<void> initialize() => MainInitializer.initializeCoreSdkGroup(
+          stages: stages,
+          machineStages: {
+            'supabase': () async {
+              supabaseCalls++;
+            },
+            'firebase': () async {
+              firebaseCalls++;
+              await Firebase.initializeApp(options: testFirebaseOptions);
+            },
+          },
+        );
+
+        Object? error;
+        StackTrace? stackTrace;
+        try {
+          await initialize();
+        } catch (e, s) {
+          error = e;
+          stackTrace = s;
+        }
+        await Future<void>.delayed(Duration.zero);
+
+        expect(error, same(firebase.failure));
+        expect(stackTrace, same(firebase.failureStackTrace));
+        expect(Firebase.apps, isEmpty);
+        expect(stages.isSuccessful('firebase'), isFalse);
+        expect(stages.isSuccessful('supabase'), isTrue);
+
+        await initialize();
+
+        expect(firebaseCalls, 2);
+        expect(supabaseCalls, 1);
+        expect(Firebase.apps.map((app) => app.name), ['[DEFAULT]']);
+        expect(stages.isSuccessful('firebase'), isTrue);
+
+        await initialize();
+
+        expect(firebaseCalls, 2);
+        expect(supabaseCalls, 1);
+        expect(firebase.initializeAppCalls, 2);
+      },
+    );
+
     testWidgets(
       'core SDK timeout keeps raw work for retry and caches success',
       (tester) async {

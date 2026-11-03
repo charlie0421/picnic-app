@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -41,14 +42,14 @@ class PushTokenService {
     // Destinations that arrived before the callbacks existed are replayed
     // first, so a tap consumed during a cold start is never lost.
     _flushPendingTaps();
-    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
     // Started side by side, never chained: the coordinator's permission step
     // is an OS sheet and can wait on the user indefinitely, and the launch
     // destination must not queue behind it. The platform answers the launch
     // read from state captured before Dart ran - the Android launch Intent
     // and the iOS pre-`initialized` response - so it needs nothing from the
     // coordinator to be correct (PICNIC-2693).
-    final coordinatorReady = _coordinator!.initialize();
+    final coordinatorReady =
+        _ensureCoordinator()?.initialize() ?? Future<void>.value();
     final launchNotification = _consumeLaunchNotification();
     await Future.wait([coordinatorReady, launchNotification]);
   }
@@ -116,9 +117,26 @@ class PushTokenService {
   /// (PICNIC-2693).
   static Future<void> resume() async {
     if (kIsWeb) return;
-    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
-    await _coordinator!.resume();
+    await _ensureCoordinator()?.resume();
   }
+
+  /// Returns the coordinator, creating it only once Firebase has its
+  /// `[DEFAULT]` app.
+  ///
+  /// `FirebaseMessaging.instance` throws `[core/no-app]` until
+  /// `Firebase.initializeApp()` creates that app, and a resume or a failed
+  /// SDK start can arrive first. Nothing is latched while Firebase is not
+  /// ready, so the next [initialize] or [resume] starts push setup.
+  static PushTokenInitializationCoordinator? _ensureCoordinator() {
+    final existing = _coordinator;
+    if (existing != null) return existing;
+    if (!_hasDefaultFirebaseApp()) return null;
+    return _coordinator = (_debugCoordinatorFactory ?? _createCoordinator)();
+  }
+
+  /// A secondary app alone does not count: Messaging uses the default app.
+  static bool _hasDefaultFirebaseApp() =>
+      Firebase.apps.any((app) => app.name == defaultFirebaseAppName);
 
   static Future<void> dispose() async {
     _ownerGeneration++;

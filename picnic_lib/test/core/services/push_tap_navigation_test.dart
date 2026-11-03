@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +26,8 @@ import '../../helpers/test_environment.dart';
 /// [AppInitializer] handler that performs the deep link.
 ///
 /// Nothing here calls a debug tap handler: the only test-owned pieces are the
-/// Firebase message sources (there is no Firebase app in a widget test) and
+/// Firebase message sources (Messaging has no platform in a widget test), the
+/// mocked Firebase core app, and
 /// the launch-details reader (no platform plugin).
 
 Map<String, dynamic> _voteRow({int id = 1}) {
@@ -178,6 +182,13 @@ Future<void> _tapLocalNotification(String actionUrl) {
 void main() {
   late void Function() restoreImages;
   late Map<String, dynamic> launchDetails;
+
+  // Push setup waits for the default Firebase app, as on device after
+  // `MainInitializer`. The app is mocked; Messaging is still replaced by the
+  // message sources below.
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
+  setUpAll(Firebase.initializeApp);
 
   setUp(() {
     initTestColors();
