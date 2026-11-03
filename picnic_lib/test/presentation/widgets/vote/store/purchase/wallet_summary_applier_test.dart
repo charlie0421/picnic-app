@@ -112,7 +112,14 @@ void main() {
     await tester.pumpWidget(const SizedBox());
 
     expect(
-      () => store.ref.read(walletSummaryProvider.notifier).setSummary(settled),
+      () => store.ref
+          .read(walletSummaryProvider.notifier)
+          .setSummary(
+            settled,
+            owner: container
+                .read(walletSummaryProvider.notifier)
+                .captureOwner(),
+          ),
       throwsA(anything),
       reason:
           'this is the read the settlement call site used to be given; it '

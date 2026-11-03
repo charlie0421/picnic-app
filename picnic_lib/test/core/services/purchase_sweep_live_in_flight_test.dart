@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:in_app_purchase_android/billing_client_wrappers.dart';
 import 'package:in_app_purchase_android/in_app_purchase_android.dart';
 import 'package:in_app_purchase_platform_interface/in_app_purchase_platform_interface.dart';
+import 'package:in_app_purchase_storekit/store_kit_2_wrappers.dart';
 import 'package:in_app_purchase_storekit/store_kit_wrappers.dart';
 import 'package:picnic_lib/core/services/purchase_service.dart';
 import 'package:picnic_lib/core/services/unfinished_purchase_source.dart';
@@ -28,12 +31,28 @@ void main() {
     transactionIdentifier: 'txn-$productId',
   );
 
+  String b64(Object json) =>
+      base64Url.encode(utf8.encode(jsonEncode(json))).replaceAll('=', '');
+
+  SK2Transaction sk2(String id) => SK2Transaction(
+    id: id,
+    originalId: id,
+    productId: 'STAR100',
+    purchaseDate: '2026-09-20T12:00:00Z',
+    appAccountToken: null,
+    receiptData: '${b64({'alg': 'ES256'})}.${b64({'transactionId': id})}.sig',
+  );
+
   IosPaymentQueueSource sourceWith(
     List<SKPaymentTransactionWrapper> transactions, {
-    String receipt = 'receipt',
+    List<SK2Transaction> unfinished = const [],
+    Object? unfinishedError,
   }) => IosPaymentQueueSource(
     readTransactions: () async => transactions,
-    readReceipt: () async => receipt,
+    readUnfinishedTransactions: () async {
+      if (unfinishedError != null) throw unfinishedError;
+      return unfinished;
+    },
   );
 
   group('IosPaymentQueueSource.liveInFlight', () {
@@ -83,21 +102,21 @@ void main() {
     test(
       'a settleable transaction still reports a concurrent live one',
       () async {
-        final scan = await sourceWith([
-          txn('STAR100', SKPaymentTransactionStateWrapper.purchased),
-          txn('STAR200', SKPaymentTransactionStateWrapper.purchasing),
-        ]).scan();
+        final scan = await sourceWith(
+          [txn('STAR200', SKPaymentTransactionStateWrapper.purchasing)],
+          unfinished: [sk2('2000000100')],
+        ).scan();
 
         expect(scan.purchases.length, 1);
         expect(scan.liveInFlight, 1);
       },
     );
 
-    test('the unreadable-receipt guard still reports what it saw', () async {
-      final scan = await sourceWith([
-        txn('STAR100', SKPaymentTransactionStateWrapper.purchased),
-        txn('STAR200', SKPaymentTransactionStateWrapper.deferred),
-      ], receipt: '').scan();
+    test('a failed StoreKit 2 enumeration still reports what it saw', () async {
+      final scan = await sourceWith(
+        [txn('STAR200', SKPaymentTransactionStateWrapper.deferred)],
+        unfinishedError: StateError('storekit unavailable'),
+      ).scan();
 
       expect(scan.error, isNotNull);
       expect(scan.liveInFlight, 1);

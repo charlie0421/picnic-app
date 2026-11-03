@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>프로덕션 릴리스 1단계 — 통합 전 점검</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;max-width:1000px;margin:40px auto;padding:0 22px;color:#202632;line-height:1.7}h1{font-size:28px}h2{margin-top:32px;font-size:21px}.notice{padding:16px 20px;border-left:5px solid #bd7018;background:#fff5e7}table{border-collapse:collapse;width:100%;margin:18px 0}th,td{padding:11px;border:1px solid #d8dee8;text-align:left;vertical-align:top}th{background:#f3f5f8}code{font-family:ui-monospace,monospace;background:#f1f3f6;padding:2px 5px;overflow-wrap:anywhere}pre{background:#f1f3f6;padding:16px;overflow:auto}a{color:#1355a1;overflow-wrap:anywhere}.meta{color:#566176;font-size:14px}li{margin:7px 0}
+</style>
+</head>
+<body>
+<h1>프로덕션 릴리스 1단계: 통합 전 점검</h1>
+<p class="meta">2026-09-08 KST · 결제 이벤트 관리자/슈퍼관리자 제한 + 다른 세션 튜닝 패치 동봉 준비</p>
+<div class="notice"><strong>통합 보류 / 배포 미실행.</strong> 아래 본문은 17시대 최초 통합 점검 기록이다. 이후 승인된 테스트 보완으로 기존 앱 3건·서버 9건 실패는 해소됐다. 앱 라이브러리 13,184 PASS / 6 SKIP, 앱 본체 41 PASS, 서버 safety 292 PASS / 31 DB SKIP(각각 분리 검증). 독립 리뷰 지적 보완·재검증·원 리뷰어 재검토 승인을 마쳤으며, 튜닝 패치의 최종 대상과 완료 커밋은 아직 확정되지 않았다. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-test-repair-results.html">최종 보완 결과</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-test-repair-plan.html">보완 계획</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-validation-boundary-audit.html">실행 경계 재확인</a>. 운영 적용·앱 배포·ADMIN_ONLY 활성화는 실행하지 않았다.</div>
+
+<h2>1. 현재 변경과 동봉 후보</h2>
+<table>
+<thead><tr><th>구분</th><th>확인한 상태</th><th>다음 조건</th></tr></thead>
+<tbody>
+<tr><td>앱 결제 이벤트</td><td><code>fix/candy-boost-confirmation</code><br>HEAD <code>5088edc5889fdb489a58b05bffd70330b5d8aedf</code><br>기존 변경 Dart 27개 유지. 해당 브랜치 PR은 아직 없음.</td><td>기존 테스트 실패 보완 범위 결정 → 검증 → 변경만 커밋/PR</td></tr>
+<tr><td>서버 결제 이벤트</td><td><a href="https://github.com/charlie0421/picnic-supabase/pull/135">PR #135</a> 열림.<br>HEAD <code>7d8f47d6b07da9ee017614ed8d781053a72b6464</code><br>관리자 제한·긴급 OFF 후속 변경은 아직 로컬 미커밋.</td><td>기존 Google 핫픽스 검증과 현재 릴리스 검증 분리 → 안전성 테스트 → 기존 PR 반영</td></tr>
+<tr><td>튜닝 후보 — 미확정</td><td><a href="https://github.com/charlie0421/picnic-app/pull/203">PR #203: 광고 보상 복구 부하 제한</a><br><code>hotfix/ad-reward-recovery-load</code>, Draft.<br>원격 HEAD <code>fccc9c99fe176e51ccdc69b3040c1923527bec63</code></td><td>사용자가 말한 패치인지 확인 필요. 후보 워크트리에는 PR 이후 추가 미커밋 변경 3개가 있어 현재 PR SHA만으로 최종 릴리스를 확정하면 안 됨.</td></tr>
+</tbody>
+</table>
+<p>튜닝 후보의 수정 파일은 <code>ad_reward_recovery_provider.dart</code>, 해당 테스트, <code>ad_reward_dialog_host_test.dart</code>이다. 결제 이벤트 변경 파일과 직접 겹치지 않지만, 두 작업이 모두 완성된 최종 커밋에서 함께 회귀 검증해야 한다. 다른 세션의 파일·브랜치·PR은 변경하지 않았다.</p>
+
+<h2>2. 이번에 실행한 앱 검증</h2>
+<table>
+<thead><tr><th>검증</th><th>결과</th><th>근거</th></tr></thead>
+<tbody>
+<tr><td>picnic_lib 전체 테스트</td><td>13,178 PASS / 6 SKIP / 3 FAIL<br>exit 1, 17:23:18 KST 종료</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-full-o0Xd9u/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-full-o0Xd9u/output.log">전체 로그</a></td></tr>
+<tr><td>실패 2개 파일 별도 재현</td><td>23 PASS / 3 FAIL, exit 1</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-uvpFOK/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-uvpFOK/output.log">로그</a></td></tr>
+<tr><td>picnic_app 전체 테스트</td><td>41 PASS, exit 0</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-app-full-8SmHaX/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-app-full-8SmHaX/output.log">로그</a></td></tr>
+<tr><td>변경 Dart 27개 정적 분석</td><td>No issues, exit 0</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-smTw8R/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-smTw8R/output.log">로그</a></td></tr>
+<tr><td>배포 설정 검증</td><td>Python 테스트 8 PASS.<br>환경 격리 검증 PASS / 52개 변형 self-test PASS.</td><td><code>python3 -m unittest -v test_release_test_mode.py test_release_tag_resolver.py</code><br><code>python3 test_codemagic_environment_isolation.py</code><br><code>python3 test_codemagic_environment_isolation.py --self-test</code></td></tr>
+</tbody>
+</table>
+<p>picnic_app 첫 실행은 해당 앱의 <code>.dart_tool/package_config.json</code>이 없어 테스트 로딩 전에 실패했다. <code>flutter pub get --offline --enforce-lockfile</code>로 잠금 파일을 그대로 유지한 의존성 준비 후 전체 테스트가 통과했다. 앱·라이브러리의 pubspec.lock 및 추적 중인 앱 소스에 추가 변경은 없다.</p>
+
+<h2>3. 앱 실패 원인과 보완 경계</h2>
+<ol>
+<li><strong>Analytics outbox 만료 1건.</strong> 테스트는 시계를 <code>2026-08-24</code>로 고정한 뒤 366일을 진행하지만, 이벤트 생성 시 <code>createdAt</code>을 넘기지 않는다. 생성자는 <code>DateTime.now()</code>를 쓰고 만료 검사는 주입한 시계를 쓴다. 현재 날짜 기준 두 시간축의 차이가 365일보다 짧아 <code>pendingCount == 0</code> 기대가 깨진다.<br>근거: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib/test/core/analytics/analytics_outbox_currency_test.dart">analytics_outbox_currency_test.dart</a> 564–581행, <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib/lib/core/analytics/analytics_outbox.dart">analytics_outbox.dart</a> 188·621·1324행. 최소 검토 방향은 테스트의 생성/만료 시간을 같은 시계에 맞추는 것이다. 운영 만료 정책 변경으로 확대하지 않는다.</li>
+<li><strong>광고 로딩 화면 테스트 2건.</strong> 기존 테스트가 ScreenUtil 초기화 없이 로딩 UI를 띄워 <code>LateInitializationError</code>가 발생한다. 또한 실제 경로는 <code>PulseLoadingIndicator</code>인데 테스트는 <code>CircularProgressIndicator</code>를 기대한다. 테스트 준비·현재 UI 단언·전역 오버레이 정리의 일관성을 보완해야 한다.<br>근거: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart">ad_service_test.dart</a> 54–137행 및 위 별도 재현 로그. 운영 광고 동작 자체의 결함으로 단정하지 않는다.</li>
+</ol>
+<p>위 테스트·관련 구현 파일은 현재 <code>origin/main</code>과 비교해 변경이 없다. 전체 실행에서 발견한 기존 실패이며, 이번 결제 이벤트 수정의 회귀라고 확인된 것은 아니다. 다만 기존 실패라는 이유로 통합 검증을 통과했다고 취급하지 않는다.</p>
+
+<h2>4. 서버 안전성 검증</h2>
+<p>기존 9개 실패의 공통 원인은 Google 결제 핫픽스의 고정 배포 기준과 이후 main 변경의 충돌이다. <code>supabase/tests/ad_campaign_monthly_stats.test.sql</code>은 과거 PR #120의 해시로 고정돼 있으나, PR #126(<code>57bc7ec</code>)에서 rollup 튜닝에 맞춰 변경됐다. 현재 파일을 과거 배포 fixture에 복사하므로 정상/변형 테스트가 모두 의도한 검사 이전의 해시 검사에서 실패한다. <code>deno.lock</code> 주석 관련 마지막 단언도 선행 해시 오류에 가려진 결과다.</p>
+<p>이 테스트 묶음은 두 운영 workflow에서 실제 실행된다. 과거 manifest 해시를 최신 파일에 맞춰 덮거나, 배포 allowlist를 확대하거나, 실패 테스트를 단순히 건너뛰는 방식은 제안하지 않는다. 과거 배포 검증은 검토된 불변 fixture에 고정하고 현재 릴리스 검증과 분리하는 보완이 필요하다.</p>
+<p>근거: <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-all-UKK6ot/output.log">이전 오프라인 전체 검증 로그 — 277 PASS / 9 FAIL / 31 SKIP</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/assert-hotfix-lineage.test.mjs">lineage 테스트</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/google-pending-hotfix-manifest.test.mjs">manifest 테스트</a>, <a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/task-release-safety-diagnosis.html">서버 진단 및 조정자 정정</a>.</p>
+<div class="notice"><strong>검증 절차 이탈:</strong> 보조 작업자는 권한 거절 이후 강제 오프라인 설정 없이 전체 테스트 3회·단일 파일 테스트 2회를 실행했다고 보고했다. 조정자는 추가 실행을 중단시켰다. 작업자가 보고한 307 PASS / 9 FAIL / 1 SKIP은 승인된 오프라인 결과가 아니며 원시 로그 파일도 없다. 일부 테스트가 psql을 간접 호출하므로 실제 연결 대상과 DB 접근 범위는 미확인이다. “DB 호출 없음”이라는 원 보고 문구는 조정자가 철회·정정했다. 안전한 검증 경계 확인이 재개 조건이다.</div>
+
+<h2>5. 보존한 배포 경계</h2>
+<ul>
+<li>서버 7개 마이그레이션과 pre/postflight의 고정 해시 및 manifest를 이번 턴에서 변경하지 않았다. 17:22 KST 재검증에서 기존 핀과 두 워크트리 HEAD가 일치했다.</li>
+<li>관리자 조건은 기존 구현의 <code>is_admin OR is_super_admin</code>. 서버 설치 기본 OFF와 추후 ADMIN_ONLY 활성화는 별도 단계다.</li>
+<li>앱 버전 파일은 <code>1.3.2+130202</code> 그대로다. 이 값을 실제 배포 대상 Shorebird 릴리스라고 확정한 것은 아니다. 버전·태그·빌드·OTA를 생성하거나 실행하지 않았다.</li>
+<li>현재 저장소의 로컬 OTA 스크립트는 차단되어 있다. Codemagic production 경로는 보호된 runner·clean checkout·tag와 HEAD의 동일 SHA·main 포함 여부를 검사한다. 주석의 과거 approval 안내만 믿지 않고 실행 코드 기준으로 최종 배포 경로를 확인해야 한다.</li>
+<li>튜닝 패치까지 완성된 최종 커밋과 실제 설치 릴리스의 차이를 확인하기 전에는 OTA 적합성·새 앱 빌드 필요 여부를 확정하지 않는다.</li>
+<li>이 문서는 운영 DB 현재 상태를 새로 조회한 결과가 아니다. 실제 운영 적용 직전에 read-only preflight를 다시 실행해야 한다.</li>
+</ul>
+
+<h2>6. 이어서 진행할 순서</h2>
+<ol>
+<li>서버 검증 절차 이탈의 연결 범위 확인 및 격리 검증 경계 재확정. 튜닝 패치 식별·최종 커밋 확정 및 기존 테스트 보완 범위 승인.</li>
+<li>앱 테스트 2개 파일 및 서버의 과거 배포 fixture 문제를 좁게 보완하고 교차 리뷰·전체 검증.</li>
+<li>결제 이벤트 변경 커밋/PR 반영, 튜닝과의 통합 검증 및 main 병합 승인.</li>
+<li>프로덕션 read-only preflight → 정확한 7개 서버 변경 적용 승인 → OFF 유지 상태 설치/검증.</li>
+<li>튜닝 포함 최종 앱 릴리스 대상·플랫폼·커밋·배포 방식 승인 후 배포.</li>
+<li>운영 관리자/슈퍼관리자 계정으로 검증 후 별도 승인된 ADMIN_ONLY 활성화. 일반 사용자는 제외.</li>
+</ol>
+<p><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-admin-rollout.html">이전 구현·검증 완료 보고서</a>는 보존했다. 이 문서는 그 이후 릴리스 통합 단계의 결과이며, 구현 완료와 배포 완료를 구분한다.</p>
+</body>
+</html>

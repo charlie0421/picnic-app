@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>투표 현황 푸시 탭 시 상세 이동 (PICNIC-2693)</title><style>body{max-width:900px;margin:40px auto;padding:0 24px;font:16px/1.7 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;color:#202838}h1{font-size:28px}h2{font-size:21px;margin-top:34px}h3{font-size:17px;margin-top:24px}li{margin:7px 0}a{color:#5b3dc5}code{background:#f0edf8;padding:2px 5px;border-radius:3px}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #dde2ec;padding:8px 10px;text-align:left;vertical-align:top}th{background:#f7f5fc}small,figcaption{color:#626b7c}p.status{padding:12px 16px;background:#eef8f0;border-radius:4px}p.warn{padding:12px 16px;background:#fdf4e7;border-radius:4px}pre{background:#f7f7fa;padding:12px 14px;overflow-x:auto;border-radius:4px;font-size:13px}</style></head><body>
+
+<h1>투표 현황 푸시 탭 시 상세 이동</h1>
+<p>PICNIC-2693 · 2026-09-15 · <code>fix/picnic-2693-vote-push-deeplink</code> · 앱 1.3.4+130403</p>
+<p class="status">앱 결함 4건 수정 완료. 교차 공급자 적대적 리뷰 3라운드 종료, 잔여 차단 지적 없음. Dart 전용 변경이라 OTA 범위를 유지합니다.</p>
+
+<h2>증상과 범위</h2>
+<p>투표 현황 푸시를 탭하면 해당 투표 상세가 아니라 초기화면으로 이동했습니다. 조사 결과 <strong>서버는 정상</strong>이고 원인은 전부 앱에 있었습니다.</p>
+
+<h2>서버는 정상이다</h2>
+<p>발송 코드는 이 저장소가 아니라 별도 <code>picnic-supabase</code> 저장소에 있습니다. 앱 저장소 안의 <code>supabase/</code> 사본만 보고 판단하면 발송처를 찾지 못해 서버 결함으로 오진하게 됩니다.</p>
+<table>
+<tr><th>확인 대상</th><th>내용</th></tr>
+<tr><td>발송 함수</td><td><code>notify-vote-progress/index.ts:164-168</code></td></tr>
+<tr><td>전송 payload</td><td><code>type=vote_progress</code>, <code>vote_id</code>, <code>action_url=https://applink.picnic.fan/vote/detail/&lt;id&gt;</code></td></tr>
+<tr><td>중계</td><td><code>send-push/index.ts:121-125</code>가 그대로 FCM <code>message.data</code>로 전달</td></tr>
+<tr><td>배포 상태</td><td>프로덕션 Edge Function <code>notify-vote-progress</code> ACTIVE</td></tr>
+<tr><td>앱 파싱</td><td><code>DeepLinkHandler</code>가 이 canonical 형식을 이미 지원</td></tr>
+</table>
+<p>같은 구조로 <code>notify-my-artist-vote-start</code>도 동일한 형식을 보냅니다.</p>
+
+<h2>앱 결함 4건</h2>
+
+<h3>1. 콜드 스타트 탭이 콜백 설치 전에 소비돼 버려졌다</h3>
+<p>앱이 포그라운드로 올라올 때마다 호출되는 <code>PushTokenService.resume()</code>이, 초기화가 탭 콜백을 설치하기 전에 coordinator를 만들었습니다. 구독을 설치하면 1회성인 <code>getInitialMessage()</code>가 소비되는데, 이때 콜백이 없으면 목적지를 로그만 남기고 버렸습니다. 복구 수단이 없어 사용자는 초기화면에 남았습니다.</p>
+<p><strong>수정</strong> 재개 경로는 지연 생성을 유지합니다. 백그라운드 초기화에 도달하지 못한 프로세스에서는 이것이 유일한 복구 경로이기 때문입니다. 대신 콜백 없이 도착한 목적지를 상한이 있는 보류 큐에 담고, 초기화가 콜백을 설치한 직후 한 번만 배출합니다.</p>
+
+<h3>2. 포털 전환이 스택을 홈으로 초기화했다</h3>
+<p>투표 딥링크가 이미 투표 포털에 있어도 포털 전환을 호출했고, 이 함수는 <strong>항상</strong> 스택을 홈 페이지부터 다시 만듭니다. 그 홈 페이지가 제보된 초기화면입니다. 상세 페이지는 그 뒤 프레임 콜백에서야 얹혔습니다. 공지 딥링크는 스택을 유지하는 다른 경로를 써서 무사했습니다.</p>
+<p><strong>수정</strong> 포털 전환 여부를 순수 함수로 판단합니다. 링크가 현재 포털을 가리키면 전환 없이 바로 얹고, 다른 포털이면 전환과 얹기를 같은 턴에 처리해 홈 페이지가 단독으로 보이지 않게 했습니다.</p>
+
+<h3>3. 프레임 콜백이 프레임을 요청하지 않았다</h3>
+<p>Flutter의 프레임 후 콜백은 등록만 할 뿐 프레임을 요청하지 않습니다. 콜백 목록을 배출하는 도중 등록된 콜백은 아무도 요청하지 않은 다음 프레임으로 밀립니다. 탭 경로에 이런 콜백이 두 겹 중첩돼 있어서, 앱이 멈춰 있으면 이동이 무관한 사용자 입력을 기다렸습니다.</p>
+<p><strong>수정</strong> 중첩을 없애고 소유권을 검사하는 단일 dispatch로 바꿨습니다. 콜백 등록 뒤 프레임을 명시적으로 요청합니다.</p>
+
+<h3>4. 종료 상태의 로컬 알림 탭은 목적지 자체가 없었다</h3>
+<p>앱이 실행 중이 아닐 때 탭한 로컬 알림은 FCM이 아니라 플러그인의 실행 상세 조회로 전달되는데, 이 조회가 앱 전체에 없었습니다.</p>
+<p><strong>수정</strong> 초기화에서 프로세스당 한 번 읽습니다. <strong>읽기에 성공한 뒤에만</strong> 소비 플래그를 세워, 예외가 난 읽기는 다시 시도할 수 있게 했습니다. 또한 이 읽기를 coordinator 초기화 뒤가 아니라 <strong>나란히</strong> 시작합니다. coordinator의 권한 단계는 사용자 입력을 무한정 기다릴 수 있는 OS 시트이기 때문입니다.</p>
+
+<p>부수적으로 서비스가 payload 생성과 URL 추출을 헬퍼에 위임해 알림 왕복의 양쪽이 하나의 정의를 공유하도록 했고, 투표 딥링크가 0 이하의 ID를 거부합니다.</p>
+
+<h2>검증</h2>
+<table>
+<tr><th>항목</th><th>결과</th></tr>
+<tr><td>picnic_lib 테스트</td><td>13,835 통과, 6 건너뜀</td></tr>
+<tr><td>picnic_app 테스트</td><td>45 통과</td></tr>
+<tr><td>신규 테스트</td><td>46건</td></tr>
+<tr><td>정적 분석</td><td>기준선 대비 신규 지적 0</td></tr>
+</table>
+
+<h3>회귀 방어가 실제로 작동하는지 확인</h3>
+<p>수정 하나하나를 되돌려 해당 테스트만 실패하는지 코디네이터가 직접 재현했습니다. 원상복구는 파일 체크섬으로 확인했습니다.</p>
+<table>
+<tr><th>수정</th><th>되돌렸을 때</th><th>복원 후</th></tr>
+<tr><td>재개 경로 보류 큐</td><td>실패</td><td>통과</td></tr>
+<tr><td>읽기 성공 후 래치</td><td>실패</td><td>통과</td></tr>
+<tr><td>프레임 명시 요청</td><td>실패</td><td>통과</td></tr>
+<tr><td>launch 읽기 병렬 시작</td><td>실패</td><td>통과</td></tr>
+</table>
+
+<h3>테스트가 실제 배선을 탄다</h3>
+<p>초기 구현의 테스트는 디버그 훅을 직접 호출해 진짜 경로를 우회했고, 리뷰어가 이를 지적했습니다. 최종 테스트는 플랫폼 채널만 가짜로 두고 실제 배선을 통과합니다. 원격 경로는 최초 메시지 조회와 열림 이벤트를, 로컬 경로는 실제 실행 상세 조회와 프로덕션 응답 핸들러를 거쳐, 양쪽 모두 렌더된 투표 상세 페이지 도달을 확인합니다.</p>
+
+<h2>교차 공급자 적대적 리뷰</h2>
+<p>계획은 Astra, 구현은 Opus, 리뷰는 Sol이 맡아 구현자와 리뷰어가 서로 다른 공급자가 되게 했습니다. 리뷰어에게는 구현자의 사고 과정을 전달하지 않고 요구사항과 변경 내용만 제공했습니다.</p>
+<table>
+<tr><th>라운드</th><th>지적</th><th>처분</th></tr>
+<tr><td>1차</td><td>blocker 3, major 1, minor 2</td><td>전부 수정</td></tr>
+<tr><td>2차 재검증</td><td>blocker 전부 해소, 신규 0, 잔여 major 2, minor 1</td><td>전부 수정</td></tr>
+<tr><td>3차 최종</td><td>major 전부 해소, 신규 0, 문서 minor 1</td><td>문서 정정</td></tr>
+</table>
+<p>리뷰가 잡아낸 것 중 셋은 실제 사용자 영향이 있는 결함이었습니다. 특히 프레임 미요청 문제는 원래 고치려던 증상이 다른 경로로 그대로 남아 있던 경우이고, launch 읽기 직렬화는 권한 시트를 기다리는 동안 사용자가 초기화면에 머무는 같은 증상을 만들었습니다.</p>
+<p>구현자가 리뷰 지적 하나를 근거를 들어 반박한 사례도 있습니다. 정규식이 결함이라는 초기 지적에 대해 Dart raw string이라 정상 동작한다고 반박했고, 이것이 맞았습니다.</p>
+
+<h2>배포 판단</h2>
+<p class="warn">Dart 전용 변경입니다. 네이티브, pubspec, 에셋, 서버를 전혀 건드리지 않았고 버전은 1.3.4+130403 그대로입니다. 따라서 OTA 범위를 유지합니다. 실행 상세 조회는 이미 번들된 플러그인의 기존 네이티브 핸들러를 쓰므로 신규 빌드가 필요하지 않습니다.</p>
+<p>다만 이번 검증은 위젯 테스트 수준입니다. 실기기에서 백그라운드 탭, 종료 상태 탭, 포그라운드 로컬 알림 탭, 로컬 알림을 남긴 채 종료 후 탭을 iOS와 Android 각각 확인하는 것은 별도입니다. 배포 실행과 버전 결정은 이 문서의 범위가 아닙니다.</p>
+
+<h2>변경 파일</h2>
+<h3>수정</h3>
+<ul>
+<li><code>picnic_lib/lib/core/services/push_token_service.dart</code></li>
+<li><code>picnic_lib/lib/core/services/push_token_helper.dart</code></li>
+<li><code>picnic_lib/lib/core/utils/app_initializer.dart</code></li>
+<li><code>picnic_lib/lib/core/utils/deep_link_handler.dart</code></li>
+<li><code>picnic_lib/test/core/services/push_token_helper_test.dart</code></li>
+<li><code>picnic_lib/test/helpers/mock_providers.dart</code></li>
+<li><code>picnic_lib/test/helpers/test_app.dart</code></li>
+</ul>
+<h3>신규</h3>
+<ul>
+<li><code>picnic_lib/lib/core/utils/deep_link_navigation_plan.dart</code></li>
+<li><code>picnic_lib/test/core/services/push_tap_navigation_test.dart</code></li>
+<li><code>picnic_lib/test/core/services/push_token_tap_delivery_test.dart</code></li>
+<li><code>picnic_lib/test/core/utils/deep_link_handler_test.dart</code></li>
+<li><code>picnic_lib/test/core/utils/deep_link_navigation_plan_test.dart</code></li>
+<li><code>docs/01-plan/PICNIC-2693-vote-push-deeplink-plan.html</code></li>
+</ul>
+
+<p><small>조사 기준 HEAD 2e5ccdc20. 계획 문서는 <a href="PICNIC-2693-vote-push-deeplink-plan.html">docs/01-plan/PICNIC-2693-vote-push-deeplink-plan.html</a>에 있습니다.</small></p>
+
+</body></html>

@@ -10,6 +10,8 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 
 import 'mock_providers.dart';
+import 'host_app_asset_bundle.dart';
+import 'longest_app_localizations.dart';
 import 'test_environment.dart';
 
 /// 기존 테스트들이 기대해 온 하네스 기본 디자인 크기.
@@ -39,8 +41,16 @@ Widget buildTestApp(
   bool loggedIn = true,
   List<dynamic> extraOverrides = const [],
   Locale locale = const Locale('ko'),
+
+  /// Answer every l10n key with the longest shipped translation instead of
+  /// [locale]'s own. See `longest_app_localizations.dart`.
+  bool longestStrings = false,
   Size designSize = kLegacyTestDesignSize,
   bool splitScreenMode = false,
+  // Installs a MediaQuery **above the Navigator**, so routes pushed by
+  // `showDialog` inherit the scale too. Wrapping the child instead only
+  // scales the home route, never a dialog.
+  TextScaler? textScaler,
   // riverpod 3 의 `Retry` typedef 는 barrel 에서 export 되지 않아 구조적 함수
   // 타입으로 받는다. 기본값 null 은 riverpod 기본 retry(Exception 을 실제
   // Timer 로 최대 10회 재시도) 그대로다. provider 가 Exception 을 던지는
@@ -49,6 +59,9 @@ Widget buildTestApp(
   // 타이머 탓에 pump 로도 에러 상태에 도달하지 못하거나, dispose 시
   // "disposed during loading state" 고아 에러가 테스트를 실패시킨다.
   Duration? Function(int, Object)? retry,
+  // `false` keeps the real NavigationInfo notifier — see
+  // [defaultProviderOverrides].
+  bool overrideNavigation = true,
 }) {
   return ProviderScope(
     retry: retry,
@@ -60,6 +73,7 @@ Widget buildTestApp(
         mediaQueryData: mediaQueryData,
         communityState: communityState,
         loggedIn: loggedIn,
+        overrideNavigation: overrideNavigation,
       ),
       ...extraOverrides,
     ],
@@ -70,8 +84,19 @@ Widget buildTestApp(
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
+        builder: (context, child) => DefaultAssetBundle(
+          bundle: hostAppAssetBundle,
+          child: textScaler == null
+              ? child!
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
+        ),
+        localizationsDelegates: [
+          longestStrings
+              ? const LongestAppLocalizationsDelegate()
+              : AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
@@ -107,6 +132,16 @@ Widget buildTestAppPage(
   bool loggedIn = true,
   List<dynamic> extraOverrides = const [],
   Locale locale = const Locale('ko'),
+
+  /// Answer every l10n key with the longest shipped translation instead of
+  /// [locale]'s own. See `longest_app_localizations.dart`.
+  bool longestStrings = false,
+
+  /// Defaults keep every existing caller on the historical 375x812 harness.
+  /// Layout tests pass the app's real design size and a text scale.
+  Size designSize = const Size(375, 812),
+  bool splitScreenMode = false,
+  TextScaler? textScaler,
 }) {
   return ProviderScope(
     overrides: [
@@ -121,13 +156,25 @@ Widget buildTestAppPage(
       ...extraOverrides,
     ],
     child: ScreenUtilInit(
-      designSize: const Size(375, 812),
+      designSize: designSize,
       minTextAdapt: true,
+      splitScreenMode: splitScreenMode,
       child: MaterialApp(
         navigatorKey: navigatorKey,
         locale: locale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
+        builder: (context, child) => DefaultAssetBundle(
+          bundle: hostAppAssetBundle,
+          child: textScaler == null
+              ? child!
+              : MediaQuery(
+                  data: MediaQuery.of(context).copyWith(textScaler: textScaler),
+                  child: child!,
+                ),
+        ),
+        localizationsDelegates: [
+          longestStrings
+              ? const LongestAppLocalizationsDelegate()
+              : AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,

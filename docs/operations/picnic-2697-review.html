@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2697 적대적 리뷰 — 커밋 4a4535250</title>
+<style>
+  :root { color-scheme: light; --ink:#16202f; --muted:#5b6677; --line:#d9dfe9; --bg:#f4f6fa; --card:#fff;
+          --block:#b3261e; --warn:#8a5300; --ok:#14663f; --accent:#3a49c0; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--ink); line-height:1.62;
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR","Apple SD Gothic Neo",sans-serif; }
+  main { max-width:1120px; margin:0 auto; padding:34px 20px 72px; }
+  header, section { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:24px; margin-bottom:18px; }
+  h1 { margin:0 0 10px; font-size:29px; line-height:1.25; }
+  h2 { margin:0 0 14px; font-size:21px; border-bottom:2px solid var(--line); padding-bottom:8px; }
+  h3 { margin:24px 0 8px; font-size:16.5px; }
+  p { margin:8px 0; }
+  .muted { color:var(--muted); }
+  .verdict { border-left:6px solid var(--block); background:#fdeceb; padding:14px 18px; border-radius:8px; margin:12px 0; }
+  .verdict strong { font-size:18px; }
+  code { background:#eef1f6; padding:1px 5px; border-radius:4px;
+         font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:0.92em; }
+  pre { margin:12px 0; padding:15px; overflow-x:auto; background:#121826; color:#e8eefc;
+        border-radius:9px; line-height:1.5; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:13px; }
+  pre code { background:transparent; padding:0; color:inherit; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; font-size:14px; }
+  th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:#eceff6; }
+  td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  ul, ol { margin:8px 0; padding-left:22px; }
+  li { margin:4px 0; }
+  .tag { display:inline-block; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:700; color:#fff; vertical-align:2px; }
+  .t-block { background:var(--block); }
+  .t-warn { background:var(--warn); }
+  .t-ok { background:var(--ok); }
+  .t-info { background:var(--accent); }
+  .finding { border:1px solid var(--line); border-left:5px solid var(--block); border-radius:9px; padding:16px 18px; margin:16px 0; background:#fffdfd; }
+  .finding.nb { border-left-color:#9aa4b5; background:#fbfcfe; }
+  .finding h3 { margin-top:0; }
+  .kv { margin:6px 0; }
+  .kv b { display:inline-block; min-width:92px; color:var(--muted); font-weight:600; }
+  .ok { color:var(--ok); font-weight:700; }
+  .bad { color:var(--block); font-weight:700; }
+  .mid { color:var(--warn); font-weight:700; }
+</style>
+</head>
+<body>
+<main>
+
+<header>
+  <p class="muted">2026-09-15 · 브랜치 <code>feat/vote-dialog-landscape-columns</code> · 대상 커밋 <code>4a4535250</code> · 누적 <code>dde223cc4..4a4535250</code></p>
+  <h1>PICNIC-2697 조건부 2단 배치 — 적대적 리뷰</h1>
+  <p class="muted">읽기 전용 독립 검증. 구현자의 사고 과정·자기평가는 제공받지 않았고, 요구사항·diff·소스·테스트 실행 결과만으로 판정했다.</p>
+  <div class="verdict">
+    <strong>전체 판정: 수정 필요 (머지 불가)</strong><br>
+    차단 지적 2건. 가장 심각한 것은 <b>2단 경로가 라우트의 실제 높이를 무시해 키보드 해제·회전 구간에서 최대 248px RenderFlex 오버플로</b>를 내는 결함이며, 실행으로 재현했다.
+    "열 선택기가 재는 값 ≠ 실제 렌더가 받는 값" 계열의 <b>세 번째 사례를 찾았다</b>(높이 축). 같은 계열의 네 번째(충전 버튼 테두리 2px)는 비차단으로 분리했다.
+  </div>
+</header>
+
+<section>
+  <h2>0. 요약</h2>
+  <table>
+    <tr><th style="width:60px">#</th><th>지적</th><th style="width:88px">심각도</th><th>위치</th><th style="width:96px">재현</th></tr>
+    <tr><td>B1</td><td>2단 body 높이가 <code>AnimatedPadding</code> 아래의 실제 제약을 무시 → 키보드 해제/회전 시 82~248px 오버플로</td><td><span class="tag t-block">차단·높음</span></td><td>voting_dialog.dart:377·421-423, voting_dialog_layout.dart:501-502</td><td class="bad">실행 재현</td></tr>
+    <tr><td>B2</td><td>1단(기존 출시) 잔액 행 기하 변경 — 충전 pill 이 자연폭 70.2 → 행의 절반 128.6 (+83%)</td><td><span class="tag t-block">차단·중간</span></td><td>voting_dialog_widgets.dart:819-820</td><td class="bad">실측 재현</td></tr>
+    <tr><td>N1</td><td>충전 pill 의 <code>Border.all(1)</code> 2px 가 최소 폭·높이 측정에서 누락 (측정↔렌더 불일치 4번째)</td><td><span class="tag t-warn">비차단·낮음</span></td><td>voting_dialog_widgets.dart:717-730, 747-750</td><td>실측 재현</td></tr>
+    <tr><td>N2</td><td>열 최소 폭 측정이 인자로 즉시 평가돼 1단에서도 매 빌드 5.41ms 소모</td><td><span class="tag t-warn">비차단·낮음</span></td><td>voting_dialog.dart:395-396</td><td>벤치마크</td></tr>
+    <tr><td>N3~N9</td><td>잔액 ellipsis 한계, 죽은 <code>mode</code>, 항상 참인 단언, 1단 pill 스케일 변경, 1·2단 높이 기준 불일치, 테스트 공백 4종</td><td><span class="tag t-warn">비차단</span></td><td>본문 §2</td><td>—</td></tr>
+  </table>
+  <p>요구사항 준수(승인 결정 5건), 데이터 정확성, OTA 범위, 상태 보존은 <span class="ok">전부 통과</span>했고, 구현자가 보고한 수치 8종은 <span class="ok">전건 재현·일치</span>했다(§4).</p>
+</section>
+
+<section>
+  <h2>1. 차단 지적</h2>
+
+  <div class="finding">
+    <h3>B1 · 2단 body 가 라우트의 실제(애니메이션되는) 높이를 무시한다 <span class="tag t-block">차단 · 높음</span></h3>
+
+    <div class="kv"><b>파일:라인</b>
+      <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog.dart:377-382</code> (예산 계산),
+      <code>voting_dialog.dart:421-423</code> (실제 <code>constraints</code> 미사용),
+      <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart:501-502</code> (<code>SizedBox(height: layout.bodyHeight)</code>)
+    </div>
+
+    <div class="kv"><b>실패 조건</b> 2단이 선택되는 뷰포트에서 <code>viewInsets.bottom</code> 이 줄어들거나 창 크기가 바뀌는 모든 프레임 구간(키보드 내리기, 세로→가로 회전, 분할화면 리사이즈). 정상 상태에서는 발생하지 않는다.</div>
+
+    <div class="kv"><b>재현 (실행)</b></div>
+<pre><code>851×393 / ko / 1.0x / viewInsets.bottom 280 → 0, 16ms 단위 pump
+  → A RenderFlex overflowed by 248 pixels on the bottom.
+    (large_popup.dart:145 의 Column, constraints h&lt;=97.0, size 97.0, 요구 345)
+
+점진 해제 280→220→160→100→40→0        → 82 px 오버플로
+세로 393×852 → 가로 851×393 회전        → 198 px 오버플로
+
+대조군 A: 393×852(항상 1단)에서 동일 시퀀스 → 에러 0건
+대조군 B: 2단 → 키보드 등장(0→280) 방향   → 에러 0건</code></pre>
+
+    <div class="kv"><b>원인</b> <code>Dialog</code> 는 본문 높이를
+      <code>AnimatedPadding(padding: viewInsets + insetPadding, duration: 100ms)</code> 로 내준다.
+      2단 경로는 <b>AlertDialog 바깥</b> LayoutBuilder 제약에서 <code>viewInsets</code> 를 직접 빼
+      <code>popupAvailableHeight</code> 를 만들고(377행), 그것을 <code>bodyHeight</code> 로 확정한 뒤
+      <code>SizedBox(height: …)</code> 로 <b>고정</b>한다(layout.dart:501). 애니메이션이 진행되는 동안
+      실제 제약 &lt; 고정 높이이므로 <code>LargePopupWidget</code> 의
+      <code>Column(mainAxisSize: min)</code> 이 넘친다.
+      1단 경로는 안쪽 LayoutBuilder 의 <code>constraints.maxHeight</code> 를 그대로 읽고
+      <code>ConstrainedBox(maxHeight:)</code> + <code>Flexible</code> 로 받기 때문에 프레임마다 적응한다 —
+      그래서 대조군 A 는 깨끗하다. 421-423행의 2단 분기는 <code>constraints</code> 를 한 번도 읽지 않는다.</div>
+
+    <div class="kv"><b>계획 위반</b> 설계 문서
+      <code>docs/01-plan/features/picnic-2697-vote-dialog-landscape-columns-plan.html</code> §2.1 은
+      “<i>최종 렌더 높이는 기존 content LayoutBuilder의 실제 constraints를 따라 안전하게 제한한다</i>”고 명시했다. 미이행.
+      같은 문서 §2.3 은 “<i>voting_dialog_viewport_test.dart:139는 100ms AnimatedPadding을 지난 뒤 검사하므로 중간 프레임은 미검증이다</i>”라고
+      이 구멍을 미리 지목해 두었는데, 신규 198건도 inset 을 고정한 채 열기만 하므로 전이 프레임을 전혀 덮지 않는다.</div>
+
+    <div class="kv"><b>최소 수정 방향</b> 열 <b>선택</b>은 지금의 중립 계산(되먹임 없음)을 그대로 두고,
+      <b>렌더 높이만</b> 실제 제약으로 clamp 한다. 421-423행 분기에서
+      <code>final chrome = columnsLayout.showTopClose ? largePopupTopCloseChromeHeight() : largePopupHiddenChromeHeight();</code>
+      를 구해 <code>math.min(columnsLayout.bodyHeight, math.max(0, constraints.maxHeight - chrome))</code> 를
+      <code>VoteDialogColumns</code> 에 넘기면 된다(레이아웃 값은 layout 객체에 남기고 렌더 높이만 별도 인자로).
+      회귀 테스트는 <code>viewInsets</code> 를 280→0 으로 바꾼 뒤 16ms 씩 pump 하며
+      <code>tester.takeException()</code> 이 null 인지 보는 것으로 충분하다(위 재현이 곧 테스트다).</div>
+  </div>
+
+  <div class="finding">
+    <h3>B2 · 1단(기존 출시) 잔액 행 기하가 바뀌었다 — 충전 pill 이 행의 절반까지 늘어난다 <span class="tag t-block">차단 · 중간</span></h3>
+
+    <div class="kv"><b>파일:라인</b>
+      <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart:819-820</code>
+      (비-columns 분기의 <code>Expanded(child: amount)</code> + <b><code>Flexible(child: recharge)</code></b>),
+      원인 연결점 <code>voting_dialog_widgets.dart:878</code> (<code>Expanded(child: label)</code>)
+    </div>
+
+    <div class="kv"><b>실패 조건</b> 모든 기기·모든 로케일의 일반 투표 팝업 1단 화면(=현재 프로덕션 기본 경로). 상태·입력과 무관하게 항상.</div>
+
+    <div class="kv"><b>재현 (실행 실측)</b></div>
+<pre><code>VotingDialog / ko / 1.0x, 1단 확정 뷰포트에서 VotingStarCandyInfo 내부 실측
+  393×852 : row 293.2  pill 128.6   (= (293.2 − 32.w − 4.w) / 2)
+  375×812 : row 279.8  pill 122.7   (= (279.8 − 30.5 − 3.8) / 2)
+  412×915 : row 307.3  pill 134.8   (= (307.3 − 33.5 − 4.2) / 2)
+  → 세 뷰포트 모두 정확히 "flex 절반 share". 자연폭이면 이렇게 행 폭에 비례하지 않는다.
+
+같은 상수(padding 12·gap 4·icon 16·border 1)로 만든 자연폭 pill
+  ko 70.2 / en 106.6 / my 186.0
+  → ko 기준 70.2 → 128.6, +58.4px (+83%)</code></pre>
+
+    <div class="kv"><b>원인</b> pill 내부 Row 를 <code>Expanded(child: label)</code> 로 바꾸면
+      비-flex 자리(주축 제약 unbounded)에서는 <code>RenderFlex</code> 가 assert 를 낸다. 그걸 피하려고
+      <code>_RechargeButton</code> 을 <code>Flexible</code> 로 감쌌는데, 그 순간 pill 이
+      <b>비-flex(자연폭) 자식 → flex 자식</b>으로 바뀐다. 남은 폭을 <code>Expanded(amount)</code> 와 1:1 로 나눠
+      pill 은 <code>maxWidth = 절반</code> 을 받고, 내부 <code>Align</code> 은 <b>bounded 폭에서는 shrink-wrap 하지 않고</b>
+      제약을 꽉 채운다(<code>RenderPositionedBox</code>: <code>shrinkWrapWidth = maxWidth == infinity</code>).
+      2단 경로에서 <code>Expanded(child: recharge)</code> 를 쓰는 것은 의도된 설계지만, 그 변경이
+      1단 분기까지 끌고 들어갔다.</div>
+
+    <div class="kv"><b>영향</b> ① 민트 “충전” pill 이 디자인 대비 1.8배로 커지고, 라벨은 좌정렬·<code>+</code> 아이콘은 우측 끝으로 밀린다(중앙 정렬이던 그룹이 깨진다).
+      ② 잔액 <code>Expanded</code> 박스가 약 187 → 128.6 으로 줄어든다. 비-columns 분기의 잔액 <code>Text</code> 에는
+      <code>maxLines</code>/<code>overflow</code> 가 없어 자릿수가 커지면 이전보다 일찍 넘친다.
+      ③ 승인 결정 4 “1단 560 불변”과, 구현 결과 문서 §8 의 “<i>정상 폭의 card-scaled geometry는 유지하고, 내부 폭이 아이콘+gap보다 작을 때만…</i>”
+      라는 주장과 상충한다 — 정상 폭에서도 바뀐다.</div>
+
+    <div class="kv"><b>최소 수정 방향</b> 819-820행의 비-columns 분기를 이전대로
+      <code>Expanded(child: amount), recharge</code> 로 되돌리고, pill 내부 Row 는
+      <code>Expanded(label)</code> 대신 <code>Flexible(label)</code> + <code>mainAxisSize: MainAxisSize.min</code> 으로 둔다
+      (unbounded 에서도 assert 가 나지 않고, bounded 에서는 여전히 라벨이 줄어든다).
+      600×500 의 2px 오버플로 방어(<code>showGap</code>/아이콘 clamp)는 그대로 유지된다.
+      회귀 단언으로 1단 pill 폭이 행 폭에 비례하지 않음(예: <code>pill.width &lt; row.width * 0.45</code> 대신
+      로케일별 자연폭 근처)을 고정할 것.</div>
+  </div>
+</section>
+
+<section>
+  <h2>2. 비차단 관찰</h2>
+
+  <div class="finding nb">
+    <h3>N1 · 충전 pill 테두리 2px 가 최소 폭·높이 측정에서 빠졌다 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_widgets.dart:717-730</code> (<code>columnMinimumWidth</code>), <code>:747-750</code> (<code>rechargeLabelWidth</code>)</div>
+    <div class="kv"><b>근거</b> <code>Border.all(width: 1)</code> 은 <code>BoxDecoration.padding</code> 을 통해 <code>Container</code> 의 effective padding 에 상하좌우 1px 씩 더해진다. 실측: <code>padding: 12 좌우 + 자식 10</code> → 공식상 34, 실제 <b>36</b>.</div>
+    <div class="kv"><b>영향</b> (a) 좌열 최소 폭이 2px 과소 → 충전 라벨이 의도보다 2px 일찍 ellipsis. (b) <code>preferredHeight(columns: true)</code> 가 라벨 측정 폭을 2px 넓게 잡아, 라벨이 1줄↔2줄 경계에 있으면 좌열 높이를 최대 한 줄만큼 과소평가 → 잔액 행 하단이 offset 0 에서 잘릴 수 있다. 오버플로는 없다(좌열은 스크롤, 라벨은 <code>Expanded</code>).</div>
+    <div class="kv"><b>비차단 사유</b> 현재 매트릭스(8 뷰포트 × 3 배율 × 4 locale)에서 그 경계를 실제로 치는 조합을 만들지 못했다. 다만 앞의 두 사고와 <b>정확히 같은 계열</b>이므로 함께 고쳐 두는 편이 안전하다.</div>
+    <div class="kv"><b>최소 수정</b> 두 식에 <code>+ 2</code>(또는 상수 <code>_rechargePillBorder = 1</code> 을 두고 <code>*2</code>)를 더한다.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N2 · 열 최소 폭 측정이 즉시 평가돼 1단에서도 매 빌드 비용을 낸다 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog.dart:395-396</code></div>
+    <div class="kv"><b>근거</b> 높이 두 개는 <code>Function(double)</code> 콜백이라 지연 평가되지만, <code>leftMinimumWidth:</code>/<code>rightMinimumWidth:</code> 는 인자로 <b>즉시</b> 계산된다. 따라서 <code>keyboardVisible</code> 이나 <code>!singleIsUnderPressure</code> 로 즉시 <code>null</code> 이 되는 세로형 폰에서도 매 빌드마다 5회의 이분 탐색(각 48회 <code>TextPainter.layout</code>)이 돈다.</div>
+    <div class="kv"><b>실측</b> 호스트(Apple Silicon) 기준 <b>5.41 ms / 빌드</b>. 빌드는 입력 포매터의 <code>setState</code> 때문에 <b>타자 한 글자마다</b> 발생하며, 지갑 갱신·inset 애니메이션 프레임에서도 발생한다. 중저가 안드로이드에서는 수 배가 되어 프레임 예산을 넘길 수 있다.</div>
+    <div class="kv"><b>최소 수정</b> 두 폭도 <code>double Function()</code> 으로 지연 평가하거나, <code>(locale, textScaler, 아티스트명)</code> 을 키로 State 에 메모이즈한다.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N3 · 잔액이 <code>9,999,999</code> 픽스처보다 길면 읽을 수 없다 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_widgets.dart:808-816</code></div>
+    <div class="kv"><b>내용</b> 좌열 잔액은 고정 폭 슬롯 + 1줄 ellipsis 다. 열 수 안정성을 위한 의도된 트레이드오프이고 코드 주석에 근거가 있으나, 별사탕 1,000만 이상 계정에서는 요구사항이 좌열 필수 항목으로 지정한 “잔액”이 부분만 보인다. 30자리 회귀 테스트는 “오버플로 없음”만 보장하고 가독성은 보장하지 않는다.</div>
+    <div class="kv"><b>선택지</b> 자릿수 구간별 픽스처 단계화, 또는 축약 표기(1,234만) — 제품 결정 사항.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N4 · <code>VoteDialogShape.mode</code> 가 2단 경로에서 죽은 값이다 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_layout.dart:328-336</code>, <code>:487-528</code></div>
+    <div class="kv"><b>내용</b> <code>allowRadiusClamp</code> 후보에서 <code>mode</code> 는 항상 <code>allScroll</code> 인데 <code>VoteDialogColumns</code> 는 <code>cardBorderRadius</code> 만 쓰고 <code>mode</code> 를 전혀 보지 않는다. 동작상 무해하지만 “2단인데 allScroll” 이라는 오해를 부르는 상태가 전달된다.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N5 · <code>measureVotingTextMinimumWidth</code> 의 항상 참인 조건과 과다 반복 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_widgets.dart:69-71</code>, <code>:78</code></div>
+    <div class="kv"><b>내용</b> painter 에 이미 <code>maxLines</code> 를 넘겼으므로 <code>computeLineMetrics().length &lt;= maxLines</code> 는 항상 참이다. 실질 판정은 <code>didExceedMaxLines</code> 하나뿐. 48회 이분 탐색도 double 정밀도 기준 과다(40회면 수렴)이며 N2 비용에 직접 기여한다.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N6 · 1단 충전 pill 의 가로 치수 기준이 함께 바뀌었다 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_widgets.dart:836-837</code>, <code>:860-862</code>, <code>:838-845</code></div>
+    <div class="kv"><b>내용</b> 1단 pill 의 padding/gap/icon 이 <code>PicnicUi.horizontal(n)</code>(=<code>n.w</code>) → <code>voteDialogCardExtent(n)</code> 로 바뀌었다. 560 캡을 넘는 넓은 창에서 1단 pill 이 축소된다. 카드 캡과 일관되므로 개선으로 볼 여지가 있으나 “1단 불변” 범위 밖의 변경이며, 라벨의 <code>maxLines: 2 + ellipsis</code> 도 1단에 함께 적용됐다. B2 를 고칠 때 함께 의도 확인이 필요하다.</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N7 · 1단과 2단이 “가용 높이”를 서로 다르게 본다 <span class="tag t-warn">관찰</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog.dart:282-297</code>(1단 <code>verticalInset</code>) vs <code>:344-382</code>(2단 <code>neutralVerticalInset</code>)</div>
+    <div class="kv"><b>내용</b> 1단은 <code>mediaQuery.size.height − viewInsets.bottom − padding.vertical</code> 을 쓰는데, <code>showDialog(useSafeArea: true)</code> 안에서는 <code>MediaQuery.padding</code> 이 이미 제거돼 0이므로 <b>세이프에어리어만큼 높이를 과대평가</b>한다. 2단은 SafeArea 가 차감된 <code>routeHeight</code> 를 쓴다. 1단 쪽은 PICNIC-2694 부터의 기존 동작이라 이 diff 의 차단 사유는 아니지만, 같은 양을 두 경로가 다르게 보는 상태가 새로 생겼다. (테스트 하네스는 <code>showDialog</code> 가 아니라 <code>Scaffold(body:)</code> 에 직접 얹으므로 이 차이가 드러나지 않는다.)</div>
+  </div>
+
+  <div class="finding nb">
+    <h3>N8 · 테스트 공백 4종 <span class="tag t-warn">낮음</span></h3>
+    <ul>
+      <li><b>inset/회전 전이 프레임</b> — 매트릭스는 <code>viewInsets</code> 를 고정한 채 열기만 한다(<code>voting_dialog_columns_test.dart:317-348</code>). <b>B1 이 여기 숨어 있었다.</b></li>
+      <li><b>1단 충전 pill 기하 고정</b> — 어떤 테스트도 1단 pill 폭을 단언하지 않아 750건이 전부 통과했다. <b>B2 가 여기 숨어 있었다.</b></li>
+      <li><b>2단↔1단 전환 시 상태 보존</b> — 직접 검증해 통과했으나(§3-4) 회귀 방지 단언이 없다. 설계 문서 §2.3 이 명시적으로 요구한 항목이다.</li>
+      <li><b>RTL</b> — <code>_locales</code> 에 RTL 이 없다. <code>VotingErrorMessage</code> 는 물리 <code>left</code> padding 을 쓴다(기존 동작).</li>
+    </ul>
+    <p class="muted"><code>_expectSingleColumnContract</code> 의 else 분기(<code>columns_test.dart:270-278</code>)는 “Scrollable 조상이 있다”만 요구해 컨트롤이 화면 밖이어도 통과한다 — 2694/2688 에서 계승한 약한 단언이며 이 diff 가 새로 약화시킨 것은 아니다.</p>
+  </div>
+
+  <div class="finding nb">
+    <h3>N9 · <code>_expectsColumns</code> 오라클과 수정된 viewport 테스트 <span class="tag t-warn">낮음</span></h3>
+    <div class="kv"><b>파일:라인</b> <code>voting_dialog_columns_test.dart:66-81</code>, <code>voting_dialog_viewport_test.dart:438-466</code></div>
+    <div class="kv"><b>독립 판단</b> th/2.0 예외는 구현 결과를 그대로 기대값으로 굳힌 골든이다. 주석으로 근거가 남아 있고 구현이 바뀌면 깨지므로 tautology 는 아니다.
+      viewport 테스트 14줄 수정은 <b>커버리지를 약화시키지 않았다</b> — 1단 ≤560 단언이 그대로 살아 있고 2단에만 ≤800 이 적용된다.
+      다만 851×393 에서 무조건 ≤560 이던 단언이 경로 의존이 되어, 그 뷰포트가 실수로 2단이 되는 회귀는 이제 이 테스트가 잡지 못한다 —
+      columns 매트릭스가 그 역할을 대신하므로 수용 가능하다.</div>
+  </div>
+</section>
+
+<section>
+  <h2>3. 측정↔렌더 전수 대조</h2>
+  <p>열 선택기가 참조하는 <b>모든</b> 측정 함수와 그 결과를 소비하는 실제 위젯의 렌더 경로를 1:1 로 대조했다.
+  각 행마다 <b>측정에 들어가지 않은 고정 비용</b>(아이콘·gap·패딩·테두리·최소 탭 타깃·생략 표시),
+  <b>상태 의존 폭</b>(활성/비활성/로딩/오류), <b>런타임 데이터</b>(잔액 자릿수·이름 길이·로케일),
+  그리고 <b>measure 와 build 가 서로 다른 제약/TextScaler 를 받는지</b>를 확인했다.</p>
+
+  <h3>3-1. 폭 축</h3>
+  <table>
+    <tr><th>측정 함수</th><th>실제 렌더 경로</th><th>고정 비용 대조</th><th>판정</th></tr>
+    <tr>
+      <td><code>_columnsLeftMinimumWidth</code><br>voting_dialog.dart:622-631</td>
+      <td><code>_buildColumnsLeft</code> 의 <code>Row[VotingArtistImage(80), SizedBox(12), Expanded(MemberInfo)]</code><br>voting_dialog.dart:713-736</td>
+      <td>초상화 <code>Container(width:80)</code> 은 <code>Border.all(2)</code> 가 있어도 <b>외곽 80 고정</b>(tightFor). gap 12 일치. MemberInfo 는 padding 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>VotingMemberInfo.columnMinimumWidth</code><br>widgets.dart:379-401</td>
+      <td>columns 분기 <code>ColoredBox &gt; Column(start)[Text×2, Divider]</code><br>widgets.dart:467-499</td>
+      <td>padding·border 없음. 이름/그룹 각각 2줄 최소 폭의 max — 렌더도 같은 폭을 공유.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>VotingStarCandyInfo.columnMinimumWidth</code><br>widgets.dart:717-730</td>
+      <td><code>Row[Container(32), SizedBox(4), SizedBox(amountW), Expanded(_RechargeButton)]</code><br>widgets.dart:791-824, 846-901</td>
+      <td class="bad">충전 pill 의 <code>Border.all(1)</code> 2px 누락. 그 외 32·4·12×2·gap4·icon16 은 일치.</td>
+      <td class="bad">N1</td>
+    </tr>
+    <tr>
+      <td><code>VotingCheckAllOption.columnMinimumWidth</code><br>widgets.dart:1034-1042</td>
+      <td><code>ConstrainedBox(48) &gt; Row[Svg(20), SizedBox(4), Flexible(Text)]</code><br>widgets.dart:1044-1076</td>
+      <td>glyph 20 + gap 4 + 2줄 최소. 테두리·패딩 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>_columnsAmountInputMinimumWidth</code><br>voting_dialog.dart:639-651</td>
+      <td><code>Container(border 1, padding right 4) &gt; Row[Expanded(TextFormField contentPadding 24), VotingClearButton]</code><br>voting_dialog.dart:1044-1157</td>
+      <td>border 2 + right 4 + <code>ClearButton</code> 실측 48×48(<code>PicnicUi.minimumTapTarget</code>) + 24×2 + 픽스처. <b>전부 계상됨</b> — <code>isCollapsed: true</code>, <code>InputBorder.none</code> 이라 InputDecorator 추가 비용 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>VotingErrorMessage.columnMinimumWidth</code><br>widgets.dart:1119-1126</td>
+      <td><code>Container(padding left 24, width infinity) &gt; Text</code><br>widgets.dart:1128-1144</td>
+      <td>left 24 일치, 그 외 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>VotingSubmitButton.columnMinimumWidth</code><br>widgets.dart:943-950</td>
+      <td><code>Container(width infinity, padding h12, decoration 무테두리) &gt; Text(2줄)</code><br>widgets.dart:956-994</td>
+      <td>12×2 일치. <code>BoxDecoration</code> 에 border 가 없어 추가 inset 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td>카드 폭 분해<br><code>fixedHorizontal</code> layout.dart:273-277</td>
+      <td><code>LargePopupWidget</code> 카드 <code>Border.all(2.r)</code> + <code>VoteDialogColumns</code> padding 16×2 + gap 16<br>large_popup.dart:127-139, layout.dart:500-527</td>
+      <td><code>leftWidth + 16 + rightWidth == cardWidth − border×2 − 32</code> 가 뺄셈으로 정확히 성립. 부동소수 잔차 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+  </table>
+
+  <h3>3-2. 높이 축</h3>
+  <table>
+    <tr><th>측정 함수</th><th>실제 렌더 경로</th><th>대조 결과</th><th>판정</th></tr>
+    <tr>
+      <td><code>_columnsLeftMinimumHeight</code><br>voting_dialog.dart:665-687</td>
+      <td><code>max(80, MemberInfo) + 8 + StarCandyInfo</code> 순서 그대로<br>voting_dialog.dart:713-736</td>
+      <td>밴드 순서·gap 8 일치. 버블·로고는 의도적으로 미계상(스크롤 허용 구간).</td>
+      <td class="mid">N1 경유 2px</td>
+    </tr>
+    <tr>
+      <td><code>VotingStarCandyInfo.preferredHeight(columns)</code><br>widgets.dart:734-773</td>
+      <td><code>ConstrainedBox(48) &gt; Align &gt; Container(minHeight 32, 세로 padding 없음, border 1)</code><br>widgets.dart:854-899</td>
+      <td class="bad">pill 실제 높이는 <code>max(32, 라벨+2)</code> 인데 측정은 <code>+2</code> 없음. 또 라벨 측정 폭이 2px 넓어 1줄↔2줄 경계에서 뒤집힐 수 있음.</td>
+      <td class="bad">N1</td>
+    </tr>
+    <tr>
+      <td><code>_columnsRightMinimumHeight</code><br>voting_dialog.dart:689-703</td>
+      <td><code>CheckAll + Input + 8 + SizedBox(errorH) + 8 + Submit</code><br>voting_dialog.dart:738-778</td>
+      <td>밴드·gap 완전 일치. 오류 높이는 <code>reserveWhenHidden</code> 으로 <b>항상 예약</b>돼 상태 변화가 높이를 바꾸지 않음. <code>isVoting</code> 은 <code>preferredHeight</code> 인자가 아니라 로딩 상태도 불변.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>_amountInputPreferredHeight</code><br>voting_dialog.dart:804-817</td>
+      <td><code>ConstrainedBox(48) &gt; DecoratedBox &gt; Padding(1,1,5,1) &gt; Row</code></td>
+      <td><code>max(48, line + 8.h×2) + 1×2</code> — 테두리 2px 가 계상돼 있다. columns 에서도 세로 padding 은 <code>.h</code> 를 공유해 측정·렌더가 같은 값을 쓴다.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>VotingSubmitButton.preferredHeight(columns)</code><br>widgets.dart:926-941</td>
+      <td><code>Container(minHeight 52, padding v4, 무테두리)</code></td>
+      <td><code>max(52, label + 4×2)</code> 일치. <code>isVoting</code> 시 자식이 24×24 로 <b>작아지므로</b> 과소평가 위험 없음.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td>모서리 clearance<br><code>resolvedTopInset/BottomInset</code> layout.dart:337-354</td>
+      <td><code>VoteDialogColumns</code> 의 <code>Padding(16, topInset, 16, bottomInset)</code></td>
+      <td><b>해결된 반경</b>(<code>shape.cardBorderRadius.topLeft.x</code>)으로 재계산해 대칭 적용. 120 상수를 직접 쓰지 않음. 카드 테두리만큼 보수적(더 안전)으로 잡힘.</td>
+      <td class="ok">일치</td>
+    </tr>
+    <tr>
+      <td><code>popupAvailableHeight</code> → <code>bodyHeight</code><br>voting_dialog.dart:377-382 → layout.dart:501-502</td>
+      <td><code>Dialog</code> 의 <code>AnimatedPadding(viewInsets + insetPadding, 100ms)</code> 아래 실제 제약</td>
+      <td class="bad">정상 상태는 정확히 일치하지만, inset 이 변하는 구간에서 <b>측정 &gt; 실제</b>. 고정 <code>SizedBox</code> 라 적응하지 못하고 넘친다.</td>
+      <td class="bad">B1</td>
+    </tr>
+  </table>
+
+  <h3>3-3. 측정 컨텍스트 일치 여부</h3>
+  <ul>
+    <li><b>TextScaler</b> — 측정은 <code>MediaQuery.textScalerOf(context)</code>, 렌더는 같은 <code>MediaQuery</code> 하위. <code>Dialog</code> 의 <code>MediaQuery.removeViewInsets</code> 는 scaler 를 건드리지 않는다. <span class="ok">일치</span></li>
+    <li><b>Locale / Directionality</b> — <code>Localizations.maybeLocaleOf</code>, <code>Directionality.of</code> 모두 같은 서브트리. <span class="ok">일치</span></li>
+    <li><b>제약 폭</b> — <code>rightMinimumHeightForWidth(rightWidth)</code> 와 <code>_buildColumnsRight</code> 의 <code>constraints.maxWidth</code> 가 동일하다. <code>SingleChildScrollView</code> 는 세로축만 풀고 가로 tight 를 그대로 전달(<code>_SingleChildViewport._getInnerConstraints</code>). <span class="ok">일치</span></li>
+    <li><b>상태 되먹임</b> — 열 선택 입력은 라우트 제약 + 중립 측정뿐이고, 선택 결과가 바꾸는 <code>insetPadding</code> 은 선택기가 읽는 LayoutBuilder <b>아래</b>에 있다. 진동 경로 없음. <span class="ok">없음</span></li>
+    <li><b>DefaultTextStyle 병합</b> — <code>PicnicUi.text()</code> 는 <code>inherit: true</code> 라 렌더 시 <code>AlertDialog</code> 의 <code>contentTextStyle</code> 과 merge 되지만 측정은 raw 스타일을 쓴다. fontSize/family/weight/height/letterSpacing 을 전부 명시하므로 폭에 영향을 주는 속성은 남지 않는다. 기존 2694 측정에도 동일하게 적용된 전제. <span class="ok">영향 없음</span></li>
+  </ul>
+  <p><b>결론:</b> 세 번째 불일치는 <b>있다</b> — 개별 위젯 폭이 아니라 <b>body 높이 예산 자체</b>(B1)에서 났고, 네 번째(N1, 충전 pill 테두리)도 같은 계열로 남아 있다.</p>
+</section>
+
+<section>
+  <h2>4. 검증 재현 수치</h2>
+  <p>모두 이 워크트리에서 직접 실행했다(Flutter 3.41.4, <code>picnic_lib</code> 기준).</p>
+  <table>
+    <tr><th>항목</th><th>구현자 주장</th><th>재현 결과</th><th>판정</th></tr>
+    <tr><td>신규 스위트</td><td>198 통과</td><td><code>flutter test test/.../voting_dialog_columns_test.dart</code> → <code>00:11 +198: All tests passed!</code></td><td class="ok">일치</td></tr>
+    <tr><td>투표 디렉터리</td><td>750 통과</td><td><code>flutter test --no-pub test/presentation/widgets/vote/voting</code> → <code>00:26 +750: All tests passed!</code></td><td class="ok">일치</td></tr>
+    <tr><td>공유 회귀 5파일</td><td>45 통과</td><td><code>00:03 +45: All tests passed!</code></td><td class="ok">일치</td></tr>
+    <tr><td>전체 analyze</td><td>521 (기존)</td><td><code>flutter analyze</code> → <code>521 issues found.</code></td><td class="ok">일치</td></tr>
+    <tr><td>변경 5파일 analyze</td><td>신규 0</td><td><code>flutter analyze --no-pub &lt;5 files&gt;</code> → <code>No issues found!</code></td><td class="ok">일치</td></tr>
+    <tr><td>2단 조합 수</td><td>34</td><td>오라클 3 뷰포트 × 3 배율 × 4 locale(K0) = 36, th/2.0 의 851·844 2건 폴백 = <b>34</b>, 매트릭스 전건 통과</td><td class="ok">일치</td></tr>
+    <tr><td>JMA source diff</td><td>0</td><td><code>git diff dde223cc4..4a4535250 -- …/jma_voting_dialog.dart</code> → 0줄</td><td class="ok">일치</td></tr>
+    <tr><td>OTA 범위</td><td>네이티브·플러그인·에셋·pubspec 변경 없음</td><td>누적 diff 9파일 = lib 3 + test 3 + docs 3. <code>pubspec / android/ / ios/ / assets/ / *.plist / *.gradle / Podfile / *.lock</code> 매칭 <b>0건</b></td><td class="ok">일치 (OTA 가능 범위)</td></tr>
+  </table>
+
+  <h3>4-1. 리뷰가 추가로 실행한 측정</h3>
+  <table>
+    <tr><th>측정</th><th>결과</th><th>용도</th></tr>
+    <tr><td>2단 뷰포트 키보드 해제 (280→0, 16ms pump)</td><td class="bad">RenderFlex overflowed by <b>248 px</b></td><td>B1</td></tr>
+    <tr><td>2단 뷰포트 점진 해제 (280→220→160→100→40→0)</td><td class="bad">RenderFlex overflowed by <b>82 px</b></td><td>B1</td></tr>
+    <tr><td>세로→가로 회전 (393×852 → 851×393)</td><td class="bad">RenderFlex overflowed by <b>198 px</b></td><td>B1</td></tr>
+    <tr><td>대조군 A — 1단 뷰포트(393×852) 동일 해제 시퀀스</td><td class="ok">에러 0건</td><td>B1 원인 격리</td></tr>
+    <tr><td>대조군 B — 2단 → 키보드 등장(0→280)</td><td class="ok">에러 0건</td><td>B1 방향성</td></tr>
+    <tr><td>1단 충전 pill 폭 (393/375/412 × ko)</td><td class="bad">128.6 / 122.7 / 134.8 = 정확히 flex 절반 share</td><td>B2</td></tr>
+    <tr><td>동일 상수의 자연폭 pill (ko/en/my)</td><td>70.2 / 106.6 / 186.0</td><td>B2 (+83%)</td></tr>
+    <tr><td><code>Border.all(1)</code> 포함 Container 박스</td><td class="bad">공식 34 vs 실제 <b>36</b></td><td>N1</td></tr>
+    <tr><td>열 최소 폭 측정 비용 (5 × 48회 이분 탐색)</td><td class="mid">5.41 ms / 빌드 (호스트)</td><td>N2</td></tr>
+    <tr><td>2단↔1단 전환 시 입력값·포커스</td><td class="ok">text "123" 유지, primary focus 유지</td><td>항목 4</td></tr>
+  </table>
+  <p class="muted">추가 측정은 모두 세션 스크래치패드의 임시 테스트 파일로 실행했고, 저장소에는 파일을 만들거나 수정하지 않았다(<code>git status</code> clean, 이 보고서 1건 제외).</p>
+</section>
+
+<section>
+  <h2>5. 요구사항·결정 준수와 회귀 점검</h2>
+
+  <h3>5-1. 승인 결정 5건</h3>
+  <table>
+    <tr><th>#</th><th>결정</th><th>검증</th><th>판정</th></tr>
+    <tr><td>1</td><td>일반 <code>VotingDialog</code> 만, JMA 무변경</td><td>소스 diff 0줄. 확장된 공용 위젯의 새 인자는 전부 기본값 <code>false</code>. JMA 대조 24표본 ≤560. 실행 확인.</td><td class="ok">준수</td></tr>
+    <tr><td>2</td><td>라벨·이름 1줄 우선 최대 2줄, 입력은 1줄 편집</td><td>최소 폭은 2줄 하한으로 계산하고 실제 열 폭이 넓으면 자연히 1줄. 입력 <code>maxLines: 1</code>, <code>hintMaxLines: 1</code>.</td><td class="ok">준수</td></tr>
+    <tr><td>3</td><td>입력 힌트가 최소 폭을 정하지 않는다 / 편집 숫자 가시성 유지</td><td><code>_columnsAmountInputMinimumWidth</code> 는 힌트가 아니라 <code>'9,999,999'</code> 를 <code>_amountInputStyle()</code> 로 잰다. 힌트는 <code>hintMaxLines: 1</code> + InputDecorator 기본 ellipsis. my/2.0 전용 회귀 테스트 존재.</td><td class="ok">준수</td></tr>
+    <tr><td>4</td><td>2단 상한 800 · 간격 16 · 1단 560 불변</td><td>상수 <code>kVoteDialogColumnsMaxWidth = 800</code>, <code>kVoteDialogColumnGap = 16</code>. 1단은 <code>resolveVoteDialogWidth()</code> 그대로.<br><b>단, B2 로 1단 잔액 행의 내부 기하가 바뀌었다</b> — 폭 상한은 지켰으나 “1단 불변”은 깨졌다.</td><td class="mid">폭 상한 준수 / 내부 기하 위반(B2)</td></tr>
+    <tr><td>5</td><td>키보드 구간은 2단 시도 없이 1단 폴백</td><td><code>resolveVoteDialogColumnsLayout</code> 첫 줄이 <code>keyboardVisible</code> 단락. K280 96표본 전부 1단 확인.</td><td class="ok">준수</td></tr>
+  </table>
+  <p><b>기기·방향·화면비 분기 금지</b> — 선택식에 <code>Orientation</code>, aspectRatio, 기기 판별, 특정 뷰포트 상수가 전혀 없다. 순수하게 (라우트 폭·높이, viewInsets, TextScaler, locale, 이름 길이) 함수다. <span class="ok">준수</span></p>
+
+  <h3>5-2. 회귀</h3>
+  <table>
+    <tr><th>대상</th><th>결과</th></tr>
+    <tr><td>PICNIC-2694 뷰포트 보장</td><td>정상 상태 <span class="ok">유지</span>(158 자산 + 매트릭스 통과). <span class="bad">전이 구간은 B1 로 깨진다</span> — 캡슐이 뷰포트를 넘는다.</td></tr>
+    <tr><td>PICNIC-2688 키보드 시나리오</td><td>K280 96표본 전부 1단·560·스크롤 도달성 <span class="ok">유지</span>. 2단→키보드 등장 방향도 무결. 반대 방향(해제)만 B1.</td></tr>
+    <tr><td>PICNIC-2695 조건부 닫기</td><td>2단에서 <b>표시</b>(851×393)·<b>숨김</b>(851×270) 두 경우 모두 테스트 존재, 48 탭 타깃·충전과 비겹침·캡슐 밖 배치 검증됨. <code>closeButtonEnabled: !_isVoting</code>, <code>onClose: _requestClose</code>, <code>PopScope</code> 가드 <span class="ok">그대로</span>.</td></tr>
+    <tr><td>충전 탭 타깃 48</td><td><code>ConstrainedBox(minHeight: 48)</code> 유지. 2단에서 <code>Expanded</code> 폭도 항상 48 초과(좌열 최소 폭이 <code>24+라벨+20</code> 이상을 보장). <span class="ok">유지</span></td></tr>
+    <tr><td>둥근 모서리 clip</td><td><code>voteDialogCornerClearance</code> 를 <b>해결된 반경</b>으로 다시 계산해 상·하 대칭 적용(layout.dart:337-354). 테스트도 위젯의 실제 <code>cardBorderRadius</code> 로 RRect 침범을 잰다. <span class="ok">올바름</span></td></tr>
+    <tr><td>상태 보존(항목 4)</td><td><code>_inputFieldKey</code> 가 <code>GlobalKey</code>(voting_dialog.dart:96)라 열 전환 시 입력 서브트리가 <b>reparent</b> 된다. <code>Focus</code> 는 deactivate 시 루트로 park 되고 같은 프레임에 새 attach 가 먼저 일어나므로 포커스가 날아가지 않는다. 실행 확인: 텍스트·포커스 모두 유지. <span class="ok">문제 없음</span>(회귀 단언은 부재 → N8)</td></tr>
+    <tr><td>데이터 정확성(항목 5)</td><td><code>_handleVote</code>·<code>_validateVote</code>·<code>_toggleCheckAll</code>·지갑 조회·분석 이벤트·요청 로직은 diff 에 <b>한 줄도 없다</b>. 2단 분기는 동일 콜백을 동일 인자로 연결만 한다. <span class="ok">변경 없음</span></td></tr>
+    <tr><td>전환 조건 안정성(항목 1)</td><td>열 수는 입력값·유효성·로딩·잔액과 무관(중립 측정 + <code>9,999,999</code> 픽스처). 선택 결과가 선택 입력으로 되먹이는 경로 없음. 경계 진동 <span class="ok">없음</span>. 잔액 변동도 열 수를 바꾸지 않는다(대신 N3).</td></tr>
+  </table>
+</section>
+
+<section>
+  <h2>6. 재현 절차</h2>
+  <h3>B1 — 2단 오버플로</h3>
+<pre><code>// picnic_lib/test/... 아래에 아래 골자의 테스트를 두면 즉시 RED 가 된다.
+// 851×393 / ko / 1.0x, designSize: kAppDesignSize, splitScreenMode: kAppSplitScreenMode
+// (1) viewInsets.bottom = 280 으로 열고 1단임을 확인
+// (2) viewInsets.bottom 을 0 으로 바꾼다
+// (3) await tester.pump(const Duration(milliseconds: 16)); 를 12회
+// (4) expect(tester.takeException(), isNull);
+//
+// 관측:
+//   A RenderFlex overflowed by 248 pixels on the bottom.
+//   The relevant error-causing widget was:
+//     Column  large_popup.dart:145:14
+//   constraints: BoxConstraints(w=781.7, 0.0&lt;=h&lt;=97.0)  size: Size(781.7, 97.0)
+//
+// 점진 해제(280→220→160→100→40→0)는 82px,
+// 세로→가로 회전은 198px 로 같은 결함이 재현된다.
+// 393×852(항상 1단)로 같은 시퀀스를 돌리면 에러가 0건이다.</code></pre>
+
+  <h3>B2 — 1단 충전 pill 확대</h3>
+<pre><code>// 1단이 확정되는 세로형 뷰포트에서 VotingStarCandyInfo 내부를 잰다.
+final row  = tester.getRect(find.byType(VotingStarCandyInfo));
+final pill = tester.getRect(find.descendant(
+  of: find.byType(VotingStarCandyInfo),
+  matching: find.byWidgetPredicate((w) =&gt;
+      w is Container &amp;&amp; w.decoration is BoxDecoration &amp;&amp;
+      (w.decoration as BoxDecoration).border != null)).first);
+
+// 관측 (ko / 1.0x):
+//   393×852  row 293.2  pill 128.6
+//   375×812  row 279.8  pill 122.7
+//   412×915  row 307.3  pill 134.8
+// 세 경우 모두 pill == (row - 32.w - 4.w) / 2  → flex 절반 share.
+// 같은 상수로 만든 자연폭 pill 은 ko 70.2 / en 106.6 / my 186.0 이다.</code></pre>
+</section>
+
+<section>
+  <h2>7. 판정</h2>
+  <div class="verdict">
+    <strong>수정 필요 — 현재 상태로 머지 불가.</strong>
+    <ul>
+      <li><b>B1</b> 은 승인된 설계 문서 §2.1 이 명시적으로 요구한 “실제 constraints 로 최종 렌더 높이를 제한한다”를 이행하지 않아 생긴 결함이며, 실제 기기에서 키보드를 내리거나 화면을 돌릴 때마다 캡슐이 뷰포트를 넘는다(PICNIC-2694 의 핵심 보장 위반). 수정 범위는 렌더 분기 한 곳이라 작다.</li>
+      <li><b>B2</b> 는 이번 범위 밖인 <b>현재 출시 중인 1단 화면</b>의 시각 기하를 바꾼다. 요구사항이 “1단 불변”을 명시했고, 어떤 테스트도 이 지점을 고정하지 않아 750건이 통과했다.</li>
+      <li>두 건을 고치면서 <b>N1</b>(테두리 2px)과 <b>N2</b>(지연 평가)도 함께 처리할 것을 권한다 — N1 은 이번에 두 번 반복된 결함의 네 번째 사례다.</li>
+      <li>그 외 요구사항 준수·데이터 정확성·OTA 범위·상태 보존·모서리 clip·전환 안정성은 모두 통과했고, 구현자가 보고한 수치 8종은 전건 재현·일치했다. 설계 자체(중립 측정 기반 순수 선택, 실제 텍스트 최소 폭, 해결된 반경 기반 clearance, 닫기 후보 3단계 탐색)는 견고하며 되돌릴 필요가 없다.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="muted" style="padding:0 6px 20px; font-size:13px;">
+  리뷰는 읽기 전용으로 수행했다. 저장소 코드·테스트·기존 문서는 수정하지 않았고 커밋·push 도 하지 않았다.
+  실행한 명령은 <code>flutter test</code>, <code>flutter analyze</code>, <code>git diff/show/status</code> 뿐이며,
+  추가 측정용 임시 테스트는 세션 스크래치패드에서만 컴파일·실행했다.
+</footer>
+
+</main>
+</body>
+</html>

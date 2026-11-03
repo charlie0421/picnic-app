@@ -464,16 +464,28 @@ class ReceiptVerificationService {
       clientObservedCurrency: clientObservedCurrency,
     );
 
-    final result = await callVerificationFunction(
-      requestBody,
-      'iOS',
-      sentRequests,
-    );
-    // 정산이 끝났다고 곧바로 큐를 비우지 않는다. 이 항목은 이 거래의 매출을
-    // 되살릴 마지막 재료이고, analytics outbox 가 그 소유권을 넘겨받았다고
-    // 확인되기 전에 버리면 그 사이의 실패가 곧 영구 유실이다. 실제 제거는
-    // 호출부가 durable 저장을 확인한 뒤 releaseQueuedReceipt 로 한다.
-    return result.copyWith(receiptQueueClientTraceId: clientTraceId);
+    try {
+      final result = await callVerificationFunction(
+        requestBody,
+        'iOS',
+        sentRequests,
+      );
+      // 정산이 끝났다고 곧바로 큐를 비우지 않는다. 이 항목은 이 거래의 매출을
+      // 되살릴 마지막 재료이고, analytics outbox 가 그 소유권을 넘겨받았다고
+      // 확인되기 전에 버리면 그 사이의 실패가 곧 영구 유실이다. 실제 제거는
+      // 호출부가 durable 저장을 확인한 뒤 releaseQueuedReceipt 로 한다.
+      return result.copyWith(receiptQueueClientTraceId: clientTraceId);
+    } on ReusedPurchaseException catch (e) {
+      if (e.grantConfirmed) {
+        // Android 경로와 같다: 지급까지 확정된 중복은 정산이 끝난 영수증이다.
+        // 큐에 남겨 두면 상위가 트랜잭션을 finish 한 뒤에도 플러시가 앱을 열
+        // 때마다 같은 409 를 다시 받는다(PICNIC-3006). 지급이 확인되지 않은
+        // 중복은 큐 항목이 유일한 재시도 수단이므로 남긴다.
+        await ReceiptQueueService().removeByClientTraceId(clientTraceId);
+        logger.w('♻️ 지급 확정 중복 - 큐에서 제거 (clientTrace: $clientTraceId)');
+      }
+      rethrow;
+    }
   }
 
   /// Android 영수증 검증

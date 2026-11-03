@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/presentation/widgets/ui/system_navigation_bar_inset.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -8,6 +9,7 @@ import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/firebase_analytics_utils.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/services/locale_service.dart';
+import 'package:picnic_lib/ui/fixed_width_layout.dart';
 
 /// 프로덕션 ScreenUtil 기준 디자인 크기.
 ///
@@ -18,12 +20,19 @@ const Size kAppDesignSize = Size(393, 892);
 /// 프로덕션 ScreenUtil `splitScreenMode`. [kAppDesignSize] 와 같은 이유로 공개한다.
 const bool kAppSplitScreenMode = true;
 
+/// 앱이 따르는 시스템 글자 크기의 상한 (PICNIC-2750).
+///
+/// 레이아웃은 2.6배까지 검증한다(`l10nLayoutTextScales`). iOS 손쉬운 사용 글자
+/// 크기는 약 3.1배까지 올라가는데, 그러면 달성 투표 상세처럼 고정된 페이지 머리가
+/// 작은 화면 높이를 넘긴다. 그보다 큰 설정은 2.6배로 그리고, 작은 설정(안드로이드는
+/// 전부)은 그대로 둔다.
+const double kAppMaxTextScaleFactor = 2.6;
+
 /// app.dart 파일에서 공통으로 사용되는 앱 빌드 로직을 담은 유틸리티 클래스
 ///
 /// 두 앱(picnic_app, ttja_app)의 app.dart 파일에서 중복되는 UI 빌드 로직을
 /// 추출하여 재사용성을 높이고 코드 중복을 줄입니다.
 class AppBuilder {
-
   /// 앱 초기화 후 MaterialApp 위젯 생성
   ///
   /// [navigatorKey] 앱 내비게이션 관리를 위한 키
@@ -53,6 +62,18 @@ class AppBuilder {
       splitScreenMode: kAppSplitScreenMode,
       // ScreenUtil 초기화 오류를 잡아 처리하는 builder 추가
       builder: (context, child) {
+        // ScreenUtilInit 5.9 reads the full FlutterView even under an inherited
+        // MediaQuery. Scale the existing single-column UI to its content width,
+        // while leaving real window metrics available to routes and keyboards.
+        final window = MediaQueryData.fromView(View.of(context));
+        ScreenUtil.configure(
+          data: window.copyWith(
+            size: Size(
+              window.size.width.clamp(0.0, kAppMaxContentWidth),
+              window.size.height,
+            ),
+          ),
+        );
         // child가 null인 경우에도 안전하게 처리
         final safeChild =
             child ??
@@ -66,7 +87,6 @@ class AppBuilder {
               localizationsDelegates: localizationsDelegates,
               supportedLocales: supportedLocales,
               locale: locale,
-
             );
 
         return safeChild;
@@ -82,7 +102,6 @@ class AppBuilder {
         localizationsDelegates: localizationsDelegates,
         supportedLocales: supportedLocales,
         locale: locale,
-
       ),
     );
   }
@@ -98,20 +117,25 @@ class AppBuilder {
     required List<LocalizationsDelegate<dynamic>> localizationsDelegates,
     required List<Locale> supportedLocales,
     required Locale locale,
-
   }) {
-    return OverlaySupport.global(
-      child: _buildMaterialApp(
-        navigatorKey: navigatorKey,
-        scaffoldKey: scaffoldKey,
-        routes: routes,
-        title: title,
-        theme: theme,
-        home: home,
-        localizationsDelegates: localizationsDelegates,
-        supportedLocales: supportedLocales,
-        locale: locale,
-
+    // OverlaySupport 토스트는 MaterialApp 바깥 오버레이에 그려지므로, 글자 크기
+    // 상한은 그 위에 둔다. 앱·다이얼로그·토스트가 모두 같은 상한을 받는다.
+    return Builder(
+      builder: (context) => clampTextScale(
+        context,
+        OverlaySupport.global(
+          child: _buildMaterialApp(
+            navigatorKey: navigatorKey,
+            scaffoldKey: scaffoldKey,
+            routes: routes,
+            title: title,
+            theme: theme,
+            home: home,
+            localizationsDelegates: localizationsDelegates,
+            supportedLocales: supportedLocales,
+            locale: locale,
+          ),
+        ),
       ),
     );
   }
@@ -134,7 +158,7 @@ class AppBuilder {
       // 원복: 앱에서 전달한 scaffoldKey 사용
       scaffoldMessengerKey: scaffoldKey,
       title: title,
-      theme: theme,
+      theme: applySystemNavigationBarInset(theme),
       debugShowCheckedModeBanner: false,
       routes: routes,
       home: home,
@@ -170,6 +194,39 @@ class AppBuilder {
         }
         return locale;
       },
+    );
+  }
+
+  /// [child] 아래의 시스템 글자 크기를 [kAppMaxTextScaleFactor] 로 제한한다.
+  ///
+  /// MaterialApp 과 OverlaySupport 보다 위에 두어야 push 되는 라우트,
+  /// 다이얼로그, 토스트까지 함께 제한된다.
+  static Widget clampTextScale(BuildContext context, Widget? child) {
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: kAppMaxTextScaleFactor,
+      child: child ?? const SizedBox.shrink(),
+    );
+  }
+
+  /// Android 시스템 내비 바 영역을 모든 [MaterialPageRoute] 안쪽에서 예약한다
+  /// (PICNIC-777). 홈(Portal)과 루트 내비게이터로 push 되는 라우트가 전부
+  /// 바 위에서 끝나고, 하위 트리의 `MediaQuery.padding.bottom` 은 0 이 된다.
+  /// `showGeneralDialog` 계열은 이 테마를 타지 않으므로 [FullScreenDialog] 가
+  /// 따로 처리한다.
+  static ThemeData applySystemNavigationBarInset(ThemeData theme) {
+    final builders = Map<TargetPlatform, PageTransitionsBuilder>.of(
+      theme.pageTransitionsTheme.builders,
+    );
+    final android =
+        builders[TargetPlatform.android] ??
+        const PageTransitionsTheme().builders[TargetPlatform.android]!;
+    if (android is SystemNavigationBarInsetPageTransitionsBuilder) {
+      return theme;
+    }
+    builders[TargetPlatform.android] =
+        SystemNavigationBarInsetPageTransitionsBuilder(android);
+    return theme.copyWith(
+      pageTransitionsTheme: PageTransitionsTheme(builders: builders),
     );
   }
 

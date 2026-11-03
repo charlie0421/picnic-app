@@ -9,6 +9,8 @@ import 'package:picnic_lib/presentation/widgets/ui/app_save_loading_overlay.dart
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_list.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_filter_chip.dart';
 
 class VoteListPage extends ConsumerStatefulWidget {
   const VoteListPage({super.key});
@@ -110,67 +112,50 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
     // LoadingOverlayWithIcon.of(context) 로 이 오버레이를 부른다.
     return AppSaveLoadingOverlay(
       child: Column(
-      children: [
-        const SizedBox(height: 8),
-        // 종류 태그(칩) — 가로 스크롤. 탭 UI 대신 태그 선택 방식.
-        _buildTypeChips(context),
-        // 상태 필터 드롭다운 (테마 pill)
-        Padding(
-          padding: EdgeInsets.fromLTRB(16.w, 10, 16.w, 6),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: _buildStatusDropdown(context),
+        children: [
+          const SizedBox(height: 8),
+          // 종류 태그(칩) — 가로 스크롤. 탭 UI 대신 태그 선택 방식.
+          _buildTypeChips(context),
+          // 상태 필터 드롭다운 (테마 pill)
+          Padding(
+            padding: EdgeInsets.fromLTRB(16.w, 8, 16.w, 4),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _buildStatusDropdown(context),
+            ),
           ),
-        ),
-        // 선택된 태그의 리스트
-        Expanded(
-          child: VoteList(
-            _status,
-            VoteCategory.all,
-            tab.area,
-            key: ValueKey('votelist_${tab.area}_${_status.name}'),
-            portal: VotePortal.vote,
+          // 선택된 태그의 리스트
+          Expanded(
+            child: VoteList(
+              _status,
+              VoteCategory.all,
+              tab.area,
+              key: ValueKey('votelist_${tab.area}_${_status.name}'),
+              portal: VotePortal.vote,
+            ),
           ),
-        ),
-      ],
+        ],
       ),
     );
   }
 
   Widget _buildTypeChips(BuildContext context) {
-    return SizedBox(
-      height: 40,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        itemCount: _voteTabs.length,
-        separatorBuilder: (context, index) => SizedBox(width: 8.w),
-        itemBuilder: (context, i) {
-          final selected = _selectedTab == i;
-          return GestureDetector(
-            onTap: () {
-              if (_selectedTab != i) setState(() => _selectedTab = i);
-            },
-            child: Container(
-              alignment: Alignment.center,
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              decoration: BoxDecoration(
-                color: selected ? AppColors.primary500 : AppColors.grey00,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: selected ? AppColors.primary500 : AppColors.grey300,
-                ),
-              ),
-              child: Text(
-                _voteTabs[i].label,
-                style: getTextStyle(
-                  selected ? AppTypo.body14B : AppTypo.body14M,
-                  selected ? AppColors.grey00 : AppColors.grey600,
-                ),
-              ),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
+      child: Row(
+        children: [
+          for (var i = 0; i < _voteTabs.length; i++) ...[
+            if (i > 0) SizedBox(width: PicnicUi.horizontal(8)),
+            PicnicFilterChip(
+              label: _voteTabs[i].label,
+              selected: _selectedTab == i,
+              onSelected: () {
+                if (_selectedTab != i) setState(() => _selectedTab = i);
+              },
             ),
-          );
-        },
+          ],
+        ],
       ),
     );
   }
@@ -207,8 +192,11 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
     }
   }
 
-  Widget _statusRow(BuildContext context, VoteStatus status,
-      {bool selected = false}) {
+  Widget _statusRow(
+    BuildContext context,
+    VoteStatus status, {
+    bool selected = false,
+  }) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -221,11 +209,12 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
           ),
         ),
         SizedBox(width: 8.w),
-        Text(
-          _statusLabel(context, status),
-          style: getTextStyle(
-            selected ? AppTypo.body14B : AppTypo.body14M,
-            AppColors.grey900,
+        Flexible(
+          child: Text(
+            _statusLabel(context, status),
+            style: PicnicUi.text(
+              weight: selected ? FontWeight.w600 : FontWeight.w500,
+            ),
           ),
         ),
       ],
@@ -241,48 +230,48 @@ class _VoteListContentState extends ConsumerState<VoteListContent> {
     ];
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
       decoration: BoxDecoration(
         color: AppColors.grey00,
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: AppColors.grey200),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.grey900.withValues(alpha: 0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<VoteStatus>(
-          value: _status,
-          isDense: true,
-          borderRadius: BorderRadius.circular(16),
-          dropdownColor: AppColors.grey00,
-          elevation: 4,
-          icon: Padding(
-            padding: const EdgeInsets.only(left: 4),
-            child: Icon(
-              Icons.expand_more_rounded,
-              size: 20,
-              color: AppColors.grey500,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<VoteStatus>(
+            value: _status,
+            isDense: false,
+            itemHeight: null,
+            style: PicnicUi.text(),
+            borderRadius: BorderRadius.circular(16),
+            dropdownColor: AppColors.grey00,
+            elevation: 4,
+            icon: Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Icon(
+                Icons.expand_more_rounded,
+                size: 20,
+                color: PicnicUi.secondaryText,
+              ),
             ),
+            onChanged: (v) {
+              if (v != null) setState(() => _status = v);
+            },
+            selectedItemBuilder: (context) => statuses
+                .map(
+                  (s) => Center(child: _statusRow(context, s, selected: true)),
+                )
+                .toList(),
+            items: statuses
+                .map(
+                  (s) => DropdownMenuItem(
+                    value: s,
+                    child: _statusRow(context, s, selected: s == _status),
+                  ),
+                )
+                .toList(),
           ),
-          onChanged: (v) {
-            if (v != null) setState(() => _status = v);
-          },
-          selectedItemBuilder: (context) => statuses
-              .map((s) => Center(child: _statusRow(context, s, selected: true)))
-              .toList(),
-          items: statuses
-              .map(
-                (s) => DropdownMenuItem(
-                  value: s,
-                  child: _statusRow(context, s, selected: s == _status),
-                ),
-              )
-              .toList(),
         ),
       ),
     );

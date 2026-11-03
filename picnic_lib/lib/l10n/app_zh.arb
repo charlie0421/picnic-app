@@ -162,7 +162,7 @@
   "@goonghap_login_button": {
     "description": "Login button text on goonghap page"
   },
-  "achieve": "Achievements",
+  "achieve": "Achieved",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
@@ -2440,6 +2440,19 @@
   "candy_boost_promotion_checking": "正在确认促销活动",
   "candy_boost_purchase_pending": "同一商品的购买正在处理中。",
   "candy_boost_late_purchase_explanation": "认证耗时比预期长，但购买已正常完成。",
+  "candy_boost_total_multiplier": "活动奖励 +{multiplier}%",
+  "purchase_reward_base": "基础发放",
+  "purchase_reward_base_short": "基础",
+  "purchase_reward_event_short": "活动",
+  "purchase_reward_product_bonus": "基础奖励",
+  "purchase_reward_event_bonus": "活动奖励",
+  "purchase_reward_expected_total": "预计合计",
+  "purchase_reward_total_short": "合计",
+  "purchase_current_balance": "当前余额 {amount}",
+  "purchase_expected_balance": "购买后预计 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "此为预计数量。最终发放数量以支付完成时的服务器结果为准。",
+  "candy_reward_receipt_total": "共获得{amount}",
   "ad_reward_pending": "正在确认奖励",
   "ad_reward_granted": "已获得棉花糖",
   "ad_reward_not_granted": "奖励未发放",
@@ -2454,6 +2467,7 @@
     }
   },
   "candy_reward_receipt_balance": "当前持有 {amount}",
+  "candy_reward_receipt_purchase_balance": "购买后持有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2539,5 +2553,7 @@
   "expiry_quantity_description": "目前帳戶中預計到期的數量。",
   "expiry_policy_description": "各貨幣的到期標準。",
   "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
-  "expiry_tonight_at_midnight": "今晚午夜"
+  "expiry_tonight_at_midnight": "今晚午夜",
+  "error_ad_device_account_restricted_message": "此账号在此设备上的广告使用权限暂时受到限制。",
+  "profile_photo_change": "更换头像"
 }

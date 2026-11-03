@@ -1,0 +1,2001 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>테스트 보완 독립 리뷰 패키지</title><style>body{font:15px/1.6 system-ui;max-width:1200px;margin:40px auto;padding:0 24px}pre{background:#f1f4f8;padding:18px;white-space:pre-wrap;overflow-wrap:anywhere}h1,h2{line-height:1.3}</style></head><body>
+<h1>기존 테스트 보완 — 독립 리뷰</h1>
+<p>범위: 테스트 source 5개 파일만. 앱 HEAD 5088edc5889fdb489a58b05bffd70330b5d8aedf, 서버 HEAD 7d8f47d6b07da9ee017614ed8d781053a72b6464. 아래는 HEAD 대비 한정 working-tree diff 및 새 test-only helper 전체다. 다른 기존 dirty 변경, 운영 코드, migration, production manifest, guards, workflows는 이번 리뷰의 변경 대상이 아니다.</p>
+<p>최종 서버 문구 정정 뒤 동일 22파일 재검증: /tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-ivAejH/result.json 및 output.log. 2026-09-08T11:02:51Z 종료, 273 PASS / 31 SKIP / 0 FAIL. 문구 정정 후 source SHA-256: lineage test f3aa94963434fd599ef5a8e8fb9b5168c857ed14eb36e048c6ba3bcfbb6c8e43; manifest test dbb5d56187c4f6c95dab82a0b11fac2cb81fe59d6a7772169f36984b9153fa16; helper 87fcb682612b54a9d5e7185603b181f3d12901259cc4a592e294ec4a74a75f3e. 아래 서버 diff는 이 최종 문구 정정을 포함한다.</p>
+<h2>요구사항</h2><ul>
+<li>Outbox 테스트의 생성 시각과 주입 clock을 일치시킨다. 만료 경계 보존, 만료 후 bounded summary 및 통화 없는 전송 금지, 전달된 구매의 비재전송을 실제 동작으로 검증한다. 운영 retention 로직 변경 금지.</li>
+<li>AdService 테스트는 ScreenUtil과 실제 Pulse loading UI를 준비한다. 모든 플랫폼 dispose, 소유 overlay 종료 및 loading state 초기화, 타 기능 overlay 보존을 검증한다. 테스트 실패 시 전역 overlay와 controller를 정리하고 실제 기능 결함을 숨기지 않는다.</li>
+<li>서버 historical fixture는 고정된 6cec1119ba9a01f29960f1067aea0054f9c3837e의 실제 git tree를 사용한다. lineage fixture의 경로 목록은 baseline..rollout git diff로 독립 구성하며 manifest allowlist만으로 만들지 않는다. 현재 working-tree guard/verifier를 실행하여 정상 fixture 허용 및 변조/미허가 경로/lock drift 거부가 유지되어야 한다.</li>
+<li>기존 production manifest 및 SHA/digest/allowlist/guard/workflow/migrations는 변경 금지. 테스트 skip/삭제/guard 완화로 통과시키지 않는다. 후속 main 변경을 과거 배포로 승인하지 않는다.</li>
+<li>권한·데이터·배포 관점의 반례와 무효한 테스트를 찾는다. 위 두 작업 각각 spec/quality 판정 및 다섯 파일 최종 통합 판정을 한 번에 반환한다. 취향·문구 선호는 차단 사유가 아니다.</li>
+</ul>
+<h2>검증 방식</h2><p>모든 실행은 조정자 소유. 앱 753개 test file은 서로 겹치지 않는 751개 및 수정 2개로 나누어 검증했고 집합이 전체와 일치함을 확인했다. 서버 23개 safety file은 OS deny-network 22개와 Docker --network none의 HTTP mock 1개로 나누었다. 처음 전체에 deny-network 적용 시 mock listen EPERM 16건이 발생했으나 차단을 해제하지 않고 격리된 loopback namespace에서 해당 파일만 재검증했다. DB-backed 31건은 이번 실행에서 skip. Docker에는 모의 API용 test/guard 두 파일만 read-only mount, 호스트 자격증명·포트·socket mount 없음.</p>
+<p>앱 결함 주입은 별도 scratch의 생산 코드 복사본에만 적용했다. 원본 worktree production source는 변경하지 않았다. 최초 scratch control은 package_graph.json 누락으로 실패하여 검증 증거로 쓰지 않았으며, 복사 준비를 보완한 최종 control과 다섯 mutant 결과를 아래에 기록했다. 구현자 설명/자기평가는 제공하지 않는다.</p>
+<h2>실제 실행 결과와 원본 로그 경로</h2><pre>{
+  "results": [
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-y4IPe7",
+      "mode": "release-diagnostics",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+      "args": [
+        "test",
+        "--no-pub",
+        "test/core/analytics/analytics_outbox_currency_test.dart",
+        "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+        "--reporter",
+        "expanded"
+      ],
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-y4IPe7",
+      "startedAt": "2026-09-08T10:30:49.306Z",
+      "finishedAt": "2026-09-08T10:30:54.085Z",
+      "exit": 1,
+      "signal": null,
+      "summaryLines": [
+        "00:00 +23 -3: Some tests failed."
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-ZmqvMM",
+      "mode": "release-diagnostics",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+      "args": [
+        "test",
+        "--no-pub",
+        "test/core/analytics/analytics_outbox_currency_test.dart",
+        "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+        "--reporter",
+        "expanded"
+      ],
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-release-diagnostics-ZmqvMM",
+      "startedAt": "2026-09-08T10:54:14.329Z",
+      "finishedAt": "2026-09-08T10:54:19.063Z",
+      "exit": 0,
+      "signal": null,
+      "summaryLines": [
+        "00:00 +28: All tests passed!"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-full-stable-rJFdNP",
+      "mode": "full-stable",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+      "args": {
+        "explicitTestFiles": 751,
+        "excluded": [
+          "test/core/analytics/analytics_outbox_currency_test.dart",
+          "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart"
+        ]
+      },
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-full-stable-rJFdNP",
+      "startedAt": "2026-09-08T10:46:20.413Z",
+      "finishedAt": "2026-09-08T10:50:39.747Z",
+      "exit": 0,
+      "signal": null,
+      "summaryLines": [
+        "04:13 +13155 ~6: All tests passed!"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-app-full-genuz8",
+      "mode": "app-full",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_app",
+      "args": [
+        "test",
+        "--no-pub",
+        "--reporter",
+        "expanded"
+      ],
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-app-full-genuz8",
+      "startedAt": "2026-09-08T10:46:35.429Z",
+      "finishedAt": "2026-09-08T10:46:49.467Z",
+      "exit": 0,
+      "signal": null,
+      "summaryLines": [
+        "00:03 +41: All tests passed!"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-bvWrxJ",
+      "mode": "analyze-changed",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/picnic_lib",
+      "args": [
+        "analyze",
+        "--no-pub",
+        "lib/presentation/common/common_banner.dart",
+        "lib/presentation/providers/banner_list_provider.dart",
+        "lib/presentation/providers/promotion_badge_resolver_provider.dart",
+        "lib/presentation/providers/promotion_campaign_provider.dart",
+        "lib/presentation/providers/promotion_campaign_v2_provider.dart",
+        "lib/presentation/providers/wallet_provider.dart",
+        "lib/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler.dart",
+        "lib/presentation/widgets/vote/store/purchase/purchase_campaign_attempt.dart",
+        "lib/presentation/widgets/vote/store/purchase/purchase_star_candy_state.dart",
+        "test/core/analytics/analytics_outbox_currency_test.dart",
+        "test/presentation/common/common_banner_render_test.dart",
+        "test/presentation/providers/banner_list_provider_test.dart",
+        "test/presentation/providers/promotion_badge_resolver_provider_test.dart",
+        "test/presentation/providers/wallet_provider_test.dart",
+        "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+        "test/presentation/widgets/vote/store/purchase/handlers/purchase_dialog_handler_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_after_leaving_store_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_campaign_attempt_clock_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_campaign_attempt_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_cancelled_attempt_reconcile_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_late_settlement_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_processor_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_settlement_step_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_stale_attempt_reconcile_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_star_candy_state_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_terminal_failure_test.dart",
+        "test/presentation/widgets/vote/store/purchase/purchase_timeout_notice_test.dart",
+        "test/presentation/widgets/vote/store/purchase/recording_receipt_dialogs.dart",
+        "test/presentation/providers/session_isolation_provider_test.dart"
+      ],
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-bvWrxJ",
+      "startedAt": "2026-09-08T10:54:15.599Z",
+      "finishedAt": "2026-09-08T10:54:19.779Z",
+      "exit": 0,
+      "signal": null,
+      "summaryLines": [
+        "No issues found! (ran in 3.6s)"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-repair-XuzUjK",
+      "mode": "repair",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety",
+      "args": [
+        "--test",
+        "scripts/safety/assert-hotfix-lineage.test.mjs",
+        "scripts/safety/google-pending-hotfix-manifest.test.mjs"
+      ],
+      "files": 2,
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-repair-XuzUjK",
+      "startedAt": "2026-09-08T10:33:49.152Z",
+      "finishedAt": "2026-09-08T10:34:16.621Z",
+      "exit": 1,
+      "signal": null,
+      "isolation": {
+        "policy": "(version 1)(allow default)(deny network*)",
+        "networkProbe": "EPERM",
+        "ambientCredentialsExcluded": true,
+        "dbTarget": "127.0.0.1:1"
+      },
+      "summaryLines": [
+        "ℹ tests 23",
+        "ℹ suites 0",
+        "ℹ pass 14",
+        "ℹ fail 9",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 27422.219667"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-repair-1nXXAM",
+      "mode": "repair",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety",
+      "args": [
+        "--test",
+        "scripts/safety/assert-hotfix-lineage.test.mjs",
+        "scripts/safety/google-pending-hotfix-manifest.test.mjs"
+      ],
+      "files": 2,
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-repair-1nXXAM",
+      "startedAt": "2026-09-08T10:54:02.579Z",
+      "finishedAt": "2026-09-08T10:54:45.141Z",
+      "exit": 0,
+      "signal": null,
+      "isolation": {
+        "policy": "(version 1)(allow default)(deny network*)",
+        "networkProbe": "EPERM",
+        "ambientCredentialsExcluded": true,
+        "dbTarget": "127.0.0.1:1"
+      },
+      "summaryLines": [
+        "ℹ tests 26",
+        "ℹ suites 0",
+        "ℹ pass 26",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 42520.563708"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-YqLBty",
+      "mode": "offline",
+      "cwd": "/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety",
+      "args": [
+        "--test",
+        "scripts/safety/assert-hotfix-lineage.test.mjs",
+        "scripts/safety/assert-hotfix-release.test.mjs",
+        "scripts/safety/assert-hotfix-toctou-acceptance.test.mjs",
+        "scripts/safety/assert-production-read.test.mjs",
+        "scripts/safety/assert-production-release.test.mjs",
+        "scripts/safety/assert-wallet-target.test.mjs",
+        "scripts/safety/google-pending-apply-sql.test.mjs",
+        "scripts/safety/google-pending-hotfix-manifest.test.mjs",
+        "scripts/safety/google-pending-hotfix-workflow.test.mjs",
+        "scripts/safety/google-pending-readonly-sql.test.mjs",
+        "scripts/safety/google-pending-rehearsal-restore-wrapper.test.mjs",
+        "scripts/safety/google-pending-rehearsal-restore.test.mjs",
+        "scripts/safety/google-pending-rehearsal-sql.test.mjs",
+        "scripts/safety/google-pending-rehearsal-steps.test.mjs",
+        "scripts/safety/google-pending-statements-reproduction.test.mjs",
+        "scripts/safety/promotion-v2-release-safety.test.mjs",
+        "scripts/safety/wallet-contract-fixture-shapes.test.mjs",
+        "scripts/safety/wallet-contract-v2-fixtures.test.mjs",
+        "scripts/safety/wallet-contract-verifier.test.mjs",
+        "scripts/safety/wallet-migration-lock-safety.test.mjs",
+        "scripts/safety/wallet-migration-order.test.mjs",
+        "scripts/safety/wallet-release-artifacts.test.mjs"
+      ],
+      "files": 22,
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-YqLBty",
+      "startedAt": "2026-09-08T10:58:23.971Z",
+      "finishedAt": "2026-09-08T10:59:06.940Z",
+      "exit": 0,
+      "signal": null,
+      "isolation": {
+        "policy": "(version 1)(allow default)(deny network*)",
+        "networkProbe": "EPERM",
+        "ambientCredentialsExcluded": true,
+        "dbTarget": "127.0.0.1:1"
+      },
+      "summaryLines": [
+        "ℹ tests 304",
+        "ℹ suites 0",
+        "ℹ pass 273",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 31",
+        "ℹ todo 0",
+        "ℹ duration_ms 42923.809834"
+      ]
+    },
+    {
+      "directory": "/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-BH6eez",
+      "startedAt": "2026-09-08T10:58:22.734Z",
+      "finishedAt": "2026-09-08T10:58:25.377Z",
+      "exit": 0,
+      "signal": null,
+      "output": "/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-BH6eez",
+      "image": "38850bce7c30",
+      "args": [
+        "run",
+        "--rm",
+        "--network",
+        "none",
+        "--read-only",
+        "--cap-drop",
+        "ALL",
+        "--security-opt",
+        "no-new-privileges",
+        "--user",
+        "1000:1000",
+        "--workdir",
+        "/workspace",
+        "--mount",
+        "type=bind,src=/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/assert-github-environment-protection.test.mjs,dst=/workspace/scripts/safety/assert-github-environment-protection.test.mjs,readonly",
+        "--mount",
+        "type=bind,src=/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/safety/assert-github-environment-protection.mjs,dst=/workspace/scripts/safety/assert-github-environment-protection.mjs,readonly",
+        "--entrypoint",
+        "node",
+        "38850bce7c30",
+        "-e",
+        "const n=require(\"node:os\").networkInterfaces();if(Object.values(n).flat().some(i=&gt;!i.internal))throw Error(\"External interface present\");console.log(\"ISOLATED_LOOPBACK_ONLY\");const r=require(\"node:child_process\").spawnSync(process.execPath,[\"--test\",\"scripts/safety/assert-github-environment-protection.test.mjs\"],{stdio:\"inherit\"});process.exit(r.status??1);"
+      ],
+      "isolatedLoopbackVerified": true,
+      "hostCredentialsMounted": false,
+      "summaryLines": [
+        "ISOLATED_LOOPBACK_ONLY",
+        "ℹ tests 16",
+        "ℹ suites 0",
+        "ℹ pass 16",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 2136.487459"
+      ]
+    }
+  ],
+  "flutterTestFileCoverage": {
+    "total": 753,
+    "union": 753,
+    "uncovered": []
+  },
+  "mutations": {
+    "finishedAt": "2026-09-08T10:56:20.195Z",
+    "results": [
+      {
+        "id": "control",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/control",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/core/analytics/analytics_outbox_currency_test.dart",
+          "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart"
+        ],
+        "exit": 0,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/control.log"
+      },
+      {
+        "id": "expiry-disabled",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/expiry-disabled",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/core/analytics/analytics_outbox_currency_test.dart",
+          "--plain-name",
+          "expiry ends in a bounded summary"
+        ],
+        "exit": 1,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/expiry-disabled.log"
+      },
+      {
+        "id": "expiry-at-boundary",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/expiry-at-boundary",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/core/analytics/analytics_outbox_currency_test.dart",
+          "--plain-name",
+          "a purchase at the retention boundary is preserved"
+        ],
+        "exit": 1,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/expiry-at-boundary.log"
+      },
+      {
+        "id": "platform-disposal-skipped",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/platform-disposal-skipped",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+          "--plain-name",
+          "dispose 는 모든 플랫폼을 dispose 한다"
+        ],
+        "exit": 1,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/platform-disposal-skipped.log"
+      },
+      {
+        "id": "foreign-overlay-closed",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/foreign-overlay-closed",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+          "--plain-name",
+          "dispose 는 자신이 켜지 않은 오버레이는 건드리지 않는다"
+        ],
+        "exit": 1,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/foreign-overlay-closed.log"
+      },
+      {
+        "id": "loading-state-not-cleared",
+        "cwd": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/loading-state-not-cleared",
+        "args": [
+          "test",
+          "--no-pub",
+          "--reporter",
+          "expanded",
+          "test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart",
+          "--plain-name",
+          "dispose 는 진행 중이던 로딩 오버레이를 내린다"
+        ],
+        "exit": 1,
+        "expectedOutcomeObserved": true,
+        "log": "/tmp/picnic-admin-rollout.ZMVuZ7/app-baseline-mutations-wXk491/loading-state-not-cleared.log"
+      }
+    ]
+  }
+}</pre>
+<h2>앱 한정 diff</h2><pre>diff --git a/picnic_lib/test/core/analytics/analytics_outbox_currency_test.dart b/picnic_lib/test/core/analytics/analytics_outbox_currency_test.dart
+index 0d5e5ce24..dd371edbb 100644
+--- a/picnic_lib/test/core/analytics/analytics_outbox_currency_test.dart
++++ b/picnic_lib/test/core/analytics/analytics_outbox_currency_test.dart
+@@ -84,20 +84,39 @@ class _GatedResolver implements PurchaseCurrencyResolver {
+
+   void release() =&gt; _answer.complete(currency);
+
+   @override
+   Future&lt;String?&gt; resolve(String storeProductId) {
+     if (!started.isCompleted) started.complete();
+     return _answer.future;
+   }
+ }
+
++/// 시계를 주입하는 테스트가 공유하는 기준 시각.
++final _fixtureNow = DateTime.utc(2026, 8, 24, 12);
++
++/// 주입 시계. fixture 의 생성 시각과 만료 판정 시각을 같은 축에 올린다.
++///
++/// `clock` 만 주입하고 항목은 `DateTime.now()` 로 만들면 항목의 나이가
++/// "주입한 시각 − 실제 실행 날짜"가 되어, retention 테스트가 실행 달력에
++/// 종속된다(만료 테스트가 오늘은 통과하고 내년에는 실패하거나 그 반대).
++/// 이 fixture 를 쓰는 테스트는 [now] 를 그대로 `createdAt` 으로 넘겨
++/// 두 축을 일치시킨다.
++class _TestClock {
++  DateTime now = _fixtureNow;
++
++  /// `AnalyticsOutbox(clock: ...)` 에 그대로 넘기는 읽기 함수.
++  DateTime call() =&gt; now;
++
++  void advance(Duration delta) =&gt; now = now.add(delta);
++}
++
+ const _items = &lt;Ga4PurchaseItem&gt;[
+   Ga4PurchaseItem(
+     itemId: 'star100',
+     itemName: 'STAR100',
+     virtualCurrencyName: '스타캔디',
+     baseAmount: 100,
+     bonusAmount: 0,
+   ),
+ ];
+
+@@ -107,31 +126,35 @@ void main() {
+
+   Future&lt;PurchaseOutboxResult&gt; enqueue(
+     AnalyticsOutbox outbox, {
+     String id = 'tx-1',
+     String? serverCurrency,
+     num? serverValue,
+     String? catalogCurrency,
+     num? catalogValue,
+     String? clientObservedCurrency,
+     String? storeProductId = 'star100',
++    // 시계를 주입한 테스트는 반드시 같은 축의 시각을 넘긴다. 넘기지 않으면
++    // 항목은 `DateTime.now()` 로 만들어져 나이 계산이 실행 날짜에 끌려간다.
++    DateTime? createdAt,
+   }) =&gt; outbox.enqueueOrMergePurchase(
+     id: id,
+     aliases: &lt;String&gt;[id, 'op:$id'],
+     transactionId: id,
+     items: _items,
+     serverCurrency: serverCurrency,
+     serverValue: serverValue,
+     catalogCurrency: catalogCurrency,
+     catalogValue: catalogValue,
+     clientObservedCurrency: clientObservedCurrency,
+     storeProductId: storeProductId,
++    createdAt: createdAt,
+   );
+
+   group('§7 priority when the event is first stored', () {
+     test('the server currency wins over a catalogue that disagrees', () async {
+       final sink = _RecordingSink();
+       final outbox = AnalyticsOutbox(storage: _MemoryStorage(), sink: sink);
+
+       expect(
+         await enqueue(
+           outbox,
+@@ -229,103 +252,103 @@ void main() {
+       await outbox.flush();
+
+       expect(sink.purchases, isEmpty, reason: 'B-2: sink 호출 0회');
+       expect(await outbox.pendingCount(), 1);
+       expect(await outbox.awaitingCurrencyCount(), 1);
+     });
+
+     test('a resolved currency sends the candidate value exactly once', () async {
+       final sink = _RecordingSink();
+       final resolver = _StubResolver();
+-      var now = DateTime.utc(2026, 8, 24, 12);
++      final clock = _TestClock();
+       final outbox = AnalyticsOutbox(
+         storage: _MemoryStorage(),
+         sink: sink,
+         currencyResolver: resolver,
+-        clock: () =&gt; now,
++        clock: clock.call,
+       );
+
+-      await enqueue(outbox, serverValue: 1.99);
++      await enqueue(outbox, serverValue: 1.99, createdAt: clock.now);
+       await outbox.flush();
+       expect(sink.purchases, isEmpty);
+       expect(resolver.calls, &lt;String&gt;['star100']);
+
+       resolver.currency = 'USD';
+-      now = now.add(const Duration(minutes: 1));
++      clock.advance(const Duration(minutes: 1));
+       await outbox.flush();
+
+       expect(sink.purchases, hasLength(1));
+       expect(sink.purchases.single.currency, 'USD');
+       expect(sink.purchases.single.value, 1.99);
+       expect(await outbox.pendingCount(), 0);
+
+       await outbox.flush();
+       expect(sink.purchases, hasLength(1), reason: '재전송 없음');
+     });
+
+     test('resolver failures persist attempts and back off, capped at 5 minutes', () async {
+       final storage = _MemoryStorage();
+       final resolver = _StubResolver();
+-      var now = DateTime.utc(2026, 8, 24, 12);
++      final clock = _TestClock();
+       final outbox = AnalyticsOutbox(
+         storage: storage,
+         sink: _RecordingSink(),
+         currencyResolver: resolver,
+-        clock: () =&gt; now,
++        clock: clock.call,
+       );
+
+-      await enqueue(outbox, serverValue: 1.99);
++      await enqueue(outbox, serverValue: 1.99, createdAt: clock.now);
+       await outbox.flush();
+       expect(resolver.calls, hasLength(1));
+
+       // 백오프가 지나기 전에는 resolver 를 다시 부르지 않는다.
+-      now = now.add(const Duration(seconds: 29));
++      clock.advance(const Duration(seconds: 29));
+       await outbox.flush();
+       expect(resolver.calls, hasLength(1));
+
+-      now = now.add(const Duration(seconds: 2));
++      clock.advance(const Duration(seconds: 2));
+       await outbox.flush();
+       expect(resolver.calls, hasLength(2));
+
+       // 지수 백오프는 5분에서 멈춘다.
+       for (var i = 0; i &lt; 10; i++) {
+-        now = now.add(const Duration(minutes: 6));
++        clock.advance(const Duration(minutes: 6));
+         await outbox.flush();
+       }
+       final attempts = await outbox.awaitingCurrencyAttempts('tx-1');
+       expect(attempts, 12);
+       expect(
+         await outbox.currencyRetryDelayFor('tx-1'),
+         const Duration(minutes: 5),
+       );
+     });
+
+     test('the deferred state and its attempts survive a restart', () async {
+       final storage = _MemoryStorage();
+-      var now = DateTime.utc(2026, 8, 24, 12);
++      final clock = _TestClock();
+       final first = AnalyticsOutbox(
+         storage: storage,
+         sink: _RecordingSink(),
+         currencyResolver: _StubResolver(),
+-        clock: () =&gt; now,
++        clock: clock.call,
+       );
+-      await enqueue(first, serverValue: 1.99);
++      await enqueue(first, serverValue: 1.99, createdAt: clock.now);
+       await first.flush();
+
+       AnalyticsOutbox.resetProcessStateForTest();
+-      now = now.add(const Duration(minutes: 10));
++      clock.advance(const Duration(minutes: 10));
+       final sink = _RecordingSink();
+       final restarted = AnalyticsOutbox(
+         storage: storage,
+         sink: sink,
+         currencyResolver: _StubResolver('KRW'),
+-        clock: () =&gt; now,
++        clock: clock.call,
+       );
+
+       expect(await restarted.awaitingCurrencyAttempts('tx-1'), 1);
+       await restarted.flush();
+       expect(sink.purchases.single.currency, 'KRW');
+       expect(sink.purchases.single.value, 1.99);
+     });
+
+     test('a hung resolver does not block the rest of the drain', () async {
+       final sink = _RecordingSink();
+@@ -438,46 +461,56 @@ void main() {
+               'kind': 'purchase',
+               'id': 'tx-lower',
+               'aliases': &lt;String&gt;['tx-lower'],
+               'payload': &lt;String, Object?&gt;{
+                 'transaction_id': 'tx-lower',
+                 'items': &lt;Object?&gt;[],
+                 'currency': ' krw ',
+                 'value': 2500,
+               },
+               'user_id': null,
+-              'created_at': DateTime.utc(2026, 8, 24).toIso8601String(),
++              'created_at': _fixtureNow.toIso8601String(),
+               'delivery_confirmed': false,
+               'delivery_state': 'ready',
+             },
+           ],
+           'delivered': &lt;Object?&gt;[],
+           'dead_letters': &lt;Object?&gt;[],
+         }),
+       );
+
+       final sink = _RecordingSink();
+-      await AnalyticsOutbox(storage: storage, sink: sink).flush();
++      // 시계를 fixture 의 created_at 에 고정한다. 실제 시각을 쓰면 항목의
++      // 나이가 실행 날짜에 따라 커져 언젠가 만료 제거로 바뀐다.
++      await AnalyticsOutbox(
++        storage: storage,
++        sink: sink,
++        clock: _TestClock().call,
++      ).flush();
+
+       expect(sink.purchases.single.currency, 'KRW');
+     });
+   });
+
+   group('storage v1 → v2 migration', () {
++    // 마이그레이션 대상은 "며칠 전에 저장된" 항목이다. 아래 테스트들은 시계를
++    // [_fixtureNow] 에 고정하므로 이 나이는 실행 날짜와 무관하게 4일이다.
++    final v1CreatedAt = _fixtureNow.subtract(const Duration(days: 4));
++
+     Future&lt;void&gt; seedV1(_MemoryStorage storage, Map&lt;String, Object?&gt; payload) {
+       final entry = &lt;String, Object?&gt;{
+         'kind': 'purchase',
+         'id': 'tx-old',
+         'aliases': &lt;String&gt;['tx-old'],
+         'payload': payload,
+         'user_id': null,
+-        'created_at': DateTime.utc(2026, 8, 20).toIso8601String(),
++        'created_at': v1CreatedAt.toIso8601String(),
+         'delivery_confirmed': false,
+       };
+       return storage.saveData(
+         AnalyticsOutbox.storageKey,
+         jsonEncode(&lt;String, Object?&gt;{
+           'version': 1,
+           'pending': &lt;Object?&gt;[entry],
+           'delivered': &lt;Object?&gt;[],
+         }),
+       );
+@@ -488,58 +521,69 @@ void main() {
+           'transaction_id': 'tx-old',
+           'items': &lt;Object?&gt;[
+             &lt;String, Object?&gt;{
+               'item_id': 'star100',
+               'item_name': 'STAR100',
+               'virtual_currency_name': '스타캔디',
+               'base_amount': 100,
+               'bonus_amount': 0,
+             },
+           ],
+-          if (currency != null) 'currency': currency,
+-          if (value != null) 'value': value,
++          // null-aware element: 값이 null 이면 그 키 자체가 빠진다 —
++          // `if (x != null) k: x` 와 동일하다(use_null_aware_elements).
++          'currency': ?currency,
++          'value': ?value,
+         };
+
+     test('a v1 purchase that already has a currency stays sendable', () async {
+       final storage = _MemoryStorage();
+       await seedV1(storage, payloadWith(currency: 'KRW', value: 2500));
+       final sink = _RecordingSink();
+-      final outbox = AnalyticsOutbox(storage: storage, sink: sink);
++      final outbox = AnalyticsOutbox(
++        storage: storage,
++        sink: sink,
++        clock: _TestClock().call,
++      );
+
+       await outbox.flush();
+       expect(sink.purchases.single.currency, 'KRW');
+       expect(sink.purchases.single.value, 2500);
+     });
+
+     test('a v1 purchase without a currency migrates to awaiting, not to a send', () async {
+       final storage = _MemoryStorage();
+       await seedV1(storage, payloadWith(value: 2500));
+       final sink = _RecordingSink();
+-      final outbox = AnalyticsOutbox(storage: storage, sink: sink);
++      final outbox = AnalyticsOutbox(
++        storage: storage,
++        sink: sink,
++        clock: _TestClock().call,
++      );
+
+       expect(await outbox.awaitingCurrencyCount(), 1);
+       await outbox.flush();
+       expect(sink.purchases, isEmpty, reason: '과거 항목도 통화 없이는 보내지 않는다');
+       expect(await outbox.pendingCount(), 1);
+     });
+
+     test('the migrated candidate value is not lost', () async {
+       // v1 항목에는 store_product_id 가 없다. item_name 의 canonical 상품 ID 로
+       // 재조회해 되살린다.
+       final storage = _MemoryStorage();
+       await seedV1(storage, payloadWith(value: 2500));
+       final sink = _RecordingSink();
+       final resolver = _StubResolver('KRW');
+       final outbox = AnalyticsOutbox(
+         storage: storage,
+         sink: sink,
+         currencyResolver: resolver,
++        clock: _TestClock().call,
+       );
+
+       await outbox.flush();
+       expect(resolver.calls, &lt;String&gt;['STAR100']);
+       expect(sink.purchases.single.currency, 'KRW');
+       expect(sink.purchases.single.value, 2500);
+     });
+
+     test('v2 state round-trips through storage', () async {
+       final storage = _MemoryStorage();
+@@ -555,94 +599,190 @@ void main() {
+
+       final reloaded = AnalyticsOutbox(
+         storage: storage,
+         sink: _RecordingSink(),
+       );
+       expect(await reloaded.awaitingCurrencyCount(), 1);
+     });
+   });
+
+   group('dead letter', () {
++    const maxAge = Duration(days: 365);
++
++    test('a purchase at the retention boundary is preserved, not summarised', () async {
++      // 만료는 나이가 상한을 "넘었을 때"다(`&gt; maxAge`). 상한 정각에 지우면 아직
++      // 통화를 되찾을 수 있는 매출이 하루 일찍 요약으로 떨어진다.
++      final sink = _RecordingSink();
++      final clock = _TestClock();
++      final outbox = AnalyticsOutbox(
++        storage: _MemoryStorage(),
++        sink: sink,
++        clock: clock.call,
++        purchasePendingMaxAge: maxAge,
++      );
++
++      await enqueue(outbox, serverValue: 1.99, createdAt: clock.now);
++      clock.advance(maxAge);
++      await outbox.flush();
++
++      expect(
++        await outbox.pendingCount(),
++        1,
++        reason: '상한 정각은 아직 만료가 아니다',
++      );
++      expect(await outbox.awaitingCurrencyCount(), 1);
++      expect(await outbox.deadLetters(), isEmpty);
++      expect(sink.purchases, isEmpty);
++    });
++
+     test('expiry ends in a bounded summary, never in a currency-less send', () async {
+-      final storage = _MemoryStorage();
+       final sink = _RecordingSink();
+-      var now = DateTime.utc(2026, 8, 24, 12);
++      final clock = _TestClock();
+       final outbox = AnalyticsOutbox(
+-        storage: storage,
++        storage: _MemoryStorage(),
+         sink: sink,
+-        clock: () =&gt; now,
+-        purchasePendingMaxAge: const Duration(days: 365),
++        clock: clock.call,
++        purchasePendingMaxAge: maxAge,
+       );
+
+-      await enqueue(outbox, serverValue: 1.99);
+-      now = now.add(const Duration(days: 366));
++      // 나이는 오직 주입 시계 위에서만 잰다. `createdAt` 을 실제 시각으로 두면
++      // "상한을 1ms 넘긴 시점"이 실행 날짜에 따라 만료가 되기도 안 되기도 한다.
++      await enqueue(outbox, serverValue: 1.99, createdAt: clock.now);
++      // 만료 전에 한 번 돌려 재조회 실패를 쌓아 둔다 — 요약은 그 이력을 담아야
++      // "왜 이 거래의 매출이 없는가"에 답할 수 있다.
++      await outbox.flush();
++      expect(await outbox.awaitingCurrencyAttempts('tx-1'), 1);
++
++      clock.advance(maxAge + const Duration(milliseconds: 1));
+       await outbox.flush();
+
+       expect(sink.purchases, isEmpty, reason: '만료돼도 통화 없이 보내지 않는다');
+       expect(await outbox.pendingCount(), 0);
+
+       final letters = await outbox.deadLetters();
+       expect(letters, hasLength(1));
+       expect(letters.single.id, 'tx-1');
+       expect(letters.single.aliases, contains('op:tx-1'));
+-      expect(letters.single.reason, isNotEmpty);
+-      // 영수증/payload 는 dead letter 에 남기지 않는다.
+-      expect(letters.single.toJson().containsKey('payload'), isFalse);
++      expect(letters.single.reason, PurchaseCurrencyError.catalogUnavailable.name);
++      expect(letters.single.attempts, 1);
++      expect(letters.single.expiredAt, clock.now);
++      // 영수증/payload 는 dead letter 에 남기지 않는다. 키 집합을 통째로 고정해
++      // 나중에 payload 성 필드가 슬쩍 끼어드는 것까지 막는다.
++      expect(letters.single.toJson().keys.toSet(), &lt;String&gt;{
++        'id',
++        'aliases',
++        'attempts',
++        'reason',
++        'expired_at',
++      });
++    });
++
++    test('the summary list is bounded and keeps the newest entries', () async {
++      // "bounded" 의 실제 계약: 상한을 넘으면 가장 오래된 요약부터 버린다.
++      // 상한이 없으면 만료가 몰린 계정에서 요약이 저장소를 무한정 먹는다.
++      final clock = _TestClock();
++      final outbox = AnalyticsOutbox(
++        storage: _MemoryStorage(),
++        sink: _RecordingSink(),
++        clock: clock.call,
++        purchasePendingMaxAge: maxAge,
++        maxDeadLetters: 2,
++      );
++
++      for (final id in &lt;String&gt;['tx-a', 'tx-b', 'tx-c']) {
++        await enqueue(outbox, id: id, serverValue: 1.99, createdAt: clock.now);
++      }
++      clock.advance(maxAge + const Duration(milliseconds: 1));
++      await outbox.flush();
++
++      expect(await outbox.pendingCount(), 0);
++      expect(
++        (await outbox.deadLetters()).map((letter) =&gt; letter.id),
++        &lt;String&gt;['tx-b', 'tx-c'],
++      );
+     });
+
+     test('a delivered purchase never becomes a dead letter', () async {
+-      final storage = _MemoryStorage();
+       final sink = _RecordingSink();
+-      var now = DateTime.utc(2026, 8, 24, 12);
++      final clock = _TestClock();
+       final outbox = AnalyticsOutbox(
+-        storage: storage,
++        storage: _MemoryStorage(),
+         sink: sink,
+-        clock: () =&gt; now,
++        // 보류 상한만 짧게 잡고 delivered 마커 보존기간(기본 180일)은 그대로
++        // 둔다. 예전처럼 366일을 흘려보내면 마커 자체가 만료돼 사라지므로,
++        // "전달된 건은 요약 대상이 아니다"가 아니라 "아무것도 남지 않았다"를
++        // 확인하는 셈이 된다.
++        purchasePendingMaxAge: const Duration(days: 1),
++        clock: clock.call,
+       );
+
+-      await enqueue(outbox, serverCurrency: 'KRW', serverValue: 2500);
++      await enqueue(
++        outbox,
++        serverCurrency: 'KRW',
++        serverValue: 2500,
++        createdAt: clock.now,
++      );
++      // 같은 flush 가 실제로 만료 처리해야 할 항목을 하나 함께 둔다. 만료 경로가
++      // 돌았다는 증거가 있어야 "전달된 건만 살아남았다"가 의미를 갖는다.
++      await enqueue(
++        outbox,
++        id: 'tx-stuck',
++        serverValue: 1.99,
++        createdAt: clock.now,
++      );
+       await outbox.flush();
+-      now = now.add(const Duration(days: 366));
++      expect(sink.purchases.map((p) =&gt; p.transactionId), &lt;String&gt;['tx-1']);
++
++      clock.advance(const Duration(days: 2));
+       await outbox.flush();
+
+-      expect(await outbox.deadLetters(), isEmpty);
++      expect(
++        (await outbox.deadLetters()).map((letter) =&gt; letter.id),
++        &lt;String&gt;['tx-stuck'],
++        reason: '전달된 거래는 만료 경로가 돌아도 요약 대상이 아니다',
++      );
++      expect(sink.purchases, hasLength(1), reason: '재전송 없음');
+     });
+   });
+
+   group('sink-time gate', () {
+     test('a stored entry whose currency is not ISO 4217 is not dispatched', () async {
+       // 저장 시점 이후 어떤 경로로든 payload 가 오염돼도 마지막 방어선이 잡는다.
+       final storage = _MemoryStorage();
+       final entry = &lt;String, Object?&gt;{
+         'kind': 'purchase',
+         'id': 'tx-bad',
+         'aliases': &lt;String&gt;['tx-bad'],
+         'payload': &lt;String, Object?&gt;{
+           'transaction_id': 'tx-bad',
+           'items': &lt;Object?&gt;[],
+           'currency': 'ja',
+           'value': 1.99,
+         },
+         'user_id': null,
+-        'created_at': DateTime.utc(2026, 8, 24).toIso8601String(),
++        'created_at': _fixtureNow.toIso8601String(),
+         'delivery_confirmed': false,
+         'delivery_state': 'ready',
+       };
+       await storage.saveData(
+         AnalyticsOutbox.storageKey,
+         jsonEncode(&lt;String, Object?&gt;{
+           'version': 2,
+           'pending': &lt;Object?&gt;[entry],
+           'delivered': &lt;Object?&gt;[],
+           'dead_letters': &lt;Object?&gt;[],
+         }),
+       );
+
+       final sink = _RecordingSink();
+-      final outbox = AnalyticsOutbox(storage: storage, sink: sink);
++      final outbox = AnalyticsOutbox(
++        storage: storage,
++        sink: sink,
++        clock: _TestClock().call,
++      );
+       await outbox.flush();
+
+       expect(sink.purchases, isEmpty);
+       expect(await outbox.awaitingCurrencyCount(), 1);
+     });
+   });
+ }
+diff --git a/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart b/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart
+index faffb2878..5b0dc95fc 100644
+--- a/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart
++++ b/picnic_lib/test/presentation/widgets/vote/store/free_charge_station/ad_service_test.dart
+@@ -1,131 +1,180 @@
+ import 'package:flutter/material.dart';
+ import 'package:flutter_riverpod/flutter_riverpod.dart';
+ import 'package:flutter_test/flutter_test.dart';
+ import 'package:overlay_loading_progress/overlay_loading_progress.dart';
++import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
+ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_loading_state.dart';
+ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_service.dart';
+
++import '../../../../../helpers/ignore_image_errors.dart';
++import '../../../../../helpers/test_app.dart';
++import '../../../../../helpers/test_environment.dart';
++
++/// 광고 구좌가 켠 적 없는 "남의" 전역 오버레이를 나타내는 마커.
++///
++/// 패키지 기본 위젯에 기대지 않는 이유: 무료충전소가 쓰는 인디케이터와 타입이
++/// 겹치면 "dispose 가 남의 오버레이를 닫았는지"를 구분할 수 없다. 눈에 띄는
++/// 자체 키를 쓰면 그 구분이 확실해지고, ScreenUtil 같은 부수 의존도 없다.
++const _foreignOverlayKey = ValueKey&lt;String&gt;('foreign-overlay');
++const Widget _foreignOverlay = SizedBox(
++  key: _foreignOverlayKey,
++  width: 8,
++  height: 8,
++);
++
++typedef _Harness = ({WidgetRef ref, BuildContext context, AdService service});
++
+ void main() {
+-  testWidgets('dispose 는 모든 플랫폼을 dispose 한다', (tester) async {
+-    // 프로덕션 결함 (PICNIC-APP-5G9): dispose 가 _platforms.clear() 만 하고
+-    // 각 플랫폼의 dispose() 를 호출하지 않아, PanglePlatform 의 pollingSignals
+-    // 구독이 페이지 unmount 후에도 살아남아 dispose 된 ref 를 계속 읽었다.
++  setUp(initTestColors);
++
++  // 전역 오버레이 누수 차단.
++  //
++  // OverlayLoadingProgress 는 프로세스 전역 싱글턴이다. 한 테스트가 실패해
++  // stop() 을 못 부르고 끝나면 그 상태가 다음 테스트로 그대로 넘어가고, 이후
++  // start() 가 통째로 무시되면서 원인과 무관한 테스트까지 연쇄로 깨진다
++  // (2026-09-08 RED 로그의 세 번째 실패가 정확히 그 연쇄였다). 성공·실패와
++  // 무관하게 매 테스트 끝에 강제로 내린다.
++  tearDown(() {
++    try {
++      OverlayLoadingProgress.stop();
++    } catch (error) {
++      // 위젯 트리가 이미 해제된 뒤일 수 있다. 정리 실패가 원래 실패 원인을
++      // 덮어쓰지 않도록 삼키되, 흔적은 남긴다.
++      debugPrint('overlay teardown ignored: $error');
++    }
++  });
++
++  /// ProviderScope + ScreenUtilInit + MaterialApp 위에 AdService 하나를 세운다.
++  ///
++  /// [buildTestApp] 을 쓰는 이유는 ScreenUtil 때문이다. 무료충전소 공용 로딩
++  /// 인디케이터(`AdLoadingOverlay.indicator`)는 [PulseLoadingIndicator] 이고,
++  /// 그 build 는 `size.w` 로 ScreenUtil 을 읽는다 — ScreenUtilInit 이 없으면
++  /// 오버레이가 뜨는 순간 `LateInitializationError: Field '_data'` 로 빌드가
++  /// 죽는다. 또 인디케이터의 `Image.asset('assets/app_icon_128.png')` 는 테스트
++  /// 번들에 실물이 없어 반드시 실패하므로, 이미지/에셋 계열 에러만 걸러 주는
++  /// [pumpWidgetAndIgnoreErrors] / [pumpAndIgnoreErrors] 로 pump 한다(그 외
++  /// 예외는 원인 위젯 정보와 함께 그대로 다시 던져진다).
++  Future&lt;_Harness&gt; pumpHarness(WidgetTester tester) async {
+     late WidgetRef capturedRef;
+     late BuildContext capturedContext;
+-    await tester.pumpWidget(
+-      ProviderScope(
+-        child: MaterialApp(
+-          home: Consumer(
+-            builder: (context, ref, _) {
+-              capturedRef = ref;
+-              capturedContext = context;
+-              return const SizedBox.shrink();
+-            },
+-          ),
++    await pumpWidgetAndIgnoreErrors(
++      tester,
++      buildTestApp(
++        Consumer(
++          builder: (context, ref, _) {
++            capturedRef = ref;
++            capturedContext = context;
++            return const SizedBox.shrink();
++          },
+         ),
+       ),
+     );
++    // ScreenUtilInit 은 크기를 얻기 전 첫 프레임에 자식을 그리지 않을 수 있다.
++    // 한 프레임 더 돌려야 Consumer 가 확실히 빌드되고 ScreenUtil 도 준비된다.
++    await pumpAndIgnoreErrors(tester);
+     final controller = AnimationController(
+       vsync: const TestVSync(),
+       duration: const Duration(milliseconds: 1),
+     );
+-    final service = AdService(
++    // 본문이 중간에 실패해도 컨트롤러는 반드시 해제한다.
++    addTearDown(controller.dispose);
++    return (
+       ref: capturedRef,
+       context: capturedContext,
+-      animationController: controller,
++      service: AdService(
++        ref: capturedRef,
++        context: capturedContext,
++        animationController: controller,
++      ),
+     );
++  }
++
++  testWidgets('dispose 는 모든 플랫폼을 dispose 한다', (tester) async {
++    // 프로덕션 결함 (PICNIC-APP-5G9): dispose 가 _platforms.clear() 만 하고
++    // 각 플랫폼의 dispose() 를 호출하지 않아, PanglePlatform 의 pollingSignals
++    // 구독이 페이지 unmount 후에도 살아남아 dispose 된 ref 를 계속 읽었다.
++    final harness = await pumpHarness(tester);
+     final platforms = [
+       for (final id in [
+         'admob',
+         'pangle',
+         'tapjoy',
+         'pincrux',
+         'internal-shortform',
+       ])
+-        service.getPlatform(id)!,
++        harness.service.getPlatform(id)!,
+     ];
+-    service.dispose();
++
++    harness.service.dispose();
++
+     for (final platform in platforms) {
+       expect(platform.isDisposed, isTrue, reason: platform.id);
+     }
+-    controller.dispose();
+   });
+
+   testWidgets('dispose 는 진행 중이던 로딩 오버레이를 내린다', (tester) async {
+     // AdPlatform.dispose 는 _isDisposed 를 먼저 세워 stopAllAnimations 경로가
+     // 전부 no-op 이었다. 로딩 오버레이는 전역이라 페이지가 죽어도 남는다.
+-    late WidgetRef capturedRef;
+-    late BuildContext capturedContext;
+-    await tester.pumpWidget(
+-      ProviderScope(
+-        child: MaterialApp(
+-          home: Consumer(
+-            builder: (context, ref, _) {
+-              capturedRef = ref;
+-              capturedContext = context;
+-              return const SizedBox.shrink();
+-            },
+-          ),
+-        ),
+-      ),
+-    );
+-    final controller = AnimationController(
+-      vsync: const TestVSync(),
+-      duration: const Duration(milliseconds: 1),
+-    );
+-    final service = AdService(
+-      ref: capturedRef,
+-      context: capturedContext,
+-      animationController: controller,
+-    );
+-    service.getPlatform('pangle')!.startLoading();
+-    await tester.pump();
+-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+-    service.dispose();
+-    await tester.pump();
+-    expect(find.byType(CircularProgressIndicator), findsNothing);
+-    // 전역 로딩 상태도 함께 해제돼야 다음 방문의 버튼이 잠기지 않는다.
++    final harness = await pumpHarness(tester);
++
++    harness.service.getPlatform('pangle')!.startLoading();
++    // startLoading 은 오버레이를 unawaited 로 띄운다 — 삽입이 보이려면 프레임이
++    // 한 번 더 필요하다.
++    await pumpAndIgnoreErrors(tester);
++    await pumpAndIgnoreErrors(tester);
++
++    // 예전에는 CircularProgressIndicator 를 찾았지만, 공용 인디케이터가
++    // Pulse 로 통일된 뒤(AdLoadingOverlay.indicator) 그 finder 는 어떤 경우에도
++    // 0개라 "오버레이가 떴는지" 자체를 못 본다. 실제로 뜨는 위젯을 본다.
++    expect(find.byType(PulseLoadingIndicator), findsOneWidget);
+     expect(
+-      capturedRef.read(adLoadingStateProvider)['pangle'],
+-      isNot(isTrue),
++      tester
++          .widget&lt;PulseLoadingIndicator&gt;(find.byType(PulseLoadingIndicator))
++          .size,
++      40,
++      reason: 'AdLoadingOverlay.indicator 는 Medium(40) 이다',
+     );
+-    controller.dispose();
++    // 사후 조건이 공허하게 참이 되지 않도록 사전 조건도 못 박는다.
++    expect(harness.ref.read(adLoadingStateProvider)['pangle'], isTrue);
++
++    harness.service.dispose();
++    await pumpAndIgnoreErrors(tester);
++
++    expect(find.byType(PulseLoadingIndicator), findsNothing);
++    // 전역 로딩 상태도 함께 해제돼야 다음 방문의 버튼이 잠기지 않는다.
++    expect(harness.ref.read(adLoadingStateProvider)['pangle'], isNot(isTrue));
+   });
+
+   testWidgets('dispose 는 자신이 켜지 않은 오버레이는 건드리지 않는다', (tester) async {
+     // OverlayLoadingProgress 는 전역 싱글턴이다. 플랫폼이 켠 적 없는
+     // 오버레이(다른 기능 소유)를 dispose 가 닫아 버리면 안 된다.
+-    late WidgetRef capturedRef;
+-    late BuildContext capturedContext;
+-    await tester.pumpWidget(
+-      ProviderScope(
+-        child: MaterialApp(
+-          home: Consumer(
+-            builder: (context, ref, _) {
+-              capturedRef = ref;
+-              capturedContext = context;
+-              return const SizedBox.shrink();
+-            },
+-          ),
+-        ),
+-      ),
+-    );
+-    final controller = AnimationController(
+-      vsync: const TestVSync(),
+-      duration: const Duration(milliseconds: 1),
+-    );
+-    final service = AdService(
+-      ref: capturedRef,
+-      context: capturedContext,
+-      animationController: controller,
++    final harness = await pumpHarness(tester);
++    final pangle = harness.service.getPlatform('pangle')!;
++
++    OverlayLoadingProgress.start(
++      harness.context,
++      widget: _foreignOverlay,
++    ); // 다른 기능의 오버레이
++    await pumpAndIgnoreErrors(tester);
++    await pumpAndIgnoreErrors(tester);
++    expect(find.byKey(_foreignOverlayKey), findsOneWidget);
++
++    harness.service.dispose();
++    await pumpAndIgnoreErrors(tester);
++
++    // dispose 가 실제로 돌았다는 증거가 없으면 "남의 오버레이가 남아 있다"는
++    // 것만으로는 아무것도 증명하지 못한다 (아무 일도 안 해도 통과한다).
++    expect(pangle.isDisposed, isTrue);
++    expect(
++      find.byKey(_foreignOverlayKey),
++      findsOneWidget,
++      reason: '켠 적 없는 전역 오버레이는 dispose 의 정리 대상이 아니다',
+     );
+-    OverlayLoadingProgress.start(capturedContext); // 다른 기능의 오버레이
+-    await tester.pump();
+-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+-    service.dispose();
+-    await tester.pump();
+-    expect(find.byType(CircularProgressIndicator), findsOneWidget);
++
++    // 소유자가 내리면 실제로 사라진다 — 위 단언이 "안 지워지는 오버레이라서"
++    // 통과한 게 아님을 함께 고정한다.
+     OverlayLoadingProgress.stop();
+-    controller.dispose();
++    await pumpAndIgnoreErrors(tester);
++    expect(find.byKey(_foreignOverlayKey), findsNothing);
+   });
+ }
+</pre>
+<h2>서버 한정 diff 및 새 helper</h2><pre>diff --git a/scripts/safety/assert-hotfix-lineage.test.mjs b/scripts/safety/assert-hotfix-lineage.test.mjs
+index e6a6cbb..46e676e 100644
+--- a/scripts/safety/assert-hotfix-lineage.test.mjs
++++ b/scripts/safety/assert-hotfix-lineage.test.mjs
+@@ -11,80 +11,108 @@
+ // Important #2).  All three identities are CONSTANTS of the guard - a checked-out
+ // manifest that names any other set fails even when internally consistent -
+ // and the manifest bytes must hash to the operator-supplied workflow input.
+ // Every path that changed after the baseline must be rollout preparation
+ // (manifest allowlist) or one of the byte-pinned files (the hardened
+ // migration, the adjusted SQL test), whose deploy-tree blobs must hash
+ // exactly to the manifest digests.
+ //
+ // Exercised against throwaway SHARED CLONES of this repository, so the real
+ // reviewed, intermediate, and baseline commits exist in every fixture; the
+-// accept case doubles as a check that the actual working-tree rollout files
+-// satisfy the guard ON TOP OF THE CURRENT BASELINE (review Important #3: the
+-// old fixture stacked the rollout on the reviewed commit and would never
+-// have matched real main).
++// accept case doubles as a check that the rollout files satisfy the guard ON
++// TOP OF THE PINNED BASELINE (review Important #3: the old fixture stacked
++// the rollout on the reviewed commit and would never have matched real main).
++//
++// THE FIXTURE IS HISTORY, THE GUARD IS CURRENT.  What this file reasons about
++// is a PAST commit, not HEAD: main at ROLLOUT (PR #123), the rollout
++// PREPARATION commit prepared on top of BASELINE (PR #121) and the tree every
++// manifest digest describes.  Whether a production deploy ever ran from it is
++// not established here and is not needed.  The fixtures below restore that
++// tree out of git - the real BASELINE..ROLLOUT change set, at the bytes and
++// modes those commits carry - while the guard under test is always the one in
++// THIS checkout.
++// They used to be built from `git diff BASELINE HEAD` plus the dirty working
++// tree instead, which was accurate only while HEAD was the rollout preparation
++// commit itself: once main moved on, the 20260904 stats work re-touched
++// supabase/tests/ad_campaign_monthly_stats.test.sql (a PR #120 lineage path
++// pinned at its baseline blob) and unrelated promotion-V2 sources entered the
++// post-baseline change set, so the guard was handed today's main and rightly
++// refused it.  Two negative cases at the end now pin that direction
++// explicitly: neither today's checkout nor a single later main file may be
++// approved as part of this rollout.
+ import test from "node:test";
+ import assert from "node:assert/strict";
+ import crypto from "node:crypto";
+ import fs from "node:fs";
+ import os from "node:os";
+ import path from "node:path";
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath } from "node:url";
++import { ROLLOUT_SHA as ROLLOUT, changedPaths, git, gitBlob, gitEnv, materialize } from "./historical-rollout-tree.mjs";
+
+ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+ const guard = path.join(root, "scripts/safety/assert-hotfix-lineage.mjs");
+ const MANIFEST = "ops/wallet/google-pending-hotfix-manifest.json";
+ const REVIEWED = "c14c32b77e1f4ae193b4b1e2af5a84e76930969f";
+ const PRE_HOTFIX = "2d14e797c91bef06f2dfad172a918b86a1044295";
+ const INTERMEDIATE_117 = "7553176975a3c7544fdf8c02df7c52375c46e1c4";
+ const INTERMEDIATE_118 = "9237c22f330d9eb030378a96599b922ac5b92104";
+ const INTERMEDIATE_119 = "a894fb166fb29dfe7a7b23801d74c137a0990d2c";
+ const INTERMEDIATE_120 = "c1eccc7cf74c7b13124f243de818e8e84860c591";
+ const BASELINE = "8a0190c0c6ad16938733f83727a74c3d8172da11";
+ const MIGRATION = "supabase/migrations/20260831120000_google_pending_purchase_retry_policy.sql";
+ const PATHS_121 = ["supabase/migrations/20260831120000_google_pending_purchase_retry_policy.sql", "supabase/migrations/20260902093000_auth_audit_mask_async_queue.sql", "supabase/prod-cutover/20260902-auth-audit-async-mask/README.md", "supabase/prod-cutover/20260902-auth-audit-async-mask/apply/01_auth_audit_mask_async_queue.sql", "supabase/prod-cutover/20260902-auth-audit-async-mask/evidence/scan-proof.sql", "supabase/prod-cutover/20260902-auth-audit-async-mask/evidence/scan-proof.txt", "supabase/prod-cutover/20260902-auth-audit-async-mask/rollback/01_restore_synchronous_auth_audit_mask.sql", "supabase/prod-cutover/20260902-auth-audit-async-mask/verify/post.sql", "supabase/tests/wallet_account_anonymization.test.sql", "supabase/tests/wallet_account_anonymization_compatibility.test.sql"];
+ const sha256 = (body) =&gt; crypto.createHash("sha256").update(body).digest("hex");
+-const gitEnv = { ...process.env, GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t", GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_SYSTEM: "/dev/null" };
+-
+-function git(cwd, ...args) {
+-  const r = spawnSync("git", args, { cwd, encoding: "utf8", env: gitEnv });
+-  if (r.status !== 0) throw new Error(`git ${args.join(" ")}: ${r.stderr}`);
+-  return r.stdout.trim();
+-}
++// The manifest as the deploy commit carries it, not as the working tree
++// happens to carry it today.  Test 1 separately proves the two are still the
++// same bytes.
++const rolloutManifest = () =&gt; JSON.parse(gitBlob(root, `${ROLLOUT}:${MANIFEST}`).toString("utf8"));
+
+ // One shared clone per test run: cheap (object store is shared), isolated
+ // (commits in the clone never touch this repository).  Checked out at the
+-// BASELINE by default - the real current main the rollout is prepared on.
++// BASELINE by default - the real main commit the rollout was prepared on.
+ function makeClone(at = BASELINE) {
+   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "hotfix-lineage-"));
+   git(root, "clone", "--shared", "--quiet", root, path.join(dir, "repo"));
+   const repo = path.join(dir, "repo");
+   git(repo, "checkout", "--quiet", "-b", "probe", at);
+   return repo;
+ }
+
+-// The planned rollout state: EVERY path this repository actually changes
+-// after the baseline - committed on the current branch (baseline..HEAD)
+-// and still dirty in the working tree (modified or untracked, ignore rules
+-// respected) - committed on top of the baseline.  This set is derived from
+-// git, never from the manifest: a fixture built from the manifest's own
+-// allowlist could not notice a rollout file the allowlist forgot, and the
+-// real merge commit was denied for exactly that (review 12 aftermath:
+-// three safety scripts were outside the allowlist).
++// The rollout state: EVERY path that actually differs between the baseline
++// and ROLLOUT, the pinned rollout preparation commit.  This set is
++// derived from git, never from the manifest: a fixture built from the
++// manifest's own allowlist could not notice a rollout file the allowlist
++// forgot, and the real merge commit was denied for exactly that (review 12
++// aftermath: three safety scripts were outside the allowlist).  It is also
++// never derived from HEAD or from the working tree - see the header.
+ function rolloutFiles() {
++  return changedPaths(root, BASELINE, ROLLOUT);
++}
++// Restore those paths at their ROLLOUT bytes and mode.  They land in the work
++// tree and NOT in the index on purpose: `git add -A` must still apply the
++// checked-out .gitignore, which is what the "deno.lock never left the ignore
++// list" fixture below depends on.
++function overlay(repo, files) {
++  materialize(root, ROLLOUT, files, repo);
++}
++// The CURRENT checkout's post-baseline state - committed on this branch
++// (baseline..HEAD) and still dirty in the working tree (modified or
++// untracked, ignore rules respected).  Every fixture used to be built this
++// way; it now exists only to prove the guard REFUSES it.
++function currentCheckoutFiles() {
+   const committed = git(root, "diff", "--name-only", "--no-renames", BASELINE, "HEAD").split("\n").filter(Boolean);
+   const dirty = git(root, "status", "--porcelain", "--untracked-files=all", "--no-renames").split("\n").filter(Boolean)
+     .filter((line) =&gt; !/^.D|^D/.test(line.slice(0, 2))).map((line) =&gt; line.slice(3));
+   return [...new Set([...committed, ...dirty])].filter((rel) =&gt; fs.existsSync(path.join(root, rel)));
+ }
+-function overlay(repo, files) {
++function overlayFromCheckout(repo, files) {
+   for (const rel of files) {
+     const target = path.join(repo, rel);
+     fs.mkdirSync(path.dirname(target), { recursive: true });
+     fs.copyFileSync(path.join(root, rel), target);
+   }
+ }
+ function commitAll(repo, message) {
+   git(repo, "add", "-A");
+   git(repo, "commit", "--quiet", "--allow-empty", "-m", message);
+   return git(repo, "rev-parse", "HEAD");
+@@ -108,55 +136,72 @@ function editManifest(repo, mutate) {
+ }
+
+ test("the real repository lineage matches the constants: baseline reaches the review through exactly #117..#121, each touching only its pinned paths", () =&gt; {
+   assert.equal(git(root, "rev-parse", `${REVIEWED}^`), PRE_HOTFIX, "pre-hotfix is the parent of the reviewed commit");
+   assert.deepEqual(git(root, "rev-list", "--reverse", "--first-parent", `${REVIEWED}..${BASELINE}`).split("\n"), [INTERMEDIATE_117, INTERMEDIATE_118, INTERMEDIATE_119, INTERMEDIATE_120, BASELINE]);
+   assert.deepEqual(git(root, "diff", "--name-only", REVIEWED, INTERMEDIATE_117).split("\n").sort(), ["supabase/functions/tests/wallet/purchase-revenue-capability.test.ts", "supabase/functions/verify_receipt/index.ts"]);
+   assert.deepEqual(git(root, "diff", "--name-only", INTERMEDIATE_117, INTERMEDIATE_118).split("\n").sort(), ["supabase/functions/tests/wallet/purchase-revenue-capability.test.ts", "supabase/functions/wallet-operation-worker/index.ts"]);
+   assert.deepEqual(git(root, "diff", "--name-only", INTERMEDIATE_118, INTERMEDIATE_119).split("\n").sort(), ["supabase/functions/_shared/database.types.ts", "supabase/migrations/20260902053935_stats_artist_group_name_paid_votes_period.sql"]);
+   assert.deepEqual(git(root, "diff", "--name-only", INTERMEDIATE_119, INTERMEDIATE_120).split("\n").sort(), ["supabase/migrations/20260902120000_stats_ad_campaign_monthly.sql", "supabase/tests/ad_campaign_monthly_stats.test.sql"]);
+   assert.deepEqual(git(root, "diff", "--name-only", INTERMEDIATE_120, BASELINE).split("\n").sort(), PATHS_121);
++  // The rollout is a COMMIT, not "whatever HEAD is": it descends from the
++  // baseline through PR #122, and the manifest this repository still carries
++  // is byte for byte the one that commit holds.  Nothing main merged
++  // afterwards may re-open this release.
++  assert.equal(git(root, "rev-list", "--reverse", "--first-parent", `${BASELINE}..${ROLLOUT}`).split("\n").at(-1), ROLLOUT, "the rollout commit is a first-parent descendant of the baseline");
++  assert.ok(gitBlob(root, `${ROLLOUT}:${MANIFEST}`).equals(fs.readFileSync(path.join(root, MANIFEST))), "the committed manifest is still the rollout commit's blob");
+   // The manifest digests for those paths are the blobs at the baseline.
+-  const manifest = JSON.parse(fs.readFileSync(path.join(root, MANIFEST), "utf8"));
++  const manifest = rolloutManifest();
+   assert.equal(manifest.lineage.baseline_sha, BASELINE);
+   assert.deepEqual(manifest.lineage.intermediate_changes.map((c) =&gt; [c.pull_request, c.sha]), [[117, INTERMEDIATE_117], [118, INTERMEDIATE_118], [119, INTERMEDIATE_119], [120, INTERMEDIATE_120], [121, BASELINE]]);
+   for (const change of manifest.lineage.intermediate_changes) {
+     for (const p of change.paths) {
+       const blob = spawnSync("git", ["show", `${BASELINE}:${p.path}`], { cwd: root, encoding: "buffer", env: gitEnv });
+       assert.equal(blob.status, 0, p.path);
+       assert.equal(sha256(blob.stdout), p.sha256, `${p.path} digest at the baseline`);
+     }
+   }
+   // The overlap: #121's blob of the hotfix migration is the baseline digest,
+-  // the rollout's hardened file (working tree, manifest.migration) is not.
++  // the rollout's hardened file (the deploy tree, manifest.migration) is not.
+   const overlap = manifest.lineage.intermediate_changes[4].paths.filter((p) =&gt; p.deploy_pin !== undefined);
+   assert.deepEqual(overlap.map((p) =&gt; [p.path, p.deploy_pin]), [[MIGRATION, "migration"]]);
+   assert.notEqual(overlap[0].sha256, manifest.migration.sha256, "the baseline blob is not the hardened migration");
+-  assert.equal(sha256(fs.readFileSync(path.join(root, MIGRATION))), manifest.migration.sha256, "the working tree carries the hardened migration");
++  assert.equal(sha256(gitBlob(root, `${ROLLOUT}:${MIGRATION}`)), manifest.migration.sha256, "the deploy tree carries the hardened migration");
+ });
+
+-test("lineage guard accepts the planned rollout commit ON TOP OF THE CURRENT BASELINE and prints no SHAs", () =&gt; {
++test("lineage guard accepts the ROLLOUT PREPARATION COMMIT reconstructed on top of the pinned baseline and prints no SHAs", () =&gt; {
+   const repo = makeClone();
+   const files = rolloutFiles();
+-  // The fixture must be the real change set, and it must include the files
+-  // the manifest lists (otherwise the overlay would be testing nothing).
+-  const manifest = JSON.parse(fs.readFileSync(path.join(root, MANIFEST), "utf8"));
++  // The fixture must be the real historical change set, and it must include
++  // the files the manifest lists (otherwise the overlay would be testing
++  // nothing).
++  const manifest = rolloutManifest();
+   for (const rel of [...manifest.rollout_allowlist, ...manifest.hardening_only, ...manifest.lock_files.map((entry) =&gt; entry.path)].filter((rel) =&gt; !rel.includes("*"))) assert.ok(files.includes(rel), `real change set carries ${rel}`);
+   assert.ok(files.includes("scripts/safety/assert-hotfix-toctou-acceptance.mjs"), "real change set carries the acceptance guard the allowlist once forgot");
+   overlay(repo, files);
+   commitAll(repo, "chore(rollout): prepare hotfix rollout");
++  // The reconstruction is the pinned rollout preparation tree, byte for byte
++  // and mode for mode - not the working tree, not HEAD.  If this ever reports paths,
++  // the fixture drifted and every verdict below would be about some other
++  // tree.
++  assert.equal(git(repo, "diff", "--name-only", "--no-renames", ROLLOUT, "HEAD"), "", "the fixture must reproduce the rollout commit's tree exactly");
+   // The lock file must actually be IN the commit (review 2 Important #2: it
+   // used to be gitignored, so `git add -A` silently left it out).
+   assert.ok(git(repo, "ls-tree", "-r", "--name-only", "HEAD").split("\n").includes("deno.lock"), "deno.lock must be tracked in the rollout commit");
+   const r = run(repo);
+   assert.equal(r.status, 0, r.stderr + r.stdout);
+   assert.match(r.stdout, /hotfix lineage accepted: 5 pinned intermediate change\(s\)/);
++  // Evidence that the guard actually walked THIS change set rather than
++  // accepting an empty or truncated one: the count it reports is the real
++  // BASELINE..ROLLOUT path count, of which exactly three are byte-pinned (the
++  // hardened migration, the adjusted SQL test, deno.lock).
++  assert.match(r.stdout, new RegExp(`; ${files.length} post-baseline path\\(s\\) \\(3 byte-pinned, rest rollout preparation\\)`), r.stdout);
+   assert.doesNotMatch(r.stdout + r.stderr, /[0-9a-f]{40}/, "guard output must not echo SHAs");
+ });
+
+ test("lineage guard rejects a rollout commit whose deno.lock never left the ignore list (absent from the deploy tree)", () =&gt; {
+   const repo = makeClone();
+   overlay(repo, rolloutFiles().filter((rel) =&gt; rel !== ".gitignore"));
+   commitAll(repo, "rollout without un-ignoring the lock");
+   assert.ok(!git(repo, "ls-tree", "-r", "--name-only", "HEAD").split("\n").includes("deno.lock"), "fixture: the lock is still ignored and absent");
+   const r = run(repo);
+   assert.notEqual(r.status, 0);
+@@ -263,28 +308,28 @@ test("lineage guard refuses a deploy tree that silently kept the #121 (un-harden
+   fs.appendFileSync(path.join(repo2, MIGRATION), "\n-- re-edited after the baseline\n");
+   commitAll(repo2, "rollout with a re-edited migration");
+   const r2 = run(repo2);
+   assert.notEqual(r2.status, 0);
+   assert.match(r2.stderr, /does not hash to the rollout pin at the deploy SHA|does not hash to the manifest digest/);
+ });
+
+ test("lineage guard verifies byte-pinned files against the manifest digests", () =&gt; {
+   const repo = makeClone();
+   overlay(repo, rolloutFiles());
+-  const migration = JSON.parse(fs.readFileSync(path.join(root, MANIFEST), "utf8")).migration.file;
++  const migration = rolloutManifest().migration.file;
+   fs.appendFileSync(path.join(repo, migration), "\n-- drift\n");
+   commitAll(repo, "migration drift");
+   assert.notEqual(run(repo).status, 0, "migration bytes must hash to the manifest digest");
+
+   const repo2 = makeClone();
+   overlay(repo2, rolloutFiles());
+-  const testSource = JSON.parse(fs.readFileSync(path.join(root, MANIFEST), "utf8")).test_sources[0].path;
++  const testSource = rolloutManifest().test_sources[0].path;
+   fs.appendFileSync(path.join(repo2, testSource), "\n-- drift\n");
+   commitAll(repo2, "test drift");
+   assert.notEqual(run(repo2).status, 0, "SQL test bytes must hash to the manifest digest");
+ });
+
+ test("lineage guard rejects post-baseline edits outside the allowlist, including the intermediate-change files, function sources, and other migrations", () =&gt; {
+   for (const [name, mutate] of [
+     ["the deployed worker touched again after the baseline", (repo) =&gt; fs.appendFileSync(path.join(repo, "supabase/functions/wallet-operation-worker/index.ts"), "\n// drift\n")],
+     ["the shared database.types touched again after the baseline", (repo) =&gt; fs.appendFileSync(path.join(repo, "supabase/functions/_shared/database.types.ts"), "\n// drift\n")],
+     ["the #119 migration touched after the baseline", (repo) =&gt; fs.appendFileSync(path.join(repo, "supabase/migrations/20260902053935_stats_artist_group_name_paid_votes_period.sql"), "\n-- drift\n")],
+@@ -344,10 +389,48 @@ test("lineage guard rejects a history where the intermediate commits are not exa
+   for (const [sha, message] of [[INTERMEDIATE_117, "rewritten 117"], [INTERMEDIATE_118, "rewritten 118"], [INTERMEDIATE_119, "rewritten 119"], [INTERMEDIATE_120, "rewritten 120"], [BASELINE, "rewritten 121"]]) {
+     git(repo, "checkout", "--quiet", sha, "--", ".");
+     commitAll(repo, message);
+   }
+   overlay(repo, rolloutFiles());
+   commitAll(repo, "prepare on rewritten history");
+   const r = run(repo);
+   assert.notEqual(r.status, 0);
+   assert.match(r.stderr, /does not descend from the baseline|not exactly the pinned intermediate changes/);
+ });
++
++// --- HEAD drift is not retroactive approval -------------------------------
++// The two cases below are the regression this file was repaired for.  They
++// are the direction the old fixtures got backwards: main has moved on since
++// the rollout preparation commit, and none of that later work is part of it.
++
++test("lineage guard refuses the CURRENT checkout as this rollout's deploy tree: work main merged (or a dirty tree carries) after the rollout is not approved retroactively", () =&gt; {
++  // Exactly the fixture this file used to build for the ACCEPT case:
++  // baseline..HEAD plus everything dirty in the working tree.  History only
++  // grows, so this can never again be the rollout, and the guard must say so
++  // rather than approve today's main under the rollout's manifest.
++  const current = currentCheckoutFiles();
++  assert.ok(current.length &gt; rolloutFiles().length, "fixture: the current checkout carries more than the rollout change set");
++  const repo = makeClone();
++  overlayFromCheckout(repo, current);
++  commitAll(repo, "today's checkout presented as the rollout");
++  const r = run(repo);
++  assert.notEqual(r.status, 0, r.stdout);
++  assert.match(r.stderr, /^hotfix lineage denied:/m);
++  assert.doesNotMatch(r.stdout, /hotfix lineage accepted/);
++});
++
++test("lineage guard refuses the historical rollout plus ONE unrelated file that landed on main afterwards, and names it", () =&gt; {
++  // A single later main file, taken at HEAD, dropped into an otherwise exact
++  // rollout tree.  Every earlier gate passes, so the verdict can only come
++  // from the post-baseline allowlist - and it must name the intruder.
++  const later = "scripts/wallet/promotion_v2_preflight.sql";
++  const files = rolloutFiles();
++  assert.ok(!files.includes(later), "fixture: the extra file is not part of the rollout change set");
++  const repo = makeClone();
++  overlay(repo, files);
++  materialize(root, "HEAD", [later], repo);
++  commitAll(repo, "rollout plus later main work");
++  const r = run(repo);
++  assert.notEqual(r.status, 0, r.stdout);
++  assert.match(r.stderr, /post-baseline change\(s\) outside the rollout allowlist/);
++  assert.ok(r.stderr.includes(later), r.stderr);
++});
+diff --git a/scripts/safety/google-pending-hotfix-manifest.test.mjs b/scripts/safety/google-pending-hotfix-manifest.test.mjs
+index c435c23..757a9ab 100644
+--- a/scripts/safety/google-pending-hotfix-manifest.test.mjs
++++ b/scripts/safety/google-pending-hotfix-manifest.test.mjs
+@@ -1,108 +1,143 @@
+ // The committed Google pending hotfix manifest
+ // (ops/wallet/google-pending-hotfix-manifest.json) and its verifier
+ // (scripts/wallet/verify_google_pending_hotfix_manifest.mjs).
+ //
+ // The manifest pins, by SHA-256, exactly what PR #115 needs in production:
+ // the single migration 20260831120000 and the two Edge Functions that execute
+ // the Google purchaseState mapping (wallet-provider-event,
+ // wallet-operation-worker) plus the shared module that carries the fix.  It
+ // also documents the manual rollback (functions first, additive DB kept).
++//
++// THE TREE UNDER TEST IS HISTORY, THE VERIFIER IS CURRENT.  Those digests
++// describe one tree: main at ROLLOUT (PR #123), the rollout PREPARATION commit
++// prepared on top of the pinned baseline.  Whether a production deploy ever
++// ran from it is not established here and is not needed - what matters is that
++// the digests describe that commit and no other.  Every digest assertion and
++// every verifier run below therefore reads the ROLLOUT blobs out of git and
++// points the CURRENT verifier at a private materialisation of them (--root),
++// instead of hashing whatever the working tree holds today.  It used to hash
++// the working tree, which was accurate only while HEAD was the rollout
++// preparation commit itself: the 20260904 stats work
++// re-touched supabase/tests/ad_campaign_monthly_stats.test.sql - a PR #120
++// lineage path pinned at its baseline blob - so the verifier started failing
++// on real main drift, and four of the negative cases here silently became
++// vacuous (they assert a NON-zero exit, which a verifier already failing for
++// an unrelated reason satisfies without proving anything).  The last test pins
++// the direction explicitly: today's bytes for a pinned path are refused unless
++// they are byte-identical to the pin.
+ import test from "node:test";
+ import assert from "node:assert/strict";
+ import crypto from "node:crypto";
+ import fs from "node:fs";
+ import os from "node:os";
+ import path from "node:path";
+ import { spawnSync } from "node:child_process";
+ import { fileURLToPath } from "node:url";
++import { ROLLOUT_SHA as ROLLOUT, gitBlob, materialize } from "./historical-rollout-tree.mjs";
+
+ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+-const manifestPath = path.join(root, "ops/wallet/google-pending-hotfix-manifest.json");
+-const functionsFile = path.join(root, "ops/wallet/google-pending-hotfix-functions.txt");
++const MANIFEST_REL = "ops/wallet/google-pending-hotfix-manifest.json";
++const FUNCTIONS_REL = "ops/wallet/google-pending-hotfix-functions.txt";
++// The checked-in copies: used only to prove they are still the rollout blobs.
++const manifestPath = path.join(root, MANIFEST_REL);
+ const verifier = path.join(root, "scripts/wallet/verify_google_pending_hotfix_manifest.mjs");
+ const REVIEWED = "c14c32b77e1f4ae193b4b1e2af5a84e76930969f";
+ const PRE_HOTFIX = "2d14e797c91bef06f2dfad172a918b86a1044295";
+ const INTERMEDIATE_117 = "7553176975a3c7544fdf8c02df7c52375c46e1c4";
+ const INTERMEDIATE_118 = "9237c22f330d9eb030378a96599b922ac5b92104";
+ const INTERMEDIATE_119 = "a894fb166fb29dfe7a7b23801d74c137a0990d2c";
+ const INTERMEDIATE_120 = "c1eccc7cf74c7b13124f243de818e8e84860c591";
+ const BASELINE = "8a0190c0c6ad16938733f83727a74c3d8172da11";
+ const FUNCTIONS = ["wallet-provider-event", "wallet-operation-worker"];
+ const MIGRATION = "supabase/migrations/20260831120000_google_pending_purchase_retry_policy.sql";
+
+ const sha256 = (body) =&gt; crypto.createHash("sha256").update(body).digest("hex");
+-const manifest = () =&gt; JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+-const manifestHash = () =&gt; sha256(fs.readFileSync(manifestPath));
++// Every read below is a blob of the ROLLOUT commit, never the working tree.
++const blob = (rel) =&gt; gitBlob(root, `${ROLLOUT}:${rel}`);
++const manifestBody = () =&gt; blob(MANIFEST_REL);
++const manifest = () =&gt; JSON.parse(manifestBody().toString("utf8"));
++const manifestHash = () =&gt; sha256(manifestBody());
+ const run = (args) =&gt; spawnSync(process.execPath, [verifier, ...args], { cwd: root, encoding: "utf8" });
+-const good = (extra = []) =&gt; run(["--manifest-sha256", manifestHash(), "--functions-file", functionsFile, ...extra, manifestPath]);
+
+-// A private copy of everything the verifier hashes, so tampering tests never
+-// touch the working tree.
++// A private materialisation of everything the verifier hashes, taken from the
++// ROLLOUT commit: tampering tests never touch the working tree, and work main
++// merged after the rollout never enters the deploy tree under test.
+ function stagedRoot() {
+   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "google-pending-hotfix-"));
+   const m = manifest();
+-  const copy = (rel) =&gt; { fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true }); fs.cpSync(path.join(root, rel), path.join(dir, rel), { recursive: true }); };
+-  copy(m.migration.file);
+-  for (const fn of m.functions) copy(fn.path);
+-  for (const shared of m.shared_sources) copy(shared.path);
+-  for (const source of m.test_sources) copy(source.path);
+-  for (const change of m.lineage.intermediate_changes) for (const p of change.paths) if (!fs.existsSync(path.join(dir, p.path))) copy(p.path);
+-  for (const entry of m.lock_files) copy(entry.path);
+-  copy(".gitignore");
+-  copy("scripts/wallet/google_pending_preflight_readonly.sql");
+-  copy("scripts/wallet/verify_google_pending_readonly.sql");
+-  copy("scripts/wallet/google_pending_rehearsal_precondition.sql");
+-  copy("scripts/wallet/google_pending_rehearsal_postcondition.sql");
+-  copy("scripts/wallet/dump_google_pending_statements.mjs");
+-  copy("scripts/wallet/google_pending_rehearsal_restore.sql");
+-  copy("scripts/wallet/restore_google_pending_rehearsal_staging.mjs");
+-  for (const b of m.apply.rehearsal_baseline) if (!fs.existsSync(path.join(dir, b.source))) copy(b.source);
+-  copy("ops/wallet/google-pending-migration-statements.json");
+-  copy("ops/wallet/google-pending-hotfix-functions.txt");
+-  copy(".github/workflows/wallet-google-pending-hotfix-rollout.yml");
++  materialize(root, ROLLOUT, [...new Set([
++    MANIFEST_REL,
++    FUNCTIONS_REL,
++    ".gitignore",
++    m.migration.file,
++    ...m.functions.map((fn) =&gt; fn.path),
++    ...m.shared_sources.map((shared) =&gt; shared.path),
++    ...m.test_sources.map((source) =&gt; source.path),
++    ...m.lineage.intermediate_changes.flatMap((change) =&gt; change.paths.map((p) =&gt; p.path)),
++    ...m.lock_files.map((entry) =&gt; entry.path),
++    ...m.apply.rehearsal_baseline.map((b) =&gt; b.source),
++    "scripts/wallet/google_pending_preflight_readonly.sql",
++    "scripts/wallet/verify_google_pending_readonly.sql",
++    "scripts/wallet/google_pending_rehearsal_precondition.sql",
++    "scripts/wallet/google_pending_rehearsal_postcondition.sql",
++    "scripts/wallet/dump_google_pending_statements.mjs",
++    "scripts/wallet/google_pending_rehearsal_restore.sql",
++    "scripts/wallet/restore_google_pending_rehearsal_staging.mjs",
++    "ops/wallet/google-pending-migration-statements.json",
++    ".github/workflows/wallet-google-pending-hotfix-rollout.yml",
++  ])], dir);
+   return dir;
+ }
++// Run the CURRENT verifier against a staged root, with whatever manifest bytes
++// that root already holds.
++function verifyRoot(dir, extra = []) {
++  const file = path.join(dir, MANIFEST_REL);
++  return run(["--root", dir, "--manifest-sha256", sha256(fs.readFileSync(file)), "--functions-file", path.join(dir, FUNCTIONS_REL), ...extra, file]);
++}
+ function verifyStaged(dir, m, extra = []) {
+-  const file = path.join(dir, "ops/wallet/google-pending-hotfix-manifest.json");
+-  const body = JSON.stringify(m, null, 2) + "\n";
+-  fs.writeFileSync(file, body);
+-  return run(["--root", dir, "--manifest-sha256", sha256(body), "--functions-file", path.join(dir, "ops/wallet/google-pending-hotfix-functions.txt"), ...extra, file]);
++  fs.writeFileSync(path.join(dir, MANIFEST_REL), JSON.stringify(m, null, 2) + "\n");
++  return verifyRoot(dir, extra);
+ }
+
+ test("committed hotfix manifest pins PR #115, the single migration, and only the two Google purchaseState functions", () =&gt; {
+   const m = manifest();
++  // The manifest this repository still carries must be the bytes the pinned
++  // rollout preparation commit holds.  Nothing merged afterwards may silently
++  // re-point what "the Google pending hotfix" means.
++  assert.ok(manifestBody().equals(fs.readFileSync(manifestPath)), "the committed manifest is still the rollout commit's blob");
++  assert.ok(blob(FUNCTIONS_REL).equals(fs.readFileSync(path.join(root, FUNCTIONS_REL))), "the committed function allowlist is still the rollout commit's blob");
+   assert.equal(m.release, "google-pending-hotfix-v1");
+   assert.equal(m.status, "rollout_ready");
+   assert.equal(m.target_environment, "production");
+   assert.match(m.production_project_ref, /^[a-z0-9]{20}$/);
+   assert.match(m.staging_project_ref, /^[a-z0-9]{20}$/);
+   assert.notEqual(m.staging_project_ref, m.production_project_ref);
+   assert.equal(m.reviewed_change.pull_request, 115);
+   assert.equal(m.reviewed_change.sha, REVIEWED);
+   assert.equal(m.pre_hotfix_sha, PRE_HOTFIX);
+   assert.equal(m.migration.version, "20260831120000");
+   assert.equal(m.migration.file, MIGRATION);
+-  assert.equal(m.migration.sha256, sha256(fs.readFileSync(path.join(root, MIGRATION))));
++  assert.equal(m.migration.sha256, sha256(blob(MIGRATION)));
+   assert.deepEqual(m.functions.map((fn) =&gt; fn.name), FUNCTIONS);
+   for (const fn of m.functions) assert.equal(fn.path, `supabase/functions/${fn.name}`);
+-  assert.deepEqual(fs.readFileSync(functionsFile, "utf8").trim().split("\n"), FUNCTIONS);
++  assert.deepEqual(blob(FUNCTIONS_REL).toString("utf8").trim().split("\n"), FUNCTIONS);
+   assert.ok(m.shared_sources.some((s) =&gt; s.path === "supabase/functions/_shared/wallet/purchase-provider-verifiers.ts"));
+   assert.ok(m.shared_sources.some((s) =&gt; s.path === "supabase/functions/_shared/database.types.ts"));
+   for (const entry of [m.migration, ...m.functions, ...m.shared_sources]) assert.match(entry.sha256, /^[0-9a-f]{64}$/);
+   assert.ok(m.rollout_allowlist.includes("ops/wallet/google-pending-hotfix-manifest.json"));
+   assert.ok(m.rollout_allowlist.includes(".github/workflows/wallet-google-pending-hotfix-rollout.yml"));
+   assert.ok(!m.rollout_allowlist.includes("deno.lock"), "the Deno lock file is byte-pinned, not free-form allowlisted");
+   assert.ok(m.rollout_allowlist.includes(".gitignore"), "the rollout commit un-ignores deno.lock");
+   assert.deepEqual(m.lock_files.map((e) =&gt; e.path), ["deno.lock"]);
+-  assert.equal(m.lock_files[0].sha256, sha256(fs.readFileSync(path.join(root, "deno.lock"))), "deno.lock digest pinned to the working tree");
+-  assert.ok(!fs.readFileSync(path.join(root, ".gitignore"), "utf8").split(/\r?\n/).map((l) =&gt; l.trim()).includes("deno.lock"), "deno.lock must no longer be gitignored");
++  assert.equal(m.lock_files[0].sha256, sha256(blob("deno.lock")), "deno.lock digest pinned to the rollout preparation tree");
++  assert.ok(!blob(".gitignore").toString("utf8").split(/\r?\n/).map((l) =&gt; l.trim()).includes("deno.lock"), "deno.lock must no longer be gitignored");
+   assert.ok(m.limitations.some((entry) =&gt; /mutual exclusion is NOT provided/.test(entry) &amp;&amp; /TOCTOU/.test(entry)), "the residual production-writer TOCTOU risk is recorded for operator acceptance");
+   assert.ok(m.rollout_allowlist.includes(".github/workflows/wallet-production-rollout.yml"), "the other production workflow carries the shared concurrency group");
+   assert.deepEqual(m.hardening_only, [MIGRATION]);
+   for (const entry of m.rollout_allowlist) assert.doesNotMatch(entry, /^supabase\//, "runtime sources, migrations, and SQL tests are pinned by digest, never glob-allowlisted");
+   for (const key of ["inbox_max_estimated_rows", "inbox_max_total_bytes", "long_transaction_seconds"]) assert.ok(Number.isInteger(m.preflight[key]) &amp;&amp; m.preflight[key] &gt; 0, key);
+ });
+
+ test("committed hotfix manifest pins the lineage: baseline main #121 reached from the review through #117..#121, each path byte-digested at the baseline, the #121 hotfix-migration overlap declared", () =&gt; {
+   const m = manifest();
+   assert.equal(m.lineage.baseline_sha, BASELINE);
+@@ -122,63 +157,63 @@ test("committed hotfix manifest pins the lineage: baseline main #121 reached fro
+   assert.match(m.lineage.note, /OVERLAP/);
+   // The intermediate migrations (#119, #120) are NOT applied by this rollout
+   // and are NOT a gate (review 4 Important #3): the note must say so and
+   // must not claim a "must be applied before dispatch" prerequisite.
+   assert.match(m.lineage.note, /not applied by this rollout/i);
+   assert.doesNotMatch(m.lineage.note, /must already be applied|must be applied/i);
+   for (const change of m.lineage.intermediate_changes) {
+     assert.match(change.title, new RegExp(`\\(#${change.pull_request}\\)$`));
+     for (const p of change.paths) {
+       assert.match(p.sha256, /^[0-9a-f]{64}$/);
+-      if (p.deploy_pin === "migration") assert.equal(sha256(fs.readFileSync(path.join(root, p.path))), m.migration.sha256, `${p.path} in the working tree is the hardened migration, not the baseline blob`);
+-      else assert.equal(p.sha256, sha256(fs.readFileSync(path.join(root, p.path))), `${p.path} in the working tree equals the pinned baseline blob`);
++      if (p.deploy_pin === "migration") assert.equal(sha256(blob(p.path)), m.migration.sha256, `${p.path} in the deploy tree is the hardened migration, not the baseline blob`);
++      else assert.equal(p.sha256, sha256(blob(p.path)), `${p.path} in the deploy tree equals the pinned baseline blob`);
+     }
+   }
+   // The deployed worker directory digest therefore covers PR #118's edit.
+   assert.match(m.lineage.note, /wallet-operation-worker/);
+   assert.equal(m.shared_sources.find((x) =&gt; x.path === "supabase/functions/_shared/database.types.ts").sha256, m.lineage.intermediate_changes[2].paths[0].sha256, "the pinned shared database.types digest is the #119 blob");
+ });
+
+ test("committed hotfix manifest pins the reviewed SQL test bytes, the one-transaction CLI, the deferred follow-up, and its limitations", () =&gt; {
+   const m = manifest();
+   // Reviewed test file adjusted with the lock model, byte-pinned for the lineage guard.
+   assert.deepEqual(m.test_sources.map((source) =&gt; source.path), ["supabase/tests/google_pending_purchase_retry_policy.test.sql"]);
+-  for (const source of m.test_sources) assert.equal(source.sha256, sha256(fs.readFileSync(path.join(root, source.path))), source.path);
++  for (const source of m.test_sources) assert.equal(source.sha256, sha256(blob(source.path)), source.path);
+   // The CLI whose single-implicit-transaction apply the lock model relies on
+   // - through db query --linked --file, never db push (production history
+   // is renumbered: 112 local-only / 201 remote-only versions).
+   assert.equal(m.cli.supabase_cli_version, "2.109.1");
+   assert.match(m.cli.apply_model, /single implicit transaction/i);
+   assert.match(m.cli.apply_model, /db query --linked --file/);
+   assert.match(m.cli.apply_model, /db push.*NOT used/s);
+   assert.match(m.cli.apply_model_source, /database\/query/);
+   assert.equal(m.apply.method, "db_query_file_single_transaction");
+   assert.equal(m.apply.statements_file, "ops/wallet/google-pending-migration-statements.json");
+-  assert.equal(m.apply.statements_sha256, sha256(fs.readFileSync(path.join(root, m.apply.statements_file))));
+-  const statements = JSON.parse(fs.readFileSync(path.join(root, m.apply.statements_file), "utf8"));
++  assert.equal(m.apply.statements_sha256, sha256(blob(m.apply.statements_file)));
++  const statements = JSON.parse(blob(m.apply.statements_file).toString("utf8"));
+   assert.equal(statements.length, m.apply.statements_count);
+   assert.equal(m.apply.statements_count, 23);
+-  const migrationText = fs.readFileSync(path.join(root, MIGRATION), "utf8");
++  const migrationText = blob(MIGRATION).toString("utf8");
+   for (const entry of statements) assert.ok(migrationText.includes(entry), "recorded statements are verbatim migration text");
+-  assert.ok(fs.readFileSync(path.join(root, "scripts/wallet/verify_google_pending_readonly.sql"), "utf8").includes(m.apply.statements_jsonb_sha256), "post-deploy SQL pins the same JSONB digest");
++  assert.ok(blob("scripts/wallet/verify_google_pending_readonly.sql").toString("utf8").includes(m.apply.statements_jsonb_sha256), "post-deploy SQL pins the same JSONB digest");
+   assert.match(m.apply.rationale, /112 local-only/);
+   assert.match(m.apply.verification_gap, /REQUIRES a staging rehearsal job/);
+   assert.match(m.apply.statements_reproduction, /dump_google_pending_statements\.mjs/);
+-  assert.ok(fs.readFileSync(path.join(root, "scripts/wallet/google_pending_rehearsal_postcondition.sql"), "utf8").includes(m.apply.statements_jsonb_sha256), "rehearsal postcondition pins the same JSONB digest");
+-  assert.match(fs.readFileSync(path.join(root, ".github/workflows/wallet-google-pending-hotfix-rollout.yml"), "utf8"), new RegExp(`version:\\s*"?${m.cli.supabase_cli_version.replace(/\./g, "\\.")}"?`));
++  assert.ok(blob("scripts/wallet/google_pending_rehearsal_postcondition.sql").toString("utf8").includes(m.apply.statements_jsonb_sha256), "rehearsal postcondition pins the same JSONB digest");
++  assert.match(blob(".github/workflows/wallet-google-pending-hotfix-rollout.yml").toString("utf8"), new RegExp(`version:\\s*"?${m.cli.supabase_cli_version.replace(/\./g, "\\.")}"?`));
+   // Deferred scan work is explicit: VALIDATE CONSTRAINT, then the CONCURRENTLY index.
+   assert.deepEqual(m.follow_up.operations.map((op) =&gt; op.id), ["validate_constraint", "create_index_concurrently"]);
+   assert.match(m.follow_up.operations[0].sql, /^alter table public\.wallet_provider_event_inbox validate constraint wallet_provider_event_google_pending_state_chk;$/);
+   assert.match(m.follow_up.operations[1].sql, /^create index concurrently if not exists wallet_provider_event_inbox_google_pending_idx on public\.wallet_provider_event_inbox\(google_pending_since,id\) where status in \('PENDING','PROCESSING'\) and google_pending_since is not null;$/);
+   for (const op of m.follow_up.operations) for (const key of ["locks", "when", "verification"]) assert.equal(typeof op[key], "string", `${op.id}.${key}`);
+   // The migration itself must match that split: NOT VALID, and no index build.
+-  const migrationSql = fs.readFileSync(path.join(root, MIGRATION), "utf8");
++  const migrationSql = blob(MIGRATION).toString("utf8");
+   assert.match(migrationSql, /not valid/);
+   assert.doesNotMatch(migrationSql.replace(/--[^\n]*/g, ""), /create\s+(unique\s+)?index/i);
+   // What this rollout cannot verify is stated, not implied (review Important #6).
+   assert.ok(m.limitations.some((entry) =&gt; /bundle digest/i.test(entry)), "remote bundle digest limitation recorded");
+   assert.ok(m.limitations.some((entry) =&gt; /structural/i.test(entry)), "post-deploy verification limits recorded");
+   assert.ok(m.limitations.some((entry) =&gt; /remote state is unknown/i.test(entry)), "a failed function deploy's remote state is recorded as unknown, not exact");
+   for (const entry of m.limitations) assert.equal(typeof entry, "string");
+ });
+
+ test("committed hotfix manifest documents the manual rollback: functions first to the pre-hotfix SHA, additive DB kept", () =&gt; {
+@@ -190,39 +225,59 @@ test("committed hotfix manifest documents the manual rollback: functions first t
+   assert.ok(Array.isArray(r.edge_functions.procedure) &amp;&amp; r.edge_functions.procedure.length &gt;= 3);
+   assert.match(r.edge_functions.procedure[0], /UNKNOWN/, "partial deploy: the failed function's remote state is unknown");
+   assert.match(r.edge_functions.procedure[0], /BOTH functions/);
+   for (const step of r.edge_functions.procedure) assert.equal(typeof step, "string");
+   assert.equal(r.database.action, "keep");
+   assert.match(r.database.reason, /additive/i);
+   assert.ok(r.database.never.some((s) =&gt; /drop column/i.test(s)));
+   assert.ok(r.database.never.some((s) =&gt; /DEAD/.test(s)));
+ });
+
+-test("hotfix manifest verifier accepts the committed manifest with its exact hash and allowlist without echoing the project ref", () =&gt; {
+-  const r = good(["--commit-sha", "a".repeat(40)]);
++test("hotfix manifest verifier accepts the ROLLOUT PREPARATION tree with the committed manifest's exact bytes and allowlist, without echoing the project ref", () =&gt; {
++  const dir = stagedRoot();
++  const staged = path.join(dir, MANIFEST_REL);
++  // The exact committed bytes, not a re-serialisation: --manifest-sha256 is
++  // the operator-supplied pin, so this is the real GO path.
++  assert.ok(fs.readFileSync(staged).equals(manifestBody()), "the staged manifest is the rollout blob");
++  const r = verifyRoot(dir, ["--commit-sha", "a".repeat(40)]);
+   assert.equal(r.status, 0, r.stderr + r.stdout);
+   assert.match(r.stdout, /HOTFIX-GO: google-pending-hotfix-v1/);
+   assert.doesNotMatch(r.stdout + r.stderr, new RegExp(manifest().production_project_ref));
++  // Non-vacuity: the same invocation must turn into NO-GO for a single byte
++  // of a pinned source, so the GO above is a verdict and not a no-op.
++  fs.appendFileSync(path.join(dir, MIGRATION), "\n-- drift\n");
++  const tampered = verifyRoot(dir, ["--commit-sha", "a".repeat(40)]);
++  assert.notEqual(tampered.status, 0, "the accepting invocation must reject one drifted byte");
++  assert.match(tampered.stderr, /NO-GO: google-pending-hotfix-v1: .*migration file hash/);
++  fs.rmSync(dir, { recursive: true, force: true });
+ });
+
+ test("hotfix manifest verifier rejects a wrong manifest hash, the pre-hotfix commit, and a drifted function allowlist file", () =&gt; {
+-  assert.notEqual(run(["--manifest-sha256", "b".repeat(64), "--functions-file", functionsFile, manifestPath]).status, 0);
+-  assert.notEqual(run(["--functions-file", functionsFile, manifestPath]).status, 0, "manifest hash is mandatory");
+-  assert.notEqual(run(["--manifest-sha256", manifestHash(), manifestPath]).status, 0, "functions file is mandatory");
+-  assert.notEqual(good(["--commit-sha", PRE_HOTFIX]).status, 0, "deploying the pre-hotfix commit is a rollback, not this rollout");
+-  assert.notEqual(good(["--commit-sha", "not-a-sha"]).status, 0);
+-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "google-pending-functions-"));
+-  const drifted = path.join(dir, "functions.txt");
++  const dir = stagedRoot();
++  const staged = path.join(dir, MANIFEST_REL);
++  const stagedFunctions = path.join(dir, FUNCTIONS_REL);
++  // These negatives are only meaningful against a root that otherwise
++  // VERIFIES - test 5 proves this one does; run against today's checkout they
++  // would pass on unrelated drift without exercising anything.
++  assert.notEqual(run(["--manifest-sha256", "b".repeat(64), "--functions-file", stagedFunctions, "--root", dir, staged]).status, 0);
++  assert.notEqual(run(["--functions-file", stagedFunctions, "--root", dir, staged]).status, 0, "manifest hash is mandatory");
++  assert.notEqual(run(["--manifest-sha256", manifestHash(), "--root", dir, staged]).status, 0, "functions file is mandatory");
++  assert.notEqual(verifyRoot(dir, ["--commit-sha", PRE_HOTFIX]).status, 0, "deploying the pre-hotfix commit is a rollback, not this rollout");
++  assert.notEqual(verifyRoot(dir, ["--commit-sha", "not-a-sha"]).status, 0);
++  const scratch = fs.mkdtempSync(path.join(os.tmpdir(), "google-pending-functions-"));
++  const drifted = path.join(scratch, "functions.txt");
+   for (const body of ["wallet-provider-event\nwallet-operation-worker\nwallet-alert-dispatcher\n", "wallet-operation-worker\nwallet-provider-event\n", "wallet-provider-event\n", ""]) {
+     fs.writeFileSync(drifted, body);
+-    assert.notEqual(run(["--manifest-sha256", manifestHash(), "--functions-file", drifted, manifestPath]).status, 0, JSON.stringify(body));
++    assert.notEqual(run(["--manifest-sha256", manifestHash(), "--functions-file", drifted, "--root", dir, staged]).status, 0, JSON.stringify(body));
+   }
++  fs.rmSync(scratch, { recursive: true, force: true });
++  fs.rmSync(dir, { recursive: true, force: true });
+ });
+
+ test("hotfix manifest verifier fails closed on tampered function, shared, or migration sources", () =&gt; {
+   const dir = stagedRoot();
+   const m = manifest();
+   assert.equal(verifyStaged(dir, m).status, 0, "staged copy must verify before tampering");
+   fs.appendFileSync(path.join(dir, "supabase/functions/wallet-provider-event/index.ts"), "\n// drift\n");
+   assert.notEqual(verifyStaged(dir, m).status, 0, "function source drift");
+   fs.rmSync(dir, { recursive: true, force: true });
+
+@@ -355,10 +410,49 @@ test("hotfix manifest verifier rejects widened function scope, non-ready status,
+     ["allowlist drops the other production workflow", (m) =&gt; { m.rollout_allowlist = m.rollout_allowlist.filter((p) =&gt; p !== ".github/workflows/wallet-production-rollout.yml"); }],
+     ["limitations lose the bundle digest entry", (m) =&gt; { m.limitations = m.limitations.filter((entry) =&gt; !/bundle digest/i.test(entry)); }],
+   ]) {
+     const m = structuredClone(base);
+     mutate(m);
+     assert.notEqual(verifyStaged(dir, m).status, 0, name);
+   }
+   assert.equal(verifyStaged(dir, structuredClone(base)).status, 0, "unmodified copy still verifies");
+   fs.rmSync(dir, { recursive: true, force: true });
+ });
++
++// --- HEAD drift is not retroactive approval -------------------------------
++
++test("hotfix manifest verifier refuses TODAY'S bytes for a pinned path unless they are byte-identical to the pin: main moving on does not re-pin the rollout preparation commit", () =&gt; {
++  // The regression this file was repaired for, stated as an invariant rather
++  // than as a snapshot: for every single-file pin, staging the CURRENT HEAD
++  // blob must be refused when it differs from the pinned digest and must
++  // still verify when it does not.  Function directories are digested as a
++  // whole and are covered by the tamper cases above.
++  const dir = stagedRoot();
++  const m = manifest();
++  const pins = [
++    [m.migration.file, m.migration.sha256],
++    ...m.test_sources.map((source) =&gt; [source.path, source.sha256]),
++    ...m.lock_files.map((entry) =&gt; [entry.path, entry.sha256]),
++    ...m.shared_sources.map((shared) =&gt; [shared.path, shared.sha256]),
++    ...m.lineage.intermediate_changes.flatMap((change) =&gt; change.paths.map((p) =&gt; [p.path, p.deploy_pin === "migration" ? m.migration.sha256 : p.sha256])),
++  ];
++  let drifted = 0;
++  for (const [rel, digest] of pins) {
++    const head = gitBlob(root, `HEAD:${rel}`);
++    fs.writeFileSync(path.join(dir, rel), head);
++    const r = verifyStaged(dir, structuredClone(m));
++    if (sha256(head) === digest) assert.equal(r.status, 0, `${rel} is unchanged since the rollout and must still verify: ${r.stderr}`);
++    else {
++      drifted += 1;
++      assert.notEqual(r.status, 0, `${rel} carries today's bytes, not the pinned deploy bytes, and must be refused`);
++      assert.match(r.stderr, /NO-GO: google-pending-hotfix-v1:/, rel);
++    }
++    materialize(root, ROLLOUT, [rel], dir);
++  }
++  // Evidence that the loop above is not vacuous: main really has moved past
++  // this rollout (the 20260904 stats work re-touched a #120 lineage path), so
++  // at least one pin is genuinely drifted at HEAD and was genuinely refused.
++  // If this ever fails, check whether the drifted paths were reverted before
++  // weakening anything here.
++  assert.ok(drifted &gt; 0, "fixture: at least one pinned path must differ between the rollout and HEAD");
++  fs.rmSync(dir, { recursive: true, force: true });
++});
+diff --git a/scripts/safety/historical-rollout-tree.mjs b/scripts/safety/historical-rollout-tree.mjs
+new file mode 100644
+index 0000000..f8f2d85
+--- /dev/null
++++ b/scripts/safety/historical-rollout-tree.mjs
+@@ -0,0 +1,98 @@
++// TEST-ONLY fixture helper for the Google pending hotfix guard and verifier
++// tests.  This file is NOT a guard: no workflow runs it, it asserts nothing on
++// its own, and it is deliberately not named *.test.mjs so `node --test
++// scripts/safety/*.test.mjs` does not collect it.
++//
++// WHY IT EXISTS.  assert-hotfix-lineage.test.mjs and
++// google-pending-hotfix-manifest.test.mjs reason about a PAST commit, not
++// about HEAD.  Every SHA and every SHA-256 in
++// ops/wallet/google-pending-hotfix-manifest.json describes one specific tree:
++// main at ROLLOUT_SHA (PR #123), the rollout PREPARATION commit prepared on
++// top of BASELINE_SHA (PR #121, the baseline the manifest pins).  Nothing here
++// establishes that a production deploy actually ran from it; what is pinned is
++// the preparation commit the guard and the verifier were written against.
++//
++// Both test files used to build their fixtures out of the CURRENT checkout -
++// `git diff BASELINE HEAD` plus `git status --porcelain` for the lineage
++// fixture, plain working-tree reads for the manifest digests.  That was
++// accurate only while HEAD *was* the rollout preparation commit.  Once main
++// moved on, everything merged afterwards leaked into what the tests presented
++// to the guard as "the rollout tree": the 20260904 stats work re-touched
++// supabase/tests/ad_campaign_monthly_stats.test.sql - a PR #120 lineage path
++// the manifest pins at its baseline blob - and unrelated promotion-V2 sources
++// entered the post-baseline change set.  The guard and the verifier were
++// right to refuse; the fixtures were wrong.
++//
++// WHAT IT DOES.  Materialises paths out of a git tree, bytes and file mode
++// exactly as committed, so a fixture is built from git history and never from
++// the working tree and never from the manifest's own allowlist (a fixture
++// built from the allowlist could not notice a rollout file the allowlist
++// forgot - the real merge commit was denied for exactly that).  The guards and
++// verifiers under test stay the CURRENT ones in this checkout; only the tree
++// they are pointed at is historical.
++import fs from "node:fs";
++import path from "node:path";
++import { spawnSync } from "node:child_process";
++
++// The commits the hotfix manifest describes.  BASELINE is the manifest's own
++// pinned baseline (PR #121); ROLLOUT is main's rollout preparation commit
++// (PR #123), reached from the baseline through PR #122.  Both are history, so
++// neither can drift the way HEAD does.
++export const BASELINE_SHA = "8a0190c0c6ad16938733f83727a74c3d8172da11";
++export const ROLLOUT_SHA = "6cec1119ba9a01f29960f1067aea0054f9c3837e";
++
++// database.types.ts alone is ~340 KB and node's default is 1 MB; a truncated
++// blob would silently produce a wrong digest, so give git room and fail loudly
++// instead.
++const MAX_BUFFER = 64 * 1024 * 1024;
++
++export const gitEnv = { ...process.env, GIT_AUTHOR_NAME: "t", GIT_AUTHOR_EMAIL: "t@t", GIT_COMMITTER_NAME: "t", GIT_COMMITTER_EMAIL: "t@t", GIT_CONFIG_GLOBAL: "/dev/null", GIT_CONFIG_SYSTEM: "/dev/null" };
++
++function capture(cwd, args, encoding) {
++  const result = spawnSync("git", args, { cwd, encoding, env: gitEnv, maxBuffer: MAX_BUFFER });
++  if (result.error) throw result.error;
++  if (result.status !== 0) throw new Error(`git ${args.join(" ")}: ${(encoding === "buffer" ? result.stderr?.toString("utf8") : result.stderr) ?? ""}`);
++  return result.stdout;
++}
++
++export const git = (cwd, ...args) =&gt; capture(cwd, args, "utf8").trim();
++// Exact committed bytes of one path at one tree-ish, e.g. `${ROLLOUT_SHA}:deno.lock`.
++export const gitBlob = (cwd, ref) =&gt; capture(cwd, ["show", ref], "buffer");
++// The real change set between two commits, NUL-separated so no path can be
++// quoted or split, sorted for stable comparisons.
++export const changedPaths = (cwd, from, to) =&gt; capture(cwd, ["diff", "--name-only", "--no-renames", "-z", from, to], "utf8").split("\0").filter(Boolean).sort();
++
++// Every blob under `paths` at `tree`, with its committed mode.  Directories
++// are expanded; anything that is not a regular file (symlink, submodule) is a
++// hard error rather than something a fixture silently drops.
++export function treeEntries(cwd, tree, paths) {
++  if (paths.length === 0) return [];
++  const entries = capture(cwd, ["ls-tree", "-r", "-z", tree, "--", ...paths], "utf8").split("\0").filter(Boolean).map((record) =&gt; {
++    const tab = record.indexOf("\t");
++    const [mode, type, oid] = record.slice(0, tab).split(" ");
++    const rel = record.slice(tab + 1);
++    if (type !== "blob") throw new Error(`unsupported ${type} entry in the pinned tree: ${rel}`);
++    if (mode !== "100644" &amp;&amp; mode !== "100755") throw new Error(`unsupported file mode ${mode} in the pinned tree: ${rel}`);
++    return { mode, oid, path: rel };
++  });
++  // A path that is absent from the pinned tree must not silently produce an
++  // incomplete fixture.
++  for (const requested of paths) {
++    if (!entries.some((entry) =&gt; entry.path === requested || entry.path.startsWith(`${requested}/`))) throw new Error(`path ${requested} is absent from the pinned tree`);
++  }
++  return entries;
++}
++
++// Write those blobs under `destDir`, bytes and mode as committed.  Files land
++// in the work tree only - never in an index - so a caller that later runs
++// `git add -A` still applies whatever .gitignore the fixture checked out.
++export function materialize(cwd, tree, paths, destDir) {
++  const entries = treeEntries(cwd, tree, paths);
++  for (const entry of entries) {
++    const target = path.join(destDir, entry.path);
++    fs.mkdirSync(path.dirname(target), { recursive: true });
++    fs.writeFileSync(target, capture(cwd, ["cat-file", "blob", entry.oid], "buffer"));
++    fs.chmodSync(target, entry.mode === "100755" ? 0o755 : 0o644);
++  }
++  return entries.map((entry) =&gt; entry.path);
++}
+</pre>
+<p>Read-only 리뷰. 소스/index/HEAD 수정·테스트 전체 재실행·DB 접근·다른 작업자 생성 금지. diff 밖 코드는 명시한 위험 검증에 필요한 부분만 읽는다. 추가 실험이 꼭 필요하면 실행하지 말고 조정자에게 Orca ask로 제안한다. 최종 지적은 severity, file:line, 실패 조건, 최소 수정 방향을 포함한다. 보고서는 채팅/Orca worker_done 본문으로 반환하며 파일 생성은 조정자가 담당한다.</p>
+</body></html>

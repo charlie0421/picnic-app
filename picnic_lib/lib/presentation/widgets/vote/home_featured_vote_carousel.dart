@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_prefetch.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/providers/active_featured_votes_provider.dart';
+import 'package:picnic_lib/presentation/providers/home_view_state_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/home_featured_vote_card.dart';
+import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_action_button.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:visibility_detector/visibility_detector.dart';
 
 /// 홈 "현재 진행중인 투표" 가로 캐러셀.
 ///
@@ -63,12 +69,94 @@ abstract final class FeaturedVoteSkeletonKeys {
 
 class _HomeFeaturedVoteCarouselState
     extends ConsumerState<HomeFeaturedVoteCarousel> {
-  late final PageController _controller;
+  late PageController _controller;
   int _page = 0;
+  int? _activeVoteId;
+  String _sequence = '';
+  int _revision = 0;
+  final _prefetchScope = PicnicImagePrefetchScope();
+  String? _prefetchSignature;
+  int _prefetchGeneration = 0;
+  List<PicnicImageRequest> _prefetchCandidates = const [];
+  final Key _visibilityKey = UniqueKey();
+  bool _isVisible = false;
+  List<FeaturedVoteEntry> _lastEntries = const [];
+
+  void _synchronizeEntries(List<FeaturedVoteEntry> entries) {
+    final sequence = entries.map((e) => e.vote.id).join(',');
+    if (_sequence == sequence) return;
+    _activeVoteId ??= ref.read(homeViewStateProvider).selectedVoteId;
+    final preserved = entries.indexWhere((e) => e.vote.id == _activeVoteId);
+    _page = preserved >= 0 ? preserved : 0;
+    _activeVoteId = entries.isEmpty ? null : entries[_page].vote.id;
+    _sequence = sequence;
+    _revision++;
+    final revision = _revision;
+    final selectedVoteId = _activeVoteId;
+    final previousController = _controller;
+    _controller = PageController(
+      initialPage: _page,
+      viewportFraction: HomeFeaturedVoteCarousel.viewportFraction,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      previousController.dispose();
+      if (mounted && revision == _revision) {
+        ref.read(homeViewStateProvider.notifier).selectVote(selectedVoteId);
+      }
+    });
+    if (entries.isEmpty) _schedulePrefetch(const []);
+  }
+
+  void _schedulePrefetch(List<PicnicImageRequest> requests) {
+    _prefetchCandidates = requests;
+    _syncPrefetch(afterFrame: true);
+  }
+
+  void _onVisibilityChanged(VisibilityInfo info) {
+    if (!mounted) return;
+    final visible = info.visibleFraction > 0;
+    if (visible == _isVisible) return;
+    _isVisible = visible;
+    _syncPrefetch(afterFrame: false);
+  }
+
+  /// 캐러셀이 실제로 보일 때만 다음 카드를 데운다.
+  ///
+  /// 홈은 IndexedStack 에서 다른 페이지에 가려져도 mount·layout 된 채 남으므로,
+  /// 가려지거나 스크롤로 벗어나면 대기 중인 후보를 비우고 다시 보이면 되살린다.
+  /// 이미 시작된 다운로드는 취소할 수 없어 끝까지 받는다.
+  void _syncPrefetch({required bool afterFrame}) {
+    final requests = _isVisible
+        ? _prefetchCandidates
+        : const <PicnicImageRequest>[];
+    final signature = requests
+        .map((r) => '${r.url}:${r.decodeWidth}:${r.decodeHeight}')
+        .join('|');
+    if (_prefetchSignature == signature) return;
+    _prefetchSignature = signature;
+    final generation = ++_prefetchGeneration;
+    void apply() {
+      if (mounted && generation == _prefetchGeneration) {
+        _prefetchScope.replace(context, requests);
+      }
+    }
+
+    // 빌드·레이아웃 중에는 프레임 뒤로 미루고, 가시성 콜백(프레임 밖)에서는
+    // 새 프레임 없이도 바로 반영한다.
+    if (afterFrame) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => apply());
+    } else {
+      apply();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    // PicnicCachedNetworkImage 와 같은 설정이다. 이미지보다 먼저(스켈레톤)
+    // 그려지는 이 감지기가 기본 500ms 타이머를 만들면 모든 가시성 콜백이
+    // 그 타이머를 기다린다.
+    VisibilityDetectorController.instance.updateInterval = Duration.zero;
     _controller = PageController(
       viewportFraction: HomeFeaturedVoteCarousel.viewportFraction,
     );
@@ -76,6 +164,9 @@ class _HomeFeaturedVoteCarouselState
 
   @override
   void dispose() {
+    _prefetchGeneration++;
+    _prefetchScope.dispose();
+    VisibilityDetectorController.instance.forget(_visibilityKey);
     _controller.dispose();
     super.dispose();
   }
@@ -84,45 +175,119 @@ class _HomeFeaturedVoteCarouselState
   Widget build(BuildContext context) {
     final entriesAsync = ref.watch(asyncActiveFeaturedVotesProvider);
 
+    return VisibilityDetector(
+      key: _visibilityKey,
+      onVisibilityChanged: _onVisibilityChanged,
+      child: _buildState(entriesAsync),
+    );
+  }
+
+  Widget _buildState(AsyncValue<List<FeaturedVoteEntry>> entriesAsync) {
     return entriesAsync.when(
-      loading: () => SizedBox(
-        // data 브랜치의 PageView 는 뷰포트를 가로로 꽉 채운다. 폭 제약이 loose 인
-        // 곳에 놓여도 두 브랜치가 같은 폭을 갖도록 여기서도 최대 폭을 요구한다.
-        width: double.infinity,
-        height: HomeFeaturedVoteCarousel.viewportHeight,
-        // PageView 뷰포트는 자식을 hardEdge 로 자른다. 카드 글로우가 아래쪽에서
-        // 잘리는 모양까지 같아야 데이터 도착 시 테두리가 달라 보이지 않는다.
-        child: ClipRect(
-          // 첫 페이지가 쉬는 위치와 동일한 사각형: 뷰포트 폭 x viewportFraction,
-          // 가운데 정렬(PageView 의 padEnds: true 와 같은 결과).
-          child: FractionallySizedBox(
-            widthFactor: HomeFeaturedVoteCarousel.viewportFraction,
-            child: const Padding(
-              padding: HomeFeaturedVoteCarousel.pageMargin,
-              child: _FeaturedVoteCardSkeleton(),
+      loading: () {
+        if (_lastEntries.isNotEmpty) return _buildEntries(_lastEntries);
+        return SizedBox(
+          // data 브랜치의 PageView 는 뷰포트를 가로로 꽉 채운다. 폭 제약이 loose 인
+          // 곳에 놓여도 두 브랜치가 같은 폭을 갖도록 여기서도 최대 폭을 요구한다.
+          width: double.infinity,
+          height: HomeFeaturedVoteCarousel.viewportHeight,
+          // PageView 뷰포트는 자식을 hardEdge 로 자른다. 카드 글로우가 아래쪽에서
+          // 잘리는 모양까지 같아야 데이터 도착 시 테두리가 달라 보이지 않는다.
+          child: ClipRect(
+            // 첫 페이지가 쉬는 위치와 동일한 사각형: 뷰포트 폭 x viewportFraction,
+            // 가운데 정렬(PageView 의 padEnds: true 와 같은 결과).
+            child: FractionallySizedBox(
+              widthFactor: HomeFeaturedVoteCarousel.viewportFraction,
+              child: const Padding(
+                padding: HomeFeaturedVoteCarousel.pageMargin,
+                child: _FeaturedVoteCardSkeleton(),
+              ),
             ),
           ),
-        ),
-      ),
-      error: (e, s) => const SizedBox.shrink(),
+        );
+      },
+      error: (e, s) {
+        final retry = Material(
+          color: Colors.transparent,
+          child: PicnicActionButton(
+            key: const ValueKey('featured-votes-retry'),
+            onPressed: () => ref.invalidate(asyncActiveFeaturedVotesProvider),
+            icon: const Icon(Icons.refresh),
+            label: AppLocalizations.of(context).label_retry,
+            variant: PicnicActionVariant.secondary,
+          ),
+        );
+        if (_lastEntries.isEmpty) {
+          return SizedBox(height: 96, child: Center(child: retry));
+        }
+        return Column(
+          children: [
+            _buildEntries(_lastEntries),
+            const SizedBox(height: 8),
+            retry,
+          ],
+        );
+      },
       data: (entries) {
-        if (entries.isEmpty) return const SizedBox.shrink();
+        _lastEntries = entries;
+        _synchronizeEntries(entries);
+        return _buildEntries(entries);
+      },
+    );
+  }
+
+  Widget _buildEntries(List<FeaturedVoteEntry> entries) {
+    if (entries.isEmpty) return const SizedBox.shrink();
+    final revision = _revision;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final imageWidth = HomeFeaturedVoteCard.heroWidth(
+          constraints.maxWidth * HomeFeaturedVoteCarousel.viewportFraction -
+              HomeFeaturedVoteCarousel.pageMargin.horizontal,
+        );
+        final requests = [
+          for (final entry in entries)
+            HomeFeaturedVoteCard.imageRequestFor(
+              context,
+              entry.vote,
+              imageWidth,
+            ),
+        ];
+        // 다음 카드 하나만 데운다. 그다음 카드(w1000)는 페이지를 넘길 때
+        // 새 +1 이 되어 준비된다.
+        _schedulePrefetch([
+          if (_page + 1 < entries.length) ?requests[_page + 1],
+        ]);
         return Column(
           children: [
             SizedBox(
               height: HomeFeaturedVoteCarousel.viewportHeight,
               child: PageView.builder(
+                key: ValueKey(revision),
                 controller: _controller,
                 itemCount: entries.length,
                 padEnds: true,
-                onPageChanged: (i) => setState(() => _page = i),
+                onPageChanged: (i) {
+                  if (!mounted || revision != _revision || i == _page) {
+                    return;
+                  }
+                  setState(() {
+                    _page = i;
+                    _activeVoteId = entries[i].vote.id;
+                  });
+                  ref
+                      .read(homeViewStateProvider.notifier)
+                      .selectVote(_activeVoteId);
+                },
                 itemBuilder: (context, i) {
                   final entry = entries[i];
                   return Padding(
+                    key: ValueKey(entry.vote.id),
                     padding: HomeFeaturedVoteCarousel.pageMargin,
                     child: HomeFeaturedVoteCard(
                       vote: entry.vote,
                       percent: entry.topPercent,
+                      heroImageRequest: requests[i],
                     ),
                   );
                 },
@@ -172,33 +337,25 @@ class _FeaturedVoteCardSkeleton extends StatelessWidget {
   const _FeaturedVoteCardSkeleton();
 
   Widget _bar(Key key, double width, double height, double radius) => Container(
-        key: key,
-        width: width,
-        height: height,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(radius),
-        ),
-      );
+    key: key,
+    width: width,
+    height: height,
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(radius),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
+    // ScreenUtil excludes private widgets from its resize rebuild. Subscribe
+    // to the live content width so the skeleton follows a fold transition too.
+    MediaQuery.sizeOf(context);
     return Container(
       key: FeaturedVoteSkeletonKeys.frame,
       // HomeFeaturedVoteCard 의 프레임과 동일 — 테두리와 글로우까지 같아야
       // 데이터가 도착해도 카드 윤곽이 바뀌지 않는다.
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(color: AppColors.primary500.withValues(alpha: 0.25)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary500.withValues(alpha: 0.18),
-            blurRadius: 24,
-            spreadRadius: 1,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
+      decoration: HomeFeaturedVoteCard.frameDecoration,
       clipBehavior: Clip.antiAlias,
       child: ColoredBox(
         color: AppColors.grey00,

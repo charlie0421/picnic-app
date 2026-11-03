@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_period_banner.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 
 import '../../../../../helpers/mock_supabase.dart';
 import '../../../../../helpers/test_app.dart';
 import '../../../../../helpers/test_environment.dart';
+
+final _paymentBadgeSourceProvider =
+    StateProvider<ResolvedPaymentBadgePromotion?>((ref) => null);
 
 /// Helper to build PurchaseStarCandy with mock providers.
 /// Since PurchaseStarCandyState creates internal timers via PurchaseService,
@@ -67,10 +75,64 @@ void main() {
       final nextRect = tester.getRect(find.byType(Divider).first);
 
       expect(pouchRect.top - previousRect.top, 16);
-      expect(nextRect.top - pouchRect.bottom, 16);
+      // 배너가 없어도 캔디부스트 배너가 있을 때와 같은 간격 (PICNIC-2689):
+      // 파우치 → 10 → Divider(height 14).
+      expect(nextRect.top - pouchRect.bottom, 10);
+      expect(nextRect.height, 14);
     });
 
-    testWidgets('renders the standard star candy currency icon for purchases', (
+    testWidgets('keeps the same pouch gap when the candy boost banner shows', (
+      WidgetTester tester,
+    ) async {
+      // PICNIC-2689: 배너가 있을 때 파우치 → 10 → 배너 → 2 → Divider(14).
+      // 배너가 없을 때(위 테스트)와 파우치 하단 간격이 같아야 한다.
+      await tester.pumpWidget(
+        buildTestApp(
+          const PurchaseStarCandy(),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => [
+                {
+                  'id': 'STAR100',
+                  'price': 1.99,
+                  'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+                },
+              ],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => const <ProductDetails>[],
+            ),
+            paymentBadgePromotionProvider.overrideWith(
+              (ref) async => (
+                displayName: {'ko': '캔디 부스트 데이'},
+                code: 'CANDY_BOOST_DAY',
+                multiplierTenths: 20,
+                extraBonusBps: null,
+              ),
+            ),
+            paymentBadgePromotionPeriodProvider.overrideWith(
+              (ref) async => (
+                startsAt: DateTime.utc(2026, 9, 7, 15),
+                endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+              ),
+            ),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      final pouchRect = tester.getRect(find.byType(StorePointInfo));
+      final bannerRect = tester.getRect(find.byType(CandyBoostPeriodBanner));
+      final dividerRect = tester.getRect(find.byType(Divider).first);
+
+      expect(bannerRect.top - pouchRect.bottom, 10);
+      expect(dividerRect.top - bannerRect.bottom, 2);
+      expect(dividerRect.height, 14);
+    });
+
+    testWidgets('renders the product-specific star candy artwork', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -101,10 +163,7 @@ void main() {
       );
       final imageProvider = productTile.icon.image as AssetImage;
 
-      expect(
-        imageProvider.assetName,
-        'assets/icons/store/currency_star_candy.png',
-      );
+      expect(imageProvider.assetName, 'assets/icons/store/star_100.png');
     });
 
     testWidgets('renders with title and button', (WidgetTester tester) async {
@@ -182,7 +241,9 @@ void main() {
       await tester.pump();
 
       expect(find.byType(StoreListTile), findsOneWidget);
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      final button = tester.widget<ButtonStyleButton>(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       // When isLoading is true, onPressed is null
       expect(button.onPressed, isNull);
     }, skip: true);
@@ -208,7 +269,9 @@ void main() {
       );
       await tester.pump();
 
-      final button = tester.widget<ElevatedButton>(find.byType(ElevatedButton));
+      final button = tester.widget<ButtonStyleButton>(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       expect(button.onPressed, isNull);
     });
 
@@ -235,12 +298,14 @@ void main() {
       );
       await tester.pump();
 
-      await tester.tap(find.byType(ElevatedButton));
+      await tester.tap(
+        find.byWidgetPredicate((widget) => widget is ButtonStyleButton),
+      );
       expect(pressed, true);
     });
   });
 
-  group('product list candy boost badge localization', () {
+  group('product list promotion presentation', () {
     List<dynamic> productListOverrides({
       required ResolvedPaymentBadgePromotion resolved,
     }) => [
@@ -249,6 +314,8 @@ void main() {
           {
             'id': 'STAR100',
             'price': 1.99,
+            'star_candy': 100,
+            'star_candy_bonus': 0,
             'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
           },
         ],
@@ -257,6 +324,12 @@ void main() {
         (ref, notifier) => const <ProductDetails>[],
       ),
       paymentBadgePromotionProvider.overrideWith((ref) async => resolved),
+      paymentBadgePromotionPeriodProvider.overrideWith(
+        (ref) async => (
+          startsAt: DateTime.utc(2026, 9, 7, 15),
+          endsAt: DateTime.utc(2026, 9, 8, 14, 59, 59),
+        ),
+      ),
     ];
 
     const v2Multiplier = (
@@ -296,7 +369,7 @@ void main() {
     }
 
     testWidgets(
-      'renders the generated Korean multiplier copy for a V2 1.5x record',
+      'renders the Korean total-multiplier pill for a V2 1.5x record',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -304,10 +377,15 @@ void main() {
           resolved: v2Multiplier,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
-        expect(find.text('추석 캔디 부스트'), findsOneWidget);
-        // AppLocalizations.candy_boost_multiplier('1.5') under ko.
-        expect(find.text('1.5배'), findsOneWidget);
+        // The campaign record's own display name is internal copy - it must
+        // not be repeated on a consumer product row.
+        expect(find.text('추석 캔디 부스트'), findsNothing);
+        // floor(100 * 15 / 10) = 150, so this row pays 1.5x in total.
+        expect(find.text('+50%'), findsNWidgets(2));
+        expect(find.text('이벤트 50'), findsOneWidget);
+        expect(find.text('150'), findsNothing);
         // Selection data must never leak to the UI as raw basis points.
         expect(find.textContaining('bps'), findsNothing);
         expect(find.textContaining('5000'), findsNothing);
@@ -315,7 +393,7 @@ void main() {
     );
 
     testWidgets(
-      'renders the generated English multiplier copy for a V2 1.5x record',
+      'renders the English total-multiplier pill for a V2 1.5x record',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -323,17 +401,19 @@ void main() {
           resolved: v2Multiplier,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
-        expect(find.text('Chuseok Candy Boost'), findsOneWidget);
-        // AppLocalizations.candy_boost_multiplier('1.5') under en.
-        expect(find.text('1.5× bonus'), findsOneWidget);
+        expect(find.text('Chuseok Candy Boost'), findsNothing);
+        expect(find.text('+50%'), findsNWidgets(2));
+        expect(find.text('Event 50'), findsOneWidget);
+        expect(find.text('150'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
         expect(find.textContaining('5000'), findsNothing);
       },
     );
 
     testWidgets(
-      'renders the Korean percent copy for a V1 exact-double record',
+      'renders a doubled total for a V1 exact-double record in Korean',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -341,9 +421,15 @@ void main() {
           resolved: v1ExactDouble,
         );
 
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
+        // The one place the event is named: the stable localized header
+        // above the list, not the campaign record's display name per row.
         expect(find.text('캔디 부스트 데이'), findsOneWidget);
-        expect(find.text('기본 지급 + 추가 보너스 100%'), findsOneWidget);
+        expect(find.text('기본 지급 + 추가 보너스 100%'), findsNothing);
+        expect(find.text('+100%'), findsNWidgets(2));
+        expect(find.text('이벤트 100'), findsOneWidget);
+        expect(find.text('200'), findsNothing);
         // 10000 bps drives the copy selection but must never render.
         expect(find.textContaining('10000'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
@@ -351,7 +437,7 @@ void main() {
     );
 
     testWidgets(
-      'renders the English percent copy for a V1 exact-double record',
+      'renders a doubled total for a V1 exact-double record in English',
       (WidgetTester tester) async {
         await pumpProductList(
           tester,
@@ -359,31 +445,204 @@ void main() {
           resolved: v1ExactDouble,
         );
 
-        // Pre-existing latent defect, not a Task 7 regression: the English
-        // exact-double caption wraps inside the fixed-height StoreListTile
-        // and overflows its column by ~7px (debug-only report; release
-        // clips). The pre-Task-7 badge rendered the identical strings,
-        // styles, and padding in the same tile. Harvest only that known
-        // report so this test still fails on any other exception — and
-        // keeps passing once the geometry is fixed.
-        final exception = tester.takeException();
-        expect(
-          exception,
-          anyOf(isNull, isA<FlutterError>()),
-          reason: 'unexpected non-layout exception: $exception',
-        );
-        if (exception is FlutterError) {
-          expect(exception.message, contains('overflowed'));
-        }
-
+        // The long English caption that used to wrap inside the fixed-height
+        // tile and overflow its column by ~7px is gone: the row now carries a
+        // compact pill and grows with its content. No overflow is tolerated.
+        expect(tester.takeException(), isNull);
         expect(find.byType(CandyBoostBadge), findsOneWidget);
         expect(find.text('Candy Boost Day'), findsOneWidget);
-        expect(find.text('Base reward + 100% extra bonus'), findsOneWidget);
+        expect(find.text('Base reward + 100% extra bonus'), findsNothing);
+        expect(find.text('+100%'), findsNWidgets(2));
+        expect(find.text('200'), findsNothing);
         expect(find.textContaining('10000'), findsNothing);
         expect(find.textContaining('bps'), findsNothing);
       },
     );
   });
+
+  testWidgets(
+    'purchase confirmation uses the same V2-first promotion shown on the product',
+    (tester) async {
+      const selectedV2 = (
+        displayName: {'ko': '선택된 V2 캔디 부스트', 'en': 'Selected V2 Candy Boost'},
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 15,
+        extraBonusBps: null,
+      );
+      const refreshedPromotion = (
+        displayName: {'ko': '새 V2 캔디 부스트', 'en': 'Refreshed V2 Candy Boost'},
+        code: 'CANDY_BOOST_DAY',
+        multiplierTenths: 20,
+        extraBonusBps: null,
+      );
+      final staleV1 = ActivePromotionCampaignsModel(
+        items: [
+          ActivePromotionCampaignModel(
+            campaignId: 'unrelated-campaign',
+            campaignVersionId: 'unrelated-version',
+            code: 'AAA_OTHER_CAMPAIGN',
+            displayName: const {
+              'ko': '관련 없는 첫 STORE 캠페인',
+              'en': 'Unrelated first STORE campaign',
+            },
+            extraBonusBps: 2500,
+            windowStartsAt: DateTime.utc(2026),
+            windowEndsAt: DateTime.utc(2027),
+            showInStore: true,
+            showHomeBanner: false,
+          ),
+          ActivePromotionCampaignModel(
+            campaignId: 'stale-candy-boost',
+            campaignVersionId: 'stale-version',
+            code: 'CANDY_BOOST_DAY',
+            displayName: const {
+              'ko': '오래된 V1 캔디 부스트',
+              'en': 'Stale V1 Candy Boost',
+            },
+            extraBonusBps: 10000,
+            windowStartsAt: DateTime.utc(2026),
+            windowEndsAt: DateTime.utc(2027),
+            showInStore: true,
+            showHomeBanner: false,
+          ),
+        ],
+        totalCount: BigInt.two,
+        nextCursor: null,
+        snapshotAt: DateTime.utc(2026),
+        campaignOwnedHomeBannerIds: const [],
+      );
+      final storeProduct = ProductDetails(
+        // Widget tests run on the host (non-Android), where the shared product
+        // ID policy applies the configured test iOS prefix.
+        id: 'testSTAR100',
+        title: 'Star Candy 100',
+        description: '100 Star Candies',
+        price: '1.99',
+        rawPrice: 1.99,
+        currencyCode: 'USD',
+      );
+
+      await tester.pumpWidget(
+        buildTestApp(
+          const PurchaseStarCandy(),
+          locale: const Locale('en'),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => [
+                {
+                  'id': 'STAR100',
+                  'price': 1.99,
+                  'star_candy': 100,
+                  'star_candy_bonus': 0,
+                  'description': {'ko': '스타 캔디 100개', 'en': '100 Star Candies'},
+                },
+              ],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => [storeProduct],
+            ),
+            _paymentBadgeSourceProvider.overrideWith((ref) => selectedV2),
+            paymentBadgePromotionProvider.overrideWith(
+              (ref) async => ref.watch(_paymentBadgeSourceProvider),
+            ),
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) async => staleV1),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      // The row keeps the 100 star candy and +50 bonus star candy separate.
+      expect(find.text('Event 50'), findsOneWidget);
+      expect(find.text('150'), findsNothing);
+      final buyButton = tester.widget<ButtonStyleButton>(
+        find.descendant(
+          of: find.byKey(const Key('purchase-price-cta')),
+          matching: find.byWidgetPredicate(
+            (widget) => widget is ButtonStyleButton,
+          ),
+        ),
+      );
+      expect(buyButton.onPressed, isNotNull);
+
+      // Invoke the product button's real callback directly. A transient
+      // loading overlay can absorb pointer hit-testing in this harness, but
+      // the callback is the production _handleBuyButtonPressed wiring this
+      // regression protects.
+      buyButton.onPressed!();
+      await tester.pumpAndSettle();
+
+      // The pre-fix path reads V1 here and chooses its first showInStore row,
+      // even though the product badge has already advertised selectedV2.
+      final dialog = find.byType(AlertDialog);
+      expect(dialog, findsOneWidget);
+      // The confirmation quotes the snapshot captured on button press.
+      expect(
+        find.descendant(of: dialog, matching: find.text('Total 50')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.text('150')),
+        findsNothing,
+      );
+      // Internal campaign copy never reaches the buyer.
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Selected V2 Candy Boost'),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Unrelated first STORE campaign'),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: dialog,
+          matching: find.text('Stale V1 Candy Boost'),
+        ),
+        findsNothing,
+      );
+
+      // Refresh the real provider while showDialog is still awaiting input.
+      // The product badge rebuilds from the new resolution, but the open
+      // confirmation must retain the exact snapshot captured on button press.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PurchaseStarCandy)),
+      );
+      container.read(_paymentBadgeSourceProvider.notifier).state =
+          refreshedPromotion;
+      await tester.pump();
+      await tester.pump();
+
+      // The product row follows the new resolution without merging currencies.
+      expect(find.text('Event 100'), findsOneWidget);
+      expect(find.text('200'), findsNothing);
+      // The open confirmation keeps the amounts it was opened with.
+      expect(
+        find.descendant(of: dialog, matching: find.text('Total 50')),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.text('150')),
+        findsNothing,
+      );
+      expect(
+        find.descendant(of: dialog, matching: find.text('200')),
+        findsNothing,
+      );
+
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+    },
+  );
 
   group('PurchaseStarCandy - _isPurchaseCanceled logic (unit)', () {
     // The _isPurchaseCanceled method is private, but we can test the cancel detection

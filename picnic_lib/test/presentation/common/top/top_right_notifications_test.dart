@@ -62,7 +62,7 @@ void main() {
       expect(find.text('9+'), findsOneWidget);
     });
 
-    testWidgets('contains IconButton with tooltip 알림', (
+    testWidgets('contains IconButton with tooltip 알림함', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -76,10 +76,10 @@ void main() {
       await tester.pumpAndSettle();
 
       final iconButton = tester.widget<IconButton>(find.byType(IconButton));
-      expect(iconButton.tooltip, '알림');
+      expect(iconButton.tooltip, '알림함');
     });
 
-    testWidgets('SizedBox has width: 40, height: 40', (
+    testWidgets('notification button is 48px on both axes', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -92,9 +92,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox).first);
-      expect(sizedBox.width, 40);
-      expect(sizedBox.height, 40);
+      final size = tester.getSize(find.byType(IconButton));
+      expect(size.width, 48);
+      expect(size.height, 48);
     });
   });
 }

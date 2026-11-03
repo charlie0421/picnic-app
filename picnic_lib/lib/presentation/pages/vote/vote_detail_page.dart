@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'vote_deadline_refresh.dart';
+
 import 'package:animated_digit/animated_digit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -27,6 +29,7 @@ import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/countdown_timer.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
@@ -37,6 +40,7 @@ import 'package:picnic_lib/presentation/common/underlined_text.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_helper.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/common_gradient.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_skeleton.dart';
@@ -80,6 +84,58 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   bool isUpcoming = false;
   final _searchSubject = BehaviorSubject<String>();
   Timer? _updateTimer;
+  Timer? _deadlineRefreshTimer;
+  DateTime? _refreshedDeadline;
+  Future<void>? _fullRefresh;
+  DateTime? _fullRefreshStartedAt;
+  int _refreshGeneration = 0;
+
+  bool get _isBoundaryRefreshPending =>
+      _deadlineRefreshTimer != null || _fullRefresh != null;
+
+  VoteModel? get _currentVote => ref
+      .read(
+        asyncVoteDetailProvider(
+          voteId: widget.voteId,
+          votePortal: widget.votePortal,
+        ),
+      )
+      .value;
+
+  bool _hasEnded(VoteModel vote) => vote.stopAt != null
+      ? !ref.read(voteDeadlineClockProvider).now().isBefore(vote.stopAt!)
+      : vote.isEnded ?? false;
+
+  void _updateLocalStatus(VoteModel vote) {
+    isEnded = _hasEnded(vote);
+    isUpcoming =
+        !isEnded &&
+        (vote.startAt != null
+            ? ref.read(voteDeadlineClockProvider).now().isBefore(vote.startAt!)
+            : vote.isUpcoming ?? false);
+  }
+
+  // Run before automatic queries so a poll cannot bypass the deadline delay.
+  void _checkDeadline() {
+    final vote = _currentVote;
+    if (vote != null && vote.isEnded != true && _hasEnded(vote)) {
+      _handleTimerRefresh();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant VoteDetailPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.voteId != widget.voteId ||
+        oldWidget.votePortal != widget.votePortal) {
+      _deadlineRefreshTimer?.cancel();
+      _deadlineRefreshTimer = null;
+      _refreshedDeadline = null;
+      _refreshGeneration++;
+      _fullRefresh = null;
+    }
+  }
+
   bool _isRefreshingItems = false;
   bool _isScrolling = false;
   DateTime? _scrollGateRaisedAt;
@@ -111,6 +167,12 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   final GlobalKey<LoadingOverlayWithIconState> _loadingKey =
       GlobalKey<LoadingOverlayWithIconState>(); // 로딩 오버레이 키
   bool _isSaving = false;
+
+  /// 후보자 탭 → 탈퇴 차단 확인(서버 왕복) → 투표 다이얼로그 사이의 재진입
+  /// 가드. 서버가 느릴 때 그 창에서 들어온 추가 탭마다 핸들러가 새로 돌아
+  /// 다이얼로그가 쌓였다 (PICNIC-2655). 다이얼로그가 닫힐 때까지 잡는다 —
+  /// 모달 배리어가 뒤 화면을 막으므로 그 동안의 탭은 어차피 오지 않는다.
+  bool _isHandlingVoteItemTap = false;
 
   // 로컬 검색어 상태 - 프로바이더 대신 사용
   String _searchQuery = '';
@@ -178,6 +240,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     var tick = 0;
     _updateTimer = Timer.periodic(const Duration(seconds: 1), (_) async {
       if (!mounted) return;
+      _checkDeadline();
+      if (_isBoundaryRefreshPending) return;
       // Refresh cadence: live votes poll every tick, ended/upcoming every
       // 5th — decided PER TICK. isEnded/isUpcoming are only known after the
       // first build, so choosing the Timer.periodic interval up front always
@@ -228,6 +292,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   /// Performs a single vote-totals refresh that was suppressed while scrolling.
   Future<void> _onScrollSettle() async {
     if (!mounted) return;
+    _checkDeadline();
+    if (_isBoundaryRefreshPending) return;
     if (_isRefreshingItems || _isSaving) return;
     _isRefreshingItems = true;
     try {
@@ -262,24 +328,87 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
-  Future<void> _handleTimerRefresh() async {
+  void _handleTimerRefresh() {
     if (!mounted) return;
-    // 상세와 아이템 리스트 모두 새로고침하여 상태 전환을 즉시 반영
-    // ignore: unused_result
-    await ref.refresh(
-      asyncVoteDetailProvider(
-        voteId: widget.voteId,
-        votePortal: widget.votePortal,
-      ).future,
+    final vote = _currentVote;
+    if (vote == null) return;
+    if (_hasEnded(vote)) {
+      if (_refreshedDeadline == vote.stopAt) return;
+      _refreshedDeadline = vote.stopAt;
+      setState(() => _updateLocalStatus(vote));
+      _deadlineRefreshTimer?.cancel();
+      _deadlineRefreshTimer = Timer(
+        ref.read(voteDeadlineRefreshDelayProvider)(),
+        () {
+          _deadlineRefreshTimer = null;
+          if (mounted) {
+            unawaited(_refreshDetailsAndItems(notBefore: vote.stopAt));
+          }
+        },
+      );
+    } else {
+      // A vote opening is not a deadline burst and remains immediate.
+      setState(() => _updateLocalStatus(vote));
+      unawaited(_refreshDetailsAndItems());
+    }
+  }
+
+  Future<void> _handleManualRefresh() {
+    _deadlineRefreshTimer?.cancel();
+    _deadlineRefreshTimer = null;
+    final vote = _currentVote;
+    if (vote != null) {
+      if (_hasEnded(vote)) _refreshedDeadline = vote.stopAt;
+      setState(() => _updateLocalStatus(vote));
+    }
+    return _refreshDetailsAndItems(
+      notBefore: vote != null && _hasEnded(vote) ? vote.stopAt : null,
     );
-    if (!mounted) return;
-    // ignore: unused_result
-    await ref.refresh(
-      asyncVoteItemListProvider(
-        voteId: widget.voteId,
-        votePortal: widget.votePortal,
-      ).future,
-    );
+  }
+
+  Future<void> _refreshDetailsAndItems({DateTime? notBefore}) {
+    if (!mounted) return Future.value();
+    // A pre-deadline request may contain pre-deadline totals. Only a request
+    // started after the deadline can stand in for the final refresh.
+    if (_fullRefresh != null &&
+        (notBefore == null || !_fullRefreshStartedAt!.isBefore(notBefore))) {
+      return _fullRefresh!;
+    }
+    _fullRefreshStartedAt = ref.read(voteDeadlineClockProvider).now();
+    return _fullRefresh = _performFullRefresh(++_refreshGeneration);
+  }
+
+  Future<void> _performFullRefresh(int generation) async {
+    final voteId = widget.voteId;
+    final portal = widget.votePortal;
+    try {
+      await Future.wait([
+        ref
+            .refresh(
+              asyncVoteDetailProvider(
+                voteId: voteId,
+                votePortal: portal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => null),
+        ref
+            .refresh(
+              asyncVoteItemListProvider(
+                voteId: voteId,
+                votePortal: portal,
+              ).future,
+            )
+            .timeout(const Duration(seconds: 8), onTimeout: () => []),
+      ]);
+    } catch (error, stackTrace) {
+      logger.e(
+        'Vote boundary refresh failed',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      if (generation == _refreshGeneration) _fullRefresh = null;
+    }
   }
 
   // Recompute the rank map from a provider snapshot. The provider
@@ -347,7 +476,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     });
   }
 
-
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -370,6 +498,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     _textEditingController.dispose();
     _searchSubject.close();
     _updateTimer?.cancel();
+    _deadlineRefreshTimer?.cancel();
     _gapTooltipLatch?.cancel();
     super.dispose();
   }
@@ -563,45 +692,14 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
             .when(
               data: (voteModel) {
                 if (voteModel == null) return const SizedBox.shrink();
-                isEnded = voteModel.isEnded!;
-                isUpcoming = voteModel.isUpcoming!;
+                _updateLocalStatus(voteModel);
 
                 return GestureDetector(
                   onTap: () => _focusNode.unfocus(),
                   child: RefreshIndicator(
                     color: AppColors.primary500,
                     backgroundColor: Colors.white,
-                    onRefresh: () async {
-                      _isRefreshingItems = true;
-                      try {
-                        await Future.wait([
-                          ref
-                              .refresh(
-                                asyncVoteDetailProvider(
-                                  voteId: widget.voteId,
-                                  votePortal: widget.votePortal,
-                                ).future,
-                              )
-                              .timeout(
-                                const Duration(seconds: 8),
-                                onTimeout: () => null,
-                              ),
-                          ref
-                              .refresh(
-                                asyncVoteItemListProvider(
-                                  voteId: widget.voteId,
-                                  votePortal: widget.votePortal,
-                                ).future,
-                              )
-                              .timeout(
-                                const Duration(seconds: 8),
-                                onTimeout: () => [],
-                              ),
-                        ]);
-                      } finally {
-                        _isRefreshingItems = false;
-                      }
-                    },
+                    onRefresh: _handleManualRefresh,
                     child: SizedBox.expand(
                       child: NotificationListener<ScrollNotification>(
                         onNotification: (notification) {
@@ -680,7 +778,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
   Widget _buildVoteInfo(BuildContext context, VoteModel voteModel) {
     final width = getPlatformScreenSize(context).width;
     final horizontalPadding = 57.w; // 타이틀과 동일 기준 패딩
-    final contentMaxWidth = width - (horizontalPadding * 2);
     return Column(
       children: [
         if (voteModel.mainImage != null && voteModel.mainImage!.isNotEmpty)
@@ -690,6 +787,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               imageUrl: voteModel.mainImage!,
               width: width,
               memCacheWidth: width.toInt(),
+              cdnVariant: PicnicCdnImageVariant.large,
             ),
           ),
         Padding(
@@ -697,24 +795,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
           child: VoteCommonTitle(title: getLocaleTextFromJson(voteModel.title)),
         ),
         const SizedBox(height: 12),
-        // 투표 기간 텍스트: 타이틀 가로 너비를 기준으로 축소/압축 표시
+        // 투표 기간은 타이틀 너비 안에서 큰 글자에도 자연스럽게 재배치한다.
         Padding(
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          child: SizedBox(
-            height: 18,
-            width: contentMaxWidth,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.center,
-              child: Text(
-                formatVotePeriod(voteModel.startAt, voteModel.stopAt),
-                style: getTextStyle(AppTypo.caption12R, AppColors.grey900),
-                maxLines: 1,
-                overflow: TextOverflow.visible,
-                softWrap: false,
-                textAlign: TextAlign.center,
-              ),
-            ),
+          child: VotePeriodLabel(
+            period: formatVotePeriod(voteModel.startAt, voteModel.stopAt),
           ),
         ),
         const SizedBox(height: 8),
@@ -728,9 +813,15 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                 ? voteModel.startAt!
                 : voteModel.stopAt!;
             return CountdownTimer(
+              key: ValueKey((
+                widget.voteId,
+                widget.votePortal,
+                endTime,
+                status,
+              )),
               endTime: endTime.toUtc(),
               status: status,
-              onRefresh: _handleTimerRefresh,
+              onRefresh: status == VoteStatus.end ? null : _handleTimerRefresh,
             );
           },
         ),
@@ -781,6 +872,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                                         height: 28,
                                         memCacheWidth: 56,
                                         memCacheHeight: 56,
+                                        cdnVariant:
+                                            PicnicCdnImageVariant.avatar,
                                         placeholder: Container(
                                           width: 28,
                                           height: 28,
@@ -937,11 +1030,20 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                       right: 16.w,
                       bottom: 24 + MediaQuery.of(context).viewPadding.bottom,
                     ).r,
-                    child: SizedBox(
-                      height: 200,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 200),
                       child: Center(
-                        child: Text(
-                          AppLocalizations.of(context).text_no_search_result,
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: PicnicUi.horizontal(16),
+                            vertical: PicnicUi.vertical(16),
+                          ),
+                          child: PicnicFeedback(
+                            icon: Icons.search_off,
+                            message: AppLocalizations.of(
+                              context,
+                            ).text_no_search_result,
+                          ),
                         ),
                       ),
                     ),
@@ -1005,7 +1107,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                   sliver: SliverPrototypeExtentList(
                     // 첫 아이템으로 만든 대표 행을 오프스테이지에서 1회 측정해
                     // 그 높이(행 + bottom-16 gap)를 모든 행 extent 로 사용.
-                    prototypeItem: _buildVoteRowPrototype(data, filteredIndices),
+                    prototypeItem: _buildVoteRowPrototype(
+                      data,
+                      filteredIndices,
+                    ),
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         // 안전성 체크 (기존 동작 보존)
@@ -1083,7 +1188,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         logger.d('⏳ 투표 아이템 로딩 중...');
         // 주의: 부모가 CustomScrollView이므로 내부에 또 다른 CustomScrollView를 넣지 않기 위해
         // 아이템 영역 전용 스켈레톤을 사용한다.
-        return SliverToBoxAdapter(child: VoteDetailSkeleton.buildVoteListOnly());
+        return SliverToBoxAdapter(
+          child: VoteDetailSkeleton.buildVoteListOnly(),
+        );
       },
       error: (error, stackTrace) {
         logger.e('❌ 투표 아이템 로딩 실패: $error');
@@ -1131,7 +1238,12 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               logger.d('🔥 onTap: onTap');
               _handleVoteItemTap(context, item, index);
             },
-            artistImage: _buildArtistImage(item, index, actualRank, rankChanged),
+            artistImage: _buildArtistImage(
+              item,
+              index,
+              actualRank,
+              rankChanged,
+            ),
             voteCountContainer: _buildVoteCountContainer(item, voteCountDiff),
             rankText: _buildRankText(actualRank, item),
           );
@@ -1367,11 +1479,15 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     return PicnicCachedNetworkImage(
       key: ValueKey('cached_image_$imageUrl'), // URL 단위로 고정 (rank 미포함)
       imageUrl: imageUrl,
+      imageRequest: resolveVoteDetailPortraitImageRequest(
+        context: context,
+        imageUrl: imageUrl,
+      ),
       fit: BoxFit.cover,
-      width: 39,
-      height: 39,
-      memCacheWidth: 78, // 2x 해상도로 메모리 캐시 (화면 크기 대비 최적화)
-      memCacheHeight: 78,
+      width: voteDetailPortraitLogicalSize,
+      height: voteDetailPortraitLogicalSize,
+      memCacheWidth: voteDetailPortraitDecodeSize,
+      memCacheHeight: voteDetailPortraitDecodeSize,
       placeholder: _buildImagePlaceholder(),
       lazyLoadingStrategy: LazyLoadingStrategy.none, // sliver 뷰포트가 게이트
       visibilityThreshold: 0.1,
@@ -1381,10 +1497,6 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       enableProgressiveLoading: true,
       timeout: const Duration(seconds: 15), // 타임아웃을 15초로 증가 (네트워크 상태 고려)
       maxRetries: 2,
-      // C3: 39x39 썸네일 전용 요청 가중치 축소 (이 리스트에만 적용, 다른 화면 불변).
-      // sub-50px 슬롯이라 q55 + dpr 상한 2.0 으로 충분; 글로벌 _getTransformedUrl 미변경.
-      maxQualityOverride: 55,
-      maxResolutionMultiplierCap: 2.0,
       deferDuringFastScroll: true,
     );
   }
@@ -1531,6 +1643,22 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     int index,
   ) async {
     logger.d('🔥 _handleVoteItemTap 호출됨 - index: $index');
+    if (_isHandlingVoteItemTap) {
+      logger.d('🔥 _handleVoteItemTap 진행 중 — 중복 탭 무시');
+      return;
+    }
+    _isHandlingVoteItemTap = true;
+    try {
+      await _openVoteItemDialog(context, item);
+    } finally {
+      _isHandlingVoteItemTap = false;
+    }
+  }
+
+  Future<void> _openVoteItemDialog(
+    BuildContext context,
+    VoteItemModel item,
+  ) async {
     final isAdmin =
         ref.watch(userInfoProvider.select((value) => value.value?.isAdmin)) ??
         false;
@@ -1561,7 +1689,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (!context.mounted) return;
 
     if (isAdmin && isJmaVote) {
-      showVotingDialog(
+      await showVotingDialog(
         context: context,
         voteModel: ref
             .read(
@@ -1577,6 +1705,8 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       return;
     }
 
+    final currentVote = _currentVote;
+    if (currentVote != null) _updateLocalStatus(currentVote);
     if (isEnded) {
       showSimpleDialog(
         content: AppLocalizations.of(context).message_vote_is_ended,
@@ -1586,7 +1716,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
         content: AppLocalizations.of(context).message_vote_is_upcoming,
       );
     } else {
-      showVotingDialog(
+      await showVotingDialog(
         context: context,
         voteModel: ref
             .read(
@@ -1635,12 +1765,19 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
               height: 16,
             ),
             const SizedBox(width: 6),
-            UnderlinedText(
-              text: AppLocalizations.of(context).weekly_vote_info_link,
-              textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              underlineColor: AppColors.primary500,
-              underlineHeight: 1,
-              underlineGap: 1,
+            // Flexible so the link wraps on a 360dp screen at 2.0x instead of
+            // running past it (PICNIC-2738).
+            Flexible(
+              child: UnderlinedText(
+                text: AppLocalizations.of(context).weekly_vote_info_link,
+                textStyle: getTextStyle(AppTypo.body14B, AppColors.primary500),
+                underlineColor: AppColors.primary500,
+                underlineHeight: 1,
+                underlineGap: 1,
+                // UnderlinedText defaults to an ellipsis with no line limit,
+                // which cuts it to one line. Two lines is what wrapping needs.
+                maxLines: 2,
+              ),
             ),
           ],
         ),
@@ -1658,8 +1795,11 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       builder: (context, scale, child) {
         return Transform.scale(
           scale: scale,
+          // A minimum, not a fixed height (PICNIC-2738): at 2.0x the label's
+          // line is taller than 30 and the fixed box clipped it in every
+          // language, Korean included.
           child: Container(
-            height: 30,
+            constraints: const BoxConstraints(minHeight: 30),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
               boxShadow: [
@@ -1745,8 +1885,10 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                           showRequireLoginDialog();
                         }
                       },
+                      // No minimum of its own: the outer box's minimum 30
+                      // already reaches here as 28 after the 1px border. A
+                      // second 30 made the pill 32 at 1.0x.
                       child: Container(
-                        height: 30,
                         padding: EdgeInsets.symmetric(horizontal: 12.w),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -1777,40 +1919,47 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
                               },
                             ),
                             SizedBox(width: 8.w),
-                            TweenAnimationBuilder<double>(
-                              tween: Tween(begin: 0.0, end: 1.0),
-                              duration: const Duration(milliseconds: 1200),
-                              curve: Curves.easeOutBack,
-                              builder: (context, textOpacity, child) {
-                                final safeOpacity = textOpacity.clamp(0.0, 1.0);
-                                return Opacity(
-                                  opacity: safeOpacity,
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    ).vote_item_request_button,
-                                    style:
-                                        getTextStyle(
-                                          AppTypo.body14B,
-                                          AppColors.grey00,
-                                        ).copyWith(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          letterSpacing: 0.3,
-                                          shadows: [
-                                            Shadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.3,
+                            // Flexible so the longest translation wraps instead of
+                            // running past the screen at 2.0x (PICNIC-2738).
+                            Flexible(
+                              child: TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0.0, end: 1.0),
+                                duration: const Duration(milliseconds: 1200),
+                                curve: Curves.easeOutBack,
+                                builder: (context, textOpacity, child) {
+                                  final safeOpacity = textOpacity.clamp(
+                                    0.0,
+                                    1.0,
+                                  );
+                                  return Opacity(
+                                    opacity: safeOpacity,
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      ).vote_item_request_button,
+                                      style:
+                                          getTextStyle(
+                                            AppTypo.body14B,
+                                            AppColors.grey00,
+                                          ).copyWith(
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.3,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.black.withValues(
+                                                  alpha: 0.3,
+                                                ),
+                                                offset: const Offset(0, 1),
+                                                blurRadius: 2,
                                               ),
-                                              offset: const Offset(0, 1),
-                                              blurRadius: 2,
-                                            ),
-                                          ],
-                                        ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                );
-                              },
+                                            ],
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),

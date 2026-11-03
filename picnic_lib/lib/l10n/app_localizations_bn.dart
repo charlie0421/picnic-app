@@ -9,7 +9,7 @@ class AppLocalizationsBn extends AppLocalizations {
   AppLocalizationsBn([String locale = 'bn']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time =>
@@ -1946,6 +1946,56 @@ class AppLocalizationsBn extends AppLocalizations {
       'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'ইভেন্ট বোনাস +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'মূল পুরস্কার';
+
+  @override
+  String get purchase_reward_base_short => 'মূল';
+
+  @override
+  String get purchase_reward_event_short => 'ইভেন্ট';
+
+  @override
+  String get purchase_reward_product_bonus => 'মূল বোনাস';
+
+  @override
+  String get purchase_reward_event_bonus => 'ইভেন্ট বোনাস';
+
+  @override
+  String get purchase_reward_expected_total => 'আনুমানিক মোট';
+
+  @override
+  String get purchase_reward_total_short => 'মোট';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'বর্তমান ব্যালেন্স $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'ক্রয়ের পর প্রত্যাশিত $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'এটি একটি আনুমানিক পরিমাণ। পেমেন্ট সম্পন্ন হলে সার্ভার চূড়ান্ত পরিমাণ নিশ্চিত করবে।';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'মোট প্রাপ্ত $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';
 
   @override
@@ -1968,6 +2018,11 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'বর্তমান ব্যালেন্স $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'নতুন ব্যালেন্স $amount';
   }
 
   @override
@@ -2046,6 +2101,13 @@ class AppLocalizationsBn extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
+
+  @override
+  String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -2972,7 +3034,7 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   String get reward => 'পুরষ্কার';
 
   @override
-  String get save => 'সংরক্ষণ করুন';
+  String get save => 'সংরক্ষণ';
 
   @override
   String get seconds => 'সেকেন্ড';
@@ -3991,6 +4053,56 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
       'প্রত্যাশার চেয়ে যাচাইকরণে বেশি সময় লেগেছে, তবে ক্রয়টি সফলভাবে সম্পন্ন হয়েছে।';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'ইভেন্ট বোনাস +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'মূল পুরস্কার';
+
+  @override
+  String get purchase_reward_base_short => 'মূল';
+
+  @override
+  String get purchase_reward_event_short => 'ইভেন্ট';
+
+  @override
+  String get purchase_reward_product_bonus => 'মূল বোনাস';
+
+  @override
+  String get purchase_reward_event_bonus => 'ইভেন্ট বোনাস';
+
+  @override
+  String get purchase_reward_expected_total => 'আনুমানিক মোট';
+
+  @override
+  String get purchase_reward_total_short => 'মোট';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'বর্তমান ব্যালেন্স $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'ক্রয়ের পর প্রত্যাশিত $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'এটি একটি আনুমানিক পরিমাণ। পেমেন্ট সম্পন্ন হলে সার্ভার চূড়ান্ত পরিমাণ নিশ্চিত করবে।';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'মোট প্রাপ্ত $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'আপনার পুরস্কার যাচাই করা হচ্ছে';
 
   @override
@@ -4013,6 +4125,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'বর্তমান ব্যালেন্স $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'নতুন ব্যালেন্স $amount';
   }
 
   @override
@@ -4091,4 +4208,11 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
   @override
   String get bonus_expiry_policy_summary =>
       '১–১৪ তারিখে অর্জিত অংশ পরের মাসের ১৫ তারিখে এবং ১৫–মাসের শেষ দিনে অর্জিত অংশ তার পরের মাসের ১৫ তারিখ ০০:০০ (KST)-এ মেয়াদ শেষ হবে।';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'এই ডিভাইসে বর্তমান অ্যাকাউন্টের বিজ্ঞাপন দেখার সুবিধা সাময়িকভাবে সীমিত করা হয়েছে।';
+
+  @override
+  String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
 }

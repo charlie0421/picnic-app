@@ -2586,6 +2586,19 @@
   "candy_boost_promotion_checking": "프로모션 확인 중",
   "candy_boost_purchase_pending": "동일 상품의 구매가 처리 중입니다.",
   "candy_boost_late_purchase_explanation": "인증에 예상보다 오래 걸렸지만 구매가 정상적으로 완료되었습니다.",
+  "candy_boost_total_multiplier": "이벤트 보너스 +{multiplier}%",
+  "purchase_reward_base": "기본 지급",
+  "purchase_reward_base_short": "기본",
+  "purchase_reward_event_short": "이벤트",
+  "purchase_reward_product_bonus": "기본 보너스",
+  "purchase_reward_event_bonus": "이벤트 보너스",
+  "purchase_reward_expected_total": "예상 합계",
+  "purchase_reward_total_short": "합계",
+  "purchase_current_balance": "현재 잔액 {amount}",
+  "purchase_expected_balance": "구매 후 예상 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "예상 수량이에요. 최종 지급 수량은 결제가 완료되는 시점에 서버 기준으로 확정돼요.",
+  "candy_reward_receipt_total": "총 적립 {amount}",
   "ad_reward_pending": "보상을 확인하고 있어요",
   "ad_reward_granted": "코튼캔디를 받았어요",
   "ad_reward_not_granted": "보상이 지급되지 않았어요",
@@ -2600,6 +2613,7 @@
     }
   },
   "candy_reward_receipt_balance": "현재 보유 {amount}",
+  "candy_reward_receipt_purchase_balance": "구매 후 보유 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2685,5 +2699,7 @@
   "expiry_quantity_title": "내 소멸 예정 캔디",
   "expiry_quantity_description": "현재 계정에서 예정된 소멸 수량입니다.",
   "expiry_policy_description": "재화별 소멸 기준입니다.",
-  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다."
+  "bonus_expiry_policy_summary": "1~14일 적립분은 다음달 15일, 15일~말일 적립분은 다다음달 15일 00:00(KST)에 소멸됩니다.",
+  "error_ad_device_account_restricted_message": "이 기기에서 현재 계정의 광고 이용이 일시적으로 제한되었습니다.",
+  "profile_photo_change": "프로필 사진 변경"
 }

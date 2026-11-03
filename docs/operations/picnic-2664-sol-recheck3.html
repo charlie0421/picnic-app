@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2664 Sol 재검증 3</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 1080px; margin: 40px auto; padding: 0 24px; line-height: 1.62; color: #18202a; }
+    h1, h2, h3 { line-height: 1.25; }
+    h2 { margin-top: 32px; border-bottom: 1px solid #d8dee6; padding-bottom: 7px; }
+    code { background: #f2f4f7; padding: 2px 5px; border-radius: 4px; }
+    pre { background: #111827; color: #e5e7eb; padding: 16px; border-radius: 8px; overflow-x: auto; white-space: pre-wrap; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #d8dee6; padding: 10px; text-align: left; vertical-align: top; }
+    th { background: #f6f8fa; }
+    .ok { border-left: 5px solid #2e7d32; background: #f2fbf3; padding: 14px 18px; }
+    .note { border-left: 5px solid #5976a8; background: #f3f7fd; padding: 14px 18px; }
+    .verdict { font-size: 1.08rem; border: 2px solid #2e7d32; padding: 16px; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>PICNIC-2664 Sol 재검증 3</h1>
+  <p><strong>대상:</strong> base <code>cf111821a</code> → HEAD <code>76c0eb1e0</code> (직전 재검증 대상 <code>a99ffc907</code>)</p>
+  <div class="verdict"><strong>판정: 승인.</strong> 직전 major(실패 재조회와 경합한 정산 손실)와 minor(logout→A 비동기 테스트 공백)는 해소됐다. 이번 수정에서 새 회귀, 새 과잉 차단, 잔액이 복구 경로 없이 사라지는 새 경로는 확인하지 못했다.</div>
+
+  <h2>직전 지적별 재판정</h2>
+  <table>
+    <thead><tr><th>직전 지적</th><th>판정</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>실패한 재조회도 최신 답으로 세어 경합 정산을 버림 (major)</td><td><strong>해소</strong></td><td><code>wallet_provider.dart:410-429</code>에서 기존 값 유지 오류와 값 없는 오류 종착은 <code>_reReads</code>를 올리지 않고, 실제 <code>AsyncData</code> 응답만 올린다. 추가 테스트 <code>wallet_provider_test.dart:2479-2513</code>은 실패 재조회 뒤 최종 잔액 88을 단언한다.</td></tr>
+      <tr><td>logout→동일 A의 이벤트 미전달 창 테스트 부재 (minor)</td><td><strong>해소</strong></td><td><code>wallet_provider_test.dart:2432-2477</code>가 A→null→A를 이벤트 전달 전에 만들고, 즉시 및 두 차례 drain 뒤 stale 99가 나타나지 않음을 확인한다. signed-out 이벤트만 누락하는 구현은 이 테스트에서 99가 적용되어 실패한다.</td></tr>
+      <tr><td>즉시 완료한 성공 재조회가 먼저 끝난 경우의 역전 방지</td><td><strong>유지</strong></td><td><code>wallet_provider_test.dart:2385-2423</code>가 성공 재조회 70 뒤 지연 정산 99가 덮지 못함을 계속 검증한다. 성공 응답은 <code>_reReads</code>를 올리므로 <code>wallet_provider.dart:539-552</code>의 지연 callback이 정산을 폐기한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>refresh 종료 경로 분류</h2>
+  <table>
+    <thead><tr><th>종료 경로</th><th>카운터</th><th>뒤따르는 정산 판단</th><th>실제 동작 평가</th></tr></thead>
+    <tbody>
+      <tr><td>성공 응답</td><td>증가</td><td>폐기. 정산이 이미 서버에 반영된 뒤 시작한 명시적 재조회 답이 더 최신이다.</td><td>일치. 즉시 성공 회귀 테스트가 70을 보존한다.</td></tr>
+      <tr><td>실패 후 기존 값 유지</td><td>증가 안 함</td><td>반영. 재조회는 새 잔액을 답하지 않았으므로 정상 정산을 버릴 근거가 없다.</td><td>일치. 새 테스트가 88을 보존한다.</td></tr>
+      <tr><td>기존 값 없이 오류 종착</td><td>증가 안 함</td><td>반영. 성공 정산 응답은 오류 화면보다 강한 잔액 근거이며 스피너/오류를 해소한다.</td><td>일치. <code>state = AsyncError</code> 뒤 지연 callback이 정산을 적용할 수 있다.</td></tr>
+      <tr><td>비로그인 조기 반환</td><td>증가</td><td>이전 로그인 계정 정산은 폐기해야 한다.</td><td>일치. signed-out 값은 authoritative하고, 소유자/epoch 가드도 이전 계정 쓰기를 거부한다. 해당 잔액은 재로그인 build에서 다시 읽힌다.</td></tr>
+      <tr><td>신원 변경 후 기존 값이 있어 조기 반환</td><td>증가 안 함</td><td>새 답을 게시하지 않았으므로 카운터만으로 정산을 버리면 안 된다. 소유권 가드가 계정 변경 정산을 별도로 차단한다.</td><td>일치.</td></tr>
+      <tr><td>같은 owner의 새 Session으로 한 번 재시도 후 성공</td><td>최종 성공 때 1회 증가</td><td>폐기. 최종 서버 답이 authoritative하다.</td><td>일치.</td></tr>
+      <tr><td>같은 재시도 후 실패</td><td>증가 안 함</td><td>기존 값이 있으면 정산 반영, 없으면 오류 뒤 정산 반영.</td><td>일치. 중간 superseded 응답은 상태를 정하지 않으므로 세지 않는 것이 맞다.</td></tr>
+      <tr><td>재시도 예산 소진 후 <code>invalidateSelf()</code></td><td>증가 안 함</td><td>이 메서드 자체는 답을 정하지 않았으므로 카운터로 정산을 폐기하지 않는다. 계정이 바뀌었으면 owner/epoch가 막고, 같은 계정 정산이면 rebuild의 후속 서버 답 또는 정산 중 최신 상태가 남는다.</td><td>일치. <code>invalidateSelf</code>는 별도 build를 예약하며 여기서 새 손실을 만들지 않는다.</td></tr>
+      <tr><td>dispose 또는 새 generation으로 조기 반환</td><td>증가 안 함</td><td>폐기 여부를 이 refresh가 결정하면 안 된다.</td><td>일치. dispose면 화면 소비자가 없고, 새 generation이면 새 build가 상태를 정한다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>폐기 경로와 최종 화면 반영 가능성</h2>
+  <ul>
+    <li><strong>소유자/epoch 불일치:</strong> 이전 세션 정산을 현재 화면에서 버리는 것이 맞다. 원 계정 잔액은 그 계정으로 다시 로그인할 때 서버 build로 복구된다.</li>
+    <li><strong>성공 재조회 선행:</strong> 정산 완료 뒤 시작된 서버 읽기가 그 지급을 포함하는 최신 답이므로 정산 snapshot을 버려도 잔액은 재조회 결과에 남는다.</li>
+    <li><strong>snapshotAt이 더 오래됨:</strong> 화면에 이미 더 최신 서버 snapshot이 있으므로 폐기된 잔액 변화가 최신 snapshot에 포함된다.</li>
+    <li><strong>provider dispose:</strong> 더 이상 표시 대상이 없으며 다음 관찰 시 build가 서버 값을 다시 읽는다.</li>
+  </ul>
+  <p>실패 재조회는 위 안전 근거가 없으므로 더 이상 폐기 트리거가 아니다. 검토한 폐기 경로마다 화면에 최신 잔액을 제공하는 경로가 남아 있다.</p>
+
+  <h2>추가 테스트의 판별력</h2>
+  <div class="ok"><strong>두 테스트의 조합이 핵심 분기를 구분한다.</strong> <code>_reReads</code>를 전혀 올리지 않는 구현은 성공 재조회 테스트에서 99가 70을 덮어 실패하고, 성공·실패 모두 올리는 직전 구현은 실패 재조회 테스트에서 88 대신 10이 남아 실패한다. 따라서 “성공 응답만 authoritative”라는 요구를 우회하기 어렵다.</div>
+  <p>logout→A 테스트는 비동기 auth 이벤트가 아직 전달되지 않은 실제 취약 창을 만들고 두 번 drain한 뒤 재단언한다. owner ID만 비교하거나 signed-out 전환을 무시하는 구현은 stale 99를 통과시켜 테스트가 실패한다.</p>
+
+  <h2>기존 테스트의 지연 판별력 전수 확인</h2>
+  <p><code>setSummary</code>/<code>applyWallet</code> 호출 뒤 동기로 단언하는 테스트를 검색해 모두 확인했다. snapshot 순서 4건(<code>wallet_provider_test.dart:2100-2195</code>)은 인증 연동이 없어 Session이 동일하므로 의도대로 동기 적용된다. owner A→B 및 sign-out 테스트는 첫 소유권 검사에서 동기로 거부된다. Session 교체로 실제 지연되는 token refresh, 이벤트 미전달 왕복, logout→A, refresh 경합 테스트에는 drain이 있다.</p>
+  <p>기존 A→B→A 왕복 테스트(<code>wallet_provider_test.dart:2295-2327</code>)의 두 차례 drain은 현재 구현에서는 epoch 불일치로 즉시 거부되어 중복처럼 보이나, epoch 검사를 제거해 session-only 지연 경로로 퇴행하는 변이를 잡는다. 따라서 지연 도입 이후 테스트 판별력 보강으로 충분하다.</p>
+
+  <h2>실행 검증</h2>
+  <table>
+    <thead><tr><th>명령 (작업 디렉터리: <code>picnic_lib</code>)</th><th>실제 결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>flutter test test/presentation/providers/wallet_provider_test.dart test/data/repositories/wallet_repository_test.dart test/data/models/wallet test/presentation/widgets/wallet test/presentation/widgets/vote/store/purchase/wallet_summary_applier_test.dart test/core/services/wallet_resume_refresher_test.dart test/presentation/widgets/ad_reward_dialog_host_test.dart</code></td><td><strong>141 passed</strong>, 실패 0, exit 0.</td></tr>
+      <tr><td><code>flutter test test/presentation/widgets/vote/voting test/presentation/widgets/vote/store/free_charge_station</code></td><td><strong>720 passed</strong>, 실패 0, exit 0.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>검증 범위와 결론</h2>
+  <p><code>git show 76c0eb1e0</code>, base부터 HEAD까지 provider 전체 diff, refresh의 모든 반환/재시도/invalidate 경로, <code>setSummary</code>의 모든 폐기 경로, 관련 테스트의 동기 단언을 검토했다. 지정된 861개 테스트를 새로 실행해 모두 통과함을 확인했다.</p>
+  <div class="note"><strong>남은 차단 지적 없음.</strong> 코드·테스트·기존 보고서는 수정하지 않았고, 지정된 이 HTML 보고서만 새로 생성했다.</div>
+</body>
+</html>

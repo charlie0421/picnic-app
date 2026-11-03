@@ -45,20 +45,14 @@ void main() {
 
     test('copyWith updates multiple fields', () {
       const state = AppInitializationState();
-      final updated = state.copyWith(
-        isBanned: true,
-        isInitialized: true,
-      );
+      final updated = state.copyWith(isBanned: true, isInitialized: true);
       expect(updated.isBanned, isTrue);
       expect(updated.isInitialized, isTrue);
       expect(updated.hasNetwork, isTrue);
     });
 
     test('copyWith preserves unchanged fields', () {
-      const state = AppInitializationState(
-        hasNetwork: false,
-        isBanned: true,
-      );
+      const state = AppInitializationState(hasNetwork: false, isBanned: true);
       final updated = state.copyWith(isInitialized: true);
       expect(updated.hasNetwork, isFalse);
       expect(updated.isBanned, isTrue);
@@ -76,6 +70,20 @@ void main() {
       final updated = state.copyWith(updateInfo: info);
       expect(updated.updateInfo?.status, UpdateStatus.updateRequired);
       expect(updated.updateInfo?.latestVersion, '2.0.0');
+    });
+
+    test('copyWith can explicitly clear stale update info', () {
+      const info = UpdateInfo(
+        status: UpdateStatus.updateRequired,
+        currentVersion: '1.0.0',
+        latestVersion: '2.0.0',
+        forceVersion: '1.5.0',
+      );
+      const state = AppInitializationState(updateInfo: info);
+
+      final updated = state.copyWith(updateInfo: null);
+
+      expect(updated.updateInfo, isNull);
     });
   });
 
@@ -141,6 +149,23 @@ void main() {
       final state = container.read(appInitializationProvider);
       expect(state.isUpdateRequired, isTrue);
       expect(state.updateInfo?.status, UpdateStatus.updateRecommended);
+    });
+
+    test('updateState can clear stale update info', () {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      const info = UpdateInfo(
+        status: UpdateStatus.updateRequired,
+        currentVersion: '1.0.0',
+        latestVersion: '2.0.0',
+        forceVersion: '1.5.0',
+      );
+      final notifier = container.read(appInitializationProvider.notifier);
+      notifier.updateState(updateInfo: info);
+
+      notifier.updateState(updateInfo: null);
+
+      expect(container.read(appInitializationProvider).updateInfo, isNull);
     });
   });
 }

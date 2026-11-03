@@ -1,48 +1,84 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart' as shorebird;
 
-Future<UpdateInfo?> checkForUpdates(WidgetRef ref) async {
-  try {
-    // 1. Shorebird 패치 확인
-    final shorebirdUpdater = shorebird.ShorebirdUpdater();
-    shorebird.UpdateStatus updateStatus =
-        await shorebirdUpdater.checkForUpdate();
+class StartupUpdateCheckException implements Exception {
+  const StartupUpdateCheckException(this.message);
 
-    logger.d('Shorebird 패치 상태: $updateStatus');
+  final String message;
 
-    if (updateStatus == shorebird.UpdateStatus.outdated) {
-      // 패치 다운로드
+  @override
+  String toString() => 'StartupUpdateCheckException: $message';
+}
 
-      logger.d('Shorebird 패치 설치 준비 완료');
-      return UpdateInfo(
-        status: UpdateStatus.needPatch,
-        currentVersion: await _getCurrentPatchInfo(),
-        latestVersion: '패치 설치 필요',
-        url: null,
-        forceVersion: '',
-      );
+/// Owns the authentic provider read while callers observe it with a deadline.
+///
+/// Concurrent callers share a read. After its deadline the next explicit retry
+/// can start a fresh read, so a stalled connection cannot pin every retry.
+class ServerUpdateCheckCoordinator {
+  Future<UpdateInfo?>? _inFlight;
+
+  Future<UpdateInfo> check({
+    required Future<UpdateInfo?> Function() readServer,
+    required void Function() invalidate,
+    required Duration timeout,
+    bool forceRefresh = false,
+  }) {
+    var raw = _inFlight;
+    if (raw == null) {
+      if (forceRefresh) invalidate();
+
+      late final Future<UpdateInfo?> attempt;
+      attempt = Future<UpdateInfo?>.sync(readServer).whenComplete(() {
+        if (identical(_inFlight, attempt)) _inFlight = null;
+      });
+      _inFlight = attempt;
+      raw = attempt;
     }
 
-    // 2-4. 서버 업데이트 확인 (권장/강제/최신 버전)
-    final updateInfoState = await ref.read(checkUpdateProvider.future);
-    logger.d('업데이트 상태: ${updateInfoState?.status}');
-
-    // 이미 서버에서 확인된 상태이므로 그대로 반환
-    return updateInfoState;
-  } catch (e, s) {
-    logger.e('업데이트 확인 중 오류 발생', error: e, stackTrace: s);
-    return null;
+    return raw
+        .timeout(
+          timeout,
+          onTimeout: () {
+            if (identical(_inFlight, raw)) _inFlight = null;
+            throw TimeoutException('Server update check timed out', timeout);
+          },
+        )
+        .then((updateInfo) {
+          if (updateInfo == null) {
+            throw const StartupUpdateCheckException(
+              'The mandatory server update check returned no result',
+            );
+          }
+          return updateInfo;
+        });
   }
 }
 
-Future<String> _getCurrentPatchInfo() async {
+final ServerUpdateCheckCoordinator _serverUpdateCheck =
+    ServerUpdateCheckCoordinator();
+
+/// Reads the mandatory server update policy.
+///
+/// Shorebird OTA is intentionally not part of this path. The independent
+/// `PatchRestartDialogListener` owns OTA checks and cannot bypass the server's
+/// force/recommended update policy.
+Future<UpdateInfo> checkForUpdates(
+  WidgetRef ref, {
+  bool forceRefresh = false,
+  Duration timeout = const Duration(seconds: 10),
+}) async {
   try {
-    final shorebirdUpdater = shorebird.ShorebirdUpdater();
-    final patchNumber = await shorebirdUpdater.readCurrentPatch();
-    return patchNumber != null ? "$patchNumber" : "패치 없음";
-  } catch (e) {
-    return "패치 정보 확인 실패";
+    return await _serverUpdateCheck.check(
+      forceRefresh: forceRefresh,
+      timeout: timeout,
+      invalidate: () => ref.invalidate(checkUpdateProvider),
+      readServer: () => ref.read(checkUpdateProvider.future),
+    );
+  } catch (error, stackTrace) {
+    logger.e('서버 업데이트 확인 중 오류 발생', error: error, stackTrace: stackTrace);
+    rethrow;
   }
 }

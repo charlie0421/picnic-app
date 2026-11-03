@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2694 재검증 차단 지적 2건 대응</title>
+<style>
+  :root {
+    color-scheme: light;
+    --ink: #18202a;
+    --muted: #586577;
+    --line: #cbd5e1;
+    --surface: #f8fafc;
+    --ok-bg: #f0fdf4;
+    --ok-line: #16a34a;
+    --warn-bg: #fffbeb;
+    --warn-line: #d97706;
+    --info-bg: #eff6ff;
+    --info-line: #2563eb;
+  }
+  * { box-sizing: border-box; }
+  body {
+    max-width: 1120px;
+    margin: 40px auto;
+    padding: 0 24px 64px;
+    color: var(--ink);
+    background: #fff;
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  }
+  h1, h2, h3 { line-height: 1.35; }
+  h1 { margin: 0 0 10px; padding-bottom: 14px; border-bottom: 3px solid #334155; }
+  h2 { margin-top: 38px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+  h3 { margin: 26px 0 10px; }
+  p { margin: 9px 0; }
+  ul, ol { padding-left: 24px; }
+  li + li { margin-top: 7px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { padding: 1px 4px; border-radius: 3px; background: #eef2f7; overflow-wrap: anywhere; }
+  pre { padding: 14px 16px; border-radius: 7px; overflow-x: auto; color: #e2e8f0; background: #0f172a; white-space: pre-wrap; font-size: 13px; }
+  table { width: 100%; margin: 14px 0; border-collapse: collapse; }
+  th, td { padding: 9px 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { background: var(--surface); }
+  td.num { text-align: right; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .muted { color: var(--muted); }
+  .box { margin: 18px 0; padding: 16px 18px; border-radius: 7px; }
+  .box.ok { border-left: 5px solid var(--ok-line); background: var(--ok-bg); }
+  .box.warn { border-left: 5px solid var(--warn-line); background: var(--warn-bg); }
+  .box.info { border-left: 5px solid var(--info-line); background: var(--info-bg); }
+  .label { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .label.accept { color: #166534; background: #dcfce7; }
+  .label.closed { color: #166534; background: #dcfce7; }
+  .label.medium { color: #92400e; background: #fef3c7; }
+  .label.reject { color: #9f1239; background: #ffe4e6; }
+  dl { margin: 0; }
+  dt { margin-top: 12px; font-weight: 700; }
+  dd { margin: 3px 0 0; }
+  footer { margin-top: 42px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  @media (max-width: 700px) {
+    body { margin: 0; padding: 24px 16px 44px; }
+    h1 { font-size: 25px; }
+    table { font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>PICNIC-2694 — 재검증 차단 지적 2건 대응</h1>
+<p class="muted">
+  재검증 대상 <code>77410c707</code> · 재검증 문서 <code>docs/operations/picnic-2694-sol-recheck.html</code> ·
+  브랜치 <code>fix/vote-dialog-short-viewport</code> · 2026-09-15
+</p>
+
+<div class="box ok">
+  <strong>결론: 새 차단 지적 2건 모두 수용, 실측으로 재현한 뒤 수정했다.</strong>
+  두 건 모두 리뷰어가 제시한 실패 조건을 실제 렌더 측정값으로 먼저 재현(RED)하고, 수정 후 통과를 확인하고,
+  각 수정을 따로 되돌려 다시 실패하는 것까지 확인했다.
+  2번은 리뷰어가 제시한 두 방향 중 <strong>“상태 간 높이를 같게 하는 폭 정책”</strong>을 골랐다 —
+  다른 방향(현재 렌더 상태의 실제 폭으로 재기)을 실제로 구현해 측정했더니 빈 입력→활성 전환에서
+  여백이 19px 점프하고 밴드 순서가 뒤집히는 시각 점프가 생겼기 때문이다(아래 <a href="#choice">2-3</a>).
+  이 2건을 닫으면서 원 지적 2·3 의 부분 종결분도 함께 닫혔다.
+</div>
+
+<h2>1. [중간] 이동한 validation 밴드의 높이 예산이 실제 Row 보다 작다</h2>
+<p><span class="label accept">수용</span> <span class="label closed">종결</span></p>
+
+<h3>1-1. 사실 확인 — 재현됨</h3>
+<p>
+  리뷰어의 두 지적(아이콘 박스 최소 높이 누락, 가로 border 미차감) 모두 코드 구조상 사실이고,
+  앞의 것은 실제 렌더 측정으로 재현했다.
+</p>
+<ul>
+  <li>
+    렌더(<code>_buildValidationMessage</code>)는 <code>Container</code>(border 1, padding 12/8) 안에
+    <code>Row</code> 를 놓고, 그 왼쪽 자식은 <code>padding: EdgeInsets.all(2)</code> 에
+    <code>Icon(size: 16)</code> 이라 한 변 <strong>20</strong> 의 고정 박스다.
+    <code>Icon</code> 의 <code>applyTextScaling</code> 은 기본 <code>false</code> 이고 레포 어디에도 지정이 없어
+    (<code>grep applyTextScaling lib/</code> → 0건) 배율과 무관하게 20 이다.
+  </li>
+  <li>
+    예산(<code>_inputFeedbackHeight</code>)은 문구 높이만 썼다. 1.0 배 한 줄은 12 × 1.45 ≒ 17.5 이라
+    <strong>아이콘 박스가 행 높이를 결정</strong>하고, 예산은 그만큼 작다.
+  </li>
+  <li>
+    <code>BoxDecoration</code> 의 border 는 안쪽 폭에서 좌우 1 씩 먼저 떼어 가는데 측정용 폭에서는 빼지 않았다.
+    현재 문자열·뷰포트 조합에서 줄 수가 바뀌는 지점은 찾지 못했지만, 상한이 아니라는 성질 자체가 결함이므로 함께 고쳤다.
+  </li>
+</ul>
+
+<p>실측(신규 매트릭스 테스트의 RED 출력, 값은 논리 픽셀):</p>
+<table>
+  <thead><tr><th>조건</th><th>실제 밴드 높이</th><th>수정 전 예산</th><th>차이</th></tr></thead>
+  <tbody>
+    <tr><td>851×393 · ko · 1.0배</td><td class="num">34.556</td><td class="num">32.056</td><td class="num">−2.5</td></tr>
+    <tr><td>1194×834 · ko · 1.0배</td><td class="num">36.960</td><td class="num">34.460</td><td class="num">−2.5</td></tr>
+    <tr><td>그 외 22개 조합(ko·th·my × 1.0·2.0배 × 4뷰포트)</td><td class="num">=</td><td class="num">=</td><td class="num">0</td></tr>
+  </tbody>
+</table>
+<p class="muted">
+  차이 2.5 는 아이콘 박스 20 에서 한 줄 문구 17.5 를 뺀 값이다. 문구가 두 줄 이상이면 문구가 이기므로 차이가 0 이고,
+  그래서 기존 invalid 테스트(한국어·1.0배·좁은 3크기)가 전부 두 줄이라 이 경계를 건너뛰었다는 리뷰어 지적도 맞다.
+</p>
+
+<h3>1-2. 실패 조건 재현 — 짧은 부모에서 RenderFlex 넘침</h3>
+<p>
+  851×393 · ko · 1.0배 · 유효성 문구 표시 상태에서 부모 높이를 170→330 까지 1px 씩 쓸며 예외를 관찰했다.
+  리뷰어가 말한 <em>estimatedEssential + clearance ≤ bodyHeight &lt; actualEssential + clearance</em> 구간이 실제로 존재했다.
+</p>
+<pre>부모 높이 310 → ok (allScroll)
+부모 높이 311 → A RenderFlex overflowed by 0.668 pixels on the bottom.   ← 담을 수 없는 조작부를 actionsPinned 로 선택
+부모 높이 312 → ok (actionsPinned)</pre>
+
+<h3>1-3. 변경</h3>
+<p><code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart</code></p>
+<ul>
+  <li>
+    밴드 높이 계산을 파일 최상위의 공개 함수 <code>jmaValidationBandHeight()</code> 로 뽑고
+    (폭은 <code>jmaVoteDialogContentWidth()</code>), 측정 폭에서 <code>kJmaValidationBorderWidth * 2</code> 를 빼고,
+    세로 본문을 <code>math.max(kJmaValidationIconSide, 문구 높이)</code> 로 바꿨다.
+  </li>
+  <li>
+    아이콘 박스를 상수로 묶었다 — 렌더의 패딩은 <code>kJmaValidationIconPadding</code>,
+    글리프는 <code>kJmaValidationIconSide - kJmaValidationIconPadding * 2</code> 로 쓴다.
+    한쪽만 바꾸면 예산이 어긋나던 관계를 코드가 강제한다.
+  </li>
+  <li>공개 함수로 뽑은 이유는 테스트가 <em>실제 렌더 높이 ≤ 예산</em> 을 같은 식으로 직접 단언할 수 있게 하기 위해서다.</li>
+</ul>
+
+<h3>1-4. 추가 테스트</h3>
+<ul>
+  <li>
+    <strong>the validation band never outgrows the height it is budgeted on …</strong> — 24건.
+    뷰포트 4종(851×393, 1194×834, 393×852, 280×480) × 로케일 3종(ko·th·my) × 배율 2종(1.0·2.0)에서
+    실제 밴드 <code>Container</code> 높이가 <code>jmaValidationBandHeight()</code> 이하인지 단언한다.
+    수정 전 2건 실패.
+  </li>
+  <li>
+    <strong>a short parent at the validation budget boundary never pins more than it can hold</strong> — 부모 높이 300~320 을
+    1px 씩 쓸며 매 높이에서 예외 0·캡슐 포함·RRect 모서리 미절단·조작부 hit-test 를 확인한다.
+    수정 전 311 에서 실패.
+  </li>
+</ul>
+
+<h2>2. [중간] 활성 버튼 폭을 항상 예산해 비활성 첫 화면을 과대평가한다</h2>
+<p><span class="label accept">수용</span> <span class="label closed">종결</span></p>
+
+<h3>2-1. 사실 확인 — 재현됨</h3>
+<p>280×320 · 1.0배 · 프로덕션 ScreenUtil(<code>393×892</code>, splitScreenMode) 기준 실측:</p>
+<table>
+  <thead>
+    <tr><th>로케일</th><th>비활성 버튼 높이</th><th>활성 버튼 높이</th><th>차이</th><th>route inset(수정 전)</th><th>비활성 첫 화면 밴드 순서</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>th</td><td class="num">84.28</td><td class="num">136.28</td><td class="num">52.0</td><td class="num">8</td><td>allScroll — 장식이 조작부 <strong>아래</strong></td></tr>
+    <tr><td>my</td><td class="num">58.28</td><td class="num">84.28</td><td class="num">26.0</td><td class="num">27</td><td>actionsPinned</td></tr>
+    <tr><td>ko</td><td class="num">48.00</td><td class="num">48.00</td><td class="num">0</td><td class="num">40</td><td>actionsPinned</td></tr>
+  </tbody>
+</table>
+<p>
+  리뷰어가 보고한 “280폭·1.0배 태국어 52px” 이 그대로 재현됐고, 그 결과 태국어 비활성 첫 화면은
+  실제로 여백 하한 8 + <code>allScroll</code> 이었다. 즉 <strong>쓰지도 않는 52px 을 예약해</strong>
+  디자인 여백과 배치 순서를 모두 잃고 있었다. 버마어는 26px 을 예약해 여백 40 대신 27 을 썼다.
+</p>
+
+<h3 id="choice">2-2 · 2-3. 두 수정 방향을 모두 구현해 비교</h3>
+<p>
+  리뷰어가 제시한 두 방향을 각각 실제로 구현해 같은 지점에서 측정했다.
+  “빈 입력→활성 전환에서 레이아웃이 튀면 안 된다” 는 조건이 선택을 갈랐다.
+</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>방향</th><th>th 비활성 → 활성 inset</th><th>th 밴드 순서 전이</th>
+      <th>my 비활성 → 활성 inset</th><th>버튼 높이 비활성/활성(th)</th><th>판정</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A. 현재 렌더 상태의 실제 폭으로 버튼 높이를 잰다(예산만 상태 인지)</td>
+      <td class="num">27 → 8</td>
+      <td>actionsPinned → allScroll<br><span class="muted">badge.top 47.26 → 283.40 (useAll.top 61.32 → 18.87)</span></td>
+      <td class="num">40 → 27</td>
+      <td class="num">84.28 / 136.28</td>
+      <td><span class="label reject">기각</span> 첫 화면은 고쳐지지만 입력 한 글자에 여백 19px(th)·13px(my) 점프와 밴드 재배치가 생긴다</td>
+    </tr>
+    <tr>
+      <td><strong>B. 상태 간 높이를 같게 하는 폭 정책(채택)</strong></td>
+      <td class="num">27 → 27</td>
+      <td>actionsPinned 유지</td>
+      <td class="num">40 → 40</td>
+      <td class="num">84.28 / 84.28</td>
+      <td><span class="label accept">채택</span> 첫 화면도 고쳐지고 전이에서 여백·모드·순서가 모두 불변</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>
+  A 를 기각한 근거는 추측이 아니라 실행 결과다. 예산을 상태 인지로 바꾸면 비활성 essential 이 52 작아져
+  <code>resolveVoteDialogVerticalInset</code> 이 27 을 돌려주지만, 활성으로 바뀌는 순간 essential 이 52 늘어
+  다시 하한 8 로 떨어진다. 여백이 19 줄어 얻는 body 38 보다 늘어난 essential 52 가 크기 때문에 모드까지
+  <code>allScroll</code> 로 뒤집힌다. 사용자가 숫자 한 글자를 넣는 동안 아티스트·잔액 장식이 조작부 아래로 내려가 앉는다.
+</p>
+
+<h3>2-4. 변경 — 아이콘이 가져가는 만큼만 버튼을 넓힌다</h3>
+<p><code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart</code></p>
+<ul>
+  <li>
+    <code>_submitButtonWidth({withIcon, contentWidth})</code> 신설 —
+    <code>min(contentWidth, voteDialogCardExtent(172) + (활성이면 아이콘 20 + 간격 8.w))</code>.
+    렌더는 <code>isEnabled || _isVoting</code> 으로 이 폭을 쓴다(투표 중에도 활성 폭을 유지해 탭 순간 버튼이 좁아지지 않는다).
+  </li>
+  <li>
+    그 결과 라벨에 남는 폭이 <strong>두 상태에서 같아진다</strong>:
+    비활성 <code>172ext − 24.w</code>, 활성 <code>(172ext + 20 + 8.w) − 24.w − 20 − 8.w = 172ext − 24.w</code>.
+    같은 문구가 같은 상자에서 감기므로 높이도 같다.
+  </li>
+  <li>
+    <code>_submitLabelMaxWidth(contentWidth)</code> 는 그 공통 폭(=활성 폭)을 돌려주고 <code>_essentialHeight</code> 가 쓴다.
+    카드가 아주 좁아 활성 폭이 <code>contentWidth</code> 에 잘리는 극단에서만 활성이 더 좁아지는데,
+    <strong>좁은 쪽이 곧 높은 쪽</strong>이므로 예산은 그 경우에도 여전히 상한이다.
+  </li>
+  <li>
+    버튼 높이 항에 <code>math.max(_submitIconSide, 문구 높이)</code> 를 추가해 아이콘이 행 높이를 지배하는 경우까지
+    무조건 상한이 되게 했다(18pt 한 줄은 항상 20 보다 높아 현재는 작동하지 않는 방어선이다).
+  </li>
+</ul>
+<p>
+  실제 폭 변화는 280×320 기준 <strong>122.54 → 148.24</strong>(카드 안쪽 폭 220.15 이내)다. 활성 전환에서
+  아이콘·그라데이션·그림자가 함께 나타나므로 폭 증가는 상태 변화의 일부로 읽힌다. 세로는 두 상태가 동일하다.
+</p>
+
+<h3>2-5. 추가 테스트</h3>
+<ul>
+  <li>
+    <strong>the vote button is the same height idle and active in {th,my,ko} at {1.0,2.0}x</strong> — 6건.
+    280×320 에서 비활성 높이를 재고 <code>5</code> 입력 후 활성 높이를 다시 재 같은 값인지 단언한다.
+    수정 전 th(Δ52.0)·my(Δ26.0) 실패.
+  </li>
+  <li>
+    <strong>an idle popup in {th,my} keeps its margin and its band order on 280x320</strong> — 2건.
+    비활성 첫 화면에서 (a) route inset 이 하한 <code>kVoteDialogMinimumVerticalInset</code> 보다 큰지,
+    (b) JMA 배지가 “전체 사용” 위에 있는지(=actionsPinned), (c) 조작부 3종이 캡슐 안·모서리 밖·hit-test 가능한지 확인하고,
+    <code>5</code> 입력 뒤 <strong>inset 과 밴드 순서가 그대로인지</strong>까지 단언한다.
+    이 마지막 단언이 방향 A 의 점프를 잡는 가드다. 수정 전 th 실패.
+  </li>
+</ul>
+
+<h2>3. 원 지적 2·3 의 부분 종결분</h2>
+<table>
+  <thead><tr><th>원 지적</th><th>재검증이 남긴 잔여분</th><th>이번 결과</th><th>근거</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>2. JMA 유효성 설명이 캡슐 밖에 위치</td>
+      <td>문구 이동·live region 은 종결. “새 높이 계산이 아이콘 최소 높이와 가로 border 를 빠뜨려 실제 높이의 상한이 아니다” 는 예산 측면 미종결</td>
+      <td><span class="label closed">함께 종결</span></td>
+      <td>
+        차단 지적 1 의 수정으로 <code>jmaValidationBandHeight()</code> 가 border 를 폭에서 빼고 아이콘 박스를 세로 하한으로 쓴다.
+        24개 조합에서 <em>실제 ≤ 예산</em> 을 직접 단언하고, 경계 부모 높이 스윕으로 모드 오판이 사라진 것까지 확인했다.
+      </td>
+    </tr>
+    <tr>
+      <td>3. 활성 JMA 버튼 라벨 폭 과소 예산</td>
+      <td>활성 overflow 는 종결. “활성 폭을 비활성에도 무조건 적용해 첫 화면의 모드·여백을 불필요하게 바꾸는 반대 방향 회귀” 미종결</td>
+      <td><span class="label closed">함께 종결</span></td>
+      <td>
+        차단 지적 2 의 수정으로 두 상태의 라벨 폭이 같아져 예산이 어느 쪽도 과대·과소하지 않다.
+        기존 활성 경계 테스트(th·my 280×320, 4크기×2배율)는 그대로 통과하고, 새 테스트가 비활성 쪽 여백·순서를 고정한다.
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>4. 검증</h2>
+<table>
+  <thead><tr><th>검증</th><th>결과</th><th>비고</th></tr></thead>
+  <tbody>
+    <tr><td><code>flutter analyze</code> (패키지 전체)</td><td>522 issues, exit 1</td><td>부모 <code>2e5ccdc20</code>·직전 <code>77410c707</code> 과 동일 — <strong>신규 0</strong></td></tr>
+    <tr><td><code>flutter analyze</code> 변경 2파일</td><td>1 issue</td><td><code>jma_voting_dialog.dart:1862 use_build_context_synchronously</code> — 선행 이슈(직전 커밋에서는 :1848)</td></tr>
+    <tr><td><code>flutter test test/presentation/widgets/vote/voting</code></td><td><strong>525 passed</strong>, 실패 0</td><td>492 → 525 (+33)</td></tr>
+    <tr><td><code>voting_dialog_viewport_test.dart</code></td><td><strong>135 passed</strong>, 실패 0</td><td>102 → 135 (+33)</td></tr>
+    <tr><td><code>voting_dialog_presentation_test.dart</code></td><td>20 passed</td><td>PICNIC-2688 회귀 포함, 변화 없음</td></tr>
+    <tr>
+      <td>공유 LargePopup·정책·탭 회귀 5파일</td><td>38 passed</td>
+      <td><code>large_popup_test</code>, <code>large_popup_presentation_test</code>, <code>usage_policy_dialog_test</code>, <code>vote_detail_page_tap_test</code>, <code>vote_detail_achieve_page_tap_test</code></td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>RED 역방향 확인</h3>
+<table>
+  <thead><tr><th>되돌린 수정</th><th>viewport 테스트</th><th>실패한 단언</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>수정 1 만 되돌림(border 미차감 + 문구 높이만)</td><td>132 passed / <strong>3 failed</strong></td>
+      <td>validation 밴드 상한 2건(851×393·1194×834 ko 1.0배) + 부모 311 <code>RenderFlex overflowed by 0.668 pixels</code></td>
+    </tr>
+    <tr>
+      <td>수정 2 만 되돌림(버튼 폭 고정 172)</td><td>132 passed / <strong>3 failed</strong></td>
+      <td>버튼 높이 동일성 th(Δ52.0)·my(Δ26.0) + th 비활성 inset 이 하한 8 에 붙음</td>
+    </tr>
+    <tr><td>둘 다 되돌림(= 재검증 대상 HEAD)</td><td>129 passed / <strong>6 failed</strong></td><td>위 6건 전부</td></tr>
+  </tbody>
+</table>
+
+<h2>5. 남은 위험</h2>
+<ol>
+  <li>
+    <strong>활성 전환 시 버튼 폭이 20 + 8.w 만큼 넓어진다.</strong> 의도한 시각 변화이며 세로 점프를 없애기 위한 대가다.
+    아이콘·그라데이션·그림자와 함께 나타나므로 상태 변화로 읽히지만, 디자인 확인이 필요하면 이 지점이다.
+  </li>
+  <li>
+    <strong>극단적으로 좁은 카드</strong>에서는 활성 폭이 <code>contentWidth</code> 에 잘려 비활성보다 라벨이 좁아지고,
+    두 상태 높이가 다시 갈린다. 예산은 그 좁은 쪽을 쓰므로 상한은 유지되지만 <em>동일 높이</em> 보장은 깨진다.
+    실제 도달 조건은 뷰포트 폭 약 80 미만이라 실기기에서는 나오지 않는다.
+  </li>
+  <li>
+    아이콘 박스 20 을 상수로 두는 것은 <code>Icon.applyTextScaling</code> 기본값 <code>false</code> 에 기댄다.
+    테마가 <code>IconThemeData.applyTextScaling: true</code> 를 켜면 배율에서 아이콘이 커져 예산이 다시 상한이 아니게 된다.
+    현재 레포에 해당 설정은 없다.
+  </li>
+  <li>
+    유효성 문구가 나타나고 사라질 때는 여전히 route inset 이 바뀔 수 있고, 그 100ms
+    <code>AnimatedPadding</code> 중간 프레임은 테스트하지 않는다(재검증 non-blocking 관찰 2). 이번 변경으로
+    <em>빈 입력→활성</em> 전환의 inset 변화는 사라졌지만 <em>유효/무효</em> 전환분은 남는다.
+  </li>
+  <li>
+    긴 로케일 라벨의 무제한 감김(선행 결함, 별도 티켓 대상)은 그대로다. 활성 폭이 28 넓어져 최악 줄 수는 줄었다.
+  </li>
+</ol>
+
+<h2>6. 변경 파일</h2>
+<ul>
+  <li><code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart</code> — 수정 1·2</li>
+  <li><code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code> — 신규 33건, 그리고 파일 상단의
+    “모든 경우 keyboard-free” 라는 낡은 설명을 현재 내용에 맞게 고침(재검증 non-blocking 관찰 3)</li>
+  <li><code>docs/operations/picnic-2694-recheck-response.html</code> — 이 문서</li>
+  <li><code>docs/operations/picnic-2694-sol-recheck.html</code> — 재검증 원문(워킹트리에 있던 것을 함께 커밋)</li>
+</ul>
+<p class="muted">
+  투표 수량, 전체 사용 값 계산, JMA 30:1 환산, 일일 한도, 보너스 사용, <code>_validateVote</code>,
+  요청·지갑·분석 처리에는 추가·삭제 라인이 없다. 네이티브·에셋·<code>pubspec</code> 변경도 없어 Shorebird OTA 범위를 벗어나지 않는다.
+</p>
+
+<footer>
+  PICNIC-2694 재검증 대응(마지막 수정 라운드). push·PR·Jira 상태 변경은 하지 않았다.
+</footer>
+
+</body>
+</html>

@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/core/navigation/route_aware_mixin.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
@@ -63,15 +66,44 @@ class _StorePageState extends ConsumerState<StorePage>
   Widget _buildTabBar() {
     return Column(
       children: [
-        TabBar(
-          controller: _tabController,
-          indicatorWeight: 3,
-          tabs: [
-            Tab(text: AppLocalizations.of(context).label_tab_buy_star_candy),
-            Tab(
-              text: AppLocalizations.of(context).label_tab_free_charge_station,
-            ),
-          ],
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final l10n = AppLocalizations.of(context);
+            final labels = [
+              l10n.label_tab_buy_star_candy,
+              l10n.label_tab_free_charge_station,
+            ];
+            final style = PicnicUi.text(size: 16, weight: FontWeight.w600);
+            var tabHeight = 48.0;
+            for (final label in labels) {
+              final painter = TextPainter(
+                text: TextSpan(text: label, style: style),
+                textDirection: Directionality.of(context),
+                textScaler: MediaQuery.textScalerOf(context),
+              )..layout(maxWidth: math.max(1, constraints.maxWidth / 2 - 32));
+              tabHeight = math.max(
+                tabHeight,
+                painter.height + PicnicUi.vertical(16),
+              );
+              painter.dispose();
+            }
+            return TabBar(
+              controller: _tabController,
+              indicatorWeight: 3,
+              indicatorColor: PicnicUi.actionColor,
+              labelColor: PicnicUi.actionColor,
+              unselectedLabelColor: PicnicUi.secondaryText,
+              labelStyle: style,
+              unselectedLabelStyle: style,
+              tabs: [
+                for (final label in labels)
+                  Tab(
+                    height: tabHeight,
+                    child: Text(label, textAlign: TextAlign.center),
+                  ),
+              ],
+            );
+          },
         ),
         Expanded(
           child: TabBarView(

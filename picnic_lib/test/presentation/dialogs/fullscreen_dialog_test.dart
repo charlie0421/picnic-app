@@ -1,5 +1,6 @@
 import 'dart:ui' show SemanticsAction;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
@@ -26,6 +27,38 @@ void main() {
   });
 
   group('FullScreenDialog widget', () {
+    testWidgets('Android: keeps content above the system navigation bar', (
+      tester,
+    ) async {
+      // PICNIC-777: showGeneralDialog routes bypass PageTransitionsTheme, so
+      // the dialog reserves the bar height itself.
+      const childKey = Key('dialog-child');
+      debugDefaultTargetPlatformOverride = TargetPlatform.android;
+      try {
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(400, 800),
+              padding: EdgeInsets.only(bottom: 48),
+              viewPadding: EdgeInsets.only(bottom: 48),
+            ),
+            child: MaterialApp(
+              home: FullScreenDialog(
+                child: const SizedBox.expand(key: childKey),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+      } finally {
+        debugDefaultTargetPlatformOverride = null;
+      }
+
+      final dialog = tester.getRect(find.byType(FullScreenDialog));
+      final child = tester.getRect(find.byKey(childKey));
+      expect(child.bottom, dialog.bottom - 48);
+    });
+
     testWidgets('renders child widget', (tester) async {
       await tester.pumpWidget(
         MaterialApp(

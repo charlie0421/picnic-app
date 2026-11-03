@@ -1,5 +1,5 @@
 {
-  "achieve": "Achievements",
+  "achieve": "Achieved",
   "@achieve": {
     "description": "Auto-generated metadata for key 'achieve'."
   },
@@ -732,7 +732,7 @@
   "@label_reply": {
     "description": "Auto-generated metadata for key 'label_reply'."
   },
-  "label_retry": "Retrying",
+  "label_retry": "Retry",
   "@label_retry": {
     "description": "Auto-generated metadata for key 'label_retry'."
   },
@@ -2445,6 +2445,43 @@
   "candy_boost_promotion_checking": "Promotion review in progress",
   "candy_boost_purchase_pending": "A purchase for this product is already being processed.",
   "candy_boost_late_purchase_explanation": "Authentication took longer than expected, but the purchase completed successfully.",
+  "candy_boost_total_multiplier": "+{multiplier}% EVENT BONUS",
+  "@candy_boost_total_multiplier": {
+    "description": "Compact pill showing the extra bonus-star-candy percentage during a candy boost event.",
+    "placeholders": {
+      "multiplier": {
+        "type": "String"
+      }
+    }
+  },
+  "purchase_reward_base": "Base reward",
+  "purchase_reward_base_short": "Base",
+  "purchase_reward_event_short": "Event",
+  "purchase_reward_product_bonus": "Base bonus",
+  "purchase_reward_event_bonus": "Event bonus",
+  "purchase_reward_expected_total": "Est. total",
+  "purchase_reward_total_short": "Total",
+  "purchase_current_balance": "Current balance {amount}",
+  "purchase_expected_balance": "Expected after purchase {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "@purchase_reward_plus_amount": {
+    "description": "A reward amount added on top of the base reward.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "purchase_reward_estimate_note": "Estimate. The final amount is confirmed by the server when your payment completes.",
+  "candy_reward_receipt_total": "Total added {amount}",
+  "@candy_reward_receipt_total": {
+    "description": "Sum of every currency added by a single settlement.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "ad_reward_pending": "Checking your reward",
   "ad_reward_granted": "Cotton Candy received",
   "ad_reward_not_granted": "The reward was not granted",
@@ -2459,6 +2496,7 @@
     }
   },
   "candy_reward_receipt_balance": "Current balance {amount}",
+  "candy_reward_receipt_purchase_balance": "New balance {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2544,5 +2582,7 @@
   "expiry_quantity_title": "My expiring candy",
   "expiry_quantity_description": "Scheduled expiration amounts for the current account.",
   "expiry_policy_description": "Expiration rules by currency.",
-  "bonus_expiry_policy_summary": "Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next."
+  "bonus_expiry_policy_summary": "Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.",
+  "error_ad_device_account_restricted_message": "Ad access for this account on this device is temporarily restricted.",
+  "profile_photo_change": "Change profile photo"
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_status_badge.dart';
 
 class QnaCategoryChip extends StatelessWidget {
   final String label;
@@ -8,33 +10,18 @@ class QnaCategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        PicnicUi.horizontal(16),
+        PicnicUi.vertical(12),
+        PicnicUi.horizontal(16),
+        0,
+      ),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.point500,
-                AppColors.point500.withValues(alpha: 0.85),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.point500.withValues(alpha: 0.25),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Text(
-            label,
-            style: getTextStyle(AppTypo.caption12B, Colors.white),
-          ),
+        child: PicnicStatusBadge(
+          label: label,
+          backgroundColor: AppColors.point500,
         ),
       ),
     );

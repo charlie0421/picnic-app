@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2664 수정 재검증</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.58; max-width: 1080px; margin: 40px auto; padding: 0 24px; color: #18202a; }
+    h1, h2, h3 { line-height: 1.25; } h1 { border-bottom: 3px solid #334155; padding-bottom: 12px; }
+    h2 { margin-top: 32px; border-bottom: 1px solid #cbd5e1; padding-bottom: 7px; }
+    .verdict, .finding, .ok, .note { padding: 14px 18px; margin: 16px 0; border-radius: 6px; }
+    .verdict, .finding { background: #fff1f2; border: 1px solid #fda4af; }
+    .ok { background: #f0fdf4; border: 1px solid #86efac; }
+    .note { background: #fffbeb; border: 1px solid #fcd34d; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+    pre { background: #0f172a; color: #e2e8f0; padding: 14px; overflow-x: auto; border-radius: 6px; white-space: pre-wrap; }
+    table { width: 100%; border-collapse: collapse; margin: 12px 0; } th, td { border: 1px solid #cbd5e1; padding: 9px; text-align: left; vertical-align: top; } th { background: #f8fafc; }
+    .muted { color: #475569; }
+  </style>
+</head>
+<body>
+  <h1>PICNIC-2664 수정 재검증</h1>
+  <p class="muted">대상 <code>fix/wallet-summary-owner-guard</code> · HEAD <code>8ab9684ca</code> · base <code>origin/main cf111821a</code> · 이전 대상 <code>0a8f2b712</code> · 2026-09-11</p>
+
+  <div class="verdict"><strong>판정: 변경 요청.</strong> 이전 blocker와 minor는 해소됐으나, 세션 교체 시 <code>setSummary</code>를 비동기로 미룬 결과 명시적 <code>refresh</code>와의 기존 순서 보장이 깨지는 새 major 1건이 있다.</div>
+
+  <h2>이전 지적 재검증</h2>
+  <table>
+    <thead><tr><th>이전 지적</th><th>판정</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>BehaviorSubject <code>sync:false</code> 이벤트 전달 전 A→B→A 우회</td><td><strong>해소</strong></td><td><code>wallet_provider.dart:446-452</code>가 세션 인스턴스를 토큰에 담고, <code>:500-529</code>가 세션 불일치 시 event-queue Future 뒤 epoch/owner를 재검사한다. B와 새 A 이벤트가 먼저 전달되어 <code>:247-250</code>에서 epoch가 증가하므로 이전 A 토큰은 폐기된다. 실제 BehaviorSubject 기반 추가 테스트와 전체 지정 스위트가 통과했다.</td></tr>
+      <tr><td>이벤트 전달 전 logout→동일 A 재로그인 우회</td><td><strong>해소</strong></td><td>추가 테스트는 이 변형을 직접 다루지 않지만 코드 경로는 동일하다. <code>currentSession</code>은 새 A 인스턴스라 지연 분기로 가고, queued signedOut(null)과 signedIn(A)은 둘 다 최초 build owner A와 달라 epoch를 두 번 올린 뒤 Future가 실행된다. 따라서 <code>_ownsWrite</code>가 실패한다. notifier 재빌드가 먼저 일어나더라도 epoch는 notifier 인스턴스에 남는 keepAlive 설계(<code>:178-197</code>)다.</td></tr>
+      <tr><td>폐기 로그의 사용자 식별자 노출</td><td><strong>해소</strong></td><td><code>wallet_provider.dart:534</code>는 고정 문자열만 기록한다. 변경 diff 안에 다른 식별자 interpolation은 없다. 단, PR 범위 밖 기존 코드에는 <code>auth_service.dart:112</code>, <code>purchase_service.dart:861</code>, <code>receipt_verification_service.dart:490</code>, <code>tapjoy_platform.dart:51</code> 등 사용자 ID 로그가 남아 있으며 이번 수정이 새로 만든 것은 아니다.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>새 지적</h2>
+  <section class="finding">
+    <h3>[major] 지연된 정산이 더 나중에 시작한 명시적 refresh 결과를 다시 덮을 수 있다</h3>
+    <p><strong>파일/위치:</strong> <code>picnic_lib/lib/presentation/providers/wallet_provider.dart:484-485, 522-529, 536-542</code>.</p>
+    <p><strong>근거:</strong> 기존 계약은 “명시적 refresh가 가장 최신”이므로 refresh는 <code>setSummary</code>의 <code>snapshotAt</code> 비교를 거치지 않는다. 하지만 세션 인스턴스가 다른 정상 token refresh 구간에서 <code>setSummary</code>는 이제 <code>Future</code>로 예약된다. 그 직후 시작한 <code>refresh()</code>가 즉시 완료되는 repository 응답이면 async continuation(microtask)이 event-queue Future보다 먼저 state를 갱신하고, 뒤늦은 <code>_applySummary</code>가 snapshot timestamp만 비교해 refresh 결과를 다시 덮는다.</p>
+    <p><strong>재현 조건:</strong> A 정산 토큰 캡처 → 같은 A의 새 Session으로 token refresh 및 이벤트 drain → 정산 응답 <code>S(snapshotAt=2099)</code>을 <code>setSummary</code>에 전달하여 Future 예약 → 같은 turn에 <code>refresh()</code> 시작, repository가 <code>R(snapshotAt=현재)</code>를 즉시 반환 → refresh가 R을 반영 → 예약된 S가 R보다 timestamp가 크다는 이유로 다시 반영. 수정 전에는 S가 동기로 먼저 반영되고 이후 refresh R이 최종값이었다. 결과는 서버 재조회보다 앞선 정산 snapshot이 화면의 최종값이 되어, 코드 주석의 순서 계약을 위반한다.</p>
+    <p><strong>최소 수정 방향:</strong> 지연 쓰기를 예약할 때 write/refresh generation(또는 단조 증가하는 상태-write sequence)을 캡처하고, callback 전에 그 뒤 시작·완료한 refresh가 있으면 폐기한다. 또는 애매한 auth 판정만 비동기로 해결하되 최종 적용을 refresh와 같은 직렬화 순서 안에 넣는다. 즉시 완료 refresh와 느린 refresh 양쪽을 포함한 회귀 테스트를 추가해야 한다.</p>
+  </section>
+
+  <h2>과잉 차단·경합·순서 검토</h2>
+  <ul>
+    <li><strong>같은 계정 토큰 갱신:</strong> 수정된 테스트가 event turn 뒤 cotton 40과 repository 호출 1회를 확인하므로 정상 정산을 전부 버리는 구현은 잡는다. 단, 위 refresh 경합은 검증하지 않는다.</li>
+    <li><strong>콜드스타트 세션 복원 지연:</strong> build/read의 세션 대기 및 identity 검사는 이번 커밋에서 변하지 않았다. 세션 없는 상태에서 캡처한 타 계정 쓰기를 새 로그인에 적용하지 않는 기존 보수적 동작도 유지된다.</li>
+    <li><strong>route unmount:</strong> applier가 app-level container를 캡처하고 provider가 keepAlive이므로 route 이탈 자체는 notifier를 dispose하지 않는다. 세션 동일 보통 경로는 여전히 동기 적용된다.</li>
+    <li><strong>keepAlive 재빌드:</strong> notifier 인스턴스, <code>_authEpoch</code>, <code>_generation</code>은 invalidateSelf 후 유지된다. 계정 변경으로 재빌드되는 한 턴에는 stale 쓰기가 폐기된다. container 자체 dispose면 callback의 <code>ref.mounted</code> 검사로 안전하게 중단된다.</li>
+    <li><strong>동시에 예약된 여러 정산:</strong> Dart event queue 등록 순서를 따르고 최종 적용 시 현재 state와 비교하므로 서로 간 <code>snapshotAt</code> 규칙(오래된 값 폐기, 동일 stamp는 뒤 쓰기 채택)은 유지된다.</li>
+    <li><strong>refresh/build 경합:</strong> 느린 refresh는 지연 정산 뒤 완료되어 정산을 덮으므로 기존 계약과 일치한다. 즉시 완료 refresh는 위 major처럼 완료 순서가 역전된다. build/invalidation을 일으키는 실제 계정 전환에서는 epoch가 변해 stale 쓰기가 폐기된다.</li>
+  </ul>
+
+  <h2>테스트 커버리지 판별력</h2>
+  <div class="ok"><strong>수정된 token refresh 테스트:</strong> 커버리지를 약화하지 않았다. 기존 cotton 40 및 repository 1회 단언을 유지하고 실제 비동기 적용을 기다리는 <code>_flush()</code>만 추가했으므로, session identity만 보고 정상 정산을 폐기하는 원 결함을 계속 잡는다.</div>
+  <div class="note"><strong>추가 A→B→A 테스트:</strong> 원 구현의 즉시 잘못된 쓰기는 잡지만 완전한 판별력은 없다. <code>applyWallet</code> 직후만 단언하고 event queue를 drain한 뒤 다시 단언하지 않으므로, stale 값을 두 턴 뒤 적용하거나 callback 순서를 잘못 잡은 구현도 이 테스트를 통과할 수 있다. 최소한 <code>await _flush()</code> 후 cotton 10 유지와 새 세션 build 안정화를 재단언해야 한다. logout→A 변형도 별도 async 게이트웨이 테스트가 없다.</div>
+
+  <h2>실행 검증</h2>
+  <table>
+    <thead><tr><th>명령</th><th>실제 결과</th></tr></thead>
+    <tbody>
+      <tr><td><code>flutter test test/presentation/providers/wallet_provider_test.dart test/data/repositories/wallet_repository_test.dart test/data/models/wallet test/presentation/widgets/wallet test/presentation/widgets/vote/store/purchase/wallet_summary_applier_test.dart test/core/services/wallet_resume_refresher_test.dart test/presentation/widgets/ad_reward_dialog_host_test.dart</code></td><td><strong>138 passed</strong>, 실패 0.</td></tr>
+      <tr><td><code>flutter test test/presentation/widgets/vote/voting test/presentation/widgets/vote/store/free_charge_station</code></td><td><strong>720 passed</strong>, 실패 0.</td></tr>
+      <tr><td><code>flutter analyze</code> + base 대비 변경된 Dart 11개 파일</td><td><strong>No issues found</strong>, 11 items, 4.3s.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>범위와 결론</h2>
+  <p>코드·테스트·기존 보고서는 수정하지 않았다. 실기기 Supabase 통합과 임의 재현 테스트 파일 생성은 소유권 제약상 수행하지 않았고, logout→A 및 refresh 경합은 실제 BehaviorSubject/event-loop semantics와 해당 코드 순서를 따라 정적 재현했다. 이전 blocker와 minor는 해소됐지만 새 major 때문에 현재 HEAD 승인은 보류한다.</p>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>rank-3 prefetch 후속 변경 — 독립 교차 리뷰 (Opus)</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0 auto; max-width: 1000px; padding: 40px 24px 80px;
+    font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+          "Segoe UI", Roboto, sans-serif;
+    color: #1b1f24; background: #fff;
+  }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -.01em; }
+  h2 { font-size: 19px; margin: 40px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #e6e8eb; }
+  h3 { font-size: 15px; margin: 26px 0 8px; }
+  .sub { color: #616b74; margin: 0 0 28px; font-size: 13.5px; }
+  code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  code { background: #f3f4f6; padding: 1px 5px; border-radius: 4px; font-size: 13px; }
+  pre { background: #f7f8fa; border: 1px solid #e6e8eb; border-left: 3px solid #9aa4ae;
+        padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 13.5px; }
+  th, td { border: 1px solid #e0e3e7; padding: 8px 10px; text-align: left; vertical-align: top; }
+  th { background: #f5f6f8; font-weight: 600; }
+  .verdict { background: #f0f7f1; border: 1px solid #c3ddc8; border-radius: 8px; padding: 16px 18px; margin: 20px 0; }
+  .sev { display: inline-block; padding: 1px 8px; border-radius: 20px; font-size: 11.5px;
+         font-weight: 700; letter-spacing: .02em; color: #fff; }
+  .sev-med { background: #b5761d; }
+  .sev-low { background: #5b6772; }
+  .sev-info { background: #8a919a; }
+  .sev-done { background: #1f7a37; }
+  .resolved { border-color: #c3ddc8; background: #f7fbf8; }
+  .corrected { background: #fdf6ec; border: 1px solid #e8d3a9; border-radius: 8px;
+               padding: 14px 16px; margin: 16px 0; font-size: 13.5px; }
+  .finding { border: 1px solid #e0e3e7; border-radius: 8px; padding: 16px 18px; margin: 18px 0; }
+  .finding h3 { margin-top: 0; }
+  .ok { color: #1f7a37; font-weight: 600; }
+  ul { padding-left: 22px; } li { margin: 5px 0; }
+  .meta td:first-child { width: 190px; font-weight: 600; background: #fafbfc; }
+</style>
+</head>
+<body>
+
+<h1>rank-3 prefetch 후속 변경 — 독립 교차 리뷰</h1>
+<p class="sub">
+  독립 read-only 적대적 리뷰 · Claude Opus 5 · 2026-09-13 ·
+  워크트리 <code>~/orca/workspaces/picnic-app/이미지최적화</code> ·
+  delta 기준 <code>/tmp/picnic-image-rank3-review.patch</code><br>
+  <strong>rev 2 (2026-09-13)</strong> — F1 수정 재리뷰 반영, §3-(6) 메모리 수치 정정
+</p>
+
+<div class="verdict">
+  <strong>결론: 정확성 결함 없음. 병합 가능. F1 수정 검증 완료.</strong><br>
+  delta의 동작은 요구사항 전 항목을 충족한다. 구현 결함(정확성·경쟁 상태·디코드 상한·해제 회귀)은
+  발견되지 않았고, 의심 지점은 모두 소스 추적 + 임시 프로브로 반증했다.
+  rev 1에서 제기한 <strong>F1(MEDIUM)은 수정 확인되어 해소</strong>했고,
+  남은 F2·F3는 비차단 후속 커버리지 항목이다.
+</div>
+
+<div class="corrected">
+  <strong>rev 2 정정 고지.</strong> rev 1 §3-(6)에서 "DPR 3 기준 180×180 디코드, 장당 ~130KB"라고 적었다.
+  이는 <em>Android 분기</em>의 계산값을 전 플랫폼 일반값처럼 제시한 오류다.
+  실제 iOS 스냅샷 관측값은 <strong>281×281</strong>이며, 아래 §3-(6)에서
+  <strong>관측 geometry</strong>와 <strong>resolver 계산 상한</strong>을 분리해 다시 서술했다.
+  리뷰의 결론은 특정 수치에 의존하지 않는다.
+</div>
+
+<h2>1. 검증 범위와 증거</h2>
+<table class="meta">
+  <tr><td>리뷰 대상</td><td><code>picnic_image_prefetch.dart</code>, <code>vote_info_card_helper.dart</code>, <code>vote_list.dart</code> 및 대응 테스트 3종의 delta</td></tr>
+  <tr><td>제외</td><td>popup fallback 작업(root/다른 Sol 소관), 이전 최적화 전체 재리뷰</td></tr>
+  <tr><td>독립 테스트 실행 (rev 1)</td><td><code>flutter test</code> 소유 4개 파일 → <span class="ok">41 passed, exit 0</span></td></tr>
+  <tr><td>독립 정적 분석 (rev 1)</td><td><code>flutter analyze</code> 소유 6개 파일 → <span class="ok">No issues found</span></td></tr>
+  <tr><td>F1 수정 재검증 (rev 2)</td><td><code>flutter test --no-pub --timeout 60s picnic_image_prefetch_test.dart</code> → <span class="ok">10 passed, exit 0</span>. 신규 파라미터화 테스트 2건(<code>candidate iteration stops at 2 / 3 unique keys</code>) 통과</td></tr>
+  <tr><td>F1 뮤테이션 검증 (rev 2)</td><td>단언이 실제로 과다 열거를 잡는지 확인 — §4 F1 참조. 실행 후 프로브 삭제</td></tr>
+  <tr><td>프로덕션 무변경 확인</td><td><span class="ok">해시 재현 성공</span> — <code>python3 /tmp/picnic_image_production_hash.py</code> → <code>4fc11b3b81f4f2d655b084acd706b16bd2f9555e64a1e42b888af827fd180646</code>, 코디네이터 제시값과 일치. 이 해시는 3개 파일이 아니라 <code>picnic_app/lib</code> + <code>picnic_lib/lib</code> 아래 <strong>모든</strong> <code>.dart</code> 파일을 repo 상대 POSIX 경로로 정렬해 <code>경로 UTF-8 + NUL + 파일바이트 + NUL</code>으로 누적한 SHA-256이다. 추가로 내용 확인: <code>picnic_image_prefetch.dart</code>(211행, 생성자 인자·<code>while (candidates.length &lt; _maximumCandidates)</code>·<code>_validateMaximumCandidates</code> 1..3), <code>vote_info_card_helper.dart:28-35</code>, <code>vote_list.dart:43-45, 406-421</code> 모두 rev 1 리뷰 당시와 동일. <strong>F1 수정은 테스트 전용</strong>이 맞다</td></tr>
+  <tr><td>임시 프로브</td><td><code>.dart_tool/opus_probe/</code>(gitignore 대상) rev 1 4건 + rev 2 1건, 모두 실행 후 삭제. 공유 production/test 파일 무수정</td></tr>
+  <tr><td>작업 트리 영향</td><td>없음 (이 리포트 파일 외 변경 0)</td></tr>
+</table>
+
+<h2>2. 요구사항 대조</h2>
+<table>
+  <tr><th>요구사항</th><th>판정</th><th>근거</th></tr>
+  <tr>
+    <td>다음 active/ended 세로 랭크 카드가 <strong>렌더되는 3장 그대로</strong> 준비</td>
+    <td class="ok">충족</td>
+    <td>렌더 경로 <code>VoteInfoCard._buildVoteItemList</code>는 <code>prepareVoteItems(vote.voteItem, status)</code>를 3개로 패딩해 그린다(<code>vote_info_card.dart:359-399</code>). prefetch는 <code>previewItems = prepareVoteItems(...).take(3)</code>. 입력 리스트 인스턴스가 동일(<code>_items[nextIndex].voteItem</code>)하고 <code>List.sort</code>는 동일 입력에 대해 결정적이므로 순서·집합이 일치한다.</td>
+  </tr>
+  <tr>
+    <td>정렬/그룹 fallback 보존, 누락된 top3 이미지를 <strong>rank 4로 대체하지 않음</strong></td>
+    <td class="ok">충족</td>
+    <td><code>_adjacentImageRequests()</code>가 <code>previewItems</code>만 순회하므로 4위는 구조적으로 열거 불가. 빈 URL은 <code>_resolveCandidates</code>가 슬롯을 소비하지 않고 <code>continue</code>(<code>picnic_image_prefetch.dart:44</code>)하지만 iterable이 3개로 끝나 대체가 일어나지 않는다. 그룹 fallback은 <code>resolveVoteItemImageUrl</code> 그대로. <strong>프로브 A·B로 실증</strong>(아래).</td>
+  </tr>
+  <tr>
+    <td>VoteList만 candidate 3, 나머지 기본 2, 1..3 경계 검증</td>
+    <td class="ok">충족</td>
+    <td>3 지정은 <code>vote_list.dart:43</code> 단 한 곳. <code>vote_info_card.dart:94</code>(upcoming 내부), <code>common_banner.dart:59</code>, <code>home_featured_vote_carousel.dart:73</code>는 기본 2. <code>_validateMaximumCandidates</code>가 1..3 외 값에 <code>RangeError</code>. 프로덕션 호출부는 2와 3뿐이라 throw 도달 불가.</td>
+  </tr>
+  <tr>
+    <td>전역 스케줄러 백그라운드 동시성 2 유지</td>
+    <td class="ok">충족</td>
+    <td><code>_maximumActiveJobs = 2</code> 무변경. 3-candidate 테스트 3종과 VoteList 테스트에서 <code>maximumActiveRequests == 2</code> 단언.</td>
+  </tr>
+  <tr>
+    <td>stale queued candidate가 replacement/dispose/unmount에서 취소</td>
+    <td class="ok">충족</td>
+    <td>상세는 §3-(3). 신규 테스트 <code>'replace and dispose cancel queued work without gating display'</code>가 3번째 대기 후보가 <code>replace</code>로 드롭되는 경로를 새로 덮는다.</td>
+  </tr>
+  <tr>
+    <td>포그라운드 표시는 ungated</td>
+    <td class="ok">충족</td>
+    <td><code>picnic_cached_network_image.dart</code>에 스케줄러 참조 0건. 표시 경로는 별도.</td>
+  </tr>
+  <tr>
+    <td>3번째만의 source/request dimension 변경이 signature를 무효화</td>
+    <td class="ok">충족</td>
+    <td>§3-(2). 신규 테스트 <code>'third-only image identity change replaces the queued request'</code>가 URL 단독 변경을 덮는다.</td>
+  </tr>
+  <tr>
+    <td>upcoming 외부 prefetch·achieve 제외 유지, upcoming 내부 2 유지, next index만/wrap 없음</td>
+    <td class="ok">충족</td>
+    <td><code>_rendersVerticalRanks</code> 무변경. <code>nextIndex = _currentIndex + 1</code> + 범위 검사, modulo 없음. 신규 테스트 <code>'outer list excludes upcoming and achieve card portraits'</code>, <code>'prepares only the single forward-adjacent card'</code>가 덮는다.</td>
+  </tr>
+</table>
+
+<h2>3. 적대적 검증 — 반증에 실패한 가설들</h2>
+<p>아래는 결함을 의심하고 파고들었으나 근거로 기각된 항목이다. 리뷰 깊이의 기록으로 남긴다.</p>
+
+<h3>(1) 지연 generator가 두 카드의 후보를 섞을 수 있는가 — <span class="ok">아니오</span></h3>
+<p>
+<code>_adjacentImageRequests()</code>는 <code>sync*</code>라 첫 <code>moveNext()</code>까지 본문이 실행되지 않고,
+2·3번째 <code>moveNext()</code>는 <code>await request.obtainKey(...)</code> 이후에 일어난다.
+그러나 <code>nextIndex</code>, <code>vote</code>, <code>status</code>, <code>previewItems(...)</code> 리스트가 모두
+<em>첫</em> <code>moveNext()</code> 시점의 지역 변수로 고정되므로, 중간에 <code>_currentIndex</code>가 바뀌어도
+후보가 다른 카드와 섞이지 않는다.
+</p>
+
+<h3>(2) signature가 3번째 변경을 놓칠 수 있는가 — <span class="ok">아니오</span></h3>
+<p>
+<code>_requestSignature</code> = <code>(url, requestW, requestH, decodeW, decodeH)</code>.
+실제 캐시 키는 <code>ResizeImage(CachedNetworkImageProvider(url, cacheKey: url), decodeW, decodeH, policy: fit, allowUpscaling: false)</code>이고
+policy·allowUpscaling은 상수이므로 <strong>url + decode 크기가 키를 완전히 결정</strong>한다.
+GIF 여부에 따른 quality(85/80) 차이도 resolver를 거쳐 <code>url</code>에 반영되므로 포착된다.
+또한 세 분기가 각각 5-tuple / 7-tuple / 9-tuple이라 Dart record 규칙상 분기 간 충돌이 불가능하고,
+순서가 뒤바뀐 경우(2·3위 교체)도 위치별 비교라 정상적으로 무효화된다.
+</p>
+
+<h3>(3) replace 도중 in-flight ranks 1·2가 유실되거나 중복 요청되는가 — <span class="ok">아니오</span></h3>
+<p>
+<code>replace()</code>는 await 이전에 동기적으로 generation 증가 → <code>_desiredKeys = {}</code> → <code>removeScope(this)</code>를 수행한다.
+대기 중이던 3번째 job은 관심사가 비어 <code>_queue</code>에서 제거되고, in-flight 1·2는 취소 불가로 계속 달리되
+뒤이은 <code>addCandidates</code>의 in-flight 분기(<code>picnic_image_prefetch.dart:106-110</code>)에서 새 generation의 관심사로 재부착된다.
+즉 <strong>3번째만 바뀌면 1·2는 재요청 없이 재사용</strong>된다. 이미 완료된 키는 <code>statusForKey(...).tracked</code> 검사로 건너뛴다.
+</p>
+
+<h3>(4) <code>_drain()</code>이 unmounted context를 골라 job을 통째로 버릴 수 있는가 — <span class="ok">아니오</span></h3>
+<p>
+<code>_drain()</code>은 <code>job.interests.removeWhere((_, i) => !i.isCurrent)</code>(<code>:148</code>)로 먼저 걸러내고,
+<code>isCurrent</code>는 <code>context.mounted</code>를 포함한다. 따라서 <code>values.first.context</code>(<code>:159</code>)는
+항상 mounted가 보장되며, 다중 scope가 한 job을 공유할 때 살아있는 scope의 관심사가 조용히 버려지는 경로는 없다.
+</p>
+
+<h3>(5) deactivated element에서 <code>MediaQuery</code> 조회가 일어날 수 있는가 — <span class="ok">아니오</span></h3>
+<p>
+<code>rankImageRequest</code>는 <code>MediaQuery.devicePixelRatioOf(context)</code>를 부르지만,
+각 <code>moveNext()</code> 직전 같은 동기 턴에서 <code>context.mounted</code>를 검사한다(<code>:37-39</code>).
+또 <code>obtainKey</code>가 <code>SynchronousFuture</code>를 돌려주므로 await는 microtask 규모이고
+yield 사이에 프레임 경계(따라서 DPR 변화)가 끼어들 수 없다. 만일의 throw도 <code>on Object { break; }</code>로 봉쇄된다.
+</p>
+
+<h3>(6) 후보 3개가 디코드 상한·해제를 악화시키는가 — <span class="ok">아니오</span></h3>
+<p><em>rev 2에서 수치 서술을 정정했다. 관측값과 계산값을 분리한다.</em></p>
+
+<p><strong>판정의 근거(수치 무관).</strong>
+세 랭크가 <strong>완전히 동일한</strong> <code>rankImageRequest(context, item)</code>를 쓴다 —
+<code>VoteCardColumnVertical</code>(<code>vote_info_card_vertical.dart:30</code>)은 rank별로 막대 높이와 테두리 그라디언트만 다르고
+이미지 요청은 분기하지 않는다. 따라서 rank 3 추가는 <strong>장당 디코드 상한을 전혀 바꾸지 않고</strong>,
+prefetch 총량만 2장 → 3장(1.5배)이 된다. 이 결론은 픽셀 수치에 의존하지 않는다.</p>
+
+<h4 style="margin:18px 0 6px;font-size:14px;">관측된 geometry (root의 iOS 스냅샷)</h4>
+<ul>
+  <li>포트레이트가 배치된 논리 크기 <strong>69.95</strong>, DPR <strong>3</strong>, 디코드된 비트맵 <strong>281×281</strong>.</li>
+  <li>69.95는 <em>레이아웃 결과</em>다. <code>VoteCardColumnVertical</code>의 내부 컨테이너는 <code>80×.9 = 72</code>이고
+      <code>Border.all(width: 1.w)</code>가 양쪽을 파고들어 자식이 72보다 약간 작아진다.
+      반면 <strong>요청</strong>은 <code>rankImageRequest</code>에 하드코딩된 <code>width: 72, height: 72</code>로 만들어진다.
+      즉 요청은 배치 크기보다 ~3% 과잉 공급이며, 방향상 안전하다(부족하지 않다).</li>
+</ul>
+
+<h4 style="margin:18px 0 6px;font-size:14px;">resolver 계산 상한 (<code>picnic_image_request.dart</code>)</h4>
+<p>요청 픽셀 = <code>72 × _resolutionMultiplier(context)</code>, 이후 <code>.round()</code>. 분기는 셋이다:</p>
+<table>
+  <tr><th>분기</th><th>배율</th><th>DPR 3일 때 72 논리의 요청·디코드 픽셀</th></tr>
+  <tr><td>Android</td><td><code>min(dpr × 1.1, 2.5)</code></td><td>2.5 → <strong>180</strong></td></tr>
+  <tr><td>iOS, <code>isIPad(context)</code> 참</td><td><code>min(dpr × 1.3, 4.0)</code></td><td>3.9 → 72×3.9 = 280.8 → <strong>281</strong></td></tr>
+  <tr><td>그 외(iOS 비-iPad, web 등)</td><td><code>min(dpr × 1.2, 2.5)</code></td><td>2.5 → <strong>180</strong></td></tr>
+</table>
+<p>
+관측된 281은 <strong>두 번째 분기와 정확히 일치</strong>한다. 주의할 점은
+<code>isIPad</code>(<code>lib/core/utils/ui.dart:46-53</code>)가
+<code>screenSize.width &gt;= 768 || screenSize.height &gt;= 768</code>이라서,
+포트레이트 iPhone(논리 높이 844·852·926 등)도 <strong>참</strong>이 된다는 것이다.
+즉 실기기 iPhone은 "iPad 분기"의 3.9배를 타며, 그래서 180이 아니라 281이 나온다.
+(<code>isIPad</code>의 이 동작은 이번 delta 밖의 기존 사항이며, 여기서는 관측값을 설명하기 위해서만 인용한다. 별도 지적 아님.)
+</p>
+
+<div class="corrected">
+  <strong>rev 1의 오류.</strong> rev 1은 Android 분기 계산값 180×180(≈127 KiB/장)을
+  플랫폼 구분 없이 제시했다. <strong>보편적인 180px 디코드는 존재하지 않는다</strong> —
+  값은 플랫폼과 DPR에 따라 달라지며, 위 표 기준 흔한 구성에서 180~281px 범위다.
+  참고로 픽셀당 4바이트 기준 장당 대략 180² ≈ 127 KiB, 281² ≈ 308 KiB이지만,
+  이는 <em>계산된 상한</em>이지 측정된 힙 사용량이 아니므로 단일 확정 수치로 인용하지 말 것.
+</div>
+
+<p><strong>해제·경합.</strong> 교체 시점에 취소 불가한 in-flight job 수는 전역 상한 2에 묶여 있으므로
+<strong>2-candidate 기준선 대비 최악 경합이 악화되지 않는다</strong>
+(3번째는 항상 대기열에만 있다가 <code>removeScope</code>로 즉시 취소된다).</p>
+
+<h2>4. 지적 사항</h2>
+<table>
+  <tr><th>항목</th><th>rev 1</th><th>rev 2 상태</th></tr>
+  <tr><td>F1 — 열거 상한 단언 무력</td><td>MEDIUM</td><td class="ok">해소 (수정 검증 완료)</td></tr>
+  <tr><td>F2 — 4개 이상 항목 카드 통합 커버리지</td><td>LOW</td><td>비차단 후속 유지</td></tr>
+  <tr><td>F3 — 빈 rank-3 이미지 통합 커버리지</td><td>LOW</td><td>비차단 후속 유지</td></tr>
+  <tr><td>F4 — <code>previewItems</code> 2-후보 분기 도달 불가</td><td>INFO</td><td>참고 유지</td></tr>
+</table>
+<p>
+  <strong>F2·F3를 차단 사유로 두지 않는 이유:</strong> 두 항목 모두 "커버리지가 없다"이지 "동작이 틀렸다"가 아니다.
+  순수 헬퍼 테스트(<code>previewItems</code> top-3 절단, rank-4 미대체)가 로직을 덮고,
+  rev 1에서 내가 독립적으로 돌린 프로브가 <strong>VoteList 끝단 동작이 실제로 옳음을 확인</strong>했다
+  (5개 항목 카드 → 상위 3개만 각 1회, 4·5위 0회 / <code>[r1, r2, '', r4]</code> → r4 0회).
+  따라서 회귀 <em>감지력</em>만 보강하면 되는 후속 작업이며, 병합을 막지 않는다.
+</p>
+
+<div class="finding resolved">
+  <h3><span class="sev sev-done">RESOLVED</span> &nbsp;F1 — 열거 상한 단언이 실패할 수 없다 <span style="color:#616b74;font-weight:400;font-size:13px;">(원 심각도 MEDIUM)</span></h3>
+  <table class="meta">
+    <tr><td>원 위치</td><td><code>picnic_image_prefetch_test.dart:179-185</code> (rev 1 기준)</td></tr>
+    <tr><td>수정 위치</td><td><code>picnic_lib/test/presentation/common/picnic_image_prefetch_test.dart:162-216</code> (cleanup 재정렬 반영 최종본)</td></tr>
+    <tr><td>상태</td><td><span class="ok">해소 — 재검증 통과. 잔여 이슈 없음</span></td></tr>
+  </table>
+
+  <p><strong>원 문제.</strong> 3번째 열거 시 <code>StateError</code>를 던지는 generator로 상한을 증명하려 했으나,
+    <code>_resolveCandidates</code>가 <code>try { iterator.moveNext() } on Object { break; }</code>
+    (<code>picnic_image_prefetch.dart:39-42</code>)로 그 throw를 삼켜 <strong>단언이 실패할 수 없었다</strong>.
+    상한이 2→3으로 회귀해도 스위트가 green으로 남았다.</p>
+
+  <p><strong>적용된 수정.</strong> throw generator를 명시적 카운터로 교체하고
+    <code>for (final maximumCandidates in [2, 3])</code>로 파라미터화했다.
+    후보 URL 4개(a·b·c·d)를 모두 유효·고유하게 주고
+    <code>expect(enumerated, maximumCandidates)</code>로 <strong>정확한 등가</strong>를 단언한다.
+    bound 2는 기본 생성자(<code>PicnicImagePrefetchScope()</code>)로, bound 3은 명시 인자로 만들어
+    <em>기본값 경로 자체</em>도 함께 검증한다(<code>:181-183</code>).
+    이어 최종본에서는 <code>scope.dispose()</code> → 4개 URL <code>release()</code> → 드레인을
+    <strong>단언보다 앞</strong>으로 옮겨(<code>:198-211</code>), 단언이 실패해도 held 응답 해제가 건너뛰이지 않게 했다.</p>
+
+  <h4 style="margin:18px 0 6px;font-size:14px;">검증 1 — 과다 열거를 실제로 잡는가</h4>
+  <p>추론이 아니라 뮤테이션으로 확인했다. 실제 회귀(프로덕션이 <code>_maximumCandidates</code>를 무시하고 3으로 고정)가
+    테스트에 보이는 모습을 그대로 재현 — <code>maximumCandidates: 3</code> scope에
+    bound-2 단언을 걸고 실행했다. <strong>테스트는 실패했다:</strong></p>
+<pre>MUTANT enumerated=3 (expected-by-real-test: 2)
+Expected: &lt;2&gt;
+  Actual: &lt;3&gt;
+03:06 +0 -2: Some tests failed.</pre>
+  <p>즉 단언에 실제 검출력이 있다. 등가 단언이라 <strong>과소 열거(2 미만)도 동일하게 실패</strong>한다.
+    프로덕션 무수정 상태에서 진짜 테스트는 <code>enumerated == 2</code> / <code>== 3</code>으로 통과한다.</p>
+
+  <h4 style="margin:18px 0 6px;font-size:14px;">검증 2 — 타이밍·재정렬이 단언을 헐겁게 만들지 않는가</h4>
+  <p>카운터 검사(<code>:212</code>) 전에 <code>_pumpUntil(activeRequests == 2)</code> +
+    <code>_pumpAsyncWork</code>가 선행한다. <code>activeRequests == 2</code>는
+    <code>addCandidates → _drain</code>이 돌았다는 뜻이고 그건 <code>_resolveCandidates</code> 루프가
+    <strong>이미 끝난</strong> 뒤에만 가능하므로, 열거는 그 시점에 이미 확정된다.
+    <code>_pumpAsyncWork</code>가 지연 열거 여지까지 흡수한다.</p>
+  <p><strong>cleanup을 단언 앞으로 옮긴 것이 수치를 흐리지 않는다:</strong>
+    iterator는 <code>_resolveCandidates</code> 종료와 함께 소비·폐기되므로
+    이후의 <code>dispose()</code>·<code>release()</code>·드레인이 <code>enumerated</code>를 더 늘릴 경로가 없다.
+    <code>requestsFor</code> 카운터도 누적이며 감소하지 않으므로 드레인이 값을 되돌리지 않는다.
+    즉 재정렬 후에도 두 단언의 값은 정확히 동일하다. 조기·지연 판독으로 인한 위음성 없음.</p>
+
+  <h4 style="margin:18px 0 6px;font-size:14px;">검증 3 — 정리(cleanup)</h4>
+  <ul>
+    <li><code>addTearDown(harness.dispose)</code> + <code>addTearDown(scope.dispose)</code> 등록.
+        <code>scope.dispose()</code>는 <code>_disposed</code> 가드로 멱등이라 명시 호출과 중복돼도 안전하다.</li>
+    <li>요청되지 않은 c·d에 대한 <code>harness.release()</code>는
+        <code>_responses[url]?.release()</code>(<code>image_test_harness.dart:97-99</code>)로 안전한 no-op이다.</li>
+    <li>본문이 <code>activeRequests == 0 &amp;&amp; pendingImageCount == 0</code>까지 드레인한 뒤 종료하므로,
+        전역 싱글턴 <code>_prefetchScheduler</code>에 잔여 job이 남지 않는다.
+        두 파라미터 케이스가 <strong>같은 URL</strong>을 재사용하지만 케이스마다 harness가 새로 생성되고
+        <code>setUp</code>이 <code>imageCache.clear()</code> + <code>clearLiveImages()</code>를 하므로
+        <code>statusForKey(...).tracked</code> 오염으로 인한 순서 의존은 없다. 실행으로 확인(두 케이스 모두 통과).</li>
+  </ul>
+
+  <p style="margin-top:14px;"><strong>실패 경로 teardown — 지적 후 수정됨.</strong>
+    중간본에서는 단언이 <em>실패</em>하면 그 아래 <code>scope.dispose()</code>·<code>harness.release(...)</code>가
+    실행되지 않아 held 응답 해제가 <code>harness.dispose()</code>의 <code>Future.wait(_openStreams)</code>까지 미뤄졌다.
+    내 뮤테이션 실행에서 단언 실패 자체는 <code>00:00</code>에 났지만 teardown이 약 3분을 잡아먹었다
+    (<code>03:06 (tearDownAll) - did not complete</code>).
+    최종본은 해제·드레인을 단언 앞으로 옮겨 이 경로를 제거했다. <strong>잔여 이슈 없음.</strong></p>
+
+  <h4 style="margin:18px 0 6px;font-size:14px;">최종 확인</h4>
+  <p>cleanup 재정렬이 적용된 최종본으로 재실행:
+    <code>flutter test --no-pub --timeout 60s picnic_image_prefetch_test.dart</code> →
+    <span class="ok">10 passed, exit 0</span>, <code>candidate iteration stops at 2 / 3 unique keys</code> 모두 <code>00:00</code>에 통과.
+    <strong>F1 해소로 판정한다.</strong></p>
+</div>
+
+<div class="finding">
+  <h3><span class="sev sev-low">LOW</span> &nbsp;F2 — 4개 이상 항목 카드에 대한 통합 레벨 커버리지 없음</h3>
+  <table class="meta">
+    <tr><td>위치</td><td><code>picnic_lib/test/presentation/widgets/vote/list/vote_list_image_prefetch_test.dart:115</code> (<code>_pageWithNextCard</code> 케이스)</td></tr>
+    <tr><td>분류</td><td>테스트 공백</td></tr>
+  </table>
+  <p>
+    유일한 VoteList rank-3 테스트가 <strong>정확히 3개</strong> 항목을 가진 vote를 쓴다.
+    <code>previewItems</code>의 <code>take(3)</code> 절단과 "rank 4 미요청"은 순수 헬퍼 테스트에서만 검증되고,
+    VoteList → scope → 스케줄러 끝단에서는 검증되지 않는다.
+  </p>
+  <p><strong>동작 자체는 정상</strong>: 프로브 A(5개 항목, voteTotal 50/40/30/20/10)에서 상위 3개만 각 1회 요청되고
+    4·5위는 0회, <code>maximumActiveRequests ≤ 2</code>였다.</p>
+  <p><strong>최소 수정:</strong> 기존 <code>_pageWithNextCard</code> 케이스를 5개 항목으로 확장하고
+    <code>expect(harness.requestsFor(rank4), 0)</code>, <code>expect(harness.requestsFor(rank5), 0)</code>를 추가한다.</p>
+</div>
+
+<div class="finding">
+  <h3><span class="sev sev-low">LOW</span> &nbsp;F3 — 빈 rank-3 이미지의 통합 레벨 커버리지 없음</h3>
+  <table class="meta">
+    <tr><td>위치</td><td><code>picnic_lib/test/presentation/widgets/vote/list/vote_list_image_prefetch_test.dart</code> (해당 케이스 부재)</td></tr>
+    <tr><td>분류</td><td>테스트 공백</td></tr>
+  </table>
+  <p>
+    <code>'previewItems does not replace an invalid top-three image with rank 4'</code>는 순수 함수만 덮는다.
+    빈 URL이 <code>_resolveCandidates</code>에서 슬롯을 소비하지 않고 건너뛰어지는(<code>picnic_image_prefetch.dart:44</code>)
+    실제 경로 — 즉 "3번째가 비어도 4위가 그 자리를 채우지 않는다" — 는 끝단에서 확인되지 않는다.
+  </p>
+  <p><strong>동작 자체는 정상</strong>: 프로브 B(항목 <code>[r1, r2, '', r4]</code>)에서 r1·r2만 각 1회 요청되고 r4는 0회였다.</p>
+  <p><strong>최소 수정:</strong> 같은 파일에 <code>[(r1,40), (r2,30), ('',20), (r4,10)]</code> 카드 1건을 추가하고
+    <code>expect(harness.requestsFor(r4), 0)</code>를 단언한다.</p>
+</div>
+
+<div class="finding">
+  <h3><span class="sev sev-info">INFO</span> &nbsp;F4 — <code>previewItems</code>의 2-후보 분기는 프로덕션에서 도달 불가</h3>
+  <table class="meta">
+    <tr><td>위치</td><td><code>picnic_lib/lib/presentation/widgets/vote/list/vote_info_card_helper.dart:26-35</code></td></tr>
+    <tr><td>분류</td><td>설계 결합 메모 (결함 아님)</td></tr>
+  </table>
+  <p>
+    <code>previewItems</code>의 두 호출부(<code>vote_list.dart:395, 441</code>)는 모두
+    <code>_rendersVerticalRanks</code>(= active/end 필수) 뒤에 있다. 그런데 3을 돌려주는 조건이 정확히 active/end이므로
+    <strong><code>: 2</code> 분기는 테스트에서만 실행된다</strong>. 주석 "Non-rank statuses retain the shared two-candidate default"가
+    설명하는 동작이 프로덕션에 존재하지 않는다.
+  </p>
+  <p>
+    지금은 무해하지만, 이 2는 scope의 <code>maximumCandidates</code>와 연결돼 있지 않다 —
+    VoteList의 scope는 조건 없이 3이다. 훗날 외부 리스트가 upcoming도 prefetch하도록 <code>_rendersVerticalRanks</code>
+    가드를 걷어내면, 3칸을 허용하는 scope에 2개만 공급되어 조용히 과소 prefetch가 된다.
+    <strong>제안:</strong> 주석을 "현재 호출부는 항상 active/end이며, 이 상수는 scope 상한과 독립이다"로 고치거나,
+    상한을 호출부에서 명시적으로 주입한다. 차단 사유 아님.
+  </p>
+</div>
+
+<h3>범위 밖 기존 관찰 (delta 무관, 참고용)</h3>
+<p>
+  관심사가 모두 stale이 된 대기 job은 <code>_drain()</code> 안에서만 지연 회수된다. 따라서 이론상 스케줄러 싱글턴이
+  <code>BuildContext</code>·<code>ImageProvider</code>를 쥔 <code>_PrefetchJob</code>을 붙들 수 있다.
+  실제로는 모든 <code>replace()</code>/<code>dispose()</code>/job 완료가 <code>_drain()</code>을 부르므로 자연 해소된다.
+  이번 변경은 그 이론적 상한을 2에서 3으로 올릴 뿐이다. 조치 불요.
+</p>
+
+<h2>5. QA 관찰에 대한 메모</h2>
+<p>
+  초기 iOS/Android 실기기에서 반복적으로 "1·2위는 준비됨, 3위 지연"이 관찰된 것과 이번 변경은 정합적이다:
+  기존에는 3위가 <em>후보에조차 들어가지 않았다</em>. 이제는 후보에 들어가되 전역 상한 2 때문에
+  1·2위 중 하나가 끝나야 시작한다. 따라서 <strong>3위가 항상 미리 준비된다고 보장되지는 않으며</strong>,
+  느린 네트워크에서 1·2위가 끝나기 전에 스와이프하면 3위는 여전히 포그라운드에서 시작한다.
+  통제된 기준선 성능 측정이 없으므로 이 리뷰는 성능 개선 폭에 대해 어떤 주장도 하지 않는다.
+  기능적으로는 회귀 없이 3위가 준비 대상에 포함되며, 그 자체가 요구사항이다.
+</p>
+
+</body>
+</html>

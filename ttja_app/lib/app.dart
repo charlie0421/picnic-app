@@ -12,13 +12,20 @@ import 'package:picnic_lib/core/utils/main_initializer.dart';
 import 'package:picnic_lib/core/utils/language_initializer.dart';
 import 'package:picnic_lib/core/utils/route_manager.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
+import 'package:picnic_lib/core/utils/startup_readiness.dart';
 import 'package:picnic_lib/enums.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/dialogs/update_dialog.dart';
+import 'package:picnic_lib/presentation/dialogs/force_update_overlay.dart';
 import 'package:picnic_lib/presentation/providers/anti_abuse_providers.dart';
+import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
+import 'package:picnic_lib/presentation/screens/ban_screen.dart';
+import 'package:picnic_lib/presentation/screens/initialization_error_screen.dart';
+import 'package:picnic_lib/presentation/screens/network_error_screen.dart';
 
 import 'package:picnic_lib/ui/community_theme.dart';
 import 'package:picnic_lib/ui/mypage_theme.dart';
@@ -28,6 +35,8 @@ import 'package:picnic_lib/ui/vote_theme.dart';
 import 'package:ttja_app/presenstation/screens/portal.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+
+enum _InitializationRetryTarget { startup, connection }
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -42,6 +51,14 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
       SnackbarUtil.scaffoldMessengerKey;
 
   bool _isAppInitialized = false;
+  final RetryableStartupStages _startupStages = RetryableStartupStages();
+  final StartupConnectionChecks<UpdateInfo> _connectionChecks =
+      StartupConnectionChecks<UpdateInfo>();
+  Future<void>? _initializationInFlight;
+  Future<void>? _connectionRetryInFlight;
+  Object? _initializationError;
+  _InitializationRetryTarget _retryTarget = _InitializationRetryTarget.startup;
+  int _initializationGeneration = 0;
   Widget? initScreen;
   StreamSubscription? _authSubscription;
   StreamSubscription? _appLinksSubscription;
@@ -68,67 +85,100 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     _initializeApp();
   }
 
-  Future<void> _initializeApp() async {
-    logger.i('_initializeApp 시작');
+  Future<void> _initializeApp({bool retry = false}) {
+    if (_isAppInitialized) return Future<void>.value();
 
-    // 앱이 이미 초기화되었다면 바로 반환
-    if (_isAppInitialized) {
-      logger.i('앱이 이미 초기화됨. 초기화 과정 스킵');
-      return;
+    final inFlight = _initializationInFlight;
+    if (inFlight != null) return inFlight;
+
+    final generation = ++_initializationGeneration;
+    if (retry && mounted) {
+      setState(() {
+        _initializationError = null;
+        _retryTarget = _InitializationRetryTarget.startup;
+      });
     }
 
-    // SDK 초기화 완료 대기 (MainInitializer에서 runApp 후 병렬 실행 중)
-    logger.i('SDK 초기화 대기 중...');
-    await MainInitializer.sdkReady;
-    logger.i('SDK 초기화 완료');
+    late final Future<void> attempt;
+    attempt = () async {
+      try {
+        logger.i('_initializeApp 시작 (retry=$retry)');
+        await _runInitializationAttempt(retry: retry);
+        if (!_isCurrentInitialization(generation)) return;
 
-    // anti-abuse ip_hash prefetch — fire-and-forget. silent fallback on failure.
-    unawaited(ref.read(ipHashServiceProvider).fetchAndCache());
-
-    // 모바일 환경에서만 시스템 UI 초기화
-    if (UniversalPlatform.isMobile && !kIsWeb) {
-      await AppInitializer.initializeSystemUI();
-    }
-
-    if (!mounted) {
-      logger.e('앱 초기화 중 위젯이 dispose됨');
-      _isAppInitialized = false;
-      return;
-    }
-
-    // 언어 초기화는 다른 초기화와 병렬로 진행
-    _initializeLanguage();
-
-    // 앱 초기화 (모바일/웹 구분)
-    try {
-      if (UniversalPlatform.isMobile) {
-        // 스플래시 대기 없이 바로 앱 초기화 진행
-        await AppInitializer.initializeApp(context, ref);
-      } else {
-        await AppInitializer.initializeWebApp(context, ref);
-      }
-
-      if (!mounted) return;
-
-      // 앱 초기화 완료 플래그 설정
-      if (mounted) {
         setState(() {
           _isAppInitialized = true;
+          _initializationError = null;
         });
+        logger.i('_initializeApp 완료');
+      } catch (error, stackTrace) {
+        logger.e('앱 초기화 중 오류 발생', error: error, stackTrace: stackTrace);
+        if (!_isCurrentInitialization(generation)) return;
 
-        // 앱 초기화 완료 표시
-        AppLifecycleInitializer.markAppInitialized(ref);
-      }
-    } catch (e, stackTrace) {
-      logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: stackTrace);
-      if (mounted) {
         setState(() {
           _isAppInitialized = false;
+          _initializationError = error;
+          _retryTarget = _InitializationRetryTarget.startup;
         });
+      } finally {
+        if (identical(_initializationInFlight, attempt)) {
+          _initializationInFlight = null;
+        }
       }
-    }
+    }();
+    _initializationInFlight = attempt;
+    return attempt;
+  }
 
-    logger.i('_initializeApp 완료');
+  bool _isCurrentInitialization(int generation) =>
+      mounted && generation == _initializationGeneration;
+
+  Future<void> _runInitializationAttempt({required bool retry}) async {
+    logger.i('SDK 초기화 대기 중...');
+    final readiness = retry
+        ? await MainInitializer.retrySdkInitialization()
+        : await MainInitializer.sdkReady;
+    if (!readiness.isReady) {
+      Error.throwWithStackTrace(
+        readiness.error ?? StateError('SDK initialization failed'),
+        readiness.stackTrace ?? StackTrace.current,
+      );
+    }
+    if (!mounted) return;
+    logger.i('SDK 초기화 완료');
+
+    await _startupStages.run('ttja-ip-hash-prefetch-launch', () async {
+      unawaited(ref.read(ipHashServiceProvider).fetchAndCache());
+    });
+
+    if (UniversalPlatform.isMobile && !kIsWeb) {
+      await _startupStages.run(
+        'ttja-system-ui',
+        AppInitializer.initializeSystemUI,
+      );
+    }
+    if (!mounted) return;
+
+    await _startupStages.run('ttja-language', _initializeLanguage);
+    if (!mounted) return;
+    if (!context.mounted) return;
+
+    await AppInitializer.initializeApp(
+      context,
+      ref,
+      startupStages: _startupStages,
+      connectionChecks: _connectionChecks,
+      isActive: () => mounted,
+    );
+    if (!mounted) return;
+
+    await _startupStages.run('ttja-app-initialized-marker', () async {
+      AppLifecycleInitializer.markAppInitialized(ref);
+    });
+  }
+
+  void _retryInitialization() {
+    unawaited(_initializeApp(retry: true));
   }
 
   // 언어 초기화를 위한 별도 메서드 (간소화)
@@ -136,8 +186,10 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     logger.i('언어 초기화 시작 (ttja_app)');
 
     // LanguageInitializer가 모든 로직(설정 로드, 에러 핸들링, fallback)을 처리
-    final (success, language) =
-        await LanguageInitializer.initializeLanguage(ref, AppLocalizations.delegate.load);
+    final (success, language) = await LanguageInitializer.initializeLanguage(
+      ref,
+      AppLocalizations.delegate.load,
+    );
 
     logger.i('언어 초기화 완료: 성공=$success, 언어=$language');
   }
@@ -146,14 +198,31 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     // 앱 설정 관련 상태 구독
     final appSettingState = ref.watch(appSettingProvider);
+    final appInitState = ref.watch(appInitializationProvider);
     // 내비게이션 관련 프로바이더 구독
     ref.watch(navigationInfoProvider);
     ref.watch(globalMediaQueryProvider);
 
-    // 앱 홈 화면 결정 - 초기화 중에는 경량 로컬 스플래시만 표시
-    Widget homeWidget = _isAppInitialized
-        ? const Portal()
-        : Image.asset('assets/splash.webp', fit: BoxFit.cover);
+    Widget homeWidget;
+    if (_initializationError != null) {
+      homeWidget = InitializationErrorScreen(
+        onRetry: _retryTarget == _InitializationRetryTarget.connection
+            ? () => unawaited(_retryConnection())
+            : _retryInitialization,
+      );
+    } else if (!_isAppInitialized) {
+      homeWidget = Image.asset('assets/splash.webp', fit: BoxFit.cover);
+    } else if (!appInitState.hasNetwork) {
+      homeWidget = NetworkErrorScreen(
+        onRetry: () => unawaited(_retryConnection()),
+      );
+    } else if (appInitState.isBanned) {
+      homeWidget = const BanScreen();
+    } else if (appInitState.updateInfo?.status == UpdateStatus.updateRequired) {
+      homeWidget = ForceUpdateOverlay(updateInfo: appInitState.updateInfo!);
+    } else {
+      homeWidget = const Portal();
+    }
 
     // 라우트 처리
     final routes = RouteManager.mergeRoutes(_appSpecificRoutes);
@@ -175,6 +244,43 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> _retryConnection() {
+    final inFlight = _connectionRetryInFlight;
+    if (inFlight != null) return inFlight;
+
+    final generation = _initializationGeneration;
+    if (mounted) {
+      setState(() {
+        _initializationError = null;
+        _retryTarget = _InitializationRetryTarget.connection;
+      });
+    }
+
+    late final Future<void> attempt;
+    attempt = () async {
+      try {
+        await AppInitializer.retryConnection(
+          ref,
+          connectionChecks: _connectionChecks,
+          isActive: () => mounted,
+        );
+      } catch (error, stackTrace) {
+        logger.e('네트워크 복구 검사 중 오류 발생', error: error, stackTrace: stackTrace);
+        if (!_isCurrentInitialization(generation)) return;
+        setState(() {
+          _initializationError = error;
+          _retryTarget = _InitializationRetryTarget.connection;
+        });
+      } finally {
+        if (identical(_connectionRetryInFlight, attempt)) {
+          _connectionRetryInFlight = null;
+        }
+      }
+    }();
+    _connectionRetryInFlight = attempt;
+    return attempt;
+  }
+
   ThemeData _getCurrentTheme(WidgetRef ref) {
     final currentPortal = ref.watch(navigationInfoProvider);
     switch (currentPortal.portalType) {
@@ -194,6 +300,7 @@ class _AppState extends ConsumerState<App> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    _initializationGeneration++;
     WidgetsBinding.instance.removeObserver(this);
 
     // 앱 리스너 정리

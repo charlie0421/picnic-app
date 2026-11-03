@@ -79,10 +79,7 @@ void main() {
       });
 
       test('returns false for notDetermined', () {
-        expect(
-          PrivacyConsentHelper.isAttAuthorized('notDetermined'),
-          isFalse,
-        );
+        expect(PrivacyConsentHelper.isAttAuthorized('notDetermined'), isFalse);
       });
 
       test('returns false for empty string', () {
@@ -106,10 +103,7 @@ void main() {
       });
 
       test('returns false for denied', () {
-        expect(
-          PrivacyConsentHelper.shouldRequestAttConsent('denied'),
-          isFalse,
-        );
+        expect(PrivacyConsentHelper.shouldRequestAttConsent('denied'), isFalse);
       });
 
       test('returns false for restricted', () {
@@ -175,35 +169,34 @@ void main() {
     group('getInitializationOrder', () {
       test('returns ATT first for iOS', () {
         final order = PrivacyConsentHelper.getInitializationOrder(isIOS: true);
-        expect(order, ['att', 'ump', 'admob']);
+        expect(order, ['att', 'ump']);
         expect(order.first, 'att');
       });
 
-      test('returns UMP first for Android', () {
+      test('returns only UMP for Android', () {
         final order = PrivacyConsentHelper.getInitializationOrder(isIOS: false);
-        expect(order, ['ump', 'att', 'admob']);
-        expect(order.first, 'ump');
+        expect(order, ['ump']);
       });
 
-      test('always ends with admob', () {
+      test('always ends with UMP', () {
         expect(
           PrivacyConsentHelper.getInitializationOrder(isIOS: true).last,
-          'admob',
+          'ump',
         );
         expect(
           PrivacyConsentHelper.getInitializationOrder(isIOS: false).last,
-          'admob',
+          'ump',
         );
       });
 
-      test('always has 3 steps', () {
+      test('does not include AdMob initialization', () {
         expect(
-          PrivacyConsentHelper.getInitializationOrder(isIOS: true).length,
-          3,
+          PrivacyConsentHelper.getInitializationOrder(isIOS: true),
+          isNot(contains('admob')),
         );
         expect(
-          PrivacyConsentHelper.getInitializationOrder(isIOS: false).length,
-          3,
+          PrivacyConsentHelper.getInitializationOrder(isIOS: false),
+          isNot(contains('admob')),
         );
       });
     });

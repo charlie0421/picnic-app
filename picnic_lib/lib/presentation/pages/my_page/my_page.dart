@@ -23,6 +23,7 @@ import 'package:picnic_lib/presentation/pages/my_page/qna/qna_thread_list_page.d
 import 'package:picnic_lib/presentation/pages/my_page/setting_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_artist_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/vote_history_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/faq_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/notice_page.dart';
@@ -31,9 +32,13 @@ import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/screens/signup/signup_screen.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:supabase_extensions/supabase_extensions.dart';
@@ -51,8 +56,20 @@ class MyPage extends ConsumerStatefulWidget {
 }
 
 class _MyPageState extends ConsumerState<MyPage>
-    with RouteAwareStateMixin<MyPage> {
+    with RouteAwareStateMixin<MyPage>, SingleTickerProviderStateMixin {
   String? _currentTitle;
+
+  /// 파우치 새로고침 아이콘 회전. 스토어·무료충전소와 같은 800ms.
+  late final AnimationController _pouchRefreshController = AnimationController(
+    duration: const Duration(milliseconds: 800),
+    vsync: this,
+  );
+
+  @override
+  void dispose() {
+    _pouchRefreshController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -95,31 +112,45 @@ class _MyPageState extends ConsumerState<MyPage>
     return userInfoState.when(
       data: (data) {
         return Scaffold(
+          backgroundColor: PicnicUi.surface,
           body: Container(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.symmetric(horizontal: PicnicUi.horizontal(16)),
             child: ListView(
               children: [
                 const SizedBox(height: 24),
                 // 프로필
                 data != null ? _buildProfile() : _buildNonLogin(),
                 const SizedBox(height: 16),
+                // 파우치는 공통 위젯. 새로고침은 스토어·무료충전소와 같은 동작
+                // (프로필 + 지갑 요약 재조회) — 여기만 빠져 있었다 (PICNIC-2689).
                 StorePointInfo(
                   title: AppLocalizations.of(context).label_star_candy_pouch,
                   width: double.infinity,
+                  refreshController: _pouchRefreshController,
+                  onRefresh: data == null
+                      ? null
+                      : () {
+                          _pouchRefreshController.forward(from: 0);
+                          ref.read(userInfoProvider.notifier).getUserProfiles();
+                          ref.read(walletSummaryProvider.notifier).refresh();
+                        },
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 16),
 
                 // Language
                 Text(
                   AppLocalizations.of(context).label_setting_language,
-                  style: getTextStyle(AppTypo.body14B, AppColors.grey600),
+                  style: PicnicUi.text(
+                    weight: FontWeight.w700,
+                    color: PicnicUi.secondaryText,
+                  ),
                 ),
                 _buildLanguageSelector(),
-                const Divider(color: AppColors.grey200),
+                Divider(color: PicnicUi.border),
 
                 // My artist
                 _buildMyArtist(),
-                const Divider(color: AppColors.grey200),
+                Divider(color: PicnicUi.border),
 
                 // Notice
                 PicnicListItem(
@@ -146,7 +177,11 @@ class _MyPageState extends ConsumerState<MyPage>
                     assetPath: 'assets/icons/arrow_right_style=line.svg',
                     onTap: () => ref
                         .read(navigationInfoProvider.notifier)
-                        .setCurrentMyPage(const NotificationsPage()),
+                        .setCurrentMyPage(
+                          const NotificationsPage(
+                            mode: NotificationsPageMode.embedded,
+                          ),
+                        ),
                   ),
                 // QnA
                 if (data != null && data.id != null)
@@ -156,6 +191,16 @@ class _MyPageState extends ConsumerState<MyPage>
                     onTap: () => ref
                         .read(navigationInfoProvider.notifier)
                         .setCurrentMyPage(QnaThreadListPage(userId: data.id!)),
+                  ),
+
+                if (data?.id != null)
+                  PicnicListItem(
+                    key: const Key('my-page-currency-history'),
+                    leading: AppLocalizations.of(context).wallet_history_title,
+                    assetPath: 'assets/icons/arrow_right_style=line.svg',
+                    onTap: () => ref
+                        .read(navigationInfoProvider.notifier)
+                        .setCurrentMyPage(const CurrencyHistoryPage()),
                   ),
 
                 // Voting History
@@ -225,16 +270,17 @@ class _MyPageState extends ConsumerState<MyPage>
               'assets/icons/header/default_avatar.svg',
               width: 80.w,
               height: 80.w,
-              colorFilter: const ColorFilter.mode(
-                AppColors.grey00,
-                BlendMode.srcIn,
-              ),
+              colorFilter: ColorFilter.mode(PicnicUi.surface, BlendMode.srcIn),
             ),
           ),
           SizedBox(width: 16.w),
-          Text(
-            AppLocalizations.of(context).label_mypage_should_login,
-            style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+          Flexible(
+            child: Text(
+              AppLocalizations.of(context).label_mypage_should_login,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: PicnicUi.text(size: 18, weight: FontWeight.w700),
+            ),
           ),
           SizedBox(width: 16.w),
           SvgPicture.asset(
@@ -242,10 +288,7 @@ class _MyPageState extends ConsumerState<MyPage>
             'assets/icons/setting_style=line.svg',
             width: 20.w,
             height: 20.w,
-            colorFilter: const ColorFilter.mode(
-              AppColors.grey900,
-              BlendMode.srcIn,
-            ),
+            colorFilter: ColorFilter.mode(PicnicUi.ink, BlendMode.srcIn),
           ),
         ],
       ),
@@ -272,9 +315,13 @@ class _MyPageState extends ConsumerState<MyPage>
                   borderRadius: 80.r,
                 ),
                 SizedBox(width: 16.w),
-                Text(
-                  data?.nickname ?? '',
-                  style: getTextStyle(AppTypo.title18B, AppColors.grey900),
+                Flexible(
+                  child: Text(
+                    data?.nickname ?? '',
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: PicnicUi.text(size: 18, weight: FontWeight.w700),
+                  ),
                 ),
                 SizedBox(width: 8.w),
                 SvgPicture.asset(
@@ -282,17 +329,18 @@ class _MyPageState extends ConsumerState<MyPage>
                   'assets/icons/setting_style=line.svg',
                   width: 20.w,
                   height: 20,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.grey900,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(PicnicUi.ink, BlendMode.srcIn),
                 ),
               ],
             );
           },
           loading: () => ui.buildLoadingOverlay(),
           error: (error, stack) {
-            return Text('Error: $error');
+            return PicnicFeedback(
+              inline: true,
+              icon: Icons.error_outline,
+              message: AppLocalizations.of(context).message_error_occurred,
+            );
           },
         ),
       ),
@@ -320,31 +368,33 @@ class _MyPageState extends ConsumerState<MyPage>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 48,
+          // A 48 minimum and a Flexible title (PICNIC-2738): at 2.0x on a 360dp
+          // screen the longest translation pushed the arrow off the row, and
+          // once it wraps it needs more than a fixed 48.
+          ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).label_mypage_my_artist,
-                      style: getTextStyle(AppTypo.body16M),
-                    ),
-                  ],
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context).label_mypage_my_artist,
+                        style: PicnicUi.text(size: 16, weight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
                 ),
                 SvgPicture.asset(
                   package: 'picnic_lib',
                   'assets/icons/arrow_right_style=line.svg',
                   width: 20.w,
                   height: 20,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.grey900,
-                    BlendMode.srcIn,
-                  ),
+                  colorFilter: ColorFilter.mode(PicnicUi.ink, BlendMode.srcIn),
                 ),
               ],
             ),
@@ -356,13 +406,26 @@ class _MyPageState extends ConsumerState<MyPage>
                   child: bookmarkedArtists.when(
                     data: (artists) {
                       if (artists.isEmpty) {
+                        // The slot is a fixed 80 because the artist list and
+                        // its shimmer scroll horizontally and need a bounded
+                        // height. The empty message shares it, so it stays on
+                        // one line and shrinks to fit when it would not:
+                        // wrapped to two lines it needed 104px at 2.0x in the
+                        // longest translations (PICNIC-2738).
                         return Container(
                           alignment: Alignment.center,
-                          child: Text(
-                            AppLocalizations.of(context).label_mypage_no_artist,
-                            style: getTextStyle(
-                              AppTypo.title18B,
-                              AppColors.primary500,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(
+                                context,
+                              ).label_mypage_no_artist,
+                              maxLines: 1,
+                              style: PicnicUi.text(
+                                size: 18,
+                                weight: FontWeight.w700,
+                                color: PicnicUi.actionColor,
+                              ),
                             ),
                           ),
                         );
@@ -377,6 +440,7 @@ class _MyPageState extends ConsumerState<MyPage>
                               imageUrl: artists[index].image ?? '',
                               width: 60,
                               height: 60,
+                              cdnVariant: PicnicCdnImageVariant.avatar,
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ],
@@ -387,14 +451,24 @@ class _MyPageState extends ConsumerState<MyPage>
                       );
                     },
                     loading: () => _buildShimmer(),
-                    error: (error, stack) => Text('Error: $error'),
+                    error: (error, stack) => PicnicFeedback(
+                      inline: true,
+                      icon: Icons.error_outline,
+                      message: AppLocalizations.of(
+                        context,
+                      ).message_error_occurred,
+                    ),
                   ),
                 )
               : Container(
                   alignment: Alignment.center,
                   child: Text(
                     AppLocalizations.of(context).label_mypage_should_login,
-                    style: getTextStyle(AppTypo.title18B, AppColors.primary500),
+                    style: PicnicUi.text(
+                      size: 18,
+                      weight: FontWeight.w700,
+                      color: PicnicUi.actionColor,
+                    ),
                   ),
                 ),
           const SizedBox(height: 16),
@@ -440,7 +514,7 @@ class _MyPageState extends ConsumerState<MyPage>
       onTap: () {
         showModalBottomSheet(
           context: context,
-          backgroundColor: AppColors.grey00,
+          backgroundColor: PicnicUi.surface,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
           ),
@@ -495,7 +569,7 @@ class _MyPageState extends ConsumerState<MyPage>
                       width: 36,
                       height: 4,
                       decoration: BoxDecoration(
-                        color: AppColors.grey100,
+                        color: PicnicUi.border,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     ),
@@ -504,45 +578,82 @@ class _MyPageState extends ConsumerState<MyPage>
                       alignment: Alignment.center,
                       child: Text(
                         AppLocalizations.of(context).title_select_language,
-                        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                        style: PicnicUi.text(size: 16, weight: FontWeight.w700),
                       ),
                     ),
-                    Divider(height: 1, color: AppColors.grey100),
+                    Divider(height: 1, color: PicnicUi.border),
                     Flexible(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 8,
                         ),
+                        // Two columns on wide screens. The cells keep the
+                        // grid's old 3.8:1 size as a minimum but may grow:
+                        // a fixed aspect ratio cut the names from 2.0x on a
+                        // 500dp screen and at 2.6x on every width.
                         child: isWide
-                            ? GridView.builder(
-                                shrinkWrap: true,
-                                gridDelegate:
-                                    const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 2,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                      childAspectRatio: 3.8,
+                            ? LayoutBuilder(
+                                builder: (context, constraints) {
+                                  const spacing = 4.0;
+                                  final cellWidth =
+                                      (constraints.maxWidth - spacing) / 2;
+                                  Widget cell(int index) => ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minHeight: cellWidth / 3.8,
                                     ),
-                                itemCount: entries.length,
-                                itemBuilder: (context, index) {
-                                  final e = entries[index];
-                                  return _buildLanguageOptionItem(
-                                    context,
-                                    e.key,
-                                    e.value,
-                                    currentLanguage,
-                                    handleSelect,
+                                    child: _buildLanguageOptionItem(
+                                      context,
+                                      entries[index].key,
+                                      entries[index].value,
+                                      currentLanguage,
+                                      handleSelect,
+                                    ),
+                                  );
+                                  // GridView applied the vertical safe-area
+                                  // inset on its own; a plain scroll view
+                                  // does not, and the sheet does not avoid the
+                                  // bottom inset, so keep it explicitly.
+                                  return SingleChildScrollView(
+                                    padding: MediaQuery.paddingOf(
+                                      context,
+                                    ).copyWith(left: 0, right: 0),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        for (
+                                          var i = 0;
+                                          i < entries.length;
+                                          i += 2
+                                        ) ...[
+                                          if (i > 0)
+                                            const SizedBox(height: spacing),
+                                          IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(child: cell(i)),
+                                                const SizedBox(width: spacing),
+                                                Expanded(
+                                                  child: i + 1 < entries.length
+                                                      ? cell(i + 1)
+                                                      : const SizedBox(),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
                                   );
                                 },
                               )
                             : ListView.separated(
                                 shrinkWrap: true,
                                 itemCount: entries.length,
-                                separatorBuilder: (_, _) => const Divider(
-                                  height: 1,
-                                  color: AppColors.grey100,
-                                ),
+                                separatorBuilder: (_, _) =>
+                                    SizedBox(height: PicnicUi.vertical(4)),
                                 itemBuilder: (context, index) {
                                   final e = entries[index];
                                   return _buildLanguageOptionItem(
@@ -564,26 +675,18 @@ class _MyPageState extends ConsumerState<MyPage>
           },
         );
       },
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-        decoration: BoxDecoration(
-          color: AppColors.grey00,
-          border: Border.all(color: AppColors.grey200),
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x14000000), // subtle shadow
-              blurRadius: 6,
-              offset: Offset(0, 2),
-            ),
-          ],
+      child: PicnicSurface(
+        radius: 8,
+        padding: EdgeInsets.symmetric(
+          vertical: PicnicUi.vertical(12),
+          horizontal: PicnicUi.horizontal(12),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
               languageLabel(currentLanguage),
-              style: getTextStyle(AppTypo.body14M, AppColors.grey900),
+              style: PicnicUi.text(weight: FontWeight.w500),
             ),
             SvgPicture.asset(
               package: 'picnic_lib',
@@ -608,29 +711,35 @@ class _MyPageState extends ConsumerState<MyPage>
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () => onSelect(langCode),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-        decoration: BoxDecoration(
-          color: AppColors.grey00,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? AppColors.grey200 : AppColors.grey100,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
+        child: PicnicSurface(
+          radius: 8,
+          color: isSelected
+              ? AppColors.primary500.withValues(alpha: 0.06)
+              : PicnicUi.surface,
+          padding: EdgeInsets.symmetric(
+            vertical: PicnicUi.vertical(12),
+            horizontal: PicnicUi.horizontal(16),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: getTextStyle(
-                isSelected ? AppTypo.body14B : AppTypo.body14M,
-                isSelected ? AppColors.grey900 : AppColors.grey600,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: Text(
+                  label,
+                  style: PicnicUi.text(
+                    weight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    color: isSelected ? PicnicUi.ink : PicnicUi.secondaryText,
+                  ),
+                ),
               ),
-            ),
-            if (isSelected)
-              const Icon(Icons.check, color: AppColors.grey900, size: 20),
-          ],
+              if (isSelected) ...[
+                SizedBox(width: PicnicUi.horizontal(8)),
+                Icon(Icons.check, color: PicnicUi.ink, size: 20),
+              ],
+            ],
+          ),
         ),
       ),
     );

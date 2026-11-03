@@ -431,7 +431,7 @@ class AppLocalizationsTh extends AppLocalizations {
   String get label_button_view_policy => 'ดูนโยบาย';
 
   @override
-  String get label_button_vote => 'ลงคะแนนเสียง';
+  String get label_button_vote => 'โหวต';
 
   @override
   String get label_celeb_gallery => 'แกลเลอรีศิลปิน';
@@ -1921,6 +1921,56 @@ class AppLocalizationsTh extends AppLocalizations {
       'การยืนยันตัวตนใช้เวลานานกว่าที่คาดไว้ แต่การซื้อเสร็จสมบูรณ์แล้ว';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'โบนัสอีเวนต์ +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'รางวัลพื้นฐาน';
+
+  @override
+  String get purchase_reward_base_short => 'พื้นฐาน';
+
+  @override
+  String get purchase_reward_event_short => 'อีเวนต์';
+
+  @override
+  String get purchase_reward_product_bonus => 'โบนัสพื้นฐาน';
+
+  @override
+  String get purchase_reward_event_bonus => 'โบนัสอีเวนต์';
+
+  @override
+  String get purchase_reward_expected_total => 'ยอดรวมโดยประมาณ';
+
+  @override
+  String get purchase_reward_total_short => 'รวม';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'คาดว่าหลังซื้อ $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'เป็นจำนวนโดยประมาณ จำนวนสุดท้ายจะยืนยันโดยเซิร์ฟเวอร์เมื่อชำระเงินเสร็จสมบูรณ์';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'ได้รับรวม $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'กำลังตรวจสอบรางวัลของคุณ';
 
   @override
@@ -1943,6 +1993,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'ยอดคงเหลือปัจจุบัน $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'ยอคงเหลือใหม่ $amount';
   }
 
   @override
@@ -2021,4 +2076,11 @@ class AppLocalizationsTh extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'ส่วนที่ได้รับวันที่ 1–14 จะหมดอายุวันที่ 15 ของเดือนถัดไป ส่วนที่ได้รับวันที่ 15–สิ้นเดือนจะหมดอายุเวลา 00:00 น. (KST) วันที่ 15 ของเดือนถัดจากเดือนหน้า';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'การเข้าถึงโฆษณาของบัญชีนี้บนอุปกรณ์นี้ถูกจำกัดชั่วคราว';
+
+  @override
+  String get profile_photo_change => 'เปลี่ยนรูปโปรไฟล์';
 }

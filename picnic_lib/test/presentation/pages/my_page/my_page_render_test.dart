@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/models/vote/artist.dart';
 import 'package:picnic_lib/presentation/pages/my_page/admin_menu_page.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_page.dart';
+import 'package:picnic_lib/presentation/pages/my_page/currency_history_page.dart';
+import 'package:picnic_lib/data/models/wallet/currency_history.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/data/repositories/wallet_repository.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:picnic_lib/presentation/providers/my_page/bookmarked_artists_provider.dart';
 import 'package:picnic_lib/presentation/screens/mypage_screen.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
+import '../../../helpers/load_test_fonts.dart';
 import '../../../helpers/mock_data.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
@@ -19,8 +28,45 @@ class MockBookmarkedArtists extends AsyncBookmarkedArtists {
   Future<List<ArtistModel>> build() async => [];
 }
 
+class _UnusedHistoryClient extends Fake implements SupabaseClient {}
+
+class _MenuHistoryRepository extends WalletRepository {
+  _MenuHistoryRepository() : super(_UnusedHistoryClient());
+  final historyCalls = <WalletCurrency>[];
+  int summaryCalls = 0;
+  @override
+  Future<WalletSummaryModel> getSummary() async => (
+    summaryCalls++,
+    WalletSummaryModel(
+      contractVersion: 'wallet.v1',
+      star: BigInt.zero,
+      bonus: BigInt.zero,
+      cotton: BigInt.zero,
+      cottonExpiringAmount: BigInt.zero,
+      cottonNextExpiresAt: null,
+      snapshotAt: DateTime.utc(2026, 9, 8),
+    ),
+  ).$2;
+  @override
+  Future<CurrencyHistoryPageModel> getHistory({
+    required WalletCurrency currency,
+    String? cursor,
+    int limit = 20,
+  }) async {
+    historyCalls.add(currency);
+    return CurrencyHistoryPageModel(
+      items: [],
+      totalCount: BigInt.zero,
+      nextCursor: null,
+      snapshotAt: DateTime.utc(2026, 9, 8),
+    );
+  }
+}
+
 void main() {
   late void Function() restore;
+
+  setUpAll(loadTestFonts);
 
   setUp(() {
     initTestColors();
@@ -33,7 +79,74 @@ void main() {
     tearDownMockSupabase();
   });
 
+  Future<void> pumpCompactLargeTextMyPage(
+    WidgetTester tester, {
+    required bool loggedIn,
+    String? nickname,
+  }) async {
+    tester.view.devicePixelRatio = 3;
+    tester.view.physicalSize = const Size(320 * 3, 700 * 3);
+    addTearDown(tester.view.reset);
+
+    await pumpWidgetAndIgnoreErrors(
+      tester,
+      buildTestApp(
+        const MyPage(),
+        loggedIn: loggedIn,
+        userProfile: loggedIn
+            ? MockData.userProfile(nickname: nickname, avatarUrl: null)
+            : null,
+        extraOverrides: [
+          asyncBookmarkedArtistsProvider.overrideWith(
+            MockBookmarkedArtists.new,
+          ),
+        ],
+        designSize: kAppDesignSize,
+        splitScreenMode: kAppSplitScreenMode,
+        textScaler: const TextScaler.linear(2),
+      ),
+    );
+    await pumpAndIgnoreErrors(tester);
+    await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+  }
+
   group('MyPage render', () {
+    testWidgets('320px 200% long nickname keeps the profile row usable', (
+      tester,
+    ) async {
+      const nickname = '아주 긴 닉네임을 사용하는 피크닉 팬';
+      await pumpCompactLargeTextMyPage(
+        tester,
+        loggedIn: true,
+        nickname: nickname,
+      );
+
+      final label = find.text(nickname);
+      expect(label, findsOneWidget);
+      final rect = tester.getRect(label);
+      expect(rect.left, greaterThanOrEqualTo(0));
+      expect(rect.right, lessThanOrEqualTo(320));
+    });
+
+    testWidgets(
+      '320px 200% logged-out prompt keeps its trailing action visible',
+      (tester) async {
+        await pumpCompactLargeTextMyPage(tester, loggedIn: false);
+
+        final loggedOutProfile = find.byWidgetPredicate(
+          (widget) => widget is GestureDetector && widget.child is Row,
+        );
+        final prompt = find.descendant(
+          of: loggedOutProfile,
+          matching: find.text('로그인해 주세요'),
+        );
+        expect(prompt, findsOneWidget);
+        final rect = tester.getRect(prompt);
+        expect(rect.left, greaterThanOrEqualTo(0));
+        expect(rect.right, lessThanOrEqualTo(320));
+      },
+    );
+
     testWidgets('renders logged-in state', (WidgetTester tester) async {
       await tester.pumpWidget(
         buildTestAppPage(
@@ -50,42 +163,41 @@ void main() {
       expect(find.byType(MyPage), findsOneWidget);
     });
 
-    testWidgets(
-      'shows the shared candy pouch without history for a regular user',
-      (WidgetTester tester) async {
-        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
-        await tester.pumpWidget(
-          buildTestAppPage(
-            const MyPage(),
-            userProfile: MockData.userProfile(isAdmin: false),
-            extraOverrides: [
-              asyncBookmarkedArtistsProvider.overrideWith(
-                MockBookmarkedArtists.new,
-              ),
-            ],
-          ),
-        );
-        await pumpAndIgnoreErrors(tester);
-        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+    testWidgets('shows candy history and the shared pouch for a regular user', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const MyPage(),
+          userProfile: MockData.userProfile(isAdmin: false),
+          extraOverrides: [
+            asyncBookmarkedArtistsProvider.overrideWith(
+              MockBookmarkedArtists.new,
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
 
-        expect(find.byType(StorePointInfo), findsOneWidget);
-        await tester.scrollUntilVisible(
-          find.text('알림함'),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
-        expect(find.text('알림함'), findsOneWidget);
-        await tester.scrollUntilVisible(
-          find.text('설정'),
-          300,
-          scrollable: find.byType(Scrollable).first,
-        );
-        expect(find.text('캔디 내역'), findsNothing);
-        expect(find.text('관리자'), findsNothing);
-      },
-    );
+      expect(find.byType(StorePointInfo), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('알림함'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.text('알림함'), findsOneWidget);
+      await tester.scrollUntilVisible(
+        find.text('설정'),
+        300,
+        scrollable: find.byType(Scrollable).first,
+      );
+      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
+      expect(find.text('관리자'), findsNothing);
+    });
 
-    testWidgets('shows only the administrator entry for an admin user', (
+    testWidgets('keeps administrator tools separate from public history', (
       WidgetTester tester,
     ) async {
       await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
@@ -110,15 +222,100 @@ void main() {
         300,
         scrollable: find.byType(Scrollable).first,
       );
+      final adminAction = find.ancestor(
+        of: find.text('관리자'),
+        matching: find.byType(InkWell),
+      );
+      await Scrollable.ensureVisible(
+        tester.element(adminAction),
+        alignment: 0.5,
+      );
+      await pumpAndIgnoreErrors(tester);
       expect(find.text('관리자'), findsOneWidget);
-      expect(find.text('캔디 내역'), findsNothing);
+      expect(adminAction.hitTestable(), findsOneWidget);
+      expect(find.byKey(const Key('my-page-currency-history')), findsOneWidget);
       expect(find.text('충전 내역'), findsNothing);
       expect(find.text('Ad Inspector'), findsNothing);
       expect(find.text('Reset & Reload GDPR'), findsNothing);
 
-      await tester.tap(find.text('관리자'));
+      await tester.tap(adminAction);
       await pumpAndIgnoreErrors(tester);
       expect(find.byType(AdminMenuPage), findsOneWidget);
+    });
+
+    testWidgets(
+      'regular user opens history from the menu without prefetching',
+      (tester) async {
+        await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+        final repository = _MenuHistoryRepository();
+        await tester.pumpWidget(
+          buildTestAppPage(
+            const MyPageScreen(),
+            navigation: Navigation.initial(),
+            userProfile: MockData.userProfile(isAdmin: false),
+            extraOverrides: [
+              asyncBookmarkedArtistsProvider.overrideWith(
+                MockBookmarkedArtists.new,
+              ),
+              walletRepositoryProvider.overrideWithValue(repository),
+              walletHistorySessionProvider.overrideWithValue(
+                WalletHistorySession('test-user-id'),
+              ),
+            ],
+          ),
+        );
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+        final entry = find.byKey(const Key('my-page-currency-history'));
+        await tester.scrollUntilVisible(
+          entry,
+          300,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(repository.historyCalls, isEmpty);
+        await tester.tap(entry);
+        await pumpAndIgnoreErrors(tester);
+        await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+        expect(find.byType(CurrencyHistoryPage), findsOneWidget);
+        expect(repository.historyCalls, [WalletCurrency.cottonCandy]);
+      },
+    );
+
+    testWidgets('pouch refresh button re-reads the wallet (PICNIC-2689)', (
+      tester,
+    ) async {
+      // 마이페이지 파우치에만 새로고침 버튼이 빠져 있었다 — 공통 위젯에
+      // onRefresh 를 넘기지 않아서. 스토어·무료충전소와 같은 동작을 보장한다.
+      await setupMockSupabaseWithAuth(const {}, userId: 'test-user-id');
+      final repository = _MenuHistoryRepository();
+      await tester.pumpWidget(
+        buildTestAppPage(
+          const MyPage(),
+          userProfile: MockData.userProfile(isAdmin: false),
+          extraOverrides: [
+            asyncBookmarkedArtistsProvider.overrideWith(
+              MockBookmarkedArtists.new,
+            ),
+            walletRepositoryProvider.overrideWithValue(repository),
+            walletHistorySessionProvider.overrideWithValue(
+              WalletHistorySession('test-user-id'),
+            ),
+          ],
+        ),
+      );
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+
+      final refresh = find.descendant(
+        of: find.byType(StorePointInfo),
+        matching: find.byKey(const Key('store-point-info-refresh')),
+      );
+      expect(refresh, findsOneWidget);
+      final before = repository.summaryCalls;
+      await tester.tap(refresh);
+      await pumpAndIgnoreErrors(tester);
+      await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
+      expect(repository.summaryCalls, before + 1);
     });
 
     testWidgets('renders logged-out state', (WidgetTester tester) async {
@@ -154,7 +351,7 @@ void main() {
       expect(find.text('관리자'), findsNothing);
     });
 
-    testWidgets('keeps 16px and 24px space around the candy pouch', (
+    testWidgets('keeps 16px space above and below the candy pouch', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(
@@ -180,7 +377,7 @@ void main() {
       final nextRect = tester.getRect(find.text('언어 설정'));
 
       expect(pouchRect.top - previousRect.bottom, 16);
-      expect(nextRect.top - pouchRect.bottom, 24);
+      expect(nextRect.top - pouchRect.bottom, 16);
     });
 
     testWidgets('renders admin user with admin menus', (

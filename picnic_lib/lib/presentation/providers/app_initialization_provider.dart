@@ -3,6 +3,8 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part '../../generated/providers/app_initialization_provider.g.dart';
 
+const Object _updateInfoNotProvided = Object();
+
 class AppInitializationState {
   final bool hasNetwork;
   final bool isBanned;
@@ -23,14 +25,16 @@ class AppInitializationState {
     bool? isBanned,
     bool? isInitialized,
     bool? isUpdateRequired,
-    UpdateInfo? updateInfo,
+    Object? updateInfo = _updateInfoNotProvided,
   }) {
     return AppInitializationState(
       hasNetwork: hasNetwork ?? this.hasNetwork,
       isBanned: isBanned ?? this.isBanned,
       isInitialized: isInitialized ?? this.isInitialized,
       isUpdateRequired: isUpdateRequired ?? this.isUpdateRequired,
-      updateInfo: updateInfo ?? this.updateInfo,
+      updateInfo: identical(updateInfo, _updateInfoNotProvided)
+          ? this.updateInfo
+          : updateInfo as UpdateInfo?,
     );
   }
 }
@@ -47,14 +51,14 @@ class AppInitialization extends _$AppInitialization {
     bool? isBanned,
     bool? isInitialized,
     bool? isUpdateRequired,
-    UpdateInfo? updateInfo,
+    Object? updateInfo = _updateInfoNotProvided,
   }) {
     state = state.copyWith(
       hasNetwork: hasNetwork ?? state.hasNetwork,
       isBanned: isBanned ?? state.isBanned,
       isInitialized: isInitialized ?? state.isInitialized,
       isUpdateRequired: isUpdateRequired ?? state.isUpdateRequired,
-      updateInfo: updateInfo ?? state.updateInfo,
+      updateInfo: updateInfo,
     );
   }
 }

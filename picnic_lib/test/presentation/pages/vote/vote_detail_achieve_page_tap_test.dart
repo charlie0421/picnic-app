@@ -275,5 +275,53 @@ void main() {
       expect(find.byType(VotingDialog), findsNothing);
       await settle(tester);
     });
+    testWidgets(
+      'rapid repeated taps while the profile fetch is slow open exactly one voting dialog',
+      (tester) async {
+        // PICNIC-2655: 탭 → 탈퇴 차단 확인(user_profiles 조회) → 다이얼로그
+        // 순서라서, 서버가 느리면 다이얼로그가 뜨기 전까지 행이 계속 탭 가능한
+        // 상태로 남는다. 그 사이의 탭마다 핸들러가 새로 돌아 다이얼로그가
+        // 쌓였다. 조회 응답을 인위적으로 지연시켜 그 창을 열어 두고 세 번
+        // 탭한 뒤, 응답이 도착하면 다이얼로그가 정확히 하나여야 한다.
+        await setupMockSupabaseWithAuth(
+          {
+            ..._fixtures(),
+            'user_profiles': [_userProfileRow('test-user-1')],
+          },
+          userId: 'test-user-1',
+        );
+        await pumpPage(tester, loggedIn: true);
+
+        // 페이지 로딩이 끝난 뒤에만 지연을 건다 — 초기 프로필 로드까지 늦추면
+        // 시나리오와 무관하게 페이지가 멈춘다.
+        tableResponseDelays['user_profiles'] = const Duration(seconds: 2);
+
+        final row = find.byType(AnimatedDigitWidget);
+        expect(row, findsOneWidget);
+        for (var i = 0; i < 3; i++) {
+          await tester.tap(row, warnIfMissed: false);
+          // 제스처만 정리하고 시간은 흘리지 않는다 — 응답은 아직 오지 않았다.
+          await tester.pump();
+        }
+        expect(
+          find.byType(VotingDialog),
+          findsNothing,
+          reason: '응답 전에는 어떤 다이얼로그도 뜨지 않아야 한다',
+        );
+
+        // 지연된 응답 도착 + 다이얼로그 트랜지션.
+        for (var i = 0; i < 4; i++) {
+          await tester.pump(const Duration(seconds: 1));
+          drainExpectedImageErrors(tester);
+        }
+
+        expect(
+          find.byType(VotingDialog),
+          findsOneWidget,
+          reason: '응답을 기다리는 동안의 추가 탭은 무시되어 다이얼로그가 하나만 떠야 한다',
+        );
+        await settle(tester);
+      },
+    );
   });
 }

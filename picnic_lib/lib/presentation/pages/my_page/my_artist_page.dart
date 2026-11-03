@@ -24,8 +24,8 @@ class MyArtistSearchQueryNotifier extends Notifier<String> {
 
 final myArtistSearchQueryProvider =
     NotifierProvider<MyArtistSearchQueryNotifier, String>(
-  MyArtistSearchQueryNotifier.new,
-);
+      MyArtistSearchQueryNotifier.new,
+    );
 
 /// 나의 아티스트 페이지
 ///
@@ -48,13 +48,6 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     super.initState();
 
     logger.i('🎯 MyArtistPage initState called');
-
-    // 페이지 진입 시 검색어 초기화
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        ref.read(myArtistSearchQueryProvider.notifier).set('');
-      }
-    });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       logger.i('🎯 MyArtistPage setting title');
@@ -86,9 +79,9 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     if (title == null) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).setMyPageTitle(
-            pageTitle: title,
-          );
+      ref
+          .read(navigationInfoProvider.notifier)
+          .setMyPageTitle(pageTitle: title);
     });
   }
 
@@ -97,10 +90,7 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     if (!mounted) return;
     // overlay_support의 showSimpleNotification 사용 - 전역적으로 동작
     showSimpleNotification(
-      Text(
-        message,
-        style: const TextStyle(color: Colors.white, fontSize: 14),
-      ),
+      Text(message, style: const TextStyle(color: Colors.white, fontSize: 14)),
       background: AppColors.point500,
       duration: const Duration(seconds: 2),
       slideDismissDirection: DismissDirection.up,
@@ -112,7 +102,9 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
   void _refreshBookmarkedArtists() {
     if (!mounted) return;
     // asyncBookmarkedArtistsProvider를 새로고침하여 MyPage에 반영
-    ref.read(asyncBookmarkedArtistsProvider.notifier).refreshBookmarkedArtists();
+    ref
+        .read(asyncBookmarkedArtistsProvider.notifier)
+        .refreshBookmarkedArtists();
     logger.i('🔖 북마크 아티스트 리스트 새로고침 요청');
   }
 
@@ -123,7 +115,9 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
     _listViewKey.currentState?.updateBookmarkState(artistId, isBookmarked);
     // 캐시 무효화 (다음 페이지 진입 시 서버 데이터 반영)
     SearchService.invalidateCache('artist_fast');
-    logger.i('🔄 북마크 UI 업데이트 - artistId: $artistId, isBookmarked: $isBookmarked');
+    logger.i(
+      '🔄 북마크 UI 업데이트 - artistId: $artistId, isBookmarked: $isBookmarked',
+    );
   }
 
   Future<void> _toggleBookmark(ArtistModel artist) async {
@@ -184,22 +178,30 @@ class _MyArtistPageState extends ConsumerState<MyArtistPage>
   Widget build(BuildContext context) {
     logger.i('🎯 MyArtistPage build called');
 
-    return ArtistSelectListView(
-      key: _listViewKey,
-      searchQueryProvider: myArtistSearchQueryProvider,
-      config: const ArtistSelectConfig(
-        showBookmarkToggle: true,
-        hideSectionHeaderOnSearch: false,
-        bookmarkSectionTitle: '북마크',
-        generalSectionTitle: '전체 아티스트',
-        // 마이아티스트는 K-pop + 뮤지컬 배우 모두 노출
-        searchScope: ArtistSearchScope.kpopAndMusical,
+    return ProviderScope(
+      overrides: [
+        myArtistSearchQueryProvider.overrideWith(
+          MyArtistSearchQueryNotifier.new,
+        ),
+      ],
+      child: ArtistSelectListView(
+        key: _listViewKey,
+        searchQueryProvider: myArtistSearchQueryProvider,
+        config: const ArtistSelectConfig(
+          showBookmarkToggle: true,
+          hideSectionHeaderOnSearch: false,
+          bookmarkSectionTitle: '북마크',
+          generalSectionTitle: '전체 아티스트',
+          // 마이아티스트는 K-pop + 뮤지컬 배우 모두 노출
+          searchScope: ArtistSearchScope.kpopAndMusical,
+        ),
+        onBookmarkToggle: _toggleBookmark,
+        onArtistTap: (artist) {
+          logger.i(
+            'Artist tapped: ${getLocaleTextFromJson(artist.name)} - 북마크 상태: ${artist.isBookmarked}',
+          );
+        },
       ),
-      onBookmarkToggle: _toggleBookmark,
-      onArtistTap: (artist) {
-        logger.i(
-            'Artist tapped: ${getLocaleTextFromJson(artist.name)} - 북마크 상태: ${artist.isBookmarked}');
-      },
     );
   }
 }

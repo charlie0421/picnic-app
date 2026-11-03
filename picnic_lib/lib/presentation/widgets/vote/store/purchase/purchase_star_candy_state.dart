@@ -19,10 +19,12 @@ import 'package:picnic_lib/presentation/dialogs/require_login_dialog.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_v2_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
-import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
 import 'package:picnic_lib/presentation/widgets/error.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/common/reward_breakdown.dart';
@@ -30,7 +32,13 @@ import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_in
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/store_list_tile.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_period_banner.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_reward_preview_view.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/purchase_star_candy_helper.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_feedback.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:uuid/uuid.dart';
 import 'handlers/restore_purchase_handler.dart';
@@ -288,10 +296,27 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
     }
   }
 
+  // PICNIC-2760: the candy boost banner shows a bounded occurrence resolved
+  // from a server snapshot, not a live clock — an occurrence that ends while
+  // this screen stays open (or backgrounded) must not keep being advertised
+  // once the user is looking at the screen again. There is no periodic
+  // ticker here by design (minimal boundary-refresh strategy): resuming the
+  // app and pulling to refresh are the two points where the user is known
+  // to be actively looking at this screen, so a fresh server snapshot is
+  // fetched at both, invalidating the source read (never trusting a cached
+  // envelope) rather than the device clock.
+  void _refreshCandyBoostBoundary() {
+    ref.invalidate(
+      activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+    );
+    ref.invalidate(activePromotionCampaignProvider(PromotionSurface.store));
+  }
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _launchLifecycle.recordResumed();
+      _refreshCandyBoostBoundary();
       return;
     }
     // 비전면 전이는 "결제 시트가 실제로 열렸다"의 증거다 - 정리 후보 판정은
@@ -601,7 +626,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           if (mounted) {
             await _dialogHandler.showSuccessDialog(
               result: result,
-              displayedCampaign: liveAttempt?.displayedCampaign,
+              displayedPromotion: liveAttempt?.displayedPromotion,
             );
           }
         },
@@ -1072,13 +1097,12 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       return;
     }
 
-    // 🔒 구매 확인 다이얼로그 표시
-    final campaigns = ref.read(
-      activePromotionCampaignProvider(PromotionSurface.store),
+    // 🔒 구매 확인 다이얼로그 표시. Capture the same V2-first, exact-code
+    // resolution that renders the product badge. The settled-only selector
+    // fails closed on loading/error instead of advertising retained stale data.
+    final displayedPromotion = paymentBadgePromotionForDisplay(
+      ref.read(paymentBadgePromotionProvider),
     );
-    final displayedCampaign = campaigns.value?.items
-        .where((campaign) => campaign.showInStore)
-        .firstOrNull;
     if (_purchaseAttempts.contains(productId)) {
       await _dialogHandler.showPurchaseAlreadyPendingDialog();
       return;
@@ -1086,14 +1110,15 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     final confirmed = await _dialogHandler.showPurchaseConfirmDialog(
       serverProduct: serverProduct,
       storeProducts: storeProducts,
-      displayedCampaign: displayedCampaign,
+      displayedPromotion: displayedPromotion,
+      currentWallet: ref.read(walletSummaryProvider).unwrapPrevious().value,
     );
 
     if (confirmed == true && context.mounted) {
       final attempt = PurchaseCampaignAttempt(
         attemptId: const Uuid().v4(),
         productId: productId,
-        displayedCampaign: displayedCampaign,
+        displayedPromotion: displayedPromotion,
       );
       if (!_purchaseAttempts.begin(attempt)) {
         await _dialogHandler.showPurchaseAlreadyPendingDialog();
@@ -1437,6 +1462,18 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     // 로그인 상태를 실시간으로 감시
     final userInfo = ref.watch(userInfoProvider);
     final isLoggedIn = userInfo.value != null;
+    final displayedPromotion = paymentBadgePromotionForDisplay(
+      ref.watch(paymentBadgePromotionProvider),
+    );
+    final promotionPeriod = ref
+        .watch(paymentBadgePromotionPeriodProvider)
+        .unwrapPrevious()
+        .value;
+    // PICNIC-2760: a foreground timer for the boost's own server-relative
+    // expiry, so a screen that simply stays open past the occurrence's end
+    // stops advertising it without waiting for resume/pull-to-refresh. See
+    // candyBoostExpiryWatcherProvider's doc comment.
+    ref.watch(candyBoostExpiryWatcherProvider);
 
     return LoadingOverlayWithIcon(
       key: _loadingKey,
@@ -1455,6 +1492,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
           // 파우치(별사탕 파우치)는 walletSummaryProvider 가 그린다. 프로필만
           // 다시 읽으면 파우치가 실패해 있을 때 화면을 당겨도 회복되지 않는다.
           await ref.read(walletSummaryProvider.notifier).refresh();
+          _refreshCandyBoostBoundary();
         },
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -1474,8 +1512,20 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
                       }
                     : null,
               ),
-              const SizedBox(height: 16),
-              const Divider(color: AppColors.grey200, height: 32),
+              if (displayedPromotion != null && promotionPeriod != null) ...[
+                const SizedBox(height: 10),
+                CandyBoostPeriodBanner(
+                  startsAt: promotionPeriod.startsAt,
+                  endsAt: promotionPeriod.endsAt,
+                  bonusPercent: displayedPromotion.multiplierTenths != null
+                      ? (displayedPromotion.multiplierTenths! - 10) * 10
+                      : (displayedPromotion.extraBonusBps ?? 0) ~/ 100,
+                ),
+                const SizedBox(height: 2),
+              ] else
+                // 배너가 없을 때도 배너가 있을 때와 같은 간격 (PICNIC-2689).
+                const SizedBox(height: 10),
+              const Divider(color: AppColors.grey200, height: 14),
               _buildProductsList(),
               const Divider(color: AppColors.grey200, height: 32),
               _buildFooterSection(),
@@ -1493,7 +1543,7 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
       children: [
         Text(
           AppLocalizations.of(context).text_purchase_vat_included,
-          style: getTextStyle(AppTypo.caption12M, AppColors.grey600),
+          style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
         ),
         const SizedBox(height: 2),
       ],
@@ -1523,53 +1573,59 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
   }
 
   Widget _buildStoreProductsError() {
+    final l10n = AppLocalizations.of(context);
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: 24.h),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppLocalizations.of(context).message_store_products_load_failed,
-              textAlign: TextAlign.center,
-              style: getTextStyle(AppTypo.body14M, AppColors.grey600),
-            ),
-            SizedBox(height: 8.h),
-            TextButton(
-              onPressed: () {
-                ref.invalidate(storeProductsProvider);
-              },
-              child: Text(
-                AppLocalizations.of(context).label_retry,
-                style: getTextStyle(AppTypo.body14B, AppColors.primary500),
-              ),
-            ),
-          ],
-        ),
+      padding: EdgeInsets.symmetric(vertical: PicnicUi.vertical(24)),
+      child: PicnicFeedback(
+        message: l10n.message_store_products_load_failed,
+        icon: Icons.error_outline,
+        actionLabel: l10n.label_retry,
+        onAction: () => ref.invalidate(storeProductsProvider),
       ),
     );
   }
 
   Widget _buildShimmer() {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemBuilder: (context, index) => _buildShimmerItem(),
-        separatorBuilder: (context, index) =>
-            const Divider(color: AppColors.grey200, height: 32),
-        itemCount: 5,
+    return ColoredBox(
+      color: PicnicUi.surface,
+      child: Shimmer.fromColors(
+        enabled: !MediaQuery.disableAnimationsOf(context),
+        baseColor: AppColors.grey300,
+        highlightColor: AppColors.grey100,
+        child: ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemBuilder: (context, index) => _buildShimmerItem(),
+          separatorBuilder: (context, index) =>
+              const Divider(color: AppColors.grey200, height: 32),
+          itemCount: 5,
+        ),
       ),
     );
   }
 
   Widget _buildShimmerItem() {
     return ListTile(
-      leading: Container(width: 48.w, height: 48, color: Colors.white),
-      title: Container(height: 16, color: Colors.white),
-      subtitle: Container(height: 16, color: Colors.white),
+      leading: Container(width: 48.w, height: 48, color: PicnicUi.border),
+      title: Container(height: 16, color: PicnicUi.border),
+      subtitle: Container(height: 16, color: PicnicUi.border),
+    );
+  }
+
+  /// The reward this catalog row is expected to pay, promotion included.
+  ///
+  /// The product card and the purchase confirmation must never quote different
+  /// numbers, so both read this one pure computation.
+  PurchaseRewardPreview _rewardPreviewFor(Map<String, dynamic> serverProduct) {
+    // The settled-only selector fails closed on loading/error instead of
+    // advertising retained stale data.
+    final resolved = paymentBadgePromotionForDisplay(
+      ref.watch(paymentBadgePromotionProvider),
+    );
+    return purchaseRewardPreviewForProduct(
+      serverProduct,
+      multiplierTenths: resolved?.multiplierTenths,
+      extraBonusBps: resolved?.extraBonusBps,
     );
   }
 
@@ -1577,21 +1633,49 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
     List<Map<String, dynamic>> serverProducts,
     List<ProductDetails> storeProducts,
   ) {
+    // PICNIC-2687: every row's price button shares the widest label's width
+    // so the column of prices lines up instead of hugging each label.
+    final priceLabels = [
+      for (final serverProduct in serverProducts)
+        _priceLabelFor(serverProduct, storeProducts),
+    ];
+    final actionMinWidth = StoreListTile.uniformActionWidth(
+      context,
+      priceLabels,
+    );
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemBuilder: (BuildContext context, int index) =>
-          _buildProductItem(serverProducts[index], storeProducts),
+      itemBuilder: (BuildContext context, int index) => _buildProductItem(
+        serverProducts[index],
+        storeProducts,
+        priceLabel: priceLabels[index],
+        actionMinWidth: actionMinWidth,
+      ),
       separatorBuilder: (BuildContext context, int index) =>
           const Divider(color: AppColors.grey200, height: 24),
       itemCount: serverProducts.length,
     );
   }
 
-  Widget _buildProductItem(
+  String _priceLabelFor(
     Map<String, dynamic> serverProduct,
     List<ProductDetails> storeProducts,
-  ) {
+  ) => PurchaseStarCandyHelper.productPriceLabel(
+    serverProduct: serverProduct,
+    storeProducts: storeProducts,
+    isAndroid: Platform.isAndroid,
+    inappAppNamePrefix: Environment.inappAppNamePrefix,
+    environment: Environment.currentEnvironment,
+    paymentProductNamespace: Environment.storeQueryNamespace,
+  );
+
+  Widget _buildProductItem(
+    Map<String, dynamic> serverProduct,
+    List<ProductDetails> storeProducts, {
+    required String priceLabel,
+    required double actionMinWidth,
+  }) {
     final productId = serverProduct['id'] as String;
     // 스토어 ID 는 정책에 따라 변형된다 (Android 는 소문자 SKU, iOS 는
     // 접두사). 서버 ID 와의 raw 비교는 Android 에서 구조적으로 false 라
@@ -1610,51 +1694,51 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         !_isInitializing &&
         !_purchaseAttempts.contains(productId);
     final isCurrentProductLoading = _purchaseAttempts.contains(productId);
-    final resolved = ref.watch(paymentBadgePromotionProvider).value;
-    final locale = Localizations.localeOf(context).languageCode;
+    final preview = _rewardPreviewFor(serverProduct);
+    final totalMultiplierTenths = preview.totalMultiplierTenths;
 
     return StoreListTile(
-      icon: Image.asset(
-        package: 'picnic_lib',
-        'assets/icons/store/currency_star_candy.png',
+      icon: buildStarCandyProductImage(
+        productId: productId,
         width: 48.w,
         height: 48,
       ),
       title: Text(
         serverProduct['id'],
-        style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+        style: PicnicUi.text(size: 16, weight: FontWeight.w600),
       ),
-      subtitle: RewardBreakdown(
-        baseAmount: (serverProduct['star_candy'] as num?)?.toInt() ?? 0,
-        // Supabase products uses `star_candy_bonus`; keep the API spelling as
-        // a fallback for older/web catalog payloads.
-        bonusAmount:
-            ((serverProduct['star_candy_bonus'] ??
-                        serverProduct['bonus_star_candy'])
-                    as num?)
-                ?.toInt() ??
-            0,
-      ),
-      badge: resolved == null
-          ? null
-          : CandyBoostBadge(
-              displayName: localizedPromotionDisplayName(
-                resolved.displayName,
-                locale,
-                fallbackCode: resolved.code,
-              ),
-              bonusLabel: resolved.multiplierTenths != null
-                  ? AppLocalizations.of(context).candy_boost_multiplier(
-                      formatCandyBoostMultiplierTenths(
-                        resolved.multiplierTenths!,
-                      ),
-                    )
-                  : (resolved.extraBonusBps == 10000
-                        ? AppLocalizations.of(context).candy_boost_exact_double
-                        : AppLocalizations.of(context).candy_boost_extra_bonus),
+      // An eligible product shows what the event adds and what it ends up
+      // paying; everything else keeps the plain catalog line it always had.
+      subtitle: preview.hasEventBonus
+          ? PurchaseRewardPreviewView(preview: preview)
+          : RewardBreakdown(
+              baseAmount: (serverProduct['star_candy'] as num?)?.toInt() ?? 0,
+              // Supabase products uses `star_candy_bonus`; keep the API
+              // spelling as a fallback for older/web catalog payloads.
+              bonusAmount:
+                  ((serverProduct['star_candy_bonus'] ??
+                              serverProduct['bonus_star_candy'])
+                          as num?)
+                      ?.toInt() ??
+                  0,
             ),
+      // The campaign is named once above the list. A row only carries the
+      // multiplier, and only when the row actually earns one.
+      badge: !preview.hasEventBonus
+          ? null
+          : totalMultiplierTenths == null
+          ? Text(
+              AppLocalizations.of(context).candy_boost_day,
+              style: getTextStyle(AppTypo.caption12B, Colors.white),
+            )
+          : CandyBoostBadge(totalMultiplierTenths: totalMultiplierTenths),
+      isPromoted: preview.hasEventBonus,
+      // Only the promoted layout is allowed to grow: the plain rows keep the
+      // fixed height every other store list has.
+      flexibleHeight: preview.hasEventBonus,
       isLoading: isCurrentProductLoading,
-      buttonText: '${serverProduct['price']} \$',
+      buttonText: priceLabel,
+      actionMinWidth: actionMinWidth,
       buttonOnPressed: isButtonEnabled
           ? () => _handleBuyButtonPressed(context, serverProduct, storeProducts)
           : null,

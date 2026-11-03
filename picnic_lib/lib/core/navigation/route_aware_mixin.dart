@@ -10,13 +10,30 @@ mixin RouteAwareStateMixin<T extends StatefulWidget> on State<T>
     implements RouteAware {
   RouteObserver<PageRoute<dynamic>> get routeObserver => appRouteObserver;
 
+  PageRoute<dynamic>? _subscribedRoute;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    if (_subscribedRoute != null) return;
 
-    final route = ModalRoute.of(context);
-    if (route is PageRoute<dynamic>) {
-      routeObserver.subscribe(this, route);
+    // 구독 대상 라우트는 옵저버가 추적하는 최상단 PageRoute 로 정한다.
+    // `ModalRoute.of(context)` 를 쓰면 이 State 가 라우트 상태(isCurrent 등)에
+    // 영구 의존하게 되어, 다이얼로그가 열리고 닫힐 때마다 스택의 모든
+    // 페이지에 didChangeDependencies 가 돌고 각 페이지가 settingNavigation 을
+    // 다시 호출해 마지막 호출이 이기는 경합이 생긴다(PICNIC-777).
+    final observer = routeObserver;
+    PageRoute<dynamic>? route = observer is AppRouteObserver
+        ? observer.currentPageRoute
+        : null;
+    if (route == null) {
+      // 옵저버가 Navigator 에 붙지 않은 하네스(대부분의 위젯 테스트)용 폴백.
+      final modalRoute = ModalRoute.of(context);
+      if (modalRoute is PageRoute<dynamic>) route = modalRoute;
+    }
+    if (route != null) {
+      _subscribedRoute = route;
+      observer.subscribe(this, route);
     }
   }
 
@@ -62,5 +79,3 @@ mixin RouteAwareStateMixin<T extends StatefulWidget> on State<T>
     onRoutePopNext();
   }
 }
-
-

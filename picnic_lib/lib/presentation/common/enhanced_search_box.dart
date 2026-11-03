@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
-import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 /// 향상된 검색 박스 위젯
 /// 디바운싱, 검색 히스토리, 자동완성 등의 기능을 제공
@@ -116,40 +115,92 @@ class EnhancedSearchBox extends StatefulWidget {
 class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
   late TextEditingController _controller;
   late FocusNode _focusNode;
+  late bool _ownsController;
+  late bool _ownsFocusNode;
   Timer? _debounceTimer;
+  String? _pendingSearchText;
   String _previousText = '';
 
   @override
   void initState() {
     super.initState();
+    _ownsController = widget.controller == null;
     _controller = widget.controller ?? TextEditingController();
+    _ownsFocusNode = widget.focusNode == null;
     _focusNode = widget.focusNode ?? FocusNode();
 
     // 초기값이 있으면 설정
     if (widget.initialValue != null && widget.initialValue!.isNotEmpty) {
       _controller.text = widget.initialValue!;
-      _previousText = widget.initialValue!;
     }
+    _previousText = _controller.text;
 
     _controller.addListener(_onTextChanged);
 
     if (widget.autofocus) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        _focusNode.requestFocus();
-      });
+      _requestFocusAfterFrame();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant EnhancedSearchBox oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.controller != widget.controller) {
+      _cancelPendingSearch();
+      _controller.removeListener(_onTextChanged);
+      if (_ownsController) {
+        _controller.dispose();
+      }
+
+      _ownsController = widget.controller == null;
+      _controller =
+          widget.controller ??
+          TextEditingController(text: widget.initialValue ?? '');
+      _previousText = _controller.text;
+      _controller.addListener(_onTextChanged);
+    }
+
+    if (oldWidget.focusNode != widget.focusNode) {
+      if (_ownsFocusNode) {
+        _focusNode.dispose();
+      }
+      _ownsFocusNode = widget.focusNode == null;
+      _focusNode = widget.focusNode ?? FocusNode();
+    }
+
+    if (widget.autofocus &&
+        (!oldWidget.autofocus || oldWidget.focusNode != widget.focusNode)) {
+      _requestFocusAfterFrame();
     }
   }
 
   @override
   void dispose() {
-    _debounceTimer?.cancel();
-    if (widget.controller == null) {
+    _cancelPendingSearch();
+    _controller.removeListener(_onTextChanged);
+    if (_ownsController) {
       _controller.dispose();
     }
-    if (widget.focusNode == null) {
+    if (_ownsFocusNode) {
       _focusNode.dispose();
     }
     super.dispose();
+  }
+
+  void _requestFocusAfterFrame() {
+    final focusNode = _focusNode;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && identical(_focusNode, focusNode)) {
+        focusNode.requestFocus();
+      }
+    });
+  }
+
+  void _cancelPendingSearch() {
+    _debounceTimer?.cancel();
+    _debounceTimer = null;
+    _pendingSearchText = null;
   }
 
   void _onTextChanged() {
@@ -157,7 +208,8 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
     // 디버깅 로그 추가
     logger.d(
-        '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"');
+      '🔥 [EnhancedSearchBox] _onTextChanged called with text: "$currentText"',
+    );
     logger.d('🔥 [EnhancedSearchBox] Previous text was: "$_previousText"');
 
     // 텍스트가 실제로 변경된 경우에만 처리
@@ -165,20 +217,26 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
       _previousText = currentText;
 
       logger.d(
-          '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer');
+        '🔥 [EnhancedSearchBox] Text actually changed, starting debounce timer',
+      );
 
       // 기존 타이머 취소
       _debounceTimer?.cancel();
+      _pendingSearchText = currentText;
 
       // 새로운 타이머 시작
       _debounceTimer = Timer(widget.debounceTime, () {
         logger.d(
-            '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"');
-        if (mounted && widget.onSearchChanged != null) {
-          widget.onSearchChanged!(currentText);
+          '🔥 [EnhancedSearchBox] Debounce timer fired, calling onSearchChanged with: "$currentText"',
+        );
+        if (mounted && _pendingSearchText == currentText) {
+          _debounceTimer = null;
+          _pendingSearchText = null;
+          widget.onSearchChanged?.call(currentText);
         } else {
           logger.d(
-              '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null');
+            '🔥 [EnhancedSearchBox] Widget not mounted or onSearchChanged is null',
+          );
         }
       });
 
@@ -190,13 +248,19 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
   }
 
   void _onSubmitted(String value) {
-    _debounceTimer?.cancel();
+    if (!widget.enabled) return;
+    final pendingSearchText = _pendingSearchText;
+    _cancelPendingSearch();
+    if (pendingSearchText != null) {
+      widget.onSearchChanged?.call(pendingSearchText);
+    }
     widget.onSearchSubmitted?.call(value);
   }
 
   void _onClear() {
+    if (!widget.enabled || _controller.text.isEmpty) return;
     _controller.clear();
-    _debounceTimer?.cancel();
+    _cancelPendingSearch();
     widget.onClear?.call();
     widget.onSearchChanged?.call('');
     // 키보드 숨기기
@@ -205,85 +269,111 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
   @override
   Widget build(BuildContext context) {
-    final boxHeight = widget.height ?? 48.h;
-    final iconSize = widget.height != null ? (widget.height! * 0.5) : 20.w;
+    final requestedHeight = widget.height ?? PicnicUi.minimumTapTarget;
+    final minimumHeight = requestedHeight < PicnicUi.minimumTapTarget
+        ? PicnicUi.minimumTapTarget
+        : requestedHeight;
+    final iconSize = widget.height != null ? (widget.height! * 0.5) : 20.0;
 
-    return Container(
-      height: boxHeight,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: widget.borderColor ?? AppColors.primary500,
-          width: 1.r,
-        ),
-        borderRadius: widget.borderRadius ?? BorderRadius.circular(boxHeight / 2),
-        color: widget.backgroundColor ?? AppColors.grey00,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // 검색 아이콘 또는 커스텀 prefix 아이콘
-          if (widget.showSearchIcon || widget.prefixIcon != null)
-            _buildPrefixIcon(iconSize),
-
-          // 텍스트 입력 필드
-          Expanded(
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              enabled: widget.enabled,
-              maxLength: widget.maxLength,
-              textInputAction: widget.textInputAction,
-              keyboardType: widget.keyboardType,
-              textAlignVertical: TextAlignVertical.center,
-              style: widget.style ??
-                  getTextStyle(AppTypo.body16R, AppColors.grey900),
-              decoration: InputDecoration(
-                hintText: widget.hintText,
-                hintStyle: widget.hintStyle ??
-                    getTextStyle(AppTypo.body16R, AppColors.grey300),
-                border: InputBorder.none,
-                contentPadding: widget.contentPadding ??
-                    EdgeInsets.zero,
-                counterText: '',
-                isDense: true,
-                isCollapsed: true,
-              ),
-              onSubmitted: _onSubmitted,
-            ),
+    return AnimatedBuilder(
+      animation: _focusNode,
+      builder: (context, _) {
+        final borderColor =
+            widget.borderColor ??
+            (widget.enabled && _focusNode.hasFocus
+                ? PicnicUi.actionColor
+                : widget.enabled
+                ? PicnicUi.inputBorder
+                : PicnicUi.border);
+        return Container(
+          constraints: BoxConstraints(minHeight: minimumHeight),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor),
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(14),
+            color:
+                widget.backgroundColor ??
+                (widget.enabled ? PicnicUi.surface : PicnicUi.disabledSurface),
           ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 검색 아이콘 또는 커스텀 prefix 아이콘
+              if (widget.showSearchIcon || widget.prefixIcon != null)
+                _buildPrefixIcon(iconSize),
 
-          // 클리어 버튼 또는 커스텀 suffix 아이콘
-          if (widget.showClearButton || widget.suffixIcon != null)
-            _buildSuffixIcon(iconSize),
-        ],
-      ),
+              // 텍스트 입력 필드
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  enabled: widget.enabled,
+                  maxLength: widget.maxLength,
+                  textInputAction: widget.textInputAction,
+                  keyboardType: widget.keyboardType,
+                  textAlignVertical: TextAlignVertical.center,
+                  style:
+                      widget.style ??
+                      PicnicUi.text(
+                        color: widget.enabled
+                            ? PicnicUi.ink
+                            : PicnicUi.secondaryText,
+                      ),
+                  decoration: InputDecoration(
+                    hintText: widget.hintText,
+                    hintStyle:
+                        widget.hintStyle ??
+                        PicnicUi.text(color: PicnicUi.quietText),
+                    border: InputBorder.none,
+                    contentPadding:
+                        widget.contentPadding ??
+                        EdgeInsets.symmetric(vertical: PicnicUi.vertical(8)),
+                    counterText: '',
+                    isDense: true,
+                  ),
+                  onSubmitted: _onSubmitted,
+                ),
+              ),
+
+              // 클리어 버튼 또는 커스텀 suffix 아이콘
+              if (widget.showClearButton || widget.suffixIcon != null)
+                _buildSuffixIcon(iconSize),
+            ],
+          ),
+        );
+      },
     );
   }
 
   Widget _buildPrefixIcon(double iconSize) {
     if (widget.prefixIcon != null) {
-      return Padding(
-        padding: EdgeInsets.only(left: 12.w, right: 8.w),
-        child: widget.prefixIcon!,
+      return SizedBox.square(
+        dimension: PicnicUi.minimumTapTarget,
+        child: Center(child: widget.prefixIcon),
       );
     }
 
-    return GestureDetector(
-      onTap: () {
-        if (_controller.text.isNotEmpty) {
-          _onSubmitted(_controller.text);
-        }
-      },
-      child: Padding(
-        padding: EdgeInsets.only(left: 12.w, right: 8.w),
-        child: SvgPicture.asset(
-          package: 'picnic_lib',
-          'assets/icons/vote/search_icon.svg',
-          width: iconSize,
-          height: iconSize,
-          colorFilter: ColorFilter.mode(
-            widget.enabled ? AppColors.grey700 : AppColors.grey300,
-            BlendMode.srcIn,
+    final canSubmit = widget.enabled && _controller.text.isNotEmpty;
+    return Semantics(
+      button: true,
+      enabled: canSubmit,
+      label: MaterialLocalizations.of(context).searchFieldLabel,
+      child: GestureDetector(
+        key: const ValueKey('enhanced-search-submit'),
+        behavior: HitTestBehavior.opaque,
+        onTap: canSubmit ? () => _onSubmitted(_controller.text) : null,
+        child: SizedBox.square(
+          dimension: PicnicUi.minimumTapTarget,
+          child: Center(
+            child: SvgPicture.asset(
+              package: 'picnic_lib',
+              'assets/icons/vote/search_icon.svg',
+              width: iconSize,
+              height: iconSize,
+              colorFilter: ColorFilter.mode(
+                canSubmit ? PicnicUi.actionColor : PicnicUi.quietText,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ),
       ),
@@ -292,27 +382,34 @@ class _EnhancedSearchBoxState extends State<EnhancedSearchBox> {
 
   Widget _buildSuffixIcon(double iconSize) {
     if (widget.suffixIcon != null) {
-      return Padding(
-        padding: EdgeInsets.only(left: 8.w, right: 12.w),
-        child: widget.suffixIcon!,
+      return SizedBox.square(
+        dimension: PicnicUi.minimumTapTarget,
+        child: Center(child: widget.suffixIcon),
       );
     }
 
-    return GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: widget.enabled ? _onClear : null,
-      child: Padding(
-        padding: EdgeInsets.only(left: 8.w, right: 12.w),
-        child: SvgPicture.asset(
-          package: 'picnic_lib',
-          'assets/icons/cancel_style=fill.svg',
-          width: iconSize,
-          height: iconSize,
-          colorFilter: ColorFilter.mode(
-            _controller.text.isNotEmpty && widget.enabled
-                ? AppColors.grey700
-                : AppColors.grey200,
-            BlendMode.srcIn,
+    final canClear = widget.enabled && _controller.text.isNotEmpty;
+    return Semantics(
+      button: true,
+      enabled: canClear,
+      label: MaterialLocalizations.of(context).deleteButtonTooltip,
+      child: GestureDetector(
+        key: const ValueKey('enhanced-search-clear'),
+        behavior: HitTestBehavior.opaque,
+        onTap: canClear ? _onClear : null,
+        child: SizedBox.square(
+          dimension: PicnicUi.minimumTapTarget,
+          child: Center(
+            child: SvgPicture.asset(
+              package: 'picnic_lib',
+              'assets/icons/cancel_style=fill.svg',
+              width: iconSize,
+              height: iconSize,
+              colorFilter: ColorFilter.mode(
+                canClear ? PicnicUi.actionColor : PicnicUi.border,
+                BlendMode.srcIn,
+              ),
+            ),
           ),
         ),
       ),

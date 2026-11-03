@@ -1,11 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/core/services/notification_inbox_service.dart';
+import 'package:picnic_lib/data/storage/broadcast_notification_read_store.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
 import 'package:picnic_lib/presentation/pages/notifications/notifications_page.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_supabase.dart';
 import '../../../helpers/test_app.dart';
 import '../../../helpers/test_environment.dart';
+
+class _MemoryStorage implements LocalStorage {
+  final Map<String, String> values = {};
+
+  @override
+  Future<String?> loadData(String key, String? defaultValue) async =>
+      values[key] ?? defaultValue;
+
+  @override
+  Future<void> saveData(String key, String value) async => values[key] = value;
+
+  @override
+  Future<void> removeData(String key) async => values.remove(key);
+
+  @override
+  Future<void> clearStorage() async => values.clear();
+}
+
+NotificationInboxService _service() => NotificationInboxService(
+  readStore: BroadcastNotificationReadStore(storage: _MemoryStorage()),
+);
 
 void main() {
   late void Function() restore;
@@ -29,16 +53,19 @@ void main() {
     // FlutterErrorDetails 째로 잡혀서, 진짜 결함일 때 "어느 위젯이 원인인지"까지
     // 보고된다. raw pumpWidget 으로 먼저 그리면 그 정보가 사라진다.
     await pumpWidgetAndIgnoreErrors(tester, widget);
-    await tester.pump(const Duration(seconds: 1));
-    drainExpectedImageErrors(tester);
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+      drainExpectedImageErrors(tester);
+    }
   }
 
   group('NotificationsPage render - structural elements', () {
-    testWidgets('renders Scaffold with AppBar and back button',
-        (WidgetTester tester) async {
+    testWidgets('renders Scaffold with AppBar and back button', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       expect(find.byType(NotificationsPage), findsOneWidget);
@@ -47,25 +74,27 @@ void main() {
       expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     });
 
-    testWidgets('renders mark all read TextButton in AppBar',
-        (WidgetTester tester) async {
+    testWidgets('renders mark all read TextButton in AppBar', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       expect(find.byType(TextButton), findsOneWidget);
     });
 
-    testWidgets('renders RefreshIndicator with ListView',
-        (WidgetTester tester) async {
+    testWidgets('renders RefreshIndicator with true-empty CustomScrollView', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       expect(find.byType(RefreshIndicator), findsOneWidget);
-      expect(find.byType(ListView), findsOneWidget);
+      expect(find.byType(CustomScrollView), findsOneWidget);
     });
   });
 
@@ -74,7 +103,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           locale: const Locale('ko'),
         ),
       );
@@ -86,7 +115,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           locale: const Locale('en'),
         ),
       );
@@ -98,7 +127,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestAppPage(
-          const NotificationsPage(),
+          NotificationsPage(service: _service()),
           locale: const Locale('ja'),
         ),
       );
@@ -108,11 +137,12 @@ void main() {
   });
 
   group('NotificationsPage render - interactions', () {
-    testWidgets('tapping mark all read button does not crash',
-        (WidgetTester tester) async {
+    testWidgets('tapping mark all read button does not crash', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       final markAllBtn = find.byType(TextButton);
@@ -124,14 +154,15 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('pull to refresh triggers reload without crash',
-        (WidgetTester tester) async {
+    testWidgets('pull to refresh triggers reload without crash', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
-      await tester.drag(find.byType(ListView), const Offset(0, 300));
+      await tester.drag(find.byType(CustomScrollView), const Offset(0, 300));
       await tester.pump();
       await tester.pump(const Duration(seconds: 1));
       drainExpectedImageErrors(tester);
@@ -139,11 +170,12 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('back button is present and tappable',
-        (WidgetTester tester) async {
+    testWidgets('back button is present and tappable', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       final backBtn = find.byIcon(Icons.arrow_back);
@@ -152,9 +184,10 @@ void main() {
   });
 
   group('NotificationsPage render - with auth and notifications data', () {
-    testWidgets('renders with authenticated user and notifications',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders with authenticated user and notifications', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 1,
@@ -175,7 +208,9 @@ void main() {
             'body': {'ko': '새 댓글이 달렸습니다', 'en': 'New comment'},
             'type': 'post',
             'is_read': true,
-            'created_at': DateTime.now().subtract(const Duration(hours: 1)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 1))
+                .toIso8601String(),
             'read_at': DateTime.now().toIso8601String(),
             'action_url': null,
             'data': {'post_id': 'abc-123'},
@@ -187,7 +222,9 @@ void main() {
             'body': {'ko': '답변이 등록되었습니다', 'en': 'Answer posted'},
             'type': 'qna',
             'is_read': false,
-            'created_at': DateTime.now().subtract(const Duration(hours: 2)).toIso8601String(),
+            'created_at': DateTime.now()
+                .subtract(const Duration(hours: 2))
+                .toIso8601String(),
             'read_at': null,
             'action_url': null,
             'data': {'question_id': '42'},
@@ -198,7 +235,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -208,9 +245,10 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('renders with emoji notifications and auth',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders with emoji notifications and auth', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 10,
@@ -230,7 +268,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -239,9 +277,10 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('renders with action URL notifications and auth',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders with action URL notifications and auth', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 20,
@@ -261,7 +300,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -270,8 +309,9 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('renders with many mixed read/unread notifications',
-        (WidgetTester tester) async {
+    testWidgets('renders with many mixed read/unread notifications', (
+      WidgetTester tester,
+    ) async {
       final manyNotifs = List.generate(
         10,
         (i) => {
@@ -281,7 +321,9 @@ void main() {
           'body': {'ko': '내용 ${i + 1}', 'en': 'Body ${i + 1}'},
           'type': i % 3 == 0 ? 'vote' : (i % 3 == 1 ? 'post' : 'qna'),
           'is_read': i % 2 == 0,
-          'created_at': DateTime.now().subtract(Duration(hours: i)).toIso8601String(),
+          'created_at': DateTime.now()
+              .subtract(Duration(hours: i))
+              .toIso8601String(),
           'read_at': i % 2 == 0 ? DateTime.now().toIso8601String() : null,
           'action_url': null,
           'data': i % 3 == 0
@@ -290,14 +332,14 @@ void main() {
         },
       );
 
-      setupMockSupabaseWithAuth({
+      await setupMockSupabaseWithAuth({
         'user_notifications': manyNotifs,
         'broadcast_notifications': <Map<String, dynamic>>[],
       }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -306,9 +348,10 @@ void main() {
       expect(find.byType(NotificationsPage), findsOneWidget);
     });
 
-    testWidgets('renders with answer_created and question_created types',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders with answer_created and question_created types', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': [
           {
             'id': 1,
@@ -340,7 +383,7 @@ void main() {
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));
@@ -351,16 +394,17 @@ void main() {
   });
 
   group('NotificationsPage render - empty state', () {
-    testWidgets('renders empty list with authenticated user',
-        (WidgetTester tester) async {
-      setupMockSupabaseWithAuth({
+    testWidgets('renders empty list with authenticated user', (
+      WidgetTester tester,
+    ) async {
+      await setupMockSupabaseWithAuth({
         'user_notifications': <Map<String, dynamic>>[],
         'broadcast_notifications': <Map<String, dynamic>>[],
       }, userId: 'test-user-id');
 
       await pumpAndDrain(
         tester,
-        buildTestAppPage(const NotificationsPage()),
+        buildTestAppPage(NotificationsPage(service: _service())),
       );
 
       await tester.pump(const Duration(seconds: 1));

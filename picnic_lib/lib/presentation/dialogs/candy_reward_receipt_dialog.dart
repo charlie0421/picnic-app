@@ -3,6 +3,8 @@ import 'package:intl/intl.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_palette.dart';
+import 'package:picnic_lib/ui/style.dart';
 
 Future<void> showCandyRewardReceiptDialog(
   BuildContext context,
@@ -39,16 +41,26 @@ class CandyRewardReceiptDialog extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  l10n.candy_reward_receipt_title,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+                Container(
+                  key: const Key('reward-celebration-hero'),
+                  width: double.infinity,
+                  decoration: const BoxDecoration(color: Colors.white),
+                  child: Text(
+                    l10n.candy_reward_receipt_title,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 18),
                 ...receipt.items.map(
-                  (item) => CandyRewardReceiptRow(item: item),
+                  (item) => CandyRewardReceiptRow(
+                    item: item,
+                    isPurchaseReceipt: receipt.referenceKey.startsWith(
+                      'PURCHASE:',
+                    ),
+                  ),
                 ),
                 if (supportingMessage != null) ...[
                   const SizedBox(height: 12),
@@ -62,6 +74,7 @@ class CandyRewardReceiptDialog extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton(
+                    key: const Key('reward-confirm-cta'),
                     onPressed: () => Navigator.of(context).pop(),
                     child: Text(l10n.candy_reward_receipt_confirm),
                   ),
@@ -76,9 +89,14 @@ class CandyRewardReceiptDialog extends StatelessWidget {
 }
 
 class CandyRewardReceiptRow extends StatelessWidget {
-  const CandyRewardReceiptRow({super.key, required this.item});
+  const CandyRewardReceiptRow({
+    super.key,
+    required this.item,
+    required this.isPurchaseReceipt,
+  });
 
   final CandyRewardReceiptItem item;
+  final bool isPurchaseReceipt;
 
   @override
   Widget build(BuildContext context) {
@@ -99,18 +117,40 @@ class CandyRewardReceiptRow extends StatelessWidget {
         : l10n.candy_reward_receipt_expiry(
             _formatExpiry(context, item.expiresAt!),
           );
+    final splitLines = item.parts
+        .map(
+          (part) =>
+              '${_partLabel(l10n, part.kind)} '
+              '${l10n.purchase_reward_plus_amount(_formatAmount(context, part.amount))}',
+        )
+        .toList(growable: false);
+    final isBonus = item.currency == WalletCurrency.bonusStarCandy;
+    final accent = isBonus ? kCandyBoostPink : kCandyBoostPurple;
 
     return Semantics(
       container: true,
-      label: expiry == null
-          ? baseSemantics
-          : l10n.candy_reward_receipt_semantics_with_expiry(
-              baseSemantics,
-              expiry,
-            ),
+      // `..._with_expiry` is just this locale's way of joining two clauses;
+      // the split lines are appended with the same joiner so a screen reader
+      // hears the same breakdown a sighted user sees.
+      label:
+          [
+            if (expiry == null)
+              baseSemantics
+            else
+              l10n.candy_reward_receipt_semantics_with_expiry(
+                baseSemantics,
+                expiry,
+              ),
+            ...splitLines,
+          ].reduce(
+            (joined, next) =>
+                l10n.candy_reward_receipt_semantics_with_expiry(joined, next),
+          ),
       excludeSemantics: true,
-      child: Padding(
+      child: Container(
+        key: Key('reward-card-${item.currency.wireValue}'),
         padding: const EdgeInsets.symmetric(vertical: 10),
+        decoration: const BoxDecoration(color: Colors.white),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -129,27 +169,88 @@ class CandyRewardReceiptRow extends StatelessWidget {
                 children: [
                   Text(
                     currency,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey800),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    l10n.candy_reward_receipt_amount(granted),
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  if (isBonus && item.parts.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      '${l10n.purchase_reward_total_short} $granted',
+                      style: getTextStyle(AppTypo.body16B, kCandyBoostPurple),
                     ),
-                  ),
-                  const SizedBox(height: 4),
+                  ] else ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      l10n.candy_reward_receipt_amount(granted),
+                      style: getTextStyle(AppTypo.title18B, accent),
+                    ),
+                  ],
+                  if (item.parts.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: Row(
+                        children: [
+                          for (
+                            var index = 0;
+                            index < item.parts.length;
+                            index++
+                          ) ...[
+                            if (index > 0)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                ),
+                                child: Text(
+                                  '+',
+                                  style: getTextStyle(
+                                    AppTypo.body14B,
+                                    AppColors.grey500,
+                                  ),
+                                ),
+                              ),
+                            _ReceiptProvenanceChip(
+                              key: Key(
+                                item.parts[index].kind ==
+                                        CandyRewardPartKind.productBonus
+                                    ? 'reward-provenance-chip-product'
+                                    : 'reward-provenance-chip-event',
+                              ),
+                              label: _partShortLabel(
+                                l10n,
+                                item.parts[index].kind,
+                              ),
+                              amount: _formatAmount(
+                                context,
+                                item.parts[index].amount,
+                              ),
+                              emphasized:
+                                  item.parts[index].kind ==
+                                  CandyRewardPartKind.eventBonus,
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 6),
                   Text(
                     balance == null
                         ? l10n.candy_reward_receipt_balance_unavailable
+                        : isPurchaseReceipt
+                        ? l10n.candy_reward_receipt_purchase_balance(balance)
                         : l10n.candy_reward_receipt_balance(balance),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: getTextStyle(AppTypo.body14B, AppColors.grey900),
                   ),
                   if (expiry != null) ...[
-                    const SizedBox(height: 4),
-                    Text(expiry, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 6),
+                    Text(
+                      expiry,
+                      style: getTextStyle(
+                        AppTypo.caption10R,
+                        AppColors.grey600,
+                      ),
+                    ),
                   ],
                 ],
               ),
@@ -161,11 +262,59 @@ class CandyRewardReceiptRow extends StatelessWidget {
   }
 }
 
+class _ReceiptProvenanceChip extends StatelessWidget {
+  const _ReceiptProvenanceChip({
+    super.key,
+    required this.label,
+    required this.amount,
+    required this.emphasized,
+  });
+
+  final String label;
+  final String amount;
+  final bool emphasized;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = emphasized ? kCandyBoostPink : kCandyBoostPurple;
+    final backgroundColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .08)
+        : AppColors.grey100;
+    final borderColor = emphasized
+        ? kCandyBoostPink.withValues(alpha: .16)
+        : AppColors.grey300;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor),
+      ),
+      child: Text(
+        '$label $amount',
+        style: getTextStyle(AppTypo.caption12B, color),
+      ),
+    );
+  }
+}
+
 String _currencyLabel(AppLocalizations l10n, WalletCurrency currency) =>
     switch (currency) {
       WalletCurrency.starCandy => l10n.wallet_star_candy,
       WalletCurrency.bonusStarCandy => l10n.wallet_bonus_star_candy,
       WalletCurrency.cottonCandy => l10n.wallet_cotton_candy,
+    };
+
+String _partLabel(AppLocalizations l10n, CandyRewardPartKind kind) =>
+    switch (kind) {
+      CandyRewardPartKind.productBonus => l10n.purchase_reward_product_bonus,
+      CandyRewardPartKind.eventBonus => l10n.purchase_reward_event_bonus,
+    };
+
+String _partShortLabel(AppLocalizations l10n, CandyRewardPartKind kind) =>
+    switch (kind) {
+      CandyRewardPartKind.productBonus => l10n.purchase_reward_base_short,
+      CandyRewardPartKind.eventBonus => l10n.purchase_reward_event_short,
     };
 
 String _currencyAsset(WalletCurrency currency) => switch (currency) {

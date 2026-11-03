@@ -941,7 +941,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get reward => 'Recompensas';
 
   @override
-  String get save => 'Ahorrar';
+  String get save => 'Guardar';
 
   @override
   String get seconds => 'artículos de segunda clase';
@@ -1970,6 +1970,56 @@ class AppLocalizationsEs extends AppLocalizations {
       'La autenticación tardó más de lo esperado, pero la compra se completó correctamente.';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'Bono del evento +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => 'Recompensa base';
+
+  @override
+  String get purchase_reward_base_short => 'Base';
+
+  @override
+  String get purchase_reward_event_short => 'Evento';
+
+  @override
+  String get purchase_reward_product_bonus => 'Bonificación base';
+
+  @override
+  String get purchase_reward_event_bonus => 'Bono del evento';
+
+  @override
+  String get purchase_reward_expected_total => 'Total estimado';
+
+  @override
+  String get purchase_reward_total_short => 'Total';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return 'Saldo actual $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return 'Previsto tras la compra $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      'Es una estimación. El servidor confirma la cantidad final cuando se completa el pago.';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return 'Total recibido $amount';
+  }
+
+  @override
   String get ad_reward_pending => 'Verificando tu recompensa';
 
   @override
@@ -1992,6 +2042,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return 'Saldo actual $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return 'Nuevo saldo $amount';
   }
 
   @override
@@ -2071,4 +2126,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       'Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.';
+
+  @override
+  String get profile_photo_change => 'Cambiar foto de perfil';
 }

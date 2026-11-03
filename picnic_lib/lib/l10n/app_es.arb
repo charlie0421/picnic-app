@@ -1194,7 +1194,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "Ahorrar",
+  "save": "Guardar",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -2444,6 +2444,19 @@
   "candy_boost_promotion_checking": "Verificando la promoción",
   "candy_boost_purchase_pending": "Ya hay una compra de este producto en proceso.",
   "candy_boost_late_purchase_explanation": "La autenticación tardó más de lo esperado, pero la compra se completó correctamente.",
+  "candy_boost_total_multiplier": "Bono del evento +{multiplier}%",
+  "purchase_reward_base": "Recompensa base",
+  "purchase_reward_base_short": "Base",
+  "purchase_reward_event_short": "Evento",
+  "purchase_reward_product_bonus": "Bonificación base",
+  "purchase_reward_event_bonus": "Bono del evento",
+  "purchase_reward_expected_total": "Total estimado",
+  "purchase_reward_total_short": "Total",
+  "purchase_current_balance": "Saldo actual {amount}",
+  "purchase_expected_balance": "Previsto tras la compra {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "Es una estimación. El servidor confirma la cantidad final cuando se completa el pago.",
+  "candy_reward_receipt_total": "Total recibido {amount}",
   "ad_reward_pending": "Verificando tu recompensa",
   "ad_reward_granted": "Cotton Candy recibido",
   "ad_reward_not_granted": "La recompensa no fue otorgada",
@@ -2458,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "Saldo actual {amount}",
+  "candy_reward_receipt_purchase_balance": "Nuevo saldo {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2543,5 +2557,7 @@
   "expiry_quantity_description": "Cantidades programadas para vencer en la cuenta actual.",
   "expiry_policy_description": "Criterios de vencimiento por moneda.",
   "bonus_expiry_policy_summary": "Lo obtenido del día 1 al 14 vence el día 15 del mes siguiente; lo obtenido del día 15 al fin de mes vence a las 00:00 (KST) del día 15 del mes subsiguiente.",
-  "expiry_tonight_at_midnight": "Esta noche a medianoche"
+  "expiry_tonight_at_midnight": "Esta noche a medianoche",
+  "error_ad_device_account_restricted_message": "El acceso a anuncios de esta cuenta en este dispositivo está restringido temporalmente.",
+  "profile_photo_change": "Cambiar foto de perfil"
 }

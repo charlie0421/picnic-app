@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>Wallet worker gate patch plan</title><style>body{max-width:1000px;margin:32px auto;padding:0 24px;font:16px/1.65 system-ui;color:#172033}pre{background:#f0f3f7;padding:16px;overflow:auto}code{overflow-wrap:anywhere}li{margin:8px 0}table{border-collapse:collapse}td,th{border:1px solid #ccd4df;padding:8px}</style></head><body>
+<h1>Wallet worker gate patch — implementation plan</h1>
+<p>2026-09-09. 사용자 승인: “패치 진행”. Goal: 만료 worker와 reconciliation의 서로 다른 health 계약을 릴리즈 게이트에 반영하고 실제 skipped 결과를 기록한다.</p>
+<p>Architecture: 기존 두 함수의 인터페이스·권한·기타 안전 조건을 유지한 후속 migration. Tech stack: PostgreSQL 15, Supabase CLI, Node test runner. Spec: <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-admin-activation-readiness.html">승인된 조사 및 설계 §4</a>.</p>
+<h2>Global constraints</h2><ul>
+<li>작업 위치: /Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety. BASE 117f068fd458de92f4e63c3baff8868cc9170c05. 기존 추적 코드 변경 없음, 기존 HTML 보존.</li>
+<li>운영 연결·배포·실제 구매·잔액/권한/플래그/이관값 변경 금지. commit/push/merge 하지 않는다. 기존 migration·고정 V2 manifest/preflight/postflight는 변경하지 않는다.</li>
+<li>공유 로컬 Supabase 54322 사용 금지. 새 disposable PostgreSQL 15만 테스트에 사용하며 연결 대상/설정은 조정자가 전달한다.</li>
+<li>reconciliation wrapper/inner, expiry inner, 광고 보상/결제/잔액 계산, 관리자 API/UI 구현은 수정하지 않는다. 관리자의 migrated=false 및 기존 이관율 테스트는 유지한다.</li>
+<li>수정은 apply_patch. migration 파일은 먼저 supabase migration new wallet_worker_specific_release_health로 생성한다. 새 전달용 문서는 HTML만 허용.</li>
+</ul>
+<h2>Task 1: worker-specific release safety (TDD)</h2>
+<p>소유 파일: 새 supabase/migrations/*_wallet_worker_specific_release_health.sql, 새 supabase/tests/wallet_worker_specific_release_health.test.sql, 필요 시 이 테스트를 기존 실행기에 등록하는 최소 수정. 다른 파일 변경은 조정자에게 먼저 알린다.</p>
+<p>Consumes: wallet_private.assert_promotion_release_implications(jsonb) returns void, public.expire_cotton_candy_batch(integer) returns public.wallet_batch_result. Produces: 동일 API와 기존 ACL, 보완된 검사/health 기록.</p>
+<ol>
+<li>기존 테스트 fixture와 원본 함수·관련 명세를 읽고, 새 테스트를 작성한다. 모든 정상 전제조건을 격리 fixture로 만족시킨 뒤 expiry clean_scans=0, reconciliation clean_scans=2로 write 요청을 전달하면 성공해야 한다. 현재 baseline에서는 WALLET_RELEASE_GATE_BLOCKED로 실패해야 한다. 구현 전 실제 RED 출력을 보존한다.</li>
+<li>음성 사례: 각 필수 worker stale/null last_success, 각 worker scan_had_skips, reconciliation clean_scans=0/1, 각 필수 worker 누락(다른 key로 대체해 count=2인 경우 포함), 관리자 admin_adjustment/projection_repair 미이관만 남은 경우, 적립 coverage 미완료, 기존 CRITICAL/audit 조건 유지. 전부 WALLET_RELEASE_GATE_BLOCKED여야 한다. write false/OFF는 기존 계약대로 계속 허용한다.</li>
+<li>후속 migration에서 원본 gate의 비-worker 조건은 그대로 둔다. worker 검사는 두 정확한 key의 존재를 검증하고 모든 기존 최근 성공·skip 조건을 유지하면서 clean_scans 요구만 wallet-reconciliation에 한정한다. 기존 count=2 조건도 유지한다.</li>
+<li>expiry wrapper는 실제 inner 결과를 그대로 반환한다. last_result에 실제 processed/skipped_locked/next_cursor를 기록하고 scan_had_skips는 해당 배치의 skipped_locked&gt;0로 설정한다. clean_scans를 인위적으로 늘리지 않는다. 성공 시각의 기존 갱신 의미는 유지하고 skip 여부가 release를 차단하게 한다. 행이 없으면 게이트가 fail-closed이며 wrapper는 행을 자동 생성하지 않는다.</li>
+<li>실제 expiry 배치(빈 배치/처리/잠금 건너뜀/다음 정상 배치 회복)를 테스트한다. 잠금은 별도 세션으로 재현하는 것이 우선이며 불가피한 test double이면 실제 경계·한계와 이유를 보고한다. exception 시 health 갱신이 롤백됨을 확인한다.</li>
+<li>격리 DB에 새 migration을 적용하고 동일 테스트의 GREEN을 확인한다. 기존 관련 release/admin cutover tests와 Node safety tests를 실행하고 결과·실행 명령·테스트 DB 식별·skip 구분을 보고한다. 금융 계산·운영 데이터가 이 migration 실행 자체로 바뀌지 않는지 확인한다.</li>
+</ol>
+<h2>Task 2: independent cross-provider review</h2><p>구현 완료 후 Sol/high가 요구사항·diff·관련 원본·검증 결과만 받아 명세 및 품질을 독립 검토한다. 발견 사항에는 심각도·파일/줄·실패 조건·최소 수정 방향이 필요하다. 실제 지적은 구현자에게 되돌리고 수정 후 원 리뷰어가 재검증한다. 한 개의 결합된 패치이므로 최종 검토 범위는 전체 패치와 관련 호출부까지 포함한다.</p>
+<h2>Preflight consistency check</h2><table><tr><th>범위</th><th>생산/소비 계약</th><th>판정</th></tr><tr><td>Task 1 내부</td><td>테스트 기대와 두 함수 계약, 운영 쓰기 금지</td><td>일치. old migration 보존, 후속 migration만 허용.</td></tr><tr><td>Task 1 → Task 2</td><td>동일 파일을 읽는 순차 리뷰, 동시 쓰기 없음</td><td>일치. 리뷰는 구현·테스트 증거 뒤 시작.</td></tr></table>
+<h2>Progress ledger — 2026-09-09 12:27 KST</h2><ul>
+<li>Task 1 구현 및 실증 검증 완료. Task 2 Sol/high 독립 리뷰 명세 PASS/품질 APPROVE, 실질적 지적 없음. Orca Run run_4e566bd46d9b / 구현 Task task_5738c0668bd8 / Dispatch ctx_8b94cc26475c / Opus max. 리뷰 Task task_0934577520f5 / Dispatch ctx_c21791d4a483 / 완료 msg_4a183473a29c. 두 worker 완료 수락·release 처리. 동시 소스 쓰기는 없다.</li>
+<li>정식 후속 migration: <code>supabase/migrations/20260909030430_wallet_worker_specific_release_health.sql</code>, SHA256 <code>e4459a652163676cd3458a7f03fac146d90230493d700860f9107189f3822b9f</code>. 임시 파일은 동일 내용의 CLI 생성 파일로 정리했다. 기존 migration은 수정하지 않았다.</li>
+<li>검증 환경: 기존 중지된 전용 PG15 컨테이너 picnic-v2-implementation-20260908를 재시작하고 새 DB wallet_worker_health_20260909, wallet_worker_health_main_20260909, wallet_worker_health_red_20260909를 복제했다. 기존 DB는 읽기만 했다. network none, 포트/마운트 없음, TCP listen 없음, cron OFF, postgres NOSUPERUSER.</li>
+<li>최종 FK 강화 SQL: 새 회귀 테스트 및 기존 release/admin/emergency 관련 3개 모두 PASS. <code>/tmp/picnic-worker-health.gipaab/green-fk-results.json</code>. 테스트 시작부터 deferred constraints를 즉시 검사하고 실제 campaign/impression fixture를 사용한다.</li>
+<li>실제 두 backend 잠금: 패치 전 skipped_locked=1이나 scan_had_skips=false로 정확한 RED. 패치 후 skip=true → unlock → processed=1/skip=0/scan_had_skips=false GREEN 2회. 세 실행 모두 health 원복, 잔존 lock/backup/활성 만료 grant=0. <code>/tmp/picnic-worker-health.gipaab/lock-{red,green,green-repeat}-result.json</code>. disposable DB에 잔액 0의 합성 fixture 및 기록은 증거로 남긴다.</li>
+<li>Node baseline 및 최종 재실행: 276 PASS / 31 DB-dependent SKIP / 0 FAIL. 별도 HTTP mock 16 PASS. 22개 offline test files; 네트워크 차단 EPERM 확인. 최종 <code>/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-t0ROPF/result.json</code>. SQL 4개 최종 재실행도 PASS: <code>/tmp/picnic-worker-health.gipaab/green-final-results.json</code>.</li>
+<li>main 217e995663a8ae9786383f7955a96faabb9a37ff (PR137)의 SQL 3개를 추가 적용한 별도 통합 DB에서도 새 FK 강화 테스트 PASS. 패치 적용 전후 플래그/registry/health/함수 보안 설정/checkpoint가 동일했다. <code>/tmp/picnic-worker-health.gipaab/main-integration-result.json</code>. 새 main 전체를 처음부터 rebuild한 검증은 아니며 현재 worktree HEAD는 변경하지 않았다.</li>
+<li>기존 <code>wallet_release_gates.test.sql</code>은 패치 전부터 frozen flag key 목록 불일치로 실패한다. 기존 <code>cotton_expiry_reconciliation.test.sql</code>은 shared 54322 dblink가 있어 실행하지 않았다. 이 결과를 PASS에 포함하지 않는다.</li>
+<li>기존 고정 V2 apply bundle SHA256 <code>3e576ee9bdad74f49ca0f0aef13e16b8eef2f6441c208cfafc011d387aa0fbdb</code> 유지. 이번 새 migration 배포에는 별도 배포 전후 검증이 필요하다.</li>
+<li>구현자의 워크트리 밖 plan 읽기 및 Docker 실행은 도구 권한에 차단되어, plan은 Orca reply로 전달하고 실제 DB 검증은 조정자가 위 격리 환경에서 실행했다. 승인 범위를 확장하지 않았다. 운영 접속/변경, 앱 변경, commit/push/merge 없음.</li>
+<li>전용 컨테이너는 다른 client backend 0개 확인 후 12:26:52 KST 다시 중지. DB/합성 fixture/로그 삭제 없음. <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/wallet-worker-gate-patch-result.html">최종 결과와 다음 단계</a>.</li>
+</ul>
+</body></html>

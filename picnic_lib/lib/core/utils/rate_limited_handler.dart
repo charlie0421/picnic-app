@@ -12,21 +12,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 ///   - Edge function 의 429 + body `{code: RATE_LIMITED, reason: '<channel>_ip_quota'}`
 Object? mapToAntiAbuseException(dynamic error) {
   if (error == null) return null;
+  if (error is AntiAbuseException) return error;
 
   if (error is PostgrestException) {
     if (error.code == 'P0001' && error.message.startsWith('RATE_LIMITED:')) {
       final channel = error.message.substring('RATE_LIMITED:'.length);
-      return AntiAbuseException(
-        channel,
-        rawCode: error.code,
-        original: error,
-      );
+      return AntiAbuseException(channel, rawCode: error.code, original: error);
     }
     if (error.code == '42501') {
       String? requiredKey;
       try {
-        final m = RegExp(r'permission denied:\s*([\w.]+)')
-            .firstMatch(error.message);
+        final m = RegExp(
+          r'permission denied:\s*([\w.]+)',
+        ).firstMatch(error.message);
         requiredKey = m?.group(1);
       } catch (_) {
         // best-effort
@@ -39,7 +37,18 @@ Object? mapToAntiAbuseException(dynamic error) {
   }
 
   if (error is FunctionException && error.status == 429) {
-    final reason = _extractRateLimitedReason(error.details);
+    final details = error.details;
+    if (details is Map &&
+        (details['domain_code'] == 'AD_DEVICE_ACCOUNT_LIMIT' ||
+            (details['error'] is Map &&
+                details['error']['code'] == 'AD_DEVICE_ACCOUNT_LIMIT'))) {
+      return AntiAbuseException(
+        'ad_watch',
+        rawCode: 'AD_DEVICE_ACCOUNT_LIMIT',
+        original: error,
+      );
+    }
+    final reason = _extractRateLimitedReason(details);
     if (reason != null) {
       final channel = reason.replaceAll('_ip_quota', '');
       return AntiAbuseException(
@@ -54,8 +63,8 @@ Object? mapToAntiAbuseException(dynamic error) {
 }
 
 /// 두 가지 응답 shape 모두 지원:
-///   - nested (실제 서버: rateLimitedResponse): { success: false, error: { code: 'RATE_LIMITED', details: { reason: '<ch>_ip_quota' } } }
-///   - flat (defensive fallback): { code: 'RATE_LIMITED', reason: '<ch>_ip_quota' }
+///   - nested (실제 서버: rateLimitedResponse): { success: false, error: { code: 'RATE_LIMITED', details: { reason: 'channel_ip_quota' } } }
+///   - flat (defensive fallback): { code: 'RATE_LIMITED', reason: 'channel_ip_quota' }
 ///
 /// 매칭되지 않으면 null. reason 누락이라도 빈 문자열은 반환 (handler 가 channel 추출 시도).
 String? _extractRateLimitedReason(dynamic details) {

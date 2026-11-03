@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:bubble_box/bubble_box.dart';
 import 'package:flutter/material.dart';
@@ -20,16 +21,19 @@ import 'package:picnic_lib/presentation/providers/vote_detail_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_transaction_provider.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/purchase/wallet_summary_applier.dart';
 import 'package:picnic_lib/presentation/widgets/ui/large_popup.dart';
 import 'package:picnic_lib/presentation/widgets/ui/loading_overlay_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/jma_voting_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/vote_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_complete.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_layout.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_usage_helper.dart';
 import 'package:picnic_lib/presentation/utils/withdrawn_user_guard.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -169,11 +173,83 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return (userInfo?.starCandy ?? 0) + (userInfo?.starCandyBonus ?? 0);
   }
 
+  /// This dialog's own route, captured while the element is still attached so
+  /// every terminal path can address it after an await instead of guessing
+  /// from `context`.
+  ModalRoute<dynamic>? _dialogRoute;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _dialogRoute = ModalRoute.of(context);
+  }
+
   @override
   void dispose() {
     _focusNode.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  /// Ends the amount field's editing session.
+  ///
+  /// The owned node, not `FocusScope.unfocus()`: by the time a terminal path
+  /// runs, focus may already have moved to another route, and clearing the
+  /// scope there would blur *that* input instead. Idempotent, so every exit
+  /// path can call it without checking who called it first.
+  void _unfocusVoteInput() => _focusNode.unfocus();
+
+  /// Whether this dialog's own route is still in the navigator.
+  ///
+  /// `mounted` does not answer this. After an imperative pop (an account
+  /// switch, host routing — anything that bypasses `PopScope`) the State stays
+  /// mounted for the whole reverse transition, so a preflight that completes
+  /// inside that window would walk on and submit a vote from a popup the user
+  /// is already watching leave, with no way left to report the outcome.
+  ///
+  /// `isActive`, not `isCurrent`: a dialog that is merely *covered* — an error
+  /// sheet pushed on top of it — is still the user's dialog and its vote must
+  /// still finish.
+  bool get _routeIsActive => mounted && (_dialogRoute?.isActive ?? false);
+
+  /// Removes *this dialog's* route, whatever is on top of it.
+  ///
+  /// `Navigator.of(context).pop()` pops the topmost route, which is this dialog
+  /// only while nothing covers it. Once something else is on top that call
+  /// closes the wrong route, and once this route has already gone it closes the
+  /// page underneath. Both are silent: the caller still believes it closed
+  /// itself.
+  void _dismissOwnRoute() {
+    final route = _dialogRoute;
+    if (route == null || !route.isActive) return;
+    final navigator = route.navigator;
+    if (navigator == null) return;
+    if (route.isCurrent) {
+      navigator.pop();
+      return;
+    }
+    // Covered by another route: pop would take that one instead, so take this
+    // route out of the stack where it sits. Leaving it there would strand an
+    // unlocked dialog the user can submit from again.
+    navigator.removeRoute(route);
+  }
+
+  /// The single user-initiated close.
+  ///
+  /// Re-reads [_isVoting] instead of trusting the state that was current when
+  /// the callback was captured: the close button hands this to the shared
+  /// popup, and a handler captured while idle must not become a way around the
+  /// in-flight guard. The terminal success/failure pops stay direct — routing
+  /// them through here would mean a vote that has already settled could never
+  /// close its own dialog.
+  void _requestClose() {
+    if (!mounted || _isVoting) return;
+    if (_dialogRoute?.isCurrent != true) return;
+    _unfocusVoteInput();
+    // A direct removal, not `maybePop`: the PopScope above vetoes every
+    // route-driven pop, so `maybePop` would come straight back into this method
+    // through `onPopInvokedWithResult` and recurse.
+    _dismissOwnRoute();
   }
 
   @override
@@ -194,6 +270,31 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     final userId = ref.watch(
       userInfoProvider.select((value) => value.value?.id ?? ''),
     );
+    // Read for the flag only; the height budget below comes from the layout
+    // constraints, which already have this inset applied once by the Dialog.
+    final mediaQuery = MediaQuery.of(context);
+    final isKeyboardVisible = mediaQuery.viewInsets.bottom > 0;
+
+    // PICNIC-2694: the designed 24 margin holds while the route can still hand
+    // the capsule its controls, and yields when it cannot — a 500 high window
+    // with a 280 keyboard left 172, four pixels short of the controls, and
+    // spent 48 of the window on empty margin.
+    final verticalInset = resolveVoteDialogVerticalInset(
+      preferredInset: 24,
+      availableHeight: math.max(
+        0.0,
+        mediaQuery.size.height -
+            mediaQuery.viewInsets.bottom -
+            mediaQuery.padding.vertical,
+      ),
+      requiredBodyHeight: voteDialogRequiredRouteHeight(
+        _essentialHeight(
+          context,
+          contentWidth: _contentWidth(resolveVoteDialogWidth()),
+          isKeyboardVisible: isKeyboardVisible,
+        ),
+      ),
+    );
 
     // Closing the dialog does not cancel the vote: the request keeps running
     // against the captured ProviderContainer. Reopening and voting again mints
@@ -202,7 +303,31 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // overlay already swallows barrier taps (it is a full-screen opaque entry
     // above this route); system back is the path that still gets through.
     return PopScope(
-      canPop: !_isVoting,
+      // Veto every route-driven pop and decide in [_requestClose] instead.
+      //
+      // `canPop: !_isVoting` cannot hold this line. PopScope copies `canPop`
+      // into the route's notifier only from `didUpdateWidget`
+      // (pop_scope.dart:205-208) and `ModalRoute.popDisposition` reads that
+      // notifier (routes.dart:2037-2044), so a back press or barrier tap that
+      // arrives in the submit tap's own frame — before the rebuild — still
+      // reads the pre-submit `true` and pops. The request is already on its
+      // way by then, which is exactly the double-charge window 7fbd2bec8
+      // closed. Vetoing unconditionally moves the decision to the moment of
+      // the request, where `_isVoting` is whatever `setState` just wrote.
+      //
+      // The cost is Android's predictive-back animation, which this dialog
+      // route does not use.
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          // An imperative pop (this dialog's own terminal paths, an account
+          // switch, host routing) already removed the route. Nothing to
+          // decide — just make sure no editing session outlives it.
+          _unfocusVoteInput();
+          return;
+        }
+        _requestClose();
+      },
       child: LoadingOverlayWithIcon(
         key: _loadingKey,
         iconAssetPath: 'assets/app_icon_128.png',
@@ -212,62 +337,656 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
         minScale: 0.98,
         maxScale: 1.02,
         showProgressIndicator: false,
-        child: AlertDialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24),
-          contentPadding: EdgeInsets.zero,
-          content: LargePopupWidget(
-            showCloseButton: false,
-            content: Container(
-              padding: EdgeInsets.only(
-                top: 32,
-                bottom: 24,
-                left: 24.w,
-                right: 24.w,
+        // This builder sits above AlertDialog's 560-wide one-column box. It is
+        // the only place where the uncapped route width is still available.
+        child: LayoutBuilder(
+          builder: (context, routeConstraints) {
+            final routeHeight = routeConstraints.hasBoundedHeight
+                ? routeConstraints.maxHeight
+                : mediaQuery.size.height;
+            final routeWidth = routeConstraints.hasBoundedWidth
+                ? routeConstraints.maxWidth
+                : mediaQuery.size.width;
+            final horizontalDialogInset = 16.w;
+            final routeAvailableWidth = math.max(
+              0.0,
+              routeWidth -
+                  mediaQuery.viewInsets.horizontal -
+                  horizontalDialogInset * 2,
+            );
+            final singleCandidateWidth = math.min(
+              routeAvailableWidth,
+              resolveVoteDialogWidth(),
+            );
+            final singleContentWidth = _contentWidth(singleCandidateWidth);
+            final neutralEssential = _neutralEssentialHeight(
+              context,
+              contentWidth: singleContentWidth,
+              isKeyboardVisible: isKeyboardVisible,
+            );
+            final neutralVerticalInset = resolveVoteDialogVerticalInset(
+              preferredInset: 24,
+              availableHeight: math.max(
+                0.0,
+                routeHeight - mediaQuery.viewInsets.vertical,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 8),
-                  VotingArtistImage(voteItemModel: widget.voteItemModel),
-                  const SizedBox(height: 16),
-                  VotingMemberInfo(voteItemModel: widget.voteItemModel),
-                  VotingStarCandyInfo(
-                    myStarCandy: displayedBalance,
-                    onRecharge: _navigateToStore,
-                  ),
-                  const SizedBox(height: 8),
-                  VotingCheckAllOption(
-                    checkAll: _checkAll,
-                    onToggle: _toggleCheckAll,
-                  ),
-                  const SizedBox(height: 8),
-                  _buildVoteAmountInput(context),
-                  const SizedBox(height: 8),
-                  VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
-                  _buildBubble(),
-                  const SizedBox(height: 9),
-                  VotingSubmitButton(
-                    canVote: _canVote,
-                    isVoting: _isVoting,
-                    onPressed: () => _handleVote(myStarCandy, userId),
-                  ),
-                  const SizedBox(height: 16),
-                  VotingLogoImage(voteModel: widget.voteModel),
-                ],
+              requiredBodyHeight: voteDialogRequiredRouteHeight(
+                neutralEssential,
               ),
-            ),
-          ),
+            );
+            final popupAvailableHeight = math.max(
+              0.0,
+              routeHeight -
+                  mediaQuery.viewInsets.vertical -
+                  neutralVerticalInset * 2,
+            );
+            final columnsLayout = resolveVoteDialogColumnsLayout(
+              routeAvailableWidth: routeAvailableWidth,
+              popupAvailableHeight: popupAvailableHeight,
+              singleEssentialHeight: neutralEssential,
+              singleDecorationComfortHeight: _decorationComfortHeight(
+                context,
+                contentWidth: singleContentWidth,
+                isKeyboardVisible: false,
+              ),
+              singleTailLogoHeight: _tailLogoHeight(),
+              singleHorizontalContentInset:
+                  largePopupCardBorderWidth() + voteDialogCardExtent(24),
+              leftMinimumWidth: () => _columnsLeftMinimumWidth(context),
+              rightMinimumWidth: () => _columnsRightMinimumWidth(context),
+              leftMinimumHeightForWidth: (width) =>
+                  _columnsLeftMinimumHeight(context, width),
+              rightMinimumHeightForWidth: (width) =>
+                  _columnsRightMinimumHeight(context, width),
+              keyboardVisible: isKeyboardVisible,
+            );
+            final resolvedVerticalInset = columnsLayout == null
+                ? verticalInset
+                : neutralVerticalInset;
+            final dialogWidth =
+                columnsLayout?.cardWidth ?? resolveVoteDialogWidth();
+
+            return AlertDialog(
+              backgroundColor: Colors.transparent,
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: horizontalDialogInset,
+                vertical: resolvedVerticalInset,
+              ),
+              contentPadding: EdgeInsets.zero,
+              // A tight width stops AlertDialog's IntrinsicWidth query. The
+              // one-column value is unchanged; only a resolved columns
+              // candidate receives the wider (at most 800) width.
+              content: SizedBox(
+                width: dialogWidth,
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (columnsLayout != null) {
+                      // The budget the columns were selected against came from
+                      // the route's own constraints, above AlertDialog. This
+                      // one is what Dialog's AnimatedPadding is actually
+                      // handing out on this frame. They agree at rest and
+                      // disagree for ~100ms after the keyboard closes or the
+                      // window changes, so the body follows the smaller of the
+                      // two instead of overflowing the capsule.
+                      final columnsChrome = columnsLayout.showTopClose
+                          ? largePopupTopCloseChromeHeight()
+                          : largePopupHiddenChromeHeight();
+                      return LargePopupWidget(
+                        showCloseButton: columnsLayout.showTopClose,
+                        closeButtonPlacement:
+                            LargePopupCloseButtonPlacement.topRight,
+                        closeButtonEnabled: !_isVoting,
+                        onClose: _requestClose,
+                        width: columnsLayout.cardWidth,
+                        cardBorderRadius: columnsLayout.shape.cardBorderRadius,
+                        content: VoteDialogColumns(
+                          layout: columnsLayout,
+                          renderedBodyHeight: constraints.hasBoundedHeight
+                              ? math.max(
+                                  0.0,
+                                  constraints.maxHeight - columnsChrome,
+                                )
+                              : null,
+                          renderedCardWidth: constraints.hasBoundedWidth
+                              ? constraints.maxWidth
+                              : null,
+                          left: _buildColumnsLeft(
+                            context,
+                            displayedBalance: displayedBalance,
+                          ),
+                          right: _buildColumnsRight(
+                            context,
+                            myStarCandy: myStarCandy,
+                            userId: userId,
+                          ),
+                        ),
+                      );
+                    }
+
+                    // 이 제약이 곧 "라우트가 실제로 남겨 준 높이"다 — Dialog 가
+                    // viewInsets 와 insetPadding 을, 라우트가 세이프에어리어를
+                    // 이미 덜어낸 뒤의 값이라 여기서 MediaQuery 를 다시 읽으면
+                    // 키보드를 두 번 적용하게 된다. 카드 테두리와 숨김 스트립은
+                    // 캡슐 자신의 높이이므로 본문 예산에서 빼 준다.
+                    final available = constraints.hasBoundedHeight
+                        ? constraints.maxHeight
+                        : MediaQuery.of(context).size.height;
+                    final contentWidth = _contentWidth(constraints.maxWidth);
+                    final essential = _essentialHeight(
+                      context,
+                      contentWidth: contentWidth,
+                      isKeyboardVisible: isKeyboardVisible,
+                    );
+                    // PICNIC-2695 의 X 는 숨김 strip 보다 24 비싸다. PICNIC-2694 가
+                    // 조작부를 통째로 담아 주기로 한 가장 짧은 창들은 이미 라우트
+                    // 여백을 하한까지 내준 상태라 그 24 를 낼 데가 없다. 그래서
+                    // 닫기는 조작부를 밀어내지 않을 때만 자리를 얻는다. 못 얻으면
+                    // 배리어 탭과 시스템 백이 그대로 나가는 길이고, 키보드를 내리는
+                    // 순간 예산이 돌아오면서 X 도 돌아온다.
+                    final showTopClose =
+                        available - largePopupTopCloseChromeHeight() >=
+                        essential +
+                            _decorationComfortHeight(
+                              context,
+                              contentWidth: contentWidth,
+                              isKeyboardVisible: isKeyboardVisible,
+                            );
+                    final budget = math.max(
+                      0.0,
+                      available -
+                          (showTopClose
+                              ? largePopupTopCloseChromeHeight()
+                              : largePopupHiddenChromeHeight()),
+                    );
+                    // The logo is the first thing to give way: it keeps its place
+                    // under the button only while the decoration above can still
+                    // show the portrait, the names and the balance at their own
+                    // size. Otherwise it moves into the scrolling decoration —
+                    // out of the way, still reachable.
+                    final logoInTail =
+                        !isKeyboardVisible &&
+                        essential +
+                                _tailLogoHeight() +
+                                _decorationComfortHeight(
+                                  context,
+                                  contentWidth: contentWidth,
+                                  isKeyboardVisible: isKeyboardVisible,
+                                ) <=
+                            budget;
+                    final pinned =
+                        essential + (logoInTail ? _tailLogoHeight() : 0.0);
+                    final shape = resolveVoteDialogShape(
+                      bodyHeight: budget,
+                      essentialHeight: pinned,
+                      horizontalContentInset:
+                          largePopupCardBorderWidth() +
+                          voteDialogCardExtent(24),
+                    );
+                    final mode = shape.mode;
+                    return LargePopupWidget(
+                      showCloseButton: showTopClose,
+                      closeButtonPlacement:
+                          LargePopupCloseButtonPlacement.topRight,
+                      // Disabled, not removed: the strip keeps its height so the
+                      // popup does not jump when the request starts, and the
+                      // callback re-checks the flag anyway.
+                      closeButtonEnabled: !_isVoting,
+                      onClose: _requestClose,
+                      width: resolveVoteDialogWidth(),
+                      cardBorderRadius: shape.cardBorderRadius,
+                      content: ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: budget),
+                        child: VoteDialogBands(
+                          mode: mode,
+                          decorationBuilder: (context, availableHeight) =>
+                              _buildDecoration(
+                                context,
+                                availableHeight: availableHeight,
+                                contentWidth: contentWidth,
+                                isKeyboardVisible: isKeyboardVisible,
+                                displayedBalance: displayedBalance,
+                                withLogo: !isKeyboardVisible && !logoInTail,
+                              ),
+                          actions: _buildActions(context, mode: mode),
+                          submit: _buildSubmit(
+                            myStarCandy: myStarCandy,
+                            userId: userId,
+                            isKeyboardVisible: isKeyboardVisible,
+                          ),
+                          tail: _buildTail(
+                            isKeyboardVisible: isKeyboardVisible,
+                            withLogo: logoInTail,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
+  double _contentWidth(double width) => math.max(
+    0.0,
+    width - largePopupCardBorderWidth() * 2 - voteDialogCardExtent(24) * 2,
+  );
+
+  /// The height of everything the popup may not scroll away: "use all", the
+  /// amount input with its validation line, the vote button and the body's
+  /// bottom padding.
+  ///
+  /// Measured, not assumed. At 200% text the input outgrows its 48 minimum
+  /// (scaled digit line plus the field padding and both borders) and so does
+  /// the button, and a policy built on the nominal 48/52 pinned a group it
+  /// could not actually fit — which is how a short viewport ended up showing
+  /// the "use all" row with no input under it.
+  double _essentialHeight(
+    BuildContext context, {
+    required double contentWidth,
+    required bool isKeyboardVisible,
+  }) {
+    return VotingCheckAllOption.preferredHeight(
+          context,
+          maxWidth: contentWidth,
+        ) +
+        _amountInputPreferredHeight(context, contentWidth) +
+        PicnicUi.vertical(8) +
+        VotingErrorMessage.preferredHeight(
+          context,
+          canVote: _canVote,
+          hasValue: _hasValue,
+          maxWidth: contentWidth,
+        ) +
+        _footerTopPadding(isKeyboardVisible) +
+        VotingSubmitButton.preferredHeight(context) +
+        _footerBottomPadding(isKeyboardVisible);
+  }
+
+  /// Stable one-column candidate used only for presentation selection.
+  ///
+  /// Reserving the validation line prevents empty/valid/error and loading
+  /// changes from feeding back into the dialog width or its route margin.
+  double _neutralEssentialHeight(
+    BuildContext context, {
+    required double contentWidth,
+    required bool isKeyboardVisible,
+  }) {
+    return VotingCheckAllOption.preferredHeight(
+          context,
+          maxWidth: contentWidth,
+        ) +
+        _amountInputPreferredHeight(context, contentWidth) +
+        PicnicUi.vertical(8) +
+        VotingErrorMessage.preferredHeight(
+          context,
+          canVote: false,
+          hasValue: true,
+          maxWidth: contentWidth,
+        ) +
+        _footerTopPadding(isKeyboardVisible) +
+        VotingSubmitButton.preferredHeight(context) +
+        _footerBottomPadding(isKeyboardVisible);
+  }
+
+  static const double _columnsPortraitSide = 80;
+  static const double _columnsIdentityGap = 12;
+  static const double _columnsBandGap = 8;
+  static const String _columnsEditableAmountFixture = '9,999,999';
+
+  double _columnsLeftMinimumWidth(BuildContext context) => math.max(
+    _columnsPortraitSide +
+        _columnsIdentityGap +
+        VotingMemberInfo.columnMinimumWidth(
+          context,
+          voteItemModel: widget.voteItemModel,
+        ),
+    VotingStarCandyInfo.columnMinimumWidth(context),
+  );
+
+  double _columnsRightMinimumWidth(BuildContext context) => <double>[
+    VotingCheckAllOption.columnMinimumWidth(context),
+    _columnsAmountInputMinimumWidth(context),
+    VotingErrorMessage.columnMinimumWidth(context),
+    VotingSubmitButton.columnMinimumWidth(context),
+  ].reduce(math.max);
+
+  double _columnsAmountInputMinimumWidth(BuildContext context) =>
+      _amountInputBorderWidth * 2 +
+      4 +
+      PicnicUi.minimumTapTarget +
+      24 * 2 +
+      measureVotingTextMinimumWidth(
+        context,
+        _columnsEditableAmountFixture,
+        _amountInputStyle(),
+        maxLines: 1,
+      );
+
+  double _columnsLeftMinimumHeight(BuildContext context, double width) {
+    final identityTextWidth = math.max(
+      0.0,
+      width - _columnsPortraitSide - _columnsIdentityGap,
+    );
+    final identityHeight = math.max(
+      _columnsPortraitSide,
+      VotingMemberInfo.columnPreferredHeight(
+        context,
+        voteItemModel: widget.voteItemModel,
+        maxWidth: identityTextWidth,
+      ),
+    );
+    return identityHeight +
+        _columnsBandGap +
+        VotingStarCandyInfo.preferredHeight(
+          context,
+          maxWidth: width,
+          columns: true,
+        );
+  }
+
+  double _columnsReservedErrorHeight(BuildContext context, double width) =>
+      VotingErrorMessage.preferredHeight(
+        context,
+        canVote: false,
+        hasValue: true,
+        maxWidth: width,
+        columns: true,
+        reserveWhenHidden: true,
+      );
+
+  double _columnsRightMinimumHeight(BuildContext context, double width) =>
+      VotingCheckAllOption.preferredHeight(
+        context,
+        maxWidth: width,
+        columns: true,
+      ) +
+      _amountInputPreferredHeight(context, width) +
+      _columnsBandGap +
+      _columnsReservedErrorHeight(context, width) +
+      _columnsBandGap +
+      VotingSubmitButton.preferredHeight(
+        context,
+        maxWidth: width,
+        columns: true,
+      );
+
+  Widget _buildColumnsLeft(
+    BuildContext context, {
+    required BigInt displayedBalance,
+  }) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            VotingArtistImage(
+              voteItemModel: widget.voteItemModel,
+              logicalSize: _columnsPortraitSide,
+            ),
+            const SizedBox(width: _columnsIdentityGap),
+            Expanded(
+              child: VotingMemberInfo(
+                voteItemModel: widget.voteItemModel,
+                columns: true,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: _columnsBandGap),
+        VotingStarCandyInfo(
+          myStarCandy: displayedBalance,
+          onRecharge: _navigateToStore,
+          columns: true,
+        ),
+        const SizedBox(height: _columnsBandGap),
+        _buildBubble(),
+        const SizedBox(height: 16),
+        VotingLogoImage(voteModel: widget.voteModel),
+      ],
+    );
+  }
+
+  Widget _buildColumnsRight(
+    BuildContext context, {
+    required int myStarCandy,
+    required String userId,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final errorHeight = _columnsReservedErrorHeight(
+          context,
+          constraints.maxWidth,
+        );
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            VotingCheckAllOption(
+              checkAll: _checkAll,
+              onToggle: _toggleCheckAll,
+              columns: true,
+            ),
+            _buildVoteAmountInput(context, pinned: true, columns: true),
+            const SizedBox(height: _columnsBandGap),
+            SizedBox(
+              height: errorHeight,
+              child: VotingErrorMessage(
+                canVote: _canVote,
+                hasValue: _hasValue,
+                columns: true,
+              ),
+            ),
+            const SizedBox(height: _columnsBandGap),
+            VotingSubmitButton(
+              canVote: _canVote,
+              isVoting: _isVoting,
+              columns: true,
+              onPressed: () => _handleVote(myStarCandy, userId),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// What the logo adds under the button when it keeps its place there.
+  double _tailLogoHeight() =>
+      PicnicUi.vertical(16) + VotingLogoImage.preferredHeight(widget.voteModel);
+
+  /// The decoration the popup would rather not compress: the portrait at its
+  /// own size, the names and the balance. The benefit bubble is deliberately
+  /// left out — it is the part the plan allows to scroll.
+  double _decorationComfortHeight(
+    BuildContext context, {
+    required double contentWidth,
+    required bool isKeyboardVisible,
+  }) {
+    return _headerTopPadding(isKeyboardVisible) +
+        VotingArtistImage.preferredHeight() +
+        _headerGap(isKeyboardVisible) +
+        VotingMemberInfo.preferredHeight(
+          context,
+          voteItemModel: widget.voteItemModel,
+          maxWidth: contentWidth,
+        ) +
+        VotingStarCandyInfo.preferredHeight(context, maxWidth: contentWidth);
+  }
+
+  /// Mirrors the amount input built in [_buildVoteAmountInput]: the 48 clear
+  /// button that sets the row's floor, or the scaled digit line plus the field
+  /// padding — either way with the border on both edges on top.
+  double _amountInputPreferredHeight(BuildContext context, double maxWidth) {
+    final line = measureVotingTextHeight(
+      context,
+      '0',
+      _amountInputStyle(),
+      maxWidth: maxWidth,
+    );
+    return math.max(
+          PicnicUi.minimumTapTarget,
+          line + _amountInputVerticalPadding() * 2,
+        ) +
+        _amountInputBorderWidth * 2;
+  }
+
+  static const double _amountInputBorderWidth = 1;
+  double _amountInputVerticalPadding() => PicnicUi.vertical(8);
+  TextStyle _amountInputStyle() =>
+      PicnicUi.text(size: 16, weight: FontWeight.w700);
+
+  EdgeInsets _bodyHorizontalPadding() => EdgeInsets.only(
+    left: voteDialogCardExtent(24),
+    right: voteDialogCardExtent(24),
+  );
+
+  // With the keyboard up the header and footer give up part of their
+  // breathing room (as the JMA dialog does), so the decoration around the
+  // controls keeps the bonus bubble whole on a phone instead of a sliver.
+  double _headerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 24);
+  double _headerGap(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 8 : 16);
+  double _footerTopPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 4 : 8);
+  double _footerBottomPadding(bool isKeyboardVisible) =>
+      PicnicUi.vertical(isKeyboardVisible ? 12 : 16);
+
+  /// Portrait, names, balance and the benefit bubble.
+  ///
+  /// This is the band that yields: it keeps its natural height while the body
+  /// can afford it and scrolls once it cannot, instead of pushing the controls
+  /// below the fold. The bubble moved up here from under the input so that
+  /// "use all" + input + submit are one contiguous group that can be laid out
+  /// before any of this.
+  Widget _buildDecoration(
+    BuildContext context, {
+    required double availableHeight,
+    required double contentWidth,
+    required bool isKeyboardVisible,
+    required BigInt displayedBalance,
+    required bool withLogo,
+  }) {
+    final portrait = resolveVoteDialogPortraitSide(
+      preferredSide: VotingArtistImage.preferredHeight(),
+      availableHeight: availableHeight,
+      reservedHeight:
+          _headerTopPadding(isKeyboardVisible) +
+          _headerGap(isKeyboardVisible) +
+          VotingMemberInfo.preferredHeight(
+            context,
+            voteItemModel: widget.voteItemModel,
+            maxWidth: contentWidth,
+          ) +
+          VotingStarCandyInfo.preferredHeight(context, maxWidth: contentWidth),
+    );
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        top: _headerTopPadding(isKeyboardVisible),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingArtistImage(
+            voteItemModel: widget.voteItemModel,
+            logicalSize: portrait,
+          ),
+          SizedBox(height: _headerGap(isKeyboardVisible)),
+          VotingMemberInfo(voteItemModel: widget.voteItemModel),
+          VotingStarCandyInfo(
+            myStarCandy: displayedBalance,
+            onRecharge: _navigateToStore,
+          ),
+          SizedBox(height: PicnicUi.vertical(8)),
+          _buildBubble(),
+          if (withLogo) ...[
+            SizedBox(height: PicnicUi.vertical(16)),
+            VotingLogoImage(voteModel: widget.voteModel),
+          ],
+        ],
+      ),
+    );
+  }
+
+  // The balance, use-all, amount and clear controls each carry a 48 tap
+  // target now, so the gaps that used to separate 20 and 32 high rows moved
+  // inside those controls.
+  Widget _buildActions(
+    BuildContext context, {
+    required VoteDialogLayoutMode mode,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding(),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          VotingCheckAllOption(checkAll: _checkAll, onToggle: _toggleCheckAll),
+          _buildVoteAmountInput(
+            context,
+            pinned: mode == VoteDialogLayoutMode.actionsPinned,
+          ),
+          SizedBox(height: PicnicUi.vertical(8)),
+          VotingErrorMessage(canVote: _canVote, hasValue: _hasValue),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmit({
+    required int myStarCandy,
+    required String userId,
+    required bool isKeyboardVisible,
+  }) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        top: _footerTopPadding(isKeyboardVisible),
+      ),
+      child: VotingSubmitButton(
+        canVote: _canVote,
+        isVoting: _isVoting,
+        onPressed: () => _handleVote(myStarCandy, userId),
+      ),
+    );
+  }
+
+  /// The partner/picnic logo under the button, and the body's bottom padding.
+  ///
+  /// The logo stays hidden while the keyboard is up — with it up that row is
+  /// better spent on the amount input — and moves into the scrolling
+  /// decoration when the remaining height cannot hold both it and the
+  /// portrait.
+  Widget _buildTail({required bool isKeyboardVisible, required bool withLogo}) {
+    return Padding(
+      padding: _bodyHorizontalPadding().copyWith(
+        bottom: _footerBottomPadding(isKeyboardVisible),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (withLogo) ...[
+            SizedBox(height: PicnicUi.vertical(16)),
+            VotingLogoImage(voteModel: widget.voteModel),
+          ],
+        ],
+      ),
+    );
+  }
+
   void _navigateToStore() {
+    // Same guard as the close button, and it runs *before* the provider writes:
+    // this path pops the dialog too, so mid-vote it would open the same
+    // double-charge window — and a refused close must leave the page underneath
+    // untouched as well.
+    if (!mounted || _isVoting) return;
+    if (_dialogRoute?.isCurrent != true) return;
+    _unfocusVoteInput();
     ref.read(navigationInfoProvider.notifier).setCurrentPage(const StorePage());
     ref.read(navigationInfoProvider.notifier).setVoteBottomNavigationIndex(3);
-    Navigator.pop(context);
+    _dismissOwnRoute();
   }
 
   void _toggleCheckAll() {
@@ -298,7 +1017,16 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     _validateVote();
   }
 
-  Widget _buildVoteAmountInput(BuildContext context) {
+  /// [pinned] is true inside the pinned-header body, where the input scrolls
+  /// in a short middle window: centring it there dragged the balance row
+  /// half under the pinned names even when the input was already in view, so
+  /// that window moves only as far as it must. The all-scroll body keeps
+  /// centring, which also brings the submit button below into view.
+  Widget _buildVoteAmountInput(
+    BuildContext context, {
+    required bool pinned,
+    bool columns = false,
+  }) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_isInitialRender) {
         _isInitialRender = false;
@@ -306,31 +1034,47 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
 
       // 포커스가 있을 때 텍스트 필드가 보이도록 적절한 위치로 스크롤
       if (_focusNode.hasFocus) {
-        final RenderObject? renderObject = _inputFieldKey.currentContext
-            ?.findRenderObject();
-        if (renderObject != null) {
-          Scrollable.ensureVisible(
-            _inputFieldKey.currentContext!,
-            alignment: 0.5,
-            duration: const Duration(milliseconds: 300),
-          );
+        final inputContext = _inputFieldKey.currentContext;
+        final RenderObject? renderObject = inputContext?.findRenderObject();
+        if (inputContext == null || renderObject == null) return;
+        if (pinned) {
+          // Each policy is a no-op unless the input is cut off on its side,
+          // so at most one of the two moves the window.
+          for (final policy in const [
+            ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+            ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+          ]) {
+            Scrollable.ensureVisible(
+              inputContext,
+              alignmentPolicy: policy,
+              duration: const Duration(milliseconds: 300),
+            );
+          }
+          return;
         }
+        Scrollable.ensureVisible(
+          inputContext,
+          alignment: 0.5,
+          duration: const Duration(milliseconds: 300),
+        );
       }
     });
 
     return Container(
       key: _inputFieldKey,
-      height: 36,
+      // A 36 high field was below the minimum tap target and cropped its own
+      // text at large scales; the field now grows from 48 instead.
+      constraints: const BoxConstraints(minHeight: PicnicUi.minimumTapTarget),
       decoration: BoxDecoration(
         border: Border.all(
           color: !_canVote && _hasValue
               ? AppColors.statusError
-              : AppColors.primary500,
-          width: 1,
+              : PicnicUi.actionColor,
+          width: _amountInputBorderWidth,
         ),
         borderRadius: BorderRadius.circular(24),
       ),
-      padding: EdgeInsets.only(right: 16.w),
+      padding: EdgeInsets.only(right: columns ? 4 : PicnicUi.horizontal(4)),
       child: Row(
         children: [
           Expanded(
@@ -347,25 +1091,27 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                 });
               },
               child: TextFormField(
-                cursorHeight: 16.h,
-                cursorColor: AppColors.primary500,
+                cursorHeight: columns ? 16 : 16.h,
+                cursorColor: PicnicUi.actionColor,
                 focusNode: _focusNode,
                 controller: _textEditingController,
                 keyboardType: TextInputType.number,
                 textAlign: TextAlign.left,
+                maxLines: 1,
                 enableInteractiveSelection: true,
                 showCursor: true,
                 keyboardAppearance: Brightness.light,
                 decoration: InputDecoration(
                   hintText: AppLocalizations.of(context).label_input_input,
-                  hintStyle: getTextStyle(AppTypo.body16R, AppColors.grey300),
+                  hintMaxLines: 1,
+                  hintStyle: PicnicUi.text(size: 16, color: PicnicUi.quietText),
                   border: InputBorder.none,
-                  focusColor: AppColors.primary500,
+                  focusColor: PicnicUi.actionColor,
                   fillColor: AppColors.grey900,
                   isCollapsed: true,
                   contentPadding: EdgeInsets.symmetric(
-                    horizontal: 24.w,
-                    vertical: 5,
+                    horizontal: columns ? 24 : PicnicUi.horizontal(24),
+                    vertical: _amountInputVerticalPadding(),
                   ),
                 ),
                 onChanged: (_) => _validateVote(),
@@ -406,12 +1152,13 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     );
                   }),
                 ],
-                style: getTextStyle(AppTypo.body16B, AppColors.grey900),
+                style: _amountInputStyle(),
               ),
             ),
           ),
           VotingClearButton(
             hasValue: _hasValue,
+            columns: columns,
             onClear: () {
               _textEditingController.clear();
               if (mounted) {
@@ -433,7 +1180,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     return BubbleBox(
       shape: BubbleShapeBorder(
         border: BubbleBoxBorder(
-          color: AppColors.primary500,
+          color: PicnicUi.actionColor,
           width: 1.5,
           style: BubbleBoxBorderStyle.dashed,
         ),
@@ -454,6 +1201,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // 멱등성이 걸리지 않는다 - 한 번의 투표가 아니라 두 번의 차감이 된다.
     // 아래 조기 반환 경로들은 반드시 플래그를 되돌려야 한다.
     setState(() => _isVoting = true);
+    // Ahead of the validation branches below, not after them: those branches
+    // put an error dialog on top of a *still focused* field, and dismissing
+    // that dialog hands focus straight back to it — the keyboard comes back
+    // over a popup the user was trying to leave.
+    _unfocusVoteInput();
 
     final voteAmount = _getVoteAmount();
     final amount = BigInt.from(voteAmount);
@@ -465,7 +1217,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
                     VotingDialogHelper.hasGeneralVoteBalance(wallet, amount),
               )
         : BigInt.from(myStarCandy) >= amount;
+    // `mounted` alone is not the guard here — it is only the half the analyzer
+    // can see. An imperative pop leaves the State mounted for the whole reverse
+    // transition, and a balance read that lands in that window would carry a
+    // leaving popup straight into a real submission.
     if (!mounted) return;
+    if (!_routeIsActive) return;
     if (voteAmount == 0 || !hasBalance) {
       setState(() => _isVoting = false);
       showSimpleDialog(
@@ -480,14 +1237,15 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       return;
     }
 
-    FocusScope.of(context).unfocus();
-
     if (await showWithdrawalBlockedDialog(context: context, ref: ref)) {
       if (mounted) setState(() => _isVoting = false);
       return;
     }
 
+    // Same window as above, and the wider of the two: the withdrawal check is
+    // a network round trip.
     if (!mounted) return;
+    if (!_routeIsActive) return;
 
     _loadingKey.currentState?.show();
 
@@ -551,6 +1309,12 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
     // (사용자가 다른 탭으로 이동/뒤로가기) catch 블록의 provider 접근이 안전
     // 하도록 함수 시작 시 container 를 보관 (PICNIC-APP-530).
     final container = ProviderScope.containerOf(context);
+    // 같은 자리에서 **이 투표를 하는 계정**도 잡는다(PICNIC-2664). 투표 RPC 는
+    // 네트워크만큼 걸리고, 아래 invokeVotingWithAuthRecovery 는 그 사이 세션을
+    // 갱신해 재시도까지 한다. 그 창에서 계정이 바뀌면 A 의 정산 잔액이 B 화면에
+    // 쓰인다. 여기서 잡아야 의미가 있다 - 응답이 온 뒤에 잡으면 그 순간의
+    // 계정이라 항상 통과한다.
+    final applyWallet = ContainerWalletSummaryApplier.forContainer(container);
     // invoke(2xx) 도달 여부. invoke 자체 실패(=팝업 원인)와, 성공 후 후처리에서
     // throw 된 경우를 텔레메트리에서 구분(vote_fail_phase)하기 위한 플래그.
     bool invokeSucceeded = false;
@@ -594,9 +1358,7 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
             },
           ),
         );
-        container
-            .read(walletSummaryProvider.notifier)
-            .setSummary(result.wallet);
+        applyWallet(result.wallet);
         container
             .read(
               asyncVoteItemListProvider(voteId: widget.voteModel.id).notifier,
@@ -659,7 +1421,11 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       // navigatorKey context를 pop 전에 캡처 (dialog dispose 후에도 유효)
       final navContext = navigatorKey.currentContext;
 
-      Navigator.of(context).pop();
+      // Idempotent belt-and-braces before the terminal pop: submission already
+      // blurred the field, but this is the pop the completion dialog replaces
+      // the route with, and it must not hand a live editing session over.
+      _unfocusVoteInput();
+      _dismissOwnRoute();
 
       await Future.delayed(const Duration(milliseconds: 100));
 
@@ -688,8 +1454,9 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
       }
 
       if (mounted) {
-        Navigator.of(context).pop();
+        _unfocusVoteInput();
       }
+      _dismissOwnRoute();
 
       // 복구(rollback/pop) 이후에 best-effort 텔레메트리. 절대 복구를 막지 않는다.
       _reportVoteFailure(e, afterInvoke: invokeSucceeded);

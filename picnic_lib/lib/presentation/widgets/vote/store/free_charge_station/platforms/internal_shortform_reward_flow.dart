@@ -178,6 +178,7 @@ class InternalShortformViewRecoveryFlow {
     required this.view,
     required this.poll,
     this.onPollError,
+    this.onGrantConfirmed,
   });
 
   final InternalShortformViewFlow view;
@@ -185,13 +186,26 @@ class InternalShortformViewRecoveryFlow {
   poll;
   final void Function(Object error, StackTrace stackTrace)? onPollError;
 
+  /// Called the moment an authenticated current view comes back already
+  /// GRANTED, before anything is rendered.
+  ///
+  /// This is the only point on the synchronous path where the app observes the
+  /// grant while the owner is still verified. Everything after it depends on
+  /// the route surviving: the fullscreen page shows its receipt only while
+  /// `mounted`, and the acknowledgement runs from that dialog's first frame. A
+  /// user who closes the ad as the callback lands disposes the route first, and
+  /// the grant would then be observed by nobody.
+  final void Function(String ownerUserId, AdRewardStatusModel status)?
+  onGrantConfirmed;
+
   Future<InternalShortformViewResponse> report() async {
     final response = await view.report();
+    final reward = response.reward;
     // A synchronously granted reward is presented by the fullscreen page while
     // the ad is still open. Starting recovery here races that local receipt and
     // delays it until the route has been dismissed.
-    if (response.reward == null ||
-        response.reward!.state == AdRewardState.granted) {
+    if (reward == null || reward.state == AdRewardState.granted) {
+      if (reward != null) _recordConfirmedGrant(reward);
       return response;
     }
     final owner = view.session.ownerUserId!;
@@ -207,5 +221,21 @@ class InternalShortformViewRecoveryFlow {
       }),
     );
     return response;
+  }
+
+  /// 통계 기록은 보상 흐름을 절대 막지 않는다. 여기서 던진 예외가 report() 를
+  /// 실패시키면 시청 응답 자체가 유실된다.
+  void _recordConfirmedGrant(AdRewardStatusModel reward) {
+    final record = onGrantConfirmed;
+    if (record == null) return;
+    // `view.report()` 가 발급 소유자와 현재 소유자가 같은 경우에만 여기까지
+    // 오므로 이 값은 인증된 현재 사용자다.
+    final owner = view.session.ownerUserId;
+    if (owner == null) return;
+    try {
+      record(owner, reward);
+    } catch (error, stackTrace) {
+      onPollError?.call(error, stackTrace);
+    }
   }
 }

@@ -237,7 +237,7 @@ void main() {
 
       final position = tester
           .state<ScrollableState>(
-            find.descendant(of: scrollable, matching: find.byType(Scrollable)),
+            find.descendant(of: scrollable, matching: find.byType(Scrollable)).first,
           )
           .position;
       expect(

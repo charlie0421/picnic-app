@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2743 · iOS 미완료 결제 복구 검증</title>
+<style>
+body{margin:0;background:#f6f7f9;color:#202a35;font:16px/1.7 system-ui,-apple-system,"Apple SD Gothic Neo",sans-serif}main{max-width:940px;margin:auto;padding:40px 22px 72px}h1{font-size:1.8rem;line-height:1.4}h2{font-size:1.2rem;margin-top:34px}p,li{max-width:85ch}a{color:#156456}code{background:#e9edf1;padding:2px 5px;border-radius:4px;overflow-wrap:anywhere}pre{padding:16px;background:#e9edf1;overflow:auto}pre code{padding:0}table{border-collapse:collapse;width:100%;background:white}th,td{border:1px solid #d6dde4;padding:10px;text-align:left;vertical-align:top}th{background:#eaf0f4}.note{padding:16px;border-left:4px solid #c08120;background:#fff7e6}.meta{color:#5b6673;font-size:.9rem}.table{overflow:auto}@media(prefers-color-scheme:dark){body{background:#151a20;color:#e4e9ef}a{color:#8acbbc}table{background:#1c232b}th{background:#273340}th,td{border-color:#43505e}code,pre{background:#273340}.note{background:#332b1d}.meta{color:#aebac7}}
+</style>
+</head>
+<body><main>
+<h1>PICNIC-2743 · iOS 미완료 결제 복구</h1>
+<p class="meta">2026-09-21 · picnic-app · fix/ios-purchase-recovery · 실기기 검증 및 배포 전</p>
+<p>승인 범위는 SK2/JWS 기반 미완료 거래 회수, 백그라운드 캐시 정리 중 구매 스트림 구독 유지, 결제 실패 Sentry 관측과 로그인 사용자 식별 연동이다.</p>
+<h2>확인한 원인과 수정 범위</h2>
+<div class="table"><table><thead><tr><th>문제</th><th>수정 목표</th><th>보호 조건</th></tr></thead><tbody>
+<tr><td>SK1 앱 영수증을 JWS 전용 검증 경로에 전송</td><td>고정된 StoreKit 플러그인의 <code>SK2Transaction.unfinishedTransactions()</code>와 거래별 JWS 사용</td><td>서버 지급 확인 후 finish. 구매 진행·승인 대기·검증 불가 거래 보존.</td></tr>
+<tr><td>백그라운드 캐시 정리 중 구매 스트림 cancel/재구독</td><td>캐시 정리 중에도 구매 이벤트를 연속 수신</td><td>구독 중복과 정리 도중 이벤트 유실 방지.</td></tr>
+<tr><td>결제 실패 및 계정별 관측 부족</td><td>제한된 오류 분류와 인증 사용자 ID 기록</td><td>로그아웃·계정 전환 반영. 영수증·토큰·이메일·원본 오류 본문 제외.</td></tr>
+</tbody></table></div>
+<h2>기존 핸드오프의 타이밍 설명 정정</h2>
+<p>고정 버전 <code>in_app_purchase_storekit 0.4.8+1</code>의 SK2 구매 호출은 네이티브 <code>product.purchase()</code> 결과를 기다리고 이벤트를 보낸 후 반환한다. 앱은 그 반환 뒤 백그라운드 정리를 예약한다. 따라서 “결제 시작 5초 뒤 구독이 끊겨 오래 걸리는 일반 결제를 놓친다”는 설명은 확정 근거로 사용할 수 없다. 정리 중 구독 공백은 실제 코드 결함이며, 비동기·지연 구매 이벤트에 대한 위험을 제거하는 것이 이번 수정의 근거다.</p>
+<h2>검증 기록</h2>
+<p>수정 전 관련 3개 파일의 55개 테스트 통과. Flutter 3.41.4 / Dart 3.11.1, lockfile 고정 설치 사용.</p>
+<div class="table"><table><thead><tr><th>검증</th><th>결과</th><th>범위</th></tr></thead><tbody>
+<tr><td>최종 집중 테스트</td><td>437 통과 · 실패 0</td><td>최신 main <code>1dc2a2831</code> 위의 최종 보완 코드. 결제 복구·스트림·완료 타임아웃·Sentry·인증 초기화 관련 12개 파일.</td></tr>
+<tr><td>전체 라이브러리 테스트</td><td>14,963 통과 · 6 건너뜀 · 15 실패</td><td>최종 리뷰 보완 전 전체 실행. 실패는 모두 화면 golden 비교이며, 수정 전 <code>40f9e1dfd</code> 복사본에서 15개 전부 재현했다. 공통으로 생성된 출력 이미지 11개도 바이트가 동일했다.</td></tr>
+<tr><td>변경 경로 정적 분석</td><td>오류 0 · 기존 경고 1 · 기존 안내 11</td><td><code>profilesSampleRate</code> 실험 API 경고와 캐시 관리 파일의 <code>unnecessary_this</code>. 분석 명령 종료 코드는 경고 때문에 2이며, “전체 분석 통과”로 간주하지 않는다.</td></tr>
+<tr><td>공백·충돌 표시 검사</td><td><code>git diff --check</code> 통과</td><td>lockfile·네이티브 의존성·서버·배포 설정 변경 없음.</td></tr>
+</tbody></table></div>
+<details><summary>최종 집중 테스트 재현 명령</summary><pre><code>cd picnic_lib
+flutter test --no-pub \
+  test/core/services/ios_sk2_unfinished_source_test.dart \
+  test/core/services/in_app_purchase_background_clear_stream_test.dart \
+  test/core/services/in_app_purchase_finalize_timeout_test.dart \
+  test/core/services/purchase_sweep_live_in_flight_test.dart \
+  test/core/services/purchase_unconfirmed_transaction_test.dart \
+  test/core/services/in_app_purchase_service_test.dart \
+  test/core/services/in_app_purchase_service_pending_guard_test.dart \
+  test/core/services/global_purchase_listener_test.dart \
+  test/core/services/purchase_diagnostics_test.dart \
+  test/core/utils/app_initializer_test.dart \
+  test/core/utils/app_initializer_global_error_handling_test.dart \
+  test/core/utils/app_initializer_helper_test.dart
+
+# 전체 실행 (아래 기존 golden 실패 포함)
+flutter test --no-pub</code></pre></details>
+<details><summary>수정 전에도 실패하는 화면 테스트 15개</summary>
+<div class="table"><table><thead><tr><th>파일 (picnic_lib/test 기준)</th><th>실패</th><th>테스트</th></tr></thead><tbody>
+<tr><td><code>presentation/common/candy_boost_banner_golden_test.dart</code></td><td>1</td><td>left-aligned candy boost banner golden</td></tr>
+<tr><td><code>presentation/widgets/vote/store/common/reward_breakdown_visual_test.dart</code></td><td>2</td><td>purchase row visual capture; purchase screen full visual capture</td></tr>
+<tr><td><code>presentation/widgets/vote/store/common/usage_policy_dialog_golden_test.dart</code></td><td>8</td><td>static initial content: ko 360×640, ko 390×844, ko 390×844 textScaler 1.3, vi 390×844, ko 320×568 overflowing; static content: ko 360×640 top/bottom, no upcoming rows ko 390×844, ko 320×568</td></tr>
+<tr><td><code>presentation/widgets/vote/store/purchase/candy_boost_purchase_ui_visual_test.dart</code></td><td>3</td><td>promoted product list through STAR10000; STAR200 estimated purchase confirmation; STAR200 server-confirmed split receipt</td></tr>
+<tr><td><code>presentation/widgets/wallet/wallet_summary_panel_golden_test.dart</code></td><td>1</td><td>three-currency wallet golden</td></tr>
+</tbody></table></div><p>수정 전 코드와 같은 Flutter·고정 lockfile로 재현했다. 원인을 환경 차이로 확정하지 않았으며, 기대 이미지는 갱신하지 않았다.</p></details>
+<h2>독립 리뷰에서 보완한 사항</h2>
+<ul>
+<li><strong>SK2 finish 무응답:</strong> 고정 플러그인은 거래를 찾지 못하면 완료 응답을 보내지 않는다. 정상 경로와 스윕의 동시 완료를 고려해 10초 제한 후 <code>preserved</code>로 반환한다. 응답이 끝내 오지 않아도 다음 스윕이 실행되는 것을 실제 앱 finalizer와 가짜 플랫폼으로 검증했다. 네이티브 호출 자체를 취소하는 변경은 아니다.</li>
+<li><strong>네이티브 Sentry 병합:</strong> 네이티브 데이터 병합이 로그와 미로그인 사용자 식별자를 다시 붙일 수 있어, 최초 사용자 ID를 이벤트별 Hint에 고정하고 최종 <code>beforeSend</code>에서 사용자·breadcrumbs를 재설정한다. 실제 <code>LoadContextsIntegration</code>과 가짜 네이티브 응답, 직렬화된 전송 envelope로 검증했다. 일반 이벤트는 유지한다.</li>
+<li><strong>미확정 중복 기록:</strong> 스윕의 <code>grantConfirmed=false</code> 중복도 오류 기록을 남기며, 거래는 종료하지 않는다.</li>
+<li>인증 이벤트에서 접근 토큰을 출력하던 기존 로그 한 줄을 제거했다.</li>
+</ul>
+<p id="review-result">Claude Opus/high 구현 및 독립 리뷰, 현재 Codex 세션의 추가 소스 검토. 신규 Codex 작업자는 조회된 쿼터 소진으로 사용하지 않았다. 원 리뷰어가 보완 결과를 재검증했고 차단 사항 없음으로 마무리했다(리뷰어 실행 6개 파일·92개 테스트 통과). 과거 <code>handlePurchase</code>/restored 경로의 직접 완료 호출에는 기존 무제한 대기가 남아 있으며 이번 SK2 정산 경합 수정의 대상이 아니다.</p>
+<h2>실기기 및 배포 후 확인</h2>
+<ol>
+<li>지급 전 앱을 종료한 Sandbox 거래가 다음 실행·재개에서 JWS로 재검증되고, 서버 지급 확인 후에만 finish 되는지 확인한다.</li>
+<li>백그라운드 정리 시점의 구매 완료·Ask to Buy 승인 이벤트가 끊기거나 중복 처리되지 않는지 확인한다.</li>
+<li>다른 앱 계정으로 전환한 기기에서 서버 소유자 검사가 지급을 차단하며, 미확정 거래를 앱이 임의로 종료하지 않는지 확인한다.</li>
+<li>실제 Sentry 전송에서 오류 분류와 앱 사용자 ID가 조회되고 로그아웃 후 식별이 해제되는지, 영수증·토큰·이메일이 포함되지 않는지 확인한다.</li>
+<li>배포 버전별 <code>APPLE_JWS_INVALID</code> 발생과 실제 지급 내역을 대조한다. 후보 사용자의 실제 미지급 여부와 보상 판단은 별도 운영 확인 대상이다.</li>
+</ol>
+<div class="note">단위 테스트는 실제 Apple 결제 재전달 및 운영 지급 복구를 증명하지 않는다. 다른 계정의 미완료 거래 등 영구 거부가 구매 게이트를 막는 기존 동작은 유지했다. 서버 타임아웃·멱등 충돌, 세션 복원 전 구매 이벤트 보류, 보상 지급, 앱/OTA 배포는 이번 변경 범위 밖이다.</div>
+<p>결제 보고에서 신규 수집하는 값은 앱 사용자 ID와 오류 분류·상품·플랫폼이다. 영수증·JWS·토큰·원본 오류 객체는 전달하지 않는다. 기존 SDK의 장치·OS·일반 tags/contexts 수집 전체를 제거하는 변경은 아니다. 과거 경로 <code>handlePurchase</code> 전체에 대한 관측 확대는 포함하지 않았다.</p>
+<h2>자료와 기록 범위</h2>
+<ul>
+<li><a href="https://pub.dev/packages/in_app_purchase_storekit/changelog">Flutter StoreKit 플러그인 변경 이력</a> 및 설치된 고정 버전의 Dart/Swift 소스를 대조했다. 의존성 갱신 없이 기존 API를 사용한다.</li>
+<li><a href="https://developer.apple.com/documentation/storekit/verificationresult/jwsrepresentation-21vgo">Apple JWS 문서</a>: 서버 검증용 거래 증빙.</li>
+<li><a href="https://supabase.com/docs/reference/dart/auth-onauthstatechange">Supabase 인증 이벤트 문서</a>: 초기 세션·로그인·로그아웃·계정 변경 및 스트림 오류 처리.</li>
+</ul>
+<p>사용자 식별자가 포함된 원본 핸드오프는 로컬 문서와 별도 로컬 Git 이력에 보존한다. 공개 PR에는 식별자를 제외한 이 검증 문서와 이번 코드·테스트만 포함한다. Jira 상태는 변경하지 않는다.</p>
+</main></body></html>

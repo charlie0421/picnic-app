@@ -71,7 +71,7 @@ void main() {
         const attempt = PurchaseCampaignAttempt(
           attemptId: 'attempt-1',
           productId: 'STAR100',
-          displayedCampaign: null,
+          displayedPromotion: null,
         );
         expect(attempts.begin(attempt), isTrue);
         attempts.applyLaunchResult('STAR100', 'attempt-1', const {

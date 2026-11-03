@@ -18,10 +18,7 @@ class CommonBottomNavigationBar extends ConsumerWidget {
     // 디바이스 하단 안전영역에 따라 네비게이션 바의 바닥 마진을 조정
     // Android 15(edge-to-edge)에서는 MediaQuery.padding.bottom이 0이므로
     // viewPadding.bottom을 우선 사용해 제스처 영역까지 고려한다.
-    final mediaQuery = MediaQuery.of(context);
-    final double safeBottom = mediaQuery.viewPadding.bottom;
-    // 기본 여백(디자인 스펙) + 기기 안전 영역
-    final double dynamicBottomMargin = 16.h + (safeBottom > 0 ? safeBottom : 0);
+    final double dynamicBottomMargin = NavBarConstants.bottomMargin(context);
     final screenInfo = NavigationConfigs.getScreenInfo(
       navigationInfo.portalType,
     );

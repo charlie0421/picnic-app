@@ -91,6 +91,7 @@ class _GalleryPageState extends ConsumerState<GalleryPage> {
                             imageUrl: gallery.cover ?? '',
                             width: 361,
                             height: 215,
+                            cdnVariant: PicnicCdnImageVariant.large,
                             fit: BoxFit.cover,
                           )),
                       Positioned(

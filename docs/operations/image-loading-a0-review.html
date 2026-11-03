@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>이미지 로딩 최적화 A0/C0 독립 코드 리뷰</title>
+<style>
+  :root { --bg:#fbfbfa; --fg:#1d1d1f; --muted:#5d5d63; --line:#e2e2df; --code:#f4f4f1;
+          --blk:#b3261e; --hi:#c2410c; --med:#a16207; --low:#3f6212; }
+  body { margin:0; background:var(--bg); color:var(--fg);
+         font:15px/1.65 -apple-system, "SF Pro Text", "Helvetica Neue", "Apple SD Gothic Neo", sans-serif; }
+  main { max-width:960px; margin:0 auto; padding:40px 24px 80px; }
+  h1 { font-size:26px; letter-spacing:-.02em; margin:0 0 6px; }
+  h2 { font-size:19px; margin:44px 0 12px; padding-bottom:6px; border-bottom:1px solid var(--line); }
+  h3 { font-size:16px; margin:28px 0 8px; }
+  .sub { color:var(--muted); font-size:14px; margin:0 0 28px; }
+  code, pre { font-family:"SF Mono", ui-monospace, Menlo, monospace; font-size:13px; }
+  code { background:var(--code); padding:1px 5px; border-radius:3px; }
+  pre { background:var(--code); padding:12px 14px; border-radius:6px; overflow-x:auto;
+        border:1px solid var(--line); }
+  table { border-collapse:collapse; width:100%; margin:16px 0; font-size:14px; }
+  th, td { border:1px solid var(--line); padding:8px 10px; text-align:left; vertical-align:top; }
+  th { background:var(--code); font-weight:600; }
+  .tag { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em;
+         padding:2px 8px; border-radius:10px; color:#fff; vertical-align:2px; }
+  .t-blk{background:var(--blk)} .t-hi{background:var(--hi)} .t-med{background:var(--med)} .t-low{background:var(--low)}
+  .finding { border:1px solid var(--line); border-radius:8px; padding:18px 20px; margin:20px 0; background:#fff; }
+  .finding h3 { margin-top:0; }
+  dl { margin:12px 0 0; }
+  dt { font-weight:600; font-size:13px; color:var(--muted); margin-top:10px; }
+  dd { margin:2px 0 0; }
+  ul { padding-left:22px; } li { margin:4px 0; }
+  .ok { color:var(--low); font-weight:600; }
+  .note { background:#fffdf5; border-left:3px solid var(--med); padding:10px 14px; margin:14px 0; font-size:14px; }
+</style>
+</head>
+<body>
+<p style="padding:16px;border:2px solid #16804a;background:#effaf2"><strong>과거 단계의 리뷰 기록입니다.</strong> 아래 A0 지적 3건은 후속 수정과 2026-09-13 Opus 재검토에서 모두 해소됐습니다. 현재 판단은 <a href="image-loading-core-review.html">최종 공통 이미지 리뷰</a>와 <a href="image-loading-optimization-result.html">최종 작업 결과</a>를 기준으로 확인하세요.</p>
+
+<main>
+
+<h1>이미지 로딩 최적화 — A0/C0 독립 코드 리뷰</h1>
+<p class="sub">
+대상 워크트리 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/이미지최적화</code> ·
+브랜치 <code>charlie0421/이미지최적화</code> · 기준 <code>1e38f174a</code> · 2026-09-12<br>
+리뷰 범위: 완료된 A0/C0 변경 5개 파일 + 신규 <code>picnic_cached_network_image_success_test.dart</code>.
+진행 중인 <code>picnic_image_request.dart</code> / <code>picnic_image_prefetch.dart</code> / <code>test/helpers/image_test_harness.dart</code> 는 제외.
+구현자 설명 없이 diff·패키지 소스·SDK 소스·실행 결과만으로 검증.
+</p>
+
+<h2>요약</h2>
+<p>
+중복 디코딩 제거와 성공 후 무한 프레임 제거라는 <strong>두 핵심 목표는 실제로 달성</strong>되었고,
+생명주기 가드(generation + URL + mounted)는 요구사항대로 촘촘하다.
+그러나 중복 디코딩을 제거한 <strong>단 한 줄</strong>(<code>ResizeImage.resizeIfNeeded</code>)이
+표시 경로의 디코드 키를 바꿔, 그동안 <em>보이지 않는 디코드</em>에만 적용되던 잘못된
+<code>memCache*</code> 값이 이제 <strong>화면에 그대로 드러난다</strong>. 결과는 종횡비 왜곡과 해상도 손실 2건이며,
+둘 다 현재 상태로는 머지 차단 사유로 본다.
+</p>
+
+<table>
+  <tr><th>#</th><th>심각도</th><th>내용</th><th>위치</th></tr>
+  <tr><td>1</td><td><span class="tag t-blk">BLOCKER</span></td>
+      <td><code>ResizeImagePolicy.exact</code> + 양쪽 치수 지정 → 디코드 단계에서 <code>BoxFit.fill</code> 의미. <code>BoxFit.cover/fitWidth</code>가 무력화되고 이미지가 눌린다</td>
+      <td><code>picnic_cached_network_image.dart:1039</code></td></tr>
+  <tr><td>2</td><td><span class="tag t-blk">BLOCKER</span></td>
+      <td><code>memCache*</code>는 논리 px, CDN <code>w/h</code>는 물리 px. 잠재 결함이던 문서화된 KNOWN ISSUE가 이 변경으로 실제 블러가 된다</td>
+      <td><code>picnic_cached_network_image.dart:1039</code> + <code>302-351</code></td></tr>
+  <tr><td>3</td><td><span class="tag t-med">MEDIUM</span></td>
+      <td>성공 latch가 같은 generation의 재로딩에서 타임아웃 재장전을 영구 차단 → 재요청 스톨 시 무한 shimmer</td>
+      <td><code>picnic_cached_network_image.dart:936, 995, 1003</code></td></tr>
+  <tr><td>4</td><td><span class="tag t-low">LOW</span></td>
+      <td><code>LazyLoadingStrategy.none</code>과 함께 추가한 <code>priority: high</code>는 동작하지 않는 죽은 설정</td>
+      <td><code>jma_voting_dialog.dart:637</code>, <code>voting_dialog_widgets.dart:41</code></td></tr>
+  <tr><td>5</td><td><span class="tag t-low">LOW</span></td>
+      <td>제거된 <code>vote_home_page._optimizeImageCacheForPage()</code>를 근거로 삼는 주석이 그대로 남아, 후속 작업자를 오도한다</td>
+      <td><code>picnic_cached_network_image.dart:526-535</code></td></tr>
+  <tr><td>6</td><td><span class="tag t-low">LOW</span></td>
+      <td>테스트 공백: 신규 테스트가 종횡비 일치·DPR 1 조건만 검증해 #1·#2를 구조적으로 잡을 수 없다</td>
+      <td><code>picnic_cached_network_image_success_test.dart:149-158</code></td></tr>
+</table>
+
+<h2>검증된 부분 (회귀 없음)</h2>
+<ul>
+  <li><span class="ok">중복 디코딩 제거 — 실제로 동작한다.</span>
+      <code>cached_network_image 3.4.1</code>의 <code>_octoImageBuilder</code>는
+      <code>imageBuilder!(context, _image)</code>로 <strong>원본</strong> <code>CachedNetworkImageProvider</code>를 넘기고
+      (<code>cached_image_widget.dart:299</code>), OctoImage는 내부적으로
+      <code>ResizeImage.resizeIfNeeded(memCacheWidth, memCacheHeight, image)</code>를 쓴다
+      (<code>octo_image-2.1.0/lib/src/image/image.dart:205</code>, <code>image_handler.dart:182</code>).
+      변경 전에는 두 키가 달라 ImageCache 엔트리가 2개였고, 앱이 표시하는 쪽은 원본 해상도 디코드였다.
+      변경 후 양쪽이 동일한 <code>ResizeImageKey</code>가 되어 엔트리 1개로 합쳐진다
+      (키 동등성은 <code>image_provider.dart:814-824</code>에서 <code>_providerCacheKey/_policy/_width/_height/_allowUpscaling</code> 비교).
+      신규 테스트의 <code>currentSize == 1</code> 단정이 이 지점을 정확히 고정한다.</li>
+  <li><span class="ok">성공 후 지속 프레임 제거 — 실제 무한 루프를 고쳤다.</span>
+      변경 전 <code>imageBuilder</code>는 호출마다 무조건 post-frame <code>setState</code>를 예약했고
+      (게다가 <code>_onImageLoadSuccess</code>의 것까지 합쳐 2개), <code>setState</code>는 값 변화와 무관하게 dirty를 찍으므로
+      build → imageBuilder → post-frame setState → build … 가 끝나지 않았다.
+      <code>_successTransitionScheduledFor</code> / <code>_successfulRequestGeneration</code> latch가 이를 정확히 1프레임으로 끊고,
+      <code>_initializeLazyLoading</code>이 이미 로드된 URL로 진입한 경우(<code>1308-1310</code>)는 0프레임이다.</li>
+  <li><span class="ok">이전 URL·재시도 콜백 격리.</span>
+      <code>_isCurrentImageRequest</code>가 <code>mounted && generation && widget.imageUrl</code>를 한꺼번에 보고,
+      <code>imageBuilder</code>·<code>errorWidget</code>·<code>progressIndicatorBuilder</code>·타임아웃·재시도·모든 post-frame에 적용됐다.
+      Timer 쪽은 <code>identical(_imageTimeoutTimer, timeoutTimer)</code> / <code>identical(_retryTimer, retryTimer)</code>로
+      교체된 타이머의 뒤늦은 발화까지 막는다. <code>didUpdateWidget</code>과 재시도 타이머가 generation을 올리면서
+      두 latch를 같이 비우므로 A→B→A 전환에서도 정지 상태가 남지 않는다.</li>
+  <li><span class="ok">서명된 URL 보존.</span>
+      <code>PicnicCachedNetworkImageUrlResolver.resolve</code>는 CDN origin이 아닌 절대 HTTP(S) URL을 원문 그대로 반환한다
+      (<code>picnic_cached_network_image_url_resolver.dart:32-42</code>). 외부 avatar가 공통 로더를 타도 쿼리가 재작성되지 않는다.
+      <code>Uri.parse</code>가 scheme을 소문자로 정규화하므로 <code>_isHttpUrl</code>의 <code>Uri.tryParse</code> 전환과
+      resolver의 <code>scheme == 'https'</code> 비교도 서로 어긋나지 않는다.</li>
+  <li><span class="ok">avatar null/relative fallback 유지.</span>
+      <code>avatarUrl == null || isEmpty</code> → <code>NoAvatar</code>, <code>resolvedUrl.isEmpty</code> → <code>NoAvatar</code>,
+      relative는 종전대로 <code>LazyLoadingStrategy.viewport</code>. http 분기만 <code>none</code>이라
+      기존 평문 <code>CachedNetworkImage</code>의 즉시 로딩 성질이 보존된다.</li>
+  <li><span class="ok">투표 팝업 즉시 요청.</span> <code>LazyLoadingStrategy.none</code>이면 <code>build()</code>가
+      <code>VisibilityDetector</code> 없이 바로 <code>_buildSafeMainWidget()</code>을 반환한다
+      (<code>picnic_cached_network_image.dart:764-766</code>). visibility_detector의 기본 갱신 간격 대기가 사라진다.</li>
+  <li><span class="ok">vote_home_page 일시 축소 제거.</span> 제거된 코드의 <code>Future.delayed(100ms)</code> 복원에는
+      <code>mounted</code> 가드가 없어 페이지 이탈 후에도 전역 <code>maximumSizeBytes</code>를 덮어썼다. 제거가 옳다.
+      <code>logger</code>·<code>PaintingBinding</code> 잔여 import 문제 없음(analyze clean).</li>
+  <li><span class="ok">GIF 애니메이션 동작.</span> <code>ResizeImage</code>는 codec 레벨 target size만 바꾸므로 멀티프레임이 유지되고,
+      OctoImage는 변경 전에도 같은 값으로 리사이즈 디코드를 하고 있었다. 다만 <em>선명도</em>는 #1·#2의 영향을 그대로 받는다.</li>
+  <li><span class="ok">확인한 실행 결과.</span> 직접 재현:
+      <code>flutter test --no-pub</code> (loader 9종 + avatar_container) → <strong>245 passed, 3 skipped</strong>.
+      <code>flutter analyze --no-pub</code> (변경 production 4종 + 신규 test) → <strong>No issues found</strong>.
+      코디네이터가 보고한 그린 상태와 일치한다.</li>
+</ul>
+
+<h2>지적 사항</h2>
+
+<div class="finding">
+<h3><span class="tag t-blk">BLOCKER</span> 1. <code>ResizeImagePolicy.exact</code>가 <code>BoxFit.cover</code>를 무력화한다 (종횡비 왜곡)</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>picnic_lib/lib/presentation/common/picnic_cached_network_image.dart:1039-1043</code>
+      (호출 값은 <code>:912-921</code>, 계산은 <code>_computeCacheDimension :338-351</code>)</dd>
+
+  <dt>근거</dt>
+  <dd>
+    <code>_computeCacheDimension</code>은 <strong>절대 null을 반환하지 않는다</strong>(마지막 fallback 400).
+    따라서 <code>ResizeImage.resizeIfNeeded(w, h, provider)</code>는 항상
+    <code>ResizeImage(provider, width: w, height: h)</code>를 만들고, <code>policy</code>는 기본값
+    <code>ResizeImagePolicy.exact</code>다. Flutter 3.41.4 SDK 문서:
+    <pre>// image_provider.dart:838-841
+/// If [ResizeImage.width] and [ResizeImage.height] are both non-null, the
+/// output image will have the specified width and height (with the
+/// corresponding aspect ratio) regardless of whether it matches the source
+/// image's intrinsic aspect ratio. This case is similar to [BoxFit.fill].</pre>
+    <code>allowUpscaling: false</code>의 클램프는 원본보다 <em>큰</em> 목표만 줄이므로 이 경우를 구제하지 못한다.
+    변경 전에는 표시용 <code>Image</code>가 원본 provider를 써서 네이티브 종횡비로 디코드되고
+    위젯의 <code>fit</code>이 크롭을 담당했다. 변경 후에는 디코드 단계에서 이미 눌려 나오고,
+    <code>BoxFit.cover</code>는 이미 박스와 같은 비율인 비트맵을 받아 아무것도 크롭하지 않는다.
+  </dd>
+
+  <dt>실패 조건 / 재현</dt>
+  <dd>
+    <strong>실측 확인(코디네이터 독립 프로브, <code>/tmp/picnic-image-aspect-probe.log</code>):</strong>
+    신규 success_test를 복사해 위젯 height와 <code>memCacheHeight</code>만 40→80으로 바꾸고
+    fixture는 160×80(2:1) 유지 → 기대 80×40, <strong>실제 <code>RawImage</code> 80×80</strong>. exit 1.
+    2:1 원본이 1:1로 눌렸다는 직접 증거다.<br><br>
+    <strong>프로덕션 경로 —</strong> <code>cdn.picnic.fan</code>은 레포에 기록된 프로덕션 실측대로
+    <em>비율 유지</em> 리사이저다: <code>common_banner.dart:244-253</code>
+    "h 미지정 시 <code>_hauto_</code>, 비율 유지 리사이즈 … 원본보다 큰 w 는 업스케일 없이 원본 크기로 클램프".
+    즉 내려오는 비트맵의 비율은 <strong>원본</strong> 비율이고 위젯 박스 비율이 아니다.
+    <ul>
+      <li><code>common_banner.dart:227-262</code> — 박스 = 화면폭 × (화면폭/aspectRatio), <code>fit: BoxFit.cover</code>,
+          <code>memCacheWidth/Height</code> = 그 논리 치수. 정사각 원본 배너라면
+          <code>ResizeImage(exact, 390, 219)</code>가 정사각을 390×219로 눌러버리고 <code>cover</code>는 무동작 →
+          배너가 수직으로 찌그러져 보인다.</li>
+      <li><code>vote_home_page.dart:341-346</code> — 이번 변경에 포함된 파일. <code>width: 120, height: 100, fit: BoxFit.fitWidth</code>,
+          명시 memCache 없음 → fallback으로 목표 120×100. 정사각 리워드 이미지가 20% 수직 압축된다.
+          변경 전에는 <code>fitWidth</code>가 120×120으로 스케일한 뒤 <code>ClipRRect</code>가 잘라내 비율이 보존됐다.</li>
+      <li>외부(비-CDN) URL은 <code>w/h</code>가 아예 붙지 않아 원본 비율이 임의다 — 왜곡이 확정적이다.</li>
+    </ul>
+  </dd>
+
+  <dt>기존 문제인가</dt>
+  <dd><strong>아니다 — 이 변경이 만든 회귀다.</strong> 변경 전 동일 값이 OctoImage 내부 디코드에도 쓰였지만
+      그 출력은 <code>imageBuilder</code>가 통째로 교체해 화면에 닿지 않았다.</dd>
+
+  <dt>최소 수정 방향</dt>
+  <dd>
+    <strong>주의: <code>policy</code>는 <code>ResizeImageKey</code>의 구성 요소다.</strong> imageBuilder 쪽만
+    <code>ResizeImagePolicy.fit</code>으로 바꾸면 OctoImage의 <code>exact</code> 키와 달라져
+    <strong>중복 디코딩이 되살아난다</strong>. 양쪽이 같은 키를 유지해야 한다.
+    <code>CachedNetworkImage</code>가 OctoImage에 넘기는 경로는 <code>memCacheWidth/Height</code>뿐이므로
+    현실적인 최소 수정은 <strong>한 축만 지정</strong>하는 것이다:
+    <pre>// 양쪽 모두 (memCacheWidth: N, memCacheHeight: null)
+//   → policy exact + 단일 축 = BoxFit.fitWidth 의미, 비율 유지
+memCacheWidth: memoryCacheWidth,
+memCacheHeight: null,
+...
+ResizeImage.resizeIfNeeded(memoryCacheWidth, null, imageProvider)</pre>
+    <code>allowUpscaling: false</code>이므로 결과 비트맵은 원본보다 커지지 않는다 —
+    즉 변경 전 표시 디코드(원본 그대로)보다 항상 작거나 같다.
+    <code>fit: BoxFit.cover</code>로 세로가 지배적인 원본을 다루는 화면이 있으면 그 호출부만
+    높이 축 지정으로 뒤집는다. 이 수정이 어려우면 #1·#2가 해결될 때까지
+    <code>ResizeImage</code> 래핑을 되돌리고 중복 디코딩 제거는 별도 롤아웃 단위로 분리한다.
+  </dd>
+</dl>
+</div>
+
+<div class="finding">
+<h3><span class="tag t-blk">BLOCKER</span> 2. <code>memCache*</code>가 논리 px이라 표시 해상도가 DPR배 떨어진다 (블러)</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>picnic_cached_network_image.dart:1039</code> (원인 줄) +
+      <code>:338-351</code> <code>_computeCacheDimension</code> (<code>multiplier</code>가 항상 <code>1.0</code>: <code>:912-921</code>)</dd>
+
+  <dt>근거</dt>
+  <dd>
+    <code>_computeCacheDimension</code>은 <code>explicit</code>이든 논리 <code>width/height</code> fallback이든
+    DPR을 곱하지 않는다. 반면 다운로드 URL의 <code>w/h</code>는 <code>_getResolutionMultiplier</code>
+    (DPR × 1.1~1.3, 최대 2.5~4.0, <code>:848-861</code>)로 물리 px 목표를 만든다.
+    이 단위 불일치는 이미 <code>:302-337</code>에 KNOWN ISSUE로 상세히 기록돼 있고, 그 주석은
+    "렌더 시 화면이 요구하는 물리 픽셀로 다시 업스케일되어 흐릿해지고 내려받은 고해상도 데이터도 버려진다"고
+    정확히 서술한다. <strong>그 서술이 이번 변경으로 처음 사실이 된다</strong> —
+    이전에는 이 값이 보이지 않는 OctoImage 디코드만 지배했기 때문이다.
+  </dd>
+
+  <dt>실패 조건 / 재현</dt>
+  <dd>
+    DPR 3 기기에서 <code>ProfileImageContainer(width: 48, height: 48)</code>:
+    <code>avatar_container.dart:72-73</code>이 <code>memCacheWidth/Height = 48</code>을 넘긴다.
+    화면이 요구하는 물리 픽셀은 144인데 디코드는 48 → 선형 3배 업스케일.
+    CDN 아바타는 120px(48×2.5)를 받아 48로 줄이고, 외부 아바타는 원본(예: 96~1024px)을 48로 줄인다.
+    변경 전 두 경우 모두 받은 해상도 그대로 표시됐다.
+    <br>같은 이유로 <code>vote_detail_page</code>, <code>common_banner</code>, <code>board_list_page</code>,
+    <code>common_artist_widget</code> 등 <code>:327-332</code>에 열거된 명시 호출부 10곳 전부와,
+    명시 없이 fallback을 쓰는 나머지 호출부가 동일하게 영향을 받는다.
+    <br>DPR 1인 위젯 테스트에서는 논리=물리라 구조적으로 드러나지 않는다(#6 참조).
+  </dd>
+
+  <dt>기존 문제인가</dt>
+  <dd><strong>문서화된 기존 결함이지만 이 변경으로 잠재 → 실제로 전환됐다.</strong>
+      <code>:327-337</code>은 저사양 기기 OOM 검증 전에는 단독 판단하지 않겠다며 이 수정을 의도적으로 미뤘다.
+      그 전제는 "memCache* 는 보이지 않는 디코드만 지배한다"였는데, 이제 아니다.</dd>
+
+  <dt>최소 수정 방향</dt>
+  <dd>
+    <code>_computeCacheDimension</code>의 <code>multiplier</code>에 실제 DPR을 넣어 물리 px로 올린다.
+    이 값은 <code>CachedNetworkImage.memCacheWidth</code>로도 흘러가므로 양쪽 키가 자동으로 함께 이동해
+    중복 디코딩 제거는 유지된다. #1의 단일 축 수정과 같은 커밋에서 처리해야 한다
+    (한 축만 물리 px로 올리면 상한이 명확하고 <code>allowUpscaling: false</code>가 원본으로 클램프하므로
+    변경 전 표시 디코드보다 커지지 않는다 — <code>:333-336</code>이 우려한 DPR² 증가는
+    양축 물리 px 확대 시나리오에 해당한다).
+    실기기 메모리 확인이 선행 조건이라면, 그 확인이 끝날 때까지 <code>ResizeImage</code> 래핑을 보류하는 것이
+    이 PR 범위에서 더 안전하다.
+  </dd>
+</dl>
+</div>
+
+<div class="finding">
+<h3><span class="tag t-med">MEDIUM</span> 3. 성공 latch가 같은 generation의 재로딩에서 타임아웃 재장전을 영구 차단한다</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>picnic_cached_network_image.dart:936</code>(타임아웃 장전 조건),
+      <code>:995</code>·<code>:1003</code>(progressIndicator 조건) — 모두
+      <code>_successfulRequestGeneration != requestGeneration</code> 항</dd>
+
+  <dt>근거 / 실패 조건</dt>
+  <dd>
+    <code>_successfulRequestGeneration</code>은 generation이 바뀔 때만 비워진다
+    (<code>didUpdateWidget :626-628</code>, 재시도 타이머 <code>:1188-1190</code>).
+    같은 generation에서 이미지가 <em>다시</em> 로딩 상태로 돌아가면 <code>_loading = true</code>가 설정되지 않고
+    타임아웃 타이머도 장전되지 않는다.
+    <br>재현 경로 — <code>vote_detail_page.dart:1388</code>이 유일하게 <code>deferDuringFastScroll: true</code>를 쓴다:
+    빠른 플링 중 <code>build()</code>가 <code>_buildSafePlaceholder()</code>를 반환해
+    <code>CachedNetworkImage</code> 서브트리가 unmount되고 스트림 리스너가 사라져 ImageCache 엔트리가 evict 가능해진다.
+    스크롤이 멎어 다시 mount될 때 엔트리가 evict되어 있으면 재요청이 발생하고,
+    이때 latch 때문에 <code>effectiveTimeout</code>이 장전되지 않는다.
+    네트워크가 오류 없이 스톨하면(디스크 캐시까지 만료된 경우) shimmer가 무한히 돈다 —
+    변경 전에는 타임아웃이 발화해 재시도/에러 경로로 넘어갔다.
+    오류가 실제로 발생하면 <code>errorWidget → _scheduleRetry</code>가 generation을 올려 자력 복구되므로
+    영향은 "스톨" 케이스에 한정된다.
+  </dd>
+
+  <dt>기존 문제인가</dt>
+  <dd>아니다 — latch 도입으로 생긴 좁은 회귀다.</dd>
+
+  <dt>최소 수정 방향</dt>
+  <dd>
+    세 조건에서 <code>_successfulRequestGeneration != requestGeneration</code>을 <strong>제거</strong>하고
+    <code>_successTransitionScheduledFor != requestGeneration</code>만 남긴다.
+    무한 프레임 방어는 <code>_onImageLoadSuccess</code> 내부 <code>:1291-1295</code>의 조기 반환이 담당하므로
+    루프는 재발하지 않는다. 타임아웃 장전은 이미 <code>_loading == true</code>를 전제하고,
+    성공 직후 <code>_loading</code>이 아직 true인 창은 <code>_successTransitionScheduledFor</code>가 정확히 덮는다.
+    즉 <code>_successfulRequestGeneration</code> 항은 이 세 지점에서 중복이면서 재장전만 막는다.
+  </dd>
+</dl>
+</div>
+
+<div class="finding">
+<h3><span class="tag t-low">LOW</span> 4. 팝업에 추가한 <code>priority: ImagePriority.high</code>는 동작하지 않는다</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>jma_voting_dialog.dart:637</code>, <code>voting_dialog_widgets.dart:41</code></dd>
+  <dt>근거</dt>
+  <dd><code>widget.priority</code>의 사용처는 <code>_onVisibilityChanged :442</code>와
+      <code>_calculateLoadDelay :489</code> 두 곳뿐이고, 둘 다 lazy loading 경로에서만 호출된다.
+      같은 줄에서 <code>LazyLoadingStrategy.none</code>을 지정하면 <code>VisibilityDetector</code>가 붙지 않아
+      두 경로 모두 실행되지 않는다. 즉 두 줄 중 즉시 요청을 만드는 것은
+      <code>lazyLoadingStrategy</code>뿐이고 <code>priority</code>는 무동작이다.</dd>
+  <dt>실패 조건</dt>
+  <dd>기능적 실패는 없다. 후속 작업자가 우선순위 큐가 존재한다고 오해할 위험만 있다
+      (<code>:457-467</code>에 전역 동시성 제어가 제거됐다는 기록이 이미 있다).</dd>
+  <dt>최소 수정 방향</dt>
+  <dd>두 호출부에서 <code>priority</code> 줄을 삭제하거나, 무동작임을 한 줄 주석으로 남긴다.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h3><span class="tag t-low">LOW</span> 5. 제거된 <code>_optimizeImageCacheForPage()</code>를 근거로 삼는 주석이 남아 있다</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>picnic_cached_network_image.dart:526-535</code></dd>
+  <dt>근거</dt>
+  <dd>이 주석은 <code>_optimizeImageCache()</code>를 <code>initState</code>에 유지해야 하는 이유로
+      "<code>vote_home_page.dart</code>의 <code>_optimizeImageCacheForPage()</code>가 100ms 동안 상한을 절반으로 낮춘다"를 들고,
+      "vote_home_page 의 임시 축소 로직과 함께 재설계하기 전까지는 위젯 안에 유지한다"고 못박는다.
+      그 함수는 이번 변경으로 삭제됐다.</dd>
+  <dt>실패 조건</dt>
+  <dd>후속 작업자가 이 주석을 근거로 <code>_optimizeImageCache()</code>를 <code>initState</code> 밖으로 옮기면,
+      <strong>남아 있는</strong> <code>_clearPartialImageCache() :576-584</code>의 동일 패턴이 노출된다 —
+      그쪽 복원은 개별 이미지 위젯의 <code>mounted</code>에 걸려 있어, 200ms 안에 그 위젯이 dispose되면
+      전역 <code>maximumSizeBytes</code>가 70%에 영구 고정된다. 현재는 새 이미지 위젯의 <code>initState</code>가
+      우연히 복원해 주는 구조라 자력 치유되고 있다.</dd>
+  <dt>기존 문제인가</dt>
+  <dd><code>_clearPartialImageCache</code>의 누수는 기존 문제이며 이 변경으로 악화되지 않았다.
+      주석의 stale화만 이번 변경의 산물이다.</dd>
+  <dt>최소 수정 방향</dt>
+  <dd>주석을 "<code>_clearPartialImageCache</code>의 일시 축소를 복원하는 유일한 지점"으로 갱신한다.</dd>
+</dl>
+</div>
+
+<div class="finding">
+<h3><span class="tag t-low">LOW</span> 6. 테스트 공백 — 신규 테스트가 #1·#2를 구조적으로 잡을 수 없다</h3>
+<dl>
+  <dt>위치</dt>
+  <dd><code>picnic_lib/test/presentation/common/picnic_cached_network_image_success_test.dart:149-158</code></dd>
+  <dt>근거</dt>
+  <dd>
+    fixture 160×80과 목표 80×40은 <strong>종횡비가 같다</strong>. 비율이 같은 표본에서는
+    <code>ResizeImagePolicy.exact</code>의 <code>BoxFit.fill</code> 성질이 드러나지 않는다 —
+    코디네이터가 height만 80으로 바꾸자 즉시 실패했다는 사실이 이 공백을 증명한다.
+    또한 위젯 테스트의 DPR은 1이라 논리=물리가 되어 #2도 나타나지 않는다.
+    기존 loader 테스트 9종을 훑어봤을 때 디코드 치수를 단정하는 곳은 이 신규 테스트뿐이다.
+  </dd>
+  <dt>최소 수정 방향</dt>
+  <dd>
+    #1·#2 수정과 함께 두 케이스를 추가한다.
+    (a) fixture 비율 ≠ 목표 비율(예: 160×80 원본, 80×80 박스)에서 디코드가 원본 비율을 유지하는지,
+    (b) <code>tester.view.devicePixelRatio = 3</code>에서 디코드 치수가 물리 px을 따르는지.
+    두 케이스 모두 <code>imageCache.currentSize == 1</code> 단정을 함께 유지해
+    왜곡·블러 수정이 중복 디코딩을 되살리지 않는지 동시에 고정한다.
+    추가로 avatar http 분기(평문 <code>CachedNetworkImage</code> 제거)와 <code>_isHttpUrl</code>의
+    <code>Uri.tryParse</code> 전환은 현재 어떤 테스트도 위젯 트리를 단정하지 않는다 —
+    <code>avatar_container_test.dart</code>는 <code>resolveAvatarImageUrl</code> 문자열과 생성 가능성만 본다.
+  </dd>
+</dl>
+</div>
+
+<h2>기존 문제 — 이 변경과 무관 (참고)</h2>
+<ul>
+  <li><code>_onVisibilityChanged :434-439</code>의 재가시화 재시도는 <code>_reloadToken</code>을 올리지 않아
+      같은 <code>ValueKey</code>의 <code>CachedNetworkImage</code>가 재요청을 하지 않는다. 변경 전후 동일.</li>
+  <li><code>_scheduleRetry</code>가 build 중에 <code>_retryCount++</code>와 로깅을 수행하고,
+      타임아웃과 <code>errorWidget</code>이 같은 실패에 대해 두 번 호출되면 카운트가 두 번 오른다. 변경 전후 동일.</li>
+  <li><code>didUpdateWidget :630</code>은 <code>_retryTimer?.cancel()</code> 후 필드를 <code>null</code>로 되돌리지 않는다.
+      취소된 Timer는 발화하지 않으므로 기능 영향 없음.</li>
+  <li>Environment 미초기화 + relative URL 조합에서 <code>_getTransformedUrls</code>의 <code>StateError</code>가
+      <code>_buildCachedNetworkImage</code>의 <code>try/catch</code> 밖(<code>:709</code>)에서 던져진다.
+      기존 동작이며 전용 테스트가 이미 있다.</li>
+  <li>#1·#2가 해결되면 <code>ScrollAwareImageProvider</code>는 사실상 무동작 래퍼가 된다 —
+      OctoImage가 같은 키를 먼저 캐시에 넣으므로 <code>containsKey(key)</code>가 항상 참이어서
+      지연 분기를 타지 않는다. 실제 지연 게이트는 위젯 레벨 <code>deferDuringFastScroll</code>이다.
+      정리 기회이지만 이번 변경의 결함은 아니다.</li>
+</ul>
+
+<h2>재현에 사용한 명령</h2>
+<pre>cd picnic_lib
+flutter test --no-pub \
+  test/presentation/common/picnic_cached_network_image_success_test.dart \
+  test/presentation/common/picnic_cached_network_image_render_test.dart \
+  test/presentation/common/picnic_cached_network_image_regression_test.dart \
+  test/presentation/common/picnic_cached_network_image_widget_test.dart \
+  test/presentation/common/picnic_cached_network_image_test.dart \
+  test/presentation/common/picnic_cached_network_image_extended_test.dart \
+  test/presentation/common/picnic_cached_network_image_helper_test.dart \
+  test/presentation/common/picnic_cached_network_image_uninitialized_environment_test.dart \
+  test/presentation/common/picnic_cached_network_image_url_resolver_test.dart \
+  test/presentation/common/avatar_container_test.dart
+# → 245 passed, 3 skipped
+
+flutter analyze --no-pub \
+  lib/presentation/common/picnic_cached_network_image.dart \
+  lib/presentation/common/avatar_container.dart \
+  lib/presentation/pages/vote/vote_home_page.dart \
+  lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart \
+  test/presentation/common/picnic_cached_network_image_success_test.dart
+# → No issues found!</pre>
+<p class="sub">
+대조에 사용한 외부 소스: <code>cached_network_image-3.4.1/lib/src/cached_image_widget.dart:245,272-299</code>,
+<code>octo_image-2.1.0/lib/src/image/image.dart:205</code> 및 <code>image_handler.dart:182,220-226,283-287</code>,
+Flutter 3.41.4 <code>packages/flutter/lib/src/painting/image_provider.dart:796-828, 834-847, 1262-1268, 1302-1311</code>.
+</p>
+
+<div class="note">
+속도·바이트·메모리 수치는 이 리뷰에서 측정하지 않았으므로 어떤 수치도 제시하지 않는다.
+본문의 "2.5배", "DPR 3" 등은 코드에 적힌 배율 상한과 가정한 기기 DPR을 그대로 인용한 것이며 실측값이 아니다.
+</div>
+
+</main>
+</body>
+</html>

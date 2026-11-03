@@ -3,12 +3,12 @@ import 'dart:async';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/analytics/auth_analytics_reporter.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/account_deletion_handler.dart';
+import 'package:picnic_lib/core/services/purchase_diagnostics.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/services/network_connectivity_service.dart';
@@ -18,8 +18,10 @@ import 'package:picnic_lib/core/utils/deep_link_handler.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/privacy_consent_manager.dart';
 import 'package:picnic_lib/core/utils/shorebird_utils.dart';
+import 'package:picnic_lib/core/utils/startup_readiness.dart';
 import 'package:picnic_lib/core/utils/system_ui_initializer.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:picnic_lib/core/services/branch_link_service.dart';
 import 'package:picnic_lib/core/services/app_badge_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
@@ -28,6 +30,7 @@ import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
+import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_media_query.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
@@ -37,6 +40,18 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 import 'package:timezone/data/latest.dart' as tz;
+
+class StartupCheckOperations {
+  const StartupCheckOperations({
+    required this.checkNetwork,
+    required this.checkUpdate,
+    required this.checkBan,
+  });
+
+  final Future<bool> Function() checkNetwork;
+  final Future<UpdateInfo> Function({required bool forceRefresh}) checkUpdate;
+  final Future<bool> Function() checkBan;
+}
 
 class AppInitializer {
   static Future<void> initializeBasics() async {
@@ -118,6 +133,10 @@ class AppInitializer {
           AppInitializerHelper.reportSilentFlutterErrors;
 
       options.beforeSend = (event, hint) {
+        // 결제 실패 보고는 네이티브 보강(LoadContextsIntegration) 뒤인 여기서
+        // 계약(브레드크럼 없음·보고 시점 계정)을 다시 적용한다. 다른 이벤트는
+        // 그대로 통과한다.
+        event = PurchaseDiagnostics.sanitizeForSend(event, hint);
         final exception = event.exceptions?.firstOrNull;
         final exceptionValue = exception?.value ?? '';
         final exceptionType = exception?.type ?? '';
@@ -540,11 +559,21 @@ class AppInitializer {
     await Future.wait([initializeApp(context, ref)]);
   }
 
-  static Future<void> initializeApp(BuildContext context, WidgetRef ref) async {
+  static Future<void> initializeApp(
+    BuildContext context,
+    WidgetRef ref, {
+    RetryableStartupStages? startupStages,
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? startupCheckOperations,
+    bool Function()? isActive,
+  }) async {
+    final stages = startupStages ?? RetryableStartupStages();
+    bool canPublish() => context.mounted && (isActive == null || isActive());
+
     try {
       logger.i('앱 초기화 시작');
 
-      if (!context.mounted) {
+      if (!canPublish()) {
         logger.w('Context가 마운트되지 않아 초기화를 중단합니다.');
         return;
       }
@@ -561,120 +590,169 @@ class AppInitializer {
         logger.w('MediaQuery 데이터 업데이트 중 오류: $e');
       }
 
-      if (!context.mounted) return;
+      if (!canPublish()) return;
 
       // 필수 블로킹 초기화: 네트워크 + 업데이트 + 밴 체크
       // (결과에 따라 화면 전환이 필요하므로 Portal 표시 전에 완료)
       if (isMobile()) {
-        await _initializeMobileApp(ref);
+        await stages.run('app-required-mobile-checks', () async {
+          await _runStartupChecks(
+            ref,
+            connectionChecks: connectionChecks,
+            operations: startupCheckOperations,
+            isActive: canPublish,
+            forceRefresh: true,
+          );
+        });
       }
 
-      if (!context.mounted) return;
+      if (!canPublish()) return;
 
       // Supabase 인증 상태 변경 리스너 설정 (세션 복원 이벤트를 UI에 반영)
-      setupSupabaseAuthListener(ref);
+      await stages.run('app-auth-listener', () async {
+        setupSupabaseAuthListener(ref);
+      });
 
       // 리스너 설정 전에 세션이 이미 복원된 경우, signedIn 이벤트를 놓쳤으므로
       // userInfoProvider를 invalidate하여 로그인 상태를 UI에 반영
       if (isSupabaseLoggedSafely) {
-        logger.i('세션이 이미 복원됨 - userInfoProvider 갱신');
-        ref.invalidate(userInfoProvider);
+        await stages.run('app-restored-session-refresh', () async {
+          logger.i('세션이 이미 복원됨 - userInfoProvider 갱신');
+          ref.invalidate(userInfoProvider);
+        });
       }
 
-      ref
-          .read(appInitializationProvider.notifier)
-          .updateState(isInitialized: true);
+      await stages.run('app-initialized-state', () async {
+        if (!canPublish()) return;
+        ref
+            .read(appInitializationProvider.notifier)
+            .updateState(isInitialized: true);
+      });
 
       // 백그라운드 초기화: Portal 표시 후 비동기로 진행
       // (메인 화면 진입을 블로킹하지 않음)
       if (isMobile()) {
-        _initializeBackgroundTasks(ref);
+        await stages.run('app-background-tasks-launch', () async {
+          if (canPublish()) {
+            _initializeBackgroundTasks(ref, isActive: canPublish);
+          }
+        });
       }
 
       logger.i('앱 초기화 완료');
     } catch (e, s) {
       logger.e('앱 초기화 중 오류 발생', error: e, stackTrace: s);
-      if (context.mounted) {
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(hasNetwork: false, isInitialized: true);
-      }
+      rethrow;
     }
   }
 
   /// Portal 표시 후 백그라운드에서 실행되는 비필수 초기화
-  static void _initializeBackgroundTasks(WidgetRef ref) {
+  static void _initializeBackgroundTasks(
+    WidgetRef ref, {
+    required bool Function() isActive,
+  }) {
     Future.microtask(() async {
-      try {
-        // 제품 프리로드는 푸시 초기화와 독립인데, 푸시의 APNS 토큰 폴링이
-        // 콜드스타트에서 10초 이상 걸릴 수 있어 뒤에 두면 스토어 첫 진입이
-        // 그만큼 shimmer로 비어 보인다. 먼저 시작해 병렬로 진행한다.
-        final productsPreload = _loadProducts(ref);
-
-        // 푸시 토큰 등록
-        await PushTokenService.initialize(
-          onNotificationTap: (RemoteMessage msg) {
-            final actionUrl = msg.data['action_url'];
-            if (actionUrl != null &&
-                actionUrl is String &&
-                actionUrl.isNotEmpty) {
-              logger.i(
-                '[AppInitializer] Handling push notification tap: $actionUrl',
-              );
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                handleDeepLink(ref, actionUrl);
-              });
-            }
-          },
-          onActionUrlTap: (String actionUrl) {
-            logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              handleDeepLink(ref, actionUrl);
-            });
-          },
-        );
-        logger.i('백그라운드: 푸시 토큰 등록 완료');
-
-        // 앱 배지 동기화
-        AppBadgeService.syncBadgeWithUnreadCount();
-
-        // 제품 정보 로드 (위에서 이미 시작한 프리로드 합류)
-        await productsPreload;
-        logger.i('백그라운드: 제품 정보 로드 완료');
-      } catch (e, s) {
-        logger.e('백그라운드 초기화 중 오류 발생', error: e, stackTrace: s);
-      }
+      await runIndependentBackgroundTasks(
+        isActive: isActive,
+        preloadProducts: () => _loadProducts(ref),
+        syncBadge: AppBadgeService.syncBadgeWithUnreadCount,
+        initializePush: () => PushTokenService.initialize(
+          onNotificationTap: buildPushTapHandler(ref, isActive),
+          onActionUrlTap: buildActionUrlTapHandler(ref, isActive),
+        ),
+      );
     });
   }
 
-  static Future<void> _initializeMobileApp(WidgetRef ref) async {
-    final networkService = NetworkConnectivityService();
-    final hasNetwork = await networkService.checkOnlineStatus();
-    logger.i('네트워크 상태 확인: $hasNetwork');
+  /// The handler [PushTokenService] calls for a tapped remote notification.
+  @visibleForTesting
+  static void Function(RemoteMessage) buildPushTapHandler(
+    WidgetRef ref,
+    bool Function() isActive,
+  ) {
+    return (RemoteMessage msg) {
+      if (!isActive()) return;
+      final actionUrl = msg.data['action_url'];
+      if (actionUrl is! String || actionUrl.isEmpty) return;
+      logger.i('[AppInitializer] Handling push notification tap: $actionUrl');
+      _navigateAfterFrame(ref, actionUrl, isActive);
+    };
+  }
 
-    ref
-        .read(appInitializationProvider.notifier)
-        .updateState(hasNetwork: hasNetwork);
+  /// The handler [PushTokenService] calls for a tapped local notification.
+  @visibleForTesting
+  static void Function(String) buildActionUrlTapHandler(
+    WidgetRef ref,
+    bool Function() isActive,
+  ) {
+    return (String actionUrl) {
+      if (!isActive()) return;
+      logger.i('[AppInitializer] Handling action URL tap: $actionUrl');
+      _navigateAfterFrame(ref, actionUrl, isActive);
+    };
+  }
 
-    if (hasNetwork) {
-      try {
-        // 업데이트 체크와 밴 체크를 병렬로 실행
-        final results = await Future.wait([
-          checkForUpdates(ref),
-          if (!kDebugMode) _checkBanStatus(ref) else Future.value(false),
-        ]);
+  /// Defers the deep link past the current frame and **requests** that frame.
+  ///
+  /// `addPostFrameCallback` only appends to the callback list; it never asks
+  /// the engine for a frame. A tap that arrives while the app is idle - the
+  /// normal case for a cold or background launch - would otherwise sit in the
+  /// queue and the user would stay on the start screen (PICNIC-2693).
+  static void _navigateAfterFrame(
+    WidgetRef ref,
+    String actionUrl,
+    bool Function() isActive,
+  ) {
+    final binding = WidgetsBinding.instance;
+    binding.addPostFrameCallback((_) {
+      if (!isActive()) return;
+      handleDeepLink(ref, actionUrl);
+    });
+    binding.ensureVisualUpdate();
+  }
 
-        final updateInfo = results[0] as dynamic;
-        final isBanned = !kDebugMode ? results[1] as bool : false;
+  /// Starts optional startup work independently. In particular, an OS-owned
+  /// notification permission sheet is intentionally unbounded user input and
+  /// must not defer product preload or badge reconciliation.
+  @visibleForTesting
+  static Future<void> runIndependentBackgroundTasks({
+    required bool Function() isActive,
+    required FutureOr<void> Function() preloadProducts,
+    required FutureOr<void> Function() syncBadge,
+    required FutureOr<void> Function() initializePush,
+  }) async {
+    if (!isActive()) return;
+    final operations = <Future<void>>[
+      _runBackgroundOperation(
+        name: 'product preload',
+        isActive: isActive,
+        operation: preloadProducts,
+      ),
+      _runBackgroundOperation(
+        name: 'badge sync',
+        isActive: isActive,
+        operation: syncBadge,
+      ),
+      _runBackgroundOperation(
+        name: 'push initialization',
+        isActive: isActive,
+        operation: initializePush,
+      ),
+    ];
+    await Future.wait(operations);
+  }
 
-        logger.i('업데이트 정보: $updateInfo, 밴 상태: $isBanned');
-
-        ref
-            .read(appInitializationProvider.notifier)
-            .updateState(updateInfo: updateInfo, isBanned: isBanned);
-      } catch (e, s) {
-        logger.e('모바일 초기화 중 오류 발생:', error: e, stackTrace: s);
-      }
+  static Future<void> _runBackgroundOperation({
+    required String name,
+    required bool Function() isActive,
+    required FutureOr<void> Function() operation,
+  }) async {
+    if (!isActive()) return;
+    try {
+      await operation();
+      if (isActive()) logger.i('백그라운드: $name 완료');
+    } catch (e, s) {
+      logger.e('백그라운드 $name 오류', error: e, stackTrace: s);
     }
   }
 
@@ -739,14 +817,67 @@ class AppInitializer {
     }
   }
 
-  static Future<void> retryConnection(WidgetRef ref) async {
-    final networkService = NetworkConnectivityService();
-    final isOnline = await networkService.checkOnlineStatus();
-    logger.i('Network check: $isOnline');
+  static Future<void> retryConnection(
+    WidgetRef ref, {
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? operations,
+    bool Function()? isActive,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await _runStartupChecks(
+      ref,
+      connectionChecks: connectionChecks,
+      operations: operations,
+      isActive: isActive,
+      forceRefresh: true,
+      timeout: timeout,
+    );
+  }
 
-    ref
-        .read(appInitializationProvider.notifier)
-        .updateState(hasNetwork: isOnline);
+  static Future<StartupConnectionResult<UpdateInfo>> _runStartupChecks(
+    WidgetRef ref, {
+    StartupConnectionChecks<UpdateInfo>? connectionChecks,
+    StartupCheckOperations? operations,
+    bool Function()? isActive,
+    required bool forceRefresh,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    final selectedOperations =
+        operations ?? _defaultStartupCheckOperations(ref);
+    final result =
+        await (connectionChecks ?? StartupConnectionChecks<UpdateInfo>()).run(
+          timeout: timeout,
+          checkNetwork: selectedOperations.checkNetwork,
+          checkUpdate: () =>
+              selectedOperations.checkUpdate(forceRefresh: forceRefresh),
+          checkBan: selectedOperations.checkBan,
+          publish: (result) {
+            if (isActive?.call() == false) return;
+            ref
+                .read(appInitializationProvider.notifier)
+                .updateState(
+                  hasNetwork: result.hasNetwork,
+                  updateInfo: result.updateInfo,
+                  isBanned: result.isBanned,
+                );
+          },
+        );
+    logger.i(
+      'Network recovery check: online=${result.hasNetwork}, '
+      'banned=${result.isBanned}, update=${result.updateInfo?.status}',
+    );
+    return result;
+  }
+
+  static StartupCheckOperations _defaultStartupCheckOperations(WidgetRef ref) {
+    final networkService = NetworkConnectivityService();
+    return StartupCheckOperations(
+      checkNetwork: networkService.checkOnlineStatus,
+      checkUpdate: ({required forceRefresh}) =>
+          checkForUpdates(ref, forceRefresh: forceRefresh),
+      checkBan: () =>
+          !kDebugMode ? _checkBanStatus(ref) : Future<bool>.value(false),
+    );
   }
 
   static Future<void> initializeSystemUI() => SystemUIInitializer.initialize();
@@ -790,12 +921,10 @@ class AppInitializer {
     _authListenerSubscription = supabase.auth.onAuthStateChange.listen((
       data,
     ) async {
+      // Sentry scope 의 계정 id 를 이벤트 순서대로 **첫 await 전에** 맞춘다.
+      // 로그아웃이면 지우고, 계정 전환이면 새 계정으로 바꾼다 (PICNIC-2743).
+      unawaited(PurchaseDiagnostics.bindUserFromAuthState(data));
       try {
-        final session = data.session;
-        if (session != null) {
-          logger.i('jwtToken: ${session.accessToken}');
-        }
-
         if (data.event == AuthChangeEvent.signedIn) {
           await handleSignedIn(
             data,
@@ -833,6 +962,11 @@ class AppInitializer {
       } catch (e, s) {
         logger.e('인증 상태 변경 처리 중 오류:', error: e, stackTrace: s);
       }
+    }, onError: (Object e, StackTrace s) {
+      // 토큰 갱신 실패 등은 스트림 오류로 온다. 처리하지 않으면 미처리 비동기
+      // 예외로 새고, 구독도 계속 살아 있어야 다음 로그아웃이 Sentry 계정을
+      // 지운다. 원문에는 토큰이 섞일 수 있어 타입만 남긴다.
+      logger.w('인증 상태 스트림 오류: ${e.runtimeType}');
     });
 
     // 필요한 경우 나중에 구독 취소 로직 추가
@@ -995,29 +1129,20 @@ class AppInitializer {
     });
   }
 
-  static void setupBranchListener(WidgetRef ref) {
-    FlutterBranchSdk.listSession().listen(
-      (data) async {
-        try {
-          logger.i('Incoming Branch link data: $data');
-          if (data.containsKey("+clicked_branch_link") &&
-              data["+clicked_branch_link"] == true) {
-            // 링크 클릭 시 처리 로직
-            final longUrl = data["\$desktop_url"];
-            // longUrl을 사용하여 원하는 페이지로 이동
-            await handleDeepLink(ref, longUrl);
-          }
-        } catch (e, s) {
-          logger.e('Branch link 처리 중 오류:', error: e, stackTrace: s);
-        }
-      },
-      onError: (error) {
-        logger.e('Branch link error: $error');
-      },
-    );
+  /// Attaches a Branch destination handler and returns its ownership token.
+  ///
+  /// Callers must explicitly publish their own navigation readiness with
+  /// [setBranchListenerReady] and detach using [removeBranchListener]. This
+  /// preserves buffering while a Portal/Navigator is not usable and prevents
+  /// a stale remount from detaching the replacement owner.
+  static int setupBranchListener(WidgetRef ref) => BranchLinkService.instance
+      .attachHandler((url) => handleDeepLink(ref, url));
 
-    // 필요한 경우 나중에 구독 취소 로직 추가
-  }
+  static void setBranchListenerReady(int owner, bool ready) =>
+      BranchLinkService.instance.setHandlerReady(owner, ready);
+
+  static void removeBranchListener(int owner) =>
+      BranchLinkService.instance.detachHandler(owner);
 
   /// Deep link URL 라우팅 처리.
   /// 실제 로직은 [DeepLinkHandler]에 위임됩니다.

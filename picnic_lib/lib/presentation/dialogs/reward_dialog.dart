@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:picnic_lib/core/utils/locale_utils.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
+import 'package:picnic_lib/presentation/common/picnic_image_request.dart';
 import 'package:picnic_lib/presentation/widgets/vote/list/vote_detail_title.dart';
 import 'package:picnic_lib/presentation/dialogs/fullscreen_dialog.dart';
 import 'package:picnic_lib/data/models/reward.dart';
@@ -14,6 +15,35 @@ class RewardDialogConstants {
   static const double topSectionHeight = 400;
   static const double closeButtonSize = 48;
   static const Duration transitionDuration = Duration(milliseconds: 300);
+
+  /// 리워드 이미지 디코드 폭 상한(물리 px). 운영자가 올리는 원본 크기다.
+  static const double imageDecodeWidth = 1000;
+
+  /// 리워드 이미지가 우리 CDN 에 요청하는 유일한 변형(`q=80&w=1000`).
+  ///
+  /// 홈 리워드 그리드, 레거시 홈 카드, 이 다이얼로그가 모두 이 키 하나를
+  /// 공유해 같은 파일이면 먼저 받은 캐시를 그대로 쓴다. 1000 은 리워드 원본
+  /// 폭이라 확대되지 않는다. PNG 원본은 새 변형의 첫 변환이 8~12초 걸린다
+  /// (2026-09-19 실측).
+  static const imageCdnVariant = PicnicCdnImageVariant(
+    width: 1000,
+    quality: 80,
+  );
+}
+
+/// 홈 리워드 그리드와 다이얼로그의 모든 이미지가 공유하는 요청.
+///
+/// 폭은 [RewardDialogConstants.imageCdnVariant] 로 고정하고, 디코드는
+/// [RewardDialogConstants.imageDecodeWidth] 로 제한한다. 레이아웃 크기는
+/// 위젯의 width/height/제약이 정한다.
+PicnicImageRequest rewardImageRequest(BuildContext context, String imageUrl) {
+  return PicnicImageRequest.resolve(
+    context: context,
+    imageUrl: imageUrl,
+    width: RewardDialogConstants.imageDecodeWidth,
+    maxResolutionMultiplierCap: 1,
+    cdnVariant: RewardDialogConstants.imageCdnVariant,
+  );
 }
 
 enum RewardType { overview, location, sizeGuide }
@@ -70,6 +100,10 @@ class _RewardDialogState extends State<RewardDialog> {
               blendMode: BlendMode.dstIn,
               child: PicnicCachedNetworkImage(
                 imageUrl: widget.data.thumbnail ?? '',
+                imageRequest: rewardImageRequest(
+                  context,
+                  widget.data.thumbnail ?? '',
+                ),
                 fit: BoxFit.cover,
                 width: (screenWidth * 1.1),
               ),
@@ -79,8 +113,11 @@ class _RewardDialogState extends State<RewardDialog> {
             bottom: 0,
             left: 0,
             right: 0,
+            // No fixed height here (PICNIC-2738). VoteCommonTitle keeps its
+            // own 48 minimum and grows for a long reward name; pinning it to 48
+            // clipped a real reward name at 1.0x and even "포토카드" at 2.0x.
+            // Anchored to the bottom, it grows upward over the image.
             child: Container(
-              height: 48,
               margin: EdgeInsets.symmetric(horizontal: 30.w),
               child: VoteCommonTitle(
                 // `title` 은 순수 nullable 컬럼(`RewardModel.title`)이라
@@ -104,10 +141,7 @@ class _RewardDialogState extends State<RewardDialog> {
 
     for (int i = 0; i < RewardType.values.length; i++) {
       final type = RewardType.values[i];
-      final rewardSection = RewardSection(
-        type: type,
-        data: widget.data,
-      );
+      final rewardSection = RewardSection(type: type, data: widget.data);
 
       // 섹션 내용이 있는 경우만 추가
       if (rewardSection.hasContent(context)) {
@@ -144,11 +178,7 @@ class RewardSection extends StatelessWidget {
   final RewardType type;
   final RewardModel data;
 
-  const RewardSection({
-    super.key,
-    required this.type,
-    required this.data,
-  });
+  const RewardSection({super.key, required this.type, required this.data});
 
   bool hasContent(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -162,10 +192,13 @@ class RewardSection extends StatelessWidget {
         final locationData = data.location![locale];
         // locationData가 Map이 아닌 경우 처리
         if (locationData is! Map) return false;
-        final map = locationData ;
-        return (map['map'] != null && (map['map'] as List?)?.isNotEmpty == true) ||
-            (map['address'] != null && (map['address'] as List?)?.isNotEmpty == true) ||
-            (map['images'] != null && (map['images'] as List?)?.isNotEmpty == true) ||
+        final map = locationData;
+        return (map['map'] != null &&
+                (map['map'] as List?)?.isNotEmpty == true) ||
+            (map['address'] != null &&
+                (map['address'] as List?)?.isNotEmpty == true) ||
+            (map['images'] != null &&
+                (map['images'] as List?)?.isNotEmpty == true) ||
             (map['desc'] != null && (map['desc'] as List?)?.isNotEmpty == true);
 
       case RewardType.sizeGuide:
@@ -199,8 +232,9 @@ class RewardSection extends StatelessWidget {
           margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12),
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 53),
           decoration: BoxDecoration(
-            borderRadius:
-                BorderRadius.circular(RewardDialogConstants.imageRadius),
+            borderRadius: BorderRadius.circular(
+              RewardDialogConstants.imageRadius,
+            ),
             border: Border.all(color: AppColors.primary500, width: 1.5),
           ),
           child: Column(children: _buildSectionContent(context)),
@@ -236,78 +270,95 @@ class RewardSection extends StatelessWidget {
           if (locationData['map'] != null && locationData['map'] is List) {
             final mapImages = (locationData['map'] as List).cast<String>();
             if (mapImages.isNotEmpty) {
-              widgets.addAll(_buildImageList(
-                context,
-                [mapImages.first],
-                BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(RewardDialogConstants.imageRadius),
-                  border: Border.all(
-                    color: AppColors.primary500,
-                    width: 3,
-                    strokeAlign: BorderSide.strokeAlignInside,
+              widgets.addAll(
+                _buildImageList(
+                  context,
+                  [mapImages.first],
+                  BoxDecoration(
+                    borderRadius: BorderRadius.circular(
+                      RewardDialogConstants.imageRadius,
+                    ),
+                    border: Border.all(
+                      color: AppColors.primary500,
+                      width: 3,
+                      strokeAlign: BorderSide.strokeAlignInside,
+                    ),
                   ),
                 ),
-              ));
+              );
               if (mapImages.length > 1) {
                 widgets.addAll(_buildImageList(context, mapImages.sublist(1)));
               }
             }
           }
 
-          if (locationData['address'] != null && locationData['address'] is List) {
+          if (locationData['address'] != null &&
+              locationData['address'] is List) {
             widgets.add(const SizedBox(height: 24));
-            widgets.addAll(_buildTextAddress(
-              context,
-              (locationData['address'] as List).cast<String>(),
-              getTextStyle(AppTypo.body16B, AppColors.grey900),
-            ));
+            widgets.addAll(
+              _buildTextAddress(
+                context,
+                (locationData['address'] as List).cast<String>(),
+                getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            );
           }
 
-          if (locationData['images'] != null && locationData['images'] is List) {
+          if (locationData['images'] != null &&
+              locationData['images'] is List) {
             widgets.add(const SizedBox(height: 24));
-            widgets.addAll(_buildImageList(
-              context,
-              (locationData['images'] as List).cast<String>(),
-            ));
+            widgets.addAll(
+              _buildImageList(
+                context,
+                (locationData['images'] as List).cast<String>(),
+              ),
+            );
           }
 
           if (locationData['desc'] != null && locationData['desc'] is List) {
             widgets.add(const SizedBox(height: 24));
-            widgets.addAll(_buildTextList(
-              (locationData['desc'] as List).cast<String>(),
-              getTextStyle(AppTypo.body16B, AppColors.grey900),
-            ));
+            widgets.addAll(
+              _buildTextList(
+                (locationData['desc'] as List).cast<String>(),
+                getTextStyle(AppTypo.body16B, AppColors.grey900),
+              ),
+            );
           }
         }
         break;
 
       case RewardType.sizeGuide:
-        if (data.sizeGuide?[locale] != null && data.sizeGuide![locale] is List) {
+        if (data.sizeGuide?[locale] != null &&
+            data.sizeGuide![locale] is List) {
           final sizeGuideList = data.sizeGuide![locale] as List;
           for (final guide in sizeGuideList) {
             if (guide is! Map) continue;
 
             if (guide['image'] != null && guide['image'] is List) {
-              widgets.addAll(_buildSizeGuideImageList(
-                context,
-                (guide['image'] as List).cast<String>(),
-              ));
+              widgets.addAll(
+                _buildSizeGuideImageList(
+                  context,
+                  (guide['image'] as List).cast<String>(),
+                ),
+              );
             }
 
             if (guide['desc'] != null && guide['desc'] is List) {
               widgets.add(const SizedBox(height: 24));
               final descList = (guide['desc'] as List).cast<String>();
               if (descList.isNotEmpty) {
-                widgets.addAll(_buildTextList(
-                  [descList.first],
-                  getTextStyle(AppTypo.body16B, AppColors.grey900),
-                ));
+                widgets.addAll(
+                  _buildTextList([
+                    descList.first,
+                  ], getTextStyle(AppTypo.body16B, AppColors.grey900)),
+                );
                 if (descList.length > 1) {
-                  widgets.addAll(_buildTextList(
-                    descList.sublist(1),
-                    getTextStyle(AppTypo.body16R, AppColors.grey900),
-                  ));
+                  widgets.addAll(
+                    _buildTextList(
+                      descList.sublist(1),
+                      getTextStyle(AppTypo.body16R, AppColors.grey900),
+                    ),
+                  );
                 }
               }
             }
@@ -337,10 +388,12 @@ class RewardSection extends StatelessWidget {
           Container(
             decoration: decoration,
             child: ClipRRect(
-              borderRadius:
-                  BorderRadius.circular(RewardDialogConstants.imageRadius),
+              borderRadius: BorderRadius.circular(
+                RewardDialogConstants.imageRadius,
+              ),
               child: PicnicCachedNetworkImage(
                 imageUrl: image,
+                imageRequest: rewardImageRequest(context, image),
                 width: imageSize,
                 height: imageSize,
                 fit: BoxFit.cover,
@@ -354,7 +407,9 @@ class RewardSection extends StatelessWidget {
   }
 
   List<Widget> _buildSizeGuideImageList(
-      BuildContext context, List<String>? images) {
+    BuildContext context,
+    List<String>? images,
+  ) {
     if (images == null) return [];
 
     final imageWidth = MediaQuery.of(context).size.width - 100;
@@ -365,14 +420,16 @@ class RewardSection extends StatelessWidget {
       return Column(
         children: [
           ClipRRect(
-            borderRadius:
-                BorderRadius.circular(RewardDialogConstants.imageRadius),
+            borderRadius: BorderRadius.circular(
+              RewardDialogConstants.imageRadius,
+            ),
             child: SizedBox(
               width: imageWidth,
               child: AspectRatio(
                 aspectRatio: 16 / 9, // 기본 16:9 비율 사용
                 child: PicnicCachedNetworkImage(
                   imageUrl: image,
+                  imageRequest: rewardImageRequest(context, image),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -388,11 +445,13 @@ class RewardSection extends StatelessWidget {
     if (texts == null) return [];
 
     return texts
-        .map((text) => Text(
-              text,
-              style: style ?? getTextStyle(AppTypo.body16R, AppColors.grey900),
-              textAlign: TextAlign.center,
-            ))
+        .map(
+          (text) => Text(
+            text,
+            style: style ?? getTextStyle(AppTypo.body16R, AppColors.grey900),
+            textAlign: TextAlign.center,
+          ),
+        )
         .toList();
   }
 
@@ -404,27 +463,29 @@ class RewardSection extends StatelessWidget {
     if (texts == null) return [];
 
     return texts
-        .map((text) => Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Expanded(
-                  child: Text(
-                    '· $text',
-                    style: style ??
-                        getTextStyle(AppTypo.body16R, AppColors.grey900),
-                    textAlign: TextAlign.center,
-                  ),
+        .map(
+          (text) => Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: Text(
+                  '· $text',
+                  style:
+                      style ?? getTextStyle(AppTypo.body16R, AppColors.grey900),
+                  textAlign: TextAlign.center,
                 ),
-                TextButton(
-                  onPressed: () => copyToClipboard(context, text),
-                  child: Text(
-                    'COPY',
-                    style: getTextStyle(AppTypo.body16B, AppColors.primary500),
-                  ),
+              ),
+              TextButton(
+                onPressed: () => copyToClipboard(context, text),
+                child: Text(
+                  'COPY',
+                  style: getTextStyle(AppTypo.body16B, AppColors.primary500),
                 ),
-              ],
-            ))
+              ),
+            ],
+          ),
+        )
         .toList();
   }
 }

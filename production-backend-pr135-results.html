@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>서버 PR #135 최신 변경 반영 결과</title>
+<style>body{font:16px/1.65 system-ui,sans-serif;max-width:1000px;margin:40px auto;padding:0 24px;color:#172333}h1,h2{line-height:1.3}table{border-collapse:collapse;width:100%;margin:18px 0}th,td{border:1px solid #ccd4df;padding:11px;text-align:left;vertical-align:top}th{background:#f2f5f9}code,pre{background:#f1f4f8;padding:3px;overflow-wrap:anywhere}pre{padding:14px;white-space:pre-wrap}a{color:#165aaf;overflow-wrap:anywhere}.notice{padding:16px;background:#fff5e8;border-left:4px solid #b87516}</style></head>
+<body>
+<h1>서버 PR #135 최신 변경 반영</h1>
+<p>2026-09-09 KST · 기존 구현 검증 및 게시 단계. 신규 기능 코드 변경 없음.</p>
+<div class="notice">서버 변경 17개 파일 커밋·푸시 완료. main 병합, 프로덕션 DB 적용, 앱 배포, ADMIN_ONLY 활성화는 실행하지 않았다. <code>production_execution_approved=false</code>를 유지한다.</div>
+<h2>게시 대상</h2>
+<table><tbody>
+<tr><th>PR</th><td><a href="https://github.com/charlie0421/picnic-supabase/pull/135">picnic-supabase #135</a> · OPEN, 기존 non-Draft 상태 유지</td></tr>
+<tr><th>브랜치</th><td><code>fix/promotion-v2-release-safety</code></td></tr>
+<tr><th>커밋</th><td><code>117f068fd458de92f4e63c3baff8868cc9170c05</code><br><code>fix(wallet): gate promotion rollout to admin audiences</code></td></tr>
+<tr><th>부모 커밋</th><td><code>7d8f47d6b07da9ee017614ed8d781053a72b6464</code></td></tr>
+<tr><th>범위</th><td>17개 파일, +2919/-168. 기존 HTML 보고서 16개는 커밋하지 않고 원본 해시 그대로 보존.</td></tr>
+<tr><th>작업 경로</th><td><code>/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety</code></td></tr>
+</tbody></table>
+<h2>이번에 재실행한 검증</h2>
+<table><thead><tr><th>대상</th><th>결과</th><th>원본 증거</th></tr></thead><tbody>
+<tr><td>safety 22개 파일</td><td>276 PASS / 31 DB SKIP / 0 FAIL. OS 네트워크 차단과 EPERM 확인, 환경 allowlist, DB 대상 127.0.0.1:1. hotfix fixture root 잔존 0개.</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-lPlqn5/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-lPlqn5/output.log">로그</a></td></tr>
+<tr><td>HTTP mock safety 1개 파일</td><td>16 PASS / 0 FAIL. network-none·read-only 컨테이너, loopback만 존재, 호스트 포트·자격증명 마운트 없음.</td><td><a href="/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-rENfuJ/result.json">실행 결과</a> · <a href="/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-rENfuJ/output.log">로그</a></td></tr>
+<tr><td>23개 safety 파일 합계</td><td><strong>292 PASS / 31 DB SKIP / 0 FAIL</strong>. 위 두 실행의 서로 겹치지 않는 합계.</td><td>SQL/Edge/실제 DB 검증 전체 통과를 뜻하지 않음.</td></tr>
+<tr><td>게시 무결성</td><td>17개 작업 파일·index·커밋 blob 일치. 7개 migration 및 pre/postflight 2개 핀 일치. diff --check 통과.</td><td><a href="/tmp/picnic-backend-pr135.joMKD5/baseline.json">게시 기준 해시</a> · <a href="/tmp/picnic-backend-pr135.joMKD5/verify-publication.mjs">검증 스크립트</a></td></tr>
+<tr><td>오프라인 번들</td><td>재생성한 apply SQL 해시가 기존 검증본과 일치. SQL 실행은 하지 않음.</td><td><code>3e576ee9bdad74f49ca0f0aef13e16b8eef2f6441c208cfafc011d387aa0fbdb</code></td></tr>
+<tr><td>앱·튜닝 보존</td><td>앱 PR #204 커밋 1adca598a, 59개 고정 blob 일치. PR #203 소스 HEAD와 상태 보존 검증 통과.</td><td><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-pr203-integration-results.html">앱 통합 결과</a></td></tr>
+</tbody></table>
+<p>이번 검증은 원격 DB·공용 로컬 DB에 접속하지 않았다. 과거 격리 DB 리허설 및 SQL 검증은 기존 리뷰 기록이며 이번에 다시 실행한 결과가 아니다.</p>
+<p>최종 GitHub 재조회에서 PR head와 원격 브랜치가 위 커밋과 일치하고, 제목·본문이 준비한 최신 설명과 일치함을 확인했다. PR은 OPEN·미병합 상태다. 설치된 GitHub CLI 2.72.0의 <code>pr edit</code>는 폐기된 Projects classic 필드 오류로 실패해, 같은 PR의 제목·본문만 REST API로 갱신했다. CLI 설치나 저장소 설정은 바꾸지 않았다.</p>
+<h2>보존한 설계와 리뷰 범위</h2>
+<ul><li>설치 기본 OFF. ADMIN_ONLY는 삭제되지 않은 서버 프로필의 <code>is_admin OR is_super_admin</code>. 사용자 편집 JWT 메타데이터는 대상 우회 수단이 아니다.</li>
+<li>정확한 OFF/false 긴급 중단 경로만 Cotton readiness를 건너뛴다. 활성화·다른 키·권한·CAS·감사·트리거 조건을 보존한다.</li>
+<li>기존 migration 6개는 그대로 두고 audience addon 1개를 추가했다. manifest와 builder의 기준 revision은 부모 커밋이며 PR 최신 HEAD를 뜻하지 않는다.</li>
+<li>기존 독립 리뷰와 후속 재검토 승인 기록을 유지했다. 이번에 새 금융 동작을 구현하거나 비차단 항목을 임의로 확장 수정하지 않았다.</li>
+<li>OFF 분기 잠금 순서, 제외 구매의 공급자 시각 감사 정합성, 상속 세터 변경 탐지 핀, 재활성화 거절 원인 구분과 인접 키 테스트는 기존 비차단 후속 항목이다.</li></ul>
+<p><a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/task-rollout-emergency-review.html">긴급 중단 독립 리뷰</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-test-repair-independent-review.html">historical fixture 후속 재검토</a></p>
+<h2>다음 순서 — 미실행</h2>
+<ol><li>서버 #135와 앱 #204의 검토·확인 및 병합 승인. #204에 포함된 #203은 다른 세션과 중복 병합되지 않도록 조율해야 한다.</li><li>최종 checkout, 운영 대상 신원, 최신 사전 조건·복구 수단·writer freeze 확인 후 별도 승인된 서버 OFF 설치 및 사후 검증.</li><li>정확한 기존 Shorebird 릴리스·플랫폼 호환성을 확인하고, 별도 승인된 OTA 또는 신규 앱 배포.</li><li>앱 배포 확인 뒤 별도 승인된 ADMIN_ONLY 활성화와 관리자·슈퍼관리자/일반 사용자 분리, 결제·광고·지갑 실기기 검증 및 모니터링. ALL 공개는 승인 범위가 아니다.</li></ol>
+<p>Superpowers 검증·브랜치 마무리 절차로 게시 전 테스트와 바이트 대조를 수행했고, Supabase의 권한/배포 경계와 Orca의 기존 워크트리 보존 절차를 적용했다.</p>
+</body></html>

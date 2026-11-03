@@ -122,7 +122,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'achieve'.
   ///
   /// In en, this message translates to:
-  /// **'Achievements'**
+  /// **'Achieved'**
   String get achieve;
 
   /// Auto-generated metadata for key 'ads_available_time'.
@@ -1166,7 +1166,7 @@ abstract class AppLocalizations {
   /// Auto-generated metadata for key 'label_retry'.
   ///
   /// In en, this message translates to:
-  /// **'Retrying'**
+  /// **'Retry'**
   String get label_retry;
 
   /// Auto-generated metadata for key 'label_setting_alarm'.
@@ -3629,6 +3629,84 @@ abstract class AppLocalizations {
   /// **'Authentication took longer than expected, but the purchase completed successfully.'**
   String get candy_boost_late_purchase_explanation;
 
+  /// Compact pill showing the extra bonus-star-candy percentage during a candy boost event.
+  ///
+  /// In en, this message translates to:
+  /// **'+{multiplier}% EVENT BONUS'**
+  String candy_boost_total_multiplier(String multiplier);
+
+  /// No description provided for @purchase_reward_base.
+  ///
+  /// In en, this message translates to:
+  /// **'Base reward'**
+  String get purchase_reward_base;
+
+  /// No description provided for @purchase_reward_base_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Base'**
+  String get purchase_reward_base_short;
+
+  /// No description provided for @purchase_reward_event_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Event'**
+  String get purchase_reward_event_short;
+
+  /// No description provided for @purchase_reward_product_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Base bonus'**
+  String get purchase_reward_product_bonus;
+
+  /// No description provided for @purchase_reward_event_bonus.
+  ///
+  /// In en, this message translates to:
+  /// **'Event bonus'**
+  String get purchase_reward_event_bonus;
+
+  /// No description provided for @purchase_reward_expected_total.
+  ///
+  /// In en, this message translates to:
+  /// **'Est. total'**
+  String get purchase_reward_expected_total;
+
+  /// No description provided for @purchase_reward_total_short.
+  ///
+  /// In en, this message translates to:
+  /// **'Total'**
+  String get purchase_reward_total_short;
+
+  /// No description provided for @purchase_current_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Current balance {amount}'**
+  String purchase_current_balance(Object amount);
+
+  /// No description provided for @purchase_expected_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Expected after purchase {amount}'**
+  String purchase_expected_balance(Object amount);
+
+  /// A reward amount added on top of the base reward.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount}'**
+  String purchase_reward_plus_amount(String amount);
+
+  /// No description provided for @purchase_reward_estimate_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate. The final amount is confirmed by the server when your payment completes.'**
+  String get purchase_reward_estimate_note;
+
+  /// Sum of every currency added by a single settlement.
+  ///
+  /// In en, this message translates to:
+  /// **'Total added {amount}'**
+  String candy_reward_receipt_total(String amount);
+
   /// No description provided for @ad_reward_pending.
   ///
   /// In en, this message translates to:
@@ -3670,6 +3748,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Current balance {amount}'**
   String candy_reward_receipt_balance(String amount);
+
+  /// No description provided for @candy_reward_receipt_purchase_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'New balance {amount}'**
+  String candy_reward_receipt_purchase_balance(Object amount);
 
   /// No description provided for @candy_reward_receipt_balance_unavailable.
   ///
@@ -3782,6 +3866,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.'**
   String get bonus_expiry_policy_summary;
+
+  /// No description provided for @error_ad_device_account_restricted_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad access for this account on this device is temporarily restricted.'**
+  String get error_ad_device_account_restricted_message;
+
+  /// No description provided for @profile_photo_change.
+  ///
+  /// In en, this message translates to:
+  /// **'Change profile photo'**
+  String get profile_photo_change;
 }
 
 class _AppLocalizationsDelegate

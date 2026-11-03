@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>투표 버튼·카운트다운 변경 미리보기</title>
+<style>
+  :root { --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; --bad:#b42318; }
+  body { max-width: 1180px; margin: 0 auto; padding: 36px 28px 80px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  h1 { font-size: 28px; margin: 0 0 6px; } h2 { font-size: 22px; margin: 2.2em 0 .5em; padding-bottom: 7px; border-bottom: 1px solid var(--line); }
+  h3 { font-size: 16px; margin: 1.6em 0 .4em; }
+  code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .9em ui-monospace, Menlo, monospace; }
+  .note { color: var(--muted); font-size: 13.5px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 10px 0 6px; }
+  .pair.narrow { max-width: 760px; }
+  figure { margin: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--soft); }
+  figure img { display: block; width: 100%; height: auto; }
+  figcaption { padding: 8px 12px; font-size: 13px; border-top: 1px solid var(--line); background: #fff; }
+  .tag { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; margin-right: 6px; }
+  .before { background: #ffebe9; color: var(--bad); } .after { background: #dafbe1; color: var(--ok); }
+  .caveat { padding: 14px 16px; border-left: 5px solid var(--warn); background: #fff8e6; margin: 14px 0; }
+  .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+  table { border-collapse: collapse; margin: 10px 0; font-size: 14px; } th, td { padding: 6px 12px; border: 1px solid var(--line); } th { background: var(--soft); } td.num { text-align: right; }
+</style>
+</head>
+<body>
+<h1>투표 버튼·카운트다운 변경 미리보기</h1>
+<p class="note">2026-09-21 · 모든 이미지는 해당 브랜치 코드를 실제로 렌더한 결과다(393폭, 프로덕션 폰트). <span class="tag before">이전</span> = main <code>293b7e189</code>, <span class="tag after">이후</span> = PR 브랜치.</p>
+
+<div class="summary">
+  <p><strong>PR #251</strong> — 투표 버튼을 디자인의 고정 알약(172)으로 되돌리고, 긴 라벨은 한 줄로 줄여 맞춘다. 투표를 누르는 순간 버튼이 줄어들던 문제도 고친다.</p>
+  <p><strong>PICNIC-2738 첫 수정</strong> — 카운트다운 "투표 시작까지" 라벨이 1.3배부터 위아래가 잘리던 것을 고친다.</p>
+</div>
+
+<h2>1. 투표 팝업 — PR #251</h2>
+
+<h3>한국어 1.0배 (활성 사용자 79%)</h3>
+<div class="pair">
+  <figure><img src="before_dialog_ko_1.0.png" alt=""><figcaption><span class="tag before">이전</span>입력칸 폭의 바</figcaption></figure>
+  <figure><img src="after_dialog_ko_1.0.png" alt=""><figcaption><span class="tag after">이후</span>디자인의 가운데 알약</figcaption></figure>
+</div>
+
+<h3>키보드가 열렸을 때</h3>
+<div class="pair">
+  <figure><img src="before_dialog_ko_1.0_keyboard.png" alt=""><figcaption><span class="tag before">이전</span>키보드가 뜨면 버튼이 23% 좁아진다 — 애니메이션 중 크기가 변한다</figcaption></figure>
+  <figure><img src="after_dialog_ko_1.0_keyboard.png" alt=""><figcaption><span class="tag after">이후</span>폭이 변하지 않는다</figcaption></figure>
+</div>
+
+<h3>영어 1.0배 (15%)</h3>
+<div class="pair">
+  <figure><img src="before_dialog_en_1.0.png" alt=""><figcaption><span class="tag before">이전</span></figcaption></figure>
+  <figure><img src="after_dialog_en_1.0.png" alt=""><figcaption><span class="tag after">이후</span></figcaption></figure>
+</div>
+
+<h3>베트남어 2.0배 · 2.6배 — 긴 라벨 + 큰 글자</h3>
+<div class="pair">
+  <figure><img src="before_dialog_vi_2.0.png" alt=""><figcaption><span class="tag before">이전</span>2.0배</figcaption></figure>
+  <figure><img src="after_dialog_vi_2.0.png" alt=""><figcaption><span class="tag after">이후</span>2.0배 — 한 줄에 맞춰 줄인다</figcaption></figure>
+</div>
+<div class="pair">
+  <figure><img src="before_dialog_vi_2.6.png" alt=""><figcaption><span class="tag before">이전</span>2.6배</figcaption></figure>
+  <figure><img src="after_dialog_vi_2.6.png" alt=""><figcaption><span class="tag after">이후</span>2.6배 — 잘리지 않고 한 줄</figcaption></figure>
+</div>
+
+<h3>투표를 누르는 순간 (베트남어 2.6배, 버튼만)</h3>
+<p>빨간 테두리가 버튼의 실제 크기다. 다이얼로그는 평상시 높이로 공간을 잡아 두므로, 누르는 순간 버튼이 줄면 카드 전체가 손가락 아래에서 튄다.</p>
+<table>
+  <tr><th></th><th>평상시</th><th>투표 중</th></tr>
+  <tr><td>이전</td><td class="num">142.3px</td><td class="num"><strong>52.0px</strong> (−90px)</td></tr>
+  <tr><td>이후</td><td class="num">74.3px</td><td class="num">74.3px</td></tr>
+</table>
+<div class="pair narrow">
+  <figure><img src="before_button_vi_2.6_idle.png" alt=""><figcaption><span class="tag before">이전</span>평상시 142px — 라벨이 두 줄</figcaption></figure>
+  <figure><img src="before_button_vi_2.6_voting.png" alt=""><figcaption><span class="tag before">이전</span>투표 중 52px로 줄어든다</figcaption></figure>
+  <figure><img src="after_button_vi_2.6_idle.png" alt=""><figcaption><span class="tag after">이후</span>평상시 74px — 한 줄</figcaption></figure>
+  <figure><img src="after_button_vi_2.6_voting.png" alt=""><figcaption><span class="tag after">이후</span>투표 중에도 74px</figcaption></figure>
+</div>
+<p class="note">투표 중 로딩 표시는 애니메이션이라 테스트 캡처에는 그려지지 않는다. 실제 앱에서는 버튼 가운데에 표시된다.</p>
+
+<h2>2. 카운트다운 "투표 시작까지" — PICNIC-2738 (별도 브랜치)</h2>
+<p>라벨 상자가 높이 20으로 고정돼 있어, 글자 배율 1.3부터 위아래가 잘렸다. 한국어를 포함한 모든 언어에서 해당한다.</p>
+<div class="pair">
+  <figure><img src="before_countdown_ko_1.3.png" alt=""><figcaption><span class="tag before">이전</span>1.3배 — 라벨 위아래가 잘린다</figcaption></figure>
+  <figure><img src="after_countdown_ko_1.3.png" alt=""><figcaption><span class="tag after">이후</span>1.3배</figcaption></figure>
+  <figure><img src="before_countdown_ko_2.0.png" alt=""><figcaption><span class="tag before">이전</span>2.0배 — "트ㅍ 시자까지"</figcaption></figure>
+  <figure><img src="after_countdown_ko_2.0.png" alt=""><figcaption><span class="tag after">이후</span>2.0배 — 라벨은 온전하다</figcaption></figure>
+</div>
+<div class="caveat">
+  <p><strong>미리보기에서 새로 드러난 기존 결함.</strong> 2.0배에서 <strong>아래 숫자 행(02 D 23 : 59 : 59)이 이전·이후 모두 반쯤 잘린다.</strong> 숫자 타일이 18×18 로 고정인데 2.0배 글자는 그보다 크다. 1.3배까지는 멀쩡하다. 이번 수정과 무관하고, 전수 조사가 "번역 문자열" 만 봐서 숫자라 빠졌다. 홈 추천 카드 테스트는 이 행을 2.0배까지 검증한다고 적혀 있지만 폭과 타일 크기만 보고 글자가 잘리는지는 보지 않는다. PICNIC-2738 에 추가해 이어서 고친다. 앱은 시스템 글자 배율에 상한을 두지 않으므로 2.0배는 실제 기기에서 그대로 나온다.</p>
+</div>
+<p class="note">1.0배 비교는 <code>before_countdown_ko_1.0.png</code> · <code>after_countdown_ko_1.0.png</code> — 둘이 같다.</p>
+</body>
+</html>

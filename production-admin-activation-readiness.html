@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Candy Boost 관리자 전용 활성화 사전 점검</title>
+<style>
+body{max-width:1000px;margin:36px auto;padding:0 24px;font:16px/1.7 system-ui,sans-serif;color:#172033}h1,h2{line-height:1.35}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #ccd4df;padding:10px;text-align:left;vertical-align:top}code{background:#f0f3f7;padding:2px 4px;overflow-wrap:anywhere}pre{padding:16px;background:#f0f3f7;overflow:auto}.hold{padding:16px;background:#fff4d8;border-left:4px solid #a96b00}a{color:#165bb5}li{margin:6px 0}
+</style>
+</head>
+<body>
+<h1>Candy Boost 관리자 전용 활성화 사전 점검</h1>
+<p>최초 사전 점검 2026-09-09 10:57 KST, 원인 조사 추가 11:33 KST. 대상: PICNIC-PROD (<code>xtijtefcycoeqludlngc</code>). 항목별 확인 시각을 구분한다.</p>
+<p class="hold">서버 V2 OFF 설치는 완료돼 있지만, 추가 보너스 활성화는 기존 지갑 안전 게이트에 차단된다. 이번 점검에서는 운영 설정·캠페인·권한·원장을 변경하지 않았고 실제 구매도 수행하지 않았다.</p>
+
+<h2>1. 현재 상태</h2>
+<table><thead><tr><th>항목</th><th>확인 결과</th></tr></thead><tbody>
+<tr><td>앱</td><td>사용자가 TestFlight 배포 완료를 알림. 이 점검에서 정확한 앱 버전·빌드·커밋은 독립 확인하지 않음. 앱 작업은 배포용 워크트리 소유.</td></tr>
+<tr><td>V2 대상</td><td>삭제되지 않은 계정 중 <code>is_admin=true OR is_super_admin=true</code>. 현재 9개. 별도 사용자 목록이 아니라 역할 기준.</td></tr>
+<tr><td>롤아웃</td><td><code>promotion_v2_rollout_mode=OFF</code>, version 1.</td></tr>
+<tr><td>기능 플래그</td><td><code>promotion_schedule_v2_enabled</code>, <code>promotion_surfaces_enabled</code>, <code>candy_boost_write_enabled</code> 모두 false/version 1.</td></tr>
+<tr><td>다른 금융 플래그</td><td><code>admin_financial_commands_enabled</code>, <code>debt_recovery_enabled</code>, <code>refund_reversal_enabled</code>도 false/version 1. 이번 기능 준비를 이유로 켜지 않음.</td></tr>
+<tr><td>캠페인</td><td>기존 <code>CANDY_BOOST_DAY</code> 1개(id 1, PURCHASE_BONUS). V2 일정 버전 0개. 테스트 배율·기간·요일 미정.</td></tr>
+<tr><td>대기 프로모션</td><td><code>PENDING_TIME</code> 또는 <code>ELIGIBLE</code> 0건.</td></tr>
+</tbody></table>
+
+<h2>2. 활성화를 막는 확인된 조건</h2>
+<p>실제 값을 UPDATE하지 않고, 현재 플래그 JSON에 ADMIN_ONLY와 표시·V2·보너스 쓰기 true를 합친 후보를 설치된 검증 함수에 전달했다. <code>BEGIN READ ONLY</code>, lock timeout 1초, statement timeout 5초로 조회했다. <code>assert_promotion_release_implications</code>는 <code>WALLET_RELEASE_GATE_BLOCKED</code>(line 61)를 반환했다. V2 일정·롤아웃 전용 검증 함수는 각각 통과했지만 전체 활성화 통과를 뜻하지 않는다.</p>
+<table><thead><tr><th>미충족 조건</th><th>운영 증거</th><th>판단</th></tr></thead><tbody>
+<tr><td>지갑 변경 경로 이관</td><td><code>admin_adjustment</code>, <code>projection_repair</code>가 ACTIVE_MUTATION이면서 migrated=false.</td><td>이관 완료 증거가 등록돼 있지 않다. 실제 관리자 쓰기 경로와 검증 이력을 확인해야 하며 상태값만 true로 바꾸면 안 된다.</td></tr>
+<tr><td>적립 경로 이관율</td><td>promotion-ops 4개 중 3개 완료, 75%. 미완료는 <code>admin_adjustment</code>. wallet-core는 12/12, 100%.</td><td>검사는 모든 적립 경로의 100% 완료를 요구한다. 위 관리자 경로와 연결된 조건이다.</td></tr>
+<tr><td>만료 워커 검사 지표</td><td><code>wallet-expiry-worker</code> 최근 성공 10:55:00 KST, 처리 0/잠금 건너뜀 0, <code>clean_scans=0</code>. 전체 게이트는 두 워커 모두 clean_scans≥2를 요구한다.</td><td>운영 <code>expire_cotton_candy_batch(integer)</code> 정의는 성공 시각·결과만 갱신하며 clean_scans는 갱신하지 않는다. 이 성공 경로의 반복 실행만으로는 충족되지 않는 지표 불일치다.</td></tr>
+</tbody></table>
+<p>추가 참고: 관리자 금융 전환 증거 <code>admin_ui_command_only</code>, <code>direct_writer_probe_denied</code>, <code>role_matrix_verified</code> 3개 모두 verified=false, 참조 없음. 이는 다른 금융 플래그를 켤 근거도 아직 없다는 뜻이며, 세 항목 자체를 Candy Boost 게이트의 직접 실패 조건으로 중복 계산하지 않았다.</p>
+<p>이번 조회에서 미해결 CRITICAL 0건, 감사 커버리지 4건 모두 충족, 불변 감사 트리거 활성. reconciliation 워커는 clean_scans=16, 건너뜀 false, 최근 전체 성공 09:55:01 KST였다. 이는 모든 지갑·보안 검사가 정상이라는 보장은 아니다.</p>
+
+<h2>2-1. 후속 원인 조사 — 카운터 누락과 검사 대상 오류의 구분</h2>
+<p class="hold">이전 설명의 “만료 워커 카운터 갱신 보완”은 수정 방향이 확정된 표현이 아니었다. 후속 조사에서 기존 명세는 연속 2회 정상 검사를 <strong>reconciliation</strong>에 요구하고, 두 워커에는 최근 성공 증거를 요구한다는 점을 확인했다. 현재 공통 게이트가 <code>clean_scans&lt;2</code>를 만료 워커에도 적용하는 것이 명세와 불일치한다. 만료 작업에 가상의 스캔 횟수를 넣어 통과시키는 해결은 부적절하다.</p>
+<ul>
+<li>명세 근거: <a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/docs/wallet/promotion-ops-rollout-runbook.md">promotion-ops-rollout-runbook</a>의 Dark launch 1번, <a href="/Users/charlie.hyun/orca/workspaces/picnic-supabase/fix-promotion-v2-release-safety/scripts/wallet/verify_release_gate.mjs">release verifier</a>의 <code>two_clean_reconciliation_scans</code>와 <code>worker_heartbeats_fresh</code> 구분.</li>
+<li>11:23 운영 재조회에서도 rollout OFF, 표시·V2·보너스 쓰기·관리자 금융 명령 모두 false였다. expiry clean_scans=0, 최근 성공 11:20:01 KST. 운영 게이트 정의 MD5 <code>3288ac261c6948cc823c4ecec68a4bf9</code>는 고정 V2 baseline과 일치했다.</li>
+<li>expiry 내부 함수의 <code>next_cursor</code>는 마지막 처리 대상이다. 한 배치가 끝났다고 전체 검사가 끝났음을 뜻하지 않으므로 reconciliation의 스캔 누적 코드를 그대로 복사할 근거도 없다.</li>
+<li>기존 관리자 조정·복구 RPC 구현은 존재한다. 11:26 이전 좁은 운영 ACL 조회에서 <code>admin_adjust_star_bonus</code>, <code>admin_execute_wallet_repair</code>, <code>apply_wallet_correction</code>는 service_role만 실행 가능하고 anon/authenticated는 불가했다. 구형 <code>admin_adjust_user_bonus</code>는 세 역할 모두 실행 불가였다.</li>
+<li><code>user_profiles.star_candy</code>, <code>star_candy_bonus</code>, <code>cotton_candy</code> 직접 UPDATE도 세 역할 모두 불가했다. 이 9개 조합 및 구형 RPC 1개 확인은 전체 raw-writer inventory 56개와 관리자 화면 검증을 대체하지 않는다.</li>
+<li>11:26:29 기준 별도 지갑 운영 RBAC의 활성·화이트리스트 역할 인원은 Super Admin 1, Finance Admin 4, Operator 0이다. 이는 기능 테스트 대상인 프로필 <code>is_admin OR is_super_admin</code> 9개와 다른 권한 체계다. 관리자 금융 명령 활성화에 필요한 인원 조건을 충족하지 않지만, 이 역할 인원 자체가 현재 Candy Boost 단독 게이트의 직접 차단 조건인 것은 아니다.</li>
+<li>이관 등록값과 cutover 증거 3개는 여전히 미완료다. 기능 구현 존재·일부 ACL 차단·운영 이관 완료를 동일시하지 않는다. 이번 조사에서는 역할 추가나 증거 등록을 하지 않았다.</li>
+<li>검토 대상 main은 11:23 확인 시 <code>12708dda330837703bd23bcb5efef2e2fbd3bd6b</code>. 기존 backend 워크트리의 추적 파일 변경 없음. 새 패치는 아직 작성·적용하지 않았다.</li>
+<li>관리자 웹 로컬 <code>80d8120</code>에는 <code>app/api/wallet/candy-adjust/route.ts</code>와 <code>app/api/wallet-ops/commands/route.ts</code>가 함께 있다. 두 경로 모두 조정 RPC로 이어질 수 있다. GitHub main <code>1b73662599b12a96a684b34e6da41576d85165fa</code>까지 5개 후속 커밋의 비교에서 이 경로들과 관련 helper 변경 없음 확인. 실제 웹 배포 버전 및 전체 관리자 기능 실동작은 미확인이다. 따라서 백엔드 handoff 문서의 단일 명령 경로 계약에 대해 UI 이관 완료라고 기록할 수 없다.</li>
+<li>다른 서버 작업 <code>run_d5d8016ebfdb</code>는 11:25 답변에서 현재 범위가 reconciliation 기존 운영 코드 회수 및 미확인 광고 리워드 목록 최적화이며, expiry·health·승격 검사·관리자 조정/복구는 수정하지 않는다고 확인했다. 이 답변은 현재 직접 겹침 없음의 근거이며 향후 병합·운영 적용 직전 재확인해야 한다.</li>
+<li>독립 관리자 경로 조사: Orca Run <code>run_4e566bd46d9b</code>, Task <code>task_d5fee4e1d48e</code>, Dispatch <code>ctx_2f618ebe4d4f</code>, Opus/max. 11:32 완료 보고 후 worker-release 수행(external_terminal로 보존, 활성 배정 종료). 조정자가 실제 소스와 대조해 채택한 근거는 <code>wallet_credit_source_coverage.test.sql:28</code>의 promotion-ops 이관율 100% 미만 단언과 <code>wallet_admin_cutover_evidence.test.sql:72</code>의 테스트 트랜잭션 내부 이관 완료 모사다. 즉 미완료 표시가 설치 누락이라고 단정할 수 없으며 기존 이관 전 baseline과 일치한다.</li>
+<li>독립 보고서의 “관리자 UI가 없다”는 오래된 문서에 근거한 추론과 “쓰기 플래그가 모두 false이면 V2 롤아웃 진행 가능” 권고는 채택하지 않았다. 현재 관리자 웹 소스는 존재하며, 이번 목표는 보너스 쓰기까지 켜는 ADMIN_ONLY 테스트이므로 쓰기를 false로 둔 부분 활성화는 목표를 충족하지 못한다. 코드 존재와 권한 전환 전체 검증 완료도 구분했다.</li>
+<li>이관값을 등록하는 승인된 운영 절차의 공백은 남아 있다. 이를 자동 완료 처리하거나 기존 검증에서 제외하지 않는다. 관리자 UI 및 권한·감사 검증 근거가 확보되기 전에는 이관율 테스트를 100%로 변경하지 않는다.</li>
+<li>보조 작업자가 파일 생성 금지 지시와 달리 HTML 조사 보고서 1개를 생성했다. 코드는 변경하지 않았고 해당 문서는 증거 보존용으로 남겼다. 본 페이지는 그 보고서를 그대로 채택한 것이 아니라 조정자가 확인·정정한 결과다. 이번 턴 테스트·코드 수정·운영 적용은 미실행이며, 구체화된 수정 범위에 대한 설계 승인 단계다.</li>
+</ul>
+
+<h2>3. TestFlight 구매와 운영 지갑</h2>
+<p>Apple TestFlight의 앱 내 구매는 Sandbox를 사용한다. <a href="https://developer.apple.com/documentation/storekit/testing-at-all-stages-of-development-with-xcode-and-the-sandbox">Apple 공식 테스트 환경 설명</a>.</p>
+<p class="hold">Apple 결제 환경이 Sandbox라는 사실과 앱의 운영 지갑이 격리돼 있다는 것은 다르다. 현재 배포된 서버 경로에서는 검증에 성공한 Sandbox 구매도 같은 운영 DB의 해당 사용자 지갑에 캔디를 적립한다.</p>
+<ul>
+<li>운영 <code>wallet-provider-event</code> ACTIVE/version 29: 앱이 PRODUCTION으로 요청해도 Apple JWS가 Sandbox이면 인테이크에서 SANDBOX로 정규화하는 코드가 배포돼 있음을 확인.</li>
+<li>운영 <code>wallet-operation-worker</code> ACTIVE/version 30: 같은 프로젝트 클라이언트로 검증된 환경을 <code>grant_verified_purchase</code>에 전달. 두 Edge 함수의 updated_at은 2026-09-03.</li>
+<li>운영 구매 RPC 정의에서 상품 기본 캔디·기본 보너스를 <code>credit_star_bonus_with_debt(p_user_id,...)</code>로 지급하는 경로 확인. 환경은 구매 식별·검증·중복 방지에 쓰이고 별도 지갑을 선택하지 않는다.</li>
+<li>기본 상품 적립과 V2 추가 프로모션은 별개다. V2 OFF가 Sandbox 기본 적립까지 막아 주지 않는다. 미회수 debt가 있으면 가산분 일부가 상계될 수 있다.</li>
+<li>같은 거래의 재전달은 중복 방지 대상이지만 새 Sandbox 거래는 새 적립이다. 앱 재설치나 Apple Sandbox 구매 내역 초기화로 운영 원장이 복구된다고 가정하면 안 된다.</li>
+<li>기존 사용자 잔액을 보존해야 한다면 전용 관리자 테스트 계정을 지정한다. 이 점검에서는 계정을 생성하거나 역할을 변경하지 않았다. 기존 계정으로 시험한다면 가산분이 남는 테스트임을 전제로 해야 한다.</li>
+<li>ADMIN_ONLY의 적격 여부는 구매 스냅샷 시점에 고정된다. 기능과 역할이 설정된 뒤 새 거래로 테스트해야 하며 과거 구매에 관리자 권한을 붙여 소급 적용하는 방식은 불가하다.</li>
+</ul>
+
+<h2>4. 다음 작업과 승인 경계</h2>
+<p>승인을 요청하는 구현 범위는 새 후속 마이그레이션의 워커별 안전 검사·상태 기록과 회귀 테스트다. <code>clean_scans≥2</code>는 reconciliation에만 적용하고, 두 필수 워커의 행 존재·최근 성공·건너뜀 검사는 유지하거나 명시적으로 검증한다. expiry에서 실제 잠금 건너뜀이 발생하면 health에 반영되도록 보완한다. 기존 잔액 계산, 관리자 이관 완료값, 운영 플래그 및 이미 적용된 마이그레이션·고정 번들은 변경하지 않는다.</p>
+<p>회귀 검증에는 정상 상태, 오래된 성공 기록, 잠금 건너뜀, 필수 워커 행 누락, 관리자 경로 미이관만 남은 경우의 차단, 긴급 OFF 유지가 포함된다. 관리자 이관은 읽기 전용 검증과 운영 절차 정리까지이며, 실제 UI/API 통합·역할 변경·증거 등록·이관 완료 처리는 별도 범위다. 아직 테스트를 실행하지 않았다.</p>
+<ol>
+<li>기존 관리자 지갑 경로의 실제 이관 상태 및 만료 워커 지표 계약을 보완하는 변경 범위를 확정하고 승인받는다. 단순 완료 표시·카운터 보정·안전 검사 우회는 하지 않는다.</li>
+<li>승인된 수정은 격리 환경의 재현 테스트와 금융·권한 변경에 맞는 독립 교차 리뷰를 거친다. 다른 서버 세션의 변경과 충돌 여부도 다시 확인한다.</li>
+<li>테스트 계정, 배율(스키마 허용 1.1~3.0배), KST 시작·종료·요일, 표시 위치, 변경 주체·사유·티켓을 확정한다. 일정은 불변 버전 기록이므로 임의 생성 후 삭제하는 방식을 쓰지 않는다.</li>
+<li>지갑 안전 게이트를 다시 통과한 뒤 정확한 활성화·비상 OFF 계획을 확인하고 별도 승인으로 ADMIN_ONLY를 켠다. 표시만 먼저 켜는 부분 활성화도 이번에 실행하지 않았다.</li>
+<li>관리자·슈퍼관리자·일반 사용자 및 계정 전환 테스트를 수행하고, 실제 구매는 운영 지갑 가산 영향을 확인한 후 진행한다. 전체 공개 ALL은 범위 밖이다.</li>
+</ol>
+<p>이번 작업은 Supabase 읽기 전용 점검과 Superpowers systematic-debugging의 원인 우선 절차를 사용했다. 보조 에이전트는 로컬 결제 경로를 독립 조사했고, 본 세션이 운영 Edge·DB 정의를 추가 확인했다. 실제 구매·배포를 승인하는 교차 리뷰로 간주하지 않는다.</p>
+<p>이전 설치 결과는 <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-server-off-install-precheck.html">프로덕션 OFF 설치 결과</a>에 보존했다. 이번 준비에서 앱 코드·태그·빌드, 서버 코드·마이그레이션·Edge·운영 플래그·캠페인·원장은 변경하지 않았다.</p>
+</body>
+</html>

@@ -37,6 +37,7 @@ class _PendingVoteDetail extends AsyncVoteDetail {
   Future<VoteModel?> build({
     required int voteId,
     VotePortal votePortal = VotePortal.vote,
+    VoteDetailItems items = VoteDetailItems.none,
   }) =>
       Completer<VoteModel?>().future;
 }

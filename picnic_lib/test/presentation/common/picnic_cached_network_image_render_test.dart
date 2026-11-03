@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/common/picnic_cached_network_image.dart';
@@ -50,11 +49,7 @@ void main() {
       await pumpAndDrain(
         tester,
         buildTestApp(
-          const PicnicCachedNetworkImage(
-            imageUrl: '',
-            width: 50,
-            height: 50,
-          ),
+          const PicnicCachedNetworkImage(imageUrl: '', width: 50, height: 50),
         ),
       );
 
@@ -93,8 +88,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with lazy loading viewport strategy',
-        (WidgetTester tester) async {
+    testWidgets('renders with lazy loading viewport strategy', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -110,8 +106,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with lazy loading preload strategy',
-        (WidgetTester tester) async {
+    testWidgets('renders with lazy loading preload strategy', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -160,8 +157,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with memory optimization enabled',
-        (WidgetTester tester) async {
+    testWidgets('renders with memory optimization enabled', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -195,8 +193,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with showLoadingOverlay false',
-        (WidgetTester tester) async {
+    testWidgets('renders with showLoadingOverlay false', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -212,7 +211,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with progressive loading', (WidgetTester tester) async {
+    testWidgets('renders with progressive loading', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -229,7 +230,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with timeout and retries', (WidgetTester tester) async {
+    testWidgets('renders with timeout and retries', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -246,8 +249,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders without explicit width/height',
-        (WidgetTester tester) async {
+    testWidgets('renders without explicit width/height', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -284,8 +288,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsNWidgets(2));
     });
 
-    testWidgets('renders with custom error widget',
-        (WidgetTester tester) async {
+    testWidgets('renders with custom error widget', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -304,8 +309,9 @@ void main() {
     // LazyLoadingStrategy.none triggers _buildCachedNetworkImage which creates
     // a 30-second timeout timer inside StatefulBuilder that cannot be cleanly
     // cancelled in widget tests. Skipped to avoid pending timer errors.
-    testWidgets('renders with lazy loading none strategy',
-        (WidgetTester tester) async {
+    testWidgets('renders with lazy loading none strategy', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -369,8 +375,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with very large dimensions',
-        (WidgetTester tester) async {
+    testWidgets('renders with very large dimensions', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -386,8 +393,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with very small dimensions',
-        (WidgetTester tester) async {
+    testWidgets('renders with very small dimensions', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -402,8 +410,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('pumps timer ticks to trigger shimmer animation',
-        (WidgetTester tester) async {
+    testWidgets('pumps timer ticks to trigger shimmer animation', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -441,8 +450,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsWidgets);
     }, skip: true);
 
-    testWidgets('renders with all optimizations combined',
-        (WidgetTester tester) async {
+    testWidgets('renders with all optimizations combined', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -498,8 +508,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with leading slash relative URL',
-        (WidgetTester tester) async {
+    testWidgets('renders with leading slash relative URL', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -514,8 +525,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with memory optimization disabled',
-        (WidgetTester tester) async {
+    testWidgets('renders with memory optimization disabled', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -531,8 +543,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with progressive loading disabled',
-        (WidgetTester tester) async {
+    testWidgets('renders with progressive loading disabled', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -548,8 +561,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with http URL (not https)',
-        (WidgetTester tester) async {
+    testWidgets('renders with http URL (not https)', (
+      WidgetTester tester,
+    ) async {
       await pumpAndDrain(
         tester,
         buildTestApp(
@@ -564,8 +578,9 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('renders with deferDuringFastScroll without throwing (C4)',
-        (WidgetTester tester) async {
+    testWidgets('renders with deferDuringFastScroll without throwing (C4)', (
+      WidgetTester tester,
+    ) async {
       PicnicCachedNetworkImage.disableTimeoutForTest = true;
       await pumpAndDrain(
         tester,
@@ -585,23 +600,23 @@ void main() {
       expect(find.byType(PicnicCachedNetworkImage), findsOneWidget);
     });
 
-    testWidgets('fast fling shows placeholder, idle restores real image (C4)',
-        (WidgetTester tester) async {
-      // 위 스모크는 "안 터진다"만 본다. 이 테스트가 지연 **동작**을 고정한다:
-      // 게이트(:605)를 `if (false && ...)` 로 죽여도 스모크는 green 이지만
-      // 여기의 플링 중 placeholder 단언이 red 가 된다 (검증 완료).
-      //
-      // 판별자: 본 이미지 경로만 CachedNetworkImage 를 그린다. (ClipRRect 는
-      // 기본 placeholder 의 shimmer 도 쓰므로 판별자가 못 된다 — 실측 확인.)
+    testWidgets('fast fling preserves the Image subtree through idle (C4)', (
+      WidgetTester tester,
+    ) async {
+      // Flutter Image 내부 ScrollAwareImageProvider가 cold work만 미루므로,
+      // 상위 위젯은 플링 중에도 Image Element를 제거하면 안 된다. 실제 warm,
+      // cold, pending fetch 수와 픽셀 보존은 picnic_image_decode_test에서 검증한다.
       PicnicCachedNetworkImage.disableTimeoutForTest = true;
 
-      /// PicnicCachedNetworkImage 중 실제 이미지 위젯을 그리고 있는 것.
+      /// PicnicCachedNetworkImage 중 단일 Image Element를 유지하는 것.
       int mainPathCount() => tester
           .widgetList(find.byType(PicnicCachedNetworkImage))
-          .map((w) => find.descendant(
-                of: find.byWidget(w),
-                matching: find.byType(CachedNetworkImage),
-              ))
+          .map(
+            (w) => find.descendant(
+              of: find.byWidget(w),
+              matching: find.byType(Image),
+            ),
+          )
           .where((f) => f.evaluate().isNotEmpty)
           .length;
 
@@ -631,25 +646,27 @@ void main() {
       // 정지 상태: 보이는 아이템 전부 본 이미지 경로.
       final idleBefore = mainPathCount();
       expect(idleBefore, greaterThan(0));
-      expect(mainPathCount(), tester.widgetList(find.byType(PicnicCachedNetworkImage)).length);
+      expect(
+        mainPathCount(),
+        tester.widgetList(find.byType(PicnicCachedNetworkImage)).length,
+      );
 
-      // 물리 임계값은 physicalSize.longestSide (테스트: 2400) — 그보다 큰
-      // 속도로 탄도 스크롤을 시작하면 새로 빌드되는 아이템은 지연되어야 한다.
-      (controller.position as ScrollPositionWithSingleContext).goBallistic(8000);
-      var deferredSeen = false;
-      for (var i = 0; i < 12 && !deferredSeen; i++) {
+      // 물리 임계값보다 큰 속도로 탄도 스크롤을 시작한다.
+      (controller.position as ScrollPositionWithSingleContext).goBallistic(
+        8000,
+      );
+      for (var i = 0; i < 12; i++) {
         await tester.pump(const Duration(milliseconds: 16));
         drainExpectedImageErrors(tester);
-        final total =
-            tester.widgetList(find.byType(PicnicCachedNetworkImage)).length;
-        if (total > mainPathCount()) deferredSeen = true;
+        final total = tester
+            .widgetList(find.byType(PicnicCachedNetworkImage))
+            .length;
+        expect(
+          mainPathCount(),
+          total,
+          reason: '빠른 플링이 warm/pending Image subtree를 제거하면 안 된다',
+        );
       }
-      expect(
-        deferredSeen,
-        isTrue,
-        reason: '빠른 플링 중 새로 빌드된 아이템은 본 이미지 대신 '
-            'placeholder 를 그려야 한다 (deferDuringFastScroll)',
-      );
 
       // 스크롤을 멈춘다. (pumpAndSettle 은 이미지 로딩 오버레이 애니메이션
       // 때문에 영원히 안 끝난다 — 유한 pump 로 대체.)
@@ -658,13 +675,13 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
         drainExpectedImageErrors(tester);
       }
-      final total =
-          tester.widgetList(find.byType(PicnicCachedNetworkImage)).length;
+      final total = tester
+          .widgetList(find.byType(PicnicCachedNetworkImage))
+          .length;
       expect(
         mainPathCount(),
         total,
-        reason: '스크롤 정지 후에도 placeholder 로 남는 아이템이 있다 — '
-            '지연이 영구화되면 이미지가 안 보이는 버그다',
+        reason: '스크롤 정지 뒤에도 모든 항목이 같은 Image 경로를 유지해야 한다',
       );
     });
   });

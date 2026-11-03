@@ -130,7 +130,7 @@ final class AdRewardRecoveryProvider
   }
 }
 
-String _$adRewardRecoveryHash() => r'7ff1aaa93b1e7e5c702e1234aea5b38b4b8d088f';
+String _$adRewardRecoveryHash() => r'e5369479ae925ede830d63ce2395c058b0b9ac8f';
 
 abstract class _$AdRewardRecovery extends $Notifier<AdRewardRecoveryState> {
   AdRewardRecoveryState build();

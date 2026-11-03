@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PICNIC-2637 · PICNIC-2664 처리 방안</title>
+<style>
+  :root {
+    --ink: #1a1d21;
+    --muted: #5b6570;
+    --line: #dfe3e8;
+    --bg: #ffffff;
+    --soft: #f6f8fa;
+    --ok: #1a7f4b;
+    --warn: #a35a00;
+    --bad: #b4232c;
+    --accent: #2757c4;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 40px 24px 80px;
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
+  main { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-size: 28px; line-height: 1.3; margin: 0 0 6px;
+    letter-spacing: -0.02em;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 36px; }
+  h2 {
+    font-size: 21px; margin: 48px 0 4px; padding-top: 24px;
+    border-top: 2px solid var(--ink); letter-spacing: -0.01em;
+  }
+  h2 .key { color: var(--muted); font-weight: 400; font-size: 15px; display: block; margin-bottom: 2px; }
+  h3 { font-size: 17px; margin: 30px 0 8px; letter-spacing: -0.01em; }
+  h4 { font-size: 15px; margin: 20px 0 6px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  p { margin: 10px 0; }
+  ul, ol { margin: 10px 0; padding-left: 22px; }
+  li { margin: 5px 0; }
+  code {
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 0.87em; background: var(--soft);
+    padding: 1px 5px; border-radius: 4px; border: 1px solid var(--line);
+  }
+  pre {
+    background: var(--soft); border: 1px solid var(--line); border-radius: 8px;
+    padding: 14px 16px; overflow-x: auto; font-size: 13px; line-height: 1.6;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  }
+  pre code { background: none; border: none; padding: 0; font-size: inherit; }
+  table { border-collapse: collapse; width: 100%; margin: 14px 0; font-size: 14.5px; }
+  th, td { text-align: left; padding: 9px 11px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--soft); font-weight: 600; border-bottom: 2px solid var(--line); }
+  td code { font-size: 12.5px; }
+  .tag { font-weight: 600; white-space: nowrap; }
+  .ok { color: var(--ok); }
+  .bad { color: var(--bad); }
+  .warn { color: var(--warn); }
+  .callout {
+    border-left: 3px solid var(--accent); background: var(--soft);
+    padding: 14px 18px; margin: 18px 0; border-radius: 0 8px 8px 0;
+  }
+  .callout.risk { border-left-color: var(--bad); }
+  .callout strong:first-child { display: block; margin-bottom: 4px; }
+  .verdict {
+    border: 2px solid var(--ink); border-radius: 10px;
+    padding: 16px 20px; margin: 20px 0; background: var(--soft);
+  }
+  .verdict h4 { margin-top: 0; color: var(--ink); }
+  footer { margin-top: 60px; padding-top: 18px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+  .scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<main>
+
+<h1>PICNIC-2637 · PICNIC-2664 처리 방안</h1>
+<p class="sub">
+  작성 2026-09-11 KST · 기준 <code>origin/main cf111821a</code>(PR #206 · #211 반영 후) ·
+  조사 범위: 앱 레포 <code>picnic-app</code> 읽기 전용. 운영 DB·서버·배포 변경은 수행하지 않았습니다.
+</p>
+
+<div class="callout">
+  <strong>전제: 2026-09-11 기준 운영 장애는 해결된 상태입니다.</strong>
+  두 티켓의 상위 <code>PICNIC-2633</code>(Supabase CPU 100%)의 장애 상황이 종료됐다는 사용자 확인에 따라
+  작성했습니다. 이 전제는 두 티켓에 <strong>정반대 방향으로</strong> 작용합니다 —
+  2637은 존재 이유가 대부분 사라지고, 2664는 영향을 받지 않아 남은 항목 중 유일하게
+  사용자에게 직접 닿는 결함으로 남습니다.
+</div>
+
+<!-- ══════════════════════════════ 2664 ══════════════════════════════ -->
+
+<h2><span class="key">PICNIC-2664 · High · 해야 할 일 · 담당자 없음</span>계정 전환 후 이전 구매 정산 응답의 지갑 덮어쓰기 차단</h2>
+
+<div class="callout">
+  <strong>장애 해결의 영향: 없습니다.</strong>
+  이 티켓은 애초에 장애와 무관합니다 — 본문이 <em>“서버 CPU 장애의 확정 원인이나 이번 수정의 신규 회귀로
+  판단하지 않는다”</em>고 명시합니다. CPU 장애가 끝나도 <strong>사용자 화면에 다른 계정 잔액이 표시되는
+  결함은 그대로 남아 있습니다.</strong> 장애 대응 항목들이 정리되면서
+  <strong>이 티켓이 남은 것들 중 유일하게 사용자에게 직접 닿는 결함</strong>이 됐습니다.
+</div>
+
+<h3>1. 티켓이 남겨둔 조사 항목부터 처리했습니다</h3>
+
+<p>
+  완료 조건에 <em>“투표/광고의 직접 <code>setSummary</code> 호출자도 실제 소유권 보호 여부 조사”</em>가 있었습니다.
+  현재 main 기준으로 전수 확인한 결과입니다.
+</p>
+
+<div class="scroll">
+<table>
+  <thead>
+    <tr><th>#</th><th>호출처</th><th>맥락</th><th>소유권 보호</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td><code>core/services/wallet_resume_refresher.dart:194</code></td>
+      <td>복귀 잔액 갱신</td>
+      <td class="tag ok">있음 — <code>_isCurrent(userId, generation)</code> 통과 후에만 적용 (PR #204)</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td><code>presentation/widgets/ad_reward_dialog_host.dart:101</code></td>
+      <td>광고 보상 복구 팝업</td>
+      <td class="tag bad">없음 — <code>ref.exists</code>만 확인</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td><code>…/free_charge_station/platforms/ad_shortform_fullscreen_page.dart:135</code></td>
+      <td>내부 숏폼 광고 적립</td>
+      <td class="tag bad">없음 — container만 캡처</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td><code>…/purchase/wallet_summary_applier.dart:73</code></td>
+      <td>구매 정산 <em>(티켓이 지목한 경로)</em></td>
+      <td class="tag bad">없음 — container만 캡처</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td><code>…/vote/voting/voting_dialog.dart:599</code></td>
+      <td>투표 정산</td>
+      <td class="tag bad">없음 — container만 캡처</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <strong>조사 결론: 문제는 구매 경로 하나가 아닙니다.</strong>
+  5개 호출처 중 <strong>4개가 무방비</strong>이고, 보호된 1개는 별도 로직으로 각자 구현한 것입니다.
+  <code>setSummary</code> 자체는 <code>snapshotAt</code> 순서만 검사하므로
+  (<code>wallet_provider.dart:428-436</code>), 호출처가 잊으면 그대로 통과합니다.
+</div>
+
+<h3>2. 그래서 호출처를 4곳 고치는 방식은 권장하지 않습니다</h3>
+
+<p>
+  4곳을 각각 가드하면 지금은 닫히지만 <strong>다음 호출처가 또 빠뜨립니다</strong>.
+  실제로 이 저장소는 같은 종류의 실수를 이미 타입으로 막은 전례가 있습니다 —
+  <code>WalletSummaryApplier</code>의 주석이 그 이유를 명시합니다:
+</p>
+
+<pre><code>/// A named type rather than a bare `void Function(WalletSummaryModel)` because …
+/// Requiring this type at the call site is what stops one being passed.</code></pre>
+
+<p>같은 원칙을 소유권에도 적용하는 것이 이 코드베이스의 결에 맞습니다.</p>
+
+<h3>3. 권장안 — <code>setSummary</code>에 소유권 토큰을 <em>필수 인자</em>로</h3>
+
+<p>앱 전용 변경이며 서버·ACL·지급 로직을 건드리지 않습니다.</p>
+
+<h4>설계</h4>
+<ol>
+  <li>
+    <strong>토큰 타입</strong> <code>WalletWriteToken(ownerId, authEpoch)</code>을 도입하고,
+    <code>WalletSummary</code>가 현재 값으로 발급합니다. PR #206이 이미 추가한
+    <code>_authEpoch</code>와 <code>_currentOwner(gateway)</code>를 그대로 재사용합니다 —
+    새 상태를 만들지 않습니다.
+  </li>
+  <li>
+    <strong>시그니처 변경</strong>
+    <code>setSummary(summary)</code> → <code>setSummary(summary, {required WalletWriteToken owner})</code>.
+    5개 호출처가 전부 컴파일 에러가 나므로 <strong>누락이 구조적으로 불가능</strong>해집니다.
+  </li>
+  <li>
+    <strong>판정</strong> <code>ownerId</code>가 현재 소유자와 다르거나 <code>authEpoch</code>가
+    변했으면 쓰기를 버립니다. 기존 <code>snapshotAt</code> 검사보다 <em>먼저</em> 수행합니다.
+  </li>
+  <li>
+    <strong>캡처 지점</strong> <code>ContainerWalletSummaryApplier.of(context)</code>가 이미
+    “mounted 상태일 때 container를 캡처”하는 자리입니다. 같은 생성자에서 토큰도 캡처하면
+    <code>purchase_settlement_step.dart</code>는 <strong>한 줄도 고치지 않아도</strong> 구매 경로가 닫힙니다.
+  </li>
+</ol>
+
+<div class="callout risk">
+  <strong>읽기 경로의 판정을 그대로 복사하면 안 됩니다.</strong>
+  PR #206의 <code>_stillOwns</code>는 <code>identical(session)</code>을 씁니다. 읽기에는 맞지만
+  <strong>쓰기에는 과잉 차단</strong>입니다 — 정산은 네트워크만큼 오래 걸리고 그 사이 토큰 갱신이
+  일어나면 gotrue가 새 <code>Session</code> 인스턴스를 만듭니다. 같은 계정인데 적립이 화면에
+  반영되지 않는 새 버그가 됩니다.
+  <br><br>
+  쓰기 판정은 <code>ownerId</code> + <code>authEpoch</code>여야 합니다.
+  <code>_authEpoch</code>는 <em>계정 전환에만</em> 증가하도록 #206이 이미 만들어 두었으므로
+  (같은 계정 토큰 갱신·리플레이는 증가하지 않음), A → B → A 왕복까지 잡으면서 토큰 갱신은 통과시킵니다.
+</div>
+
+<h4>대안 B — 서버 계약에 소유자 추가 (<code>wallet.v2</code>)</h4>
+<p>
+  현재 <code>wallet.v1</code> 계약에 <code>user_id</code>가 없습니다
+  (<code>test/fixtures/wallet_contracts/wallet_summary_v1.json</code> 확인).
+  서버가 주장하는 소유권이 가장 강한 보증이지만 <code>picnic-supabase</code> 레포 변경 + 구버전 v1 호환 유지가
+  함께 필요합니다. <strong>권장안을 먼저 적용하고, v2는 별도 티켓으로 검토</strong>하는 것이 맞습니다.
+  권장안은 v2가 생겨도 버려지지 않고 클라이언트 측 2차 방어로 남습니다.
+</p>
+
+<h3>4. 검증 계획 — 티켓 완료 조건 매핑</h3>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>완료 조건</th><th>회귀 테스트</th></tr></thead>
+  <tbody>
+    <tr><td>A → B 지연 결과 폐기</td><td>production adapter로 A 캡처 → B 정착 → A 응답(더 늦은 snapshot) 전달 → B 잔액 불변</td></tr>
+    <tr><td>A → 로그아웃</td><td>로그아웃 후 A 정산 도착 → 비로그인 잔액 유지</td></tr>
+    <tr><td>A → B → A 왕복</td><td><code>authEpoch</code>로 폐기되는지 (ownerId만으로는 통과함)</td></tr>
+    <tr><td>같은 계정 route-unmount 정산 정상 반영</td><td>기존 동작 보존 — 구매 화면을 떠난 뒤 도착한 정산이 적용됨</td></tr>
+    <tr><td class="warn">토큰 갱신 중 정산 반영 <em>(추가 필요)</em></td><td>과잉 차단 방지 — 같은 계정 세션 인스턴스 교체 후에도 적용됨</td></tr>
+    <tr><td><code>snapshotAt</code> 순서 규칙 보존</td><td>기존 4개 테스트 유지 + 소유권 검사가 순서 검사보다 먼저인지</td></tr>
+    <tr><td>5개 호출처 각각</td><td>구매·투표·광고 팝업·숏폼·복귀 갱신</td></tr>
+    <tr><td>서버 지급·구매 완료 처리 영향 없음</td><td>표시 상태만 변경 — RPC·ACK·영수증 경로 무수정 확인</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="verdict">
+  <h4>착수 조건</h4>
+  <ul>
+    <li><strong>고위험(인증·결제)</strong> → Frontier 교차 공급자 리뷰 대상. 구현이 Claude면 리뷰는 Codex.</li>
+    <li>전용 워크트리에서 진행. 예상 변경: provider 1 + applier 1 + 호출처 4 + 테스트 — 약 7~9 파일.</li>
+    <li>배포는 PICNIC-2656(#206)과 <strong>함께 조율</strong>합니다. 둘 다 미배포 상태이므로 같은 빌드에 태우는 것이 측정에 유리합니다.</li>
+  </ul>
+</div>
+
+<div class="callout risk">
+  <strong>지금 조치가 필요한 것 — 증거 파일 유실 위험</strong>
+  티켓이 근거로 지목한 재현 테스트 <code>/tmp/wallet_auth_guard_adversarial_test.dart</code>(13,559 bytes)와
+  리뷰 <code>/tmp/picnic-server-followup-20260910/review.html</code>이 아직 <code>/tmp</code>에 있습니다.
+  재부팅·정리로 사라지면 재현 근거를 다시 만들어야 합니다. <strong>착수 전에 워크트리로 옮겨야 합니다.</strong>
+</div>
+
+<!-- ══════════════════════════════ 2637 ══════════════════════════════ -->
+
+<h2><span class="key">PICNIC-2637 · Medium · 진행 중 · Charlie Hyun</span>구버전 미확인 보상 조회 비용 절감·효과 측정</h2>
+
+<h3>1. 이미 끝난 것</h3>
+<p>서버 최적화 2건이 운영 적용됐고, 둘 다 앱 배포 없이 구버전 트래픽에 즉시 반영됩니다.</p>
+<div class="scroll">
+<table>
+  <thead><tr><th>적용</th><th>내용</th><th>실측</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>PR #137 · 09/08 22:33 KST<br><code>20260908125841</code></td>
+      <td>사용자별 미확인 부분 인덱스</td>
+      <td>같은 사용자 0건 count 70.503ms/20,103 hits → 0.108ms/3 hits</td>
+    </tr>
+    <tr>
+      <td>PR #138 · 09/09 13:09 KST<br><code>20260909022515</code></td>
+      <td>항목별 <code>wallet_summary_for</code> 반복 → 페이지당 1회</td>
+      <td>다량 계정 100개 중앙값 138.576 → 91.752ms (33.8%↓)</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3>2. 장애가 해결되면서 이 티켓의 전제가 무너졌습니다</h3>
+
+<p>
+  2637은 라벨부터 <code>p1</code> · <code>supabase-cpu-20260908</code>입니다. 즉
+  <strong>장애 대응 항목으로 만들어졌고, 비용 절감은 그 자체가 목적이 아니라 CPU를 내리기 위한 수단</strong>이었습니다.
+  장애가 해결된 지금, 남은 항목들을 그 목적에 비추어 다시 보면 판단이 뒤집힙니다.
+</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>남은 항목</th><th>장애 해결 전 판단</th><th>장애 해결 후 판단</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>A. 전체 건수(total_count) 계산 비용</strong><br>다량 계정은 <code>limit 1</code>도 약 88ms</td>
+      <td>추가 최적화 후보</td>
+      <td class="tag bad">불필요로 종결 권고 — 아래 참조</td>
+    </tr>
+    <tr>
+      <td><strong>B. 앱 보급 후 호출량 감소 측정</strong></td>
+      <td>장애 재발 방지 확인</td>
+      <td class="tag warn">저위험 확인으로 강등 — <strong>PICNIC-2634</strong>로 이관</td>
+    </tr>
+    <tr>
+      <td><strong>C. 실제 피크 시간대 목록 호출 비용</strong></td>
+      <td>배포 전 baseline</td>
+      <td class="tag warn">가치 유지 — 단 소비자가 <strong>PICNIC-2635</strong>(2XL→XL 판단)로 바뀜</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h3>3. A를 종결 권고하는 이유</h3>
+
+<div class="callout">
+  <strong>A의 가치는 두 방향에서 동시에 사라졌습니다.</strong>
+  <br>① <strong>수요 쪽</strong> — PR #204가 배포되면 신버전 앱은 이 목록을 <em>아예 호출하지 않습니다</em>.
+  남는 것은 구버전 잔존 트래픽뿐이고 보급률이 오를수록 줄어듭니다.
+  <br>② <strong>목적 쪽</strong> — 이 최적화를 정당화하던 CPU 장애가 끝났습니다.
+  <br><br>
+  두 가지가 겹치면, A는 <strong>사라지는 중인 경로에 · 이미 해소된 문제를 위해 · 고위험 운영 SQL 변경을
+  한 번 더 하는 일</strong>이 됩니다. 이미 적용된 PR #137·#138로 구버전 트래픽에 대한 보완은 충분히 됐습니다.
+</div>
+
+<p>
+  참고로, 착수하게 될 경우의 1순위 후보는 <strong>(c) index-only count</strong>였습니다
+  (PR #137의 부분 인덱스로 count가 index-only scan이 되는지 재확인 — 계약 변경 0건).
+  나머지 후보인 “첫 페이지에서만 계산”, “<code>LEAST(count, N)</code> 상한”은 티켓이 이미
+  <em>“total 제거/근사화는 계약 변경이므로 최소 개선안에 포함하지 않는다”</em>고 배제해 두었습니다.
+  <strong>기록만 남기고 착수하지 않는 것을 권고합니다.</strong>
+</p>
+
+<h3>4. C는 살아 있지만, 이 티켓의 일이 아닙니다</h3>
+
+<p>
+  피크 측정 자체는 여전히 필요합니다 — 다만 그 결과를 쓰는 곳이 바뀌었습니다.
+  <code>PICNIC-2635</code>는 오늘(09/11 10:33 KST) <strong>“예약 저녁·자정 CPU 검증 완료 — 다일 관측·2XL/XL 용량 판단”</strong>으로
+  갱신되어 진행 중입니다. 즉 지금 살아 있는 질문은 “목록 호출을 더 줄일까”가 아니라
+  <strong>“2XL을 XL로 내려도 되는가”</strong>이고, 피크 데이터는 그 판단의 입력입니다.
+</p>
+<p>
+  따라서 C는 2637에 남겨 두는 것이 아니라 <strong>2635의 다일 관측에 합치는 것</strong>이 맞습니다.
+  2637에 남겨 두면 이미 끝난 목적의 티켓이 다른 티켓의 작업을 붙들고 열려 있게 됩니다.
+</p>
+
+<div class="verdict">
+  <h4>PICNIC-2637 상태 권고 — 종결</h4>
+  <p>
+    장애 해결로 이 티켓의 목적은 달성됐습니다. 아래를 기록한 뒤 <strong>완료로 전환</strong>을 권고합니다.
+  </p>
+  <ul>
+    <li><strong>달성</strong> — 서버 최적화 2건(PR #137 인덱스, PR #138 페이지당 잔액 1회) 운영 적용 및 실측 완료.
+        앱 측 자동 목록 조회 제거는 #204로 main 반영.</li>
+    <li><strong>종결</strong> — A(total_count): 상위 장애 해소 + 대상 경로 소멸 예정으로 <em>불필요</em>. 후보 (c)만 기록 보존.</li>
+    <li><strong>이관</strong> — B(보급 후 호출량) → <code>PICNIC-2634</code> / C(피크 관측) → <code>PICNIC-2635</code>.</li>
+  </ul>
+  <p>
+    <strong>단, 한 가지 확인이 선행돼야 합니다</strong> — 2635의 2XL→XL 판단이 2637의 추가 절감을
+    전제로 하고 있지 않아야 합니다. 전제로 한다면 A를 종결하지 말고 2635에 종속시켜야 합니다.
+  </p>
+</div>
+
+<!-- ══════════════════════════════ 종합 ══════════════════════════════ -->
+
+<h2><span class="key">종합</span>실행 순서</h2>
+
+<p>
+  장애가 해결되면서 두 티켓의 무게가 갈렸습니다. <strong>2637은 정리해서 닫고, 2664에 자원을 씁니다.</strong>
+</p>
+
+<div class="scroll">
+<table>
+  <thead><tr><th>순서</th><th>작업</th><th>대상</th><th>선행 조건</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>증거 파일 2건을 <code>/tmp</code>에서 워크트리로 이관</td><td>2664</td><td>없음 — 유실 위험이라 즉시</td></tr>
+    <tr><td>2</td><td>2635의 2XL→XL 판단이 2637의 추가 절감을 전제하는지 확인</td><td>2637</td><td>없음 — 3의 전제</td></tr>
+    <tr><td>3</td><td>달성·종결·이관을 기록하고 <strong>완료로 전환</strong></td><td>2637</td><td>2의 결과가 “전제 아님”일 때</td></tr>
+    <tr><td>4</td><td><code>setSummary</code> 소유권 토큰 구현 + 5개 호출처 + 회귀 테스트</td><td>2664</td><td>워크트리 · Frontier 교차 리뷰</td></tr>
+    <tr><td>5</td><td>2664 + 2656(#206)을 같은 빌드로 배포 조율</td><td>2664 · 2656</td><td>4 완료 · 릴리스 승인</td></tr>
+    <tr><td>6</td><td>보급률 + 잔존 호출량 확인</td><td>2634</td><td>배포 후 2주 — 저위험 확인</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <strong>이제 남은 병목은 배포 하나입니다.</strong>
+  2664는 고쳐도 배포 전이면 사용자에게 닿지 않고, 2656(#206)의 효과 측정도 배포 전이면 불가능합니다.
+  현재 <code>pubspec 1.3.3+130303</code>은 태그·빌드되지 않았고, PR #206(<code>9ad972c0a</code>)은
+  어떤 릴리스 태그에도 포함되어 있지 않습니다.
+  <strong>2664를 같은 빌드에 태우면 배포 한 번으로 지갑 표시 결함 두 건이 함께 닫힙니다.</strong>
+</div>
+
+<footer>
+  조사 방법: <code>origin/main cf111821a</code>에 대한 읽기 전용 <code>git show</code> / <code>git grep</code>,
+  Jira 이슈 본문·코멘트 전수 확인. 새 테스트 실행·코드 변경·운영 조회는 수행하지 않았습니다.
+  <code>setSummary</code> 호출처 5건은 <code>picnic_lib/lib</code> · <code>picnic_app/lib</code> 전수 검색 결과이며
+  생성 파일(<code>*.g.dart</code>)은 제외했습니다.
+</footer>
+
+</main>
+</body>
+</html>

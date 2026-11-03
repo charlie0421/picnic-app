@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/data/models/vote/vote.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/presentation/providers/vote_list_provider.dart';
 import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog.dart';
+import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_widgets.dart';
 
 import '../../../../helpers/mock_data.dart';
 import '../../../../helpers/mock_supabase.dart';
@@ -92,14 +92,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Find check all gesture area - it has SvgPicture + Text children
-      // The check all is a GestureDetector containing a Row
-      final checkAllFinder = find.byWidgetPredicate(
-        (widget) =>
-            widget is GestureDetector &&
-            widget.child is SizedBox &&
-            (widget.child as SizedBox).height == 20,
-      );
+      // The control itself, not the box that happened to wrap it. It used to
+      // be matched by a 20px SizedBox shape, which the 48px tap target removed.
+      final checkAllFinder = find.byType(VotingCheckAllOption);
       expect(checkAllFinder, findsOneWidget);
 
       await tester.tap(checkAllFinder);
@@ -131,12 +126,7 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final checkAllFinder = find.byWidgetPredicate(
-        (widget) =>
-            widget is GestureDetector &&
-            widget.child is SizedBox &&
-            (widget.child as SizedBox).height == 20,
-      );
+      final checkAllFinder = find.byType(VotingCheckAllOption);
 
       // Tap once to check all
       await tester.tap(checkAllFinder);
@@ -175,26 +165,17 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('50'), findsOneWidget);
 
-      // Find and tap the clear button (cancel_style=fill.svg)
-      final clearButtons = find.byWidgetPredicate(
-        (widget) =>
-            widget is SvgPicture &&
-            widget.width == null, // The clear button SvgPicture
-      );
+      // The clear control itself. The old GestureDetector-wrapping-SvgPicture
+      // shape stopped matching once the glyph gained its 48px tap box, and the
+      // tap was guarded by an `if`, so this case would have gone quiet instead
+      // of failing.
+      final clearButton = find.byType(VotingClearButton);
+      expect(clearButton, findsOneWidget);
 
-      // The clear button is wrapped in a GestureDetector at the end of the Row
-      final clearGesture = find.byWidgetPredicate((widget) {
-        if (widget is GestureDetector && widget.child is SvgPicture) {
-          return true;
-        }
-        return false;
-      });
+      await tester.tap(clearButton);
+      await tester.pumpAndSettle();
 
-      if (clearGesture.evaluate().isNotEmpty) {
-        await tester.tap(clearGesture.first);
-        await tester.pumpAndSettle();
-      }
-
+      expect(find.text('50'), findsNothing);
       expect(find.byType(VotingDialog), findsOneWidget);
     });
   });

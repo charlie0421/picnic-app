@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>PR #203 + 결제 이벤트 통합 결과</title><style>body{font:16px/1.65 -apple-system,BlinkMacSystemFont,sans-serif;max-width:1080px;margin:40px auto;padding:0 24px;color:#17202a}h1{font-size:28px}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d6dbe1;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f6}code,pre{font-family:ui-monospace,monospace;font-size:13px;overflow-wrap:anywhere}pre{white-space:pre-wrap;background:#f3f5f7;padding:16px}.status{padding:16px;background:#eaf4ff;border-left:4px solid #2474b5}a{color:#1456a0}</style></head><body>
+<h1>PR #203 + 관리자 전용 결제 이벤트 통합</h1>
+<p class="status" id="status">통합·검증·독립 리뷰를 마치고, 사용자의 후속 승인으로 커밋·정상 브랜치 푸시·Draft PR #204 생성 완료. 오타 중복 원격 브랜치도 별도 승인 후 삭제·검증 완료했다. 운영 main 병합·서버 적용·앱 배포·기능 활성화는 실행하지 않았다.</p>
+<p>최신 검증: 2026-09-08 23:40:10 KST 전체 테스트 재실행 완료. 타깃 <code>/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation</code><br>게시 HEAD <code>1adca598ac213a4a7043051aea5232ab7f807628</code>, 부모 <code>5088edc5889fdb489a58b05bffd70330b5d8aedf</code>. 검증한59Dart파일만 커밋, 앱 <code>1.3.2+130202</code> 유지.</p>
+<h2>게시 결과</h2><ul>
+<li><a href="https://github.com/charlie0421/picnic-app/pull/204">Draft PR #204 — fix(wallet): integrate admin candy boost and reward tuning</a>. 정상 head <code>fix/candy-boost-confirmation</code> → base <code>main</code>, 59파일, +5437 /−1292.</li>
+<li>로컬 HEAD·정상 원격 브랜치·GitHub PR head 모두 <code>1adca598ac213a4a7043051aea5232ab7f807628</code>. Git 인덱스와 tracked 변경은 비어 있고 HTML 보고서는 커밋하지 않고 보존했다.</li>
+<li>첫 push에서 원격 이름을 <code>fix-candy-boost-confirmation</code>으로 잘못 지정했다. 즉시 고지 후 정상 이름으로 재게시하고 upstream도 수정했다. 이후 사용자 승인으로 오타 원격 참조만 삭제했다. 삭제 전 두 원격 참조와 PR head가 모두1adca598ac213a4a7043051aea5232ab7f807628임을 확인하고 exact-SHA lease로 동시 변경을 보호했다. 삭제 후 원격 조회에서 오타 참조의 부재와 정상 <code>fix/candy-boost-confirmation</code>의 동일 SHA, Draft PR #204 보존을 확인했다. 파일·커밋·정상 브랜치는 삭제하지 않았으므로 필요하면 오타 참조도 해당 커밋에서 복구할 수 있다.</li>
+<li>태그 동반 push를 명시적으로 끄고 게시했다. 원격 main은5088edc5, 원본 #203 head는0af28643 그대로다. Supabase Preview 체크는 SKIPPED이며 운영 또는 실기기 검증을 뜻하지 않는다.</li></ul>
+<h2>통합 범위</h2><ul>
+<li><a href="https://github.com/charlie0421/picnic-app/pull/203">picnic-app PR #203</a>의 고정 커밋 <code>0af28643db75f19b1ce09658810b0ad8c1830b88</code>을 기존 결제 이벤트 변경과 합쳤다. 원본 PR/워크트리 변경 없음.</li>
+<li>결제 이벤트: 서버에서 <code>is_admin OR is_super_admin</code> 판정, 일반 결제 유지. 광고 조회 절감·지갑 내역 개선은 일반 사용자에게도 적용하는 별도 변경이다.</li>
+<li>광고의 과거 미확인 보상 자동 순회 제거, 현재 광고 보상 조회·표시·ACK 유지, 관측한 확정 지급 분석 기록 분리, resume 지갑 조회 제한, 사용자 요청형 내역 조회.</li>
+<li>공유 지갑 provider와 테스트를 합치고, 이미 더 넓게 보완된 analytics 만료 테스트는 그대로 보존했다. 내역 인증 구독을 기존 비노출 핸들러로 통일하고, 새 광고 라이프사이클 인증 구독 및 복귀 잔액 갱신·fallback도 오류 원문/스택 없이 고정 진단만 기록하도록 보완했다.</li>
+<li>기존 codegen 오류는 JSON factory 선언만 생성기 규칙에 맞게 조정했다. 검증·정규화·호출자 map 변경 의미·직렬화 계약은 유지한다. 의존성·네이티브·버전 변경 없음.</li></ul>
+<h2>실측 검증</h2><table>
+<tr><th>항목</th><th>결과</th><th>증거 디렉터리</th></tr>
+<tr><td>picnic_lib 전체757테스트 파일</td><td id="lib-result">13,249 PASS /6 SKIP /0 FAIL</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/publish-lib-f0YFuZ</code></td></tr>
+<tr><td>picnic_app 전체</td><td>41 PASS /0 FAIL</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/publish-app-UGiynS</code></td></tr>
+<tr><td>합계(중복 합산 없음)</td><td id="combined-result">13,290 PASS /6 SKIP /0 FAIL</td><td>각 패키지 전체 실행의 합계. 아래 집중 실행은 합산하지 않는다.</td></tr>
+<tr><td>인증·복귀·지갑 집중4파일</td><td>49 PASS</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/resume-privacy-green-5eyqTg</code></td></tr>
+<tr><td>충돌·화면 집중7파일(복귀 로그 보완 전)</td><td>91 PASS</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/overlap-green-1CofAI</code></td></tr>
+<tr><td>모델 계약</td><td>46 PASS</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/model-regression-V3umfD</code></td></tr>
+<tr><td>정적 분석</td><td>lib58+app1파일 모두 재실행: No issues.</td><td><code>/tmp/picnic-admin-rollout.ZMVuZ7/flutter-analyze-changed-1ePIOI</code><br><code>/tmp/picnic-pr203-integration.ztmlmu/publish-app-analyze-Ec6cib</code></td></tr>
+<tr><td>전체 build_runner</td><td>최종 소스 사본에서 재실행 exit0. 기존 full build 결과 위 증분 실행, 추가 생성0개. hand-written lib614파일 및 관련 generated/model6파일 타깃과 바이트 일치.</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/publish-codegen-ZcQ5DC</code></td></tr>
+<tr><td>인증 로그 회귀 RED→GREEN</td><td>원문 예외가 기록되면 실패, 안전 핸들러 적용 후 통과</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/auth-privacy-red-valid-6CXCjs</code>→집중91PASS</td></tr>
+<tr><td>광고 라이프사이클 인증 로그 RED→GREEN</td><td>원문 AuthException 단언 실패→수정 후33PASS</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/lifecycle-privacy-red-8943fh</code>→<code>lifecycle-privacy-green-EVMnOm</code></td></tr>
+<tr><td>복귀 잔액/fallback 로그 RED→GREEN</td><td>두 실제 단언 실패→수정 후49PASS. 잔액 보존과 즉시 재시도 유지.</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/resume-privacy-red-8sCrzd</code>→<code>resume-privacy-green-5eyqTg</code></td></tr>
+<tr><td>재수신 방지 mutation</td><td>정상1PASS→동일 사용자 guard 제거 시 중복 조회로 FAIL→복구1PASS</td><td><code>/tmp/picnic-pr203-integration.ztmlmu/replay-control-VTaXUu</code><br><code>replay-mutation-kOSjND</code><br><code>replay-restored-KmbhnT</code></td></tr>
+</table>
+<p>스킵6개는 기존 소스의 명시적 skip 설정을 유지했다. 테스트의 모의 실패·앱 진단 로그는 존재하며, 실패0이라는 결과가 모든 로그가 비어 있다는 의미는 아니다. 초기 새 인증 테스트의 guarded-zone 단언 캡처로30초 타임아웃이 있었고 테스트 harness를 바로잡은 후 실제 payload 단언 실패로 RED를 다시 확보했다.</p>
+<h2>보존 및 검토</h2><ul>
+<li>기존29dirty파일은 <code>/tmp/picnic-pr203-integration.ztmlmu/baseline</code>에 보존. 메타데이터는 같은 경로의 <code>baseline.json</code>. 비중첩26기존파일·analytics 테스트·광고 overlay 테스트는 바이트 보존.</li>
+<li>첫 import26파일은 PR203과 바이트 일치. 이후 해당 범위의 wallet generated hash와 새 라이프사이클/복귀 갱신의 로그·테스트만 보완했다. CurrencyHistory 본문은 PR203과 완전히 같고 hash <code>258dbaf3a9d2ae7ff0cfb5763ea9338445848c92</code> 유지.</li>
+<li>관련 generated4파일만 최종 생성 결과로 동기화. 사본의 다른 기존 generated drift는 가져오지 않았다. 이것은 전체 앱 릴리스 빌드나 OTA 호환성 검증을 대신하지 않는다.</li>
+<li>코드 생성 변경은 별도 Opus 독립 검토에서 정확성 지적 없음. 선택적 주석/기존 double lookup 스타일 제안은 이 범위에서 변경하지 않았다.</li>
+<li id="review-status">통합본 Sol/high 리뷰의 인증 스트림 로그 지적은 수정 후 원 Sol(ctx_2f5ef5dc20eb) 및 Opus(ctx_23431b15138a) 재검토에서 승인. Opus의 추가 복귀 갱신 로그 지적도 설치된 SDK 경로를 확인해 수정했고, 원 Opus 최종 재검토(ctx_eb46356dde1c)에서 요구사항4/4 PASS·승인·원 지적 해소를 확인했다. 제거된 과거 순회를 설명하는 오래된 poller 주석은 비차단 문서 지적으로 보류한다.</li>
+<li>최종 Opus는 권한상 /tmp 원시 로그와 해시를 직접 읽지 못해 이 증거 한계를 명시했다. 우회하지 않았으며 루트가 원시 결과·exit·해시를 검증했다. RED의 fallback 단언301행은 포맷 후304행으로 이동했다. 앞선 잔액 단언1행이4행으로 포맷된3행 차이이며 동일 단언이다. 다른 단언264행은 그대로다.</li>
+<li>로그 안전성 검증 범위는 이번 변경의 인증 구독과 신규 복귀 갱신 경로다. 기존 앱의 다른 일반 RPC 오류 로그나 SDK 내부 로그 전체를 감사하거나 비노출을 보증한 것은 아니다. 외부 운영 로그에 실제 자격증명이 노출되었다는 증거도 조회하지 않았다.</li>
+<li>오케스트레이션 read-only 작성자가 긴 결과 전송 거절 후 지시와 달리 HTML 보고서1개를 작성했다. 소스·테스트·인덱스는 바꾸지 않았고 결과는 보존했다. 루트의 실제 소스 변경은 모두 apply_patch로 수행했다.</li></ul>
+<h2>운영 상태와 남은 승인 게이트</h2><ol>
+<li>완료: 통합본 독립 리뷰 및 지적 해소. 선택적 주석/진단 상세도 관련 비차단 의견은 남겼다.</li>
+<li>실기기 확인: 연결된 Android는 발견했지만 설치·계정 조작·실결제는 실행하지 않았다. 관리자, super admin, 일반 계정의 노출/비노출 및 광고·잔액·내역을 점검해야 한다.</li>
+<li>완료: 통합 커밋·push·Draft PR #204 생성. 남음: 원본 담당 세션과 #203을 포함하는 단일 병합/배포 경로 확인, 실기기 QA, 리뷰/병합 승인. PR 본문에 중복 병합·배포 방지를 명시했고 기존 #203은 변경/종료하지 않았다. main 병합 전 사용자 확인 게이트 유지.</li>
+<li>승인 후 프로덕션 서버 변경을 OFF로 설치하고 점검한다. 서버7개마이그레이션·preflight·postflight 해시와 manifest는 이전 검증본 그대로이며 <code>production_execution_approved=false</code>.</li>
+<li>정확한 Shorebird release/플랫폼/환경과 OTA 호환성 확인 후 배포 승인을 받는다. Dart-only 변경이므로 OTA 후보지만 아직 확정하지 않았다. 앱 코드 변경은 별도 앱 전달이 필요하다.</li>
+<li>별도 승인 후 ADMIN_ONLY 활성화. 일반 사용자 전체 활성화는 승인 범위가 아니다.</li></ol>
+<p>서버 용량 작업의 PR #137은 해당 세션 기록상 이미 운영 적용된 별도 변경이다. 이 작업에서는 재적용하거나 운영 상태를 새로 조회하지 않았다.</p>
+<p>최종59파일 해시는 <code>/tmp/picnic-pr203-integration.ztmlmu/release-candidate.json</code>에 고정했으며, 전체 재실행 뒤 worktree→index→commit blob의 모든 SHA256이 같음을 확인했다. <code>verify-publication.mjs committed</code>도 통과했다. 기존26비중첩dirty파일의 내용·원본 PR203 워크트리 상태/HEAD 보존. 전체 리뷰 이후 수정한3파일도 별도 재검토 완료했으며 게시 단계에서는 소스를 추가 수정하지 않았다.</p>
+<p>마무리 절차: <code>finishing-a-development-branch</code>와 <code>verification-before-completion</code>에 따라 재검증 후 사용자가 승인한 PR 게시까지 실행하고 워크트리는 유지한다. 원격 오타 참조 삭제는 별도 승인으로 완료했으며, main 병합·앱/서버 배포·활성화는 추가 승인 없이 진행하지 않는다.</p>
+<p><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/production-pr203-lifecycle-recheck-brief.html">인증 스트림 수정 diff·검증</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/production-pr203-resume-recheck-brief.html">복귀 갱신 수정 diff·검증</a></p>
+<h2>관련 문서</h2><p><a href="/Users/charlie.hyun/orca/workspaces/picnic-app/결제이벤트/production-pr203-integration-plan.html">통합 계획</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/production-pr203-source-review-package.html">소스 diff</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/production-pr203-tests-review-package.html">테스트 diff</a> · <a href="/Users/charlie.hyun/orca/workspaces/picnic-app/fix-candy-boost-confirmation/task-app-pr203-overlap-integration.html">중첩 지시서(반영 전 시점 기록)</a></p>
+<p>생성기 규칙 근거: <a href="https://pub.dev/packages/freezed">Freezed 공식 패키지 문서</a>. 인증 스트림 onError 계약: <a href="https://supabase.com/docs/reference/dart/auth-onauthstatechange">Supabase Dart 공식 문서</a>.</p>
+</body></html>

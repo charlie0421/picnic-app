@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Picnic 1.3.3+130305 OTA 아티팩트 호환성 최종 리뷰</title>
+<style>
+  :root { color-scheme: light; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+         max-width: 1080px; margin: 0 auto; padding: 32px 20px 96px; line-height: 1.65; color: #1b1f24; }
+  h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  h2 { font-size: 20px; margin: 40px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #e6e8eb; }
+  h3 { font-size: 16px; margin: 24px 0 8px; }
+  .sub { color: #57606a; font-size: 13px; margin: 0 0 24px; }
+  table { border-collapse: collapse; width: 100%; margin: 12px 0 18px; font-size: 13.5px; }
+  th, td { border: 1px solid #d8dce0; padding: 7px 10px; text-align: left; vertical-align: top; }
+  th { background: #f3f5f7; font-weight: 600; }
+  code, pre { font-family: "SF Mono", Menlo, Consolas, monospace; }
+  code { background: #f0f2f4; padding: 1px 5px; border-radius: 4px; font-size: 12.5px; }
+  pre { background: #12161b; color: #e6edf3; padding: 13px 15px; border-radius: 7px; overflow-x: auto; font-size: 12.5px; line-height: 1.5; }
+  .verdict { border-radius: 8px; padding: 14px 18px; margin: 18px 0; border: 1px solid; }
+  .ok { background: #e9f7ee; border-color: #9cd4b0; }
+  .warn { background: #fff6e5; border-color: #e9c46a; }
+  .bad { background: #fdecea; border-color: #f0a9a3; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 10px; vertical-align: middle; }
+  .t-ok { background: #1a7f37; color: #fff; }
+  .t-warn { background: #bf8700; color: #fff; }
+  .t-info { background: #4a5b6b; color: #fff; }
+  ul, ol { padding-left: 22px; }
+  li { margin: 4px 0; }
+  .small { font-size: 12.5px; color: #57606a; }
+  .kv td:first-child { width: 190px; font-weight: 600; background: #fafbfc; }
+</style>
+</head>
+<body>
+
+<h1>Picnic 1.3.3+130305 OTA 빌드 아티팩트 호환성 최종 리뷰</h1>
+<p class="sub">대상 커밋 <code>3c926daf91b1431d64aadb24062f65ce9228079e</code> · 릴리스 태그 <code>picnic-v1.3.3+130305</code> (= <code>b1a1bfd40df5fdc232bec059083bb2f68258094c</code>) · 작성 2026-09-13 · 읽기 전용 리뷰(빌드·업로드·저장소 변경 없음)</p>
+
+<div class="verdict ok">
+<strong>결론 — iOS / Android 양쪽 모두 이 Dart-only OTA에 대해 <u>호환 가능</u>하다고 판정한다.</strong><br>
+탐지된 모든 아티팩트 차이는 <b>로컬 빌드 환경(Xcode 26.6 vs 26.3, CocoaPods 재해결, R8 fullMode, 그 외 툴체인 산물)</b>에서 비롯된 것이며, 소스 차분에는 네이티브·플러그인·에셋 변경이 <b>한 건도 없다</b>(66개 파일 전부 <code>.dart</code>). 차이가 발생한 산출물은 모두 <b>패치에 실리지 않는 영역</b>(Assets.car, classes*.dex, Pods, Podfile.lock)이며, 변경된 Dart 코드가 새로운 네이티브 API나 새로운 에셋을 요구하지 않음을 개별 확인했다.<br>
+단, 가드를 통과하려면 플래그가 필요하다 → <b>iOS: <code>--allow-asset-diffs --allow-native-diffs</code> / Android: <code>--allow-native-diffs</code> (+ <code>--android-project-arg=android.enableR8.fullMode=true</code>)</b>. 각 플래그의 근거는 §6에 있다. <b>해당 플래그를 붙인 dry-run 이 iOS·Android 양쪽 모두 패치 생성 경로 전 구간을 <code>No issues detected.</code> 로 통과했고(§6.2), preflight 는 완료 상태다.</b> 남은 것은 프로덕션 실행에 대한 사용자 승인뿐이다.
+</div>
+
+<h2>1. 판정 요약</h2>
+<table>
+<tr><th>플랫폼</th><th>가드 결과</th><th>판정</th><th>필요 플래그</th><th>최종 preflight</th><th>차단 사유</th></tr>
+<tr>
+  <td>iOS</td>
+  <td>asset diff(Assets.car ×3) → Podfile.lock 불일치</td>
+  <td><span class="tag t-ok">승인(조건부)</span></td>
+  <td><code>--allow-asset-diffs</code><br><code>--allow-native-diffs</code></td>
+  <td><span class="tag t-ok">완료</span> No issues detected.</td>
+  <td>없음 (Blocker 0건)</td>
+</tr>
+<tr>
+  <td>Android</td>
+  <td>native diff — R8 fullMode 정렬 후 synthetic class 2개만 잔존</td>
+  <td><span class="tag t-ok">승인(조건부)</span></td>
+  <td><code>--allow-native-diffs</code><br><code>--android-project-arg=android.enableR8.fullMode=true</code><br><span class="small">(asset 가드는 켠 채로 유지 — 경고 없음)</span></td>
+  <td><span class="tag t-ok">완료</span> No issues detected.</td>
+  <td>없음 (Blocker 0건)</td>
+</tr>
+</table>
+<p class="small">심각도 표기: 이번 리뷰에서 <b>Blocker(배포 중단) 0건</b>, <b>Major 0건</b>, <b>Minor(운영 위생) 3건</b>(§7). Minor는 이번 OTA를 막지 않는다. "조건부"는 <b>위 플래그를 붙여 실행한다</b>는 조건만을 뜻하며, 기술적 선행 확인은 §6.2 로 <b>모두 종료</b>됐다 — 남은 절차는 프로덕션 실행에 대한 사용자 승인뿐이다.</p>
+
+<h2>2. 소스 차분 분류 — 네이티브/플러그인/에셋 변경 0건</h2>
+<p><code>git diff picnic-v1.3.3+130305..3c926daf9</code> 기준, 66개 파일 6,484+/1,618− 전부 Dart다.</p>
+<table class="kv">
+<tr><td>릴리스 태그 → HEAD 커밋</td><td>1개 (<code>3c926daf9 fix(startup): recover loading failures and unify pulse indicators</code>)</td></tr>
+<tr><td>변경 파일 66개 구성</td><td><code>*/lib/*.dart</code> 37개 + <code>*/test/*.dart</code> 29개 — <b>비(非) .dart 파일 0개</b></td></tr>
+<tr><td><code>ios/</code>, <code>android/</code> 경로</td><td>0건 (Podfile, Podfile.lock, *.pbxproj, *.plist, *.gradle, AndroidManifest 모두 미변경)</td></tr>
+<tr><td><code>pubspec.yaml</code> / <code>pubspec.lock</code></td><td>0건 → <b>플러그인·패키지 버전 집합이 릴리스와 완전 동일</b></td></tr>
+<tr><td>에셋 파일(<code>assets/</code>, 폰트, 이미지, arb, json)</td><td>0건</td></tr>
+<tr><td><code>shorebird.yaml</code></td><td>0건</td></tr>
+<tr><td>작업 트리 상태</td><td>clean (<code>git status --porcelain</code> 무출력) — 로컬 <code>pod install</code> 이 <code>Podfile.lock</code> 을 바꾸지 않았음도 이것으로 확인</td></tr>
+</table>
+
+<h3>2.1 변경된 Dart 가 새로운 네이티브/에셋을 요구하는가 — 개별 확인</h3>
+<table>
+<tr><th>확인 항목</th><th>방법</th><th>결과</th></tr>
+<tr><td>새 플랫폼 채널</td><td>추가 라인에서 <code>MethodChannel|EventChannel|BasicMessageChannel|dart:ffi|@Native|Pigeon</code> 검색</td><td><b>0건</b></td></tr>
+<tr><td>새 에셋 참조</td><td>추가 라인에서 <code>assets/|rootBundle|AssetImage|Image.asset|SvgPicture.asset|Lottie.asset</code> 검색</td><td>2건 — <code>assets/app_icon_128.png</code>(pulse_loading_indicator.dart), <code>assets/splash.webp</code>(ttja_app). <b>둘 다 릴리스 태그에서 이미 <code>picnic_app/pubspec.yaml</code>에 선언·파일 존재·다수 코드에서 사용 중</b> → 기존 바이너리에 이미 포함</td></tr>
+<tr><td>새 import</td><td>추가된 <code>import</code> 15줄 전수</td><td>전부 <code>dart:async</code>/<code>flutter/material</code>/자체 <code>package:picnic_lib/...</code> — <b>새 외부 패키지 0건</b></td></tr>
+<tr><td>광고 플러그인 API</td><td><code>banner_ad_widget.dart</code>, <code>admob_platform.dart</code> diff 정독</td><td><code>RewardedAd.load</code>/<code>BannerAd.load</code>/<code>dispose</code> — 릴리스에 이미 존재하는 API를 <code>MainInitializer.runAdRequestWhenReady()</code> 로 감싼 것뿐. <b>새 네이티브 표면 0건</b></td></tr>
+<tr><td>Firebase/GoogleSignIn 계열</td><td>diff 내 해당 API 호출 전수</td><td><code>Firebase.initializeApp(options:)</code> 호출 <b>시점</b>만 스테이지 머신 안으로 이동. 호출 형태·인자 동일, 신규 API 사용 0건</td></tr>
+<tr><td>image_picker / 네이티브 광고 템플릿</td><td>diff 내 참조 검색</td><td><b>0건</b> (§4의 synthetic class 2개와 무관함을 보이는 근거)</td></tr>
+</table>
+<p class="small">보조 증거: iOS dry-run 의 asset 가드가 <code>Frameworks/App.framework/flutter_assets</code> 를 변경 파일로 <b>전혀 보고하지 않았다</b>. 즉 Dart 측 에셋 번들(AssetManifest 포함)이 릴리스와 바이트 동일하며, 이는 "새 에셋 없음"의 독립적 확증이다.</p>
+
+<h2>3. iOS ① — Assets.car 3종: 메타데이터 전용임을 독립 검증</h2>
+<p>요약 JSON(<code>/tmp/picnic-recovery-ios-asset-comparison.json</code>)을 신뢰하지 않고, 참조된 원본/신규 <code>assetutil</code> JSON 6개를 직접 파싱해 재검증했다.</p>
+<table>
+<tr><th>카탈로그</th><th>레코드 수 (old→new)</th><th>에셋 이름 집합</th><th>SHA1Digest 집합</th><th>레코드 JSON 정규화 비교</th><th>헤더 차이</th></tr>
+<tr><td>Runner.app/Assets.car</td><td>34 → 34</td><td>동일</td><td>동일</td><td>완전 일치</td><td>4개 키만</td></tr>
+<tr><td>DKPhotoGallery.bundle/Assets.car</td><td>26 → 26</td><td>동일</td><td>동일</td><td>완전 일치</td><td>4개 키만</td></tr>
+<tr><td>DKImagePickerController.bundle/Assets.car</td><td>30 → 30</td><td>동일</td><td>동일</td><td>완전 일치</td><td>4개 키만</td></tr>
+</table>
+<p>차이가 나는 헤더 키는 3개 카탈로그 모두 아래 4개뿐이다. 전부 <b>빌드 툴체인 식별자</b>이며 에셋 내용과 무관하다.</p>
+<pre>AssetStorageVersion : "Xcode 26.3 (17C529)..."  ->  "Xcode 26.6 (17F113)..."
+Authoring Tool      : CoreThemeDefinition-653.3  ->  CoreThemeDefinition-653.4
+CoreUIVersion       : 972                        ->  975
+MainVersion         : CoreUI-972.1               ->  CoreUI-975</pre>
+<p><b>판정:</b> 릴리스는 Codemagic(Xcode 26.3), 로컬은 Xcode 26.6 으로 같은 입력 에셋을 다시 인코딩한 결과다. 픽셀 데이터의 SHA1 다이제스트가 전건 일치하므로 <b>내용 변경 0</b>. 게다가 iOS 패치는 Assets.car 를 애초에 싣지 않으므로, 기기는 릴리스 바이너리의 Assets.car 를 계속 사용한다 → <code>--allow-asset-diffs</code> 로 무시되는 것이 실제로 아무것도 잃지 않음이 증명된다.</p>
+
+<h2>4. iOS ② — <code>Podfile.lock</code> 불일치 게이트</h2>
+<div class="verdict warn">
+<b>가드 메시지:</b> <code>[WARN] Your ios/Podfile.lock is different from the one used to build the release.</code> → <code>UnpatchableChangeException</code> (<code>ApplePodfileLockPatcherMixin.assertUnpatchableDiffs</code>). <code>--allow-asset-diffs</code> 만으로는 통과 불가.
+</div>
+
+<h3>4.1 원인 — 저장소가 아니라 CI 파이프라인이 락을 재생성한다</h3>
+<p><code>codemagic.yaml</code> 146–150 행이 릴리스 빌드 직전에 락을 삭제하고 재해결한다.</p>
+<pre>echo "=== Podfile.lock 삭제 (새로 설치) ==="
+rm -rf Podfile.lock Pods
+...
+pod install --repo-update</pre>
+<p>따라서 <b>릴리스 바이너리의 락은 저장소의 커밋된 락이 아니라 빌드 시각의 CDN 최신 해상도</b>다. 저장소 락은 태그↔HEAD 간 바이트 동일하고 로컬 <code>pod install</code> 로도 변경되지 않았으므로(§2), 이 불일치는 <b>이번 변경이 만든 것이 아니라 파이프라인 구조상 상시 발생</b>한다.</p>
+
+<h3>4.2 실제 배포본과의 네이티브 버전 차이 — 5건, 전부 배포본이 더 최신</h3>
+<p>코디네이터가 배포 xcarchive 와 로컬 xcarchive 의 74개 번들 <code>Info.plist</code> 를 비교한 결과(<code>/tmp/picnic-recovery-ios-bundle-version-comparison.json</code>) 5건 차이:</p>
+<table>
+<tr><th>Pod</th><th>배포본(릴리스)</th><th>로컬</th><th>차이 성격</th></tr>
+<tr><td>GoogleSignIn</td><td>9.2.0</td><td>9.1.0</td><td>minor ↑ (배포본이 최신)</td></tr>
+<tr><td>AppAuthCore</td><td>2.1.0</td><td>2.0.0</td><td>minor ↑</td></tr>
+<tr><td>GoogleUtilities</td><td>8.1.3</td><td>8.1.0</td><td>patch ↑</td></tr>
+<tr><td>GoogleDataTransport</td><td>10.1.1</td><td>10.1.0</td><td>patch ↑</td></tr>
+<tr><td>FBLPromises</td><td>2.4.1</td><td>2.4.0</td><td>patch ↑</td></tr>
+</table>
+
+<h3>4.3 이 차이가 이번 OTA를 깨뜨리는가 — 아니오</h3>
+<ol>
+<li><b>패치 페이로드에 Pods 가 없다.</b> iOS 패치는 Dart AOT 스냅샷(App.framework) 차분만 싣는다. 로컬에 설치된 구버전 Pod 는 <b>기기에 도달하지 않으며</b>, 기기는 이미 가진 최신 Pod 를 계속 쓴다. 즉 이 차이는 "패치가 구버전 SDK 를 끼얹는다"는 뜻이 아니다.</li>
+<li><b>Dart↔네이티브 계약이 불변이다.</b> <code>pubspec.lock</code> 이 동일하므로 플러그인(<code>google_sign_in_ios 6.3.0</code>, <code>firebase_* </code> 등)의 Dart 코드와 ObjC 브리지 코드가 릴리스와 같다. 위 5건은 그 플러그인들이 끌어오는 <b>전이 네이티브 SDK</b>일 뿐, 채널 이름·페이로드 스키마를 바꾸지 않는다.</li>
+<li><b>이미 프로덕션에서 검증된 조합이다.</b> 배포본의 최신 Pod + 동일 플러그인 Dart 코드 조합은 지금 사용자 기기에서 1.3.3+130305 로 정상 동작 중이다. OTA 는 여기에 <b>우리 앱 Dart 코드만</b> 교체한다.</li>
+<li><b>변경된 Dart 가 해당 SDK 의 새 기능을 요구하지 않는다.</b> §2.1 확인 결과 <code>Firebase.initializeApp(options:)</code> 호출 <i>시점</i> 변경이 전부이며, GoogleSignIn/AppAuth 관련 신규 호출은 0건이다. 방향도 안전한 쪽이다 — 기기 쪽이 <b>더 신</b> 버전이고 로컬이 구버전이므로, "로컬에만 있는 신규 심볼을 기기가 못 찾는" 시나리오 자체가 성립하지 않는다.</li>
+<li><b>실제 호환성 게이트는 따로 통과했다.</b> <code>Starting Verifying patch can be applied to release... Done</code> 이 3회 실행 전부에서 성공했다. 이것이 AOT 스냅샷 적용 가능성의 실질 검증이며, Podfile.lock 검사는 해시 기반 <b>휴리스틱 경고</b>다(차분 내용조차 출력하지 않는다).</li>
+</ol>
+<p class="small"><b>선례:</b> 2026-08-28 프로덕션 <code>1.3.1+130103</code> iOS Patch 1 도 <b>동일한 Podfile.lock 경고</b>를 받은 채 <code>--allow-native-diffs --allow-asset-diffs</code> 로 발행되어 정상 배포됐다(shorebird 로그 <code>1787897112765</code>). 이번이 새로 생긴 이상 징후가 아님을 확인했다.</p>
+
+<h2>5. Android — DEX 차이의 정체</h2>
+
+<h3>5.1 1차 dry-run: 79,510 breaking differences (오탐)</h3>
+<p>초기 dry-run 은 <code>classes.dex / classes3.dex / classes4.dex</code> 에서 Safe 20,249 + Breaking 79,510 라인을 보고했다. 이는 <b>R8 난독화 매핑이 통째로 달라진 결과</b>이며, 다음 증거로 확정했다.</p>
+<ul>
+<li><b>같은 짧은 이름이 서로 다른 클래스를 가리킨다.</b> 예: <code>Lcom/android/billingclient/api/a;</code> 가 릴리스에서는 필드 a~G 를 가진 BillingClientImpl 급 구현체인데, 로컬에서는 <code>access flags 0x401</code>(public abstract interface) 에 <code>io.flutter.plugins.inapppurchase.*</code> 를 인자로 받는 소형 인터페이스다. 라이브러리 버전 변경이 아니라 이름 재배정이다.</li>
+<li><b>pincrux 는 저장소에 커밋된 로컬 AAR 이다.</b> <code>implementation files('libs/pincrux_offerwall.aar')</code> — 바이트가 동일한 입력인데도 수백 건의 "method added/removed"가 났다. 입력이 같으므로 차이는 <b>재난독화 산물일 수밖에 없다</b>. Android 의존성은 전부 고정 버전이며 dynamic version(<code>+</code>)이 없다.</li>
+<li><b>앱 자체 클래스는 구조 변경 0건.</b> <code>io.iconcasting.picnic.app.*</code> 관련 항목 26건 전부 <code>source file changed</code> 뿐이고 구조적 차이는 <b>0건</b>이다. <code>GeneratedPluginRegistrant</code>, <code>MainActivity</code>, <code>PincruxPlugin</code> 도 동일 → <b>플러그인 등록 집합 불변</b>.</li>
+</ul>
+
+<h3>5.2 근본 원인 확정 및 정렬 후 결과</h3>
+<p>사용자 전역 <code>~/.gradle/gradle.properties</code> 의 <code>android.enableR8.fullMode=false</code> 가 CI(기본값 true)와 달라 R8 최적화 그래프가 갈렸다. 저장소 설정을 건드리지 않고 호출 단위로만 <code>--android-project-arg=android.enableR8.fullMode=true</code> 를 적용한 재실행 결과:</p>
+<table class="kv">
+<tr><td>변경 dex</td><td><code>base/dex/classes4.dex</code> 1개 (이전 3개)</td></tr>
+<tr><td>Breaking differences</td><td><b>2건</b> (이전 79,510건)</td></tr>
+<tr><td>클래스 수</td><td>29,642 → 29,644, <b>renames 0</b>, <b>removed 0</b>, <code>r8_options_equal: true</code></td></tr>
+<tr><td>추가된 2개 클래스</td><td><code>io.flutter.plugins.googlemobileads.nativetemplates.FlutterNativeTemplateFontStyle$1</code><br><code>io.flutter.plugins.imagepicker.ImagePickerCache$1</code></td></tr>
+<tr><td><code>libdartjni.so</code></td><td>3개 ABI 전부 <code>.text</code>/<code>.dynstr</code>/<code>.dynsym</code> <b>바이트 동일</b>, <code>.note.gnu.build-id</code> 만 상이</td></tr>
+</table>
+
+<h3>5.3 남은 2개 클래스 — 컴파일러 synthetic, 무해</h3>
+<p><span class="tag t-ok">검증됨</span> 두 클래스의 원본 소스를 직접 확인했다. 둘 다 <b>enum 에 대한 <code>switch</code></b> 를 포함하며, 이 형태에서 컴파일러가 <code>$SwitchMap$</code> 를 담은 synthetic <code>$1</code> 클래스를 만든다. 즉 <b>"이 두 클래스가 사용자 코드가 아니라 switch-map synthetic 이다"라는 분류는 소스로 확정된 사실</b>이다.</p>
+<pre>// google_mobile_ads-6.0.0/.../FlutterNativeTemplateFontStyle.java
+public enum FlutterNativeTemplateFontStyle { NORMAL, BOLD, ITALIC, MONOSPACE;
+  Typeface getTypeface() { switch (this) { case NORMAL: ... } }   // -> $1 (switch map)
+
+// image_picker_android-0.8.13+14/.../ImagePickerCache.java
+void saveType(CacheType type) { switch (type) { case IMAGE: ... } }  // -> $1</pre>
+<ul>
+<li>두 플러그인은 <code>pubspec.lock</code> 고정 버전이며 <b>소스가 릴리스와 동일</b>하다. 동일 소스에서 한쪽에만 synthetic 클래스가 남았다는 사실 자체는 확인됐다.</li>
+<li><span class="tag t-warn">추정</span> <b>정확한 codegen 분기 원인은 규명되지 않았다.</b> 로컬은 Temurin 17.0.15, CI 도 java 17 로 <b>메이저 버전이 같으므로</b> "JDK 메이저 차이" 가설은 성립하지 않는다. 남은 후보는 마이너/패치 단위 javac 빌드 차이, R8 의 switch-map 인라이닝 판단 차이, desugaring 입력 순서 등이며 <b>어느 것도 증거로 확정하지 못했다</b>. 이 항목은 추정으로 표기하며, <u>아래 무해성 판단은 이 원인 규명에 의존하지 않는다</u>.</li>
+<li>이 클래스들은 <b>패치에 실리지 않는다</b>(dex 는 패치 페이로드가 아님). 기기는 릴리스 dex 를 그대로 쓰며, 그 dex 안에는 동등한 로직이 이미 인라인되어 있다.</li>
+<li>변경된 Dart 는 <b>image_picker 도 네이티브 광고 템플릿도 건드리지 않는다</b>(§2.1). 즉 이 두 클래스에 대한 의존이 새로 생기지 않는다.</li>
+</ul>
+<p><b>판정:</b> "breaking"은 shorebird 의 분류 라벨일 뿐이며, 실제 파괴적 변경이 아니다. 무해성의 근거는 <b>(a) 두 클래스가 switch-map synthetic 이라는 확정된 분류, (b) dex 가 패치 페이로드가 아니라는 구조적 사실, (c) 변경 Dart 가 두 플러그인을 건드리지 않는다는 확인</b> 세 가지이며, 원인 미규명은 이 결론을 흔들지 않는다. Android 도 차단 사유 없음.</p>
+
+<h2>6. 플래그 정당화</h2>
+<table>
+<tr><th>플래그</th><th>플랫폼</th><th>왜 필요한가</th><th>무엇을 포기하는가 / 안전 근거</th></tr>
+<tr>
+  <td><code>--allow-asset-diffs</code></td><td>iOS 전용</td>
+  <td>Assets.car ×3 의 헤더 메타데이터 차이로 가드가 <code>UnpatchableChangeException</code> 을 던짐</td>
+  <td>포기하는 것: "에셋 변경은 패치에 포함되지 않는다"는 경고. §3 에서 <b>레코드·SHA1 전건 일치</b>로 내용 변경 0 을 증명했고, flutter_assets 는 변경 목록에 없다 → 실제로 버려지는 것이 없음</td>
+</tr>
+<tr>
+  <td><code>--allow-native-diffs</code></td><td>iOS</td>
+  <td>Podfile.lock 해시 불일치 가드 통과용</td>
+  <td>§4.3 의 5개 근거. 배포본 Pod 가 <b>더 최신</b>이고 OTA 가 이를 바꾸지 않으며, 변경 Dart 가 해당 SDK 신규 API 를 쓰지 않음. 2026-08-28 동일 조건 선례 존재</td>
+</tr>
+<tr>
+  <td><code>--allow-native-diffs</code></td><td>Android</td>
+  <td>synthetic class 2건이 남아 가드가 여전히 발동</td>
+  <td>§5.3. dex 는 패치에 실리지 않고, 두 클래스는 javac switch-map 산물이며 변경 Dart 와 무관</td>
+</tr>
+<tr>
+  <td><code>--android-project-arg=<br>android.enableR8.fullMode=true</code></td><td>Android</td>
+  <td>로컬 전역 gradle 설정(<code>false</code>)과 CI 기본값(<code>true</code>)의 불일치 보정</td>
+  <td>dex 생성에만 영향하고 <code>libapp.so</code>(=실제 패치 페이로드)에는 영향 없음. <b>검증에 쓴 빌드와 실제 패치 빌드를 동일 조건으로 맞추기 위해 실배포 실행에도 그대로 붙일 것을 권장.</b> 전역 <code>~/.gradle/gradle.properties</code> 는 건드리지 않는 현재 방식이 옳다</td>
+</tr>
+<tr>
+  <td><code>--allow-asset-diffs</code></td><td>Android</td>
+  <td class="small">불필요 — Android dry-run 은 asset 경고를 내지 않았다</td>
+  <td><b>붙이지 말 것.</b> 가드를 살려두면 실제 에셋 변경이 섞일 경우 여전히 잡힌다(안전 마진 유지)</td>
+</tr>
+</table>
+
+<h3>6.1 검증된 실행 형태</h3>
+<p>dry-run 에서 사용된 dart-define 3종이 <code>codemagic.yaml</code> 의 프로덕션 릴리스 정의와 정확히 일치함을 확인했다(<code>ENVIRONMENT=prod</code>, <code>PANGLE_ENVIRONMENT=prod</code>, <code>PAYMENT_ENVIRONMENT=prod</code>). Android 는 릴리스가 <code>-- --split-debug-info=build/symbols</code> 로 빌드되었고 <code>codemagic.yaml</code> 주석이 패치에도 동일 전달을 요구하는데, dry-run 이 이를 충족했다.</p>
+<pre>cd /Users/charlie.hyun/orca/workspaces/picnic-app/chore-startup-ota-preflight/picnic_app
+APP_VERSION=$(sed -n 's/^version:[[:space:]]*//p' pubspec.yaml)   # 1.3.3+130305
+
+shorebird patch ios \
+  --release-version="$APP_VERSION" --no-confirm --no-codesign \
+  --allow-asset-diffs --allow-native-diffs \
+  --dart-define=ENVIRONMENT=prod \
+  --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod
+
+shorebird patch android \
+  --release-version="$APP_VERSION" --no-confirm \
+  --allow-native-diffs \
+  --dart-define=ENVIRONMENT=prod \
+  --dart-define=PANGLE_ENVIRONMENT=prod \
+  --dart-define=PAYMENT_ENVIRONMENT=prod \
+  -- --split-debug-info=build/symbols --android-project-arg=android.enableR8.fullMode=true</pre>
+<p class="small"><code>shorebird</code> 는 <code>pubspec.yaml</code>·<code>shorebird.yaml</code> 이 있는 디렉터리에서 실행해야 하므로 <code>cd</code> 를 명시했고, 버전도 같은 디렉터리의 <code>pubspec.yaml</code> 에서 읽는다(하드코딩 금지). <b>위 두 명령은 사용자 명시 승인 전에는 실행하지 않는다.</b> 릴리스 <code>1.3.3+130305</code> 는 존재하며 현재 패치 0건(<code>{"patches":[]}</code>, release id 826507)이므로 이번이 Patch 1 이다. 프로덕션 OTA 실행 전 사용자 명시 승인은 코디네이터 소관이다.</p>
+
+<h3>6.2 최종 preflight 결과 — iOS · Android 양쪽 전 구간 통과</h3>
+<p>권고한 플래그 조합을 그대로 적용한 <code>--dry-run</code> 이 <b>두 플랫폼 모두 가드 이후 실제 패치 생성 경로 끝까지 통과</b>했다. 이것이 "변경된 Dart 스냅샷이 배포된 릴리스 아티팩트에 실제로 링크·패치화된다"는 최종 실증이며, <b>추가로 확인할 preflight 는 남아 있지 않다</b>(재실행 불필요).</p>
+<table>
+<tr><th>플랫폼</th><th>실행 플래그</th><th>결과</th><th>로그</th></tr>
+<tr>
+  <td>iOS</td>
+  <td><code>--allow-asset-diffs --allow-native-diffs</code></td>
+  <td><span class="tag t-ok">통과</span> Verifying → Extracting release artifact → Linking AOT files → Generating patch diff base → <b>No issues detected.</b></td>
+  <td><code>/tmp/picnic-recovery-ota-ios-dry-run-compatibility.log</code></td>
+</tr>
+<tr>
+  <td>Android</td>
+  <td><code>--allow-native-diffs</code><br><code>-- --split-debug-info=build/symbols --android-project-arg=android.enableR8.fullMode=true</code></td>
+  <td><span class="tag t-ok">통과</span> Verifying → (synthetic 2건 경고) → Fetching/Downloading release artifacts 3/3 → Creating patch artifacts → <b>No issues detected.</b> (exit 0)</td>
+  <td><code>/tmp/picnic-recovery-ota-android-dry-run-compatibility.log</code></td>
+</tr>
+</table>
+<pre># iOS
+Starting Linking AOT files...                           Done
+Starting Generating patch diff base...                  Done
+No issues detected.
+
+# Android
+Starting Downloading release artifact 3/3...            Done (100%)
+Starting Creating patch artifacts...                    Done
+No issues detected.</pre>
+<p class="small">Android 실행 인자는 §6.1 권고안과 정확히 동일했다(<code>shorebird patch android --release-version=1.3.3+130305 --dry-run --no-confirm --allow-native-diffs --dart-define=ENVIRONMENT=prod --dart-define=PANGLE_ENVIRONMENT=prod --dart-define=PAYMENT_ENVIRONMENT=prod -- --split-debug-info=build/symbols --android-project-arg=android.enableR8.fullMode=true</code>). 두 로그 모두 <code>The server may enforce additional checks.</code> 를 함께 출력하므로, 실제 발행 시 서버 측 추가 검사는 §8 사후 검증으로 확인한다.</p>
+
+<h2>7. 잔여 리스크 (Minor · 이번 OTA 차단 아님)</h2>
+<table>
+<tr><th>#</th><th>심각도</th><th>위치</th><th>실패 조건</th><th>최소 수정 방향</th></tr>
+<tr>
+  <td>1</td><td><span class="tag t-warn">Minor</span></td>
+  <td><code>codemagic.yaml</code> 146–150</td>
+  <td><code>rm -rf Podfile.lock Pods; pod install --repo-update</code> 때문에 릴리스마다 네이티브 Pod 가 무통제로 올라간다. 어느 날 전이 SDK 가 동작 변경 버전을 물면 <b>아무도 모른 채</b> 스토어에 나간다(이번에도 5건이 올라가 있었고 락과 불일치).</td>
+  <td>락 삭제를 중단하고 커밋된 <code>Podfile.lock</code> 을 신뢰(<code>pod install</code> 만 실행). 갱신이 필요하면 별도 PR 로 락을 커밋. 부수 효과로 Shorebird 의 Podfile.lock 가드가 <b>진짜 신호</b>로 되살아난다.</td>
+</tr>
+<tr>
+  <td>2</td><td><span class="tag t-warn">Minor</span></td>
+  <td><code>~/.gradle/gradle.properties</code></td>
+  <td><code>android.enableR8.fullMode=false</code> 가 CI 와 상시 불일치 → 모든 Android preflight 가 79k 라인 오탐을 내고, 진짜 네이티브 변경이 그 잡음에 묻힌다.</td>
+  <td>preflight 호출마다 <code>--android-project-arg=android.enableR8.fullMode=true</code> 를 붙이는 현재 방식을 표준 절차로 문서화한다. <b>저장소 <code>gradle.properties</code> 에 값을 넣는 방법은 쓰지 말 것</b> — Gradle 우선순위상 사용자 홈 <code>~/.gradle/gradle.properties</code> 가 프로젝트 파일을 덮어쓰므로 무력화된다. 항구 해결은 사용자 홈 설정에서 해당 줄을 제거/정렬하는 것뿐이며, 전역 설정 변경은 본 작업 범위 밖이다.</td>
+</tr>
+<tr>
+  <td>3</td><td><span class="tag t-warn">Minor</span></td>
+  <td>로컬 Xcode 26.6 vs CI 26.3</td>
+  <td>툴체인 격차가 벌어질수록 Assets.car·Runner 차이가 커져 preflight 신호 대 잡음비가 나빠진다. (이번 판정에는 영향 없음 — 패치 페이로드는 Dart AOT 뿐)</td>
+  <td>패치 실행 머신의 Xcode 를 릴리스 빌드와 맞추거나, 최소한 릴리스 시 Codemagic 이미지의 Xcode 버전을 릴리스 노트에 기록.</td>
+</tr>
+</table>
+
+<h2>8. 배포 후 필수 검증 (정책 §3)</h2>
+<p>CLI 성공 메시지만으로 완료 처리하지 않는다. iOS·Android 각각 패치 생성 후:</p>
+<pre>shorebird patches list --release-version="$APP_VERSION" --json</pre>
+<ul>
+<li>요청한 플랫폼(ios/android) artifact 가 각각 존재하는가</li>
+<li>채널이 <code>stable</code> 인가</li>
+<li><code>is_rolled_back == false</code> 인가</li>
+<li>Android 는 필요한 ABI(arm64-v8a / armeabi-v7a / x86_64) artifact 가 모두 있는가 — <code>libdartjni.so</code> 3종 ABI 동일성은 이미 확인됨</li>
+<li>패치 적용 후 첫 실행 경로(스플래시 → 초기화 → 홈)와 광고 로드(배너/리워드), Firebase 초기화 성공을 실기기에서 1회 육안 확인 — 이번 변경이 초기화 순서를 바꾸므로 여기가 회귀 관측점이다</li>
+</ul>
+
+<h2>부록 — 근거 자료</h2>
+<table>
+<tr><th>자료</th><th>경로</th></tr>
+<tr><td>iOS 1차 dry-run (asset 가드 중단)</td><td><code>/tmp/picnic-recovery-ota-ios-dry-run.log</code></td></tr>
+<tr><td>iOS 2차 (<code>--allow-asset-diffs</code>, Podfile.lock 에서 중단)</td><td><code>/tmp/picnic-recovery-ota-ios-dry-run-asset-metadata.log</code></td></tr>
+<tr><td><b>iOS 최종 preflight (양 플래그) — No issues detected. 전 구간 통과</b></td><td><code>/tmp/picnic-recovery-ota-ios-dry-run-compatibility.log</code></td></tr>
+<tr><td><b>Android 최종 preflight (--allow-native-diffs + fullMode) — Creating patch artifacts / No issues detected., exit 0</b></td><td><code>/tmp/picnic-recovery-ota-android-dry-run-compatibility.log</code></td></tr>
+<tr><td>iOS 에셋 비교 요약 / 원본 assetutil JSON 6종</td><td><code>/tmp/picnic-recovery-ios-asset-comparison.json</code> 및 그 안에 기재된 <code>$TMPDIR</code> 경로</td></tr>
+<tr><td>iOS 번들 버전 비교(74개)</td><td><code>/tmp/picnic-recovery-ios-bundle-version-comparison.json</code></td></tr>
+<tr><td>Android 1차 dry-run (79,510 breaking)</td><td><code>/tmp/picnic-recovery-ota-android-dry-run.log</code></td></tr>
+<tr><td>Android 2차 (R8 fullMode 정렬, breaking 2건)</td><td><code>/tmp/picnic-recovery-ota-android-dry-run-r8-full.log</code></td></tr>
+<tr><td>Android AAB 비교 / JNI 섹션 비교</td><td><code>/tmp/picnic-recovery-android-aab-r8-full-comparison.json</code>, <code>/tmp/picnic-recovery-android-jni-comparison.json</code></td></tr>
+<tr><td>shorebird CLI 실행 로그(플래그·프로세스 인자)</td><td><code>~/Library/Application Support/shorebird/logs/1789289347416 / 1789289851652 / 1789289515432 / 1789290124994_shorebird.log</code></td></tr>
+<tr><td>선례(2026-08-28 프로덕션 1.3.1+130103 Patch 1)</td><td><code>~/Library/Application Support/shorebird/logs/1787897112765_shorebird.log</code></td></tr>
+<tr><td>릴리스 빌드 정의</td><td><code>&lt;worktree&gt;/codemagic.yaml</code> 146–150, 365–372, 858–866</td></tr>
+</table>
+
+<p class="small">본 리뷰는 읽기 전용으로 수행했다. 저장소 파일 수정·빌드 실행·OTA 업로드·버전/태그/git 상태 변경·시뮬레이터/기기 조작은 하지 않았으며, 키스토어 비밀번호·토큰 등 비밀값은 조회·출력하지 않았다.</p>
+
+</body>
+</html>

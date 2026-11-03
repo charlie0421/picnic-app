@@ -1599,48 +1599,16 @@ def check_app_guard_tests_run(workflows, dual_target):
     return failures
 
 
-def check_release_test_skip_policy(workflows, dual_target):
-    """Coverage may be skipped only by an explicit release-tag suffix.
-
-    The resolved tag must cross the Codemagic step boundary, and both binary
-    workflows must delegate the decision to the tested policy script before
-    starting the expensive test suite.
-    """
+def check_release_test_policy(workflows, dual_target):
+    """Codemagic must keep release-tag guards but never run the full app suite."""
     failures = []
-    tag_export = re.compile(
-        r'^echo\s+"RELEASE_TAG=\$\{?CM_TAG\}?"\s*>>\s*'
-        r'"\$\{?CM_ENV\}?"\s*$'
-    )
-    tag_export_example = 'echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"'
-    mode_assignment = (
-        'RELEASE_TEST_MODE="$(bash scripts/release_test_mode.sh '
-        '\"$RELEASE_TAG\")"'
-    )
-    skip_condition = 'if [ "$RELEASE_TEST_MODE" = "skip" ]; then'
     policy_test_command = (
-        "python3 -m unittest -v test_release_test_mode.py "
-        "test_release_tag_resolver.py"
+        "python3 -m unittest -v test_release_tag_resolver.py "
+        "test_codemagic_no_full_unit_tests.py"
     )
 
     for name in dual_target:
         steps = list(script_blocks(workflows[name]))
-        exports = [
-            (step_index, step_name, line)
-            for step_index, (step_name, script) in enumerate(steps)
-            for line in scan(script)
-            if tag_export.match(line.text)
-        ]
-        if len(exports) != 1:
-            failures.append(
-                f"{name}: must propagate the single resolved release tag with "
-                f"`{tag_export_example}`; found {len(exports)} exports"
-            )
-        elif exports[0][2].depth != 0:
-            failures.append(
-                f"{name} / {exports[0][1]!r}: the RELEASE_TAG export is nested "
-                "inside a block, so later steps may receive no release tag"
-            )
-
         policy_test_runs = [
             (step_index, step_name, line)
             for step_index, (step_name, script) in enumerate(steps)
@@ -1658,137 +1626,33 @@ def check_release_test_skip_policy(workflows, dual_target):
                 "nested inside a block, so they may not run"
             )
 
-        coverage_steps = [
-            (step_index, step_name, script)
-            for step_index, (step_name, script) in enumerate(steps)
+        full_suite_steps = [
+            step_name
+            for step_name, script in steps
             if any("flutter test --coverage" in line.text for line in scan(script))
         ]
-        if len(coverage_steps) != 1:
+        if full_suite_steps:
             failures.append(
-                f"{name}: expected exactly one unit-test coverage step; found "
-                f"{len(coverage_steps)}"
+                f"{name}: Codemagic must not run the picnic_lib full coverage "
+                f"suite; found it in {full_suite_steps}"
             )
-            continue
 
-        coverage_index, step_name, script = coverage_steps[0]
-        where = f"{name} / {step_name!r}"
-        lines = list(scan(script))
-        required = {
-            "release-tag assertion": [
-                line for line in lines if line.text.startswith(': "${RELEASE_TAG:?')
-            ],
-            "tested tag policy": [
-                line for line in lines if line.text == mode_assignment
-            ],
-            "skip-only condition": [
-                line for line in lines if line.text == skip_condition
-            ],
-            "successful early exit": [
-                line for line in lines if line.text == "exit 0"
-            ],
-            "coverage command": [
-                line for line in lines if "flutter test --coverage" in line.text
-            ],
-        }
-        for label, matches in required.items():
-            if len(matches) != 1:
-                failures.append(
-                    f"{where}: expected exactly one {label} for the auditable "
-                    f"`-skip-tests` release-tag policy; found {len(matches)}"
-                )
-
-        if all(len(matches) == 1 for matches in required.values()):
-            tag_assert = required["release-tag assertion"][0]
-            mode = required["tested tag policy"][0]
-            condition = required["skip-only condition"][0]
-            successful_exit = required["successful early exit"][0]
-            coverage = required["coverage command"][0]
-            errexit = [
-                line
-                for line in lines
-                if line.depth == 0 and SET_ERREXIT.match(line.text)
-            ]
-            closing_fis = [
-                line
-                for line in lines
-                if line.lineno > condition.lineno
-                and line.depth == condition.depth
-                and _CLOSE_FI.match(line.text)
-            ]
-            close = closing_fis[0] if closing_fis else None
-
-            if not errexit or min(line.lineno for line in errexit) > tag_assert.lineno:
-                failures.append(
-                    f"{where}: must enable `set -e` at top level before the tag "
-                    "policy so policy and coverage failures stop the build"
-                )
-            elif any(
-                line.lineno < coverage.lineno and UNSET_ERREXIT.match(line.text)
-                for line in lines
-            ):
-                failures.append(
-                    f"{where}: disables `set -e` before coverage, so a failed test "
-                    "can be hidden by a later successful command"
-                )
-            if any(line.depth != 0 for line in (tag_assert, mode, condition, coverage)):
-                failures.append(
-                    f"{where}: the release-tag assertion, policy call, skip "
-                    "condition, and coverage command must all run at top level"
-                )
-            if not (
-                tag_assert.lineno
-                < mode.lineno
-                < condition.lineno
-                < successful_exit.lineno
-                < coverage.lineno
-            ):
-                failures.append(
-                    f"{where}: release-test controls must run in this order: tag "
-                    "assertion, policy call, skip condition, early exit, coverage"
-                )
-            if close is None:
-                failures.append(
-                    f"{where}: the skip-only condition has no matching top-level `fi`"
-                )
-            else:
-                alternate_branch_before_exit = any(
-                    line.lineno < successful_exit.lineno
-                    and line.depth == condition.depth + 1
-                    and (
-                        line.text == "else"
-                        or line.text.startswith("else ")
-                        or line.text.startswith("elif ")
-                    )
-                    for line in lines
-                    if line.lineno > condition.lineno
-                )
-                exit_is_in_skip_branch = (
-                    condition.lineno < successful_exit.lineno < close.lineno
-                    and successful_exit.depth == condition.depth + 1
-                    and not alternate_branch_before_exit
-                )
-                if not exit_is_in_skip_branch:
-                    failures.append(
-                        f"{where}: `exit 0` must be inside the skip-only branch; "
-                        "otherwise every release can silently bypass coverage"
-                    )
-                if coverage.lineno <= close.lineno:
-                    failures.append(
-                        f"{where}: coverage must run after the skip-only branch "
-                        "closes, so ordinary release tags cannot bypass it"
-                    )
-
-        if len(exports) == 1 and exports[0][0] >= coverage_index:
-            failures.append(
-                f"{name}: RELEASE_TAG is exported in step {exports[0][0] + 1}, "
-                f"not before the coverage step {coverage_index + 1}"
+    for name, workflow in workflows.items():
+        for step_name, script in script_blocks(workflow):
+            commands = [line.text for line in scan(script)]
+            enters_picnic_lib = any(
+                re.fullmatch(r"cd\s+picnic_lib/?", command)
+                for command in commands
             )
-        if len(policy_test_runs) == 1 and policy_test_runs[0][0] >= coverage_index:
-            failures.append(
-                f"{name}: release policy tests run in step "
-                f"{policy_test_runs[0][0] + 1}, not before the coverage step "
-                f"{coverage_index + 1}"
+            runs_flutter_tests = any(
+                FLUTTER_TEST.search(command) for command in commands
             )
+            if enters_picnic_lib and runs_flutter_tests:
+                failures.append(
+                    f"{name} / {step_name!r}: Codemagic must not run "
+                    "picnic_lib Flutter tests"
+                )
+
     return failures
 
 
@@ -1937,7 +1801,7 @@ def run_checks(text=None):
     failures += check_guard_failure_fails_the_step(workflows)
     failures += check_isolation_guard_runs_in_ci(workflows, tag_driven)
     failures += check_app_guard_tests_run(workflows, tag_driven)
-    failures += check_release_test_skip_policy(workflows, dual_target)
+    failures += check_release_test_policy(workflows, dual_target)
     failures += check_patch_release_version_is_full(workflows)
     failures += check_patch_split_debug_info_gate(workflows)
     return failures
@@ -2177,65 +2041,26 @@ def mutate_drop_tag_resolver(text):
     ) + "\n"
 
 
-def mutate_drop_release_tag_export(text):
-    """Stop propagating the resolved tag to later workflow steps."""
-    return "\n".join(
-        line
-        for line in text.splitlines()
-        if line.strip() != 'echo "RELEASE_TAG=$CM_TAG" >> "$CM_ENV"'
-    ) + "\n"
-
-
-def mutate_drop_release_test_mode_gate(text):
-    """Run coverage unconditionally even for an explicit skip-tests tag."""
-    return "\n".join(
-        line
-        for line in text.splitlines()
-        if "scripts/release_test_mode.sh" not in line
-    ) + "\n"
-
-
 def mutate_drop_release_policy_tests(text):
-    """Let the tested tag and Rebuild policies rot outside Codemagic."""
+    """Let the tested Rebuild tag policy rot outside Codemagic."""
     return "\n".join(
         line
         for line in text.splitlines()
-        if not (
-            "test_release_test_mode.py" in line
-            and "test_release_tag_resolver.py" in line
-        )
+        if "test_release_tag_resolver.py" not in line
     ) + "\n"
 
 
-def mutate_drop_release_coverage_errexit(text):
-    """Let policy or coverage failures be hidden by later successful commands."""
-    step_prefix = """\
-      - name: Run unit tests with coverage
+def mutate_reintroduce_picnic_lib_tests(text):
+    """Reintroduce the expensive suite without the old coverage spelling."""
+    marker = "      - name: Install CocoaPods dependencies\n"
+    injected = """\
+      - name: Run picnic_lib unit tests
         script: |
-          set -e
+          cd picnic_lib
+          flutter test
+
 """
-    return text.replace(
-        step_prefix,
-        """\
-      - name: Run unit tests with coverage
-        script: |
-""",
-    )
-
-
-def mutate_move_release_test_exit_outside_gate(text):
-    """Skip coverage for every tag by moving the successful exit before the gate."""
-    gated_exit = """\
-          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
-            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
-            exit 0
-          fi"""
-    unconditional_exit = """\
-          exit 0
-          if [ "$RELEASE_TEST_MODE" = "skip" ]; then
-            echo "Skipping picnic_lib unit tests with coverage by release tag: $RELEASE_TAG"
-          fi"""
-    return text.replace(gated_exit, unconditional_exit)
+    return text.replace(marker, injected + marker, 1)
 
 
 def mutate_default_tag_variable(text):
@@ -2679,17 +2504,10 @@ SELF_TESTS = (
     ("derived target never handed to the later steps", mutate_drop_cm_env_export, True),
     ("tag variable no longer required", mutate_drop_tag_requirement, True),
     ("rebuild tag resolver removed", mutate_drop_tag_resolver, True),
-    ("resolved release tag not propagated", mutate_drop_release_tag_export, True),
-    ("release test-mode gate removed", mutate_drop_release_test_mode_gate, True),
     ("release policy tests not run in Codemagic", mutate_drop_release_policy_tests, True),
     (
-        "coverage step no longer fails fast",
-        mutate_drop_release_coverage_errexit,
-        True,
-    ),
-    (
-        "release test-mode exit moved outside its skip-only gate",
-        mutate_move_release_test_exit_outside_gate,
+        "picnic_lib unit tests reintroduced without coverage",
+        mutate_reintroduce_picnic_lib_tests,
         True,
     ),
     ("tag variable given a default", mutate_default_tag_variable, True),

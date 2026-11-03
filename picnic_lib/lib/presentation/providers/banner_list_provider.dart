@@ -1,4 +1,5 @@
 import 'package:picnic_lib/data/models/common/banner.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -20,6 +21,7 @@ List<String> bannerActiveWindowOrFilters(DateTime nowUtc) {
 class AsyncBannerList extends _$AsyncBannerList {
   @override
   Future<List<BannerModel>> build({required String location}) async {
+    ref.watch(authSessionIdentityProvider);
     return _fetchBannerList(location: location);
   }
 
@@ -32,6 +34,11 @@ class AsyncBannerList extends _$AsyncBannerList {
         .select('id, title, thumbnail, image, duration, link')
         .eq('location', location)
         .filter('deleted_at', 'is', null);
+    if (location == 'vote_home') {
+      // HOME campaign RPC가 timeout/error여도 ordinary fallback에서 campaign
+      // creative 원본을 되살리지 않는다. 다른 location의 계약은 변경하지 않는다.
+      query = query.eq('promotion_campaign_owned', false);
+    }
     for (final filter in windowFilters) {
       query = query.or(filter);
     }

@@ -198,6 +198,7 @@ class AuthService {
 
       if (response.session != null) {
         await _saveAndNotifySession(response.session!);
+        await DeviceManager.updateLastSeen();
         // 국가 추적 (토큰 갱신 직후)
         await _trackCountry('token_refresh');
         return true;

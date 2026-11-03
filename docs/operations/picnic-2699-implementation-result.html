@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2699 구현 결과</title>
+  <style>
+    :root { color-scheme: light; --ink:#17202a; --muted:#5f6b76; --line:#d8dee4; --accent:#6f42c1; --soft:#f6f8fa; --ok:#1a7f37; --warn:#9a6700; }
+    body { max-width: 1120px; margin: 0 auto; padding: 36px 28px 64px; color: var(--ink); font: 15px/1.62 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    h1, h2, h3 { line-height: 1.3; margin: 1.6em 0 .55em; }
+    h1 { margin-top: 0; font-size: 30px; } h2 { border-bottom: 1px solid var(--line); padding-bottom: 7px; font-size: 22px; }
+    h3 { font-size: 17px; } p, ul, ol { margin: .55em 0; }
+    code { padding: .12em .35em; border-radius: 4px; background: var(--soft); font: .92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    pre { overflow-x: auto; padding: 14px 16px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0 22px; font-size: 13px; }
+    th, td { padding: 8px 9px; border: 1px solid var(--line); text-align: right; vertical-align: top; white-space: nowrap; }
+    th { background: var(--soft); } th:first-child, td:first-child, .left { text-align: left; }
+    .summary { padding: 16px 18px; border-left: 5px solid var(--accent); background: #f8f5ff; }
+    .ok { color: var(--ok); font-weight: 700; } .warn { color: var(--warn); font-weight: 700; }
+    .note { color: var(--muted); } .wrap { white-space: normal; }
+  </style>
+</head>
+<body>
+  <h1>PICNIC-2699 투표 완료 팝업 뷰포트 대응 구현 결과</h1>
+  <div class="summary">
+    <p><strong>상태:</strong> 커밋 <code>460eba6ef</code>. 신규 테스트 <span class="ok">+74</span>, voting 전체 <span class="ok">+1343 실패 0</span>, <code>analyze</code> 521(부모와 동일).</p>
+    <p><strong>결론:</strong> 완료 팝업의 모든 상자가 고정 높이 대신 최소 높이를 말하게 하고, 그렇게 얻은 자연 크기를 창에 맞춰 통째로 축소한다. 축소는 한 배율을 전체에 적용하므로 화면과 공유 이미지가 계속 일치한다.</p>
+  </div>
+
+  <h2>1. 실측한 결함</h2>
+  <p>티켓은 "짧은 화면에서 위아래로 잘린다" 였으나, 실측 결과 <strong>두 축 모두</strong> 넘치며 <strong>기본 세로 화면 1.0배도 예외가 아니다.</strong></p>
+  <table>
+    <thead><tr><th class="left">넘침 지점</th><th>축</th><th>크기</th><th class="left">원인</th></tr></thead>
+    <tbody>
+      <tr><td class="left"><code>Row</code> voting_complete.dart:156</td><td>가로</td><td class="warn">45~373px</td><td class="left">프로필 칸의 닉네임·날짜 열에 폭 제약이 없어 날짜의 말줄임이 동작하지 않는다</td></tr>
+      <tr><td class="left"><code>Column</code> :169</td><td>세로</td><td>2.4px</td><td class="left">그 열이 고정 70 높이를 넘는다</td></tr>
+      <tr><td class="left"><code>Column</code> :255</td><td>세로</td><td>5.0px</td><td class="left">아티스트 열이 고정 120 높이를 넘는다</td></tr>
+      <tr><td class="left"><code>Column</code> :416</td><td>세로</td><td class="warn">8.7~95px</td><td class="left">득표 카드가 고정 120 높이를 넘는다</td></tr>
+      <tr><td class="left"><code>Column</code> large_popup.dart:145</td><td>세로</td><td class="warn">43~202px</td><td class="left">팝업 전체가 화면보다 크다</td></tr>
+    </tbody>
+  </table>
+  <p>기존 <code>voting_complete_test.dart</code> 는 <code>overflowed</code> 를 포함한 오류를 명시적으로 무시한다. 그래서 11건이 통과하는 동안 이 다섯 개가 한 번도 보이지 않았다.</p>
+
+  <h2>2. 스크롤을 쓸 수 없는 이유</h2>
+  <p>PICNIC-2694 는 입력 팝업을 스크롤로 해결했다. 완료 팝업에는 쓸 수 없다. 이 팝업은 <code>RepaintBoundary</code> 안에서 공유 투표 이미지로 캡처되는데, 스크롤 뷰는 화면에 있는 것만 렌더하므로 스크롤로 밀려난 부분이 이미지에서 사라진다.</p>
+  <p><strong>캡처 경로 실측:</strong> <code>ShareUtils._captureContent</code> 는 <code>boundary.toImage(pixelRatio: 2.0)</code> 로 잡아 흰 캔버스에 합성한다. 그 경계는 <code>Dialog</code> 위에 있어 <strong>화면 전체 크기</strong>다. 즉 393×852 기기의 공유 이미지는 786×1704 이고 팝업은 그 가운데 놓인다.</p>
+  <p class="note">따라서 <strong>수정 전에는 공유 이미지 자체가 잘려 있었다.</strong> 가로 화면에서 팝업이 437px 인데 캡처 영역이 393px 이므로 44px 이 이미지에서 사라졌다. 이 결함은 표시만의 문제가 아니었다.</p>
+
+  <h2>3. 변경</h2>
+  <h3>3.1 내용을 내재 크기로</h3>
+  <ul>
+    <li>머리말 알약 <code>height: 51</code>·<code>43</code>, 프로필 칸 <code>height: 70</code> → <code>BoxConstraints(minHeight:)</code>. 1.0배 디자인 높이는 그대로 유지되고 그보다 커질 때만 자란다.</li>
+    <li>프로필의 닉네임·날짜 열을 <code>Expanded</code> 로 감쌌다. 폭이 정해져야 기존 <code>ellipsis</code> 가 비로소 동작한다. 닉네임에도 <code>maxLines: 1</code> 을 넣었다 — 사용자가 정하는 값이라 길이 상한이 없다.</li>
+    <li>아티스트 열과 득표 카드를 <code>IntrinsicHeight</code> + <code>CrossAxisAlignment.stretch</code> 로 묶어 같은 높이를 유지하면서 내용을 따라 자라게 했다. 득표 카드의 <code>height: double.infinity</code> 와 <code>MainAxisSize.max</code> 는 제거했다 — 높이는 이제 행이 준다.</li>
+  </ul>
+  <h3>3.2 창에 맞춘 통짜 축소</h3>
+  <p><code>Dialog</code> 바로 아래에 <code>FittedBox(fit: BoxFit.scaleDown)</code> 을 넣었다. 카드는 자연 크기로 배치된 뒤 창보다 크면 통째로 줄어든다. 한 배율을 전체에 적용하므로 보이는 것과 공유되는 것이 계속 일치하고, <code>scaleDown</code> 은 확대하지 않으므로 여유 있는 창은 손대지 않는다.</p>
+  <table>
+    <thead><tr><th class="left">창</th><th>1.0배</th><th>1.3배</th><th>2.0배</th></tr></thead>
+    <tbody>
+      <tr><td class="left">세로 393×852</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+      <tr><td class="left">태블릿 분할 375×834</td><td>1.000</td><td>1.000</td><td>1.000</td></tr>
+      <tr><td class="left">플립 상단 절반 412×500</td><td>1.000</td><td>1.000</td><td>0.788</td></tr>
+      <tr><td class="left">좁고 짧은 창 280×480</td><td>1.000</td><td>1.000</td><td>0.668</td></tr>
+      <tr><td class="left">가로 851×393</td><td>0.900</td><td>0.867</td><td class="warn">0.621</td></tr>
+    </tbody>
+  </table>
+  <p>세로 화면과 태블릿 분할은 모든 배율에서 <strong>1.000</strong> 이다. 즉 대다수 사용자에게는 넘침 수정 외에 보이는 변화가 없다. 축소는 가로 화면과 아주 짧은 창에서만 일어난다.</p>
+
+  <h3>3.3 그룹 이미지의 고정 크기 상자</h3>
+  <p>장식이 아니라 필수다. <code>PicnicCachedNetworkImage</code> 안에 <code>LayoutBuilder</code> 가 있어 내재 크기 질의에 답하지 못하는데, 위의 <code>IntrinsicHeight</code> 가 그것을 묻는다. 고정 크기 부모는 하위로 내려가지 않고 60 을 답하므로 질의가 거기서 멈춘다. 아티스트 분기에는 원래 이 상자가 있었고 그룹 분기에만 없어서 <strong>그룹 경로만</strong> 단언 실패했다.</p>
+  <p class="warn">주의: 이 행 아래에 <code>LayoutBuilder</code> 를 새로 넣으면 같은 단언이 다시 터진다. 조용히 깨지지 않고 디버그에서 즉시 실패하므로 테스트가 잡는다.</p>
+
+  <h2>4. 테스트</h2>
+  <p>신규 <code>voting_complete_viewport_test.dart</code> 74건. 6개 뷰포트 × 3개 배율에서 네 가지를 확인한다.</p>
+  <ol>
+    <li><strong>넘침 0.</strong> 자산 로딩·타이머 잡음은 걸러내되 <code>overflowed</code> 는 절대 걸러내지 않는다. 기존 테스트가 그것을 걸러내서 결함이 보이지 않았다.</li>
+    <li><strong>카드가 창 안에 있다.</strong> <code>getRect</code> 로 변환된 사각형을 본다. <code>getSize</code> 는 배율 적용 전 값이라 무엇을 하든 통과한다.</li>
+    <li><strong>저장·공유 버튼이 그려진 자리에서 적중한다.</strong> 축소된 카드를 누를 수 없다면 잘리는 것보다 나쁘다. 행의 중심은 두 버튼 사이 빈 공간이라 버튼을 직접 겨냥한다.</li>
+    <li><strong>캡처 영역이 카드를 포함한다.</strong> 넷 중 가장 중요하다. 공유 이미지는 화면의 스냅샷이므로 창을 벗어난 팝업은 공유 이미지에서도 잘린다.</li>
+  </ol>
+  <p><strong>RED 확인:</strong> 부모 커밋 <code>8a24928ed</code> 를 별도 워크트리에 띄워 같은 테스트를 돌렸다. <code>overflows=1</code>, 결과 <code>+0 -1</code> 로 실패한다.</p>
+  <p class="note">뷰포트에 따라 판별력이 다르다. 가로 화면에서는 카드의 레이아웃 사각형이 화면에 맞춰 잘린 채 보고되므로 (2)번 단언은 부모에서도 통과한다. 그 조합을 잡는 것은 (1)번이다. 네 단언은 서로 다른 조합을 덮는다.</p>
+
+  <h2>5. 검증</h2>
+  <table>
+    <thead><tr><th class="left">명령</th><th>결과</th></tr></thead>
+    <tbody>
+      <tr><td class="left">신규 <code>voting_complete_viewport_test.dart</code></td><td class="ok">+74</td></tr>
+      <tr><td class="left"><code>flutter test test/presentation/widgets/vote/voting</code></td><td class="ok">+1343 실패 0</td></tr>
+      <tr><td class="left"><code>flutter analyze</code></td><td>521 (부모와 동일)</td></tr>
+      <tr><td class="left">부모 커밋 RED 확인</td><td class="ok">+0 -1</td></tr>
+    </tbody>
+  </table>
+
+  <h2>6. 인수 기준 대조</h2>
+  <table>
+    <thead><tr><th class="left">기준</th><th class="left">결과</th></tr></thead>
+    <tbody>
+      <tr><td class="left">412×500, 851×393, 375×834 에서 잘리지 않는다</td><td class="left"><span class="ok">충족.</span> 세 창 모두 카드 전체가 창 안에 있고 조작부가 적중한다.</td></tr>
+      <tr><td class="left">배율 1.0 / 1.3 / 2.0 에서 RenderFlex 넘침 0</td><td class="left"><span class="ok">충족.</span> 6개 뷰포트 × 3개 배율 전부 0.</td></tr>
+      <tr><td class="left">공유 이미지 캡처 결과가 현재와 동일하다</td><td class="left"><span class="warn">문자 그대로는 불가능.</span> 넘침을 고치면 레이아웃이 달라지므로 캡처도 달라진다. 실제로는 <strong>개선</strong>이다 — 수정 전에는 공유 이미지가 잘려 있었다. 캡처 경로·픽셀 배율·경계 위치는 건드리지 않았고, 캡처가 카드를 포함한다는 성질을 테스트로 고정했다.</td></tr>
+      <tr><td class="left">Dart 변경만</td><td class="left"><span class="ok">충족.</span> Shorebird OTA 범위.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>7. 남은 위험과 후속 후보</h2>
+  <ul>
+    <li><strong>공유 이미지가 대부분 여백이다.</strong> 캡처 경계가 화면 전체라 공유 이미지는 흰 바탕 가운데 작은 카드가 놓인 형태이고, 가로 화면에서는 가로로 긴 흰 이미지가 된다. 이번 범위 밖이지만 별도 티켓 후보다. 경계를 카드로 좁히면 해결되나 공유 이미지가 완전히 달라지므로 디자인 결정이 필요하다.</li>
+    <li><strong>2.0배 가로에서 축소율 0.621.</strong> 사용자가 키운 글자를 다시 줄이는 셈이라 접근성과 상충한다. 스크롤이 불가능한 제약에서 선택한 절충이며, 그 이유는 2절에 기록했다.</li>
+    <li><strong><code>IntrinsicHeight</code> 는 하위에 <code>LayoutBuilder</code> 가 없어야 한다.</strong> 3.3절 참조.</li>
+    <li>기존 <code>voting_complete_test.dart</code> 는 여전히 넘침을 억제한다. 신규 파일이 그 축을 덮으므로 남겨 뒀으나, 억제를 걷어내는 것은 후속 정리 후보다.</li>
+  </ul>
+</body>
+</html>

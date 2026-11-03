@@ -16,6 +16,10 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   final VoidCallback _resetPurchaseState;
 
   static const Duration _safetyTimeout = Duration(seconds: 90);
+
+  /// 정산된 거래의 finish 응답을 기다리는 상한. `InAppPurchaseService
+  /// .finalizeSettledPurchase` 의 상한과 같다.
+  static const Duration _finishTimeout = Duration(seconds: 10);
   static const Duration _basePurchaseCooldown = Duration(
     minutes: 1,
   ); // 🎯 기본 60초
@@ -483,7 +487,22 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
           !(defaultTargetPlatform == TargetPlatform.android &&
               completedPurchase!.status == PurchaseStatus.pending)) {
         logger.i('🧹 1️⃣ 완료된 구매 트랜잭션 최종 처리');
-        await InAppPurchase.instance.completePurchase(completedPurchase!);
+        // 고정 플러그인(0.4.8+1)의 StoreKit 2 finish 는 Transaction.all 에서
+        // 거래를 찾았을 때만 응답한다. 다른 경로(예: 검증 중 스토어를 떠나
+        // 먼저 돈 resume 스윕)가 같은 소비형 거래를 이미 finish 했으면 이
+        // await 는 영원히 끝나지 않고, settle 은 지갑 반영·스피너 해제에
+        // 닿지 못한다. 서버 지급은 이미 확정됐으므로 finalizeSettledPurchase
+        // 와 같은 상한으로 끊고 계속 간다 (PICNIC-2743).
+        try {
+          await InAppPurchase.instance
+              .completePurchase(completedPurchase!)
+              .timeout(_finishTimeout);
+        } on TimeoutException {
+          logger.w(
+            '🧹 1️⃣ 완료 처리 응답 없음(${_finishTimeout.inSeconds}s) - '
+            '이미 finish 된 거래로 보고 계속 진행: $productId',
+          );
+        }
       }
 
       // 2️⃣ 성공한 구매 정보 확실히 기록
@@ -511,11 +530,28 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
   }
 
   /// 🧹 플랫폼별 캐시 정리
+  ///
+  /// 예전에는 여기서 약 1초 동안 `purchaseStream` 을 한 번 읽어, 같은 상품의
+  /// `purchased` 이벤트를 **정산 확인 없이** finish 했다 (iOS 는 전부,
+  /// Android 는 pending 이 아닌 것). 그 창에 StoreKit·Play 가 다른 거래를
+  /// 전달하면 (Ask to Buy 승인, 다른 기기 구매, 환불 갱신, 미완료 거래
+  /// 재전달) 서버가 적립하지 않은 영수증을 지워 버린다 - 그 거래의 정산은
+  /// 어템프트 bind 대기 뒤에야 시작되고 영수증 큐 적재는 그보다 뒤라, 그 사이
+  /// 프로세스가 죽거나 로그아웃하면 복구 수단이 없다. 운영 코드에서 미정산
+  /// iOS purchased 이벤트를 finish 할 수 있는 유일한 지점이었다.
+  ///
+  /// 방금 정산한 거래는 1️⃣ 단계와 `finalizeSettledPurchase` 가 이미 finish
+  /// 하므로 여기서 할 일은 남지 않는다. 다른 거래의 finish 는 그 거래의 정산
+  /// 경로(라이브·orphan·스윕)가 서버 확인 뒤에 한다 (PICNIC-2743 C1).
+  ///
+  /// `dart:io` 의 `Platform` 대신 `defaultTargetPlatform` 으로 가른다. 실기기
+  /// 에서는 같은 값이고, 호스트 테스트는 `debugDefaultTargetPlatformOverride`
+  /// 로 이 분기를 고정할 수 있다.
   Future<void> _performPlatformSpecificCleanup(String productId) async {
-    if (Platform.isIOS) {
-      await _performIOSCleanup(productId);
-    } else if (Platform.isAndroid) {
-      await _performAndroidCleanup(productId);
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      logger.i('🧹 🍎 iOS 정리: 정산된 거래 외에는 finish 하지 않는다');
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      logger.i('🧹 🤖 Android 정리: 정산된 거래 외에는 finish 하지 않는다');
     }
   }
 
@@ -535,65 +571,6 @@ class PurchaseSafetyManager implements PurchaseSafetyManagerInterface {
       }
     } catch (e) {
       logger.w('🚀 간소화 클린 작업 경고: $e');
-    }
-  }
-
-  /// 🍎 iOS 전용 클린 작업 (최적화)
-  Future<void> _performIOSCleanup(String productId) async {
-    logger.i('🧹 🍎 iOS StoreKit 클린 작업');
-
-    try {
-      // StoreKit 트랜잭션 큐 정리를 위한 짧은 대기 (최적화: 500ms → 300ms)
-      await Future.delayed(Duration(milliseconds: 300));
-
-      // 현재 트랜잭션들 확인 및 완료 처리 (최적화: 2초 → 1초)
-      final recentPurchases = await InAppPurchase.instance.purchaseStream
-          .take(1)
-          .timeout(Duration(seconds: 1))
-          .first
-          .catchError((e) => <PurchaseDetails>[]);
-
-      for (var purchase in recentPurchases) {
-        if (purchase.productID == productId &&
-            purchase.pendingCompletePurchase) {
-          logger.i('🧹 🍎 iOS 잔여 트랜잭션 완료: ${purchase.productID}');
-          await InAppPurchase.instance.completePurchase(purchase);
-        }
-      }
-
-      logger.i('🧹 🍎 iOS StoreKit 클린 작업 완료');
-    } catch (e) {
-      logger.w('🧹 🍎 iOS 클린 작업 경고: $e');
-    }
-  }
-
-  /// 🤖 Android 전용 클린 작업 (최적화)
-  Future<void> _performAndroidCleanup(String productId) async {
-    logger.i('🧹 🤖 Android Play Billing 클린 작업');
-
-    try {
-      // Play Billing 처리 완료를 위한 짧은 대기 (최적화: 300ms → 200ms)
-      await Future.delayed(Duration(milliseconds: 200));
-
-      // 미완료 트랜잭션들 확인 (최적화: 1초 → 500ms)
-      final recentPurchases = await InAppPurchase.instance.purchaseStream
-          .take(1)
-          .timeout(Duration(milliseconds: 500))
-          .first
-          .catchError((e) => <PurchaseDetails>[]);
-
-      for (var purchase in recentPurchases) {
-        if (purchase.productID == productId &&
-            purchase.pendingCompletePurchase &&
-            purchase.status != PurchaseStatus.pending) {
-          logger.i('🧹 🤖 Android 잔여 트랜잭션 완료: ${purchase.productID}');
-          await InAppPurchase.instance.completePurchase(purchase);
-        }
-      }
-
-      logger.i('🧹 🤖 Android Play Billing 클린 작업 완료');
-    } catch (e) {
-      logger.w('🧹 🤖 Android 클린 작업 경고: $e');
     }
   }
 

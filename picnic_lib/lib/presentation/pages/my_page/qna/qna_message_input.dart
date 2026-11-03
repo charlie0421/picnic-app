@@ -5,7 +5,9 @@ import 'package:mime/mime.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class QnaMessageInput extends StatelessWidget {
   final bool isThreadOpen;
@@ -31,10 +33,14 @@ class QnaMessageInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!isThreadOpen) {
-      return _buildClosedNotice(context);
-    }
-    return _buildOpenInput(context);
+    // Keep the composer reachable when a keyboard or short window leaves
+    // less room than the notice, attachments and input need together.
+    return SingleChildScrollView(
+      reverse: true,
+      child: isThreadOpen
+          ? _buildOpenInput(context)
+          : _buildClosedNotice(context),
+    );
   }
 
   Widget _buildClosedNotice(BuildContext context) {
@@ -43,19 +49,14 @@ class QnaMessageInput extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.grey100,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(25),
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
-        ],
+        border: Border(top: BorderSide(color: PicnicUi.border)),
       ),
       child: SafeArea(
+        top: false,
         child: Text(
           AppLocalizations.of(context).qna_cannot_send_message_closed,
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.grey500),
+          style: PicnicUi.text(color: PicnicUi.secondaryText),
         ),
       ),
     );
@@ -65,16 +66,11 @@ class QnaMessageInput extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 6.0),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(25),
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
-        ],
+        color: PicnicUi.surface,
+        border: Border(top: BorderSide(color: PicnicUi.border)),
       ),
       child: SafeArea(
+        top: false,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -95,25 +91,18 @@ class QnaMessageInput extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.grey100,
         borderRadius: BorderRadius.circular(8.0),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withAlpha(25),
-            spreadRadius: 1,
-            blurRadius: 5,
-          ),
-        ],
       ),
       child: Text(
         AppLocalizations.of(context).qna_auto_close_after_14_days_notice,
         textAlign: TextAlign.center,
-        style: getTextStyle(AppTypo.caption12R, AppColors.grey600),
+        style: PicnicUi.text(size: 12, color: PicnicUi.secondaryText),
       ),
     );
   }
 
   Widget _buildAttachmentPreview() {
     return SizedBox(
-      height: 56,
+      height: 64,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: attachments.length,
@@ -124,9 +113,9 @@ class QnaMessageInput extends StatelessWidget {
           final isVideo =
               lookupMimeType(file.path)?.startsWith('video/') ?? false;
           return Padding(
-            padding: const EdgeInsets.only(right: 8.0, top: 8.0),
-            child: Stack(
-              clipBehavior: Clip.none,
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
                   width: 52,
@@ -159,22 +148,21 @@ class QnaMessageInput extends StatelessWidget {
                           ),
                         ),
                 ),
-                Positioned(
-                  top: -10,
-                  right: -10,
-                  child: GestureDetector(
-                    onTap: () => onRemoveAttachment(index),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.black54,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 16,
-                      ),
-                    ),
+                const SizedBox(width: 4),
+                IconButton(
+                  onPressed: () => onRemoveAttachment(index),
+                  tooltip: MaterialLocalizations.of(
+                    context,
+                  ).deleteButtonTooltip,
+                  constraints: const BoxConstraints.tightFor(
+                    width: 48,
+                    height: 48,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  icon: Icon(
+                    Icons.close,
+                    size: 20,
+                    color: PicnicUi.secondaryText,
                   ),
                 ),
               ],
@@ -192,31 +180,49 @@ class QnaMessageInput extends StatelessWidget {
           icon: const Icon(Icons.perm_media_outlined, size: 20),
           onPressed: onPickMedia,
           tooltip: AppLocalizations.of(context).qna_add_media_tooltip,
-          padding: const EdgeInsets.all(4.0),
-          constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-          visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+          padding: const EdgeInsets.all(12),
+          constraints: const BoxConstraints.tightFor(width: 48, height: 48),
         ),
         Expanded(
           child: TextField(
             controller: messageController,
-            decoration: InputDecoration.collapsed(
+            style: PicnicUi.text(),
+            decoration: InputDecoration(
+              constraints: const BoxConstraints(minHeight: 48),
               hintText: AppLocalizations.of(context).qna_message_hint,
+              hintStyle: PicnicUi.text(color: PicnicUi.secondaryText),
+              isDense: true,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: PicnicUi.inputBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: PicnicUi.actionColor),
+              ),
             ),
             textCapitalization: TextCapitalization.sentences,
           ),
         ),
         if (isSending)
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: CircularProgressIndicator(),
+          Semantics(
+            label: AppLocalizations.of(context).loading,
+            liveRegion: true,
+            child: const SizedBox.square(
+              dimension: 48,
+              child: Center(child: SmallPulseLoadingIndicator()),
+            ),
           )
         else
           IconButton(
             icon: const Icon(Icons.send, size: 20),
             onPressed: onSend,
-            padding: const EdgeInsets.all(4.0),
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            visualDensity: const VisualDensity(horizontal: -2, vertical: -2),
+            padding: const EdgeInsets.all(12),
+            constraints: const BoxConstraints.tightFor(width: 48, height: 48),
           ),
       ],
     );

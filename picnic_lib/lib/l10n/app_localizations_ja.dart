@@ -423,7 +423,7 @@ class AppLocalizationsJa extends AppLocalizations {
   String get label_button_view_policy => 'ポリシーを見る';
 
   @override
-  String get label_button_vote => '投票する';
+  String get label_button_vote => '投票';
 
   @override
   String get label_celeb_gallery => 'アーティストギャラリー';
@@ -1870,6 +1870,56 @@ class AppLocalizationsJa extends AppLocalizations {
       '認証に時間がかかりましたが、購入は正常に完了しました。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return 'イベントボーナス +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本付与';
+
+  @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => 'イベント';
+
+  @override
+  String get purchase_reward_product_bonus => '基本ボーナス';
+
+  @override
+  String get purchase_reward_event_bonus => 'イベントボーナス';
+
+  @override
+  String get purchase_reward_expected_total => '予想合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '現在の残高 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購入後の予想 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note =>
+      '予想数量です。最終的な付与数量は決済完了時にサーバー基準で確定します。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '合計$amount獲得';
+  }
+
+  @override
   String get ad_reward_pending => '報酬を確認しています';
 
   @override
@@ -1892,6 +1942,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '現在の保有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購入後の保有 $amount';
   }
 
   @override
@@ -1967,4 +2022,11 @@ class AppLocalizationsJa extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      'この端末での現在のアカウントによる広告の利用は、一時的に制限されています。';
+
+  @override
+  String get profile_photo_change => 'プロフィール写真を変更';
 }

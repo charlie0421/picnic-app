@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>Picnic 앱 전체 UI 구현 계획</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:16px/1.65 system-ui;color:#252528}h1,h2{line-height:1.3}pre{white-space:pre-wrap;background:#f7f7f8;padding:16px;border-radius:12px}table{border-collapse:collapse;width:100%}td,th{padding:10px;border:1px solid #d7d7dc;text-align:left}code{overflow-wrap:anywhere}</style></head><body><h1>Picnic 앱 전체 UI 구현 계획</h1><p>사용자가 추천 시안의 전체 범위를 승인했습니다. 기존 배포 1.3.3+130308 이후 UI 전용 브랜치 refactor/ui-consistency에서 진행합니다.</p>
+<h2>Global Constraints</h2>
+<pre>Approved scope: all five stages of app-ui-design-proposal.html, preserve mint/purple and extract reusable opt-in presentation. Design approval already granted. No new release, native/dependency/schema/auth/payment logic changes, real transactions or communications. Do not edit AppTypo/getTextStyle/global ThemeData or startup pre-initialization screens. Resolve colors dynamically from AppColors/Environment, not portal ColorScheme primary. Primary/mint configured values unchanged; deeper accessible primary action with white contrast &gt;=4.5 (target &gt;=4.8); black on selected primary and readable dark/light text for alternate configured palettes. New typography: package picnic_lib Pretendard, raw font sizes, height1.45, letterSpacing0; MediaQuery scaling retained, no .sp. ScreenUtil axis-specific gutters, spacing4/8/12/16/24/32; interactive minimum48 raw logical px. Noninteractive badges are not controls. Keep geometry exceptions: home carousel height372/fraction0.82/margins6x4, heroWidth, thumbnails56/72, VoteCardLayout gaps4/4/8, capture boundaries, CDN/cache/decode/prefetch identity. Keep compact ShareSection/vote footer geometry; one branch-independent reserved footer extent across error/loading/idle. No generic48 control inside40 footer. Shared controls own no screen margins/scrolling/provider/network/navigation/retry timers. Existing caller localization keys and semantic distinctions initial error/stale data/append error/empty preserved. Opaque skeleton frame outside Shimmer; keyed blocks visible; retain existing pulse/reduced motion. MyPage48back target requires leadingWidth&gt;=60 with12padding. Embedded notifications remove duplicate chrome but retain reachable guarded mark-all action; standalone default unchanged. JMA inset exactly once. Policy ScrollMetricsNotification and fortune restoration retained. New color fixture local only and restores AppColors. When production roles read AppColors exclusively, leave Environment unchanged; if replacing configuration, restore supplied prior initialized configuration. Root alone runs serialized Flutter/Dart with /tmp/picnic-followup-flutter.py, no tests updating all goldens blindly. Disjoint file ownership permitted by explicit user orchestration policy.</pre>
+<h2>Shared API</h2>
+<pre>picnic_lib/lib/ui/presentation_tokens.dart: PicnicUi static getters actionColor, onActionColor, primaryForeground, secondaryForeground, surface=grey00, border=grey200, ink=grey800(#252528), secondaryText=grey600(#5D5F66), quietText=#686970 roles; dark foreground candidate=grey900 black; static text({double size=14, FontWeight weight=FontWeight.w400, Color? color}) explicit Pretendard/rawsize/tracking0/height1.45; horizontal and vertical spacing helpers using .w/.h; minimumTapTarget=48 raw; surfaceDecoration({double radius=16,Color? color}) no fixed measurements. Derive action shade from configured primary and choose accessible foreground for any background; public foregroundFor(Color).
+presentation/widgets/ui/picnic_action_button.dart: enum PicnicActionVariant {primary, secondary}; PicnicActionButton(required String label, required VoidCallback? onPressed, variant=primary, bool isLoading=false, Widget? icon), natural height with min48, text wraps, disabled/busy cannot fire, existing pulse fits, accessible semantic label, no screen margin or navigation.
+picnic_feedback.dart: PicnicFeedback(required String message, IconData? icon, String? actionLabel, VoidCallback? onAction, bool inline=false, bool isLoading=false); actionLabel/onAction paired, localized content supplied by caller; full/inline layout adapts at320/200%, no fixed screen height, no logging/network/timers. Pure presentation.
+picnic_filter_chip.dart: PicnicFilterChip(required String label, required bool selected, required VoidCallback? onSelected), min48 hit target with naturally growing label, selected semantics, black/appropriate foreground on configured primary; no outer margin/scroll owner.
+picnic_status_badge.dart: PicnicStatusBadge(required String label, required Color backgroundColor, Color? foregroundColor, EdgeInsetsGeometry? padding), noninteractive text, accessible foreground and intrinsic height.
+picnic_surface.dart: PicnicSurface(required Widget child, EdgeInsetsGeometry? padding, double radius=16, Color? color); pure opaque decoration only, keep specialized caller radius.
+picnic_section_header.dart: PicnicSectionHeader(required String title, String? actionLabel, VoidCallback? onAction); flexible title and48action, no screen margins. Do not create an expansion abstraction until repeated real FAQ/QnA consumer proves it is useful. Consumers may use PicnicSurface and tokens while retaining own expansion behavior.</pre>
+<section id="task-0"><h2>Task 0: Common presentation foundation</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/ui/presentation_tokens.dart; lib/presentation/widgets/ui/picnic_{action_button,feedback,filter_chip,status_badge,surface,section_header}.dart; test/helpers/picnic_ui_test_environment.dart; test/presentation/widgets/ui/picnic_ui_components_test.dart</pre>
+<p>Write meaningful small-width/200% text, semantics, busy/no-double-action, contrast actual production+alternate palette tests first. Root verifies failure then implementation. Verify fixture isolation; no screen migrations until API/test review is complete.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/widgets/ui/picnic_ui_components_test.dart</pre>
+</section>
+<section id="task-1A"><h2>Task 1A: Support and MyPage</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/pages/my_page/{my_page,notice_page,notice_detail_page,faq_page}.dart; lib/presentation/pages/notifications/notifications_page.dart; lib/presentation/screens/mypage_screen.dart</pre>
+<p>Migrate cohesive support surfaces, typography, separators and feedback. Notice detail error must offer retry separately from genuine absence, preserve mounted. Embed notifications without duplicate header, mark-all stays accessible, correct back owner. Grow back hit target and leading extent atomically. Keep FAQ/notice stale-error indexing. Add targeted navigation/index/failure tests before behavior changes.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/pages/my_page test/presentation/pages/notifications</pre>
+</section>
+<section id="task-1B"><h2>Task 1B: QnA list and submission presentation</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/pages/my_page/qna/{qna_thread_list_page,qna_thread_card,qna_status_chip,qna_submit_button}.dart</pre>
+<p>Use common surfaces/text/status/primary action; maintain localized statuses. FAB/list bottom clearance and long titles, noninteractive status, frame outside shimmer, actual visible skeleton blocks. Preserve fetching/generation/action lifecycle.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/pages/my_page/qna</pre>
+</section>
+<section id="task-2A"><h2>Task 2A: Home presentation</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/pages/vote/home_page.dart; lib/presentation/widgets/vote/{home_featured_vote_card,home_featured_vote_carousel,reward_list_section,latest_media_section}.dart</pre>
+<p>Apply common section headings, action/feedback styles and surface decoration. Keep distinctive hero/podium and frozen image/card measurements, identity/caches. Do not replace original layout with prototype sample list.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/widgets/vote/home_featured_vote_image_test.dart</pre>
+</section>
+<section id="task-2B"><h2>Task 2B: Vote browse presentation</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/pages/vote/vote_list_page.dart; lib/presentation/widgets/vote/list/{vote_list,vote_info_card,vote_info_card_header}.dart; lib/presentation/widgets/vote/vote_card_skeleton.dart</pre>
+<p>Common adaptive filters and feedback within unchanged screen gutter/compact below-filter gap. Keep candidate sizing and footer invariant; active/upcoming/ended cards do not overflow. Live and skeleton frame decoration may share without measurements changing.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/widgets/vote/list test/presentation/widgets/vote/vote_card_skeleton_test.dart</pre>
+</section>
+<section id="task-3"><h2>Task 3: Search and vote details</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/common/enhanced_search_box.dart; lib/presentation/widgets/ui/search_results_list.dart; lib/presentation/pages/vote/{vote_detail_page,vote_detail_achieve_page,vote_detail_skeleton}.dart; lib/presentation/widgets/vote/list/vote_detail_title.dart</pre>
+<p>Unify search surface/input/actions/results/error typography and adaptive title/date detail surfaces. Preserve controller/focus/debounce/IME/query generations/retry and all6 consumers. Preserve polling/tooltips/thumbnail measurements.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/common test/presentation/widgets/ui test/presentation/pages/vote</pre>
+</section>
+<section id="task-4A"><h2>Task 4A: Dialogs and popups</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/widgets/ui/{large_popup,popup_carousel}.dart; lib/presentation/dialogs/simple_dialog.dart; lib/presentation/widgets/vote/voting/{voting_dialog,jma_voting_dialog,voting_dialog_widgets}.dart; lib/presentation/widgets/vote/vote_item_request/vote_item_request_dialog.dart</pre>
+<p>Common presentational dialog body/actions and readable text, keyboard-safe natural sizing. Existing show helpers own dismiss/navigation/account guards; exactly one inset owner JMA. No changed voting/payment behavior. Preserve capsule120 and special wrappers.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/widgets/vote/voting test/presentation/dialogs</pre>
+</section>
+<section id="task-4B"><h2>Task 4B: Store presentation</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/pages/vote/store_page.dart; lib/presentation/widgets/vote/store/purchase/{store_list_tile,purchase_star_candy_state}.dart; lib/presentation/widgets/vote/store/free_charge_station/free_charge_content.dart</pre>
+<p>Common headings, readable price/reward labels, cards/actions/feedback; long locale and200% reachable. Preserve wallet/reward/purchase/receipt/candyboost state and guard logic.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/widgets/vote/store</pre>
+</section>
+<section id="task-5"><h2>Task 5: Shell, community and remaining QnA</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>lib/presentation/common/picnic_list_item.dart; lib/presentation/common/top/top_right_notifications.dart; lib/presentation/pages/community/community_home_page.dart; lib/presentation/widgets/community/common/post_list_item.dart; lib/presentation/pages/my_page/qna/{qna_category_chip,qna_message_input}.dart</pre>
+<p>Cohesive shell/common list rows in all5 consumers, accessible notifications target. Community strip adapts past84-height clipping64avatar+text, improve metadata readability/errors. QnA category badge noninteractive; composer controls&gt;=48 with keyboard/safe area reachability. Smoke-test all touched pages; do not claim unreachable community real-device QA.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter test --no-pub test/presentation/common test/presentation/pages/community test/presentation/widgets/community test/presentation/pages/my_page/qna</pre>
+</section>
+<section id="task-6"><h2>Task 6: Whole-app verification and independent review</h2>
+<p>Ownership (picnic_lib/):</p>
+<pre>Affected library/app tests and affected golden files only; device screenshots in ignored .dart_tool</pre>
+<p>Root serial test/analyze groups, Opus high independent counterexample review with requirements/diff/tests only, fix confirmed issues and scoped rereview. iOS Simulator and Android QA package verify representative real screens and long text without real submits/purchases. Visual compare affected goldens before recording. Commit verified UI branch, no release/tag.</p>
+<pre>cd picnic_lib
+python3 /tmp/picnic-followup-flutter.py flutter analyze --no-pub; flutter test --no-pub (targeted groups from validation map); iOS Simulator and Android imageqa smoke</pre>
+</section>
+<h2>Dependencies and preflight</h2>
+<table><tr><th>Tasks</th><th>Shared boundary</th><th>Resolution</th></tr>
+<tr><td>0</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>1A</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>1B</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>2A</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>2B</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>3</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>4A</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>4B</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>5</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>6</td><td>Own files / tests / acceptance</td><td>Consistent; resolve exact existing test paths through read-only validation map, add focused behavior tests where needed.</td></tr>
+<tr><td>0 / 1A–5</td><td>Dependency or overlap</td><td>All consumers use the same frozen public APIs; foundation reviewed before migration.</td></tr>
+<tr><td>1A / 5</td><td>Dependency or overlap</td><td>MyPage screen owned by1A, stage5 does not rewrite it.</td></tr>
+<tr><td>1B / 5</td><td>Dependency or overlap</td><td>QnA category/composer separate from list/status/submit; existing public caller signatures retained.</td></tr>
+<tr><td>2A / 2B</td><td>Dependency or overlap</td><td>Independent screen files; shared geometry is frozen.</td></tr>
+<tr><td>3 / 4A</td><td>Dependency or overlap</td><td>Search shared controls finalized before popup consumers.</td></tr>
+<tr><td>4A / 4B</td><td>Dependency or overlap</td><td>Separate dialog/store files; no shared business-state ownership.</td></tr>
+</table><p>Ruling: Use HTML plan and JSON internal ledger instead of skill Markdown artifacts to obey user deliverable format. Parallel writes only on disjoint owned files per user orchestration policy; root serializes validation. These workflow choices do not change product behavior.</p>
+</body></html>

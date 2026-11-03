@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PICNIC-2694 투표 팝업 뷰포트 수정 독립 적대적 리뷰</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18202a;
+      --muted: #526071;
+      --line: #cbd5e1;
+      --surface: #f8fafc;
+      --danger-bg: #fff1f2;
+      --danger-line: #e11d48;
+      --warning-bg: #fffbeb;
+      --warning-line: #d97706;
+      --info-bg: #eff6ff;
+      --info-line: #2563eb;
+      --ok-bg: #f0fdf4;
+      --ok-line: #16a34a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      max-width: 1120px;
+      margin: 40px auto;
+      padding: 0 24px 56px;
+      color: var(--ink);
+      font: 15px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      background: #fff;
+    }
+    h1, h2, h3 { line-height: 1.3; }
+    h1 { margin-bottom: 12px; padding-bottom: 14px; border-bottom: 3px solid #334155; }
+    h2 { margin-top: 38px; padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+    h3 { margin: 0 0 12px; }
+    p { margin: 10px 0; }
+    ul, ol { padding-left: 24px; }
+    li + li { margin-top: 7px; }
+    code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    code { padding: 1px 4px; border-radius: 3px; background: #eef2f7; overflow-wrap: anywhere; }
+    pre { padding: 14px 16px; border-radius: 7px; overflow-x: auto; color: #e2e8f0; background: #0f172a; white-space: pre-wrap; }
+    table { width: 100%; margin: 14px 0; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--surface); }
+    .muted { color: var(--muted); }
+    .verdict, .finding, .note {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 7px;
+    }
+    .verdict { border-left: 5px solid var(--danger-line); background: var(--danger-bg); }
+    .finding.high { border: 1px solid #fda4af; background: var(--danger-bg); }
+    .finding.medium { border: 1px solid #fcd34d; background: var(--warning-bg); }
+    .note.info { border-left: 4px solid var(--info-line); background: var(--info-bg); }
+    .note.ok { border-left: 4px solid var(--ok-line); background: var(--ok-bg); }
+    .label { display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+    .label.high { color: #9f1239; background: #ffe4e6; }
+    .label.medium { color: #92400e; background: #fef3c7; }
+    .finding dl { margin: 0; }
+    .finding dt { margin-top: 10px; font-weight: 700; }
+    .finding dd { margin: 3px 0 0; }
+    .nowrap { white-space: nowrap; }
+    footer { margin-top: 42px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+    @media (max-width: 700px) {
+      body { margin: 0; padding: 24px 16px 40px; }
+      h1 { font-size: 25px; }
+      table { font-size: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>PICNIC-2694 투표 팝업 뷰포트 수정 독립 적대적 리뷰</h1>
+    <p class="muted">
+      대상 커밋 <code>464b70e1d</code> · 부모 <code>2e5ccdc20</code> ·
+      리뷰 모델 <strong>GPT-5.6 Sol</strong> · 사고 수준 <strong>ultra</strong>
+    </p>
+    <div class="verdict">
+      <strong>판정: 수정 필요 — 차단 지적 4건.</strong><br>
+      최소한 JMA 280×280 첫 화면 실패와 JMA validation 피드백 회귀를 고치고,
+      활성 버튼의 실측 높이와 누락된 인수 행렬을 보강한 뒤 재검증해야 한다.
+    </div>
+  </header>
+
+  <main>
+    <section>
+      <h2>1. 차단(blocker) 지적</h2>
+
+      <article class="finding high">
+        <h3><span class="label high">높음</span>1. JMA 280×280·텍스트 200%·키보드 없음에서 투표 버튼이 오프셋 0에 전부 보이지 않는다</h3>
+        <dl>
+          <dt>근거 파일·라인</dt>
+          <dd>
+            <code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart:300-303,334-351,366-397</code><br>
+            <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart:151-164</code>
+          </dd>
+          <dt>재현·실패 조건</dt>
+          <dd>
+            <code>W=280, H=280, t=2.0, K=0</code>이면 JMA의 상하 inset 80과 hidden chrome 약 26.9를 뺀
+            body는 최대 약 173.1px이다. 측정 essential은 약 191.4px이고
+            <code>allScroll</code>의 <code>actions+submit</code> 하단도 약 178.9px이므로,
+            초기 스크롤 오프셋 0에서 submit 하단이 약 5.8px 잘린다. 선행 계획의 명시적
+            280×280 인수 조건과 충돌한다.
+          </dd>
+          <dt>최소 수정 방향</dt>
+          <dd>
+            짧은 무키보드 제약에서 JMA의 vertical inset, 불필요한 chrome 또는 간격을 적응형으로 줄여
+            essential을 body 안에 넣는다. <code>280×280×{1.0,1.3,2.0}</code>의 JMA 실제 Rect 포함 테스트를 추가한다.
+          </dd>
+        </dl>
+      </article>
+
+      <article class="finding high">
+        <h3><span class="label high">높음</span>2. JMA 유효성 오류 설명이 입력과 분리된 장식 스크롤 깊숙이 이동해 짧은 화면에서 보이지 않는다</h3>
+        <dl>
+          <dt>근거 파일·라인</dt>
+          <dd>
+            <code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart:429-445,453-468,1172-1220,1397-1418</code>
+          </dd>
+          <dt>재현·실패 조건</dt>
+          <dd>
+            <code>851×393, K=0</code>에서 <code>maxPossibleVotes+1</code>을 입력하면 입력은 빨간 테두리와 비활성 버튼만 보인다.
+            실제 validation 문구는 <code>portrait → 잔액 → 일일 한도</code> 뒤의 별도 decoration scroll에 있고,
+            actions의 <code>_buildErrorMessage</code>는 <code>validationMessage</code>가 있으면 0높이라 설명을 대체하지 않는다.
+            입력의 <code>ensureVisible</code>도 이 별도 스크롤을 움직이지 않는다.
+          </dd>
+          <dt>최소 수정 방향</dt>
+          <dd>
+            validation 문구를 actions band의 입력 바로 아래로 되돌리고 <code>TextFormField</code> semantics와 연결한다.
+            계산/JMA 정책만 decoration에 남긴 뒤 짧은 뷰포트의 invalid-input 가시성 테스트를 추가한다.
+          </dd>
+        </dl>
+      </article>
+
+      <article class="finding medium">
+        <h3><span class="label medium">중간</span>3. JMA essentialHeight가 활성 제출 버튼의 아이콘 폭을 측정하지 않아 pinned 모드를 잘못 고를 수 있다</h3>
+        <dl>
+          <dt>근거 파일·라인</dt>
+          <dd>
+            <code>picnic_lib/lib/presentation/widgets/vote/voting/jma_voting_dialog.dart:544-588,1421-1487</code><br>
+            <code>picnic_lib/lib/presentation/widgets/vote/voting/voting_dialog_layout.dart:167-187</code>
+          </dd>
+          <dt>재현·실패 조건</dt>
+          <dd>
+            측정은 투표 라벨에 버튼 내부 폭 전체를 주지만 활성 상태는 20px 아이콘과 <code>8.w</code> 간격을 먼저 뺀다.
+            좁은 카드, 2배 글자, 긴 번역(예: 태국어)에서 활성 라벨만 한 줄 더 감기고
+            <code>bodyHeight</code>가 측정값과 실제값 사이이면 <code>actionsPinned</code>가 선택된다.
+            그러면 RenderFlex의 비-flex submit이 남은 높이보다 커져 overflow 또는 clip이 발생한다.
+            64개 신규 테스트는 JMA 입력이 모두 공백이라 항상 비활성 버튼만 검사한다.
+          </dd>
+          <dt>최소 수정 방향</dt>
+          <dd>
+            활성 상태의 icon과 gap을 뺀 실제 label 폭으로 최악 높이를 예산에 반영한다.
+            활성/로딩 상태, 긴 로케일, 경계 높이 테스트를 추가한다.
+          </dd>
+        </dl>
+      </article>
+
+      <article class="finding medium">
+        <h3><span class="label medium">중간</span>4. 64개 뷰포트 테스트와 수정된 기존 테스트가 명시 인수 행렬 및 실제 clip을 검증하지 못한다</h3>
+        <dl>
+          <dt>근거 파일·라인</dt>
+          <dd>
+            <code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart:50-63,89-137,170-204,212-382</code><br>
+            <code>picnic_lib/test/presentation/widgets/vote/voting/voting_dialog_presentation_test.dart:493-501</code><br>
+            <code>docs/01-plan/features/picnic-2694-vote-dialog-viewport-plan.html:202-215</code>
+          </dd>
+          <dt>재현·실패 조건</dt>
+          <dd>
+            신규 64건은 10개 크기×3배율의 일반/JMA <code>K=0</code> 초기 공백 상태와 특수 4건뿐이다.
+            280×280, <code>K=280</code>, 실제 <code>showDialog</code>/SafeArea/부분 부모/힌지, PIC 변형,
+            JMA 활성·오류·정책 전환, selection/composing이 빠져 1~3번을 놓친다.
+            포함 검사는 capsule bounding Rect와 중앙 hit test뿐이라 RRect 모서리 clip을 놓친다.
+            수정된 기존 테스트의 fallback은 24px hidden strip까지 포함한 <code>LargePopup</code> 전체 Rect라
+            키보드 경계를 이전보다 느슨하게 본다.
+          </dd>
+          <dt>최소 수정 방향</dt>
+          <dd>
+            계획의 필수 조합을 우선순위대로 파라미터화하고 실제 capsule RRect와 route 부모 Rect를 검사한다.
+            기존 fallback도 capsule card finder로 바꾸고 입력값·선택·조합·포커스 및 JMA 상태 전환을 검증한다.
+          </dd>
+        </dl>
+      </article>
+    </section>
+
+    <section>
+      <h2>2. Non-blocking 관찰</h2>
+      <ul>
+        <li>
+          <code>VoteDialogBands</code>는 현재 유한한 형제에서는 비-flex actions/submit/tail을 먼저 측정하고
+          남은 높이를 <code>Flexible.loose</code> decoration에 주므로 의도대로 동작한다.
+          <code>allScroll</code>도 <code>actions → submit → decoration</code> 순서라 조작부는 상단 우선이지만,
+          actions 내부 첫 항목은 입력이 아니라 전체 사용이다. 비-flex 형제가 무한 높이를 요구하면
+          Flex의 unbounded main-axis layout 단계에서 예외가 나며 공통 위젯 자체의 방어는 없다.
+          현재 구체 형제는 유한하다.
+        </li>
+        <li>
+          <code>resolveVoteDialogPortraitSide</code>의 결과는 Flexible이 이미 배정한 <code>maxHeight</code> 안에서
+          decoration 자식 크기만 바꾸므로 현재 구조에서는 Flex 배정으로 되먹임되지 않는다는 주장은 맞다.
+        </li>
+        <li>
+          <code>TextEditingController</code>와 <code>FocusNode</code>는 State에 남아 있고,
+          vote/pic의 <code>K 0→300→0</code> 테스트가 값 <code>123</code>과 focus 보존을 확인해 통과했다.
+          selection/IME composing 및 JMA 전환은 4번의 테스트 공백이다.
+        </li>
+        <li>
+          <code>LargePopupWidget.cardBorderRadius</code>는 nullable 선택 인자이고 미지정 시 기존 <code>120.r</code>
+          기본값을 유지한다. voting_complete/PIC 등 비투표 호출부 변경은 없고 공유 팝업 관련 38개 테스트도 통과했다.
+        </li>
+        <li>
+          투표 수량, 전체 사용, JMA 30:1 환산·일일 한도·보너스·검증/네트워크 처리 로직은 diff에서 바뀌지 않았다.
+          일반 보너스 버블과 JMA 계산·정책 패널의 위치는 바뀌었으며, validation 이동의 실제 회귀는 2번에 분리했다.
+        </li>
+        <li>
+          변경 범위는 문서 2개, 프로덕션 Dart 5개, Dart 테스트 2개뿐이다.
+          native/plugin/asset/pubspec 변경이 없어 Shorebird OTA의 소스 변경 범위에는 들어간다.
+          실제 패치 배포 성공을 검증한 것은 아니다.
+        </li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. 검증 재현 결과</h2>
+      <table>
+        <thead>
+          <tr><th>검증</th><th>실제 결과</th><th>판정</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>cd picnic_lib &amp;&amp; flutter analyze</code></td>
+            <td><strong>exit 1, 522 issues found</strong> (11.0s)</td>
+            <td>
+              구현 결과 문서의 현재 총계 522와 일치한다. 변경 Dart/테스트 7경로만 분석하면
+              <code>jma_voting_dialog.dart:1740</code>의 기존
+              <code>use_build_context_synchronously</code> 1건뿐이었고,
+              parent/blame로 선행 코드임을 확인했다. 따라서 “신규 analyzer 이슈 0” 주장은 코드상 일치한다.
+              다만 전체 analyze가 clean하다는 뜻은 아니다.
+            </td>
+          </tr>
+          <tr>
+            <td><code>flutter test test/presentation/widgets/vote/voting</code></td>
+            <td><strong>454 passed</strong>, 실패 0</td>
+            <td>구현 결과 문서의 454건 주장과 일치한다.</td>
+          </tr>
+          <tr>
+            <td><code>flutter test --reporter compact test/presentation/widgets/vote/voting/voting_dialog_viewport_test.dart</code></td>
+            <td><strong>64 passed</strong>, 실패 0</td>
+            <td>전용 뷰포트 테스트 수와 일치한다. 다만 1~4번의 공백 때문에 통과 자체가 요구사항 충족을 증명하지 않는다.</td>
+          </tr>
+          <tr>
+            <td>공유 LargePopup/정책/탭 회귀 묶음</td>
+            <td><strong>38 passed</strong>, 실패 0</td>
+            <td>선택 인자 기본값과 관련 호출부의 관찰된 회귀는 없었다.</td>
+          </tr>
+          <tr>
+            <td><code>git diff --check 2e5ccdc20..464b70e1d</code> 및 상태 확인</td>
+            <td><strong>통과</strong>, 검증 당시 작업트리 clean, HEAD <code>464b70e1d</code></td>
+            <td>공백 오류나 검증 중 저장소 변경은 없었다.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="note info">
+        <strong>부모 기준선 522건: 미검증.</strong>
+        부모 <code>2e5ccdc20</code>의 clean worktree에는 <code>.dart_tool</code>이 없었고,
+        읽기 전용 제약상 의존성 산출물을 생성하지 않았다. 따라서 부모에서 동일한
+        <code>flutter analyze</code>를 실행해 “기준선도 522건”이라는 숫자를 독립 재현하지 못했다.
+      </div>
+
+      <div class="note info">
+        <strong>161731 issues 실행은 무효이며 리뷰 근거에서 제외했다.</strong>
+        부모를 소스 수정 없이 분석하려고 현재 worktree의 package config를
+        <code>picnic-2684-cron-ad_campaign_monthly_rollup_curr</code> worktree에 연결한 시도가 있었다.
+        package URI가 올바르게 재매핑되지 않아 대량의 <code>uri_does_not_exist</code>와 서로 다른 worktree 타입 충돌이 발생했고
+        <strong>161731 issues</strong>가 출력됐다. 이는 분석 대상 설정 실수로 생긴 수치이며 부모 기준선이나 이 리뷰의 결론 근거가 아니다.
+        올바른 결론 수치는 대상 HEAD의 <strong>522 issues</strong>, 투표 디렉터리 <strong>454 passed</strong>,
+        전용 뷰포트 <strong>64 passed</strong>, 공유 회귀 <strong>38 passed</strong>다.
+      </div>
+    </section>
+
+    <section>
+      <h2>4. 전체 판정과 재검증 조건</h2>
+      <div class="verdict">
+        <strong>전체 판정: 수정 필요.</strong>
+      </div>
+      <p>다음 조건을 모두 충족한 뒤에야 머지 가능 여부를 다시 판단할 수 있다.</p>
+      <ol>
+        <li>
+          JMA <code>280×280, t=2.0, K=0</code>에서 전체 사용, 금액 입력, 투표 버튼의 전체 Rect가
+          초기 스크롤 오프셋 0에서 capsule 안에 들어오도록 높이 예산 또는 inset/chrome/간격을 수정한다.
+        </li>
+        <li>
+          JMA validation 문구를 입력과 같은 actions band에 두고, 짧은 뷰포트에서도 즉시 보이며
+          입력 semantics와 연결되는지 검증한다.
+        </li>
+        <li>
+          활성 투표 버튼의 20px 아이콘과 <code>8.w</code> gap을 반영해 실제 라벨 폭과 높이를 측정하고,
+          활성·로딩·긴 로케일·2배 글자·경계 bodyHeight에서 RenderFlex overflow가 없는지 검증한다.
+        </li>
+        <li>
+          280×280, 키보드 인셋, 실제 showDialog/SafeArea, 부분 부모/힌지, PIC 및 파트너 변형,
+          JMA 상태 전환, selection/IME composing, RRect clip을 포함하도록 누락 행렬을 보강한다.
+          수정된 기존 keyboard boundary 테스트도 실제 capsule card를 기준으로 되돌린다.
+        </li>
+        <li>
+          수정 후 <code>flutter analyze</code>에서 신규 이슈가 0인지 확인하고,
+          투표 디렉터리 전체 454건에 해당하는 스위트와 전용/공유 회귀 스위트를 다시 실행해 실패 0을 확인한다.
+          부모 기준선 522건을 주장하려면 부모 commit에서 동일 명령을 별도로 재현한다.
+        </li>
+      </ol>
+    </section>
+  </main>
+
+  <footer>
+    이 문서는 커밋 <code>464b70e1d</code>에 대해 앞서 수행한 읽기 전용 적대적 리뷰의 결과를 그대로 문서화한 것이다.
+    실기기, Shorebird 실제 patch 배포, 부모 commit의 전체 analyzer 기준선은 검증 범위 밖이거나 미검증으로 명시했다.
+  </footer>
+</body>
+</html>

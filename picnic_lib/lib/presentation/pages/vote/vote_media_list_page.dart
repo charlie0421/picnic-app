@@ -32,8 +32,9 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage>
     super.initState();
     _pagingController = PagingController<int, VideoInfo>(
       getNextPageKey: (state) {
-        if (state.items == null) return 1;
-        final isLastPage = state.items!.length < _pageSize;
+        final pages = state.pages;
+        if (pages == null || pages.isEmpty) return 1;
+        final isLastPage = pages.last.length < _pageSize;
         if (isLastPage) return null;
         return (state.keys?.last ?? 0) + 1;
       },
@@ -123,46 +124,46 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage>
         controller: _pagingController,
         builder: (context, state, fetchNextPage) =>
             PagedListView<int, VideoInfo>(
-          state: _pagingController.value,
-          fetchNextPage: _pagingController.fetchNextPage,
-          builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
-            itemBuilder: (context, item, index) => VideoListItem(
-              videoId: item.videoId,
-              title: item.title,
-              thumbnailUrl: item.thumbnailUrl,
-              channelTitle: item.channelTitle,
-              channelId: item.channelId,
-              channelThumbnail: item.channelThumbnail,
-              onTap: () {},
-            ),
-            firstPageProgressIndicatorBuilder: (context) => SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: const [
-                    VideoListItemSkeleton(),
-                    VideoListItemSkeleton(),
-                    VideoListItemSkeleton(),
-                  ],
+              state: _pagingController.value,
+              fetchNextPage: _pagingController.fetchNextPage,
+              builderDelegate: PagedChildBuilderDelegate<VideoInfo>(
+                itemBuilder: (context, item, index) => VideoListItem(
+                  videoId: item.videoId,
+                  title: item.title,
+                  thumbnailUrl: item.thumbnailUrl,
+                  channelTitle: item.channelTitle,
+                  channelId: item.channelId,
+                  channelThumbnail: item.channelThumbnail,
+                  onTap: () {},
                 ),
+                firstPageProgressIndicatorBuilder: (context) => SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.8,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: const [
+                        VideoListItemSkeleton(),
+                        VideoListItemSkeleton(),
+                        VideoListItemSkeleton(),
+                      ],
+                    ),
+                  ),
+                ),
+                newPageProgressIndicatorBuilder: (context) =>
+                    const Center(child: MediumPulseLoadingIndicator()),
+                firstPageErrorIndicatorBuilder: (context) {
+                  return buildErrorView(
+                    context,
+                    error: _pagingController.error.toString(),
+                    retryFunction: () => _pagingController.refresh(),
+                    stackTrace: _pagingController.error is Error
+                        ? (_pagingController.error as Error).stackTrace
+                        : StackTrace.current,
+                  );
+                },
+                noItemsFoundIndicatorBuilder: (context) =>
+                    const NoItemContainer(),
               ),
             ),
-            newPageProgressIndicatorBuilder: (context) => const Center(
-              child: MediumPulseLoadingIndicator(),
-            ),
-            firstPageErrorIndicatorBuilder: (context) {
-              return buildErrorView(
-                context,
-                error: _pagingController.error.toString(),
-                retryFunction: () => _pagingController.refresh(),
-                stackTrace: _pagingController.error is Error
-                    ? (_pagingController.error as Error).stackTrace
-                    : StackTrace.current,
-              );
-            },
-            noItemsFoundIndicatorBuilder: (context) => const NoItemContainer(),
-          ),
-        ),
       ),
     );
   }
@@ -170,7 +171,9 @@ class _VoteMediaListPageState extends ConsumerState<VoteMediaListPage>
   void _updateNavigation() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      ref.read(navigationInfoProvider.notifier).settingNavigation(
+      ref
+          .read(navigationInfoProvider.notifier)
+          .settingNavigation(
             showPortal: true,
             showTopMenu: false, // 상단 제목 스트립 제거 (홈/투표와 일관)
             showMyPoint: false,

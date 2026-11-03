@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:picnic_lib/ui/style.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 
 class CustomDropdownMenuItem {
   final String value;
@@ -34,7 +35,9 @@ class CustomDropdown extends StatelessWidget {
 
     return IntrinsicWidth(
       child: Container(
-        height: 32,
+        constraints: const BoxConstraints(
+          minHeight: PicnicUi.minimumTapTarget + 2,
+        ),
         alignment: Alignment.centerRight,
         padding: EdgeInsets.symmetric(horizontal: 16.w),
         decoration: BoxDecoration(
@@ -60,17 +63,27 @@ class CustomDropdown extends StatelessWidget {
           decoration: const InputDecoration(
             border: InputBorder.none,
             contentPadding: EdgeInsets.zero,
-            isDense: true,
+            isDense: false,
           ),
-          isDense: true,
+          isDense: false,
+          isExpanded: true,
+          itemHeight: null,
           dropdownColor: AppColors.grey00,
           borderRadius: BorderRadius.circular(8),
           items: items.map((item) {
             final bool isSelected = value == item.value;
             final bool isPlaceholder = item.value.isEmpty;
             final TextStyle style = (!isPlaceholder && isSelected)
-                ? getTextStyle(AppTypo.caption12B, AppColors.grey800)
-                : getTextStyle(AppTypo.caption12M, AppColors.grey600);
+                ? PicnicUi.text(
+                    size: 14,
+                    weight: FontWeight.w600,
+                    color: AppColors.grey800,
+                  )
+                : PicnicUi.text(
+                    size: 14,
+                    weight: FontWeight.w500,
+                    color: AppColors.grey600,
+                  );
             return DropdownMenuItem(
               alignment: Alignment.center,
               value: item.value,

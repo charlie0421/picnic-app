@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>PICNIC-2682 핸드오프 — Tapjoy snuid 22P02</title>
+<style>
+  body { font-family: -apple-system, "Pretendard", "Apple SD Gothic Neo", sans-serif;
+         max-width: 980px; margin: 0 auto; padding: 40px 24px; line-height: 1.75; color: #1a1a1a; }
+  h1 { font-size: 1.9em; border-bottom: 3px solid #333; padding-bottom: 12px; }
+  h2 { font-size: 1.35em; margin-top: 2.2em; border-bottom: 1px solid #ddd; padding-bottom: 6px; }
+  h3 { font-size: 1.1em; margin-top: 1.6em; color: #333; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; font-size: 0.93em; }
+  th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; }
+  th { background: #f4f4f6; font-weight: 600; }
+  td.num, th.num { text-align: right; }
+  code { background: #f2f2f4; padding: 2px 5px; border-radius: 3px;
+         font-family: "SF Mono", Menlo, monospace; font-size: 0.88em; }
+  pre { background: #f7f7f9; border: 1px solid #e0e0e0; border-radius: 5px;
+        padding: 12px 14px; overflow-x: auto; font-size: 0.85em; }
+  pre code { background: none; padding: 0; }
+  blockquote { border-left: 4px solid #bbb; margin: 1em 0; padding: 4px 16px;
+               color: #444; background: #fafafa; }
+  .warn { background: #fff6e5; border-left: 4px solid #e0a020; padding: 12px 16px; margin: 1.2em 0; }
+  .ok { background: #eef7ee; border-left: 4px solid #4a9a4a; padding: 12px 16px; margin: 1.2em 0; }
+  .bad { background: #fdeeee; border-left: 4px solid #cc4444; padding: 12px 16px; margin: 1.2em 0; }
+  .meta { color: #666; font-size: 0.9em; }
+  ul, ol { padding-left: 1.4em; }
+  li { margin: 0.35em 0; }
+</style>
+</head>
+<body>
+
+<h1>PICNIC-2682 핸드오프</h1>
+<p class="meta">
+  작성 2026-09-17 · 대상 <code>user_profiles.id</code> 조회 22P02 (Tapjoy 콜백 snuid)<br>
+  앱 수정 머지 완료 · 서버 수정 미착수 · 배포 모니터링 진행 중
+</p>
+
+<h2>1. 한 줄 요약</h2>
+<p>
+Tapjoy 가 <strong>user ID 가 설정되기 전에 생성된 오퍼</strong>의 콜백에 기기 ID 를 <code>snuid</code> 로 실어 보냈고,
+서버가 그 값을 검증 없이 <code>uuid</code> 컬럼 조회에 넣어 22P02 로 터졌다.
+앱 측 원인은 고쳐 배포했고, <strong>서버 측 방어와 재시도 증폭 문제는 그대로 남아 있다</strong>.
+</p>
+
+<h2>2. 확정된 원인</h2>
+
+<h3>2-1. 공식 문서에 적힌 동작이다</h3>
+<p>Tapjoy 자체관리 가상화폐(Self-Managed Currency) 문서:</p>
+<blockquote>
+"If there's not a user ID associated with the device, Tapjoy will send a device ID as snuid in the callback URL...
+Usually, this will be the Advertising ID for the device. However, depending on the SDK version, device model/version,
+device operating system (OS) version, and Google Play Services, the exact ID might vary.
+<strong>Other possible values include the Android ID, udid, and mac_address.</strong>"
+</blockquote>
+<p>
+권고 사항도 명시돼 있다. <em>"Set the user_id with connect flags during the initial connection, before any content requests."</em>
+</p>
+<p>
+대체값이 보통 광고 ID(UUID 형태라 우리 검증을 통과한다)여서 평소에는 드러나지 않는다.
+광고 ID 를 못 쓰는 기기에서만 Android ID 계열로 떨어져 64자리 hex 가 된다.
+</p>
+
+<h3>2-2. 메커니즘 — setUserID 는 기다리지 않는다</h3>
+<p>
+<code>Tapjoy.setUserID</code> 는 리스너만 등록하고 즉시 반환한다.
+플러그인 <code>tapjoy_offerwall</code> 14.6.0 의 Android 구현이 <code>result.success(null)</code> 을
+리스너 <strong>바깥에서</strong> 호출한다 (<code>TapjoyOfferwallPlugin.kt:157-171</code>).
+iOS 도 <code>setUserIDWithCompletion</code> 의 완료 핸들러 바깥에서 <code>result(nil)</code> 을 호출해 동일하다.
+</p>
+<pre><code>// 플러그인 Android
+Tapjoy.setUserID(userId, object: TJSetUserIDListener{ ... })
+return result.success(null)   // 리스너를 기다리지 않는다</code></pre>
+<p>수정 전 프로덕션 코드는 그 반환 직후 곧바로 오퍼를 요청했다.</p>
+<pre><code>await _setupTapjoyUser();        // 즉시 반환 — 등록 완료가 아니다
+await _requestTapjoyPlacement(); // 등록을 기다리지 않고 오퍼 요청</code></pre>
+<p>
+등록이 늦거나 실패하면 Tapjoy 서버는 "user ID 없는 기기" 로 보고, 그때 만들어진 오퍼의 snuid 가 기기 ID 가 된다.
+</p>
+
+<h2>3. 프로덕션 실측</h2>
+
+<h3>3-1. 전수 집계 (24시간 창, 2026-09-16 기준)</h3>
+<table>
+  <tr><th>snuid 형태</th><th class="num">요청</th><th class="num">고유 snuid</th><th class="num">고유 트랜잭션</th></tr>
+  <tr><td>UUID</td><td class="num">15,111</td><td class="num">33</td><td class="num">167</td></tr>
+  <tr><td>64 hex</td><td class="num">412</td><td class="num"><strong>1</strong></td><td class="num"><strong>3</strong></td></tr>
+</table>
+<p>
+<code>user_profiles.id</code> 22P02 하루 411건은 <strong>전량이 64 hex snuid 하나</strong>에서 나왔다.
+기기 한 대, 트랜잭션 세 건이 미종료 재시도에 걸린 것이며 광범위한 결함이 아니다.
+실제 피해는 그 세 건의 적립 누락으로 13 단위 수준이다.
+</p>
+
+<h3>3-2. 재시도 증폭 — 이쪽이 실제로 더 크다</h3>
+<table>
+  <tr><th>구분</th><th class="num">트랜잭션</th><th class="num">요청</th><th class="num">건당 재시도</th></tr>
+  <tr><td>UUID (정상 사용자)</td><td class="num">167</td><td class="num">15,111</td><td class="num">약 90</td></tr>
+  <tr><td>64 hex (문제 기기)</td><td class="num">3</td><td class="num">412</td><td class="num">약 137</td></tr>
+</table>
+<p>
+Tapjoy 는 <strong>200 과 403 만 종료 상태</strong>로 보고 그 외(400 포함)는 5분마다 최대 4일 재시도한다.
+응답이 5초를 넘어도 실패로 보고 재시도한다.
+우리가 중복 트랜잭션에 400 을 돌려주는 탓에 <strong>정상 사용자의 정상 트랜잭션이 건당 약 90회씩 재전송</strong>되고 있다.
+</p>
+
+<h2>4. 기각된 가설</h2>
+<table>
+  <tr><th>가설</th><th>기각 근거</th></tr>
+  <tr>
+    <td>앱이 Tapjoy user ID 로 기기 ID 를 넣었다</td>
+    <td>git 전 이력에서 항상 <code>supabase.auth.currentUser.id</code> 였다. 기기 지문을 넣은 버전은 없다.</td>
+  </tr>
+  <tr>
+    <td>앱 기기 지문이 샜다</td>
+    <td>문제의 snuid 가 <code>devices</code> 테이블에 없다. 우리 해시는 <code>picnic.android_id:</code> 네임스페이스를 붙여 SHA-256 하므로 Tapjoy 식별자와 <strong>원리상 일치할 수 없다</strong>.</td>
+  </tr>
+  <tr>
+    <td>SDK 를 올리면 해결된다</td>
+    <td>14.6.0 이 pub.dev 최신이고 이미 사용 중이다. 런타임 실측으로도 14.6.0 확인.</td>
+  </tr>
+  <tr>
+    <td><code>getUserID()</code> 로 snuid 를 예측할 수 있다</td>
+    <td>에뮬레이터 실측 결과 connect 전후 모두 <code>null</code>. 우리가 설정한 값만 되돌려주며, Tapjoy 가 콜백에 실을 값과 무관하다.</td>
+  </tr>
+</table>
+<div class="bad">
+<strong>피해자 특정은 구조적으로 불가능하다.</strong> 위 두 번째 항목 때문이다.
+Tapjoy 만 광고 전 claim 을 남기지 않아(PICNIC-2698) 대조할 기록도 없다.
+AdMob 은 <code>custom_data</code>, Pangle 은 <code>extra</code> 에 우리 user_id 를 요청에 직접 싣는다.
+</div>
+
+<h2>5. 수행한 변경</h2>
+
+<h3>5-1. 머지된 것</h3>
+<table>
+  <tr><th>항목</th><th>값</th></tr>
+  <tr><td>PR</td><td>#239</td></tr>
+  <tr><td>머지 커밋</td><td><code>f39b4bd9e</code></td></tr>
+  <tr><td>릴리스 태그</td><td><code>picnic-v1.3.4+130404</code> (<code>8a24928ed</code>)</td></tr>
+  <tr><td>변경 파일</td><td><code>picnic_lib/lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_platform.dart</code></td></tr>
+</table>
+<ul>
+  <li>terminal 이벤트를 확인한 뒤에만 오퍼를 요청한다</li>
+  <li>실패·무응답이면 오퍼월을 열지 않고 기존 광고 실패 경로로 알린다</li>
+  <li>대기 상한 10초 (안전장치 타이머 30초보다 짧게)</li>
+  <li>미종료 시도의 user id 를 static 으로 기억해 <strong>다른 계정만 차단</strong>한다. 같은 계정 재시도는 허용해 세션 내내 오퍼월이 죽는 것을 피한다</li>
+  <li><code>currentUser!</code> 강제 언랩 제거, 성공 로그에서 원시 UUID 제거</li>
+  <li><code>logAdLoadFailure</code> 뒤에 다이얼로그를 하나 더 띄우던 <strong>기존 결함</strong> 수정 (placement 실패 경로 포함)</li>
+</ul>
+
+<h3>5-2. 왜 static 가드인가</h3>
+<p>
+플러그인의 성공·실패 리스너는 Dart 쪽 <strong>static 단일 슬롯</strong>이고
+(<code>TapjoyMethodCallHandler:102-110</code>) 콜백에 요청을 식별할 값이 없다.
+A 가 timeout 된 뒤 B 를 보내면 슬롯이 B 로 바뀌어 <strong>늦게 도착한 A 의 결과가 B 의 결과로 처리된다</strong>.
+그 사이 계정이 바뀌었다면 SDK 는 A 를 들고 있는데 B 로 오퍼월을 열어 적립이 다른 계정에 귀속된다.
+인스턴스 필드로는 화면 재생성을 못 막으므로 static 이어야 한다.
+</p>
+<p>
+값(user id)을 기억하는 이유: 위험한 것은 늦은 이벤트 자체가 아니라 <strong>그 사이의 계정 변경</strong>이다.
+같은 user id 재시도는 늦은 이벤트가 새 시도의 결과로 처리돼도 SDK 가 든 값과 우리가 믿는 값이 같다.
+</p>
+
+<h3>5-3. 범위에서 뺀 것</h3>
+<div class="warn">
+<code>TapjoySession</code> 기반 전면 재작성 브랜치 <code>fix/picnic-2682-tapjoy-snuid</code> (16커밋, 약 3,900줄)는
+<strong>실기기 검증 전이라 강제 업데이트 릴리스에 태우지 않았다.</strong> 브랜치는 보존돼 있다.<br>
+워크트리: <code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476</code><br>
+그 브랜치에는 connect 플래그(<code>TJC_OPTION_USER_ID</code>) 적용, 계정 세대 추적, fail-closed 진입 가드가 들어 있다.
+다시 쓰려면 실기기 검증과 교차 리뷰를 먼저 거쳐야 한다.
+</div>
+
+<h2>6. 검증 결과</h2>
+
+<h3>6-1. 코드 레벨</h3>
+<table>
+  <tr><th>항목</th><th>결과</th></tr>
+  <tr><td>신규 테스트</td><td>6건 통과</td></tr>
+  <tr><td>무료충전소 스위트</td><td>383건 통과</td></tr>
+  <tr><td>변경 파일 <code>flutter analyze</code></td><td>무경고</td></tr>
+  <tr><td>RED 검증</td><td>옛 경합 동작으로 되돌리면 3건 실패, 다이얼로그 중복은 기댓값 1에 실제 2로 검출</td></tr>
+  <tr><td>교차 리뷰</td><td>Codex 2회. 1차 blocker 1건·major 1건, 재검증 major 2건 모두 반영</td></tr>
+</table>
+
+<h3>6-2. 끝단 실측 (수정 포함 빌드)</h3>
+<div class="ok">
+130404 빌드 기기에서 실제 적립이 정상 UUID 로 기록됐다.<br>
+platform=android · HTTP 200 · snuid <code>97911a09-b8d0-40f4-b6c5-7bc8d3e6a480</code> ·
+<code>transaction_tapjoy</code> 1건 · <strong>재시도 없이 요청 1건으로 종료</strong>
+</div>
+
+<h2>7. 모니터링</h2>
+
+<h3>7-1. 지표 정의 — 주의할 함정</h3>
+<div class="warn">
+<strong>요청 대비 200 비율을 지표로 쓰지 마라.</strong>
+같은 트랜잭션이 5~11회 재전송돼 분모가 부풀어 구조적으로 낮게 나온다.
+초기에 15.4% 를 보고 "낮다" 고 오판할 뻔했다.<br>
+올바른 지표는 <strong>고유 트랜잭션 대비 200 건수</strong>이고 정상 범위는 <strong>85~94%</strong> 다.
+</div>
+
+<h3>7-2. 적립 0건 판정 기준</h3>
+<p>
+표본이 작으면 0건도 우연이다. 적립자 기준율 <code>p</code> 에서 <code>n</code> 명 전원 미적립 확률은 <code>(1-p)^n</code> 이다.
+</p>
+<table>
+  <tr><th class="num">사용자 수</th><th class="num">전원 미적립 확률 (p=1.4%)</th></tr>
+  <tr><td class="num">50</td><td class="num">49%</td></tr>
+  <tr><td class="num">100</td><td class="num">24%</td></tr>
+  <tr><td class="num">210</td><td class="num">5%</td></tr>
+</table>
+<p><strong>210명 미만에서 0건인 것은 경고 대상이 아니다.</strong></p>
+
+<h3>7-3. 경고 조건</h3>
+<ul>
+  <li>새 64 hex snuid 발생, 또는 알려진 값 <code>3a1db1ef…</code> 의 재등장</li>
+  <li><code>user_profiles</code> 22P02 재발 (2026-09-16 18시 구간을 끝으로 0)</li>
+  <li>130404 코호트 사용자 210명 이상인데 적립 0건, 또는 적립자 비율이 나머지의 절반 이하</li>
+  <li>트랜잭션당 200 비율 70% 미만</li>
+</ul>
+
+<h3>7-4. 발견한 측정 결함 — 채택률을 신뢰하지 마라</h3>
+<div class="bad">
+<code>devices.app_build_number</code> 는 <strong>로그인 시점에만 갱신된다</strong>.
+<code>registerDevice</code> 는 <code>auth_service.dart:91</code> 한 곳에서만 호출되고,
+앱 실행 시 도는 <code>updateLastSeen</code> 은 <code>last_seen</code> 만 건드린다.<br><br>
+따라서 <strong>앱을 업데이트했지만 세션이 살아 있어 재로그인하지 않은 사용자는 옛 빌드 번호로 남는다.</strong>
+실측에서 최근 6시간 활성 기기 중 130202 로 잡힌 140대의 106대가 등록 기록이 2일 이상 묵어 있었다.<br><br>
+<strong>측정된 채택률은 하한이며, "채택률 90%" 를 종료 기준으로 쓰면 영원히 도달하지 않을 수 있다.</strong>
+시간 기반 기준(예: 강업 후 N일)으로 대체하거나 다른 버전 신호를 찾아야 한다.
+</div>
+
+<h2>8. 종료 기준</h2>
+<p>
+64 hex 는 전체 조사에서 <strong>기기 1대·snuid 1개</strong>만 관측됐다.
+원래 드문 사건이라 <strong>부재만으로는 약한 증거</strong>다. 발생률을 모르니 필요한 관찰 기간도 계산할 수 없다.
+</p>
+<table>
+  <tr><th>단계</th><th>기준</th><th>성격</th></tr>
+  <tr>
+    <td>앱 수정 종료</td>
+    <td>충분한 채택 후 신규 64 hex 0건 · 22P02 0건 · 코호트 적립 정상이 7일 연속</td>
+    <td>"재발 미관측" — 불가능 증명 아님</td>
+  </tr>
+  <tr>
+    <td><strong>진짜 종료</strong></td>
+    <td>서버에 snuid 형태 가드 적용 (UUID 아니면 DB 조회에 넣지 않고 403)</td>
+    <td>앱이 어떻든 22P02 가 <strong>구조적으로 불가능</strong>해진다</td>
+  </tr>
+</table>
+<p>따라서 <strong>티켓은 서버 가드까지 열어두는 것이 맞다.</strong></p>
+
+<h2>9. 남은 작업 (우선순위)</h2>
+<ol>
+  <li>
+    <strong>PICNIC-2703 — Edge Function 배포 드리프트 (Highest, 모든 서버 작업의 선행 조건)</strong><br>
+    73개 중 40개가 git 과 다르고 <strong>양방향</strong>이다. 배포본에만 있는 운영 코드가
+    <code>verify_receipt</code> 479줄, <code>admob-ssv</code> 127줄이다.
+    지금 아무 함수나 배포하면 그게 사라진다. 결제 검증 코드라 사고 규모가 2682 와 비교가 안 된다.
+  </li>
+  <li>
+    <strong>서버 응답 코드 (2703 직후, 효과 최대)</strong><br>
+    중복은 200, 미지 snuid 는 403. 둘 다 Tapjoy 가 종료로 인정하는 코드다.
+    하루 15,111건 재시도가 사라진다. <strong>앱을 어떻게 고쳐도 이건 안 줄어든다.</strong>
+    별도 티켓이 없으니 2682 서버 파트로 이어갈지 새로 만들지 정해야 한다.
+  </li>
+  <li>
+    <strong>snuid 형태 가드</strong> — 위와 같은 배포에 얹는다. 진짜 종료 조건.
+  </li>
+  <li>
+    <strong>PICNIC-2701 — Pincrux 무인증 지급 (Highest, 보류)</strong><br>
+    서명 검증 없이 재화를 지급한다. 악용 흔적 0. Pincrux 측 답변 대기.
+    PICNIC-2702 는 여기로 흡수돼 닫혔다(해결이 아니라 통합).
+  </li>
+  <li>
+    <strong>PICNIC-2698 — Tapjoy claim 구조 (Medium, 보류)</strong><br>
+    원인이 밝혀져 긴급도는 내려갔으나, 다음에 같은 일이 나면 여전히 피해자를 특정할 수 없다.
+  </li>
+  <li>
+    <strong>PICNIC-2696 — 광고 캠페인 삭제 시 롤업 FK 위반 (Low)</strong>
+  </li>
+  <li>
+    <strong><code>build.gradle</code> 정리 (티켓 없음)</strong><br>
+    <code>picnic_app/android/app/build.gradle:257</code> 이 Tapjoy 네이티브를 14.4.0 으로 고정하고 있다.
+    플러그인은 14.6.0 을 요구하고 Gradle 이 높은 쪽을 골라 현재 런타임은 14.6.0 이다.
+    낡은 줄이며 제거 대상.
+  </li>
+</ol>
+
+<h2>10. 별개 관찰</h2>
+<p>
+2026-09-14 부터 전 광고 채널(pangle/admob/자체숏폼)이 동시에 약 65% 감소했다.
+<strong>우리 수정과 무관하다</strong>(머지 9/16, 배포 9/17).
+</p>
+<table>
+  <tr><th>날짜</th><th class="num">총 적립</th><th class="num">사용자</th><th class="num">인당</th></tr>
+  <tr><td>9/12 (토)</td><td class="num">128,885</td><td class="num">1,644</td><td class="num">78.4</td></tr>
+  <tr><td>9/13 (일)</td><td class="num">83,630</td><td class="num">1,180</td><td class="num">70.9</td></tr>
+  <tr><td>9/14 (월)</td><td class="num">30,580</td><td class="num">517</td><td class="num">59.1</td></tr>
+  <tr><td>9/15 (화)</td><td class="num">30,926</td><td class="num">496</td><td class="num">62.4</td></tr>
+  <tr><td>9/16 (수)</td><td class="num">36,972</td><td class="num">603</td><td class="num">61.3</td></tr>
+</table>
+<p>
+<strong>인당 적립은 완만하게만 줄어 광고 기계는 정상이다. 접속자가 빠진 것이다.</strong>
+요일을 맞춰 전주 대비로 봐도 월·화·수 모두 약 -53% 로 일관된다.
+9/12 에 10월 생일 투표 2건, 9/13 에 37주차 핔차트가 종료된 시점과 겹친다.
+</p>
+<p class="meta">운영 판단: 이번 주 접속자가 적은 것으로 정리됨. 추가 조사 보류.</p>
+
+<h2>11. 작업 환경</h2>
+<table>
+  <tr><th>항목</th><th>경로 / 값</th></tr>
+  <tr><td>앱 레포</td><td><code>/Users/charlie.hyun/Repositories/picnic-app</code></td></tr>
+  <tr><td>서버 레포</td><td><code>/Users/charlie.hyun/Repositories/picnic-supabase</code></td></tr>
+  <tr><td>전면 재작성 브랜치 워크트리</td><td><code>/Users/charlie.hyun/orca/workspaces/picnic-app/picnic-2682-user_profiles.id-64-hex-uuid-476</code></td></tr>
+  <tr><td>프로덕션 Supabase</td><td><code>xtijtefcycoeqludlngc</code></td></tr>
+</table>
+<div class="warn">
+이 조사 기간 중 프로덕션에는 <strong>읽기 작업만</strong> 수행했다.
+로그 조회와 SELECT 뿐이며 쓰기·배포·마이그레이션·시크릿 조회는 없다.
+</div>
+
+</body>
+</html>

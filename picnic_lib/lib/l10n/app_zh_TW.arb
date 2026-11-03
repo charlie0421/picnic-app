@@ -1194,7 +1194,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "節省",
+  "save": "保存",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -2444,6 +2444,19 @@
   "candy_boost_promotion_checking": "正在確認促銷活動",
   "candy_boost_purchase_pending": "同一商品的購買正在處理中。",
   "candy_boost_late_purchase_explanation": "認證耗時比預期長，但購買已正常完成。",
+  "candy_boost_total_multiplier": "活動獎勵 +{multiplier}%",
+  "purchase_reward_base": "基本發放",
+  "purchase_reward_base_short": "基本",
+  "purchase_reward_event_short": "活動",
+  "purchase_reward_product_bonus": "基本獎勵",
+  "purchase_reward_event_bonus": "活動獎勵",
+  "purchase_reward_expected_total": "預估合計",
+  "purchase_reward_total_short": "合計",
+  "purchase_current_balance": "目前餘額 {amount}",
+  "purchase_expected_balance": "購買後預計 {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "此為預估數量。最終發放數量以付款完成時的伺服器結果為準。",
+  "candy_reward_receipt_total": "共獲得{amount}",
   "ad_reward_pending": "正在確認獎勵",
   "ad_reward_granted": "已獲得棉花糖",
   "ad_reward_not_granted": "獎勵未發放",
@@ -2458,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "目前持有 {amount}",
+  "candy_reward_receipt_purchase_balance": "購買後持有 {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2543,5 +2557,7 @@
   "expiry_quantity_description": "目前帳戶中預計到期的數量。",
   "expiry_policy_description": "各貨幣的到期標準。",
   "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
-  "expiry_tonight_at_midnight": "今晚午夜"
+  "expiry_tonight_at_midnight": "今晚午夜",
+  "error_ad_device_account_restricted_message": "此帳號在此裝置上的廣告使用權限暫時受到限制。",
+  "profile_photo_change": "更換頭像"
 }

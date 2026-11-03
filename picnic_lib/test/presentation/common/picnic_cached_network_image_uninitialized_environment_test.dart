@@ -25,9 +25,9 @@ void main() {
       ),
     );
 
-    final image = tester.widget<CachedNetworkImage>(
-      find.byType(CachedNetworkImage),
-    );
-    expect(image.imageUrl, imageUrl);
+    final image = tester.widget<Image>(find.byType(Image));
+    final resize = image.image as ResizeImage;
+    final network = resize.imageProvider as CachedNetworkImageProvider;
+    expect(network.url, imageUrl);
   });
 }

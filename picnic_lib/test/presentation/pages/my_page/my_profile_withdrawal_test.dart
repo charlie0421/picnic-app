@@ -10,6 +10,7 @@ import 'package:picnic_lib/presentation/common/navigator_key.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
 import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
+import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
@@ -149,7 +150,7 @@ void main() {
 
   Finder sheetProgressIndicator() => find.descendant(
         of: find.byType(BottomSheet),
-        matching: find.byType(CircularProgressIndicator),
+        matching: find.byType(SmallPulseLoadingIndicator),
       );
 
   /// 안드로이드 시스템 뒤로가기.

@@ -5,6 +5,8 @@ import 'package:picnic_lib/data/repositories/qna_repository.dart';
 import 'package:picnic_lib/presentation/pages/my_page/qna/qna_status_chip.dart';
 import 'package:picnic_lib/presentation/widgets/media/image_thumbnail.dart';
 import 'package:picnic_lib/presentation/widgets/media/video_thumbnail.dart';
+import 'package:picnic_lib/presentation/widgets/ui/picnic_surface.dart';
+import 'package:picnic_lib/ui/presentation_tokens.dart';
 import 'package:picnic_lib/ui/style.dart';
 
 class QnaThreadCard extends StatelessWidget {
@@ -23,54 +25,35 @@ class QnaThreadCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12.0),
-      child: Container(
-        padding: const EdgeInsets.all(16.0),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12.0),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.1),
-              spreadRadius: 1,
-              blurRadius: 5,
-              offset: const Offset(0, 2),
-            ),
-          ],
+      borderRadius: BorderRadius.circular(16),
+      child: PicnicSurface(
+        padding: EdgeInsets.symmetric(
+          horizontal: PicnicUi.horizontal(16),
+          vertical: PicnicUi.vertical(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text(
+              thread.title,
+              style: PicnicUi.text(size: 16, weight: FontWeight.w600),
+            ),
+            SizedBox(height: PicnicUi.vertical(8)),
+            QnaStatusChip(status: thread.status),
+            SizedBox(height: PicnicUi.vertical(8)),
+            _AttachmentPreview(threadId: thread.id, repository: repository),
+            SizedBox(height: PicnicUi.vertical(8)),
             Row(
               children: [
+                Icon(Icons.schedule, size: 16, color: PicnicUi.quietText),
+                SizedBox(width: PicnicUi.horizontal(4)),
                 Expanded(
                   child: Text(
-                    thread.title,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    overflow: TextOverflow.ellipsis,
+                    DateFormat(
+                      'yyyy-MM-dd HH:mm',
+                    ).format(thread.updatedAt.toLocal()),
+                    style: PicnicUi.text(size: 12, color: PicnicUi.quietText),
                   ),
-                ),
-                const SizedBox(width: 8),
-                QnaStatusChip(status: thread.status),
-              ],
-            ),
-            const SizedBox(height: 8),
-            _AttachmentPreview(
-              threadId: thread.id,
-              repository: repository,
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Icon(Icons.schedule, size: 14, color: Colors.grey[600]),
-                const SizedBox(width: 4),
-                Text(
-                  DateFormat('yyyy-MM-dd HH:mm')
-                      .format(thread.updatedAt.toLocal()),
-                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
             ),
@@ -85,10 +68,7 @@ class _AttachmentPreview extends StatelessWidget {
   final int threadId;
   final QnaRepository repository;
 
-  const _AttachmentPreview({
-    required this.threadId,
-    required this.repository,
-  });
+  const _AttachmentPreview({required this.threadId, required this.repository});
 
   @override
   Widget build(BuildContext context) {
@@ -102,10 +82,14 @@ class _AttachmentPreview extends StatelessWidget {
           return const SizedBox.shrink();
         }
         final att = snapshot.data!;
-        final isImage = (att.fileType?.startsWith('image/') ?? false) ||
-            ['jpg', 'jpeg', 'png', 'gif'].any(
-              (ext) => att.fileName.toLowerCase().endsWith('.$ext'),
-            );
+        final isImage =
+            (att.fileType?.startsWith('image/') ?? false) ||
+            [
+              'jpg',
+              'jpeg',
+              'png',
+              'gif',
+            ].any((ext) => att.fileName.toLowerCase().endsWith('.$ext'));
         final isVideo = att.fileType?.startsWith('video/') ?? false;
         final url = repository.getPublicUrl(att.filePath);
 
@@ -122,10 +106,7 @@ class _AttachmentPreview extends StatelessWidget {
                   ? Stack(
                       fit: StackFit.expand,
                       children: [
-                        VideoThumbnailFromUrl(
-                          videoUrl: url,
-                          fit: BoxFit.cover,
-                        ),
+                        VideoThumbnailFromUrl(videoUrl: url, fit: BoxFit.cover),
                         const Align(
                           alignment: Alignment.center,
                           child: Icon(

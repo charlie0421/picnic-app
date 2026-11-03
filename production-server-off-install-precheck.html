@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Candy Boost 서버 프로덕션 OFF 설치 결과</title>
+<style>
+body{font:16px/1.7 system-ui,sans-serif;max-width:1040px;margin:40px auto;padding:0 24px;color:#172033}h1,h2{line-height:1.3}table{border-collapse:collapse;width:100%;margin:16px 0}th,td{border:1px solid #ccd4df;padding:10px;text-align:left;vertical-align:top}code{overflow-wrap:anywhere;background:#f0f3f7;padding:2px 4px}pre{overflow:auto;background:#f0f3f7;padding:16px}.ok{padding:16px;background:#eaf7ef;border-left:4px solid #247840}.hold{padding:16px;background:#fff4d8;border-left:4px solid #a96b00}a{color:#165bb5}li{margin:5px 0}
+</style>
+</head>
+<body>
+<h1>Candy Boost 서버 프로덕션 OFF 설치 결과</h1>
+<p>2026-09-09 01:48 KST 갱신. 아래 시각은 별도 표시가 없으면 KST다.</p>
+<p class="ok">서버 PR #135 main 병합과 승인된 7개 마이그레이션의 프로덕션 OFF 설치 완료. 별도 읽기 전용 연결의 전체 postflight가 통과했다. 기능 활성화·앱 배포 완료를 뜻하지 않는다.</p>
+<h2>1. 확정된 설치 상태</h2>
+<table><thead><tr><th>항목</th><th>결과</th></tr></thead><tbody>
+<tr><td>운영 대상</td><td>PICNIC-PROD / <code>xtijtefcycoeqludlngc</code>, ACTIVE_HEALTHY, PostgreSQL 15.8. 실제 적용 직전 Management API에서 프로젝트 ID·이름·호스트·엔진을 확인.</td></tr>
+<tr><td>병합</td><td><a href="https://github.com/charlie0421/picnic-supabase/pull/135">PR #135</a> squash MERGED, 01:43:55. main <code>12708dda330837703bd23bcb5efef2e2fbd3bd6b</code>. 부모 <code>d5a15e2b7aaddf696062b9db2ab80d91e7c52bab</code>.</td></tr>
+<tr><td>병합 트리</td><td><code>abaa23e6ed31a662714a89efc2e8bf6568b8f315</code> — 사전 계산한 merge-tree와 전체 트리 일치.</td></tr>
+<tr><td>설치</td><td>01:45:47.182 단일 실행 시작 → 01:45:54.505 CLI exit 0. 이 7.3초는 CLI 왕복 시간이며 실제 DB 잠금 시간을 측정한 값은 아니다. 재시도 없음.</td></tr>
+<tr><td>독립 사후 검사</td><td>01:46:32.149 별도 MCP 연결, <code>BEGIN READ ONLY</code> / <code>transaction_read_only=on</code> / 전체 <code>PROMOTION_V2_POSTFLIGHT_OK</code> / ROLLBACK.</td></tr>
+<tr><td>구매 스냅샷</td><td>01:46:33 기준 기존 구매 1,251건 / audience 기록 1,251건 / 적격 audience 0건 / PENDING_TIME·ELIGIBLE 합계 0건.</td></tr>
+<tr><td>보존</td><td>번들 내부에서 기존 전체 플래그·캠페인 스냅샷 동일성 검사 통과. 함수 정의·소유자·권한·마이그레이션 원문 해시는 postflight로 검증. 구매 원장 삭제·복원·보정 INSERT 없음.</td></tr>
+</tbody></table>
+<table><thead><tr><th>플래그</th><th>값</th><th>version</th></tr></thead><tbody>
+<tr><td><code>promotion_v2_rollout_mode</code></td><td>OFF</td><td>1</td></tr>
+<tr><td><code>promotion_schedule_v2_enabled</code></td><td>false</td><td>1</td></tr>
+<tr><td><code>promotion_surfaces_enabled</code></td><td>false</td><td>1 — 기존 값 보존</td></tr>
+<tr><td><code>candy_boost_write_enabled</code></td><td>false</td><td>1 — 기존 값 보존</td></tr>
+</tbody></table>
+<h2>2. 적용한 마이그레이션과 고정 입력</h2>
+<ol>
+<li><code>20260821100000_promotion_schedule_v2_schema</code></li>
+<li><code>20260821103000_promotion_schedule_v2_evaluator_and_math</code></li>
+<li><code>20260821110000_promotion_schedule_v2_read_rpc</code></li>
+<li><code>20260821113000_promotion_schedule_v2_admin_read_rpcs</code></li>
+<li><code>20260821120000_promotion_schedule_v2_admin_write_rpc</code></li>
+<li><code>20260821123000_promotion_schedule_v2_grant_snapshot</code></li>
+<li><code>20260908031648_promotion_v2_rollout_audience</code></li>
+</ol>
+<p>병합된 main에서 설치 입력 11개 파일만 추출하여 기존 고정 builder로 재생성했다. 모든 이력의 이름·원문 1개·SHA256은 별도 postflight에서 일치했다.</p>
+<ul>
+<li>입력 아카이브: <code>/tmp/picnic-v2-main-install.QFNcl3/source</code></li>
+<li>실행한 번들: <code>/tmp/picnic-v2-main-install.QFNcl3/promotion-v2-apply.sql</code> (287,671 bytes)</li>
+<li>apply SHA256: <code>3e576ee9bdad74f49ca0f0aef13e16b8eef2f6441c208cfafc011d387aa0fbdb</code></li>
+<li>manifest SHA256: <code>536baec582011870e13aea820efecc8adebeb8b5680576dc26b3d4b4a6f2f956</code></li>
+<li>preflight SHA256: <code>3e39a326af8666594b192ab0d2d40301697095f6efe8a14ec848477fb33b6ec0</code></li>
+<li>postflight SHA256: <code>0011075ceef24aa528c44b17100e58184824cb6daa4e602d597de92df4790050</code></li>
+</ul>
+<p><code>production_execution_approved=false</code>는 저장소 helper의 고정 계약값으로 그대로 유지했다. 이번 운영 실행 권한은 대화의 사용자 승인에서 왔으며, 파일 값을 바꿔 승인한 것으로 처리하지 않았다.</p>
+<h2>3. 사전 점검·검토·동결</h2>
+<ul>
+<li>01:36:59 서버용량확인 세션이 운영 DDL·Edge·플래그·서버 main 변경 동결 재확인. 01:47:09 설치·postflight 결과와 동결 해제를 통지.</li>
+<li>01:39:34 전체 고정 preflight 원문을 BEGIN / 검사 / SELECT / ROLLBACK으로 실행해 통과. 검사 SQL 자체는 스키마·데이터를 변경하지 않는다.</li>
+<li>01:45:47 적용과 인접한 같은 CLI 경로에서 역할 postgres, 실제/기본 격리 수준 모두 READ COMMITTED, 기존 플래그 두 개 false/version1, 대기 건 0, 스냅샷 1,251 재확인. 당시 main SHA와 대상 프로젝트도 재확인.</li>
+<li>CLI 2.90.0, 명시적 <code>--profile supabase --workdir /tmp/picnic-v2-off-install.hRPILF/transport db query --linked --file</code>. 자식 환경은 PATH·HOME·TMPDIR·LANG·LC_ALL·SUPABASE_ACCESS_TOKEN만 허용. 토큰 값은 출력하지 않았다. 고정 SQL의 BEGIN/lock timeout 5초/statement timeout 10분/preflight/7개 migration/postflight/COMMIT을 변경하지 않았다.</li>
+<li>01:41:09 백업 조회: 완료 레코드 8개, 최신 inserted_at 2026-09-08 13:40:44.302, PITR 비활성. 실제 복원 시험이나 정확한 복구 가능 시점 검증은 하지 않았다.</li>
+<li>Orca Run <code>run_623178fd0988</code>, Opus/max 재검토 <code>task_1e635939d395</code> / <code>ctx_289f422b6154</code>: 기존 두 blocker 해소·철회, OFF 설치 기술적 차단 없음. 완료 후 worker-release 결과 external_terminal 보존.</li>
+<li>독립 Codex 증거 조사도 FK 잠금 근거를 확인했다. 실제 증거 <code>/tmp/picnic-admin-rollout.ZMVuZ7/fk-backfill-lock-AsP3lC/results.json</code>: FK 생성 후 ShareRowExclusiveLock 관측, 경쟁 RowExclusive NOWAIT 거부. 이 보조 조사는 내장 에이전트로 수행했으며 Orca dispatch 결과로 표시하지 않는다.</li>
+<li>잠금 판단은 확인한 READ COMMITTED에 한정한다. REPEATABLE READ 이상에서는 잠금 이전에 고정된 스냅샷이라는 별도 조건이 있으므로 모든 격리 수준에 일반화하지 않는다. <a href="https://www.postgresql.org/docs/15/explicit-locking.html">PostgreSQL 15 잠금 문서</a>, <a href="https://www.postgresql.org/docs/15/applevel-consistency.html">격리 수준 관련 주의</a>.</li>
+</ul>
+<h2>4. 검증 결과와 제한</h2>
+<ul>
+<li>새 실행: 격리 safety 276 PASS / 31 DB SKIP / 0 FAIL — <code>/tmp/picnic-admin-rollout.ZMVuZ7/safety-isolated-offline-dce3ln</code>.</li>
+<li>새 실행: 외부 네트워크 없는 HTTP mock 16 PASS — <code>/tmp/picnic-admin-rollout.ZMVuZ7/http-mock-isolated-mYqt1c</code>. 합계 292 PASS / 31 SKIP / 0 FAIL.</li>
+<li>실제 결제·환불 회귀 시험이나 관리자/일반 사용자 실기기 QA는 이번 운영 설치에서 실행하지 않았다. 기존 SQL 리허설·교차 리뷰 근거는 <a href="production-backend-pr135-results.html">이전 서버 PR 결과</a> 및 서버 워크트리의 리뷰 HTML에 보존.</li>
+<li>사용자 JWT 없는 authenticated 역할에서 audience helper=false 확인. 동일 조건 V1 캠페인 RPC는 <code>WALLET_UNAUTHENTICATED</code>로 거부됐다. 이를 로그인 사용자 성공 시험으로 간주하지 않는다.</li>
+<li>신규 테이블 4개 모두 anon/authenticated/service_role의 직접 SELECT 권한 없음. grants/audiences는 RLS 활성, schedule versions/weekdays는 검토된 ACL 기반 경계 유지. 스케줄 테이블 RLS를 임의 추가하여 고정 postflight 계약을 변경하지 않았다.</li>
+<li>초기 읽기 조회에서 컬럼명을 잘못 사용한 42703 오류가 있었으며, 소스의 value_json 확인 후 읽기 전용 재조회했다. 이전 CLI 메타데이터 프로브의 42601은 SQL 문자열을 표준입력으로 전달하여 해결했다. 설치 번들은 단 한 번만 전송했다.</li>
+<li>CLI는 연결 시 Initialising login role을 출력했다. 이 연결 초기화의 임시 역할 수명은 별도 검증하지 않았으며, 접속 과정까지 일체 무변경이었다고 주장하지 않는다.</li>
+</ul>
+<h2>5. 보안 Advisor 전후 비교</h2>
+<p class="hold">기존 Auth 사용자 노출 경고 1건(public.cs_4_11_classification)은 설치 전·후 동일하게 존재한다. 이번 설치에서 만들거나 수정한 뷰가 아니며, 별도 보안 검토·조치가 필요하다. <a href="https://supabase.com/docs/guides/database/database-linter?lint=0002_auth_users_exposed">Supabase 공식 조치 안내</a>.</p>
+<p>새 ERROR 증가는 없었다. RLS 활성·정책 없음 INFO는 20→22(grants/audiences, 직접 접근 차단), authenticated SECURITY DEFINER 호출 가능 WARN는 91→95(신규 RPC 4개)로 증가했다. 이 네 RPC의 정의·소유자·빈 search_path·정확한 실행 권한은 postflight가 고정값으로 검증했다. 기존 나머지 보안 경고를 해결하거나 보안 점검 전체가 깨끗하다고 주장하지 않는다. <a href="https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy">RLS 정책 안내</a>, <a href="https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable">SECURITY DEFINER 호출 권한 안내</a>.</p>
+<h2>6. 소유권과 다음 단계</h2>
+<p>사용자 지시에 따라 앱 버전 적용·태그·TestFlight 빌드는 배포용 워크트리가 담당한다. 이 세션은 앱 파일·커밋·태그·빌드를 변경하지 않았다. 앱 #204 main 병합은 이전에 다른 세션이 완료했으며, 이후 배포용 워크트리의 최신 버전/빌드 상태는 여기서 단정하지 않는다.</p>
+<ol>
+<li>배포용 워크트리에서 새 앱의 TestFlight/내부베타 설치 가능 상태를 확인.</li>
+<li>서버 ADMIN_ONLY 활성화 전 운영 전제와 비상 OFF 경로를 확인하고 별도 승인. 대상은 is_admin 또는 is_super_admin 사용자이며 일반 사용자는 제외.</li>
+<li>승인된 관리자 활성화 후 관리자/슈퍼관리자/일반 사용자 분리와 결제·광고·지갑 실기기 QA 및 모니터링.</li>
+</ol>
+<p>ADMIN_ONLY/ALL 활성화, Edge 배포, 실제 구매, 앱 배포, 원장 복구·삭제는 이번 실행에 포함하지 않았다. 기존 워크트리와 보고서는 보존한다. Supabase의 대상·권한·사후 확인 절차와 Superpowers의 검증·리뷰 절차가 이번 실행 순서와 완료 판정에 반영됐다.</p>
+</body>
+</html>

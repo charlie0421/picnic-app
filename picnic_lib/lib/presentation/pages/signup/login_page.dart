@@ -326,9 +326,13 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
           ),
         ),
       ),
-      child: SizedBox(
-        width: double.infinity,
-        height: 48,
+      // A 48 minimum, not a fixed 48 (PICNIC-2746): at 2.6x the 18px label
+      // alone is 56px tall, so a fixed height clipped it in every language.
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: double.infinity,
+          minHeight: 48,
+        ),
         child: ElevatedButton(
           onPressed: () {
             showModalBottomSheet(
@@ -798,7 +802,6 @@ class _LoginScreenState extends ConsumerState<LoginPage> {
       },
     );
   }
-
 }
 
 class LastProvider extends StatelessWidget {

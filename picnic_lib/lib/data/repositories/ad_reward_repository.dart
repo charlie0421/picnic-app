@@ -1,4 +1,5 @@
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 abstract interface class AdRewardApi {
@@ -19,7 +20,22 @@ abstract interface class AdRewardApi {
 }
 
 class AdRewardRepository implements AdRewardApi {
-  const AdRewardRepository(this.client);
+  const AdRewardRepository(
+    this.client, {
+    this.deviceIdProvider = DeviceManager.getDeviceId,
+  });
+  final Future<String> Function() deviceIdProvider;
+
+  Future<Map<String, String>> _deviceHeaders() async {
+    try {
+      final id = await deviceIdProvider();
+      return id.isEmpty ? {} : {'X-Device-Id': id};
+    } catch (_) {
+      // 기기 ID를 읽을 수 없으면 서버의 누락 처리 정책을 따른다.
+      return {};
+    }
+  }
+
   final SupabaseClient client;
   @override
   Future<PangleClaimModel> createPangleClaim({
@@ -29,6 +45,7 @@ class AdRewardRepository implements AdRewardApi {
   }) async {
     final response = await client.functions.invoke(
       'ad-reward-claim',
+      headers: await _deviceHeaders(),
       body: {
         'platform': platform,
         'placement_id': placementId,
@@ -49,6 +66,7 @@ class AdRewardRepository implements AdRewardApi {
   }) async {
     final response = await client.functions.invoke(
       'ad-reward-claim',
+      headers: await _deviceHeaders(),
       body: {
         'channel': 'ADMOB',
         'platform': platform,

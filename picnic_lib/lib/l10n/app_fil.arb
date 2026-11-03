@@ -1193,7 +1193,7 @@
   "@reward": {
     "description": "Auto-generated metadata for key 'reward'."
   },
-  "save": "I -save",
+  "save": "I-save",
   "@save": {
     "description": "Auto-generated metadata for key 'save'."
   },
@@ -2444,6 +2444,19 @@
   "candy_boost_promotion_checking": "Sinusuri ang promosyon",
   "candy_boost_purchase_pending": "May pinoprosesong pagbili na para sa produktong ito.",
   "candy_boost_late_purchase_explanation": "Mas natagalan ang authentication kaysa inaasahan, pero matagumpay na nakumpleto ang pagbili.",
+  "candy_boost_total_multiplier": "Event bonus +{multiplier}%",
+  "purchase_reward_base": "Batayang reward",
+  "purchase_reward_base_short": "Batayan",
+  "purchase_reward_event_short": "Event",
+  "purchase_reward_product_bonus": "Batayang bonus",
+  "purchase_reward_event_bonus": "Bonus ng event",
+  "purchase_reward_expected_total": "Tinatayang kabuuan",
+  "purchase_reward_total_short": "Kabuuan",
+  "purchase_current_balance": "Kasalukuyang balanse {amount}",
+  "purchase_expected_balance": "Inaasahan pagkatapos bumili {amount}",
+  "purchase_reward_plus_amount": "+{amount}",
+  "purchase_reward_estimate_note": "Tinatayang halaga ito. Kinukumpirma ng server ang panghuling dami kapag nakumpleto na ang bayad.",
+  "candy_reward_receipt_total": "Kabuuang natanggap {amount}",
   "ad_reward_pending": "Sinusuri ang iyong gantimpala",
   "ad_reward_granted": "Nakatanggap ng Cotton Candy",
   "ad_reward_not_granted": "Hindi naibigay ang gantimpala",
@@ -2458,6 +2471,7 @@
     }
   },
   "candy_reward_receipt_balance": "Kasalukuyang balanse {amount}",
+  "candy_reward_receipt_purchase_balance": "Bagong balanse {amount}",
   "@candy_reward_receipt_balance": {
     "placeholders": {
       "amount": {
@@ -2543,5 +2557,7 @@
   "expiry_quantity_description": "Mga halagang nakatakdang mag-expire sa kasalukuyang account.",
   "expiry_policy_description": "Pamantayan ng pag-expire ayon sa currency.",
   "bonus_expiry_policy_summary": "Ang nakuha mula ika-1 hanggang ika-14 ay mag-e-expire sa ika-15 ng susunod na buwan; ang nakuha mula ika-15 hanggang katapusan ng buwan ay mag-e-expire nang 00:00 (KST) sa ika-15 ng susunod pang buwan.",
-  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi"
+  "expiry_tonight_at_midnight": "Hatinggabi ngayong gabi",
+  "error_ad_device_account_restricted_message": "Pansamantalang pinaghihigpitan ang paggamit ng mga ad ng account na ito sa device na ito.",
+  "profile_photo_change": "Palitan ang larawan sa profile"
 }

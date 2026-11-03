@@ -371,4 +371,153 @@ void main() {
       },
     );
   }
+  group('동기 GRANTED 의 팝업 독립 통계', () {
+    Future<InternalShortformRewardSession> boundSession() async {
+      final session = InternalShortformRewardSession();
+      await session.bindIssued(
+        owner: 'user-a',
+        issuedReference: const AdRewardReference(
+          type: AdRewardReferenceType.internalImpression,
+          id: impressionId,
+        ),
+        persist: (_, _) async {},
+      );
+      return session;
+    }
+
+    test(
+      'a synchronously granted view is recorded without any receipt',
+      () async {
+        // 전체화면 라우트는 mounted 일 때만 영수증을 띄우고, ACK 는 그 첫
+        // 프레임에서 난다. 사용자가 광고를 닫자마자 route 가 사라지면 예전에는
+        // 이 적립이 통계에 전혀 남지 않았다.
+        final recorded = <AdRewardStatusModel>[];
+        var polls = 0;
+
+        final response = await InternalShortformViewRecoveryFlow(
+          view: InternalShortformViewFlow(
+            session: await boundSession(),
+            currentOwner: () => 'user-a',
+            invokeCallback: () async => {
+              'ok': true,
+              'reward_added': 0,
+              'impression_id': impressionId,
+              'new_bonus': null,
+              'reward': grantedRewardJson(),
+            },
+            parse: InternalShortformViewResponse.fromJson,
+          ),
+          poll: (_, _) async => polls++,
+          onGrantConfirmed: (owner, status) {
+            expect(owner, 'user-a');
+            recorded.add(status);
+          },
+        ).report();
+
+        expect(response.reward!.state, AdRewardState.granted);
+        expect(polls, 0, reason: '동기 지급은 폴링하지 않는다');
+        expect(recorded.single.reference.id, impressionId);
+      },
+    );
+
+    test('a pending view is left to the poll path', () async {
+      final recorded = <AdRewardStatusModel>[];
+
+      await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: await boundSession(),
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 0,
+            'impression_id': impressionId,
+            'new_bonus': null,
+            'reward': rewardJson(),
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (_, _) async {},
+        onGrantConfirmed: (owner, status) => recorded.add(status),
+      ).report();
+
+      expect(recorded, isEmpty);
+    });
+
+    test('a legacy response without a reward records nothing here', () async {
+      final recorded = <AdRewardStatusModel>[];
+
+      await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: await boundSession(),
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 3,
+            'impression_id': impressionId,
+            'new_bonus': 3,
+            'reward': null,
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (_, _) async {},
+        onGrantConfirmed: (owner, status) => recorded.add(status),
+      ).report();
+
+      // legacy 경로는 전체화면 페이지가 자기 payload 로 이미 보낸다.
+      expect(recorded, isEmpty);
+    });
+
+    test('a grant for a changed owner is never recorded', () async {
+      final recorded = <AdRewardStatusModel>[];
+      var owner = 'user-a';
+      final session = await boundSession();
+
+      await expectLater(
+        InternalShortformViewRecoveryFlow(
+          view: InternalShortformViewFlow(
+            session: session,
+            currentOwner: () => owner,
+            invokeCallback: () async {
+              owner = 'user-b';
+              return {
+                'ok': true,
+                'reward_added': 0,
+                'impression_id': impressionId,
+                'new_bonus': null,
+                'reward': grantedRewardJson(),
+              };
+            },
+            parse: InternalShortformViewResponse.fromJson,
+          ),
+          poll: (_, _) async {},
+          onGrantConfirmed: (owner, status) => recorded.add(status),
+        ).report(),
+        throwsA(isA<StateError>()),
+      );
+
+      expect(recorded, isEmpty);
+    });
+
+    test('a recorder that throws never loses the view response', () async {
+      // 통계는 보상 흐름을 막지 않는다.
+      final response = await InternalShortformViewRecoveryFlow(
+        view: InternalShortformViewFlow(
+          session: await boundSession(),
+          currentOwner: () => 'user-a',
+          invokeCallback: () async => {
+            'ok': true,
+            'reward_added': 0,
+            'impression_id': impressionId,
+            'new_bonus': null,
+            'reward': grantedRewardJson(),
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ),
+        poll: (_, _) async {},
+        onGrantConfirmed: (_, _) => throw StateError('recorder down'),
+      ).report();
+
+      expect(response.reward!.state, AdRewardState.granted);
+    });
+  });
 }

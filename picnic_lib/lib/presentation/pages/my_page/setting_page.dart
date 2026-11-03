@@ -99,32 +99,37 @@ class _SettingPageState extends ConsumerState<SettingPage>
             PicnicListItem(
               leading: AppLocalizations.of(context).label_setting_push_alarm,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              tailing: LoadSwitch(
-                width: 48.w,
-                height: 28,
-                value: value1,
-                future: _getFuture1,
-                style: SpinStyle.material,
-                curveIn: Curves.easeInBack,
-                curveOut: Curves.easeOutBack,
-                animationDuration: const Duration(milliseconds: 500),
-                thumbDecoration: (value, isActive) => BoxDecoration(
-                  gradient: switchThumbGradient,
-                  borderRadius: BorderRadius.circular(28),
+              tailing: Semantics(
+                container: true,
+                label: l10n.label_setting_push_alarm,
+                toggled: value1,
+                child: LoadSwitch(
+                  width: 64.w.clamp(64, double.infinity),
+                  height: 48,
+                  value: value1,
+                  future: _getFuture1,
+                  style: SpinStyle.material,
+                  curveIn: Curves.easeInBack,
+                  curveOut: Curves.easeOutBack,
+                  animationDuration: const Duration(milliseconds: 500),
+                  thumbDecoration: (value, isActive) => BoxDecoration(
+                    gradient: switchThumbGradient,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  switchDecoration: (value, isActive) => BoxDecoration(
+                    color: value ? AppColors.primary500 : AppColors.grey200,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [switchBoxShadow],
+                  ),
+                  spinColor: (value) =>
+                      value ? AppColors.primary500 : AppColors.primary500,
+                  spinStrokeWidth: 1,
+                  onChange: (v) {
+                    value1 = v;
+                    setState(() {});
+                  },
+                  onTap: (v) {},
                 ),
-                switchDecoration: (value, isActive) => BoxDecoration(
-                  color: value ? AppColors.primary500 : AppColors.grey200,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [switchBoxShadow],
-                ),
-                spinColor: (value) =>
-                    value ? AppColors.primary500 : AppColors.primary500,
-                spinStrokeWidth: 1,
-                onChange: (v) {
-                  value1 = v;
-                  setState(() {});
-                },
-                onTap: (v) {},
               ),
             ),
             PicnicListItem(
@@ -139,32 +144,37 @@ class _SettingPageState extends ConsumerState<SettingPage>
                 ),
               ),
               assetPath: 'assets/icons/arrow_right_style=line.svg',
-              tailing: LoadSwitch(
-                width: 48.w,
-                height: 28,
-                value: value2,
-                future: _getFuture2,
-                style: SpinStyle.material,
-                curveIn: Curves.easeInBack,
-                curveOut: Curves.easeOutBack,
-                animationDuration: const Duration(milliseconds: 500),
-                thumbDecoration: (value, isActive) => BoxDecoration(
-                  gradient: switchThumbGradient,
-                  borderRadius: BorderRadius.circular(28),
+              tailing: Semantics(
+                container: true,
+                label: l10n.label_setting_event_alarm,
+                toggled: value2,
+                child: LoadSwitch(
+                  width: 64.w.clamp(64, double.infinity),
+                  height: 48,
+                  value: value2,
+                  future: _getFuture2,
+                  style: SpinStyle.material,
+                  curveIn: Curves.easeInBack,
+                  curveOut: Curves.easeOutBack,
+                  animationDuration: const Duration(milliseconds: 500),
+                  thumbDecoration: (value, isActive) => BoxDecoration(
+                    gradient: switchThumbGradient,
+                    borderRadius: BorderRadius.circular(28),
+                  ),
+                  switchDecoration: (value, isActive) => BoxDecoration(
+                    color: value ? AppColors.primary500 : AppColors.grey200,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [switchBoxShadow],
+                  ),
+                  spinColor: (value) =>
+                      value ? AppColors.primary500 : AppColors.primary500,
+                  spinStrokeWidth: 1,
+                  onChange: (v) {
+                    value2 = v;
+                    setState(() {});
+                  },
+                  onTap: (v) {},
                 ),
-                switchDecoration: (value, isActive) => BoxDecoration(
-                  color: value ? AppColors.primary500 : AppColors.grey200,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [switchBoxShadow],
-                ),
-                spinColor: (value) =>
-                    value ? AppColors.primary500 : AppColors.primary500,
-                spinStrokeWidth: 1,
-                onChange: (v) {
-                  value2 = v;
-                  setState(() {});
-                },
-                onTap: (v) {},
               ),
             ),
             const SizedBox(height: 24),
@@ -309,22 +319,35 @@ class _SettingPageState extends ConsumerState<SettingPage>
       children: [
         Padding(
           padding: EdgeInsets.symmetric(vertical: 12.w),
+          // Both texts used to be bare Row children around a Spacer, so at
+          // 2.0x "Patch status" + "Current patch: 12" ran past the screen in
+          // every language but Korean (PICNIC-2738). Both are Flexible now, so
+          // either can wrap, and spaceBetween keeps the title at the left edge
+          // and the value at the right one exactly as the Spacer did. (An
+          // Expanded title took half the row and left the value in the
+          // middle.)
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l10n.label_setting_patch_section_title,
-                style: getTextStyle(AppTypo.body16M),
+              Flexible(
+                child: Text(
+                  l10n.label_setting_patch_section_title,
+                  style: getTextStyle(AppTypo.body16M),
+                ),
               ),
-              const Spacer(),
-              Text(
-                patchInfo.currentPatch != null
-                    ? l10n.label_setting_patch_status_current_patch(
-                        patchInfo.currentPatch!,
-                      )
-                    : l10n.label_setting_patch_status_none,
-                style: getTextStyle(
-                  AppTypo.caption12B,
-                  AppColors.secondary500,
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  patchInfo.currentPatch != null
+                      ? l10n.label_setting_patch_status_current_patch(
+                          patchInfo.currentPatch!,
+                        )
+                      : l10n.label_setting_patch_status_none,
+                  textAlign: TextAlign.end,
+                  style: getTextStyle(
+                    AppTypo.caption12B,
+                    AppColors.secondary500,
+                  ),
                 ),
               ),
             ],

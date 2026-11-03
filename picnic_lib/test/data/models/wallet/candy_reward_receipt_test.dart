@@ -6,6 +6,25 @@ import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
 
 void main() {
+  for (final entry in [
+    (name: 'base star', baseStar: -1, baseBonus: 25, promoBonus: 225),
+    (name: 'product bonus', baseStar: 100, baseBonus: -1, promoBonus: 2),
+    (name: 'granted event bonus', baseStar: 100, baseBonus: 25, promoBonus: -1),
+  ]) {
+    test('negative ${entry.name} yields no receipt instead of throwing', () {
+      final result = purchaseResult(
+        baseStar: BigInt.from(entry.baseStar),
+        baseBonus: BigInt.from(entry.baseBonus),
+        promoBonus: BigInt.from(entry.promoBonus),
+      );
+      // These negative integer strings currently pass the wire converter.
+      // Receipt presentation must reject them without interrupting settlement.
+      final parsed = PurchaseSettlementResultModel.fromJson(result.toJson());
+
+      expect(receiptFromPurchase(parsed), isNull);
+    });
+  }
+
   test('purchase receipt combines positive base and granted promo bonus', () {
     final receipt = receiptFromPurchase(
       purchaseResult(
@@ -38,6 +57,99 @@ void main() {
     ]);
   });
 
+  test('the bonus row splits into the catalog part and the event part', () {
+    // STAR200 under a 2x campaign: 25 catalog bonus, 225 from the event.
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(200),
+        baseBonus: BigInt.from(25),
+        promoBonus: BigInt.from(225),
+      ),
+    );
+
+    final bonus = receipt!.items[1];
+    expect(bonus.grantedAmount, BigInt.from(250));
+    expect(bonus.parts.map((part) => part.kind), [
+      CandyRewardPartKind.productBonus,
+      CandyRewardPartKind.eventBonus,
+    ]);
+    expect(bonus.parts.map((part) => part.amount), [
+      BigInt.from(25),
+      BigInt.from(225),
+    ]);
+    expect(receipt.totalGranted, BigInt.from(450));
+  });
+
+  test('a bonus that is entirely the event names the event', () {
+    // STAR100 has no catalog bonus, so every bonus candy came from the event.
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(100),
+        baseBonus: BigInt.zero,
+        promoBonus: BigInt.from(100),
+      ),
+    );
+
+    expect(receipt!.items[1].parts.single.kind, CandyRewardPartKind.eventBonus);
+    expect(receipt.items[1].parts.single.amount, BigInt.from(100));
+    expect(receipt.totalGranted, BigInt.from(200));
+  });
+
+  test('a catalog bonus with no granted event stays unsplit', () {
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(200),
+        baseBonus: BigInt.from(25),
+        promoBonus: BigInt.zero,
+      ),
+    );
+
+    expect(receipt!.items[1].parts, isEmpty);
+    expect(receipt.totalGranted, BigInt.from(225));
+  });
+
+  test('the granted amount is the server one, never a client estimate', () {
+    // A V1 15% preview of 101 candy would say floor(151.5 / 10) = 15; this
+    // settlement granted 14, and the receipt reports what was granted.
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(100),
+        baseBonus: BigInt.one,
+        promoBonus: BigInt.from(14),
+      ),
+    );
+
+    expect(receipt!.items[1].grantedAmount, BigInt.from(15));
+    expect(receipt.items[1].parts.map((part) => part.amount), [
+      BigInt.one,
+      BigInt.from(14),
+    ]);
+    expect(receipt.totalGranted, BigInt.from(115));
+  });
+
+  test('a promotion still under review contributes no event part', () {
+    final receipt = receiptFromPurchase(
+      purchaseResult(
+        baseStar: BigInt.from(100),
+        baseBonus: BigInt.from(20),
+        promoBonus: BigInt.zero,
+        state: PurchasePromotionState.pendingTime,
+        domainCode: 'PROMO_REVIEW_REQUIRED',
+      ),
+    );
+
+    expect(receipt!.items[1].grantedAmount, BigInt.from(20));
+    expect(receipt.items[1].parts, isEmpty);
+    expect(receipt.totalGranted, BigInt.from(120));
+  });
+
+  test('an ad reward keeps a single unsplit item', () {
+    final receipt = receiptFromAdReward(grantedAd(amount: BigInt.from(20)));
+
+    expect(receipt!.items.single.parts, isEmpty);
+    expect(receipt.items.single.currency, WalletCurrency.cottonCandy);
+  });
+
   test('redelivered purchase yields no receipt even with positive amounts', () {
     // An earlier delivery or session settled this operation and showed the
     // amounts, so this delivery grants nothing the user has not already seen.
@@ -67,10 +179,10 @@ void main() {
       ),
     );
 
-    expect(
-      receipt!.items.map((item) => item.grantedAmount),
-      [BigInt.from(100), BigInt.from(50)],
-    );
+    expect(receipt!.items.map((item) => item.grantedAmount), [
+      BigInt.from(100),
+      BigInt.from(50),
+    ]);
   });
 
   test('ad receipt accepts only a granted positive grant', () {
@@ -210,6 +322,8 @@ PurchaseSettlementResultModel purchaseResult({
   required BigInt promoBonus,
   bool replayed = false,
   bool replayCausedByRetry = false,
+  PurchasePromotionState state = PurchasePromotionState.granted,
+  String? domainCode,
 }) => PurchaseSettlementResultModel(
   contractVersion: 'wallet.v1',
   operationId: 'operation-1',
@@ -219,10 +333,10 @@ PurchaseSettlementResultModel purchaseResult({
   baseBonusAmount: baseBonus,
   promotion: PurchasePromotionResultModel(
     resolutionId: 'resolution-1',
-    state: PurchasePromotionState.granted,
+    state: state,
     campaignVersionId: 'campaign-1',
     promoBonusAmount: promoBonus,
-    domainCode: null,
+    domainCode: domainCode,
   ),
   wallet: wallet(),
 );

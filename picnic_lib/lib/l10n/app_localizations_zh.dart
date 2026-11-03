@@ -9,7 +9,7 @@ class AppLocalizationsZh extends AppLocalizations {
   AppLocalizationsZh([String locale = 'zh']) : super(locale);
 
   @override
-  String get achieve => 'Achievements';
+  String get achieve => 'Achieved';
 
   @override
   String get ads_available_time => '下次可观看广告时间';
@@ -1842,6 +1842,55 @@ class AppLocalizationsZh extends AppLocalizations {
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
+
+  @override
   String get ad_reward_pending => '正在确认奖励';
 
   @override
@@ -1864,6 +1913,11 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -1939,6 +1993,13 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -2832,7 +2893,7 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get reward => '奖励';
 
   @override
-  String get save => '节省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒钟';
@@ -3779,6 +3840,55 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   String get candy_boost_late_purchase_explanation => '认证耗时比预期长，但购买已正常完成。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活动奖励 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基础发放';
+
+  @override
+  String get purchase_reward_base_short => '基础';
+
+  @override
+  String get purchase_reward_event_short => '活动';
+
+  @override
+  String get purchase_reward_product_bonus => '基础奖励';
+
+  @override
+  String get purchase_reward_event_bonus => '活动奖励';
+
+  @override
+  String get purchase_reward_expected_total => '预计合计';
+
+  @override
+  String get purchase_reward_total_short => '合计';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '当前余额 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '购买后预计 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此为预计数量。最终发放数量以支付完成时的服务器结果为准。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共获得$amount';
+  }
+
+  @override
   String get ad_reward_pending => '正在确认奖励';
 
   @override
@@ -3801,6 +3911,11 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '当前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '购买后持有 $amount';
   }
 
   @override
@@ -3876,6 +3991,13 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日获得的部分于下月15日到期；15日至月底获得的部分于下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此账号在此设备上的广告使用权限暂时受到限制。';
+
+  @override
+  String get profile_photo_change => '更换头像';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -4769,7 +4891,7 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get reward => '獎勵';
 
   @override
-  String get save => '節省';
+  String get save => '保存';
 
   @override
   String get seconds => '秒鐘';
@@ -5717,6 +5839,55 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   String get candy_boost_late_purchase_explanation => '認證耗時比預期長，但購買已正常完成。';
 
   @override
+  String candy_boost_total_multiplier(String multiplier) {
+    return '活動獎勵 +$multiplier%';
+  }
+
+  @override
+  String get purchase_reward_base => '基本發放';
+
+  @override
+  String get purchase_reward_base_short => '基本';
+
+  @override
+  String get purchase_reward_event_short => '活動';
+
+  @override
+  String get purchase_reward_product_bonus => '基本獎勵';
+
+  @override
+  String get purchase_reward_event_bonus => '活動獎勵';
+
+  @override
+  String get purchase_reward_expected_total => '預估合計';
+
+  @override
+  String get purchase_reward_total_short => '合計';
+
+  @override
+  String purchase_current_balance(Object amount) {
+    return '目前餘額 $amount';
+  }
+
+  @override
+  String purchase_expected_balance(Object amount) {
+    return '購買後預計 $amount';
+  }
+
+  @override
+  String purchase_reward_plus_amount(String amount) {
+    return '+$amount';
+  }
+
+  @override
+  String get purchase_reward_estimate_note => '此為預估數量。最終發放數量以付款完成時的伺服器結果為準。';
+
+  @override
+  String candy_reward_receipt_total(String amount) {
+    return '共獲得$amount';
+  }
+
+  @override
   String get ad_reward_pending => '正在確認獎勵';
 
   @override
@@ -5739,6 +5910,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String candy_reward_receipt_balance(String amount) {
     return '目前持有 $amount';
+  }
+
+  @override
+  String candy_reward_receipt_purchase_balance(Object amount) {
+    return '購買後持有 $amount';
   }
 
   @override
@@ -5814,4 +5990,11 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
   @override
   String get bonus_expiry_policy_summary =>
       '1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。';
+
+  @override
+  String get error_ad_device_account_restricted_message =>
+      '此帳號在此裝置上的廣告使用權限暫時受到限制。';
+
+  @override
+  String get profile_photo_change => '更換頭像';
 }
