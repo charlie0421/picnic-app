@@ -23,8 +23,13 @@ class AdService {
     required this.ref,
     required this.context,
     required this.animationController,
+    @visibleForTesting Map<String, AdPlatform>? platformsOverride,
   }) {
-    _initPlatforms();
+    if (platformsOverride != null) {
+      _platforms = platformsOverride;
+    } else {
+      _initPlatforms();
+    }
   }
 
   void _initPlatforms() {
@@ -126,7 +131,9 @@ class AdService {
   void dispose() {
     // 각 플랫폼의 dispose 를 반드시 호출한다. 맵만 비우면 PanglePlatform 의
     // pollingSignals 구독 같은 리소스가 페이지 unmount 후에도 살아남아
-    // dispose 된 ref 를 계속 읽는다 (PICNIC-APP-5G9).
+    // dispose 된 ref 를 계속 읽는다 (PICNIC-APP-5G9). AdMob 은 같은 이유로
+    // flow 의 워치독 타이머·pendingAd 를 여기서 정리한다(BLOCKER-3). 한
+    // 플랫폼의 dispose 예외가 나머지 플랫폼 정리를 막지 않도록 격리한다.
     for (final platform in _platforms.values) {
       try {
         platform.dispose();

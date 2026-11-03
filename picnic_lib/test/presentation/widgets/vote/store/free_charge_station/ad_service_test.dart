@@ -11,6 +11,37 @@ import '../../../../../helpers/ignore_image_errors.dart';
 import '../../../../../helpers/test_app.dart';
 import '../../../../../helpers/test_environment.dart';
 
+/// BLOCKER-3 반례 재현용 fake — 실제 SDK 를 건드리지 않고 dispose() 호출
+/// 여부만 관찰한다. [throwOnDispose] 는 한 플랫폼의 dispose 예외가 나머지
+/// 플랫폼 정리를 막지 않는지(현재 main 의 예외 격리) 확인할 때 쓴다.
+class _FakeAdPlatform extends AdPlatform {
+  _FakeAdPlatform(
+    super.ref,
+    super.context,
+    super.id, {
+    this.throwOnDispose = false,
+  });
+
+  final bool throwOnDispose;
+  bool disposeCalled = false;
+
+  @override
+  Future<void> initialize() async {}
+
+  @override
+  Future<void> showAd() async {}
+
+  @override
+  Future<void> handleError(dynamic error, StackTrace? stackTrace) async {}
+
+  @override
+  void dispose() {
+    disposeCalled = true;
+    super.dispose();
+    if (throwOnDispose) throw StateError('dispose failed: $id');
+  }
+}
+
 /// 광고 구좌가 켠 적 없는 "남의" 전역 오버레이를 나타내는 마커.
 ///
 /// 패키지 기본 위젯에 기대지 않는 이유: 무료충전소가 쓰는 인디케이터와 타입이
@@ -86,11 +117,7 @@ void main() {
     );
     // 사전 단언 실패 시에도 서비스부터 정리한 뒤 컨트롤러를 해제한다.
     addTearDown(service.dispose);
-    return (
-      ref: capturedRef,
-      context: capturedContext,
-      service: service,
-    );
+    return (ref: capturedRef, context: capturedContext, service: service);
   }
 
   testWidgets('harness 는 본문에서 dispose 하지 않아도 플랫폼을 정리한다', (tester) async {
@@ -194,5 +221,64 @@ void main() {
     OverlayLoadingProgress.stop();
     await pumpAndIgnoreErrors(tester);
     expect(find.byKey(_foreignOverlayKey), findsNothing);
+  });
+
+  group('AdService.dispose (BLOCKER-3)', () {
+    testWidgets('주입된 모든 AdPlatform.dispose() 를 호출한 뒤에야 플랫폼 목록을 비운다', (
+      tester,
+    ) async {
+      final harness = await pumpHarness(tester);
+      final fake1 = _FakeAdPlatform(harness.ref, harness.context, 'fake1');
+      final fake2 = _FakeAdPlatform(harness.ref, harness.context, 'fake2');
+      final controller = AnimationController(vsync: const TestVSync());
+      addTearDown(controller.dispose);
+      final service = AdService(
+        ref: harness.ref,
+        context: harness.context,
+        animationController: controller,
+        platformsOverride: {'fake1': fake1, 'fake2': fake2},
+      );
+
+      // 수정 전(clear() 만 하던 시절)에는 아래 두 dispose 호출이 전혀
+      // 일어나지 않아, flow 의 워치독 타이머·pendingAd 가 위젯 teardown
+      // 이후에도 살아남았다(BLOCKER-3).
+      expect(fake1.disposeCalled, isFalse);
+      expect(fake2.disposeCalled, isFalse);
+
+      service.dispose();
+
+      expect(fake1.disposeCalled, isTrue);
+      expect(fake2.disposeCalled, isTrue);
+      expect(fake1.isDisposed, isTrue);
+      expect(fake2.isDisposed, isTrue);
+      expect(service.getPlatform('fake1'), isNull);
+      expect(service.getPlatform('fake2'), isNull);
+    });
+
+    testWidgets('한 플랫폼의 dispose 예외가 나머지 플랫폼 정리를 막지 않는다', (tester) async {
+      final harness = await pumpHarness(tester);
+      final failing = _FakeAdPlatform(
+        harness.ref,
+        harness.context,
+        'failing',
+        throwOnDispose: true,
+      );
+      final next = _FakeAdPlatform(harness.ref, harness.context, 'next');
+      final controller = AnimationController(vsync: const TestVSync());
+      addTearDown(controller.dispose);
+      final service = AdService(
+        ref: harness.ref,
+        context: harness.context,
+        animationController: controller,
+        platformsOverride: {'failing': failing, 'next': next},
+      );
+
+      expect(service.dispose, returnsNormally);
+
+      expect(failing.disposeCalled, isTrue);
+      expect(next.disposeCalled, isTrue);
+      expect(next.isDisposed, isTrue);
+      expect(service.getPlatform('next'), isNull);
+    });
   });
 }

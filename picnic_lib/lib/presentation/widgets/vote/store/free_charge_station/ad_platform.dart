@@ -237,8 +237,16 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 광고 시청 제한 확인
-  Future<bool> checkAdsLimit(String platform) async {
+  //
+  // [isRequestActive] 를 넘기면, 응답을 기다리는 사이 더 새로운 요청이 시작돼
+  // 이 요청이 비활성이 됐을 때 판정·안내 없이 false 를 반환한다. 늦은 응답이
+  // 새 요청의 화면에 거절·오류 안내를 띄우지 않게 한다. null 이면 기존 동작이다.
+  Future<bool> checkAdsLimit(
+    String platform, {
+    bool Function()? isRequestActive,
+  }) async {
     if (!context.mounted || isDisposed) return false;
+    bool superseded() => isRequestActive != null && !isRequestActive();
 
     try {
       final os = Platform.isIOS ? 'ios' : 'android';
@@ -248,6 +256,7 @@ abstract class AdPlatform {
         isDebugMode: kDebugMode,
       );
       if (!context.mounted || isDisposed) return false;
+      if (superseded()) return false;
 
       // 서버 설정에 의해 비활성화된 경우
       if (data['disabled'] == true) {
@@ -287,6 +296,7 @@ abstract class AdPlatform {
       return true;
     } catch (e, s) {
       logError('Error in checkAdsLimit', error: e, stackTrace: s);
+      if (superseded()) return false;
       if (context.mounted && !isDisposed) {
         showSimpleDialog(
           content: AppLocalizations.of(context).label_ads_load_fail,
@@ -317,7 +327,8 @@ abstract class AdPlatform {
     // 한도 값 자체가 없으면(limits 누락) 판정하지 않는다 — 0 을 한도로 쓰면
     // 소진량 0 도 "초과"가 된다.
     return (
-      hourly: hourlyLimit > 0 && hourlyUsed != null && hourlyUsed >= hourlyLimit,
+      hourly:
+          hourlyLimit > 0 && hourlyUsed != null && hourlyUsed >= hourlyLimit,
       daily: dailyLimit > 0 && dailyUsed != null && dailyUsed >= dailyLimit,
     );
   }
@@ -362,19 +373,17 @@ abstract class AdPlatform {
           const SizedBox(height: 16),
           if (exceeded.hourly)
             Text(
-              AppLocalizations.of(context).label_ads_limit_reached_hourly(
-                hourlyUsed ?? 0,
-                hourlyLimit,
-              ),
+              AppLocalizations.of(
+                context,
+              ).label_ads_limit_reached_hourly(hourlyUsed ?? 0, hourlyLimit),
               style: getTextStyle(AppTypo.body14B, AppColors.grey900),
               textAlign: TextAlign.center,
             ),
           if (exceeded.daily)
             Text(
-              AppLocalizations.of(context).label_ads_limit_reached_daily(
-                dailyUsed ?? 0,
-                dailyLimit,
-              ),
+              AppLocalizations.of(
+                context,
+              ).label_ads_limit_reached_daily(dailyUsed ?? 0, dailyLimit),
               style: getTextStyle(AppTypo.body14B, AppColors.grey900),
               textAlign: TextAlign.center,
             ),
@@ -404,25 +413,41 @@ abstract class AdPlatform {
   }
 
   // 공통 로직: 전체 오류 처리 흐름
+  //
+  // [isRequestActive] 를 넘기면, await 뒤 이 요청이 더 새로운 요청에 밀려
+  // 비활성이면 스피너·안내를 건드리지 않고 조용히 끝낸다 — 스피너와 전역
+  // 오버레이는 이제 새 요청의 것이다. null 이면 기존 동작이다.
   Future<void> safelyExecute(
     Future<void> Function() action, {
     bool isMission = false,
+    bool Function()? isRequestActive,
   }) async {
+    bool superseded() => isRequestActive != null && !isRequestActive();
+
     if (!await checkLogin()) return;
+    if (superseded()) return;
 
     try {
       startLoading();
 
       if (!isMission) {
-        final checkAdsLimitResult = await checkAdsLimit(id);
+        final checkAdsLimitResult = await checkAdsLimit(
+          id,
+          isRequestActive: isRequestActive,
+        );
         if (!checkAdsLimitResult) {
-          stopAllAnimations();
+          if (!superseded()) stopAllAnimations();
           return;
         }
+        if (superseded()) return;
       }
 
       await action();
     } catch (e, s) {
+      if (superseded()) {
+        logError('superseded request failed', error: e, stackTrace: s);
+        return;
+      }
       stopAllAnimations();
       await handleError(e, s);
     }
