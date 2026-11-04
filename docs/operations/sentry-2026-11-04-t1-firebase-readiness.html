@@ -12,7 +12,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
 <p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 관련 자동 검증과 독립 코드 리뷰는 완료했다.</p>
-<p class="note"><strong>남은 조건:</strong> Android 격리 패키지의 네이티브 Firebase 테스트는 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+<p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
 <p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
@@ -118,6 +118,38 @@ python3 scripts/qa/run_firebase_device_android.py --device &lt;adb-serial&gt;</p
 <p class="meta">실제 Gradle 종료 검증에는 설치된 JDK 21과 캐시된 Gradle 8.14.1 경로를 명시했다. Android 빌드에서는 Flutter가 선택한 JDK 17을 실제 daemon 기록으로 확인했다. 두 실행을 같은 JDK 검증으로 합치지 않았다. 기기 식별자·원시 로그·계정 정보는 Git 산출물에 포함하지 않는다.</p>
 </section>
 
+<section id="ios-qa"><h2>iOS 시뮬레이터 검증</h2>
+<p>사용자가 지정한 시뮬레이터 범위에서 별도 앱 <code>io.picnic.qa.firebaseReadiness</code>를 사용한다. 실행기는 <a href="../../scripts/qa/run_firebase_device_ios.py">run_firebase_device_ios.py</a>, 회귀 테스트는 <a href="../../scripts/qa/test_run_firebase_device_ios.py">test_run_firebase_device_ios.py</a>, Dart 검증은 <a href="../../picnic_app/test_support/firebase_readiness_ios_qa.dart">firebase_readiness_ios_qa.dart</a>에 있다. 운영 Firebase 설정·서명·계정 파일은 사용하지 않는다.</p>
+<table><thead><tr><th>검증</th><th>결과</th><th>범위와 제한</th></tr></thead><tbody>
+<tr><td>실행기 회귀 테스트</td><td>구현자 보고: 82개 통과, 1개 생략</td><td>아키텍처 보완 후 총 83개 실행. 대상 11개는 수정 전 3실패·8오류에서 모두 통과로 바뀌었다. 앞선 파서 수정의 대상 20개도 통과했다. 이 결과는 실제 시뮬레이터 테스트가 아니다.</td></tr>
+<tr><td>실제 Flutter 프로젝트 생성</td><td>조정자 실행: 1개 통과 · exit 0 · 1.085초</td><td>설치된 Flutter의 create 단계만 실행했다. 서명 도구 조회 차단, 실제 자격증명 도구 호출 없음, DEVELOPMENT_TEAM·SwiftPM 연결 없음, Flutter 설정 파일의 크기·수정 시각 유지 확인. 설정 파일 내용 비교나 네이티브 빌드 결과는 아니다.</td></tr>
+<tr><td>목록 파서 반례</td><td>조정자 실행: 3개 판정 확인</td><td>잘린 입력은 RunnerError, 한 줄 목록의 QA 앱은 존재, 다른 앱만 있는 목록은 부재로 판정했다. 모의 listapps와 합성 입력의 plutil 변환만 사용했고 기기 명령은 실행하지 않았다.</td></tr>
+<tr><td>Dart 정적 분석</td><td>구현자 보고: No issues found · exit 0</td><td>최종 demo 키 수정 후 파일을 분석했다. 조정자는 검토된 파일과 실제 네이티브 테스트에 복사된 파일의 SHA256 일치를 확인했다.</td></tr>
+<tr><td>실행기 독립 리뷰</td><td>Sol/high · APPROVE</td><td>서명 정보 접근 차단, 프로젝트 단위 SwiftPM 비활성화, 앱 소유권·정리 결과, 완전한 목록 파싱, QA 단일 아키텍처 보완과 demo API 키 형식 수정을 검토했다. Orca 재시작 후 원 리뷰 기록의 공식 fork에서 검토를 이어갔다. 동일 원본 세션이라고 표기하지 않는다. 코드를 정해진 시뮬레이터 범위에서 실행해도 된다는 승인이다.</td></tr>
+<tr id="ios-native-result"><td>iOS 네이티브 테스트</td><td>조정자 실행: 1개 통과 · exit 0</td><td>Xcode 27.2·iOS 26.5·arm64. 최종 실행은 빌드 103.8초, 테스트 단계 42.9초(증분 Xcode 빌드 30.1초 포함)였다. 출력은 <code>00:00 +1: All tests passed!</code>. 정리는 verified=true, QA 앱 부재·잔여 프로세스 없음이며 시뮬레이터는 Booted로 유지했다.</td></tr>
+</tbody></table>
+<p>첫 빌드 실패는 Firebase 초기화 전에 발생했다. Xcode 27.2의 <code>lipo -verify_arch arm64 x86_64</code>는 exit 1이지만 각 아키텍처를 따로 검사하면 exit 0이었다. 바이너리에는 두 아키텍처가 모두 있었다. 설치된 Flutter 3.41.4는 다중 아키텍처 검사를 한 번에 호출한다. 같은 호환성 문제의 <a href="https://github.com/flutter/flutter/issues/188461">Flutter 공식 이슈</a>와 <a href="https://github.com/flutter/flutter/pull/188625">수정 이력</a>을 확인했다. QA 프로젝트의 Debug 시뮬레이터 빌드만 단일 호스트 아키텍처로 제한하는 보완을 적용했고 독립 코드 검토를 통과했다. 수정 후 빌드가 성공했으며, 해당 프로젝트의 <code>xcodebuild -showBuildSettings</code>에서 실제 <code>ARCHS=arm64</code>를 확인했다. 결과물의 Flutter·App 바이너리도 arm64만 포함했다. 이 실행에서 다중 아키텍처 검사 문제는 해소됐다. 전역 Flutter SDK와 Xcode는 바꾸지 않았다.</p>
+<p><strong>16:52 KST 테스트 종료 원인:</strong> 선택한 QA 시뮬레이터의 Runner 로그에서 <code>com.firebase.installations</code> 예외와 <code>FIRInstallations validateAPIKey:</code>를 확인했다. 테스트용 API 키가 네이티브 SDK의 39자·첫 문자 A 조건을 만족하지 않았다. 설치된 Firebase Installations 소스의 검사와 일치한다. 이 오류는 QA fixture의 결함이며 운영 앱 오류의 재현으로 보지 않는다. 실제 자격증명을 사용하지 않고 demo 키의 형식만 수정했다. 구현자의 Dart 정적 분석과 Sol/high의 독립 코드 리뷰를 통과했다. 이후 같은 네이티브 테스트가 모든 단계를 통과해 해당 형식 오류로 인한 종료가 해소됐음을 확인했다.</p>
+<p>실행기는 목록을 완전한 plist 사전으로 읽은 뒤 정확한 최상위 bundle ID를 찾는다. 읽기·변환 실패를 앱 부재로 취급하지 않는다. 기존 QA 앱이 있으면 중단하고, 이 실행이 설치한 QA 앱만 정리한다. 앱 부재와 정리 명령의 프로세스 그룹 종료가 모두 확인돼야 성공으로 기록한다. 처음부터 Booted였던 시뮬레이터는 유지한다.</p>
+<p>검증은 실제 네이티브 Core와 제품의 푸시 준비 가드·core SDK 단계 그룹을 사용한다. 옵션 없는 첫 초기화는 네이티브 initializeCore가 빈 목록을 반환한 뒤 Dart에서 <code>core/not-initialized</code>가 발생하는 경로다. 네이티브 configure 실패로 부르지 않는다. 이후 demo 옵션으로 재시도하며 권한·토큰·서버 등록·알림 입력은 제어된 테스트 값이다. Messaging 자동 초기화와 Analytics 수집은 비활성화한다.</p>
+<p>최종 실행에서 다음 사항을 확인했다.</p>
+<ol>
+<li>Firebase 기본 앱이 없을 때 initialize/resume를 반복해도 coordinator를 만들지 않았으며, 제어된 로컬 실행 알림 목적지를 한 번 전달했다.</li>
+<li>옵션 없는 첫 초기화에서 발생한 <code>core/not-initialized</code>가 같은 오류 객체로 호출자에게 전달됐다. 실패한 Firebase 단계는 성공으로 저장되지 않았다.</li>
+<li>demo 옵션으로 같은 단계 그룹을 재시도해 실제 네이티브 기본 앱을 만들었다. 독립 단계와 성공한 Firebase 단계는 중복 실행되지 않았고 Messaging 자동 초기화는 false였다.</li>
+<li>resume만으로 제어된 토큰 등록이 재개됐다. coordinator는 하나였고 추가 권한 요청 없이 초기·실시간·로컬 실행 알림의 목적지를 각 소스에서 한 번 전달했다.</li>
+</ol>
+<p>CocoaPods 사용과 SwiftPM 비활성화, 제품 lockfile과 Flutter·네이티브 Firebase 버전 일치를 확인했다. Firebase Core 네이티브 버전은 12.19.3이고 Messaging·Installations는 12.19.0이었다. create 단계의 signing 도구 실제 호출은 없었다. 테스트가 QA 앱을 제거했으므로 추가 terminate/uninstall 작업은 필요하지 않았다. 실행 뒤 세 검토 파일의 SHA256은 유지됐다.</p>
+<p class="note">이 검증은 전체 <code>retrySdkInitialization → App → AppInitializer</code> 연결이나 실제 FCM/APNs 등록·알림 전달을 증명하지 않는다. iOS 실기기 등록 검증은 사용자의 현재 시뮬레이터 한정 범위에서 보류한다.</p>
+<pre>python3 scripts/qa/test_run_firebase_device_ios.py -v
+QA_RUN_FLUTTER_CREATE_PROBE=1 python3 scripts/qa/test_run_firebase_device_ios.py FlutterCreateProbe -v
+python3 scripts/qa/run_firebase_device_ios.py \
+  --simulator-udid &lt;owned-qa-simulator-udid&gt; \
+  --simulator-runtime com.apple.CoreSimulator.SimRuntime.iOS-26-5 \
+  --developer-dir /Applications/Xcode.app/Contents/Developer \
+  --build-timeout 900 --test-timeout 900</pre>
+</section>
+
 <section id="production-registration"><h2>기존 Android 운영 앱의 서버 등록 확인</h2>
 <p>2026-11-04 15:06 KST에 사용자가 지정한 테스트 계정으로 기존 운영 앱을 실행했다. 사용자는 해당 계정의 로그인 상태와 운영 환경 검증을 승인했다. 관측한 시스템 알림 권한 요청을 허용한 뒤 앱을 다시 실행했다. 별도로 표시된 다른 계정의 Google 동의 화면은 승인하지 않고 닫았다.</p>
 <table><thead><tr><th>확인 항목</th><th>관측 결과</th></tr></thead><tbody>
@@ -127,7 +159,7 @@ python3 scripts/qa/run_firebase_device_android.py --device &lt;adb-serial&gt;</p
 </tbody></table>
 <p class="result">앱의 등록 성공 로그와 지정 계정의 서버 갱신 시각이 일치한다. 기존 Android 운영 앱에서 실제 서버 등록 경로가 동작한 근거다. 검증 후 기기 연결 도우미를 종료했고 운영 앱과 기기 데이터는 유지했다.</p>
 <p class="note">설치된 130502에는 이번 미배포 T1 가드가 없다. 이 결과는 수정본의 실패·재시도 복구, FCM 토큰의 실제 전달 가능성, 알림 수신 또는 iOS 등록 성공을 증명하지 않는다. 기존 서버 행에 iOS 토큰이 있다는 사실도 이번 iOS 실행 증거로 사용하지 않았다.</p>
-<p>사용자는 현재 iOS 검증 범위를 시뮬레이터로 지정했다. iOS 네이티브 Core와 준비 가드 검증 도구를 준비 중이며, 아직 iOS 앱 테스트 통과 결과는 없다. 실기기 FCM 등록 검증은 현재 범위에서 보류한다.</p>
+<p>사용자는 현재 iOS 검증 범위를 시뮬레이터로 지정했다. 검증 도구의 코드 검토는 완료했고, 네이티브 실행 상태는 <a href="#ios-qa">iOS 시뮬레이터 검증</a>에 구분했다. 실기기 FCM 등록 검증은 현재 범위에서 보류한다.</p>
 </section>
 
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
