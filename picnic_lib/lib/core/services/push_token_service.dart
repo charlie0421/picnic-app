@@ -120,23 +120,39 @@ class PushTokenService {
     await _ensureCoordinator()?.resume();
   }
 
-  /// Returns the coordinator, creating it only once Firebase has its
-  /// `[DEFAULT]` app.
+  /// Returns the coordinator, creating it only once its dependencies exist.
   ///
   /// `FirebaseMessaging.instance` throws `[core/no-app]` until
-  /// `Firebase.initializeApp()` creates that app, and a resume or a failed
-  /// SDK start can arrive first. Nothing is latched while Firebase is not
-  /// ready, so the next [initialize] or [resume] starts push setup.
+  /// `Firebase.initializeApp()` creates the `[DEFAULT]` app, and the
+  /// production coordinator also subscribes to the Supabase auth stream,
+  /// which needs the client that `initializeSupabase()` creates. A resume or
+  /// a failed SDK start can arrive before either. Nothing is latched while a
+  /// dependency is missing, so the next [initialize] or [resume] starts push
+  /// setup. Sign-in state is not a dependency: a logged-out client is ready.
   static PushTokenInitializationCoordinator? _ensureCoordinator() {
     final existing = _coordinator;
     if (existing != null) return existing;
     if (!_hasDefaultFirebaseApp()) return null;
-    return _coordinator = (_debugCoordinatorFactory ?? _createCoordinator)();
+    final factory = _debugCoordinatorFactory;
+    if (factory != null) return _coordinator = factory();
+    final client = _supabaseClientIfReady();
+    if (client == null) return null;
+    return _coordinator = _createCoordinator(client);
   }
 
   /// A secondary app alone does not count: Messaging uses the default app.
   static bool _hasDefaultFirebaseApp() =>
       Firebase.apps.any((app) => app.name == defaultFirebaseAppName);
+
+  /// The Supabase client, or null while it does not exist yet. The
+  /// `supabase` getter reports a missing client only as a StateError.
+  static SupabaseClient? _supabaseClientIfReady() {
+    try {
+      return supabase;
+    } on StateError {
+      return null;
+    }
+  }
 
   static Future<void> dispose() async {
     _ownerGeneration++;
@@ -148,7 +164,9 @@ class PushTokenService {
     if (coordinator != null) await coordinator.dispose();
   }
 
-  static PushTokenInitializationCoordinator _createCoordinator() {
+  static PushTokenInitializationCoordinator _createCoordinator(
+    SupabaseClient client,
+  ) {
     final owner = _ownerGeneration;
     return PushTokenInitializationCoordinator(
       PushInitializationDependencies(
@@ -208,7 +226,7 @@ class PushTokenService {
             FirebaseMessaging.onMessage.cast<Object>(),
         openedMessages: _debugMessageSources?.openedMessages ??
             FirebaseMessaging.onMessageOpenedApp.cast<Object>(),
-        authChanges: supabase.auth.onAuthStateChange.cast<Object>(),
+        authChanges: client.auth.onAuthStateChange.cast<Object>(),
         isSignedIn: () =>
             supabase.auth.currentSession?.accessToken.isNotEmpty == true,
         isSignedInEvent: (event) =>

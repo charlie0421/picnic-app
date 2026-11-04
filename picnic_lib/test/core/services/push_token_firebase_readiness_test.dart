@@ -5,6 +5,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/push_token_initialization_coordinator.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
+import 'package:picnic_lib/supabase_options.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../helpers/fake_firebase_platform.dart';
 
@@ -247,6 +249,91 @@ void main() {
         PushTokenService.initialize(onActionUrlTap: (_) {}),
         throwsStateError,
       );
+    });
+  });
+
+  // The production coordinator also needs the Supabase client: it subscribes
+  // to `supabase.auth.onAuthStateChange`, and `supabase` throws a StateError
+  // until `initializeSupabase()` has created the client.
+  group('with the default Firebase app but no Supabase client', () {
+    setUp(() async {
+      await Firebase.initializeApp(options: _options);
+      expect(testSupabaseClient, isNull);
+      expect(() => supabase, throwsStateError);
+    });
+
+    // Catches: Firebase readiness alone entering the production coordinator
+    // (supabase_options.dart:46 <- authChanges <- _ensureCoordinator <-
+    // resume). No coordinator factory, message source or Supabase mock.
+    test('resume and initialize defer the production coordinator', () async {
+      var launchReads = 0;
+      PushTokenService.debugUseLaunchPayloadReader(() async {
+        launchReads++;
+        return (
+          didNotificationLaunchApp: true,
+          payload: 'action_url: https://applink.picnic.fan/vote/detail/5',
+        );
+      });
+      final delivered = <String>[];
+
+      await expectLater(PushTokenService.resume(), completes);
+      await expectLater(
+        PushTokenService.initialize(onActionUrlTap: delivered.add),
+        completes,
+      );
+      await expectLater(PushTokenService.resume(), completes);
+
+      expect(
+        delivered,
+        ['https://applink.picnic.fan/vote/detail/5'],
+        reason: 'the local launch destination needs neither SDK',
+      );
+      expect(launchReads, 1);
+    });
+
+    // Catches: a deferral that latches push setup off, a check that treats a
+    // logged-out client as unready, and a second coordinator per resume.
+    test('a ready logged-out client lets the next resume start it', () async {
+      var initialReads = 0;
+      PushTokenService.debugUseMessageSources(
+        PushMessageSources(
+          tokenRefreshes: const Stream.empty(),
+          foregroundMessages: const Stream.empty(),
+          openedMessages: const Stream.empty(),
+          getInitialMessage: () async {
+            initialReads++;
+            return _tapFor('https://applink.picnic.fan/vote/detail/6');
+          },
+        ),
+      );
+      PushTokenService.debugUseLaunchPayloadReader(
+        () async => (didNotificationLaunchApp: false, payload: null),
+      );
+      final delivered = <String>[];
+
+      await PushTokenService.initialize(
+        onNotificationTap: (message) =>
+            delivered.add(message.data['action_url'] as String),
+      );
+      await PushTokenService.resume();
+      expect(initialReads, 0, reason: 'no coordinator without a client');
+
+      final client = SupabaseClient('http://localhost:54321', 'test-anon-key');
+      testSupabaseClient = client;
+      addTearDown(() async {
+        testSupabaseClient = null;
+        await client.dispose();
+      });
+      expect(client.auth.currentSession, isNull, reason: 'logged out');
+
+      await PushTokenService.resume();
+      await Future<void>.delayed(Duration.zero);
+      expect(initialReads, 1);
+      expect(delivered, ['https://applink.picnic.fan/vote/detail/6']);
+
+      await PushTokenService.resume();
+      await Future<void>.delayed(Duration.zero);
+      expect(initialReads, 1, reason: 'the coordinator is reused');
     });
   });
 }

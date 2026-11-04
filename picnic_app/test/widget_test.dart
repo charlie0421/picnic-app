@@ -7,14 +7,19 @@
 
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_app/app.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/branch_link_service.dart';
+import 'package:picnic_lib/core/services/push_token_initialization_coordinator.dart';
+import 'package:picnic_lib/core/services/push_token_service.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/global_purchase_provider.dart';
+
+import '../../picnic_lib/test/helpers/fake_firebase_platform.dart';
 
 void main() {
   setUpAll(() {
@@ -121,6 +126,90 @@ void main() {
     expect(attempts, [false, true]);
   });
 
+  // Catches: an App resume that reaches push setup before Firebase is ready
+  // (the Sentry `[core/no-app]` path), and a resume after the UI retry that
+  // does not bring push up. This covers App resume wiring and the retry UI
+  // only; the injected startup is not MainInitializer.retrySdkInitialization
+  // or AppInitializer, and push uses a controlled coordinator.
+  testWidgets(
+      'App resume waits for Firebase, then recovers push once after retry', (
+    tester,
+  ) async {
+    final firebase = installFakeFirebasePlatform();
+    addTearDown(PushTokenService.debugResetForTest);
+    final push = _AppPushProbe();
+    PushTokenService.debugUseCoordinatorFactory(push.build);
+    final attempts = <bool>[];
+
+    Future<void> startup({required bool retry}) async {
+      attempts.add(retry);
+      if (!retry) throw StateError('sdk unavailable');
+      await Firebase.initializeApp(options: testFirebaseOptions);
+    }
+
+    void resumeApp() {
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+      tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    }
+
+    await tester.pumpWidget(
+      ProviderScope(
+        child: App(
+          startupAttempt: startup,
+          portalBuilder: (_) => const Text('startup-ready'),
+        ),
+      ),
+    );
+    for (var i = 0;
+        i < 20 &&
+            find
+                .byKey(const Key('initialization-error-screen'))
+                .evaluate()
+                .isEmpty;
+        i++) {
+      await tester.pump();
+    }
+    expect(
+      find.byKey(const Key('initialization-error-screen')),
+      findsOneWidget,
+    );
+
+    resumeApp();
+    await tester.pump();
+    expect(Firebase.apps, isEmpty);
+    expect(push.factoryCalls, 0, reason: 'no coordinator before Firebase');
+    expect(tester.takeException(), isNull);
+
+    await tester.tap(find.byKey(const Key('initialization-retry-button')));
+    for (var i = 0;
+        i < 20 && find.text('startup-ready').evaluate().isEmpty;
+        i++) {
+      await tester.pump();
+    }
+    expect(find.text('startup-ready'), findsOneWidget);
+    expect(attempts, [false, true]);
+    expect(firebase.initializeAppCalls, 1);
+    expect(Firebase.apps.map((app) => app.name), [defaultFirebaseAppName]);
+    expect(push.factoryCalls, 0, reason: 'the retry itself starts no push');
+
+    resumeApp();
+    await tester.pump();
+    expect(push.factoryCalls, 1);
+    expect(push.permissionRequests, 0, reason: 'resume never prompts');
+    expect(push.permissionChecks, 1);
+    expect(push.registered, ['controlled-token']);
+
+    // Every foreground re-checks permission on the same coordinator.
+    resumeApp();
+    await tester.pump();
+    expect(push.factoryCalls, 1, reason: 'the coordinator is reused');
+    expect(push.permissionRequests, 0);
+    expect(push.permissionChecks, 2);
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('late startup completion after App dispose is ignored', (
     tester,
   ) async {
@@ -211,4 +300,42 @@ void main() {
       expect(BranchLinkService.instance.isHandlerReady, isFalse);
     },
   );
+}
+
+/// Replaces only permission, token, message and registration boundaries; the
+/// coordinator logic is the real one. The token is a fixed test value.
+class _AppPushProbe {
+  int factoryCalls = 0;
+  int permissionRequests = 0;
+  int permissionChecks = 0;
+  final List<String> registered = <String>[];
+
+  PushTokenInitializationCoordinator build() {
+    factoryCalls++;
+    return PushTokenInitializationCoordinator(
+      PushInitializationDependencies(
+        initializeLocalNotifications: () async {},
+        requestPermission: () async {
+          permissionRequests++;
+          return PushPermissionStatus.granted;
+        },
+        checkPermission: () async {
+          permissionChecks++;
+          return PushPermissionStatus.granted;
+        },
+        getToken: () async => 'controlled-token',
+        subscribeToBroadcastTopic: () async {},
+        registerToken: (token) async => registered.add(token),
+        tokenRefreshes: const Stream.empty(),
+        foregroundMessages: const Stream.empty(),
+        openedMessages: const Stream.empty(),
+        authChanges: const Stream.empty(),
+        isSignedIn: () => true,
+        isSignedInEvent: (_) => false,
+        onForegroundMessage: (_) {},
+        onOpenedMessage: (_) {},
+        getInitialMessage: () async => null,
+      ),
+    );
+  }
 }
