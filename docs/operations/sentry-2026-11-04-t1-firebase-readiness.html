@@ -110,6 +110,7 @@ flutter test --no-pub test/widget_test.dart</pre>
 <h3>iOS 개발 환경 복구</h3>
 <p>사용자 승인과 macOS 관리자 인증 후 Xcode 27.2의 필수 구성요소를 설치했다. CoreSimulator는 <code>1174.9.2 → 1174.21</code>, XcodeSystemResources는 27.1 계열에서 27.2 계열로 갱신됐다. <code>xcodebuild -checkFirstLaunchStatus</code>와 <code>simctl list</code>가 exit 0으로 종료됐다.</p>
 <p>새 <code>Picnic Firebase QA</code> 시뮬레이터는 iOS 27.1에서 <code>bootstatus: Finished</code>를 확인했고 Flutter가 지원 기기로 인식했다. 기존 시뮬레이터의 데이터 마이그레이션 실패 기록은 별도로 남기고 데이터를 지우지 않았다. 이 결과는 개발 환경 복구에 한정하며 iOS 앱·Firebase·FCM 테스트 통과를 의미하지 않는다.</p>
+<p><strong>15시 후속 확인:</strong> iOS 27.1 QA 시뮬레이터를 다시 부팅하자 <code>Data Migration Failed</code>가 나타났다. <code>bootstatus</code>의 exit 0만으로 성공 처리하지 않았다. Xcode의 첫 실행 구성 검사는 계속 통과했지만 마이그레이션 실패의 원인은 확정하지 않았다. 해당 시뮬레이터의 데이터를 보존하고 종료한 뒤, 설치된 iOS 26.5 런타임과 iPhone 16 Pro 유형으로 별도 <code>Picnic Firebase QA 26.5</code>를 만들었다. 새 기기는 <code>bootstatus: Finished</code>와 exit 0을 확인했고 마이그레이션 실패 문구가 없었다. 후속 검증은 이 시뮬레이터에서 수행한다.</p>
 <h3>QA 실행 명령</h3>
 <pre>python3 scripts/qa/test_run_firebase_device_android.py -v
 QA_RUN_GRADLE_PROBE=1 python3 scripts/qa/test_run_firebase_device_android.py -v -k GradleDaemonProbe
