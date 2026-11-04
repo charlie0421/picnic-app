@@ -12,7 +12,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
 <p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 관련 자동 검증과 독립 코드 리뷰는 완료했다.</p>
-<p class="note"><strong>남은 조건:</strong> Android 격리 패키지의 네이티브 Firebase 테스트는 통과했다. 실제 모바일 앱의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+<p class="note"><strong>남은 조건:</strong> Android 격리 패키지의 네이티브 Firebase 테스트는 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
 <p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
@@ -115,6 +115,18 @@ flutter test --no-pub test/widget_test.dart</pre>
 QA_RUN_GRADLE_PROBE=1 python3 scripts/qa/test_run_firebase_device_android.py -v -k GradleDaemonProbe
 python3 scripts/qa/run_firebase_device_android.py --device &lt;adb-serial&gt;</pre>
 <p class="meta">실제 Gradle 종료 검증에는 설치된 JDK 21과 캐시된 Gradle 8.14.1 경로를 명시했다. Android 빌드에서는 Flutter가 선택한 JDK 17을 실제 daemon 기록으로 확인했다. 두 실행을 같은 JDK 검증으로 합치지 않았다. 기기 식별자·원시 로그·계정 정보는 Git 산출물에 포함하지 않는다.</p>
+</section>
+
+<section id="production-registration"><h2>기존 Android 운영 앱의 서버 등록 확인</h2>
+<p>2026-11-04 15:06 KST에 사용자가 지정한 테스트 계정으로 기존 운영 앱을 실행했다. 사용자는 해당 계정의 로그인 상태와 운영 환경 검증을 승인했다. 관측한 시스템 알림 권한 요청을 허용한 뒤 앱을 다시 실행했다. 별도로 표시된 다른 계정의 Google 동의 화면은 승인하지 않고 닫았다.</p>
+<table><thead><tr><th>확인 항목</th><th>관측 결과</th></tr></thead><tbody>
+<tr><td>설치된 앱</td><td>Android 13 · <code>1.3.5+130502</code>. 앱 갱신 시각은 기존 <code>2026-09-22 23:39:25</code>와 같았다. 이번 검증에서 운영 앱을 교체하지 않았다.</td></tr>
+<tr><td>앱의 등록 성공 기록</td><td>기기 시각 <code>11-04 15:06:45.408</code>에 <code>Push token registered (took 726ms)</code>. 해당 앱 UID로 범위를 제한한 로그에서 확인했다.</td></tr>
+<tr><td>지정 계정의 서버 기록</td><td>등록 행의 갱신 시각이 <code>2026-11-02 14:46:18.984 KST</code>에서 <code>2026-11-04 15:06:45.181 KST</code>로 바뀌었다. Android 토큰의 존재 여부도 확인했다. 토큰 원문과 사용자 ID는 조회 결과에 포함하지 않았다.</td></tr>
+</tbody></table>
+<p class="result">앱의 등록 성공 로그와 지정 계정의 서버 갱신 시각이 일치한다. 기존 Android 운영 앱에서 실제 서버 등록 경로가 동작한 근거다. 검증 후 기기 연결 도우미를 종료했고 운영 앱과 기기 데이터는 유지했다.</p>
+<p class="note">설치된 130502에는 이번 미배포 T1 가드가 없다. 이 결과는 수정본의 실패·재시도 복구, FCM 토큰의 실제 전달 가능성, 알림 수신 또는 iOS 등록 성공을 증명하지 않는다. 기존 서버 행에 iOS 토큰이 있다는 사실도 이번 iOS 실행 증거로 사용하지 않았다.</p>
+<p>사용자는 현재 iOS 검증 범위를 시뮬레이터로 지정했다. iOS 네이티브 Core와 준비 가드 검증 도구를 준비 중이며, 아직 iOS 앱 테스트 통과 결과는 없다. 실기기 FCM 등록 검증은 현재 범위에서 보류한다.</p>
 </section>
 
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
