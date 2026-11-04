@@ -243,6 +243,7 @@ python3 scripts/qa/run_full_app_retry_android.py \
 <p>사용자는 현재 iOS 검증 범위를 시뮬레이터로 지정했다. 검증 도구의 코드 검토는 완료했고, 네이티브 실행 상태는 <a href="#ios-qa">iOS 시뮬레이터 검증</a>에 구분했다. 실기기 FCM 등록 검증은 현재 범위에서 보류한다.</p>
 </section>
 
+<section id="real-fcm-preparation"><h2>수정본의 실제 FCM 등록 준비</h2><p>Fable/high의 T1-B 절차를 Sol/high가 독립 검토했고 복구·인증 판정·대상 확인·개인정보 처리의 보완 뒤 APPROVE를 받았다. 제품 디버그 1.3.6+130605 빌드, APK 검사, 새 GMS 에뮬레이터의 사용자 0 확인과 설치 APK 해시 대조를 통과했다. 실기기 운영 앱과 기존 AVD는 유지됐다. 로그 이벤트 필터의 독립 소스 리뷰와 합성 출력 검증도 통과했다.</p><p>앱 첫 실행·Google 로그인·실제 FCM 등록·실기기 재등록 복구는 아직 미실행이다. 사용자 로그인 준비를 확인한 뒤 진행한다. 이 준비 결과를 실제 등록이나 T1 완료로 표시하지 않는다. 절차와 실행 증거: <a href="sentry-2026-11-04-real-fcm-qa.html">T1-B 실제 FCM 검증 보고서</a>.</p></section>
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
 <p>iOS와 Android 테스트 빌드에서 아래 항목을 확인해야 한다. 사용자 ID·FCM/APNs 토큰 원문 없이 단계 기록과 등록 성공 응답을 남긴다.</p>
 <ol>
