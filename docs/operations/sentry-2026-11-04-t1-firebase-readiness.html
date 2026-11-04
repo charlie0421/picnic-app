@@ -11,8 +11,8 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <body><main>
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
-<p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 이 Firebase 가드의 자동 검증과 독립 코드 리뷰는 완료했다. 후속 Fable 감사에서 찾은 Supabase 미준비 경계도 별도로 재현했다. 보완 후 원래 재현 테스트는 통과했으며, 보완 코드의 Sol/high 독립 리뷰도 APPROVE로 완료했다.</p>
-<p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+<p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 이 Firebase 가드의 자동 검증과 독립 코드 리뷰는 완료했다. 후속 Fable 감사에서 찾은 Supabase 미준비 경계도 별도로 재현했다. 보완 후 원래 재현 테스트는 통과했으며, 보완 코드의 Sol/high 독립 리뷰도 APPROVE로 완료했다. 이후 Android 실기기에서 실제 앱의 초기화 실패 → 오류 화면 → 재시도 → 푸시 초기화 연결을 검증했다. 수정 전 코드는 준비 전 복귀 단계에서 실패했고, 수정 후 코드는 A1–A5와 정리를 모두 통과했다. 외부 푸시 권한·토큰·등록은 제어값이다.</p>
+<p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 Android 앱 재시도 연결은 제어된 푸시 경계까지 검증했다. 실제 FCM 서버 등록·알림 전달과 iOS 전체 앱 연결은 남아 있으므로 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
 <p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
@@ -71,7 +71,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <p>위 실행 결과는 조정자가 직접 확인했다. 구현자가 별도로 보고한 seed 7·선택 실행·core SDK seed 42 통과와 임시 변이 검출은 추가 근거다. 이를 조정자의 직접 실행으로 표기하지 않았다. 전체 저장소 테스트나 기기 테스트의 통과를 주장하지 않는다.</p>
 <table><thead><tr><th>독립 리뷰 지적</th><th>조치와 판정</th></tr></thead><tbody>
 <tr><td>P2-1 · 테스트 간 Firebase 상태 누수</td><td>테스트마다 빈 Firebase 플랫폼을 설치하고 종료 시 원래 플랫폼을 복원했다. 최초 seed 42의 5실패가 제거됐고, 원 리뷰어가 FIXED로 판정했다.</td></tr>
-<tr><td>P2-2 · 실제 앱 재시도부터 푸시 등록까지 통합 검증 없음</td><td>실제 core SDK 단계에서 첫 Firebase 실패, 동일 오류·stack 전달, 실패 단계만 재시도, 기본 앱 생성, 성공 후 중복 실행 방지를 검증했다. 준비 후 initialize/resume의 등록 복구도 확인했다. 원 리뷰어는 단일 가드의 코드 승인 범위 조정을 수용했다. 전체 모바일 연결 공백은 해결 또는 통합 통과로 기록하지 않는다.</td></tr>
+<tr><td>P2-2 · 실제 앱 재시도부터 푸시 등록까지 통합 검증 없음</td><td>실제 core SDK 단계에서 첫 Firebase 실패, 동일 오류·stack 전달, 실패 단계만 재시도, 기본 앱 생성, 성공 후 중복 실행 방지를 검증했다. 준비 후 initialize/resume의 등록 복구도 확인했다. 원 리뷰어는 단일 가드의 코드 승인 범위 조정을 수용했다. 이 최초 리뷰 시점에는 전체 모바일 연결이 미검증이었다. 후속 Android의 제어된 통합 실행 결과는 <a href="#full-chain-qa-plan">전체 앱 연결 검증</a>에 기록한다.</td></tr>
 </tbody></table>
 <p>Fable 5.1/high가 버전 비교와 수정 설계를 검토했고 Opus 5.5/high가 구현했다. 다른 공급자인 Sol/high가 읽기 전용 리뷰와 같은 리뷰어의 1회 재검증을 수행했다. 최종 판정은 <strong>APPROVE</strong>이며 각 작업자의 완료 정산을 확인했다. 이 승인은 현재 코드와 테스트 범위에 한정한다.</p>
 <h3>재현 가능한 검증 명령</h3>
@@ -152,7 +152,7 @@ python3 scripts/qa/run_firebase_device_ios.py \
 </section>
 
 <section id="retry-audit"><h2>Fable Apex 후속 감사와 추가 재현</h2>
-<p>사용자의 Apex·Fable 활용 요청에 따라 <code>claude-fable-5-1/high</code>가 전체 재시도 연결을 읽기 전용으로 감사했다. 조정자는 실제 실행 모델과 제한된 도구, 작업 완료 정산을 확인했다. 감사는 제품 소스를 대조한 결과이며 테스트나 네이티브 실행 결과가 아니다.</p>
+<p>사용자의 Apex·Fable 활용 요청에 따라 <code>claude-fable-5-1/high</code>가 전체 재시도 연결을 읽기 전용으로 감사했다. 조정자는 실제 실행 모델과 제한된 도구, 작업 완료 정산을 확인했다. 감사는 제품 소스를 대조한 결과이며 테스트나 네이티브 실행 결과가 아니다. 아래 표는 감사 당시의 공백을 기록한다. 후속 Android 실행 결과는 <a href="#full-chain-qa-plan">전체 앱 연결 검증</a>에 별도로 구분한다.</p>
 <table><thead><tr><th>경로</th><th>확인한 연결</th><th>실행 증거의 한계</th></tr></thead><tbody>
 <tr><td>최초 실패와 UI 재시도</td><td><code>MainInitializer.retrySdkInitialization()</code>의 실패 결과를 App이 받아 오류 화면을 표시한다. 재시도는 실패한 SDK 단계를 다시 실행하고, 성공 뒤 <code>AppInitializer.initializeApp()</code>으로 이어진다.</td><td>기존 widget 테스트의 <code>startupAttempt</code>는 SDK 대기와 AppInitializer 호출을 포함한 시도 전체를 대체한다. 실제 static 체인을 실행한 증거가 아니다.</td></tr>
 <tr><td>준비 후 푸시 시작</td><td>모바일 AppInitializer의 백그라운드 작업이 <code>PushTokenService.initialize()</code>을 호출한다.</td><td>호스트 테스트에서는 모바일 조건을 통과하지 않는다. 격리 네이티브 테스트도 전체 앱 연결을 실행하지 않았다.</td></tr>
@@ -178,13 +178,21 @@ python3 scripts/qa/run_firebase_device_ios.py \
 <tr><td>독립 코드 리뷰</td><td>Sol/high · APPROVE · 차단 지적 없음</td><td>준비 전 지연과 준비 후 복구, 로그아웃 클라이언트의 auth stream, 팩토리 오류 경계, 테스트 격리와 App 복귀 연결을 확인했다. 리뷰어는 테스트·빌드를 실행하지 않았다.</td></tr>
 </tbody></table>
 <p>실제 App 복귀 콜백을 거치는 widget 회귀는 오류 화면 → 복귀 → 재시도 → 준비 후 복귀를 검증한다. 이 테스트는 후속 Supabase 보완 전에도 통과하므로 수정 전 실패 증거로 세지 않는다. 토큰·등록은 제어값이며 전체 <code>retrySdkInitialization → App → AppInitializer</code>나 실제 FCM 등록으로 표시하지 않는다. Supabase 준비 후 복구는 기존 <code>testSupabaseClient</code> 주입을 사용했으며 실제 <code>Supabase.initialize()</code>의 인증 복원 중 동작까지 검증하지 않았다.</p>
-<p class="note">네트워크 차단만으로 Firebase Core 초기화 실패나 10초 timeout을 확실하게 만들 수 있다는 근거는 없다. 전체 앱 검증은 관측된 실패 또는 재현이 확인된 오류 주입 조건을 먼저 정해야 한다. 잘못된 iOS API 키 형식은 네이티브 종료를 일으키므로 Dart 재시도 검증에 사용하지 않는다.</p>
+<p class="note">네트워크 차단만으로 Firebase Core 초기화 실패나 10초 timeout을 확실하게 만들 수 있다는 근거는 없다. 후속 Android 전체 앱 검증은 첫 Firebase 호출만 네이티브 실행 전에 거부하는 제어된 조건을 사용했다. 잘못된 iOS API 키 형식은 네이티브 종료를 일으키므로 Dart 재시도 검증에 사용하지 않는다.</p>
 <p>iOS 시뮬레이터 전체가 APNs를 지원하지 않는 것은 아니다. Apple은 iOS 16·macOS 13·Apple silicon 또는 T2 조건의 시뮬레이터에서 APNs Sandbox를 지원한다고 명시했다(<a href="https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes">Xcode 14 릴리스 노트</a>). 이번 QA 앱은 자동 초기화를 끄고 제어값을 사용했으므로 실제 APNs·FCM 등록을 검증하지 않았다. 사용자가 지정한 시뮬레이터 범위는 유지한다.</p>
 </section>
 
-<section id="full-chain-qa-plan"><h2>다음 검증: 실제 앱 초기화·재시도 연결</h2>
+<section id="full-chain-qa-plan"><h2>실제 앱 초기화·재시도 연결 검증</h2>
 <p>Fable 5.1/high가 후속 테스트 설계를 완료했다. 조정자는 설치된 Flutter 소스에서 테스트 바인딩의 <code>debugCheckZone()</code>이 true를 반환하고, <code>PlatformAssetBundle.load()</code>가 <code>flutter/assets</code> 채널을 사용하는 것을 확인했다. 따라서 제품 초기화 API를 추가하지 않고 테스트 전용 플랫폼 위임과 자산 주입을 사용할 수 있다.</p>
-<p>연결된 Android 실기기에서 Google Play 서비스가 존재함을 확인했다. 기존 운영 앱은 <code>1.3.5+130502</code>이며 설치·갱신 시각은 그대로였다. 현재 수정본의 전체 앱 빌드 산출물은 없다. 아래 도구는 Opus/high에 구현을 전달했으며 독립 코드 리뷰와 네이티브 실행은 아직 남아 있다.</p>
+<p>Opus 5.5/high가 QA 도구를 구현했고, Sol/high의 독립 검토와 수정 재검증을 통과했다. 구현자는 Python 회귀 테스트 <b>46건</b>, Flutter 호스트 테스트 <b>12건</b> 통과와 새 Dart 코드 분석 이상 없음을 보고했다. 조정자는 검토 대상 9개 파일의 해시, 원래 패키지 응답 반례의 수정 결과, 설치된 Flutter의 사전 빌드 실행 경로와 실제 이전 QA APK의 manifest 출력 형식을 확인했다. 소스 승인은 네이티브 실행 성공을 뜻하지 않는다.</p>
+<p>연결된 Android 실기기에는 Google Play 서비스가 있다. 기존 운영 앱은 마지막 확인 시 <code>1.3.5+130502</code>였으며 이번 QA의 교체 대상이 아니다. 새 실행에서 사용자 0과 QA 패키지 부재 검사를 통과했다. 수정 전 비교는 예상한 A2 실패를 재현했다. 수정 후 실행은 A1–A5와 정리를 모두 통과했다. 두 실행 모두 QA 패키지 부재와 프로세스 종료를 확인했다.</p>
+<table><thead><tr><th>검토에서 수정한 문제</th><th>최종 보호 조건</th></tr></thead><tbody>
+<tr><td>검사 후 재빌드된 APK가 먼저 설치됨</td><td>한 APK를 별도 경로에 복사하고 실제 manifest·파일 목록·해시를 검사한다. <code>flutter drive --use-application-binary</code>가 그 파일을 사용한다. SDK 상태가 이 경로를 뒷받침하지 못하면 중단한다.</td></tr>
+<tr><td>Android 사용자 범위가 지정되지 않음</td><td>전체 사용자 목록이 [0]이고 현재 사용자도 0이어야 한다. 설치·정리에 사용자 0을 명시하고 정리 전에도 범위를 확인한다. 다중 사용자와 불명확한 응답은 거부한다.</td></tr>
+<tr><td>잘못된 패키지 응답을 부재로 오판</td><td>완전한 패키지 레코드만 해석한다. <code>package:</code>와 공백이 섞인 잘못된 레코드는 unknown이며 소유권이나 정리 성공의 근거가 되지 않는다.</td></tr>
+<tr><td>상대경로 SDK를 서로 다른 작업 폴더에서 해석</td><td>절대경로가 아닌 SDK 설정은 파일·기기 검사 전에 거부한다. 전역 Flutter 설정을 수정하지 않는다.</td></tr>
+</tbody></table>
+<p>성공 판정에는 driver 종료 성공과 새 구조화 응답의 A1–A5·cleanup 순서, <code>bodyCompleted=true</code>가 모두 필요하다. 로그 문자열만으로 통과를 선언하지 않는다. 실제 권한·토큰·등록은 계속 제어값이다.</p>
 <ol>
 <li>새 임시 Flutter 프로젝트에 제품 Dart 소스와 필요한 비민감 자산을 복사한다. 실제 설정·서명·Google 서비스 파일은 복사하지 않는다. 앱 ID는 고정된 별도 QA 패키지를 사용한다.</li>
 <li>테스트 전용 Firebase 플랫폼 래퍼가 첫 <code>initializeApp()</code> 호출을 네이티브 실행 전에 거부한다. 두 번째 호출은 실제 플랫폼으로 전달한다. 잘못된 옵션이나 네트워크 차단으로 실패를 유도하지 않는다.</li>
@@ -193,8 +201,34 @@ python3 scripts/qa/run_firebase_device_ios.py \
 <li>설치 전 동일 QA 패키지가 있거나 조회 결과가 불명확하면 중단한다. 실행이 소유한 QA 패키지만 정리하고 앱 부재·프로세스 종료가 확인돼야 성공으로 기록한다.</li>
 </ol>
 <p>Supabase와 Sentry 대상은 기기 내부 루프백 서버로, 권한·토큰·등록·메시지는 제어값으로 둔다. 제품 네트워크 확인의 DNS와 일부 네이티브 SDK 초기화는 남을 수 있으므로 모든 통신이 차단된 테스트라고 주장하지 않는다. 동의 화면 대기·네트워크 실패·업데이트 화면은 Firebase 재시도 실패와 구분해 보고한다.</p>
-<p>수정 전 비교는 <code>d544f015b</code>의 허용된 소스만 추출한 별도 읽기용 자료로 수행할 수 있다. 해당 기준점에 기존 앱 테스트 주입 지점과 재시도 API가 있는 것은 확인했다. 현재 테스트 도구는 유지하고 제품 소스만 바꿔, 준비 전 복귀에서 푸시 팩토리가 생성되는 실패를 검출할 계획이다. 아직 이 비교를 실행하지 않았다.</p>
-<p class="note">이 검증이 통과해도 실제 FCM 서버 등록을 증명하지 않는다. 수정본의 실제 등록에는 사용할 앱·Firebase 설정과 정상 대화형 로그인을 확정해야 한다. 별도 패키지가 반드시 Firebase 콘솔의 새 앱 등록을 요구한다고 아직 단정하지 않는다. Firebase는 <code>FirebaseOptions</code>를 통한 초기화를 지원하며 Firebase App ID는 Android 패키지명이 아니다(<a href="https://firebase.google.com/support/guides/init-options">Firebase 초기화 옵션</a>). 실제 적용 가능성은 해당 프로젝트의 앱 설정·API 제한 등을 확인해야 한다. 콘솔 설정이나 기존 운영 앱은 변경하지 않았다.</p>
+<p>수정 전 비교용으로 <code>d544f015b</code>의 허용된 코드·자산 969개를 별도 임시 자료로 준비하고 Git blob과 파일 해시를 기록했다. 실제 설정·서명 파일은 포함하지 않았다. 현재 기준점 <code>b1db62e6d</code>와 비교 대상 제품 파일의 차이는 <code>push_token_service.dart</code> 한 파일이다. 두 실행은 같은 QA 도구를 사용한다. 수정 전 실행은 실제 초기화 오류 화면(A1)을 통과했다. 기본 Firebase 앱이 없는 상태에서 복귀하자 팩토리가 1회 생성돼 A2의 기대값 0과 불일치했다. 검사한 APK와 빌드 출력의 해시는 실행 후에도 같았고, 정리 후 QA 패키지 부재·프로세스 0개·Gradle 정리를 확인했다. 이 결과는 제어된 첫 Firebase 호출 거부 조건에서 기존 결함을 검출한 RED이며, 실제 Firebase 서버 장애 재현은 아니다. 수정 후 실행은 같은 조건에서 A2를 통과했고 실제 재시도 이후 단계도 모두 통과했다.</p>
+<h3>Android 실제 실행 결과 · 2026-11-04</h3>
+<table><thead><tr><th>단계</th><th>수정 전 d544f015b</th><th>수정 후 b1db62e6d</th></tr></thead><tbody>
+<tr><td>A1 · 최초 실패 UI</td><td>통과. Firebase 호출 1회, 네이티브 전달 0회, 기본 앱 없음.</td><td>같은 조건으로 통과. coordinator 생성 0회.</td></tr>
+<tr><td>A2 · 준비 전 복귀</td><td><strong>예상한 실패.</strong> coordinator 생성 기대 0회, 실제 1회.</td><td>통과. coordinator 생성 0회.</td></tr>
+<tr><td>A3 · 실제 재시도 버튼</td><td>앞 단계 실패로 미실행.</td><td>Firebase 호출 누적 2회, 네이티브 전달 1회. [DEFAULT] 생성, Messaging 자동 초기화 false.</td></tr>
+<tr><td>A4 · AppInitializer의 푸시 시작</td><td>미실행.</td><td>준비 완료 UI. coordinator 1개, 제어된 권한 요청 1회, 권한 확인 0회, 등록 콜백 1회. 재시도 후 resumed 이벤트 없음.</td></tr>
+<tr><td>A5 · 준비 후 복귀</td><td>미실행.</td><td>같은 coordinator 재사용. 권한 요청 누적 1회, 권한 확인 1회, 등록 콜백 누적 2회. Firebase 호출은 누적 2회 유지, 재시도 이후 zone 치명 오류 0건.</td></tr>
+<tr><td>정리</td><td>QA 패키지 부재, QA 프로세스 0개, Gradle 정리 확인.</td><td>위젯 해제 시 구독 4개 취소. QA 패키지 부재, QA 프로세스 0개, Gradle 정리 확인.</td></tr>
+</tbody></table>
+<p>수정 전 runner는 예상한 테스트 실패로 exit 1, 수정 후 runner와 driver는 exit 0이었다. 수정 후 APK 빌드 단계는 737.0초, 사전 빌드 APK의 설치·driver 실행 단계는 87.3초였다. 새 driver 응답은 <code>[A1, A2, A3, A4, A5, cleanup]</code>과 <code>bodyCompleted=true</code>를 기록했다. 판정에는 다른 앱의 로그가 섞일 수 있는 출력 꼬리 대신 이 응답과 테스트 결과를 사용했다.</p>
+<p>두 실행 모두 검사한 APK와 빌드 출력의 SHA256이 실행 후에도 같았다. 수정 후 APK의 SHA256은 <code>1eb37212856891256dea40799efe251c3068f5d2aaeb978880966058ffb8dd61</code>이다. 검토한 QA 소스 9파일도 실행 후 해시가 유지됐다. 정리의 uninstall 명령은 exit 1이었지만 최종 조회에서 패키지 부재와 프로세스 0개를 확인했다. exit 1의 원인은 추정하지 않았으며, 명령 성공만으로 정리 완료를 판단하지 않았다.</p>
+<p>합성 설정 두 파일은 각각 한 번 제공됐고 거부된 설정 요청은 없었다. 루프백 서버는 track-country·version·products 요청을 받았으며 예상 밖의 요청은 없었다. 이는 루프백 관측 범위의 결과이며 전체 네이티브 SDK 통신이 없었다는 뜻은 아니다. 실제 Supabase 초기화는 합성 루프백 설정을 사용했고, 푸시 coordinator 팩토리는 제어값이므로 실제 인증 복원이나 운영 등록까지 검증한 것은 아니다.</p>
+<h3>QA 소스와 실행 명령</h3>
+<p><a href="../../scripts/qa/run_full_app_retry_android.py">실행기</a> · <a href="../../scripts/qa/test_run_full_app_retry_android.py">실행기 회귀 테스트</a> · <a href="../../picnic_app/test_support/full_app_retry_android_qa.dart">실제 앱 테스트</a> · <a href="../../picnic_app/test_support/full_app_retry_driver.dart">구조화 결과 driver</a></p>
+<pre>python3 scripts/qa/test_run_full_app_retry_android.py
+cd picnic_app
+flutter test --dart-define=PANGLE_ENVIRONMENT=sandbox \
+  --dart-define=PAYMENT_ENVIRONMENT=sandbox test/full_app_retry/
+cd ..
+python3 scripts/qa/run_full_app_retry_android.py \
+  --device &lt;authorized-adb-serial&gt; --source-revision b1db62e6d71319434943b380b8aab7b17b0c0d3c
+# 수정 전 비교: 검증된 비민감 소스 snapshot 경로를 별도로 지정한다.
+python3 scripts/qa/run_full_app_retry_android.py \
+  --device &lt;authorized-adb-serial&gt; --source-root &lt;verified-red-source-snapshot&gt; \
+  --source-revision d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</pre>
+<p class="meta"><code>--source-revision</code>은 기록용 표기다. 해당 커밋을 자동으로 checkout하거나 소스 일치를 보장하지 않는다. 이번 비교는 별도로 검증한 Git blob·파일 해시와 같은 QA 도구를 사용했다.</p>
+<p class="note">이 검증의 통과는 실제 FCM 서버 등록을 증명하지 않는다. 수정본의 실제 등록에는 사용할 앱·Firebase 설정과 정상 대화형 로그인을 확정해야 한다. 별도 패키지가 반드시 Firebase 콘솔의 새 앱 등록을 요구한다고 아직 단정하지 않는다. Firebase는 <code>FirebaseOptions</code>를 통한 초기화를 지원하며 Firebase App ID는 Android 패키지명이 아니다(<a href="https://firebase.google.com/support/guides/init-options">Firebase 초기화 옵션</a>). 실제 적용 가능성은 해당 프로젝트의 앱 설정·API 제한 등을 확인해야 한다. 콘솔 설정이나 기존 운영 앱은 변경하지 않았다.</p>
 </section>
 
 <section id="production-registration"><h2>기존 Android 운영 앱의 서버 등록 확인</h2>
@@ -212,8 +246,8 @@ python3 scripts/qa/run_firebase_device_ios.py \
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
 <p>iOS와 Android 테스트 빌드에서 아래 항목을 확인해야 한다. 사용자 ID·FCM/APNs 토큰 원문 없이 단계 기록과 등록 성공 응답을 남긴다.</p>
 <ol>
-<li>Firebase 최초 초기화를 지연하거나 실패시킨 상태에서 앱을 복귀시켜 <code>core/no-app</code>이 발생하지 않는지 확인한다.</li>
-<li>실제 앱 재시도로 Firebase를 준비시킨 뒤 <code>MainInitializer → App → AppInitializer → PushTokenService</code> 연결에서 FCM 등록 성공을 확인한다.</li>
+<li>Android의 제어된 첫 호출 실패와 앱 복귀는 위 실행에서 통과했다. 실제 네이티브 초기화 지연·실패 조건과 iOS 전체 앱 복귀는 별도로 확인한다.</li>
+<li>Android의 <code>MainInitializer → App → AppInitializer → PushTokenService</code> 연결은 제어된 등록 콜백까지 통과했다. 수정본에서 지정 테스트 계정의 실제 FCM 서버 등록과 알림 전달을 확인한다.</li>
 <li>권한 창 중 연속 resume가 한 작업에 합류하고, dispose 뒤 늦은 완료가 이전 owner를 갱신하지 않는지 확인한다.</li>
 <li>Firebase 준비 전후의 cold remote 알림과 local launch 알림 목적지가 각 소스에서 한 번 전달되는지 확인한다.</li>
 </ol>
