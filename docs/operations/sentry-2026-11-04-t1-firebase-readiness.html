@@ -182,6 +182,21 @@ python3 scripts/qa/run_firebase_device_ios.py \
 <p>iOS 시뮬레이터 전체가 APNs를 지원하지 않는 것은 아니다. Apple은 iOS 16·macOS 13·Apple silicon 또는 T2 조건의 시뮬레이터에서 APNs Sandbox를 지원한다고 명시했다(<a href="https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes">Xcode 14 릴리스 노트</a>). 이번 QA 앱은 자동 초기화를 끄고 제어값을 사용했으므로 실제 APNs·FCM 등록을 검증하지 않았다. 사용자가 지정한 시뮬레이터 범위는 유지한다.</p>
 </section>
 
+<section id="full-chain-qa-plan"><h2>다음 검증: 실제 앱 초기화·재시도 연결</h2>
+<p>Fable 5.1/high가 후속 테스트 설계를 완료했다. 조정자는 설치된 Flutter 소스에서 테스트 바인딩의 <code>debugCheckZone()</code>이 true를 반환하고, <code>PlatformAssetBundle.load()</code>가 <code>flutter/assets</code> 채널을 사용하는 것을 확인했다. 따라서 제품 초기화 API를 추가하지 않고 테스트 전용 플랫폼 위임과 자산 주입을 사용할 수 있다.</p>
+<p>연결된 Android 실기기에서 Google Play 서비스가 존재함을 확인했다. 기존 운영 앱은 <code>1.3.5+130502</code>이며 설치·갱신 시각은 그대로였다. 현재 수정본의 전체 앱 빌드 산출물은 없다. 아래 도구는 Opus/high에 구현을 전달했으며 독립 코드 리뷰와 네이티브 실행은 아직 남아 있다.</p>
+<ol>
+<li>새 임시 Flutter 프로젝트에 제품 Dart 소스와 필요한 비민감 자산을 복사한다. 실제 설정·서명·Google 서비스 파일은 복사하지 않는다. 앱 ID는 고정된 별도 QA 패키지를 사용한다.</li>
+<li>테스트 전용 Firebase 플랫폼 래퍼가 첫 <code>initializeApp()</code> 호출을 네이티브 실행 전에 거부한다. 두 번째 호출은 실제 플랫폼으로 전달한다. 잘못된 옵션이나 네트워크 차단으로 실패를 유도하지 않는다.</li>
+<li><code>MainInitializer.initializeApp()</code>과 실제 App을 실행한다. <code>startupAttempt</code>는 주입하지 않는다. 준비 완료 후 포털 내용만 기존 <code>portalBuilder</code>로 표식으로 대체해 초기화·재시도 경로를 유지한다. 포털 화면 동작은 검증 범위에서 제외한다.</li>
+<li>오류 화면에서 복귀 시 푸시가 시작되지 않는지 확인한다. 실제 재시도 버튼을 눌러 네이티브 기본 앱 생성과 AppInitializer의 푸시 초기화 호출을 확인한다. 그 뒤 복귀가 같은 coordinator를 재사용하는지 확인한다.</li>
+<li>설치 전 동일 QA 패키지가 있거나 조회 결과가 불명확하면 중단한다. 실행이 소유한 QA 패키지만 정리하고 앱 부재·프로세스 종료가 확인돼야 성공으로 기록한다.</li>
+</ol>
+<p>Supabase와 Sentry 대상은 기기 내부 루프백 서버로, 권한·토큰·등록·메시지는 제어값으로 둔다. 제품 네트워크 확인의 DNS와 일부 네이티브 SDK 초기화는 남을 수 있으므로 모든 통신이 차단된 테스트라고 주장하지 않는다. 동의 화면 대기·네트워크 실패·업데이트 화면은 Firebase 재시도 실패와 구분해 보고한다.</p>
+<p>수정 전 비교는 <code>d544f015b</code>의 허용된 소스만 추출한 별도 읽기용 자료로 수행할 수 있다. 해당 기준점에 기존 앱 테스트 주입 지점과 재시도 API가 있는 것은 확인했다. 현재 테스트 도구는 유지하고 제품 소스만 바꿔, 준비 전 복귀에서 푸시 팩토리가 생성되는 실패를 검출할 계획이다. 아직 이 비교를 실행하지 않았다.</p>
+<p class="note">이 검증이 통과해도 실제 FCM 서버 등록을 증명하지 않는다. 수정본의 실제 등록에는 사용할 앱·Firebase 설정과 정상 대화형 로그인을 확정해야 한다. 별도 패키지가 반드시 Firebase 콘솔의 새 앱 등록을 요구한다고 아직 단정하지 않는다. Firebase는 <code>FirebaseOptions</code>를 통한 초기화를 지원하며 Firebase App ID는 Android 패키지명이 아니다(<a href="https://firebase.google.com/support/guides/init-options">Firebase 초기화 옵션</a>). 실제 적용 가능성은 해당 프로젝트의 앱 설정·API 제한 등을 확인해야 한다. 콘솔 설정이나 기존 운영 앱은 변경하지 않았다.</p>
+</section>
+
 <section id="production-registration"><h2>기존 Android 운영 앱의 서버 등록 확인</h2>
 <p>2026-11-04 15:06 KST에 사용자가 지정한 테스트 계정으로 기존 운영 앱을 실행했다. 사용자는 해당 계정의 로그인 상태와 운영 환경 검증을 승인했다. 관측한 시스템 알림 권한 요청을 허용한 뒤 앱을 다시 실행했다. 별도로 표시된 다른 계정의 Google 동의 화면은 승인하지 않고 닫았다.</p>
 <table><thead><tr><th>확인 항목</th><th>관측 결과</th></tr></thead><tbody>
