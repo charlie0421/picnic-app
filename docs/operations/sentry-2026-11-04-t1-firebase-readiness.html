@@ -11,7 +11,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <body><main>
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
-<p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 관련 자동 검증과 독립 코드 리뷰는 완료했다.</p>
+<p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 이 Firebase 가드의 자동 검증과 독립 코드 리뷰는 완료했다. 후속 Fable 감사에서 찾은 Supabase 미준비 경계도 별도로 재현했으며, 아래 보완은 구현·검토 중이다.</p>
 <p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 SDK 실패 → 앱 재시도 → FCM 서버 등록 연결은 검증하지 않았다. iOS·Android의 전체 연결 검증이 끝나기 전에는 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
@@ -148,6 +148,29 @@ python3 scripts/qa/run_firebase_device_ios.py \
   --simulator-runtime com.apple.CoreSimulator.SimRuntime.iOS-26-5 \
   --developer-dir /Applications/Xcode.app/Contents/Developer \
   --build-timeout 900 --test-timeout 900</pre>
+</section>
+
+<section id="retry-audit"><h2>Fable Apex 후속 감사와 추가 재현</h2>
+<p>사용자의 Apex·Fable 활용 요청에 따라 <code>claude-fable-5-1/high</code>가 전체 재시도 연결을 읽기 전용으로 감사했다. 조정자는 실제 실행 모델과 제한된 도구, 작업 완료 정산을 확인했다. 감사는 제품 소스를 대조한 결과이며 테스트나 네이티브 실행 결과가 아니다.</p>
+<table><thead><tr><th>경로</th><th>확인한 연결</th><th>실행 증거의 한계</th></tr></thead><tbody>
+<tr><td>최초 실패와 UI 재시도</td><td><code>MainInitializer.retrySdkInitialization()</code>의 실패 결과를 App이 받아 오류 화면을 표시한다. 재시도는 실패한 SDK 단계를 다시 실행하고, 성공 뒤 <code>AppInitializer.initializeApp()</code>으로 이어진다.</td><td>기존 widget 테스트의 <code>startupAttempt</code>는 SDK 대기와 AppInitializer 호출을 포함한 시도 전체를 대체한다. 실제 static 체인을 실행한 증거가 아니다.</td></tr>
+<tr><td>준비 후 푸시 시작</td><td>모바일 AppInitializer의 백그라운드 작업이 <code>PushTokenService.initialize()</code>을 호출한다.</td><td>호스트 테스트에서는 모바일 조건을 통과하지 않는다. 격리 네이티브 테스트도 전체 앱 연결을 실행하지 않았다.</td></tr>
+<tr><td>앱 복귀</td><td>오류 화면과 재시도 중에도 App의 lifecycle observer가 <code>PushTokenService.resume()</code>을 호출한다.</td><td>기존 주입 지점으로 실제 App 복귀 콜백과 준비 전후의 푸시 가드를 함께 검증할 수 있다. 이 widget 회귀를 추가하는 중이다.</td></tr>
+</tbody></table>
+<h3>재현된 추가 경계: Firebase 준비, Supabase 미준비</h3>
+<p>조정자는 격리된 호스트 테스트에서 Firebase <code>[DEFAULT]</code> 앱만 생성한 뒤 실제 <code>PushTokenService.resume()</code>을 호출했다. Supabase 클라이언트·coordinator 팩토리·메시지 소스는 대체하지 않았다. 테스트는 exit 1로 실패했고 다음 스택을 확인했다.</p>
+<pre>PushTokenService.resume()
+  → _ensureCoordinator()
+  → _createCoordinator()
+  → authChanges: supabase.auth.onAuthStateChange
+  → StateError: Supabase가 초기화되지 않았습니다.</pre>
+<p>현재 Firebase 가드는 이 상태에서 실제 coordinator 생성으로 진입한다. Supabase getter의 실패를 App의 unawaited 복귀 호출이 받는 경계가 남아 있다. 이는 새로 재현한 준비 상태 결함이며, 기존 Sentry 두 이슈의 원인이 이 Supabase 오류라는 증거는 아니다.</p>
+<p>설치된 <code>supabase_flutter 2.12.0</code>은 클라이언트를 만든 뒤 인증 복원을 기다린다. 따라서 모든 Supabase 초기화 timeout이 클라이언트 부재를 뜻하지는 않는다. 이번 재현은 클라이언트가 아직 없는 경우에 한정한다.</p>
+<h3>보완 범위와 다음 확인</h3>
+<p>기존 서비스 안에서 실제 coordinator 생성에 필요한 Firebase 기본 앱과 Supabase 클라이언트를 확인한다. 클라이언트가 없으면 생성을 미루고 다음 호출에서 다시 확인한다. 로그인 여부를 준비 조건으로 사용하지 않는다. 기존 제어용 팩토리, 알림 목적지 전달, 예상 밖의 팩토리 오류 보고를 유지한다. Opus/high 구현 후 다른 공급자의 Sol/high가 검토한다. 아직 이 보완의 테스트 통과나 코드 승인을 주장하지 않는다.</p>
+<p>실제 App 복귀 콜백을 거치는 widget 회귀는 오류 화면 → 복귀 → 재시도 → 준비 후 복귀를 검증한다. 토큰·등록은 제어값이며 전체 <code>retrySdkInitialization → App → AppInitializer</code>나 실제 FCM 등록으로 표시하지 않는다.</p>
+<p class="note">네트워크 차단만으로 Firebase Core 초기화 실패나 10초 timeout을 확실하게 만들 수 있다는 근거는 없다. 전체 앱 검증은 관측된 실패 또는 재현이 확인된 오류 주입 조건을 먼저 정해야 한다. 잘못된 iOS API 키 형식은 네이티브 종료를 일으키므로 Dart 재시도 검증에 사용하지 않는다.</p>
+<p>iOS 시뮬레이터 전체가 APNs를 지원하지 않는 것은 아니다. Apple은 iOS 16·macOS 13·Apple silicon 또는 T2 조건의 시뮬레이터에서 APNs Sandbox를 지원한다고 명시했다(<a href="https://developer.apple.com/documentation/xcode-release-notes/xcode-14-release-notes">Xcode 14 릴리스 노트</a>). 이번 QA 앱은 자동 초기화를 끄고 제어값을 사용했으므로 실제 APNs·FCM 등록을 검증하지 않았다. 사용자가 지정한 시뮬레이터 범위는 유지한다.</p>
 </section>
 
 <section id="production-registration"><h2>기존 Android 운영 앱의 서버 등록 확인</h2>
