@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta charset="utf-8"><title>iOS 시뮬레이터 알림 표시·탭 검증 계획 및 결과</title>
+<style>body{font:16px/1.65 system-ui,sans-serif;max-width:1040px;margin:36px auto;padding:0 24px;color:#17212b}h1,h2{line-height:1.3}table{border-collapse:collapse;width:100%}th,td{border:1px solid #ccd4dc;padding:10px;text-align:left;vertical-align:top}code,pre{font-family:ui-monospace,monospace;background:#f3f5f7}pre{padding:14px;white-space:pre-wrap}.note{border-left:4px solid #496da0;padding:10px 16px;background:#f3f6fa}</style></head>
+<body>
+<h1>iOS 시뮬레이터 알림 표시·탭 검증 계획 및 결과</h1>
+<p>작성일: 2026-11-05. 기준 커밋: <code>2d4aa24a8</code>. 상태: 2026-11-05 18:56 KST 네이티브 검증 통과. 알림 표시·실제 탭·제품 투표 목록·필터·소유 자원 정리를 확인했다. 사용자는 로컬 시뮬레이터 검증 진행을 승인했다.</p>
+<p><strong>목표:</strong> 격리 QA 앱에 주입한 알림이 표시되고, 실제 GUI 탭이 네이티브 콜백과 제품 탐색 코드를 거쳐 실제 <code>VoteListPage</code>를 여는지 확인한다.</p>
+<p><strong>구조:</strong> 일반 Flutter 앱을 생성하고 제품 Dart 소스를 그대로 복사한다. 네이티브 <code>FirebaseMessaging.onMessageOpenedApp</code>, 제품 <code>PushTokenService</code>, <code>AppInitializer.buildPushTapHandler</code>, <code>DeepLinkHandler</code>, 탐색 상태와 투표 목록은 실제 코드를 사용한다. 토큰·등록은 제어하고 투표 데이터는 루프백 서버가 제공한다.</p>
+<p><strong>기술:</strong> Flutter 3.41.4, Python, CocoaPods, Xcode 27.2, iOS 26.5 시뮬레이터. 명세 근거: Orca 계획 메시지 <code>msg_05694c67b826</code>와 아래 조정자 보정.</p>
+<p>구현자는 TDD 및 executing-plans 절차를 적용한다. Orca 작업자는 호스트 테스트까지만 실행한다. 조정자는 다른 공급자의 리뷰를 받은 뒤 네이티브 빌드와 GUI 검증을 실행한다.</p>
+<h2>고정 범위</h2>
+<ul>
+<li>새 QA 번들은 <code>io.picnic.qa.notificationDelivery</code>다. 이미 설치되어 있거나 조회 결과가 불명확하면 설치하지 않는다.</li>
+<li>대상은 이미 부팅된 <code>Picnic Firebase QA 26.5</code> 한 대다. 실행 시 UDID·이름·런타임을 다시 확인한다. 다른 시뮬레이터와 실기기는 조작하지 않는다.</li>
+<li>제품 소스·설정·버전·서명·전역 Flutter/Xcode 설정을 바꾸지 않는다. 제품 인증 파일과 config 자산을 QA 프로젝트로 복사하지 않는다.</li>
+<li>기존 iOS 실행기의 서명 탐색 차단, 프로젝트 SwiftPM 비활성화, 단일 시뮬레이터 ARCHS, Pod/pub 핀, 전체 app-list 파싱, 소유 앱 정리를 유지한다.</li>
+<li>제품 APNs 등록 호출, 실제 getToken/토픽 구독/서버 등록, Firebase 콘솔 변경은 추가하지 않는다. 실제 서버 APNs/FCM 전달은 이 검증의 결과가 아니다.</li>
+<li>최종 문서와 코드만 명시적으로 커밋한다. 장치 식별자·임시 워크스페이스·원시 실행 증거는 커밋하지 않는다.</li>
+</ul>
+<h2>구현 파일과 완료 조건</h2>
+<table><thead><tr><th>작업</th><th>파일</th><th>검증</th></tr></thead><tbody>
+<tr><td>1. 합성 투표 데이터</td><td><code>picnic_app/test_support/notification_delivery/vote_list_loopback.dart</code><br><code>picnic_app/test/notification_delivery/vote_list_loopback_test.dart</code></td><td>GET /rest/v1/vote, 진행·종료·예정 및 area 필터를 지원한다. 다른 경로는 404다. 실제 VoteModel 파싱과 요청 선택 테스트를 먼저 실패시킨 뒤 구현한다.</td></tr>
+<tr><td>2. 실제 탭 경로를 사용하는 앱</td><td><code>picnic_app/test_support/notification_delivery_ios_qa.dart</code></td><td>시작 화면은 투표 목록과 구분된다. 실제 opened 스트림만 제품 핸들러로 전달한다. 초기 메시지는 null이어야 한다. 생명주기·고유 메시지 ID·경로·화면·루프백 요청을 앱 컨테이너의 Library/Caches JSON에 기록한다. 직접 딥링크 호출이나 가짜 스트림은 통과 증거가 아니다.</td></tr>
+<tr><td>3. 생성·설치·관측·정리</td><td><code>scripts/qa/run_notification_delivery_ios.py</code><br><code>scripts/qa/test_run_notification_delivery_ios.py</code><br>필요한 기본값 보존 매개변수만 <code>scripts/qa/run_firebase_device_ios.py</code>에 추가</td><td>호스트 회귀를 먼저 작성한다. 잘못된 대상·사전 설치·파싱 실패·템플릿 불일치·config 유출·증거 누락/순서 오류·정리 실패를 거부한다. 기존 실행기 테스트는 변경 없이 통과해야 한다.</td></tr>
+</tbody></table>
+<h2>조정자 확인과 보정</h2>
+<p>독립 리뷰 <code>msg_424a7589c7dc</code>는 증거 경로 불일치 한 건을 P1로 판정했다. 설치된 path_provider_foundation 2.6.0의 getTemporaryPath는 NSCachesDirectory를 사용한다. 기록·조회 경로를 <code>Library/Caches/notification-delivery-ios.json</code>으로 일치시켰다. 실제 QaEvidence.open에 모의 플랫폼 경로를 제공하고 Python evidence_path와 비교하는 회귀를 추가했다. 설치 전후 소유권과 오래된 증거 파일 거부는 유지했다. 같은 리뷰어의 <code>msg_90f78049abee</code>에서 수정 소스 실행 승인을 받았다.</p>
+<p>그 뒤 네이티브 실행에서 Library/Caches 증거 파일은 읽혔지만 앱의 runNonce가 null이었다. 동일 산출물에 대한 제한된 진단에서도 재현됐다. 현재 실행 환경의 SIMCTL_CHILD 환경변수→Dart 전달을 신뢰할 수 없다는 증거이며, OS 내부 원인까지 확정한 것은 아니다. 실행 식별자를 <code>--dart-define=PICNIC_QA_RUN_NONCE=&lt;run.nonce&gt;</code>로 해당 QA 빌드에 결합하고 하네스가 const String.fromEnvironment로 읽도록 바꿨다. 누락·불일치 허용이나 환경변수 폴백은 추가하지 않는다. Python 91/91·Flutter 18/18과 정적 분석 통과는 구현자의 실행 보고다. 같은 리뷰어의 msg_aacde25b9f63에서 소스 실행 승인을 받았다. 후속 네이티브 실행에서 실행 식별자 검증과 await_start를 통과했다.</p>
+<p>두 번째 전체 실행은 권한 응답 notDetermined로 알림 주입 전에 중단됐다. 별도 권한 진단에서 같은 검사 산출물을 설치했고, Device Hub 창을 앞으로 가져와 좌표 클릭으로 허용했을 때 authorized를 확인했다. 백그라운드 접근성 클릭과 전경 클릭의 관측 결과가 달랐다. 플러그인이나 OS의 내부 원인은 확정하지 않았고 코드도 바꾸지 않았다. 두 실행의 소유 QA 앱 제거와 프로세스 종료를 확인한 뒤 전경 GUI 입력으로 권한을 허용한 전체 실행에서 최종 통과했다. 알림 센터의 접근성 버튼을 직접 누른 동작이 실제 opened 이벤트로 이어졌다. 접근성 트리에 중복된 요소가 있어 최신 첫 번째 알림 요소를 사용했다. 좌표 클릭이나 오래된 요소 오류 자체를 탭 성공으로 계산하지 않았다.</p>
+<p>설치된 FLN 19.5.0의 getNotificationAppLaunchDetails는 초기화 전에도 네이티브 저장 상태를 반환한다. initialize/register는 UN delegate를 교체하지 않으며 원격 알림 응답은 자체 로컬 알림이 아니면 무시한다. 제품 PushTokenService의 launch-details 읽기는 유지할 수 있다. 이는 소스 확인이며 네이티브 실행 증거는 아니다.</p>
+<p>설치된 Flutter 템플릿은 FlutterImplicitEngineDelegate, SceneDelegate와 UIApplicationSceneManifest를 사용한다. QA는 이 구조를 검증하고 UN delegate 연결만 추가한다. registerForRemoteNotifications 및 제품 광고 플랫폼 채널은 복사하지 않는다.</p>
+<p>제품 lib의 package:picnic_app import를 유지하려면 생성 프로젝트의 Dart 패키지 이름은 picnic_app이어야 한다. Android QA의 검증된 복사 함수를 재사용할 수 있다. main.dart·firebase_options.dart·config/·shorebird.yaml을 제외한다. 생성된 iOS 기본 QA 번들 ID는 정확한 예상값을 확인한 뒤 새 번들로 바꾼다. 제품 picnic_app을 경로 의존성으로 추가하여 운영 자산이 자동 포함되는 방식은 사용하지 않는다.</p>
+<p>payload의 gcm.message_id는 <code>qa-ios-sim-&lt;nonce&gt;</code> 전체 문자열이다. opened 증거도 이 전체 문자열과 비교한다. 실제 표시 확인은 GUI 관측으로 별도 기록한다. simctl push의 성공 코드만으로 표시 성공을 판정하지 않는다.</p>
+<h2>리뷰 초점</h2>
+<ul>
+<li>다른 앱의 소유권 취득: 사전 설치·unknown 목록에서 설치와 정리를 금지하는 회귀를 작업 3에 둔다.</li>
+<li>생성·빌드 중 경계 손실: 번들·플래그·핀·ARCHS·자산을 설치 직전까지 검증하는 회귀를 작업 3에 둔다.</li>
+<li>탭 없이 화면이 열린 경우: 시작 화면→paused→정확한 opened ID→VoteListPage 순서를 작업 3의 증거 판정 테스트로 고정한다.</li>
+<li>데이터 오류를 탐색 성공으로 오판: 작업 1에서 실제 모델과 필터 응답을 검증하고 네이티브 실행에서 합성 행을 확인한다.</li>
+<li>실패·취소 후 앱 잔류: 소유 앱과 프로세스가 남거나 확인 불가이면 최종 통과를 막는 회귀를 작업 3에 둔다.</li>
+</ul>
+<h2>실행 순서</h2>
+<ol>
+<li>호스트 테스트와 정적 분석을 완료한다.</li>
+<li>다른 공급자 리뷰를 완료한다.</li>
+<li>대상과 설치 전 산출물을 확인한다.</li>
+<li>새 QA 앱을 설치하고 실행한다.</li>
+<li>GUI에서 알림 권한을 허용한다.</li>
+<li>구분 가능한 시작 화면을 기록한다.</li>
+<li>GUI에서 홈으로 이동하고 paused 증거를 확인한다.</li>
+<li>고유 ID의 로컬 알림 한 건을 주입한다.</li>
+<li>표시된 알림을 GUI에서 탭한다.</li>
+<li>실제 투표 목록의 필터·상태 선택 UI와 합성 행을 확인한다.</li>
+<li>소유 QA 앱만 종료·삭제하고 부재와 프로세스 정리를 확인한다.</li>
+</ol>
+<p>create 300초, pub get 900초, build 3600초, install 120초, launch 60초를 상한으로 둔다. GUI 권한 180초, 시작·paused 관측 각 120초, 탭 300초, 목록 조회 60초, 필터 조작 180초, 종료·삭제 각 60초다. 러너는 단계 상태를 내보내고 조정자의 GUI 조작을 기다린다. 시간 초과·취소도 소유 자원 정리로 들어간다.</p>
+<pre>python3 scripts/qa/test_run_notification_delivery_ios.py
+python3 scripts/qa/test_run_firebase_device_ios.py
+cd picnic_app
+flutter test test/notification_delivery/
+dart analyze test_support/notification_delivery_ios_qa.dart test_support/notification_delivery test/notification_delivery</pre>
+<h2 id="native-result">2026-11-05 네이티브 실행 결과</h2>
+<p><strong>최종 결과: passed.</strong> 조정자가 Xcode 27.2 / iOS 26.5 / arm64에서 실제 실행했다. 최종 러너 종료 코드는 0이다. 실행 증거의 8개 단계, GUI 표시 확인, 정리가 모두 통과했다.</p>
+<table><thead><tr><th>확인 항목</th><th>관측 결과</th></tr></thead><tbody>
+<tr><td>빌드·설치</td><td>Xcode 빌드 161.1초. 새 QA 앱의 번들·핀·플래그·금지 자산 검사 후 설치했다.</td></tr>
+<tr><td>식별자·시작 화면</td><td>18:51:31 실행. 빌드에 포함한 식별자와 실제 Library/Caches 증거가 일치했다. 파란 QA 시작 화면을 GUI로 확인했다.</td></tr>
+<tr><td>권한·백그라운드</td><td>18:51:48 authorized. GUI Home 동작 후 18:52:01 paused를 확인했다.</td></tr>
+<tr><td>알림 표시</td><td>simctl push 한 건을 주입했다. 홈 화면의 Picnic QA 배너와 알림 센터의 같은 알림을 실제 화면으로 확인했다. 표시 확인은 러너 종료 코드와 구분해 기록했다.</td></tr>
+<tr><td>실제 알림 탭</td><td>18:55:19.707 네이티브 onMessageOpenedApp 이벤트의 메시지 ID와 action_url이 주입값과 일치했다. 제품 핸들러 전달 후 18:55:19.742 탐색 스택이 VoteListPage로 바뀌었다. opened부터 탐색까지 35ms다.</td></tr>
+<tr><td>실제 목록</td><td>ALL / In Progress와 QA Active PICNIC 첫 행을 GUI와 렌더 트리에서 확인했다. 실제 provider가 루프백의 합성 행을 읽었다.</td></tr>
+<tr><td>필터</td><td>18:55:33 PICNIC 선택, 18:56:09 Closed 선택. area=kpop / status=end, 합성 행 910003과 QA Ended PICNIC 표시를 확인했다.</td></tr>
+<tr><td>오류·요청</td><td>증거 이벤트 29개. 예상 밖 루프백 요청과 이미지 오류는 0개다. 페이지 추가 조회의 빈 응답은 정상 목록 끝 응답이다.</td></tr>
+<tr><td>정리·보존</td><td>소유 QA 앱 terminate/uninstall 성공, 전체 목록에서 부재 확인, 앱 프로세스 종료, 작업공간 관련 프로세스 없음. 시뮬레이터는 Booted 상태를 유지했다. 제품 파일 1,321개 해시가 실행 전과 일치했다.</td></tr>
+</tbody></table>
+<p>조정자는 최종 검토 해시 7개가 그대로임을 확인했고 Python 회귀 91개도 직접 실행해 통과했다. Flutter 18개 및 정적 분석 통과는 구현자 실행 보고이며 독립 소스 리뷰가 그 회귀를 검토했다. 공유 iOS 실행기 83개(선택 실행 1개 제외) 등 기존 회귀 결과는 최초 구현 보고에 따른다. 최종 문서와 QA 소스만 Git에 기록하고 장치 식별자·원시 JSON·GUI 캡처·임시 앱은 비공개 실행 증거로 분리했다.</p>
+<h2>판정 한계</h2>
+<p>이번 결과는 격리 앱에서 로컬 주입한 알림의 표시와 warm-background 탭 경로를 검증한다. 실제 네이티브 FirebaseMessaging opened 스트림, 제품 핸들러·딥링크·탐색 상태·VoteListPage/provider를 사용했다. 토큰·등록은 제어하고 데이터는 루프백 합성값이다. 첫 표시 행과 요청 결과를 확인했으며 목록 전체를 스크롤한 검증은 아니다.</p>
+<p>실제 APNs/FCM 서버 전달·토큰 등록·전체 App 시작/재시도·Portal·콜드 스타트·포그라운드 로컬 알림·제품 네이티브 설정·iOS 실기기는 이번 결과에 포함하지 않는다. 운영 완료나 Sentry/Jira 이슈 해결을 선언하지 않는다.</p>
+</body></html>

@@ -516,13 +516,17 @@ flutter:
 """)
 
 
-def create_project(qa, timeout, boundary=None):
+def create_project(qa, timeout, boundary=None, *, project_name=None, org=None):
     """Runs `flutter create` behind the credential boundary.
 
     Raises RunnerError if create called `security` or `openssl`, or changed
     the QA pubspec.yaml. [boundary] defaults to a new boundary bin directory
     in the workspace; the log is qa-logs/credential-sentinel.log.
+    [project_name] and [org] default to PROJECT_NAME and ORG; another runner
+    (run_notification_delivery_ios.py) passes its own values.
     """
+    project_name = PROJECT_NAME if project_name is None else project_name
+    org = ORG if org is None else org
     log = qa.logs / 'credential-sentinel.log'
     if boundary is None:
         boundary = write_credential_boundary(qa.workspace / BOUNDARY_DIR, log)
@@ -531,8 +535,8 @@ def create_project(qa, timeout, boundary=None):
     env = dict(qa.env, PATH=f'{boundary}{os.pathsep}{qa.env.get("PATH", "")}')
     try:
         qa.run('flutter-create', [
-            'flutter', 'create', '--platforms=ios', '--project-name', PROJECT_NAME,
-            '--org', ORG, '--no-pub', str(qa.workspace),
+            'flutter', 'create', '--platforms=ios', '--project-name', project_name,
+            '--org', org, '--no-pub', str(qa.workspace),
         ], timeout, env=env)
     finally:
         report = qa.result['signing_boundary'] = read_credential_log(log)
