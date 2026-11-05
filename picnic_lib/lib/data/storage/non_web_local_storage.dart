@@ -22,7 +22,9 @@ class NonWebLocalStorage implements LocalStorage {
           await prefs.setString(key, previous);
         }
       }
-      throw StateError('SharedPreferences failed to persist $key');
+      // 키는 문구에 넣지 않는다. 사용자별 키(`prefix:<사용자 ID>`)가 그대로
+      // Sentry 로 올라간다. 어느 저장인지는 호출 스택이 알려 준다.
+      throw StateError('SharedPreferences failed to persist a value');
     }
   }
 

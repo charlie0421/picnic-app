@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
@@ -52,6 +54,21 @@ class NavigationInfo extends _$NavigationInfo {
     } catch (_) {
       // observability 는 best-effort. 무시.
     }
+  }
+
+  /// 포털·탭 선호를 저장한다. 다음 실행의 편의일 뿐이라 실패해도 이미 끝난
+  /// 화면 전환을 되돌리거나 막지 않는다. 동기 throw 와 실패한 Future 를 모두
+  /// 여기서 처리해 미처리 zone 오류로 새지 않게 한다. 오류 객체·스택·키·값은
+  /// 로그에 싣지 않는다.
+  void _savePreference(String key, String value) {
+    unawaited(
+      Future<void>.sync(() => globalStorage.saveData(key, value)).then<void>(
+        (_) {},
+        onError: (Object _, StackTrace _) {
+          logger.w('Navigation preference was not saved');
+        },
+      ),
+    );
   }
 
   Future<void> goBack() async {
@@ -271,7 +288,7 @@ class NavigationInfo extends _$NavigationInfo {
         state = state.copyWith(currentScreen: const VoteHomeScreen());
     }
 
-    globalStorage.saveData('portalString', portalType.name.toString());
+    _savePreference('portalString', portalType.name.toString());
     logger.d('🎯 Portal switching completed successfully to $portalType');
   }
 
@@ -354,7 +371,7 @@ class NavigationInfo extends _$NavigationInfo {
     );
 
     logger.d('🖼️ PIC navigation index updated successfully');
-    globalStorage.saveData('picBottomNavigationIndex', index.toString());
+    _savePreference('picBottomNavigationIndex', index.toString());
   }
 
   void setVoteBottomNavigationIndex(int index) {
@@ -366,7 +383,7 @@ class NavigationInfo extends _$NavigationInfo {
       voteNavigationStack: NavigationStack()..push(pageWidget),
       currentScreen: pageWidget,
     );
-    globalStorage.saveData('voteBottomNavigationIndex', index.toString());
+    _savePreference('voteBottomNavigationIndex', index.toString());
   }
 
   void setCommunityBottomNavigationIndex(int index) {
@@ -379,7 +396,7 @@ class NavigationInfo extends _$NavigationInfo {
       voteNavigationStack: NavigationStack()..push(pageWidget),
       currentScreen: pageWidget,
     );
-    globalStorage.saveData('communityBottomNavigationIndex', index.toString());
+    _savePreference('communityBottomNavigationIndex', index.toString());
   }
 
   void setNovelBottomNavigationIndex(int index) {
@@ -396,7 +413,7 @@ class NavigationInfo extends _$NavigationInfo {
     );
 
     logger.d('📚 NOVEL navigation index updated successfully');
-    globalStorage.saveData('novelBottomNavigationIndex', index.toString());
+    _savePreference('novelBottomNavigationIndex', index.toString());
   }
 
   void setCurrentPage(Widget page,

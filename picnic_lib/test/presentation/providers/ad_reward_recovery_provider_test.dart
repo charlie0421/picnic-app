@@ -13,11 +13,19 @@ import 'package:picnic_lib/presentation/providers/ad_reward_recovery_provider.da
 
 class _MemoryStorage implements LocalStorage {
   final values = <String, String>{};
+
+  /// 설정되면 이후 모든 쓰기가 이 오류로 실패한다(읽기는 그대로).
+  Object? saveFailure;
   @override
   Future<String?> loadData(String key, String? fallback) async =>
       values[key] ?? fallback;
   @override
-  Future<void> saveData(String key, String value) async => values[key] = value;
+  Future<void> saveData(String key, String value) async {
+    final failure = saveFailure;
+    if (failure != null) throw failure;
+    values[key] = value;
+  }
+
   @override
   Future<void> removeData(String key) async => values.remove(key);
   @override
@@ -138,6 +146,7 @@ void main() {
   late _FakeRepository repository;
   late PendingAdRewardStore store;
   late ProviderContainer container;
+  late _MemoryStorage storage;
   late List<Duration> delays;
   late AdRewardDelay delay;
   late List<AdRewardStatusModel> earnRecords;
@@ -146,7 +155,8 @@ void main() {
   setUp(() {
     owner = 'user-a';
     repository = _FakeRepository();
-    store = PendingAdRewardStore(_MemoryStorage());
+    storage = _MemoryStorage();
+    store = PendingAdRewardStore(storage);
     delays = [];
     earnRecords = [];
     earnStored = true;
@@ -582,6 +592,124 @@ void main() {
       expect(repository.acknowledged, isEmpty);
       expect((await store.readAll('user-a')).single.reference, watched);
     });
+  });
+
+  group('톰스톤 저장(markAckPending)만 실패', () {
+    // 서버 지급(GRANTED 상태, 앱이 만들지 않음) · 로컬 표시(dialogQueue) ·
+    // 표시 완료 ACK(acknowledge RPC) 를 서로 다른 것으로 센다. 톰스톤을 못 남기면
+    // ACK 를 보내지 않아야 하고, 그 실패를 완료로 돌려주면 안 된다.
+    late StateError writeFailure;
+
+    setUp(() {
+      writeFailure = StateError('tombstone write failed');
+    });
+
+    test('dialog path sends no ACK and does not complete', () async {
+      final watched = _reference(40);
+      repository.statuses[watched] = [_grantedStatus(watched)];
+      await store.add('user-a', watched);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      await notifier.poll(ownerUserId: 'user-a', reference: watched);
+      final queued = container
+          .read(adRewardRecoveryProvider)
+          .dialogQueue
+          .single;
+      storage.saveFailure = writeFailure;
+
+      await expectLater(
+        notifier.acknowledgeAfterRender(queued),
+        throwsA(same(writeFailure)),
+      );
+
+      expect(repository.acknowledged, isEmpty, reason: '서버 ACK');
+      expect(earnRecords, hasLength(1), reason: '적립 통계는 확정 시점 1회');
+      expect(
+        container.read(adRewardRecoveryProvider).dialogQueue.single,
+        same(queued),
+        reason: '실패한 확인을 완료로 처리해 큐에서 빼면 안 된다',
+      );
+      expect(
+        (await store.readAll('user-a')).single.state,
+        PendingAdRewardLocalState.pendingDisplay,
+      );
+    });
+
+    test('fullscreen path sends no ACK and records one earn', () async {
+      final presented = _reference(42);
+      await store.add('user-a', presented);
+      final notifier = container.read(adRewardRecoveryProvider.notifier);
+      storage.saveFailure = writeFailure;
+
+      for (var attempt = 0; attempt < 2; attempt++) {
+        await expectLater(
+          notifier.acknowledgePresented(
+            ownerUserId: 'user-a',
+            status: _grantedStatus(presented),
+          ),
+          throwsA(same(writeFailure)),
+        );
+      }
+
+      expect(repository.acknowledged, isEmpty, reason: '서버 ACK');
+      expect(earnRecords, hasLength(1), reason: '중복 적립 통계');
+      expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+      expect(
+        (await store.readAll('user-a')).single.state,
+        PendingAdRewardLocalState.pendingDisplay,
+      );
+    });
+
+    test(
+      'discard then a same-session poll re-arms one display, no extra grant or ACK',
+      () async {
+        // 현재 계약 기록: AdRewardDialogHost 는 확인 실패 시 discardDialog 를
+        // 부른다. 그 뒤 같은 광고의 확인이 다시 오면 영수증은 한 번 더 뜰 수
+        // 있다(재무장). 그때도 서버 지급은 같은 1건이고, 통계·ACK 는 늘지 않는다.
+        final watched = _reference(41);
+        repository.statuses[watched] = [_grantedStatus(watched)];
+        await store.add('user-a', watched);
+        final notifier = container.read(adRewardRecoveryProvider.notifier);
+        await notifier.poll(ownerUserId: 'user-a', reference: watched);
+        final queued = container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .single;
+        storage.saveFailure = writeFailure;
+        await expectLater(
+          notifier.acknowledgeAfterRender(queued),
+          throwsA(same(writeFailure)),
+        );
+
+        notifier.discardDialog(queued);
+        expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+
+        await notifier.poll(ownerUserId: 'user-a', reference: watched);
+
+        final rearmed = container
+            .read(adRewardRecoveryProvider)
+            .dialogQueue
+            .single;
+        expect(rearmed.status.reference, watched, reason: '로컬 표시 재무장');
+        expect(
+          rearmed.status.grant!.id,
+          queued.status.grant!.id,
+          reason: '같은 서버 지급',
+        );
+        expect(repository.reads, [watched, watched], reason: '상태 조회만');
+        expect(repository.acknowledged, isEmpty, reason: '서버 ACK');
+        expect(earnRecords, hasLength(1), reason: '중복 적립 통계');
+
+        // 저장소가 회복되면 재무장된 표시 한 번이 ACK 한 번으로 끝난다.
+        storage.saveFailure = null;
+        await notifier.acknowledgeAfterRender(rearmed);
+        await notifier.poll(ownerUserId: 'user-a', reference: watched);
+
+        expect(repository.acknowledged, [watched]);
+        expect(container.read(adRewardRecoveryProvider).dialogQueue, isEmpty);
+        expect(earnRecords, hasLength(1));
+        expect(await store.readAll('user-a'), isEmpty);
+      },
+    );
   });
 
   group('계정 격리', () {
