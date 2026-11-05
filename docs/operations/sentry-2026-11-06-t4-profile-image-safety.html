@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T4-A 프로필 이미지 변경 안전성 검증</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#172033;background:#f4f6fa;margin:0}main{max-width:1100px;margin:32px auto;background:white;padding:32px;border-radius:14px}h1{font-size:1.8rem}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee9;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f8}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f8;padding:16px;overflow:auto;line-height:1.5}.note{padding:16px;border-left:4px solid #2b6cb0;background:#edf6ff}.meta{color:#536179;font-size:.92rem}a{color:#1758a4}.scroll{overflow:auto}</style></head><body><main>
+<h1>T4-A · 프로필 이미지 변경 안전성 검증</h1>
+<p class="meta">2026-11-06 · 기준 커밋 <code>80d246d725e9cf859a6a3621a54856b6f8f2bb49</code> · 작업 브랜치 <code>docs/sentry-release-analysis</code></p>
+<p class="note"><strong>소스 수정·호스트 검증·독립 리뷰 완료.</strong> 조정자가 직접 실행한 집중 테스트 64개가 통과했다. 원 리뷰어의 최종 판정은 <strong>APPROVE</strong>다. 정적 분석에는 기존 경고 9개가 남아 있다. 이번 결과는 T4의 프로필 이미지 항목에 한정한다.</p>
+<h2>문제와 변경 결과</h2>
+<p>기존 조사에서 <a href="https://icon-casting.sentry.io/issues/7582356217/">5E4</a>는 이미지 선택기를 중복 실행할 때 발생하는 <code>PlatformException(multiple_request)</code>와 연결됐다. 현재 페이지에는 전체 이미지 변경 작업의 중복 실행 방지와 비동기 완료 후 소유자 검증이 필요했다. 현재 소스의 재현 결과를 과거 릴리스 전체의 동일 동작 증거로 확대하지 않는다.</p>
+<table><thead><tr><th>경계</th><th>변경 결과</th></tr></thead><tbody>
+<tr><td>빠른 재입력·취소</td><td>페이지별 작업 가드가 선택·자르기·읽기·업로드·프로필 갱신을 하나의 작업으로 묶는다. 실행 중 다시 눌러도 선택기는 한 번만 열린다. 취소와 완료·실패 뒤에는 다시 실행할 수 있다.</td></tr>
+<tr><td>화면 이탈·계정 전환</td><td>작업 시작 시 클라이언트·사용자·세션과 관측된 계정 전환 수를 포착한다. 각 await 뒤에 화면·작업·계정 소유권을 확인한다. A→B→A 전환도 이전 작업을 되살리지 않는다. 같은 계정의 토큰 갱신·새 세션은 확인 후 허용한다.</td></tr>
+<tr><td>프로필 PATCH 완료</td><td><code>UserInfo.updateAvatar(String url)</code>의 서명은 유지한다. 응답을 기다린 뒤 provider 수명·클라이언트·전환 수·사용자·확인된 Session을 검증한다. 확인 함수를 기다리는 마지막 await 뒤에도 호출자가 동기적으로 재검증한다. 세션이 바뀌면 다시 확인하고, 최종 검증과 상태 대입 사이에는 await를 두지 않는다.</td></tr>
+<tr><td>페이지의 다음 단계</td><td>자르기, 로딩·읽기, 업로드, PATCH, 성공 UI의 다섯 경계에서도 호출자가 확인된 Session을 다시 검증한 후 다음 동작을 시작한다. 이전에 보낸 업로드나 서버 PATCH를 취소·롤백·삭제하는 기능은 추가하지 않았다.</td></tr>
+<tr><td>로딩 표시</td><td>작업이 소유한 OverlayEntry만 제거한다. 다른 오버레이는 닫지 않는다. 기존 검은 배경과 <code>CircularProgressIndicator(strokeWidth: 3)</code>을 유지한다.</td></tr>
+<tr><td>외부 실패·프로그래밍 오류</td><td>단계별로 예상한 SDK·파일·전송 예외만 처리한다. 빈 저장 키는 명시적 도메인 실패다. 예상하지 못한 Error는 원래 스택과 함께 다시 던지며, 작업 가드·오버레이·구독 정리는 유지한다.</td></tr>
+</tbody></table>
+<h2>진단 정보의 개인정보 경계</h2>
+<p><code>ProfileImageDiagnostics</code>는 처리한 외부 실패의 phase·타입·코드를 허용 목록으로 바꾼다. 플랫폼·PostgREST·SQL 코드의 알려진 값과 정규 형태의 HTTP 상태 100–599만 허용하고, 나머지는 <code>unknown</code>으로 보고한다. 짧은 경로·계정 문자열도 그대로 전달하지 않는다. 원래 예외 메시지·응답 본문·선택한 파일·이미지는 이 전용 보고에 복사하지 않는다.</p>
+<p>전용 Hint 표식이 있는 보고만 <code>AppInitializer.beforeSend</code>에서 정제한다. PurchaseDiagnostics 다음에 실행하며, 현재 SDK의 이벤트 보강 이후에 허용 필드로 새 이벤트를 만든다. 상속·네이티브 태그, extras, 사용자, breadcrumbs, request, 임의 contexts와 Hint 첨부·스크린샷·뷰 계층을 제거한다. 허용된 고정 태그·그룹 지문, 보고 예외·스택·스레드·debugMeta, SDK·릴리스 정보, 기기 모델·계열·시뮬레이터 여부, OS·앱 버전은 유지한다. 표식이 없는 이벤트와 구매 진단은 변경하지 않는다.</p>
+<p>이 경계는 새 프로필 외부 실패 보고에만 적용한다. 예상하지 못한 프로그래밍 오류는 전역 오류 경로로 전달된다. 네이티브 전용 크래시·리플레이·스크린샷 전체의 개인정보 보호를 검증한 것은 아니다. 이벤트 contexts의 trace 제거와 별도로 SDK가 envelope trace 헤더를 만들 수 있으므로, 전체 추적 정보가 제거됐다고 주장하지 않는다.</p>
+<h2>직접 실행한 검증</h2>
+<pre><code>cd picnic_lib
+flutter test --no-pub --timeout 120s -r failures-only \
+  test/presentation/pages/my_page/my_profile_image_test.dart \
+  test/core/services/profile_image_diagnostics_test.dart
+# +64: All tests passed! / exit 0
+
+dart analyze lib/presentation/pages/my_page/my_profile.dart \
+  lib/presentation/providers/user_info_provider.dart \
+  lib/core/utils/app_initializer.dart \
+  lib/core/services/profile_image_diagnostics.dart \
+  test/presentation/pages/my_page/my_profile_image_test.dart \
+  test/core/services/profile_image_diagnostics_test.dart
+# exit 2 / 기존 경고 9개
+
+git diff --check
+# 통과</code></pre>
+<p>경고 8개는 기존 UserInfoProviderHelper의 visible_for_testing 사용이고, 1개는 기존 <code>profilesSampleRate</code> 실험 API 사용이다. 새 오류가 없다는 결과와 분석 전체가 깨끗하다는 주장은 구분한다. 형식 검사는 새·수정 코드를 확인했고 새 테스트 줄을 정리했다. 기존 <code>normalizeLanguageCode</code>와 <code>setupSupabaseAuthListener</code>의 파일 전체 포맷 차이는 변경 범위를 넓히지 않기 위해 유지했다.</p>
+<h3>재현과 회귀 테스트 근거</h3>
+<ul><li>조정자는 최초 구현의 테스트를 원래 제품 소스와 대조해 7개 통과·16개 실패를 관측했다. 초기 23개 통과만으로 후속 동시성 결함이 해결됐다고 판단하지 않았다.</li>
+<li>조정자는 실제 상속된 production <code>updateAvatar</code>와 모의 HTTP·공개 <code>recoverSession</code>으로, 같은 클라이언트의 A→B→A 이후 오래된 PATCH가 새 A 프로필을 덮는 사례를 재현했다.</li>
+<li>이후 마지막 await의 틈에서도 같은 덮어쓰기를 재현했다. 실제 continuation을 보존한 채 앞에 합성 외부 microtask를 예약했다. 순서는 continuation 예약 → 계정 전환·새 프로필 설치 → 실제 호출자가 helper의 true로 재개 → 인증 이벤트 전달이었다. 같은 계정의 새 Session 대조군은 통과했다.</li>
+<li>최종 영구 테스트에는 provider와 페이지 선택·읽기·업로드·갱신 경계의 반례 5개와 같은 계정 대조군 2개가 있다. 새 trace 검사는 예약 → 주입 → true 재개 → B 이벤트를 확인한다. 주입은 공개 API로 B와 A를 순서대로 호출하며, 기존 테스트는 B/A 전달 순서도 별도로 확인한다.</li>
+<li>구현자 보고에 따르면 이전 소스에서 반례 5개가 실패하고 대조군 2개가 통과했다. 최종 소스에서는 7개 모두 통과했다. Session 비교를 제거한 변이도 반례 5개가 검출했다. 조정자는 최종 집중 64개를 별도로 실행했다.</li>
+<li>실제 Sentry Hub와 LoadContextsIntegration, 합성 네이티브 보강·오염된 scope·envelope transport로 민감 문자열과 첨부 유출을 검사했다. 일반 이벤트·구매 보고 보존도 대조했다. 이 하네스는 실제 AppInitializer 초기화를 실행하지 않고 beforeSend 호출 순서를 복사한다. 실제 초기화 연결은 소스 리뷰 근거다.</li>
+<li>구현자는 관련 19개 파일에서 562개 통과를 보고했다. 이는 구현자 실행 근거이며 조정자 직접 실행 수치에 합산하지 않는다.</li></ul>
+<h2>독립 리뷰</h2>
+<p>구현은 Claude Opus 5.5/high, 반대 공급자의 독립 리뷰는 Codex gpt-6.1-sol/high가 맡았다. 원 리뷰어는 이전 계정 PATCH 반영, 오류 코드 유출, 상속·네이티브 진단 정보 유출, 프로그래밍 오류 삼킴, 스피너 차이를 지적했다. 수정 후 마지막 await 경계의 반례를 추가 확인했고, 최종 동일 리뷰어가 모두 해결됐음을 확인했다. 최종 판정은 <strong>APPROVE</strong>다.</p>
+<p class="meta">최종 리뷰 Dispatch <code>ctx_47ce486da8d0</code>, 완료 메시지 <code>msg_b508639b0308</code>. 리뷰어는 테스트를 실행하지 않았고, 소스·회귀 테스트·SDK 의미·6개 파일의 시작/종료 해시를 확인했다. 구현자는 권한 제한으로 해시를 계산하지 못했다. 조정자가 배정 직전 시작 해시와 완료 해시를 확인했다. 구현자의 check는 ok/messages=[]였으며 Dispatch를 출력하지 않았다는 점을 보존한다. 주입된 정확한 Task/Dispatch와 수락된 worker_done은 일치한다.</p>
+<details><summary>최종 승인 소스·테스트 SHA-256</summary><div class="scroll"><table><thead><tr><th>파일</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>picnic_lib/lib/presentation/pages/my_page/my_profile.dart</code></td><td><code>8b091f5903c9c1f6b64fb85d632c67f918e081c013ce758c7cbdc32bcaecc5b9</code></td></tr><tr><td><code>picnic_lib/lib/presentation/providers/user_info_provider.dart</code></td><td><code>d55c183232cb568929360b5978ee7cf24d0ee2793d646e4bb181a03fcada9984</code></td></tr><tr><td><code>picnic_lib/lib/core/utils/app_initializer.dart</code></td><td><code>b977811a979c0371932c9f9240f13bc2058802679997b4a6765e07c2d25358e6</code></td></tr><tr><td><code>picnic_lib/lib/core/services/profile_image_diagnostics.dart</code></td><td><code>284be05aea31463c4b17b3932c622d39041b513814357145469eceb1fd80abc2</code></td></tr><tr><td><code>picnic_lib/test/presentation/pages/my_page/my_profile_image_test.dart</code></td><td><code>c89551a2ff8c7a2dc773e88a6d606c63bd067fda5df4c99c12f45d9762cc38d2</code></td></tr><tr><td><code>picnic_lib/test/core/services/profile_image_diagnostics_test.dart</code></td><td><code>e5ade7f34a22f444d3db382f097ebfa3625e249b298b9898dd8c937b2e79fa7c</code></td></tr></tbody></table></div></details>
+<h2>남은 범위와 확인 한계</h2>
+<ul><li>합성 Zone 스케줄링은 호스트에서 구성한 콜백 순서다. 실제 OS·플랫폼 채널에서 같은 타이밍이 발생했다는 증거는 아니다. 읽기 경계의 skip:2는 즉시 완료되는 메모리 파일 fixture에 한정한다. post-crop/pre-read 경계는 소스와 기존 crop·dispose 테스트로 확인했으며 별도 최종-await 주입 사례로 세지 않는다.</li>
+<li>microtask 틈의 화면 폐기는 직접 재현하지 않았다. 폐기에는 프레임이 필요하며 기존 이탈·dispose 테스트를 유지했다. 지속적으로 세션이 바뀌면 확인 루프가 오래 걸릴 수 있다. provider의 호출별 onDispose 콜백은 provider 폐기 때까지 등록 상태로 남는다.</li>
+<li>실제 사진 선택기·자르기·Storage·인증 계정·Sentry 전송·실기기 동작은 이번에 검증하지 않았다. 실패 보고의 새 지문·메시지로 그룹이 바뀔 수 있으므로 T9에서 기존 5E4 건수만 보고 해결을 판단하지 않는다.</li>
+<li>T4의 Branch 공유 실패 복구, Tapjoy 오류 구조화, 5FM 사유 분포, 5GZ·5JY 기기 정책 대조는 남아 있다. <a href="sentry-2026-11-03-remediation-plan.html#T4">전체 계획</a>의 다른 체크 항목은 유지한다.</li>
+<li>이번 작업에서는 앱 버전·Build number·native 설정·의존성을 바꾸지 않았다. TestFlight 통합·빌드·업로드는 사용자가 지정한 다른 워크트리에서 수행한다. 배포 후 재발 확인과 실기기 QA도 별도다.</li></ul>
+<footer class="meta">소스·호스트 검증 범위의 결과다. 서비스 데이터 변경, 실제 이미지 업로드, 앱 빌드·설치·배포, Sentry/Jira 상태 변경 없음. 원시 로그·계정/토큰 자료·선택 이미지·작업자 임시 스킬 사본은 이 전달 문서와 커밋에 포함하지 않는다.</footer>
+</main></body></html>

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -13,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:overlay_loading_progress/overlay_loading_progress.dart';
 import 'package:path/path.dart' as path;
 import 'package:picnic_lib/core/config/environment.dart';
+import 'package:picnic_lib/core/services/profile_image_diagnostics.dart';
 import 'package:picnic_lib/core/utils/logger.dart';
 import 'package:picnic_lib/core/utils/snackbar_util.dart';
 import 'package:picnic_lib/core/utils/util.dart';
@@ -147,14 +149,80 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     );
   }
 
-  Future<void> _uploadProfileImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    final userId = supabase.auth.currentUser?.id;
+  @override
+  void dispose() {
+    // 진행 중인 사진 변경은 여기서 소유권을 잃는다. 늦게 끝나는 단계는
+    // [_ownsImageOperation] 에서 멈추고, 로딩 오버레이는 지금 내린다.
+    _imageOperation?.hideLoading();
+    _imageOperation = null;
+    unawaited(_authEvents?.cancel());
+    _authEvents = null;
+    _authEventsClient = null;
+    super.dispose();
+  }
 
-    if (image != null && mounted) {
-      final croppedFile = await ImageCropper().cropImage(
-        sourcePath: image.path,
+  /// 진행 중인 프로필 사진 변경. 페이지 인스턴스당 하나만 진행한다.
+  _ProfileImageOperation? _imageOperation;
+
+  /// [_authEventsClient] 의 계정 전환 구독. 페이지당 하나이고 dispose 에서
+  /// 해제한다. 작업마다 구독하지 않는다.
+  StreamSubscription<AuthState>? _authEvents;
+  SupabaseClient? _authEventsClient;
+
+  /// [_authEventsClient] 에서 관측한 계정 전환 횟수. 사용자 ID 가 바뀔 때만
+  /// 센다. 같은 계정의 토큰 갱신은 전환이 아니다.
+  int _authTransitions = 0;
+
+  /// 카메라 버튼 콜백. 작업을 시작만 하고 기다리지 않는다.
+  void _onProfileImagePressed() {
+    // 이미 진행 중이면 무시한다. 연속 탭이 picker 를 두 번 열지 않는다.
+    if (_imageOperation != null) return;
+
+    // 첫 await 전에 소유자를 잡는다. 로그인 전이면 저장 경로의 소유자가
+    // 없으므로 picker 를 열지 않는다.
+    final client = _currentAuthClient();
+    final userId = client?.auth.currentUser?.id;
+    if (client == null || userId == null) return;
+
+    _watchAccountTransitions(client);
+    final operation = _ProfileImageOperation(
+      client: client,
+      userId: userId,
+      session: client.auth.currentSession,
+      transitions: _authTransitions,
+      overlay: Overlay.maybeOf(context),
+    );
+    _imageOperation = operation;
+    // 처리한 실패는 _changeProfileImage 안에서 끝난다. 여기로 나오는 오류는
+    // 예상하지 못한 결함이므로 삼키지 않고 zone 의 오류 보고로 보낸다.
+    unawaited(
+      _changeProfileImage(
+        operation,
+      ).whenComplete(() => _finishImageOperation(operation)),
+    );
+  }
+
+  /// 각 단계는 그 단계가 예상하는 외부 실패만 처리하고 한 번 보고한다. 그
+  /// 밖의 오류는 결함이므로 스택과 함께 다시 던진다. 가드와 오버레이는
+  /// [_finishImageOperation] 이 정리한다.
+  Future<void> _changeProfileImage(_ProfileImageOperation operation) async {
+    final XFile? picked;
+    try {
+      picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    } catch (e, s) {
+      if (!_isExpected(ProfileImagePhase.pick, e)) rethrow;
+      return _failImageOperation(operation, ProfileImagePhase.pick, e, s);
+    }
+    // null 은 사용자 취소다. 실패가 아니므로 보고하지 않는다.
+    if (picked == null) return;
+    do {
+      if (!await _confirmImageOwner(operation)) return;
+    } while (!_holdsImageOwner(operation));
+
+    final CroppedFile? cropped;
+    try {
+      cropped = await ImageCropper().cropImage(
+        sourcePath: picked.path,
         aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
         uiSettings: [
           AndroidUiSettings(
@@ -167,61 +235,184 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
           IOSUiSettings(title: ''),
         ],
       );
+    } catch (e, s) {
+      if (!_isExpected(ProfileImagePhase.crop, e)) rethrow;
+      return _failImageOperation(operation, ProfileImagePhase.crop, e, s);
+    }
+    if (cropped == null) return;
+    do {
+      if (!await _confirmImageOwner(operation)) return;
+    } while (!_holdsImageOwner(operation));
 
-      if (croppedFile != null && mounted) {
-        try {
-          OverlayLoadingProgress.start(context);
-          final Uint8List fileBytes = await croppedFile.readAsBytes();
+    operation.showLoading();
 
-          // 파일 이름 생성
-          final String fileName =
-              '$userId/avatar_${DateTime.now().millisecondsSinceEpoch}${path.extension(croppedFile.path)}';
+    final Uint8List fileBytes;
+    try {
+      fileBytes = await cropped.readAsBytes();
+    } catch (e, s) {
+      if (!_isExpected(ProfileImagePhase.read, e)) rethrow;
+      return _failImageOperation(operation, ProfileImagePhase.read, e, s);
+    }
+    do {
+      if (!await _confirmImageOwner(operation)) return;
+    } while (!_holdsImageOwner(operation));
 
-          // Supabase Storage에 이미지 업로드
-          final storageResponse = await supabase.storage
-              .from('avatars')
-              .uploadBinary(
-                fileName,
-                fileBytes,
-                fileOptions: const FileOptions(
-                  cacheControl: '3600',
-                  upsert: true,
-                ),
-              );
+    // 경로의 소유자는 버튼을 누른 계정이다. 업로드는 그 계정의 클라이언트로
+    // 보낸다. 바로 위에서 그 계정이 아직 현재 계정임을 확인했다.
+    final fileName =
+        '${operation.userId}/avatar_${DateTime.now().millisecondsSinceEpoch}'
+        '${path.extension(cropped.path)}';
+    final avatars = operation.client.storage.from('avatars');
+    final String storageKey;
+    try {
+      storageKey = await avatars.uploadBinary(
+        fileName,
+        fileBytes,
+        fileOptions: const FileOptions(cacheControl: '3600', upsert: true),
+      );
+    } catch (e, s) {
+      if (!_isExpected(ProfileImagePhase.upload, e)) rethrow;
+      return _failImageOperation(operation, ProfileImagePhase.upload, e, s);
+    }
+    if (storageKey.isEmpty) {
+      return _failImageOperation(
+        operation,
+        ProfileImagePhase.upload,
+        const ProfileImageEmptyStorageKey(),
+        StackTrace.current,
+      );
+    }
+    // 이미 보낸 업로드는 되돌리지 않는다. 소유자가 바뀌었으면 이후 단계만
+    // 멈춘다.
+    do {
+      if (!await _confirmImageOwner(operation)) return;
+    } while (!_holdsImageOwner(operation));
 
-          if (storageResponse.isNotEmpty) {
-            // 업로드된 이미지의 공개 URL 가져오기
-            final String imageUrl = supabase.storage
-                .from('avatars')
-                .getPublicUrl(fileName);
+    try {
+      await ref
+          .read(userInfoProvider.notifier)
+          .updateAvatar(avatars.getPublicUrl(fileName));
+    } catch (e, s) {
+      if (!_isExpected(ProfileImagePhase.update, e)) rethrow;
+      return _failImageOperation(operation, ProfileImagePhase.update, e, s);
+    }
+    do {
+      if (!await _confirmImageOwner(operation)) return;
+    } while (!_holdsImageOwner(operation));
 
-            // 사용자 프로필 업데이트
-            await ref.read(userInfoProvider.notifier).updateAvatar(imageUrl);
+    operation.hideLoading();
+    final messageContext = navigatorKey.currentContext;
+    if (messageContext != null && messageContext.mounted) {
+      SnackbarUtil().info(AppLocalizations.of(messageContext).common_success);
+    }
+  }
 
-            if (navigatorKey.currentContext != null) {
-              SnackbarUtil().info(
-                AppLocalizations.of(
-                  navigatorKey.currentContext!,
-                ).common_success,
-              );
-            }
-          } else {
-            throw Exception('Failed to upload image');
-          }
-        } catch (e, s) {
-          logger.e('error', error: e, stackTrace: s);
+  static bool _isExpected(ProfileImagePhase phase, Object error) =>
+      ProfileImageDiagnostics.isExpectedFailure(phase, error);
 
-          if (navigatorKey.currentContext != null) {
-            SnackbarUtil().error(
-              AppLocalizations.of(navigatorKey.currentContext!).common_fail,
-            );
-          }
-          rethrow;
-        } finally {
-          if (mounted) {
-            OverlayLoadingProgress.stop();
-          }
-        }
+  void _finishImageOperation(_ProfileImageOperation operation) {
+    operation.hideLoading();
+    if (identical(_imageOperation, operation)) _imageOperation = null;
+  }
+
+  /// 처리한 실패. 같은 계정이면 한 번 보고하고, 화면이 그 작업의 것이면
+  /// 오류를 알린다.
+  void _failImageOperation(
+    _ProfileImageOperation operation,
+    ProfileImagePhase phase,
+    Object error,
+    StackTrace stackTrace,
+  ) {
+    logger.w('Profile image ${phase.name} failed: ${error.runtimeType}');
+
+    // 계정이 바뀐 뒤의 실패는 그 전환 때문일 수 있고, 지금 Sentry 범위는 다른
+    // 계정의 것이다. 이 경우에는 보고하지 않는다. 원본 예외는 보내지 않는다.
+    // 메시지에 기기 경로, 저장 경로(계정 ID), 서버 응답 본문이 들어 있을 수
+    // 있다.
+    if (_isImageAccountCurrent(operation)) {
+      ProfileImageDiagnostics.report(phase, error, stackTrace);
+    }
+
+    if (!_ownsImageOperation(operation)) return;
+    operation.hideLoading();
+    final messageContext = navigatorKey.currentContext;
+    if (messageContext != null && messageContext.mounted) {
+      SnackbarUtil().error(AppLocalizations.of(messageContext).common_fail);
+    }
+  }
+
+  /// 현재 Supabase 클라이언트. 초기화되지 않았으면 null.
+  SupabaseClient? _currentAuthClient() {
+    try {
+      return supabase;
+    } on StateError {
+      return null;
+    }
+  }
+
+  /// [client] 의 계정 전환을 센다. 이미 그 클라이언트를 관측 중이면 그대로 둔다.
+  void _watchAccountTransitions(SupabaseClient client) {
+    if (identical(_authEventsClient, client)) return;
+    unawaited(_authEvents?.cancel());
+    _authEventsClient = client;
+    var current = client.auth.currentUser?.id;
+    _authEvents = client.auth.onAuthStateChange.listen(
+      (state) {
+        final next = state.session?.user.id;
+        if (next == current) return;
+        current = next;
+        _authTransitions++;
+        // 진행 중인 작업은 더 이상 이 계정의 것이 아니다. 요청이 끝나기를
+        // 기다리지 않고 로딩을 내린다. 이후 단계는 소유권 확인에서 멈춘다.
+        _imageOperation?.hideLoading();
+      },
+      // 인증 오류에는 세션 정보가 담길 수 있다. 기록하지 않는다.
+      onError: (Object _, StackTrace _) {},
+    );
+  }
+
+  /// [operation] 을 시작한 계정이, 같은 클라이언트에서, 관측된 전환 없이
+  /// 아직 로그인해 있는지. 화면 수명과는 별개다.
+  bool _isImageAccountCurrent(_ProfileImageOperation operation) {
+    final client = _currentAuthClient();
+    return identical(client, operation.client) &&
+        identical(_authEventsClient, operation.client) &&
+        _authTransitions == operation.transitions &&
+        client?.auth.currentUser?.id == operation.userId;
+  }
+
+  /// 이 화면이 살아 있고 [operation] 이 아직 이 화면의 작업이며 같은 계정인지.
+  bool _ownsImageOperation(_ProfileImageOperation operation) =>
+      mounted &&
+      identical(_imageOperation, operation) &&
+      _isImageAccountCurrent(operation);
+
+  /// [_confirmImageOwner] 를 기다린 뒤, 같은 턴에서 다음 단계 바로 전에 본다.
+  ///
+  /// 확인 결과를 받는 await 도 microtask 한 번을 거친다. 그 사이 세션이
+  /// 바뀌었거나 소유권을 잃었으면 false 다. 호출자는 다시 확인한다. 세션이
+  /// 바뀐 경우에는 그 확인이 아직 전달되지 않은 전환을 받아 낸다.
+  bool _holdsImageOwner(_ProfileImageOperation operation) =>
+      _ownsImageOperation(operation) &&
+      identical(operation.client.auth.currentSession, operation.session);
+
+  /// await 뒤, 다음 단계 전에 부른다. 결과를 기다린 뒤에는
+  /// [_holdsImageOwner] 로 다시 본다.
+  ///
+  /// 세션 인스턴스만 바뀌었으면 같은 계정의 토큰 갱신일 수도, 이벤트가 아직
+  /// 전달되지 않은 계정 전환(A → B → A 포함)일 수도 있다. gotrue 는 세션을
+  /// 바꾸는 턴에 이벤트를 microtask 로 예약하므로, 한 프레임 뒤 다시 확인한다.
+  /// 그 사이 세션이 그대로면 같은 계정의 새 세션으로 받아들인다.
+  Future<bool> _confirmImageOwner(_ProfileImageOperation operation) async {
+    while (true) {
+      if (!_ownsImageOperation(operation)) return false;
+      final session = operation.client.auth.currentSession;
+      if (identical(session, operation.session)) return true;
+      await SchedulerBinding.instance.endOfFrame;
+      if (!_ownsImageOperation(operation)) return false;
+      if (identical(operation.client.auth.currentSession, session)) {
+        operation.session = session;
+        return true;
       }
     }
   }
@@ -736,7 +927,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                       ),
                       padding: EdgeInsets.zero,
                       alignment: Alignment.bottomRight,
-                      onPressed: () => _uploadProfileImage(),
+                      onPressed: _onProfileImagePressed,
                       icon: Container(
                         width: 24.w,
                         height: 24,
@@ -778,4 +969,58 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
     }
     return null;
   }
+}
+
+/// 프로필 사진 변경 한 번. 버튼을 누른 순간의 계정과 클라이언트를 갖는다.
+final class _ProfileImageOperation {
+  _ProfileImageOperation({
+    required this.client,
+    required this.userId,
+    required this.session,
+    required this.transitions,
+    required OverlayState? overlay,
+  }) : _overlay = overlay;
+
+  final SupabaseClient client;
+  final String userId;
+
+  /// 비교에만 쓴다. 세션 내용은 읽거나 기록하지 않는다.
+  Session? session;
+
+  /// 시작할 때까지 관측한 계정 전환 횟수.
+  final int transitions;
+
+  final OverlayState? _overlay;
+  OverlayEntry? _loading;
+
+  /// 이 작업의 로딩 오버레이. 전역 OverlayLoadingProgress 를 쓰지 않는다 -
+  /// 그것을 내리면 다른 기능이 띄운 오버레이까지 내려간다.
+  void showLoading() {
+    final overlay = _overlay;
+    if (_loading != null || overlay == null || !overlay.mounted) return;
+    final entry = OverlayEntry(builder: (_) => const _ProfileImageLoading());
+    _loading = entry;
+    overlay.insert(entry);
+  }
+
+  /// 이 작업이 띄운 오버레이만 내린다. 여러 번 불러도 된다.
+  void hideLoading() {
+    final entry = _loading;
+    if (entry == null) return;
+    _loading = null;
+    entry.remove();
+    entry.dispose();
+  }
+}
+
+class _ProfileImageLoading extends StatelessWidget {
+  const _ProfileImageLoading();
+
+  @override
+  Widget build(BuildContext context) => const Stack(
+    children: [
+      ModalBarrier(dismissible: false, color: Colors.black54),
+      Center(child: CircularProgressIndicator(strokeWidth: 3)),
+    ],
+  );
 }
