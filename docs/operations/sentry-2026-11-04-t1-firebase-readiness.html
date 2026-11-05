@@ -12,7 +12,7 @@ body{margin:0;background:#f5f7fa;color:#182333;font:16px/1.75 system-ui,-apple-s
 <h1>T1 · Firebase 준비 전 푸시 접근 수정</h1>
 <p class="meta">작성: 2026-11-04 KST · 대상: PICNIC-APP-5K3, PICNIC-APP-5JZ · 수정 전 기준: <code>d544f015bf9334407c6e06ba2bd4be7c8f4cb8ed</code></p>
 <p class="result"><strong>결론:</strong> 두 이슈의 <code>[core/no-app]</code> 호출 경로는 앱 빌드 증가와 Firebase SDK 업그레이드 이후에도 남아 있었다. 현재 SDK에서 같은 오류를 재현했고, 기본 Firebase 앱이 준비된 뒤 푸시 초기화를 시작하도록 수정했다. 이 Firebase 가드의 자동 검증과 독립 코드 리뷰는 완료했다. 후속 Fable 감사에서 찾은 Supabase 미준비 경계도 별도로 재현했다. 보완 후 원래 재현 테스트는 통과했으며, 보완 코드의 Sol/high 독립 리뷰도 APPROVE로 완료했다. 이후 Android 실기기에서 실제 앱의 초기화 실패 → 오류 화면 → 재시도 → 푸시 초기화 연결을 검증했다. 수정 전 코드는 준비 전 복귀 단계에서 실패했고, 수정 후 코드는 A1–A5와 정리를 모두 통과했다. 외부 푸시 권한·토큰·등록은 제어값이다.</p>
-<p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 Android 앱 재시도 연결은 제어된 푸시 경계까지 검증했다. 2026-11-05에는 사용자 승인 후 연결된 실기기를 수정본 1.3.6+130605로 업데이트했고, 기존 로그인 세션의 실제 FCM 서버 등록도 확인했다. 알림 전달과 iOS 전체 앱 연결은 남아 있으므로 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
+<p class="note"><strong>남은 조건:</strong> Android 격리 패키지와 iOS 격리 시뮬레이터 앱의 Firebase 준비·복구 테스트는 각각 통과했다. 별도로 기존 운영 앱 1.3.5+130502에서 지정 테스트 계정의 FCM 서버 등록을 확인했다. 미배포 수정본의 Android 앱 재시도 연결은 제어된 푸시 경계까지 검증했다. 2026-11-05에는 사용자 승인 후 연결된 실기기를 수정본 1.3.6+130605로 업데이트했고, 기존 로그인 세션의 실제 FCM 서버 등록도 확인했다. 후속 Android 백그라운드 알림 1건의 표시와 터치 후 투표 목록 이동도 확인했다. iOS 전체 앱 연결과 실제 장애 후 서버 등록·전달의 결합 검증은 남아 있으므로 T1 전체 완료나 배포 검증 완료로 볼 수 없다. 이 작업은 로컬 브랜치에 보존하며 배포·OTA·스토어 상태·Sentry/Jira 상태를 변경하지 않았다.</p>
 
 <section id="versions"><h2>앱 버전과 SDK 업그레이드의 관계</h2>
 <p>아래 버전은 각 Git 기준점의 <code>picnic_app/pubspec.lock</code>과 <code>picnic_lib/pubspec.lock</code>에서 대조했다. 두 패키지의 해당 SDK 버전은 각 기준점에서 같았다.</p>
@@ -243,12 +243,12 @@ python3 scripts/qa/run_full_app_retry_android.py \
 <p>사용자는 현재 iOS 검증 범위를 시뮬레이터로 지정했다. 검증 도구의 코드 검토는 완료했고, 네이티브 실행 상태는 <a href="#ios-qa">iOS 시뮬레이터 검증</a>에 구분했다. 실기기 FCM 등록 검증은 현재 범위에서 보류한다.</p>
 </section>
 
-<section id="real-fcm-preparation"><h2>수정본의 실제 FCM 서버 등록 완료</h2><p>2026-11-05 사용자 승인 후 연결된 Android 13 실기기의 1.3.5+130502를 1.3.6+130605로 데이터 초기화 없이 업데이트했다. 두 APK의 서명이 같고 설치된 수정본의 바이트·버전·앱 UID가 검사 결과와 일치함을 확인했다. Opus/high의 실기기 절차는 Sol/high의 독립 검토를 통과했다. 당시 Fable 주간 100% 제한으로 이번 절차 보완에는 Fable을 사용하지 않았다.</p><p>16:04:16 KST에 앱을 정상 실행했다. 16:04:26 KST의 새 등록 성공 이벤트와 지정 테스트 계정의 서버 갱신을 대조했고, 기존 로그인 세션·알림 권한과 동일 토큰이 유지됐다. 추가 60초 이상 관측의 두 조회에서 토큰·갱신 시각이 같았다. 개인정보를 제외한 필터는 종료 코드 0이며 소유 수집 프로세스 정리를 확인했다. 수정본 앱은 실기기에 그대로 유지했다.</p><p>이 결과는 정상 등록 경로의 증거다. 신규 Google 로그인, 알림 전달, 실제 Firebase 장애를 유도한 뒤의 등록 또는 iOS 실기기 동작을 검증한 것은 아니다. 세부 시간·설치 증거·한계: <a href="sentry-2026-11-04-real-fcm-qa.html#physical-switch">T1-B 실기기 실행 결과</a>.</p></section>
+<section id="real-fcm-preparation"><h2>수정본의 실제 FCM 서버 등록과 Android 알림 전달 확인</h2><p>2026-11-05 사용자 승인 후 연결된 Android 13 실기기의 1.3.5+130502를 1.3.6+130605로 데이터 초기화 없이 업데이트했다. 두 APK의 서명이 같고 설치된 수정본의 바이트·버전·앱 UID가 검사 결과와 일치함을 확인했다. Opus/high의 실기기 절차는 Sol/high의 독립 검토를 통과했다. 당시 Fable 주간 100% 제한으로 이번 절차 보완에는 Fable을 사용하지 않았다.</p><p>16:04:16 KST에 앱을 정상 실행했다. 16:04:26 KST의 새 등록 성공 이벤트와 지정 테스트 계정의 서버 갱신을 대조했고, 기존 로그인 세션·알림 권한과 동일 토큰이 유지됐다. 추가 60초 이상 관측의 두 조회에서 토큰·갱신 시각이 같았다. 개인정보를 제외한 필터는 종료 코드 0이며 소유 수집 프로세스 정리를 확인했다. 수정본 앱은 실기기에 그대로 유지했다.</p><p>이 결과는 정상 등록 경로의 증거다. 신규 Google 로그인, 실제 Firebase 장애를 유도한 뒤의 등록 또는 iOS 실기기 동작을 검증한 것은 아니다. 세부 시간·설치 증거·한계: <a href="sentry-2026-11-04-real-fcm-qa.html#physical-switch">T1-B 실기기 실행 결과</a>.</p><p>후속 17:20 KST에 지정 계정의 Android 알림을 1회 전송해 서버 성공 1·실패 0을 확인했다. Vysor에서 실제 알림 표시를 확인하고 17:21 KST에 직접 눌렀다. 알림 전 배너 홈 화면에서 투표 목록의 종류 필터와 상태 선택창으로 이동했다. 허용 이벤트 수집과 종료도 확인했다. 단일 백그라운드 알림 범위이며 포그라운드·종료 상태·iOS를 포함하지 않는다. <a href="sentry-2026-11-04-real-fcm-qa.html#notification-delivery">알림 전달·터치 결과</a>.</p></section>
 <section id="remaining"><h2>배포 전 남은 기기 검증</h2>
 <p>iOS와 Android 테스트 빌드에서 아래 항목을 확인해야 한다. 사용자 ID·FCM/APNs 토큰 원문 없이 단계 기록과 등록 성공 응답을 남긴다.</p>
 <ol>
 <li>Android의 제어된 첫 호출 실패와 앱 복귀는 위 실행에서 통과했다. 실제 네이티브 초기화 지연·실패 조건과 iOS 전체 앱 복귀는 별도로 확인한다.</li>
-<li>Android의 <code>MainInitializer → App → AppInitializer → PushTokenService</code> 연결은 제어된 등록 콜백까지 통과했다. 수정본의 지정 테스트 계정 실제 FCM 서버 등록은 정상 경로에서 확인했다. 알림 전달은 미검증이다. 실제 장애 후 서버 등록까지의 결합 검증도 이 결과와 구분한다.</li>
+<li>Android의 <code>MainInitializer → App → AppInitializer → PushTokenService</code> 연결은 제어된 등록 콜백까지 통과했다. 수정본의 지정 테스트 계정 실제 FCM 서버 등록은 정상 경로에서 확인했다. 후속 Android 백그라운드 알림 1건의 표시·터치 이동도 확인했다. 실제 장애 후 서버 등록·전달까지의 결합 검증은 이 결과와 구분한다.</li>
 <li>권한 창 중 연속 resume가 한 작업에 합류하고, dispose 뒤 늦은 완료가 이전 owner를 갱신하지 않는지 확인한다.</li>
 <li>Firebase 준비 전후의 cold remote 알림과 local launch 알림 목적지가 각 소스에서 한 번 전달되는지 확인한다.</li>
 </ol>
