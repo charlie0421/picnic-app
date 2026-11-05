@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
@@ -5,9 +7,16 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:picnic_lib/core/utils/app_builder.dart';
 import 'package:picnic_lib/data/models/promotion/promotion_campaign.dart';
+import 'package:picnic_lib/data/models/promotion/promotion_campaign_v2.dart';
+import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
+import 'package:picnic_lib/data/repositories/wallet_repository.dart';
 import 'package:picnic_lib/presentation/providers/product_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_badge_resolver_provider.dart';
 import 'package:picnic_lib/presentation/providers/promotion_campaign_provider.dart';
+import 'package:picnic_lib/presentation/providers/promotion_campaign_v2_provider.dart';
+import 'package:picnic_lib/presentation/providers/wallet_provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthChangeEvent, AuthState, Session, User;
 import 'package:picnic_lib/presentation/widgets/vote/store/common/store_point_info.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_badge.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/purchase/candy_boost_period_banner.dart';
@@ -20,6 +29,57 @@ import '../../../../../helpers/test_environment.dart';
 
 final _paymentBadgeSourceProvider =
     StateProvider<ResolvedPaymentBadgePromotion?>((ref) => null);
+
+/// The wallet notifier with a refresh that waits for the test.
+class _PendingWalletSummary extends WalletSummary {
+  final Completer<void> pending = Completer<void>();
+  int refreshCalls = 0;
+
+  @override
+  Future<WalletSummaryModel> build() async => WalletRepository.signedOut();
+
+  @override
+  Future<void> refresh() {
+    refreshCalls++;
+    return pending.future;
+  }
+}
+
+/// An enabled auth gateway whose current session the test replaces. [emit]
+/// also delivers the change on a broadcast stream, as gotrue does.
+class _SwitchableAuthGateway implements WalletAuthGateway {
+  _SwitchableAuthGateway(this.session);
+
+  Session? session;
+  final events = StreamController<AuthState>.broadcast();
+
+  void emit(String owner, {AuthChangeEvent event = AuthChangeEvent.signedIn}) {
+    session = _session(owner);
+    events.add(AuthState(event, session));
+  }
+
+  @override
+  bool get isEnabled => true;
+
+  @override
+  Session? get currentSession => session;
+
+  @override
+  Stream<AuthState> get authStateChanges => events.stream;
+}
+
+/// A new Session instance each call, as gotrue creates on every refresh.
+Session _session(String userId) => Session(
+  accessToken: 'qa-synthetic-access-token',
+  tokenType: 'bearer',
+  user: User(
+    id: userId,
+    appMetadata: const {},
+    userMetadata: const {},
+    aud: 'authenticated',
+    createdAt: '2026-01-01T00:00:00Z',
+  ),
+);
 
 /// Helper to build PurchaseStarCandy with mock providers.
 /// Since PurchaseStarCandyState creates internal timers via PurchaseService,
@@ -714,6 +774,331 @@ void main() {
         final testString = 'Error: $pattern detected';
         expect(testString.contains(pattern), true);
       }
+    });
+  });
+
+  // Sentry PICNIC-APP-5M1: the pull-to-refresh wallet refresh can outlive the
+  // store route. The refresh itself must keep running (it is wallet-owned), but
+  // what follows it - the candy boost promotion refresh - belongs to the screen
+  // and to the account that pulled.
+  group('pull-to-refresh after the wallet refresh completes', () {
+    late _PendingWalletSummary wallet;
+    late ValueNotifier<bool> showStore;
+    late int v1Builds;
+    late int v2Builds;
+
+    setUp(() {
+      showStore = ValueNotifier<bool>(true);
+      v1Builds = 0;
+      v2Builds = 0;
+    });
+
+    tearDown(() => showStore.dispose());
+
+    Future<Future<void> Function()> pumpStore(
+      WidgetTester tester, {
+      WalletAuthGateway? gateway,
+    }) async {
+      // Created inside the test body: a Completer made in setUp completes in
+      // the real zone, which the fake-async pumps do not flush.
+      wallet = _PendingWalletSummary();
+      await tester.pumpWidget(
+        buildTestApp(
+          ValueListenableBuilder<bool>(
+            valueListenable: showStore,
+            builder: (_, show, _) =>
+                show ? const PurchaseStarCandy() : const SizedBox.shrink(),
+          ),
+          extraOverrides: [
+            serverProductsProvider.overrideWithBuild(
+              (ref, notifier) => const <Map<String, dynamic>>[],
+            ),
+            storeProductsProvider.overrideWithBuild(
+              (ref, notifier) => const <ProductDetails>[],
+            ),
+            paymentBadgePromotionProvider.overrideWith((ref) async => null),
+            paymentBadgePromotionPeriodProvider.overrideWith(
+              (ref) async => null,
+            ),
+            walletSummaryProvider.overrideWith(() => wallet),
+            // Builds are counted; the futures never finish, so no retry timer.
+            activePromotionCampaignProvider(
+              PromotionSurface.store,
+            ).overrideWith((ref) {
+              v1Builds++;
+              return Completer<ActivePromotionCampaignsModel>().future;
+            }),
+            activePromotionCampaignV2Provider(
+              PromotionSurfaceV2.paymentBadge,
+            ).overrideWith((ref) {
+              v2Builds++;
+              return Completer<ActivePromotionCampaignsV2Model>().future;
+            }),
+            if (gateway != null)
+              walletAuthGatewayProvider.overrideWithValue(gateway),
+          ],
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pump(const Duration(seconds: 3));
+
+      // Keep both promotion sources alive, so an invalidation is a rebuild.
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(PurchaseStarCandy)),
+      );
+      final v1 = container.listen(
+        activePromotionCampaignProvider(PromotionSurface.store),
+        (_, _) {},
+      );
+      final v2 = container.listen(
+        activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
+        (_, _) {},
+      );
+      addTearDown(v1.close);
+      addTearDown(v2.close);
+      await tester.pump();
+
+      return tester
+          .widget<RefreshIndicator>(find.byType(RefreshIndicator))
+          .onRefresh;
+    }
+
+    Future<Object?> settle(WidgetTester tester, Future<void> refresh) async {
+      Object? failure;
+      var done = false;
+      unawaited(
+        refresh.then(
+          (_) => done = true,
+          onError: (Object error) {
+            failure = error;
+            done = true;
+          },
+        ),
+      );
+      wallet.pending.complete();
+      // A changed session waits one frame for queued auth events; the third
+      // pump lets an invalidation made after that frame rebuild.
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+      expect(done, isTrue, reason: 'onRefresh must finish');
+      return failure;
+    }
+
+    testWidgets('a live store refreshes the promotion after the wallet', (
+      tester,
+    ) async {
+      final onRefresh = await pumpStore(tester);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      expect(wallet.refreshCalls, 1);
+      expect(await settle(tester, refresh), isNull);
+
+      expect(v1Builds, before.$1 + 1);
+      expect(v2Builds, before.$2 + 1);
+    });
+
+    testWidgets('a same-account token refresh still refreshes the promotion', (
+      tester,
+    ) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      gateway.session = _session('user-a');
+      expect(await settle(tester, refresh), isNull);
+
+      expect(v1Builds, before.$1 + 1);
+      expect(v2Builds, before.$2 + 1);
+    });
+
+    testWidgets('a store that left before the wallet finished does not use '
+        'its ref', (tester) async {
+      final onRefresh = await pumpStore(tester);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      showStore.value = false;
+      await tester.pump();
+      expect(find.byType(PurchaseStarCandy), findsNothing);
+
+      expect(await settle(tester, refresh), isNull);
+      expect(tester.takeException(), isNull);
+      expect((v1Builds, v2Builds), before);
+    });
+
+    testWidgets('an account change while the wallet refresh is pending does '
+        'not refresh the promotion', (tester) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      gateway.session = _session('user-b');
+      expect(await settle(tester, refresh), isNull);
+
+      expect((v1Builds, v2Builds), before);
+    });
+
+    testWidgets('A to B to A delivered while the wallet refresh is pending '
+        'does not refresh the promotion', (tester) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      addTearDown(gateway.events.close);
+      final seen = <String?>[];
+      final subscription = gateway.authStateChanges.listen(
+        (state) => seen.add(state.session?.user.id),
+      );
+      addTearDown(subscription.cancel);
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      gateway.emit('user-b');
+      await tester.pump();
+      gateway.emit('user-a');
+      await tester.pump();
+      expect(seen, ['user-b', 'user-a']);
+      expect(await settle(tester, refresh), isNull);
+
+      expect((v1Builds, v2Builds), before);
+    });
+
+    testWidgets('a delivered same-account token refresh still refreshes the '
+        'promotion', (tester) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      addTearDown(gateway.events.close);
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      gateway.emit('user-a', event: AuthChangeEvent.tokenRefreshed);
+      await tester.pump();
+      expect(await settle(tester, refresh), isNull);
+
+      expect(v1Builds, before.$1 + 1);
+      expect(v2Builds, before.$2 + 1);
+    });
+
+    // The wallet completion is queued first; the auth changes happen in the
+    // same turn, so their events are still queued when the refresh resumes.
+    for (final roundTrip in [true, false]) {
+      testWidgets(
+        roundTrip
+            ? 'a queued A to B to A behind the wallet completion does not '
+                  'refresh the promotion'
+            : 'a queued same-account token refresh behind the wallet '
+                  'completion still refreshes the promotion',
+        (tester) async {
+          final gateway = _SwitchableAuthGateway(_session('user-a'));
+          addTearDown(gateway.events.close);
+          final seen = <String?>[];
+          final subscription = gateway.authStateChanges.listen(
+            (state) => seen.add(state.session?.user.id),
+          );
+          addTearDown(subscription.cancel);
+          final onRefresh = await pumpStore(tester, gateway: gateway);
+          final before = (v1Builds, v2Builds);
+
+          final refresh = onRefresh();
+          await tester.pump();
+          var finished = false;
+          Object? failure;
+          unawaited(
+            refresh.then(
+              (_) => finished = true,
+              onError: (Object error) {
+                failure = error;
+                finished = true;
+              },
+            ),
+          );
+          wallet.pending.complete();
+          if (roundTrip) gateway.emit('user-b');
+          gateway.emit(
+            'user-a',
+            event: roundTrip
+                ? AuthChangeEvent.signedIn
+                : AuthChangeEvent.tokenRefreshed,
+          );
+          expect(gateway.currentSession!.user.id, 'user-a');
+          expect(seen, isEmpty, reason: 'no event delivered yet');
+          await tester.pump();
+          await tester.pump();
+          await tester.pump();
+
+          expect(finished, isTrue);
+          expect(failure, isNull);
+          expect(seen, roundTrip ? ['user-b', 'user-a'] : ['user-a']);
+          expect((
+            v1Builds,
+            v2Builds,
+          ), roundTrip ? before : (before.$1 + 1, before.$2 + 1));
+        },
+      );
+    }
+
+    testWidgets('a store unmounted while it waits for queued auth events does '
+        'not use its ref', (tester) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      addTearDown(gateway.events.close);
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      Object? failure;
+      var finished = false;
+      unawaited(
+        refresh.then(
+          (_) => finished = true,
+          onError: (Object error) {
+            failure = error;
+            finished = true;
+          },
+        ),
+      );
+      // Same turn: completion, a same-account session change, and the
+      // request to remove the store (applied by the next frame).
+      wallet.pending.complete();
+      gateway.emit('user-a', event: AuthChangeEvent.tokenRefreshed);
+      showStore.value = false;
+      await tester.pump();
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.byType(PurchaseStarCandy), findsNothing);
+      expect(finished, isTrue);
+      expect(failure, isNull);
+      expect(tester.takeException(), isNull);
+      expect((v1Builds, v2Builds), before);
+    });
+
+    testWidgets('a later pull after an earlier A to B to A refreshes the '
+        'promotion again', (tester) async {
+      final gateway = _SwitchableAuthGateway(_session('user-a'));
+      addTearDown(gateway.events.close);
+      final onRefresh = await pumpStore(tester, gateway: gateway);
+      gateway.emit('user-b');
+      await tester.pump();
+      gateway.emit('user-a');
+      await tester.pump();
+      final before = (v1Builds, v2Builds);
+
+      final refresh = onRefresh();
+      await tester.pump();
+      expect(await settle(tester, refresh), isNull);
+
+      expect(v1Builds, before.$1 + 1);
+      expect(v2Builds, before.$2 + 1);
     });
   });
 
