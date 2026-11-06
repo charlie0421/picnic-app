@@ -90,34 +90,77 @@ bool _isHttpsLink(String value) {
 /// reporter logs every failure and sends a Sentry warning only when
 /// [BranchLinkFailure.isReportable]. An error that is not a Branch request
 /// failure is a defect and is rethrown.
+///
+/// After a timeout the request keeps running, and `Future.timeout` drops its
+/// late result. The share does not wait for it. A late defect still goes to
+/// the zone's uncaught-error handler, and a late Branch answer that the app
+/// cannot use still goes to [onFailure].
 Future<String?> createShareLink(
   String? title,
   String? longUrl, {
   Duration timeout = branchLinkTimeout,
   BranchLinkFailureReporter? onFailure,
 }) async {
+  final request = createBranchLink(title, longUrl);
+  var timedOut = false;
   try {
-    return await createBranchLink(title, longUrl).timeout(timeout);
+    return await request.timeout(
+      timeout,
+      onTimeout: () {
+        timedOut = true;
+        throw TimeoutException('Branch link request', timeout);
+      },
+    );
   } catch (error, stackTrace) {
-    final failure = switch (error) {
-      BranchLinkFailure() => error,
-      TimeoutException() => const BranchLinkFailure(
-        BranchLinkFailureKind.timeout,
-      ),
-      // IOException covers SocketException and the TLS failures
-      // (HandshakeException) that IOClient does not wrap.
-      http.ClientException() ||
-      IOException() => const BranchLinkFailure(BranchLinkFailureKind.transport),
-      _ => null,
-    };
+    final failure = _classifyBranchLinkError(error);
     if (failure == null) rethrow;
-    try {
-      (onFailure ?? _reportBranchLinkFailure)(failure, stackTrace);
-    } catch (reportError) {
-      logger.w('Branch link failure report failed: ${reportError.runtimeType}');
-    }
+    _deliverBranchLinkFailure(onFailure, failure, stackTrace);
+    if (timedOut) _watchLateBranchLinkResult(request, onFailure);
     return null;
   }
+}
+
+BranchLinkFailure? _classifyBranchLinkError(Object error) => switch (error) {
+  BranchLinkFailure() => error,
+  TimeoutException() => const BranchLinkFailure(BranchLinkFailureKind.timeout),
+  // IOException covers SocketException and the TLS failures
+  // (HandshakeException) that IOClient does not wrap.
+  http.ClientException() ||
+  IOException() => const BranchLinkFailure(BranchLinkFailureKind.transport),
+  _ => null,
+};
+
+void _deliverBranchLinkFailure(
+  BranchLinkFailureReporter? onFailure,
+  BranchLinkFailure failure,
+  StackTrace stackTrace,
+) {
+  try {
+    (onFailure ?? _reportBranchLinkFailure)(failure, stackTrace);
+  } catch (reportError) {
+    logger.w('Branch link failure report failed: ${reportError.runtimeType}');
+  }
+}
+
+/// Handles the result that arrives after the timeout. A late link and a late
+/// transport failure need nothing: the share already used the fallback.
+void _watchLateBranchLinkResult(
+  Future<String> request,
+  BranchLinkFailureReporter? onFailure,
+) {
+  unawaited(
+    request.then<void>(
+      (_) {},
+      onError: (Object error, StackTrace stackTrace) {
+        final failure = _classifyBranchLinkError(error);
+        if (failure == null) {
+          Zone.current.handleUncaughtError(error, stackTrace);
+        } else if (failure.isReportable) {
+          _deliverBranchLinkFailure(onFailure, failure, stackTrace);
+        }
+      },
+    ),
+  );
 }
 
 void _reportBranchLinkFailure(BranchLinkFailure failure, StackTrace stack) {

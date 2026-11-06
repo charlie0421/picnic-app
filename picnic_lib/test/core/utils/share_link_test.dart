@@ -151,6 +151,80 @@ void main() {
     });
   }
 
+  group('late completion after the timeout', () {
+    // Future.timeout keeps listening to the request and drops its late
+    // result. The share must not wait for it, but a late defect must stay
+    // visible and a late Branch answer the app cannot use must be reported.
+    const timeout = Duration(milliseconds: 20);
+    const settle = Duration(milliseconds: 20);
+
+    test('a late unexpected error still reaches the zone', () async {
+      final uncaught = <Object>[];
+      final finished = Completer<String?>();
+      runZonedGuarded(() async {
+        // Create the request's future in the watched zone, as the app does.
+        // A future does not deliver an error to a listener in another error
+        // zone; the error would go to the test zone instead.
+        final pending = Completer<http.Response>();
+        final link = await run(
+          () => MockClient((_) => pending.future),
+          timeout: timeout,
+        );
+        pending.completeError(StateError('late defect'));
+        await Future<void>.delayed(settle);
+        finished.complete(link);
+      }, (error, _) => uncaught.add(error));
+      final link = await finished.future;
+
+      expect(link, isNull);
+      expect(reports.map((r) => r.kind), [BranchLinkFailureKind.timeout]);
+      expect(uncaught, [isA<StateError>()]);
+    });
+
+    test('a late Branch error answer is still reported', () async {
+      final pending = Completer<http.Response>();
+      final link = await run(
+        () => MockClient((_) => pending.future),
+        timeout: timeout,
+      );
+      pending.complete(http.Response('', 503));
+      await Future<void>.delayed(settle);
+
+      expect(link, isNull);
+      expect(reports.map((r) => r.kind), [
+        BranchLinkFailureKind.timeout,
+        BranchLinkFailureKind.httpStatus,
+      ]);
+      expect(reports.last.statusCode, 503);
+    });
+
+    // Control: passes before and after the late-completion change.
+    test('a late Branch link is not used and not reported', () async {
+      final pending = Completer<http.Response>();
+      final link = await run(
+        () => MockClient((_) => pending.future),
+        timeout: timeout,
+      );
+      pending.complete(
+        http.Response(jsonEncode({'url': 'https://picnic.app.link/late'}), 200),
+      );
+      await Future<void>.delayed(settle);
+
+      expect(link, isNull);
+      expect(reports.map((r) => r.kind), [BranchLinkFailureKind.timeout]);
+    });
+
+    // Control: a late transport failure is user network noise.
+    test('a late transport failure is not reported again', () async {
+      final pending = Completer<http.Response>();
+      await run(() => MockClient((_) => pending.future), timeout: timeout);
+      pending.completeError(http.ClientException('Connection reset'));
+      await Future<void>.delayed(settle);
+
+      expect(reports.map((r) => r.kind), [BranchLinkFailureKind.timeout]);
+    });
+  });
+
   test('rethrows an error that is not a Branch request failure', () async {
     expect(
       run(() => MockClient((_) async => throw StateError('defect'))),
