@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -41,6 +42,26 @@ enum TapjoyFailureKind {
   missingPlacement,
 }
 
+/// The likely cause, derived locally from the SDK message.
+///
+/// The message itself is never sent. Only this closed value is.
+enum TapjoyFailureCause {
+  /// The SDK gave no message, or an empty one.
+  none,
+
+  /// A device-side network failure, for example a lost connection.
+  network,
+
+  /// The Tapjoy server answered with an error body (JSON or HTML).
+  server,
+
+  /// The SDK was not connected when the app called it.
+  sdkNotReady,
+
+  /// A message that matches no known pattern.
+  unknown,
+}
+
 /// One Tapjoy failure, classified into closed values for Sentry.
 ///
 /// The plugin passes only a message string for the setUserID and placement
@@ -53,6 +74,8 @@ class TapjoyFailure {
     required this.stage,
     required this.kind,
     this.sdkMessage = 'none',
+    this.cause = TapjoyFailureCause.none,
+    this.serverCode,
     this.code,
     this.network = 'unknown',
     this.stackTrace,
@@ -68,6 +91,8 @@ class TapjoyFailure {
     stage: stage,
     kind: kind,
     sdkMessage: describeSdkMessage(sdkError),
+    cause: describeCause(sdkError),
+    serverCode: describeServerCode(sdkError),
     code: describeCode(sdkError),
     network: AdShortformLoadFailure.describeNetwork(connectivity),
     stackTrace: stackTrace,
@@ -78,6 +103,12 @@ class TapjoyFailure {
 
   /// `none` (no SDK message), `empty` or `present`.
   final String sdkMessage;
+
+  /// The cause derived from the SDK message. See [describeCause].
+  final TapjoyFailureCause cause;
+
+  /// A 3-digit status code from a Tapjoy server JSON body, else null.
+  final String? serverCode;
 
   /// `platform:<code>` or `missing_plugin` for a channel failure, else null.
   final String? code;
@@ -91,12 +122,17 @@ class TapjoyFailure {
   /// `timeout` and `busy` are `yes` because the setUserID guard allows a
   /// retry for the same account. `noUser` needs a sign-in, and
   /// `otherAccountPending` waits for the earlier account's result.
+  /// A network or server cause is also `yes`: the same request can succeed
+  /// later.
   String get retryable => switch (kind) {
     TapjoyFailureKind.timeout || TapjoyFailureKind.busy => 'yes',
     TapjoyFailureKind.noUser || TapjoyFailureKind.otherAccountPending => 'no',
     TapjoyFailureKind.sdkFailure ||
     TapjoyFailureKind.channelFailure ||
-    TapjoyFailureKind.missingPlacement => 'unknown',
+    TapjoyFailureKind.missingPlacement => switch (cause) {
+      TapjoyFailureCause.network || TapjoyFailureCause.server => 'yes',
+      _ => 'unknown',
+    },
   };
 
   /// A copy with the network type found after the failure.
@@ -105,6 +141,8 @@ class TapjoyFailure {
         stage: stage,
         kind: kind,
         sdkMessage: sdkMessage,
+        cause: cause,
+        serverCode: serverCode,
         code: code,
         network: AdShortformLoadFailure.describeNetwork(connectivity),
         stackTrace: stackTrace,
@@ -119,12 +157,85 @@ class TapjoyFailure {
     'tapjoy_stage': stage.name,
     'tapjoy_kind': kind.name,
     'tapjoy_sdk_message': sdkMessage,
+    'tapjoy_cause': cause.name,
     'tapjoy_retryable': retryable,
     'network': network,
     'tapjoy_code': ?code,
+    'tapjoy_server_code': ?serverCode,
   };
 
-  List<String> get fingerprint => ['tapjoy-failure', stage.name, kind.name];
+  List<String> get fingerprint => [
+    'tapjoy-failure',
+    stage.name,
+    kind.name,
+    cause.name,
+  ];
+
+  /// Message patterns of a device-side network failure. Lower case.
+  ///
+  /// iOS gives `NSURLErrorDomain` texts (PICNIC-APP-5KN), Android gives Java
+  /// network exception texts.
+  static const _networkPatterns = <String>[
+    'network connection was lost',
+    'appears to be offline',
+    'not connected to the internet',
+    'timed out',
+    'unable to resolve host',
+    'failed to connect',
+    'network is unreachable',
+    'connection refused',
+    'sockettimeout',
+    'unknownhost',
+  ];
+
+  /// Error bodies seen from the Tapjoy server (PICNIC-APP-5KT): a JSON
+  /// object, an HTML page, or an "internal error" text.
+  static bool _isServerBody(String trimmed, String lower) =>
+      trimmed.startsWith('{') ||
+      trimmed.startsWith('<') ||
+      lower.contains('internal server error') ||
+      lower.contains('internal error');
+
+  static TapjoyFailureCause describeCause(Object? sdkError) {
+    if (sdkError is! String) return TapjoyFailureCause.none;
+    final trimmed = sdkError.trim();
+    if (trimmed.isEmpty) return TapjoyFailureCause.none;
+    final lower = trimmed.toLowerCase();
+    if (lower.contains('sdk not connected') ||
+        lower.contains('connect must be called')) {
+      return TapjoyFailureCause.sdkNotReady;
+    }
+    if (_isServerBody(trimmed, lower)) return TapjoyFailureCause.server;
+    if (_networkPatterns.any(lower.contains)) {
+      return TapjoyFailureCause.network;
+    }
+    return TapjoyFailureCause.unknown;
+  }
+
+  static final RegExp _serverCodePattern = RegExp(r'"code"\s*:\s*(\d{3})\b');
+
+  /// The `"code"` of a Tapjoy server JSON body, only when it is 100-599.
+  static String? describeServerCode(Object? sdkError) {
+    if (sdkError is! String) return null;
+    final match = _serverCodePattern.firstMatch(sdkError);
+    if (match == null) return null;
+    final value = int.parse(match.group(1)!);
+    return value >= 100 && value <= 599 ? '$value' : null;
+  }
+
+  /// Whether the app-wide Sentry filter dropped this failure before the
+  /// classified report existed.
+  ///
+  /// The old report sent [raw] itself, so `beforeSend` judged its type and
+  /// text. The classified report has another type, so the filter no longer
+  /// sees the text. This keeps the old decision.
+  static bool droppedByGlobalFilter(Object raw) =>
+      AppInitializerHelper.shouldFilterSentryEvent(
+        sentryEnabled: true,
+        isDebugMode: false,
+        exceptionType: raw is String ? 'String' : raw.runtimeType.toString(),
+        exceptionValue: raw.toString(),
+      );
 
   /// A channel error code is allowed in this form only. Other values, such
   /// as a URL, become `invalid`.

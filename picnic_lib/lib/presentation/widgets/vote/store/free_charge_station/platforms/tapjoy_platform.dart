@@ -200,12 +200,17 @@ class TapjoyPlatform extends AdPlatform {
   /// PICNIC-APP-5KT/5KN/5KA: 예전에는 SDK 원문 문자열을 그대로 Sentry 로
   /// 보냈다. 다이얼로그와 보고 제외 판단은 그대로 두고, Sentry 에는 닫힌 값만
   /// 담은 [TapjoyFailure] 를 보낸다. [reason] 원문은 로컬 로그와 판단에만 쓴다.
+  ///
+  /// 예전 원문 보고는 앱 공통 beforeSend 필터도 거쳤다. 분류 보고는 타입이
+  /// 달라 그 필터가 원문을 보지 못하므로, 같은 판단을 여기서 먼저 한다.
   void _reportFailure(TapjoyFailure failure, String reason, {Object? error}) {
     logError(
       '${failure.stage.name}/${failure.kind.name}: $reason',
       error: error,
     );
-    if (showAdLoadFailureDialog('Tapjoy', error ?? reason, reason)) {
+    final raw = error ?? reason;
+    if (showAdLoadFailureDialog('Tapjoy', raw, reason) &&
+        !TapjoyFailure.droppedByGlobalFilter(raw)) {
       reportTapjoyFailure(failure);
     }
   }

@@ -320,6 +320,89 @@ void main() {
     await pumpAndIgnoreErrors(tester);
   });
 
+  // 리뷰 P2: 예전 원문 보고는 앱 공통 beforeSend 필터를 거쳤다. 거기서 버려지던
+  // 전송 계층 문자열은 분류 보고로 바꾼 뒤에도 보내지 않아야 한다.
+  for (final text in <String>[
+    'Failed host lookup: api.tapjoy.com',
+    'Connection reset by peer',
+  ]) {
+    testWidgets('예전 공통 필터가 버리던 실패는 보고하지 않는다: $text', (tester) async {
+      final platform = await buildPlatform(tester);
+
+      final showing = platform.showAd();
+      await drain(tester);
+      await deliver('TapjoyOnSetUserIDFailure', text);
+      await drain(tester);
+      await showing;
+
+      expect(platform.dialogs, 1);
+      expect(platform.rawReports, 0);
+      expect(platform.reports, isEmpty);
+      platform.dispose();
+      await pumpAndIgnoreErrors(tester);
+    });
+  }
+
+  // 리뷰 P2: 오프라인·설정 오류·10초 지연을 서로 다른 닫힌 값으로 남긴다.
+  testWidgets('오프라인 실패는 원인 network 로 보고한다 (5KN)', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await deliver(
+      'TapjoyOnSetUserIDFailure',
+      'The network connection was lost.',
+    );
+    await drain(tester);
+    await showing;
+
+    expect(platform.reports.single.kind, TapjoyFailureKind.sdkFailure);
+    expect(platform.reports.single.cause, TapjoyFailureCause.network);
+    expect(platform.reports.single.retryable, 'yes');
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('SDK 미연결 실패는 원인 sdkNotReady 로 보고한다', (tester) async {
+    final platform = await buildPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await deliver(
+      'TapjoyOnSetUserIDFailure',
+      'SDK not connected -- connect must be called first with a successful '
+          'callback',
+    );
+    await drain(tester);
+    await showing;
+
+    expect(platform.reports.single.cause, TapjoyFailureCause.sdkNotReady);
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
+  testWidgets('Tapjoy 서버 오류 응답은 원인 server 와 코드로 보고한다 (5KT)', (tester) async {
+    final platform = await buildPlacementPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await deliver('TapjoyOnSetUserIDSuccess');
+    await drain(tester);
+    await showing;
+
+    await deliver('onRequestFailure', <String, Object?>{
+      'placementName': 'mission',
+      'error': '{"code":500,"reason":"Internal server error"}',
+    });
+    await drain(tester);
+
+    expect(platform.reports.single.stage, TapjoyFailureStage.placementRequest);
+    expect(platform.reports.single.cause, TapjoyFailureCause.server);
+    expect(platform.reports.single.serverCode, '500');
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
   testWidgets('terminal 이벤트가 오지 않으면 상한 뒤 포기하고 오퍼를 요청하지 않는다', (tester) async {
     final platform = await buildPlatform(tester);
 

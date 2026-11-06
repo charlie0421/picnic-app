@@ -90,13 +90,15 @@ void main() {
         'tapjoy_stage': 'setUserId',
         'tapjoy_kind': 'sdkFailure',
         'tapjoy_sdk_message': 'present',
-        'tapjoy_retryable': 'unknown',
+        'tapjoy_cause': 'network',
+        'tapjoy_retryable': 'yes',
         'network': 'mobile',
       });
       expect(failure.fingerprint, [
         'tapjoy-failure',
         'setUserId',
         'sdkFailure',
+        'network',
       ]);
 
       final exception = failure.toSentryException().toString();
@@ -104,6 +106,107 @@ void main() {
       expect(exception, contains('sdkFailure'));
       expect(exception, isNot(contains('network connection')));
       expect(exception, isNot(contains('1234')));
+    });
+
+    test('derives a closed cause from the SDK text without keeping it', () {
+      TapjoyFailure classify(Object? sdkError) => TapjoyFailure.classify(
+        stage: TapjoyFailureStage.placementRequest,
+        kind: TapjoyFailureKind.sdkFailure,
+        sdkError: sdkError,
+      );
+
+      expect(classify(null).cause, TapjoyFailureCause.none);
+      expect(classify('').cause, TapjoyFailureCause.none);
+      expect(
+        classify('The network connection was lost.').cause,
+        TapjoyFailureCause.network,
+      );
+      expect(
+        classify('The Internet connection appears to be offline.').cause,
+        TapjoyFailureCause.network,
+      );
+      expect(
+        classify('The request timed out.').cause,
+        TapjoyFailureCause.network,
+      );
+      expect(
+        classify('{"code":500,"reason":"Internal server error"}').cause,
+        TapjoyFailureCause.server,
+      );
+      expect(
+        classify('{"error":"Internal error occured."}').cause,
+        TapjoyFailureCause.server,
+      );
+      expect(classify('<html>').cause, TapjoyFailureCause.server);
+      expect(
+        classify('SDK not connected -- connect must be called first').cause,
+        TapjoyFailureCause.sdkNotReady,
+      );
+      expect(classify('something else').cause, TapjoyFailureCause.unknown);
+    });
+
+    test('keeps only a 3-digit server code from a JSON body', () {
+      String? code(String text) => TapjoyFailure.classify(
+        stage: TapjoyFailureStage.placementRequest,
+        kind: TapjoyFailureKind.sdkFailure,
+        sdkError: text,
+      ).serverCode;
+
+      expect(code('{"code":500,"reason":"Internal server error"}'), '500');
+      expect(code('{"code": 503}'), '503');
+      expect(code('{"code":99}'), isNull);
+      expect(code('{"code":700}'), isNull);
+      expect(code('{"error":"Internal error occured."}'), isNull);
+      expect(code('<html>'), isNull);
+    });
+
+    test('a network or server cause is retryable', () {
+      String retryable(String text) => TapjoyFailure.classify(
+        stage: TapjoyFailureStage.placementRequest,
+        kind: TapjoyFailureKind.sdkFailure,
+        sdkError: text,
+      ).retryable;
+
+      expect(retryable('The network connection was lost.'), 'yes');
+      expect(retryable('{"code":500}'), 'yes');
+      expect(retryable('something else'), 'unknown');
+    });
+
+    test('tags carry the cause and the server code, never the text', () {
+      final failure = TapjoyFailure.classify(
+        stage: TapjoyFailureStage.placementRequest,
+        kind: TapjoyFailureKind.sdkFailure,
+        sdkError: '{"code":500,"reason":"Internal server error"}',
+      );
+
+      expect(failure.tags['tapjoy_cause'], 'server');
+      expect(failure.tags['tapjoy_server_code'], '500');
+      expect(failure.fingerprint, [
+        'tapjoy-failure',
+        'placementRequest',
+        'sdkFailure',
+        'server',
+      ]);
+      expect(
+        failure.tags.values.join(' '),
+        isNot(contains('Internal server error')),
+      );
+    });
+
+    test('the old global filter decision is preserved', () {
+      expect(
+        TapjoyFailure.droppedByGlobalFilter('Failed host lookup: x'),
+        isTrue,
+      );
+      expect(
+        TapjoyFailure.droppedByGlobalFilter('Connection reset by peer'),
+        isTrue,
+      );
+      expect(
+        TapjoyFailure.droppedByGlobalFilter('The network connection was lost.'),
+        isFalse,
+      );
+      expect(TapjoyFailure.droppedByGlobalFilter('{"code":500}'), isFalse);
     });
 
     test('adds the code tag only when there is a code', () {
