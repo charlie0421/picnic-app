@@ -188,6 +188,8 @@ class TapjoyPlatform extends AdPlatform {
         stackTrace: StackTrace.current,
       ),
       reason,
+      // 예전 이 단계는 채널 예외도 reason 문자열로 보고했다.
+      legacyInput: reason,
       error: error,
     );
     if (context.mounted && !isDisposed) {
@@ -203,14 +205,20 @@ class TapjoyPlatform extends AdPlatform {
   ///
   /// 예전 원문 보고는 앱 공통 beforeSend 필터도 거쳤다. 분류 보고는 타입이
   /// 달라 그 필터가 원문을 보지 못하므로, 같은 판단을 여기서 먼저 한다.
-  void _reportFailure(TapjoyFailure failure, String reason, {Object? error}) {
+  /// [legacyInput] 은 예전 코드가 `logAdLoadFailure` 에 넘기던 값 그대로다 —
+  /// 다이얼로그 판단과 공통 필터를 예전과 같은 입력으로 돌리기 위해서다.
+  void _reportFailure(
+    TapjoyFailure failure,
+    String reason, {
+    required Object legacyInput,
+    Object? error,
+  }) {
     logError(
       '${failure.stage.name}/${failure.kind.name}: $reason',
       error: error,
     );
-    final raw = error ?? reason;
-    if (showAdLoadFailureDialog('Tapjoy', raw, reason) &&
-        !TapjoyFailure.droppedByGlobalFilter(raw)) {
+    if (showAdLoadFailureDialog('Tapjoy', legacyInput, reason) &&
+        !TapjoyFailure.droppedByGlobalFilter(legacyInput)) {
       reportTapjoyFailure(failure);
     }
   }
@@ -236,6 +244,7 @@ class TapjoyPlatform extends AdPlatform {
             stackTrace: StackTrace.current,
           ),
           error.toString(),
+          legacyInput: error ?? error.toString(),
           error: error,
         );
         if (context.mounted && !isDisposed) {
@@ -271,6 +280,7 @@ class TapjoyPlatform extends AdPlatform {
           stackTrace: StackTrace.current,
         ),
         '플레이스먼트 생성 실패',
+        legacyInput: '플레이스먼트 생성 실패',
       );
     }
   }

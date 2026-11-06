@@ -343,6 +343,35 @@ void main() {
     });
   }
 
+  // 재검증 P2: setUserID 단계는 예전에 reason 문자열(String)을 보고했다. 채널
+  // 예외도 그 문자열 기준으로 공통 필터를 적용해야 한다.
+  testWidgets('채널 예외라도 예전 문자열 기준 공통 필터가 버리면 보고하지 않는다', (tester) async {
+    messenger.setMockMethodCallHandler(const MethodChannel(channelName), (
+      call,
+    ) async {
+      channelCalls.add(call.method);
+      if (call.method == 'setUserID') {
+        throw PlatformException(
+          code: 'channel-error',
+          message: 'Connection reset by peer',
+        );
+      }
+      return null;
+    });
+    final platform = await buildPlatform(tester);
+
+    final showing = platform.showAd();
+    await drain(tester);
+    await showing;
+
+    expect(platform.placementRequests, 0);
+    expect(platform.dialogs, 1);
+    expect(platform.rawReports, 0);
+    expect(platform.reports, isEmpty);
+    platform.dispose();
+    await pumpAndIgnoreErrors(tester);
+  });
+
   // 리뷰 P2: 오프라인·설정 오류·10초 지연을 서로 다른 닫힌 값으로 남긴다.
   testWidgets('오프라인 실패는 원인 network 로 보고한다 (5KN)', (tester) async {
     final platform = await buildPlatform(tester);
