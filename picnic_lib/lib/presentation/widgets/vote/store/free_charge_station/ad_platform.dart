@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart' show kDebugMode, visibleForTesting;
+import 'package:flutter/foundation.dart'
+    show kDebugMode, protected, visibleForTesting;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -508,6 +509,29 @@ abstract class AdPlatform {
         type: DialogType.error,
       );
     }
+  }
+
+  /// [logAdLoadFailure] 와 같은 기준으로 사용자에게 실패 다이얼로그를 띄운다.
+  /// Sentry 에는 보내지 않는다 — 원문 대신 분류한 보고를 보내는 플랫폼
+  /// (Tapjoy)이 이 결과를 보고 직접 보낸다.
+  ///
+  /// 보고할 실패면 true, no-fill·네트워크 키워드 등 보고 제외 대상이면 false.
+  @protected
+  bool showAdLoadFailureDialog(String platform, dynamic error, String message) {
+    if (isNonReportableAdError(platform, error, message)) {
+      logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
+      if (context.mounted && !isDisposed) {
+        _showNoFillDialog();
+      }
+      return false;
+    }
+    if (context.mounted && !isDisposed) {
+      showSimpleDialog(
+        content: AppLocalizations.of(context).label_ads_load_fail,
+        type: DialogType.error,
+      );
+    }
+    return true;
   }
 
   /// Sentry 에 보내지 않아도 되는 광고 에러 감지.
