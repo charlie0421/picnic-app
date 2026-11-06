@@ -83,17 +83,55 @@ void main() {
     expect(reports.single.kind, BranchLinkFailureKind.transport);
   });
 
-  test('returns null and reports a timeout when Branch does not answer',
-      () async {
-    final never = Completer<http.Response>();
+  test('returns null and reports a TLS handshake failure', () async {
+    // IOClient wraps SocketException and HttpException in ClientException,
+    // but a HandshakeException (captive portal, TLS interception) reaches
+    // the caller as it is.
     final link = await run(
-      () => MockClient((_) => never.future),
-      timeout: const Duration(milliseconds: 50),
+      () => MockClient(
+        (_) async => throw const HandshakeException('handshake failed'),
+      ),
     );
 
     expect(link, isNull);
-    expect(reports.single.kind, BranchLinkFailureKind.timeout);
+    expect(reports.single.kind, BranchLinkFailureKind.transport);
   });
+
+  test('sends only Branch answers to Sentry, not user network failures', () {
+    // The app's beforeSend drops ClientException, SocketException,
+    // HandshakeException and wrapped timeouts as user network noise. A share
+    // link failure follows the same rule: the user's network is not an app
+    // or Branch integration defect.
+    expect(BranchLinkFailure.status(500).isReportable, isTrue);
+    expect(
+      const BranchLinkFailure(
+        BranchLinkFailureKind.invalidResponse,
+      ).isReportable,
+      isTrue,
+    );
+    expect(
+      const BranchLinkFailure(BranchLinkFailureKind.transport).isReportable,
+      isFalse,
+    );
+    expect(
+      const BranchLinkFailure(BranchLinkFailureKind.timeout).isReportable,
+      isFalse,
+    );
+  });
+
+  test(
+    'returns null and reports a timeout when Branch does not answer',
+    () async {
+      final never = Completer<http.Response>();
+      final link = await run(
+        () => MockClient((_) => never.future),
+        timeout: const Duration(milliseconds: 50),
+      );
+
+      expect(link, isNull);
+      expect(reports.single.kind, BranchLinkFailureKind.timeout);
+    },
+  );
 
   for (final body in <String>[
     'not json',

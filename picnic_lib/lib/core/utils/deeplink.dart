@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io' show SocketException;
+import 'dart:io' show IOException;
 
 import 'package:http/http.dart' as http;
 import 'package:picnic_lib/core/config/environment.dart';
@@ -25,6 +25,15 @@ final class BranchLinkFailure implements Exception {
 
   final BranchLinkFailureKind kind;
   final int? statusCode;
+
+  /// Whether Sentry gets this failure: only a Branch answer that the app
+  /// cannot use. A transport failure or a timeout is a user network
+  /// condition. The app's `beforeSend` drops the same failures from other
+  /// paths (ClientException, SocketException, HandshakeException, wrapped
+  /// timeouts) as user network noise.
+  bool get isReportable =>
+      kind == BranchLinkFailureKind.httpStatus ||
+      kind == BranchLinkFailureKind.invalidResponse;
 
   @override
   String toString() => statusCode == null
@@ -77,9 +86,10 @@ bool _isHttpsLink(String value) {
 /// not answer in [timeout]. With null, `ShareUtils.shareToSocial` uses the
 /// configured download link, so the share continues.
 ///
-/// Each failure goes to [onFailure] (default: a Sentry report) with closed
-/// values only. An error that is not a Branch request failure is a defect
-/// and is rethrown.
+/// Each failure goes to [onFailure] with closed values only. The default
+/// reporter logs every failure and sends a Sentry warning only when
+/// [BranchLinkFailure.isReportable]. An error that is not a Branch request
+/// failure is a defect and is rethrown.
 Future<String?> createShareLink(
   String? title,
   String? longUrl, {
@@ -94,9 +104,10 @@ Future<String?> createShareLink(
       TimeoutException() => const BranchLinkFailure(
         BranchLinkFailureKind.timeout,
       ),
-      http.ClientException() || SocketException() => const BranchLinkFailure(
-        BranchLinkFailureKind.transport,
-      ),
+      // IOException covers SocketException and the TLS failures
+      // (HandshakeException) that IOClient does not wrap.
+      http.ClientException() ||
+      IOException() => const BranchLinkFailure(BranchLinkFailureKind.transport),
       _ => null,
     };
     if (failure == null) rethrow;
@@ -111,6 +122,7 @@ Future<String?> createShareLink(
 
 void _reportBranchLinkFailure(BranchLinkFailure failure, StackTrace stack) {
   logger.w('Branch link unavailable, sharing the download link: $failure');
+  if (!failure.isReportable) return;
   unawaited(
     Sentry.captureException(
       failure,
@@ -133,8 +145,11 @@ void _reportBranchLinkFailure(BranchLinkFailure failure, StackTrace stack) {
 
 Future<String> getLongUrl(String shortUrl) async {
   final branchKey = Environment.branchKey;
-  final response = await http.get(Uri.parse(
-      'https://api2.branch.io/v1/url?url=${Uri.encodeComponent(shortUrl)}&branch_key=$branchKey'));
+  final response = await http.get(
+    Uri.parse(
+      'https://api2.branch.io/v1/url?url=${Uri.encodeComponent(shortUrl)}&branch_key=$branchKey',
+    ),
+  );
 
   if (response.statusCode == 200) {
     logger.i(response.body);
