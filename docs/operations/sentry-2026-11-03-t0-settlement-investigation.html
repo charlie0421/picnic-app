@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picnic Sentry T0 — 구매 정산 조사</title>
+<style>
+body{margin:0;background:#f5f7fa;color:#182333;font:15px/1.75 system-ui,-apple-system,sans-serif}main{max-width:1120px;margin:auto;padding:36px 24px}h1{font-size:29px;line-height:1.35}h2{margin-top:32px;font-size:22px}h3{font-size:17px}section{background:white;border:1px solid #d5dce5;border-radius:10px;padding:20px 24px;margin:20px 0}.note{border-left:4px solid #2869a8;background:#edf5fd;padding:14px 18px}.pending{border-left-color:#b77b13;background:#fff7e6}.meta{color:#526173;font-size:13px}table{width:100%;border-collapse:collapse;margin:16px 0}th,td{border:1px solid #d5dce5;padding:10px;text-align:left;vertical-align:top}th{background:#edf2f8}code,pre{font-family:ui-monospace,SFMono-Regular,monospace;font-size:13px;background:#eef1f5;overflow-wrap:anywhere}code{padding:2px 4px}pre{padding:14px;white-space:pre-wrap}a{color:#225fa0}li{margin:6px 0}.scroll{overflow-x:auto}@media(max-width:700px){main{padding:22px 14px}section{padding:16px 14px}th,td{min-width:140px}}@media print{body{background:white}section,tr{break-inside:avoid}}
+</style>
+</head>
+<body><main>
+<h1>T0. 구매 정산·서버 오류 조사 결과</h1>
+<p class="meta">작성: 2026-11-03 21:53 KST · 사건 시각은 모두 UTC · 앱 기준: <code>278b607b8</code> · 서버 로컬 기준: <code>720926a83c045f6dc4ad835aea59f62bf262d413</code></p>
+<p><a href="sentry-2026-11-03-remediation-plan.html#T0">수정 계획 T0</a> · <a href="sentry-2026-11-03-analysis.html">최초 Sentry 분석</a></p>
+<p class="note"><strong>T0의 1차 읽기 전용 조사를 마쳤다.</strong> 5KY에서 관측한 구매 증명은 이미 지급 확인 경로로 처리됐다. 구매 승인 시간 초과 건은 서버 지급이 완료됐다. 5MG·5MM의 정확한 거래 연결, 5MA의 500 응답 출처, 5NA의 인증 실패 원인, 47의 요청 경로는 아직 미확인이다. 이번 조사는 전체 이슈 해결 판정이 아니다.</p>
+
+<section id="results"><h2>1. 사건별 결과</h2>
+<p>대상은 최초 보고서의 6개 이슈다. Sentry 표본은 2026-11-03 19:35 KST 수집본이며, 서버 로그와 DB 상태는 이번 단계에서 추가 조회했다. 아래의 “같은 구간”은 같은 거래를 뜻하지 않는다.</p>
+<div class="scroll"><table><thead><tr><th>이슈</th><th>확인한 근거</th><th>판정과 남은 확인</th></tr></thead><tbody>
+<tr><td><strong>5KY</strong><br>422 <code>GOOGLE_OWNER_MISMATCH</code></td><td>10-27 12:16~12:17의 거절 로그 2건은 같은 증명 해시이고 <code>stage=worker</code>다. 해당 inbox는 <code>DEAD</code>, 시도 1회, 같은 거절 코드다. 연결된 레거시 영수증과 inbox의 계정은 다르다. 기존 지급의 운영자 확인은 오류 다음 날인 10-28 03:51:49에 등록됐다. 현재 영수증·적립 이력·운영자 확인의 조회 조건이 모두 충족된다. 같은 증명에 대해 10-28 11:40:27에 <code>purchase_already_granted</code>, <code>stage=worker</code> 로그가 1건 있다.</td><td>이 표본은 기존 지급 확인 경로가 실제로 작동한 사례다. 새로 지급하거나 422를 일괄 성공으로 바꿀 근거가 없다. 앱의 consume 완료와 모든 5KY 사용자 해결은 확인하지 않았다.</td></tr>
+<tr><td><strong>5MG·5MM</strong><br>503 <code>WALLET_SETTLEMENT_FAILED</code></td><td>10-28 02:03~02:06의 영수증 함수 v35 로그에는 503 8행과 200 1행이 있다. 503 처리 시간은 1,446~2,010ms다. 같은 상품의 좁은 조회 구간(02:00~02:06)에 후보 inbox 1개가 있고, 02:03:32 접수 후 시도 2회로 02:04:44에 <code>SUCCEEDED</code> 및 지급 스냅샷을 남겼다.</td><td>관측 후보는 정산됐지만 Sentry 두 이벤트와 같은 거래라는 연결 키는 없다. 18초 간격·같은 상품·후속 200만으로 동일 거래나 복구 완료를 확정하지 않는다. 워커의 실제 실패 원인은 남아 있는 로그로 구분하지 못했다.</td></tr>
+<tr><td><strong>5MA</strong><br><code>http_500</code></td><td>10-28 09:39:51에 워커 v37의 구매 승인(acknowledge) 호출 시간 초과가 있다. 그 로그의 inbox를 직접 조회했다. 09:39:47 지급 완료, <code>SUCCEEDED</code>, 영수증 <code>completed</code>, 별사탕 200·보너스 25의 스냅샷과 금융 작업이 존재한다. inbox의 결과가 해당 스냅샷과 연결되고 소유 계정도 일치한다. 조회 시점에 연결된 환불 이벤트·환불 배분은 각각 0개다.</td><td>승인 시간 초과가 난 이 거래의 서버 지급은 확인됐다. Google 측 최종 승인·소비 상태는 미확인이다. Sentry 500 이벤트와 이 거래의 동일성도 미확인이다. 조사한 영수증 핸들러·워커의 명시적 구매 응답에는 500 분기가 없다. 같은 구간의 정상 응답이나 승인 경고만으로 500의 원인을 설명하지 않는다.</td></tr>
+<tr><td><strong>5NA</strong><br>광고 claim 401</td><td>10-29 04:32:15.530에 <code>ad-reward-claim</code> v32가 401을 반환했다. 처리 시간은 91ms, JWT 역할은 <code>authenticated</code>이며 게이트웨이 인증 사용자 필드가 있다. JWT 만료 시각은 05:25:46으로 약 53분 30초가 남아 있었다. 현재 운영 소스의 <code>getUser()</code> 결과에 사용자가 없으면 401을 반환한다.</td><td>단순한 JWT 시간 만료로는 이 표본을 설명할 수 없다. 삭제·탈퇴·세션 상태 또는 Auth 조회 오류를 구분할 근거는 부족하다. 인증 검사 완화나 “서버 결함 아님” 판정을 하지 않는다. 같은 구간의 <code>AD_DEVICE_ID_MISSING</code> 로그는 이 401의 원인으로 연결하지 않았다.</td></tr>
+<tr><td><strong>47</strong><br>PostgREST 504</td><td>10-29 13:45~13:48에 조회한 edge 5xx와 Postgres ERROR/FATAL/PANIC 결과는 0행이다. Sentry 최신 표본은 앱의 PostgREST 호출 스택이며, 테이블·RPC 경로가 수집본에 없다.</td><td>로그 0행은 장애가 없었다는 증거가 아니다. 요청 경로와 상관관계 식별자가 필요하다. 구매 함수나 DB 지연으로 원인을 확정하지 않았다.</td></tr>
+</tbody></table></div>
+<p class="meta">거래 식별자, 사용자 ID, 영수증·구매 토큰 원문과 증명 해시는 이 문서에 싣지 않았다. DB 조회는 상태·관계·존재 여부만 반환하도록 제한했다. 환불 기록 0개는 조회한 서버 DB의 상태이며 Google 전체 환불 이력의 부재를 증명하지 않는다.</p>
+</section>
+
+<section id="deployment"><h2>2. 미배포 변경과의 관계</h2>
+<p><strong>이번 T0 표본을 서버 수정의 미배포 문제로 묶을 근거는 없다.</strong> 운영 메타데이터의 버전 번호와 코드 배포 시각은 서로 다른 증거다. 저장소의 과거 운영 기록에는 시크릿 설정만으로 모든 함수의 버전 번호가 증가하고 번들·<code>updated_at</code>은 유지된 사례가 있다.</p>
+<table><thead><tr><th>시각(UTC)</th><th>기록</th><th>의미</th></tr></thead><tbody>
+<tr><td>10-26 04:28:29</td><td><code>verify-receipt-v2</code> v34 배포. #299·#308, 기준 커밋 <code>e2918f4</code>.</td><td>본인 재전송과 환경 교차의 기존 지급 확인 경로를 포함한다.</td></tr>
+<tr><td>10-27 03:45:21 이후</td><td>Google 환불 수집기 설정 후 전체 함수 버전 +1. 영수증 함수 v35, 번들·updated_at 유지.</td><td>10-27 및 10-28 새벽의 v35 로그와 양립한다.</td></tr>
+<tr><td>10-28 03:11:43~03:11:45</td><td>Apple 알림 설정 후 영수증 함수 v36, 번들 유지.</td><td>버전 증가만으로 코드 변경을 판정할 수 없다.</td></tr>
+<tr><td>10-28 04:44:30</td><td>Google RTDN 설정 후 전체 함수 버전 +1. 영수증 함수 v37, 번들 유지.</td><td>10-28 오전의 v37 로그와 양립한다.</td></tr>
+</tbody></table>
+<p>이번에 가져온 영수증 함수 v37의 소스 4개는 로컬 서버 HEAD 및 Git <code>e2918f4</code>의 해당 파일과 바이트 단위로 모두 같다. 현재 워커 v38의 반환 소스 4개, 광고 claim v32의 반환 소스 7개도 로컬 서버 HEAD와 각각 같다. 과거 기록과 현재 소스 대조는 영수증 검증 코드의 연속성을 뒷받침한다. 과거 v35 아카이브 자체와 당시 환경 설정 전체를 이번에 직접 확보한 것은 아니다.</p>
+<p>5KY에서는 서버 코드가 아니라 <strong>기존 지급의 운영자 확인 등록 시점</strong>이 오류 시점 뒤에 있다. 이미 등록되고 처리된 표본에 동일한 등록이나 지급을 반복하지 않는다. 앱의 미배포 변경, OTA 호환성, 스토어 배포 여부는 이 서버 조사로 새롭게 확정하지 않았다.</p>
+<details><summary>대조한 운영 기록</summary><ul>
+<li><code>picnic-supabase/docs/operations/2026-10-24-google-cross-environment-grant-confirmed.html</code> 6.1절</li>
+<li><code>picnic-supabase/docs/operations/2026-10-26-google-voided-purchases-refund-intake.html</code> 9절</li>
+<li><code>picnic-supabase/docs/operations/2026-10-27-apple-server-notifications-refund-intake.html</code> 운영 적용 기록</li>
+<li><code>picnic-supabase/docs/operations/2026-10-28-google-play-rtdn-refund-intake.html</code> 10절</li>
+<li><code>picnic-supabase/docs/operations/2026-10-28-refund-abuse-controls-install-1.html</code> 워커 v37→v38 기록</li>
+</ul><p>위 경로의 저장소 루트는 <code>/Users/charlie.hyun/Repositories/picnic-supabase</code>다. 기록에 있는 과거 배포·등록은 이번 세션에서 실행한 작업이 아니다.</p></details>
+</section>
+
+<section id="validation"><h2>3. 검증 결과</h2>
+<p>서버 HEAD <code>720926a83c045f6dc4ad835aea59f62bf262d413</code>, Deno 2.7.4에서 아래 9개 테스트 파일을 실행했다. <strong>233개 통과, 0개 실패.</strong> 캐시된 의존성을 사용했고 런타임 네트워크 권한을 주지 않았다. 운영 DB에서 테스트를 실행하지 않았다.</p>
+<pre>cd /Users/charlie.hyun/Repositories/picnic-supabase
+deno test --cached-only --no-config --no-lock --allow-env \
+  supabase/functions/tests/wallet/purchase-intake-replay.test.ts \
+  supabase/functions/tests/wallet/purchase-intake-boundary.test.ts \
+  supabase/functions/tests/wallet/purchase-already-granted.test.ts \
+  supabase/functions/tests/wallet/purchase-legacy-grant.test.ts \
+  supabase/functions/tests/wallet/operation-worker.test.ts \
+  supabase/functions/tests/wallet/purchase-settlement.test.ts \
+  supabase/functions/tests/wallet/verify-receipt-intake.test.ts \
+  supabase/functions/tests/wallet/purchase-acknowledge.test.ts \
+  supabase/functions/tests/wallet/ad-reward-claim.test.ts</pre>
+<p>검증 범위는 접수 재생, 소유권 거부, 기존 지급 확인, 리스 경합, 정산 및 승인 실패 처리다. SQL의 리스 만료 후 재개, 실기기 재전달, 실제 Google 승인·소비 결과는 이 테스트로 증명하지 않는다. 프로젝트 CLAUDE.md의 “자동화된 테스트 없음” 설명과 달리 현재 저장소에는 해당 테스트와 <code>test:wallet:edge</code> 스크립트가 있다. 이번에는 전체 스크립트의 넓은 권한 대신 위 범위만 실행했다.</p>
+<p>Orca의 Fable 5.1/high 읽기 전용 조사 결과를 조정자가 코드·배포 기록·로그·DB와 대조했다. 실제 모델·effort·restricted/dontAsk 실행을 확인했고 작업자 자신의 완료 메시지를 받았다. 작업자가 처음 제시한 “기존 지급 조회 로그가 없으면 분기 자체가 없거나 조건 불충족”이라는 추론은 채택하지 않았다. 정상 조회 결과가 false여도 두 성공/실패 진단 이벤트가 모두 없을 수 있다. JWT 만료 시각도 원시 epoch를 변환해 위 표의 05:25:46으로 정정했다.</p>
+</section>
+
+<section id="next"><h2>4. 다음 작업과 완료 조건</h2>
+<table><thead><tr><th>작업</th><th>범위</th><th>완료 조건</th></tr></thead><tbody>
+<tr><td>T0-D1 · 후속 수정 후보</td><td>워커의 일반 예외와 영수증 함수의 retryable 503 원인을 구분하는 진단을 추가한다. 현재 일반 예외는 <code>WALLET_SETTLEMENT_FAILED</code>로 합쳐지고, 응답의 detail은 영수증 핸들러에서 전달되지 않는다. 기존 HTTP 상태·정산·재시도 계약은 유지하는 방향으로 별도 설계를 검토한다.</td><td>먼저 실제 catch 경로에서 진단 누락을 재현하는 테스트를 작성한다. 고정된 허용 코드·단계만 기록하고 원문 오류·사용자 ID·영수증·토큰을 내보내지 않는 테스트를 포함한다. 결제 경로이므로 Frontier 이상 구현과 반대 공급자 리뷰가 필요하다. 이번 단계에서는 구현하지 않았다.</td></tr>
+<tr><td>T0 추가 증거</td><td>5MG·5MM과 후보 inbox의 연결, 5MA의 요청 URL·거래 연결 키, 5NA의 Auth 조회 실패 이유, 47의 테이블/RPC 경로를 확보한다.</td><td>연결 키 또는 해당 요청의 직접 증거가 없으면 미확인을 유지한다. 시간·상품·기기 일치만으로 지급 복구를 확정하지 않는다.</td></tr>
+<tr><td>T1 · 다음 구현 단계</td><td>기존 계획의 Firebase 초기화 실패 및 재시도·연속 resume 재현을 진행한다.</td><td>실제 호출부의 실패 테스트 → 최소 수정 → 관련 테스트·정적 분석 → 독립 리뷰 순서로 검증한다. T0의 미확인 거래 연결은 T1의 비민감한 재현 작업을 막지 않는다.</td></tr>
+</tbody></table>
+<p class="note pending">이번 단계에서 변경한 것은 조사 문서와 계획의 진행 기록이다. 애플리케이션·서버 코드, 운영 데이터, 인증 설정, 배포·OTA·태그, Sentry/Jira 상태는 변경하지 않았다. 지급·환불 복구 쓰기의 승인이나 실행 완료로 해석하지 않는다.</p>
+</section>
+</main></body></html>

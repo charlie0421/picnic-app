@@ -136,6 +136,10 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
 
     _applyWalletSummary = ContainerWalletSummaryApplier.of(context);
     _refreshWalletSummary = ContainerWalletSummaryRefresher.of(context);
+    ref.listenManual<String?>(
+      authSessionIdentityProvider,
+      (_, _) => _authTransitions++,
+    );
 
     _rotationController = AnimationController(
       duration: const Duration(milliseconds: 800),
@@ -305,6 +309,26 @@ class PurchaseStarCandyState extends ConsumerState<PurchaseStarCandy>
   // to be actively looking at this screen, so a fresh server snapshot is
   // fetched at both, invalidating the source read (never trusting a cached
   // envelope) rather than the device clock.
+  /// Account changes observed by this screen ([authSessionIdentityProvider]
+  /// changes only when the user ID changes, so a same-account token refresh
+  /// does not count). The subscription belongs to this State and is closed
+  /// with it.
+  int _authTransitions = 0;
+
+  /// The signed-in account as the wallet sees it (null when signed out or when
+  /// auth is not wired, as in the test harness). Read only while [mounted].
+  String? _currentAuthOwner() {
+    final gateway = ref.read(walletAuthGatewayProvider);
+    return gateway.isEnabled ? gateway.currentSession?.user.id : null;
+  }
+
+  /// The current session instance, compared by identity only. Read only while
+  /// [mounted].
+  Object? _currentAuthSession() {
+    final gateway = ref.read(walletAuthGatewayProvider);
+    return gateway.isEnabled ? gateway.currentSession : null;
+  }
+
   void _refreshCandyBoostBoundary() {
     ref.invalidate(
       activePromotionCampaignV2Provider(PromotionSurfaceV2.paymentBadge),
@@ -1489,9 +1513,28 @@ Pending: ${statusCounts['pending']} | Restored: ${statusCounts['restored']} | Pu
         backgroundColor: Colors.white,
         onRefresh: () async {
           ref.read(userInfoProvider.notifier).getUserProfiles();
+          // 이 당김을 시작한 계정과 그때까지 관측된 계정 전환 횟수. await 뒤에는
+          // 화면이 살아 있을 때만 ref 로 현재 계정을 다시 읽어 비교한다.
+          final owner = _currentAuthOwner();
+          final transitions = _authTransitions;
+          final session = _currentAuthSession();
           // 파우치(별사탕 파우치)는 walletSummaryProvider 가 그린다. 프로필만
           // 다시 읽으면 파우치가 실패해 있을 때 화면을 당겨도 회복되지 않는다.
+          // 지갑 재조회는 지갑 소유 작업이라 화면이 떠나도 끝까지 진행한다.
           await ref.read(walletSummaryProvider.notifier).refresh();
+          // Sentry PICNIC-APP-5M1: 재조회 중에 화면이 떠났으면 ref 는 이미
+          // 폐기됐다. 계정이 바뀌었으면(A → B → A 포함) 프로모션 갱신은 이 당김의
+          // 것이 아니다.
+          if (!mounted) return;
+          if (!identical(_currentAuthSession(), session)) {
+            // 세션만 바뀌었으면 아직 전달되지 않은 계정 전환일 수 있다. 큐에 든
+            // 인증 이벤트가 전달되도록 한 프레임 기다린 뒤 수명부터 다시 본다.
+            await WidgetsBinding.instance.endOfFrame;
+            if (!mounted) return;
+          }
+          if (_authTransitions != transitions || _currentAuthOwner() != owner) {
+            return;
+          }
           _refreshCandyBoostBoundary();
         },
         child: Container(

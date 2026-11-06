@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T7 업데이트 화면 스토어 열기 실패 (45D·4ED)</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#172033;background:#f4f6fa;margin:0}main{max-width:1100px;margin:32px auto;background:white;padding:32px;border-radius:14px}h1{font-size:1.8rem}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee9;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f8}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f8;padding:16px;overflow:auto;line-height:1.5;white-space:pre-wrap}.note{padding:16px;border-left:4px solid #2b6cb0;background:#edf6ff}.warn{padding:16px;border-left:4px solid #b7791f;background:#fff8e6}.meta{color:#536179;font-size:.92rem}</style></head><body><main>
+<h1>T7 · 업데이트 화면 스토어 열기 실패 (PICNIC-APP-45D · 4ED)</h1>
+<p class="meta">2026-11-06 · 기준 커밋 <code>db9ad3f9c</code> · 수정 커밋 <code>b19e5aec7</code>, <code>f459c0b0b</code> · 작업 브랜치 <code>docs/sentry-release-analysis</code></p>
+<p class="note"><strong>소스 수정·호스트 검증·독립 리뷰 완료.</strong> 업데이트 화면·업데이트 공급자 테스트 239개가 통과했다. 독립 리뷰(Codex gpt-6.1-sol/high)는 APPROVE이며 비차단 P3 1건을 지적했다. 수정 후 재검증도 APPROVE다. 실제 iOS 27 기기·실제 스토어 열기·실제 Sentry 전송은 검증하지 않았다.</p>
+
+<h2>1. 원인</h2>
+<ul>
+<li><b>45D</b> <code>String: 앱 스토어를 열 수 없습니다.</code> 누적 131건·24명. 최근 이벤트는 1.3.2–1.3.4 등 현재 코드와 같은 릴리스에서도 발생한다. OS 는 전부 iOS(iOS 27.0.1 14건, 27.0 9건, 26.6.1 1건).</li>
+<li>예전 코드는 <code>canLaunchUrlString</code>이 false 이면 안내 문구를 String 으로 던졌다. 강제 업데이트 화면은 떠날 수 없는 화면인데, 버튼이 아무 반응 없이 끝났고 던진 문자열이 Sentry 오류가 됐다.</li>
+<li>운영 <code>version</code> 행의 스토어 URL 은 iOS·Android 모두 정상 https 형식이다. iOS 27 에서 <code>canLaunchUrlString</code>이 false 를 준 이유는 <b>확인하지 못했다</b>. 이번 수정은 그 이유에 의존하지 않는다.</li>
+<li><b>4ED</b>(SafariViewController PlatformException)는 이전 수정 #27(<code>externalApplication</code>)으로 해결됐고, 남은 이벤트는 1.2.x 바이너리뿐이다. 추가 변경 없음.</li>
+</ul>
+
+<h2>2. 변경 결과</h2>
+<table><thead><tr><th>경계</th><th>변경 결과</th></tr></thead><tbody>
+<tr><td>스토어 열기</td><td>새 <code>StoreLauncher.open</code>이 사전 확인 없이 <code>launchUrlString(externalApplication)</code>을 바로 호출한다. 결과는 opened·emptyUrl·refused·failed(PlatformException) 중 하나다. 그 밖의 예외는 결함으로 보고 다시 던진다.</td></tr>
+<tr><td>강제 업데이트 화면</td><td>실패하면 기존 다국어 문구 <code>update_cannot_open_appstore</code>를 버튼 아래에 보이고 버튼은 남겨 다시 시도할 수 있다. 나중 시도가 성공하면 문구를 숨긴다. 늦게 끝난 이전 시도는 더 새 시도의 결과를 덮지 않는다(리뷰 P3 반영).</td></tr>
+<tr><td>권장 업데이트 배너</td><td>실패해도 앱 사용을 막지 않으므로 보고만 한다. 더 이상 던지지 않는다.</td></tr>
+<tr><td>Sentry</td><td><code>store_launch_failed</code> warning. 태그 <code>store_launch_result</code>, <code>store_launch_surface</code>(force_update·update_recommend), fingerprint <code>['store-launch-failed', surface, result]</code>. URL 은 넣지 않는다. 새 fingerprint 이므로 배포 뒤 45D 대신 새 이슈로 쌓인다. T9 에서 함께 비교한다.</td></tr>
+<tr><td>정책</td><td><code>force_version</code>과 강제 업데이트 진입 조건은 바꾸지 않았다. 웹·인앱 브라우저 폴백은 추가하지 않았다. iOS <code>platformDefault</code>가 4ED 를 만든 경로이고, 고정된 url_launcher_ios 의 externalApplication 은 universalLinksOnly=false 로 외부 브라우저도 허용한다(리뷰 확인).</td></tr>
+</tbody></table>
+
+<h2>3. 검증</h2>
+<table><thead><tr><th>단계</th><th>결과</th></tr></thead><tbody>
+<tr><td>RED 1</td><td><code>store_launcher.dart</code>가 없어 컴파일 실패.</td></tr>
+<tr><td>RED 2</td><td>도우미만 추가하고 화면은 예전 그대로일 때 위젯 테스트 4개 모두 실패.</td></tr>
+<tr><td>GREEN 1 (<code>b19e5aec7</code>)</td><td><code>test/presentation/dialogs/</code> + <code>check_update_provider_test</code> 238/238. 변경 파일 analyze 이슈 없음(같은 폴더의 기존 이슈 19개는 미변경 파일).</td></tr>
+<tr><td>리뷰</td><td>APPROVE, 비차단 P3: 이전 탭이 늦게 실패하면 새 탭의 성공을 덮음.</td></tr>
+<tr><td>RED 3 / GREEN 2 (<code>f459c0b0b</code>)</td><td>A 대기·B 성공·A 늦은 실패 테스트가 실패 → 시도 번호 추가 후 239/239.</td></tr>
+<tr><td>재검증</td><td><strong>APPROVE</strong>, 새 지적 없음, SHA-256 일치.</td></tr>
+</tbody></table>
+<pre>cd picnic_lib
+flutter test test/presentation/dialogs/ test/presentation/providers/check_update_provider_test.dart</pre>
+<p class="warn">남은 한계: 테스트는 실제 실행 어댑터와 Sentry SDK 를 대체한다. 실행 모드·실제 Sentry 페이로드·iOS 27 실기기 재현은 테스트 빌드 QA 에서 확인한다. T7 의 다른 네이티브 항목(5AV·5NF·5NH·4T1 등)은 원인 미확정으로 남긴다.</p>
+</main></body></html>

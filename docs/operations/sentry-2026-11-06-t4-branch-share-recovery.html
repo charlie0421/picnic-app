@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T4-B Branch 공유 링크 실패 복구</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#172033;background:#f4f6fa;margin:0}main{max-width:1100px;margin:32px auto;background:white;padding:32px;border-radius:14px}h1{font-size:1.8rem}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee9;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f8}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f8;padding:16px;overflow:auto;line-height:1.5;white-space:pre-wrap}.note{padding:16px;border-left:4px solid #2b6cb0;background:#edf6ff}.warn{padding:16px;border-left:4px solid #b7791f;background:#fff8e6}.meta{color:#536179;font-size:.92rem}a{color:#1758a4}.scroll{overflow:auto}</style></head><body><main>
+<h1>T4-B · Branch 공유 링크 실패 복구 (PICNIC-APP-5N6)</h1>
+<p class="meta">2026-11-06 · 기준 커밋 <code>8964f9926</code> · 수정 커밋 <code>e5a90d03d</code>, <code>4d6c551d4</code>, <code>4447e9427</code> · 작업 브랜치 <code>docs/sentry-release-analysis</code></p>
+<p class="note"><strong>소스 수정·호스트 검증·독립 리뷰 완료.</strong> 조정자가 직접 실행한 집중 테스트 25개와 영향 테스트 35파일 2384개가 통과했다. 첫 리뷰는 P2 1건으로 CHANGES_REQUIRED였다. 수정 후 같은 리뷰어의 재검증은 <strong>APPROVE</strong>다. 실제 기기·실제 Branch API·실제 네트워크 장애는 검증하지 않았다.</p>
+
+<h2>문제와 원인</h2>
+<p><a href="https://icon-casting.sentry.io/issues/7810200265/">5N6</a>의 최신 이벤트(2026-10-30, 릴리스 <code>1.3.5+130504</code>, Android 16)는 <code>Exception: Failed to create Branch link</code>다. 앱 프레임은 <code>home_featured_vote_card.dart</code>의 <code>_handleShareToTwitter</code> → <code>deeplink.dart</code>의 <code>createBranchLink</code>다. 누적 이벤트는 2건, 사용자는 2명이다.</p>
+<ul>
+<li><code>createBranchLink</code>는 Branch가 200이 아닌 응답을 주면 예외를 던졌다. 요청 시간 제한도 없었다.</li>
+<li>공유 화면 6곳이 <code>ShareUtils.shareToSocial</code>의 인자를 만드는 중에 이 함수를 <code>await</code>했다. 그래서 링크 생성이 실패하면 공유 시트가 열리지 않았다. 사용자에게 안내도 없었다. 예외는 zone 오류 처리로 넘어가 Sentry에 기록됐다.</li>
+<li>계획서의 T4 파일 목록에 있던 <code>branch_link_service.dart</code>와 <code>share_section.dart</code>는 이 경로가 아니다. 앞의 것은 수신 링크를 처리하고, 뒤의 것은 버튼 UI다. 이 정정은 커밋 <code>8964f9926</code>에서 계획서에 기록했다.</li>
+</ul>
+
+<h2>변경 결과</h2>
+<table><thead><tr><th>경계</th><th>변경 결과</th></tr></thead><tbody>
+<tr><td>링크 생성 실패</td><td><code>createBranchLink</code>는 서명을 유지한다. 200이 아닌 응답은 <code>BranchLinkFailure(httpStatus)</code>로 던진다. JSON이 아니거나 <code>url</code>이 없거나 host가 있는 https 링크가 아니면 <code>BranchLinkFailure(invalidResponse)</code>로 던진다.</td></tr>
+<tr><td>공유 계속</td><td>새 <code>createShareLink</code>는 Branch 링크 또는 null을 돌려준다. null이면 <code>shareToSocial</code>가 기존 설정값 <code>Environment.downloadLink</code>를 쓰고 공유를 계속한다. 새 URL을 하드코딩하지 않았다.</td></tr>
+<tr><td>시간 제한</td><td>링크는 최대 10초 기다린다. 이 값은 실제 Branch 지연 시간으로 측정한 값이 아니다.</td></tr>
+<tr><td>통신 실패</td><td><code>http.ClientException</code>과 모든 <code>IOException</code>(SocketException, TLS <code>HandshakeException</code> 포함)을 통신 실패로 분류한다. IOClient는 HandshakeException을 감싸지 않으므로 별도로 처리해야 했다.</td></tr>
+<tr><td>예상 밖 오류</td><td>위 분류에 없는 오류는 결함으로 보고 다시 던진다. 보고 함수가 실패해도 공유는 계속한다.</td></tr>
+<tr><td>시간 제한 뒤 늦은 완료</td><td><code>Future.timeout</code>은 늦은 결과를 버린다. 그래서 자체 시간 제한이 난 경우에만 요청을 계속 지켜본다. 늦은 예상 밖 오류는 그 요청이 실행된 zone의 미처리 오류 경로로 보낸다. 앱에서는 이 경로가 Sentry 보고로 이어진다. 늦은 HTTP 상태 오류와 잘못된 응답은 실패 보고로 보낸다. 늦은 링크와 늦은 통신 실패는 무시한다. 공유는 이미 다운로드 링크로 진행됐다.</td></tr>
+<tr><td>호출부</td><td>6곳(<code>home_featured_vote_card.dart</code>, <code>vote_info_card.dart</code>, <code>vote_detail_page.dart</code>, <code>voting_complete.dart</code>, <code>fortune_dialog.dart</code>, <code>goonghap_result_page.dart</code>)이 <code>createShareLink</code>를 쓴다. 각 파일의 변경은 식별자 1개다.</td></tr>
+</tbody></table>
+
+<h2>Sentry 보고 정책</h2>
+<ul>
+<li>보고 내용은 닫힌 값만 쓴다. 실패 종류와 HTTP 상태(100–599)만 넣는다. 제목·목적지 URL·Branch 키·응답 본문은 보고 텍스트·태그·fingerprint에 넣지 않는다.</li>
+<li>Sentry에는 Branch 응답 이상(<code>httpStatus</code>, <code>invalidResponse</code>)만 warning으로 보낸다. 태그는 <code>branch_link_failure_kind</code>, <code>branch_link_status</code>, fingerprint는 <code>['branch-share-link-failure', kind]</code>다.</li>
+<li>통신 실패와 시간 제한은 로그에만 남긴다. 앱의 <code>beforeSend</code>가 다른 경로의 같은 오류(ClientException, SocketException, HandshakeException, 감싼 timeout)를 사용자 네트워크 노이즈로 버리는 규칙과 같다.</li>
+<li>새 fingerprint를 쓰므로, 이 수정이 배포된 뒤에는 5N6에 새 이벤트가 쌓이지 않고 새 이슈로 묶인다. T9 효과 측정에서는 두 이슈를 함께 본다.</li>
+<li>이 보고를 위한 별도 <code>beforeSend</code> 정제는 추가하지 않았다. 리뷰어는 스크린샷·view hierarchy 첨부 설정을 찾지 못했다.</li>
+</ul>
+
+<h2>검증</h2>
+<table><thead><tr><th>단계</th><th>결과</th></tr></thead><tbody>
+<tr><td>RED 1 (<code>e5a90d03d</code> 전)</td><td>새 API가 없어 테스트 컴파일 실패. <code>deeplink.dart</code>만 구현한 상태에서는 18개 통과, 호출부 구조 가드가 6개 호출부를 나열하며 실패.</td></tr>
+<tr><td>GREEN 1</td><td>호출부 교체 후 집중 테스트 19/19 통과. 영향 35파일 2378개 통과.</td></tr>
+<tr><td>RED 2 (<code>4d6c551d4</code> 전)</td><td><code>isReportable</code>이 없어 컴파일 실패. getter만 추가한 상태에서 HandshakeException 테스트가 예외 누출로 실패.</td></tr>
+<tr><td>GREEN 2</td><td>21/21 통과. 영향 35파일 2380개 통과.</td></tr>
+<tr><td>RED 3 (리뷰 P2, <code>4447e9427</code> 전)</td><td>커밋된 <code>4d6c551d4</code> 구현을 바이트 단위로 같게 되돌린 상태에서, 늦은 StateError가 zone에 전달되지 않고(<code>[]</code>) 늦은 503도 보고되지 않음. 대조 테스트 2개는 통과.</td></tr>
+<tr><td>GREEN 3</td><td>집중 테스트 25/25 통과. 영향 35파일 2384개 통과. 두 변경 파일 <code>flutter analyze</code> 문제 없음. <code>dart format</code> 변경 없음. <code>git diff --check</code> 깨끗함.</td></tr>
+<tr><td>호출부 정적 분석</td><td><code>voting_complete.dart</code> 214·443행의 기존 경고 2개(<code>invalid_use_of_visible_for_testing_member</code>)만 있다. 이번 변경은 같은 파일 411행의 식별자 1개다.</td></tr>
+</tbody></table>
+<p>RED 3을 만드는 중에 조정자의 테스트 설정 오류를 발견했다. 처음에는 요청의 <code>Completer</code>를 감시 zone 밖에서 만들었다. Dart에서 Future의 오류는 다른 error zone의 리스너에게 전달되지 않으므로, 오류가 테스트 zone으로 빠졌다. 지금은 앱과 같이 감시 zone 안에서 만든다.</p>
+<pre>cd picnic_lib
+flutter test test/core/utils/share_link_test.dart test/core/utils/deeplink_test.dart
+# 영향 범위: 6개 호출 화면·deeplink·vote_share_util을 참조하는 테스트 35파일
+flutter analyze --no-pub lib/core/utils/deeplink.dart test/core/utils/share_link_test.dart</pre>
+
+<h2>독립 리뷰</h2>
+<table><thead><tr><th>단계</th><th>결과</th></tr></thead><tbody>
+<tr><td>첫 리뷰</td><td>Codex <code>gpt-6.1-sol</code>/high, read-only, Fast OFF. Task <code>task_2114fb42f67c</code>, Dispatch <code>ctx_a11246c52707</code>. 범위 <code>8964f9926..4d6c551d4</code>. 판정 CHANGES_REQUIRED: P2 1건(시간 제한 뒤 늦은 예상 밖 오류 유실). 다운로드 URL 대체는 계획의 "재시도 또는 기존 허용 웹 URL" 조건을 충족한다고 판정했다. 보고의 명시적 필드에서 민감한 값은 찾지 못했다.</td></tr>
+<tr><td>재검증</td><td>같은 리뷰어, 같은 터미널. Task <code>task_6cd74e8d048d</code>, Dispatch <code>ctx_40555e3f8a72</code>. 범위 <code>4d6c551d4..4447e9427</code>. 판정 <strong>APPROVE</strong>. 시작·종료 해시 일치.</td></tr>
+<tr><td>실행 확인</td><td>매 Dispatch 직전에 사용량·capability·build-launch를 새로 확인했다(dispatchAllowed=true). 리뷰어의 모델·effort는 터미널 상태줄 <code>GPT-6.1-Sol high</code>로 확인했다. 재검증 직전의 새 launch 인자는 유지 중인 리뷰어의 실행 명령과 같았다. 조정자 세션에서 <code>ps</code>가 허용되지 않아 실제 프로세스 인자는 직접 확인하지 못했다.</td></tr>
+</tbody></table>
+
+<h2>한계와 남은 확인</h2>
+<ul>
+<li>대체 링크는 콘텐츠별 링크가 아니라 다운로드 페이지다. 재시도 UI는 추가하지 않았다.</li>
+<li>링크를 기다리는 최대 10초 동안 로딩 표시가 없다. 로딩 표시(<code>onStart</code>)는 링크를 받은 뒤 <code>shareToSocial</code> 안에서 시작한다. 이 시간에 버튼을 다시 누를 수 있는 문제는 수정 전부터 있었고, 이번에 바꾸지 않았다.</li>
+<li>실제 기기, 실제 Branch API, 실제 네트워크 장애에서는 검증하지 않았다. 호출부 구조 가드는 실제 화면의 공유 실행 테스트를 대신하지 않는다.</li>
+<li>통합 빌드 QA 후보: 6개 공유 진입점에서 정상 공유가 Branch 링크로 열리는지 확인한다. 네트워크를 끊은 상태에서 공유 시트가 다운로드 링크로 열리는지 확인한다. 운영 Branch에 실패를 강제하는 조작은 하지 않는다.</li>
+</ul>
+
+<h2>추적 문서</h2>
+<ul><li><a href="sentry-2026-11-03-remediation-plan.html">전체 계획과 남은 항목</a></li><li><a href="sentry-2026-11-06-release-candidate-handoff.html">중간 체크포인트 (구 1차 후보 인계)</a></li><li><a href="sentry-2026-11-06-t4-profile-image-safety.html">T4-A 프로필 이미지</a></li></ul>
+<footer class="meta">이 작업은 로컬 소스·테스트·Git 커밋과 독립 리뷰만 다룬다. 빌드·설치·업로드·배포·태그·push·merge·Sentry/Jira 상태 변경은 하지 않았다.</footer>
+</main></body></html>

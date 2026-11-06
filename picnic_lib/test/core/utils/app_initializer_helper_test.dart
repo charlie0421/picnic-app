@@ -2,6 +2,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/utils/app_initializer_helper.dart';
 
 void main() {
+  // PICNIC-APP-5GZ: the ban report sent the raw device id as a tag. The tag
+  // set is now closed: only whether the virtual-machine check fired.
+  group('AppInitializerHelper.banReportTags', () {
+    test('holds only the virtual-device flag, never a device id', () {
+      expect(AppInitializerHelper.banReportTags(isVirtualDevice: true), {
+        'ban.virtual_device': 'true',
+      });
+      expect(AppInitializerHelper.banReportTags(isVirtualDevice: false), {
+        'ban.virtual_device': 'false',
+      });
+    });
+  });
+
   group('AppInitializerHelper', () {
     // ---------------------------------------------------------------
     // shouldFilterSentryEvent

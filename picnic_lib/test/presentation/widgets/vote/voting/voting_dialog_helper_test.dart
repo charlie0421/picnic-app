@@ -7,6 +7,8 @@ import 'package:picnic_lib/presentation/widgets/vote/voting/voting_dialog_helper
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  _registerVoteFailureTelemetryTests();
+
   WalletSummaryModel wallet({
     String star = '0',
     String bonus = '0',
@@ -668,18 +670,21 @@ void main() {
         expect(reported, isA<StateError>());
       });
 
-      test('completes within the timeout when refresh never resolves', () async {
-        Object? reported;
-        final hang = Completer<void>();
+      test(
+        'completes within the timeout when refresh never resolves',
+        () async {
+          Object? reported;
+          final hang = Completer<void>();
 
-        await VotingDialogHelper.bestEffortWalletRefresh(
-          () => hang.future,
-          timeout: const Duration(milliseconds: 20),
-          onError: (error, _) => reported = error,
-        );
+          await VotingDialogHelper.bestEffortWalletRefresh(
+            () => hang.future,
+            timeout: const Duration(milliseconds: 20),
+            onError: (error, _) => reported = error,
+          );
 
-        expect(reported, isA<TimeoutException>());
-      });
+          expect(reported, isA<TimeoutException>());
+        },
+      );
 
       test('does not report an error when refresh succeeds', () async {
         Object? reported;
@@ -691,6 +696,77 @@ void main() {
 
         expect(reported, isNull);
       });
+    });
+  });
+}
+
+/// PICNIC-APP-5FM: in 1.3.5+130504 every vote_failed event was a normal user
+/// state (47 x 409 WALLET_INSUFFICIENT_BALANCE, 17 x 403 VOTE_ENDED, no 5xx).
+/// Those are not reported; server and unknown failures still are.
+void _registerVoteFailureTelemetryTests() {
+  group('VotingDialogHelper.describeVoteFailure', () {
+    test('reads status and reason from a FunctionException', () {
+      final f = VotingDialogHelper.describeVoteFailure(
+        FunctionException(
+          status: 409,
+          details: {'reason': 'WALLET_INSUFFICIENT_BALANCE'},
+        ),
+      );
+      expect(f.status, '409');
+      expect(f.reason, 'WALLET_INSUFFICIENT_BALANCE');
+    });
+
+    test('a non-function error keeps only its type', () {
+      final f = VotingDialogHelper.describeVoteFailure(StateError('x'));
+      expect(f.status, 'exception');
+      expect(f.reason, 'type:StateError');
+    });
+
+    test('a long plain-text body is cut to 80 characters', () {
+      final f = VotingDialogHelper.describeVoteFailure(
+        FunctionException(status: 502, details: 'x' * 200),
+      );
+      expect(f.reason.length, 80);
+    });
+  });
+
+  group('VotingDialogHelper.isExpectedVoteOutcome', () {
+    test('insufficient balance and an ended vote are normal outcomes', () {
+      expect(
+        VotingDialogHelper.isExpectedVoteOutcome(
+          status: '409',
+          reason: 'WALLET_INSUFFICIENT_BALANCE',
+        ),
+        isTrue,
+      );
+      expect(
+        VotingDialogHelper.isExpectedVoteOutcome(
+          status: '403',
+          reason: 'VOTE_ENDED',
+        ),
+        isTrue,
+      );
+    });
+
+    test('server errors, other reasons and mismatched pairs are reported', () {
+      for (final (status, reason) in [
+        ('500', 'Unexpected error occurred'),
+        ('502', ''),
+        ('409', 'SOMETHING_ELSE'),
+        ('403', 'WALLET_INSUFFICIENT_BALANCE'),
+        ('409', 'VOTE_ENDED'),
+        ('exception', 'type:StateError'),
+        ('unknown', 'none'),
+      ]) {
+        expect(
+          VotingDialogHelper.isExpectedVoteOutcome(
+            status: status,
+            reason: reason,
+          ),
+          isFalse,
+          reason: '$status $reason',
+        );
+      }
     });
   });
 }

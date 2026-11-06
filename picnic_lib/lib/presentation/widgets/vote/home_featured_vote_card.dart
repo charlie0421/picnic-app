@@ -130,7 +130,7 @@ class _HomeFeaturedVoteCardState extends ConsumerState<HomeFeaturedVoteCard> {
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(widget.vote.title, navigatorKey.currentContext!).replaceAll(' ', '')}',
       onStart: _showOverlay,
-      downloadLink: await createBranchLink(
+      downloadLink: await createShareLink(
         getLocaleTextFromJson(widget.vote.title, context),
         '${Environment.appLinkPrefix}/vote/detail/${widget.vote.id}',
       ),

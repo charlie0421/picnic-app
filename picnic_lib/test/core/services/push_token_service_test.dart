@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/core/services/push_token_initialization_coordinator.dart';
 import 'package:picnic_lib/core/services/push_token_service.dart';
@@ -7,6 +10,12 @@ import 'package:picnic_lib/core/services/push_token_service.dart';
 import '../../helpers/mock_supabase.dart';
 
 void main() {
+  // Push setup waits for the default Firebase app; these tests run after it.
+  // Readiness itself is covered by push_token_firebase_readiness_test.dart.
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
+  setUpAll(Firebase.initializeApp);
+
   tearDown(() async {
     await PushTokenService.debugResetForTest();
     tearDownMockSupabase();

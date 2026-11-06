@@ -49,6 +49,14 @@ class AppInitializerHelper {
   /// 항상 호출된다 — `AppInitializer.initializeGlobalErrorHandling` 참조.
   static const bool reportSilentFlutterErrors = false;
 
+  /// Sentry tags for the device-ban report (PICNIC-APP-5GZ).
+  ///
+  /// The report used to add `ban.device_id` with the raw device id. The id is
+  /// a stable identifier of the user's device, so the report keeps only
+  /// whether the virtual-machine check fired.
+  static Map<String, String> banReportTags({required bool isVirtualDevice}) =>
+      {'ban.virtual_device': isVirtualDevice.toString()};
+
   /// Determines whether a Sentry event should be filtered (dropped).
   ///
   /// Returns `true` if the event should be discarded (not sent to Sentry).

@@ -1,9 +1,31 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide LocalStorage;
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
+import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform.dart';
+
+/// 읽기는 비어 있고 쓰기는 항상 [failure] 로 실패하는 저장소.
+class _RejectingStorage implements LocalStorage {
+  _RejectingStorage(this.failure);
+
+  final Object failure;
+
+  @override
+  Future<String?> loadData(String key, dynamic defaultValue) async =>
+      defaultValue as String?;
+
+  @override
+  Future<void> saveData(String key, String value) async => throw failure;
+
+  @override
+  Future<void> removeData(String key) async {}
+
+  @override
+  Future<void> clearStorage() async {}
+}
 
 void main() {
   test('policy denial never persists a claim or loads the SDK', () async {
@@ -45,6 +67,64 @@ void main() {
     expect(calls, isEmpty);
   });
 
+  test(
+    'a failed claim persist issues one claim and never subscribes or loads',
+    () async {
+      // 서버 claim 은 이미 만들어졌지만 로컬 참조 저장이 실패했다. 이때 광고를
+      // 띄우면 앱이 추적할 수 없는 시청이 생긴다. 실제 PendingAdRewardStore 를
+      // 거쳐 저장소 실패가 그대로 올라오는지 본다.
+      final writeFailure = StateError('storage write failed');
+      final signals = StreamController<void>.broadcast();
+      final calls = <String>[];
+      final claim = PangleClaimModel(
+        reference: const AdRewardReference(
+          type: AdRewardReferenceType.pangleClaim,
+          id: 'claim-a',
+        ),
+        platform: 'android',
+        signedToken: 'token',
+        expiresAt: DateTime.utc(2030),
+      );
+      final store = PendingAdRewardStore(_RejectingStorage(writeFailure));
+      final preflight = PangleClaimPreflight(
+        createClaim:
+            ({
+              required platform,
+              required placementId,
+              required clientRequestId,
+            }) async {
+              calls.add('create');
+              return claim;
+            },
+        persist: store.add,
+        pollingSignals: signals.stream,
+        poll: (_, _) async {
+          calls.add('poll');
+        },
+        load: (_, _) async {
+          calls.add('load');
+          return true;
+        },
+      );
+
+      await expectLater(
+        preflight.execute(
+          ownerUserId: 'user-a',
+          platform: 'android',
+          placementId: 'placement',
+          clientRequestId: 'request',
+        ),
+        throwsA(same(writeFailure)),
+      );
+
+      expect(signals.hasListener, isFalse, reason: '폴링 구독');
+      signals.add(null);
+      await Future<void>.delayed(Duration.zero);
+      expect(calls, ['create'], reason: '중복 claim·load·poll');
+      expect(await store.readAll('user-a'), isEmpty);
+      await signals.close();
+    },
+  );
 
   test(
     'preflight creates, persists, subscribes, then loads signed media extra',

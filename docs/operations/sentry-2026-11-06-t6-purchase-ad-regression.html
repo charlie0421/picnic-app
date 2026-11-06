@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T6 구매·광고 수정 통합 회귀 검증</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#172033;background:#f4f6fa;margin:0}main{max-width:1100px;margin:32px auto;background:white;padding:32px;border-radius:14px}h1{font-size:1.8rem}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee9;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f8}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f8;padding:16px;overflow:auto;line-height:1.5;white-space:pre-wrap}.note{padding:16px;border-left:4px solid #2b6cb0;background:#edf6ff}.warn{padding:16px;border-left:4px solid #b7791f;background:#fff8e6}.meta{color:#536179;font-size:.92rem}</style></head><body><main>
+<h1>T6 · 구매·광고 수정 통합 회귀 검증 (#294·#295·#158)</h1>
+<p class="meta">2026-11-06 · 검증 기준 <code>d6ecf9353</code> · 작업 브랜치 <code>docs/sentry-release-analysis</code> · 대상 Sentry 5KY·5MM·5MG·5MA (효과 미확인)</p>
+<p class="note"><strong>코드 변경 없음. 검증만 수행했다.</strong> 세 PR이 모두 이 브랜치에 포함돼 있다. 계획서의 완료 기준인 "수정된 호출부를 우회하면 회귀 테스트가 실패해야 한다"를 변이(mutation) 확인으로 검증했다. 변이마다 테스트를 돌린 뒤 파일을 HEAD 로 되돌렸다. 마지막에 HEAD 에서 구매·서비스·무료충전소 테스트 3,268개가 통과했다(1개 skip). 실제 결제·실제 광고·실제 보상·실기기는 실행하지 않았다.</p>
+
+<h2>1. 포함 확인</h2>
+<table><thead><tr><th>PR</th><th>커밋</th><th>보장 내용</th></tr></thead><tbody>
+<tr><td>#294</td><td><code>a90b2986c</code></td><td>구매 후 정리 단계가 정산 확인 없이 같은 상품의 다른 거래를 finish 하지 않는다. 정산된 거래의 finish 응답은 10초까지만 기다린다.</td></tr>
+<tr><td>#295</td><td><code>0f67fab95</code></td><td>서버가 409 + <code>grant_confirmed:true</code>로 답한 영수증만 큐에서 제거한다.</td></tr>
+<tr><td>#158</td><td><code>3415ef4a8</code></td><td>AdMob claim·SSV·저장·소유자 경계를 지키는 표시 흐름과 watchdog.</td></tr>
+</tbody></table>
+
+<h2>2. 변이 확인 결과</h2>
+<table><thead><tr><th>변이</th><th>실패한 회귀 테스트</th><th>판단</th></tr></thead><tbody>
+<tr><td>#294 운영 파일 2개를 PR 이전으로 역적용</td><td><code>purchase_unconfirmed_transaction_test</code>는 컴파일 실패(API 제거). <code>a finish that never answers does not hold the settlement open</code> 실패.</td><td>10초 finish 상한은 행동으로 검출된다. 컴파일 실패는 행동 증거로 쓰지 않았다.</td></tr>
+<tr><td>#294 <code>purchase_safety_manager.dart</code>만 역적용</td><td>위 10초 상한 테스트 1개만 실패.</td><td class="warn">옛 정리 코드는 <code>dart:io</code> <code>Platform.isIOS</code>로 분기한다. 호스트 테스트에서는 이 값이 false라 옛 정리 경로가 실행되지 않는다. 그래서 단순 역적용은 핵심 회귀를 드러내지 못한다.</td></tr>
+<tr><td>#294 현재 코드의 iOS 분기에 옛 정리 로직(purchaseStream 1회 읽기 → 같은 상품 finish)을 다시 넣음</td><td><code>iOS: a same-product transaction delivered during the cleanup window is left unfinished</code> 실패.</td><td>현재 코드 형태로 회귀가 다시 들어오면 검출된다.</td></tr>
+<tr><td>#295 운영 파일 2개 역적용</td><td>5개 실패: 409 + grant_confirmed:true 제거(내구성·큐·검증 서비스), pending 행 409 처리, iOS 중복 확정 시 자기 거래 행만 제거.</td><td>검출된다. 409 + grant_confirmed:false 유지·백오프, 500 유지, 503 유지, 422 제거(서버의 명시적 비재시도 판정) 테스트도 존재한다. 500·503을 지급 완료로 바꾸는 테스트·구현은 없다.</td></tr>
+<tr><td>#158 운영 파일 4개 역적용</td><td>테스트 파일 2개 컴파일 실패.</td><td>대규모 구조 변경이라 역적용은 행동 증거가 아니다. 아래 표적 변이로 대신했다.</td></tr>
+<tr><td>#158 M1: 타임아웃·새 attempt 뒤 늦은 <code>onAdLoaded</code>를 받아들임</td><td>3개 실패: 타임아웃 후 늦은 광고 폐기, 이전 attempt 의 onAdLoaded 폐기, 대체된 이전 로드 완료는 claim 없이 폐기.</td><td>검출된다.</td></tr>
+<tr><td>#158 M2: SSV 설정 뒤 attempt·소유자 재확인 제거</td><td>3개 실패: 표시 타임아웃 뒤 끝난 SSV, SSV 대기 중 계정 전환, SSV 대기 중 로그아웃.</td><td>검출된다.</td></tr>
+<tr><td>#158 M3: claim 저장(persist) 실패를 무시</td><td>2개 실패: claim 영속화 실패 시 광고 미표시, preflight 의 persist 실패 전파.</td><td>검출된다.</td></tr>
+</tbody></table>
+
+<h2>3. 계획 항목 대조</h2>
+<ul>
+<li>동일 상품의 서로 다른 거래가 섞여도 확인한 거래만 finish: 검출됨(현재 코드 형태 변이).</li>
+<li>finish 무응답 10초 뒤 진행: 검출됨.</li>
+<li>409 grant_confirmed 와 422/503/500 구분: 검출됨, 5xx 를 지급 완료로 바꾸는 경로 없음.</li>
+<li>AdmobPlatform.showAd 실제 경로: <code>admob_platform_show_ad_test.dart</code>가 helper 가 아닌 showAd 를 구동한다. load/show 콜백 유실, 타임아웃 뒤 늦은 claim/SSV, 화면 dispose, 이전 광고의 늦은 dismissed, claim 미발급·소유자 변경·persist 실패, 시청 뒤 적립 확인 폴링 보존 테스트가 있다.</li>
+</ul>
+<p class="warn">남은 한계: 실제 StoreKit·Play Billing·AdMob SDK·서버 보상과의 실기기 검증은 하지 않았다. Sentry 5KY·5MM·5MG·5MA 의 효과는 배포 후 T9 에서 측정한다. 서버·네이티브 SDK 계약, 보상, 광고 구좌, 운영 플래그는 바꾸지 않았다.</p>
+
+<h2>4. 명령</h2>
+<pre>cd picnic_lib
+flutter test test/presentation/widgets/vote/store/purchase/ test/core/services/ test/presentation/widgets/vote/store/free_charge_station/
+# 결과: +3268 ~1 All tests passed (HEAD d6ecf9353)
+# 변이는 git diff &lt;PR&gt;~1 &lt;PR&gt; -- &lt;운영 파일&gt; | git apply -R 또는 단일 치환으로 적용하고,
+# 테스트 뒤 git checkout -- &lt;운영 파일&gt; 로 복원했다. 복원 후 추적 파일 변경 0.</pre>
+</main></body></html>

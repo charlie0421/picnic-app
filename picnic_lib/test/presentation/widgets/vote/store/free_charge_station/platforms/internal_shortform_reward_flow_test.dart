@@ -2,8 +2,30 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
+import 'package:picnic_lib/data/storage/local_storage.dart';
+import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_session.dart';
+
+/// 읽기는 비어 있고 쓰기는 항상 [failure] 로 실패하는 저장소.
+class _RejectingStorage implements LocalStorage {
+  _RejectingStorage(this.failure);
+
+  final Object failure;
+
+  @override
+  Future<String?> loadData(String key, dynamic defaultValue) async =>
+      defaultValue as String?;
+
+  @override
+  Future<void> saveData(String key, String value) async => throw failure;
+
+  @override
+  Future<void> removeData(String key) async {}
+
+  @override
+  Future<void> clearStorage() async {}
+}
 
 void main() {
   const impressionId = '00000000-0000-4000-8000-000000000402';
@@ -57,6 +79,64 @@ void main() {
       expect(result.ownerUserId, 'user-a');
       expect(result.videoUrl, 'https://cdn/video.m3u8');
       expect(events, ['invoke', 'persist:user-a:$impressionId', 'result']);
+    },
+  );
+
+  test(
+    'a failed reference persist issues once and yields nothing playable',
+    () async {
+      // 서버 발급은 끝났지만 로컬 참조 저장이 실패했다. 플랫폼과 같은 배선
+      // (session.bindIssued → PendingAdRewardStore.add)으로 실패를 일으킨다.
+      // 발급 결과가 없으면 전체 화면은 영상을 열지 않고 오류로 닫힌다
+      // (ad_shortform_fullscreen_page.dart 의 loadAd 예외 처리).
+      final writeFailure = StateError('storage write failed');
+      final store = PendingAdRewardStore(_RejectingStorage(writeFailure));
+      final session = InternalShortformRewardSession();
+      var invokes = 0;
+      InternalShortformIssueResult? playable;
+
+      await expectLater(() async {
+        playable = await InternalShortformIssueFlow(
+          currentOwner: () => 'user-a',
+          invokeIssue: () async {
+            invokes++;
+            return validIssue();
+          },
+          persist: (owner, reference) => session.bindIssued(
+            owner: owner,
+            issuedReference: reference,
+            persist: store.add,
+          ),
+          rewriteVideoUrl: (_) => 'https://cdn/video.m3u8',
+        ).issue();
+      }(), throwsA(same(writeFailure)));
+
+      expect(invokes, 1, reason: '발급 재시도');
+      expect(playable, isNull);
+      expect(session.reference, isNull);
+      expect(session.ownerUserId, isNull);
+      expect(await store.readAll('user-a'), isEmpty);
+
+      // 묶인 발급이 없으니 시청 완료 콜백도 서버로 나가지 않는다.
+      var callbacks = 0;
+      await expectLater(
+        InternalShortformViewFlow(
+          session: session,
+          currentOwner: () => 'user-a',
+          invokeCallback: () async {
+            callbacks++;
+            return {
+              'ok': true,
+              'reward_added': 1,
+              'impression_id': impressionId,
+              'new_bonus': 7,
+            };
+          },
+          parse: InternalShortformViewResponse.fromJson,
+        ).report(),
+        throwsStateError,
+      );
+      expect(callbacks, 0);
     },
   );
 

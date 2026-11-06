@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T3 — 로컬 저장 실패 복구 결과</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.75;color:#182536;background:#f3f6f8;margin:0}main{max-width:1080px;margin:32px auto;padding:32px;background:white;border:1px solid #d5dde6;border-radius:12px}h1{font-size:1.9rem}h2{font-size:1.35rem;margin-top:32px}p,li,td{overflow-wrap:anywhere}.note{padding:16px 20px;background:#edf8f2;border-left:5px solid #17664c}.pending{padding:16px 20px;background:#fff6e6;border-left:5px solid #a56a13}table{border-collapse:collapse;width:100%;margin:16px 0}td,th{border:1px solid #d5dde6;padding:10px;text-align:left;vertical-align:top}th{background:#edf2f6}.scroll{overflow-x:auto}code{font-family:ui-monospace,SFMono-Regular,monospace;font-size:.87em}pre{padding:16px;background:#152333;color:#edf2f6;overflow:auto;line-height:1.55}a{color:#135c9c}.meta{color:#526174;font-size:.93rem}@media(max-width:700px){main{margin:0;padding:20px 14px;border:0;border-radius:0}}</style></head><body><main>
+<p class="meta">2026-11-06 · PICNIC-APP-5N2 / PICNIC-APP-5KG · <a href="sentry-2026-11-03-remediation-plan.html#T3">기존 계획 T3</a></p>
+<h1>로컬 저장 실패 복구: 앱 수정과 확인된 범위</h1>
+<div class="note"><strong>앱 수정·호스트 검증·독립 코드 리뷰 완료.</strong><p>비핵심 포털·탭 저장 실패를 호출자가 처리하도록 수정했다. 화면 이동은 완료되고 미처리 Future 오류는 발생하지 않는다. SharedPreferences의 false 저장 결과는 고정 문구의 StateError로 상위 호출자에게 전달한다. 사용자별 저장 키는 해당 오류 메시지에 넣지 않는다.</p><p>조정자 직접 실행: 계획된 7개 테스트 파일에서 <strong>189개 통과</strong>. 변경한 8개 Dart 파일 분석은 <strong>No issues found</strong>. 독립 리뷰는 <strong>APPROVE</strong>다.</p></div>
+<div class="pending"><strong>T3 전체는 부분 완료다.</strong><p>로그인 후 5N2 전체 12개 이벤트의 실제 스택과 1.3.5+130504 릴리스를 확인했다. 모두 Pangle 참조 저장 경로다. 운영 함수 정의는 읽기 전용으로 확인했지만, 생성·조회·정산·한도 함수와 발급 소스의 계약을 추가 확인했고, 잔액 초기 로드·세션 복구·소유권 테스트 4개도 통과했다. 130606 실기기 정상 콜드 재시작과 잔액 재표시는 확인했다. 저장 실패 강제 주입 후 재시작 및 외부 시스템의 전체 수명은 확인하지 않았다. 스토어 배포·실제 광고·보상 지급·Sentry 재발 여부는 이번 결과에 포함하지 않는다.</p></div>
+<h2>변경과 유지한 계약</h2>
+<table><thead><tr><th>경계</th><th>결과</th></tr></thead><tbody>
+<tr><td>NonWebLocalStorage.saveData</td><td>setString=false에서 <code>StateError('SharedPreferences failed to persist a value')</code>를 던진다. 기존 reload·이전 값 복원 순서와 실패 전파를 유지했다. 메시지에서 전체 키를 제거했다. 임의 키를 잘라내 사용자 ID 일부가 남는 방식은 사용하지 않았다.</td></tr>
+<tr><td>NavigationInfo</td><td>setPortal과 pic/vote/community/novel 탭의 총 5곳을 private 저장 도우미로 처리한다. Future.sync로 저장을 즉시 시작하고 동기 throw와 비동기 실패를 처리한다. 고정 경고 1개만 남기며 오류 객체·스택·키·값을 경고에 넣지 않는다. UI 상태 갱신 순서와 기존 함수 계약은 유지했다.</td></tr>
+<tr><td>기본 화면</td><td>현재 NavigationInfo.build는 초기 화면을 사용한다. 사용되지 않는 Navigation.load를 연결하거나 새로운 탭 복원 기능을 추가하지 않았다. 저장 실패 뒤 재생성한 기본 상태도 테스트했다.</td></tr>
+<tr><td>광고 표시 전 참조 저장</td><td>Pangle·숏폼의 create/issue→persist→표시 경계를 유지했다. persist 실패 시 같은 호출에서 claim/issue는 1회이고 load·폴링 구독·재생 가능한 결과·세션 결합이 진행되지 않음을 테스트했다. 플랫폼 showAd·실제 네이티브 렌더링을 직접 실행한 검증은 아니다.</td></tr>
+<tr><td>markAckPending 실패</td><td>서버 ACK 전 예외가 전달되고, 큐와 pendingDisplay 상태가 유지되며 적립 통계는 1회다. discardDialog 뒤 같은 세션의 동일 참조 poll은 로컬 표시를 1개 다시 열 수 있다. 추가 ACK·적립은 없고 저장 복구 후 ACK는 1회다. 기존 재표시 계약을 유지했다.</td></tr>
+<tr><td>복귀·재시작</td><td>WalletResumeRefresher의 계정별 잔액 조회를 유지했다. 시작 시 pending 목록 재생·폴링, 메모리 전용 폴백, 새 claim 자동 재시도를 추가하지 않았다.</td></tr>
+</tbody></table>
+<h2>테스트와 리뷰 근거</h2>
+<p>구현자가 보고한 수정 전 RED 결과는 163개 통과·12개 실패다. 개인정보 메시지 사례 2개와 포털·탭 5곳 각각의 동기/비동기 저장 실패 10개가 실패했다. 정상 저장·reload 실패 시 복원·보상 persist·ACK 경계 사례는 기존 동작을 고정한 대조군이며, 이들이 원래부터 통과했다는 점을 구분했다.</p>
+<p>구현자는 Pangle 테스트의 LocalStorage import 이름 충돌을 고친 뒤 테스트를 실행했다. 최초 분석에서 암묵적 pub resolve가 있었지만 추적된 pubspec·lock 변경은 없었다. 전역 정책 파일 읽기는 작업자 권한에 막혔고, 작업트리의 TDD·검증·테스트 작성 스킬 사본을 읽었다고 보고했다. 구현자의 전역 정책 로딩은 확인된 것으로 기록하지 않았다.</p>
+<p>조정자는 리뷰 대상 8개 해시를 확인하고 같은 소스에서 아래 테스트와 분석을 직접 실행했다. 오류 주입 테스트의 경고 출력은 의도한 실패 처리 경로에서 발생했다. 리뷰어는 실제 전역 policyRevision 2를 읽었고, 전체 diff와 관련 저장·복구·대화상자·지갑 소스를 검토했다. 리뷰어는 테스트를 실행하지 않았다.</p>
+<pre><code>cd picnic_lib
+flutter test --no-pub --timeout 120s -r failures-only \
+  test/data/storage/non_web_local_storage_failure_test.dart \
+  test/data/storage/pending_ad_reward_store_test.dart \
+  test/presentation/providers/navigation_provider_test.dart \
+  test/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform_test.dart \
+  test/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow_test.dart \
+  test/presentation/providers/ad_reward_recovery_provider_test.dart \
+  test/core/services/wallet_resume_refresher_test.dart
+# 결과: +189: All tests passed! / exit 0
+
+dart analyze \
+  lib/data/storage/non_web_local_storage.dart \
+  lib/presentation/providers/navigation_provider.dart \
+  test/data/storage/non_web_local_storage_failure_test.dart \
+  test/data/storage/pending_ad_reward_store_test.dart \
+  test/presentation/providers/ad_reward_recovery_provider_test.dart \
+  test/presentation/providers/navigation_provider_test.dart \
+  test/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow_test.dart \
+  test/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform_test.dart
+# 결과: No issues found! / exit 0</code></pre>
+<p class="meta">구현: Claude Opus 5.5/high. 독립 리뷰: GPT-6.1 Sol/high, Fast OFF, read-only/never. 최종 판정 APPROVE. 조정자 diff 검사도 통과했다.</p>
+<h2>운영 서버에서 확인한 정의</h2>
+<p>Supabase 연결 도구로 PICNIC-PROD의 PostgreSQL 함수 정의와 배포된 Edge 함수 소스만 읽었다. 고객 행 조회, 업무 RPC 호출, 광고·지급·ACK·스키마 변경은 하지 않았다. 관측 시점의 정의이며 과거 130504 실행 당시의 정의를 증명하지 않는다.</p>
+<ul>
+<li><code>create_ad_reward_claim</code>: 사용자·채널·client_request_id 조합 충돌 시 기존 claim을 반환한다. platform·placement·environment·payload가 다르면 충돌 오류를 낸다. 최초 expires_at은 DB 시각에서 10분 뒤다. 앱이 새 UUID로 다시 요청하면 별개 claim이 될 수 있다.</li>
+<li><code>get_ad_reward_status</code>와 <code>wallet_private.ad_reward_status_for</code>: 사용자·참조·채널에 해당하는 저장 상태와 기존 지급 결과를 읽는다. 이 함수 정의에는 만료 시각 경과만으로 상태를 EXPIRED로 바꾸는 코드가 없다.</li>
+<li><code>settle_pangle_ad_reward</code>: 사용자·claim 잠금과 토큰 필드 대조 후 처리한다. 이미 GRANTED이고 같은 provider transaction/payload이면 기존 지급 결과를 반환한다. PENDING이며 DB 시각이 expires_at을 지났으면 EXPIRED로 갱신한다. 자동 스케줄러 만료를 검증한 것은 아니다.</li>
+<li><code>acknowledge_ad_reward</code>: 현재 사용자 소유의 PENDING이 아닌 참조에 확인 시각을 최초 1회 기록한다. 이 함수에는 새 지급을 만드는 코드가 없다.</li>
+<li>현재 Edge 소스 <code>ad-reward-claim</code> v32와 <code>ad-shortform-issue</code> v67을 확보했다. 보조 anti-abuse 검사와 별도 저장 경로가 있으므로 claim 수만으로 시청·지급 한도를 단정하지 않았다. 숏폼 만료·발급 기록과 보상 한도 정의는 아래 추가 확인에 기록했다. 외부 콜백의 실제 실행은 검증하지 않았다.</li>
+</ul>
+<h2>추가 확인: 만료·한도·재진입 계약</h2>
+<p>아래 내용은 2026-11-06 운영 함수 정의와 배포 소스를 추가로 읽은 결과다. 업무 RPC를 호출하거나 고객 데이터 행을 조회하지 않았다.</p>
+<table><thead><tr><th>확인 항목</th><th>확인한 계약과 한계</th></tr></thead><tbody>
+<tr><td>시간·일간 보상 한도</td><td><code>get_cotton_ad_limit_status</code>와 <code>assert_cotton_ad_reward_limit</code>는 <code>cotton_candy_grants</code>의 지급 건수를 센다. 시간은 최근 1시간, 일간은 KST 달력일이며 10회·120회 기준이다. 지급되지 않은 claim 개수 자체는 이 한도에 포함되지 않는다.</td></tr>
+<tr><td>별도 기기 제한</td><td><code>aa_evaluate_ad_device_request</code>는 지급 원장과 별개로 요청 시도와 기기·계정·IP 관계를 기록·판정한다. 따라서 “보상 한도에 포함되지 않음”을 “요청의 부작용이 없음”으로 해석하지 않는다. 반복 새 요청이 이 검사에 남는 현재 정책을 변경하지 않았다.</td></tr>
+<tr><td>Pangle 만료</td><td>생성 시 TTL은 10분이다. PENDING 참조를 만료 뒤 정산하려 하면 EXPIRED로 바뀐다. 상태 조회 자체는 만료 전이를 수행하지 않는다. 활성 cron 중 command에 ad_reward_claims가 있거나 jobname이 ad/reward/expir 패턴과 일치하는 작업은 0개였다. 간접 호출·외부 스케줄러까지 없다는 증거는 아니다. 콜백이 오지 않은 참조가 자동 정리된다고 가정하지 않는다.</td></tr>
+<tr><td>숏폼 발급과 만료</td><td><code>ad-shortform-issue</code> v67은 300초 만료 토큰과 impression을 만들고, insert 성공 뒤 캠페인의 <code>served_count</code>를 갱신한다. 로컬 persist는 그 이후이므로 실패해도 발급·served 기록이 남을 수 있다. 이는 실제 시청·지급과 다르다. <code>settle_shortform_view_reward</code>는 소유자·jti·만료를 검사하고 만료 뒤 SHORTFORM_EXPIRED로 거부한다. 같은 유효 지급·payload의 재호출은 기존 지급 결과를 반환한다. 만료 검사보다 뒤에 이 재호출 분기가 있으므로 만료 뒤 성공 재생까지 보장하지 않는다.</td></tr>
+<tr><td>저장 실패 후 재진입</td><td>광고 표시 전 persist가 실패하면 해당 호출은 표시를 중단한다. 새 사용자 시도는 새로운 참조를 발급할 수 있다. 이전 claim을 재사용하는 새 로컬 복구나 자동 재시도는 추가하지 않는다. 지급 후 ACK 저장 실패에서도 지급과 원장은 유지된다. 과거 영수증 재표시·ACK 재생을 자동으로 복원하지 않는다.</td></tr>
+<tr><td>복귀와 초기 잔액</td><td>열려 있는 지갑의 복귀는 WalletResumeRefresher가 현재 계정 잔액을 읽는다. 초기 지갑은 WalletSummary.build의 계정·세션 복구 후 조회가 담당한다. 로컬 pending 목록이 잔액의 권위가 아니다. 이 소스 연결과 합성 테스트를 확인했으며 실제 프로세스 재시작 실험은 하지 않았다.</td></tr>
+</tbody></table>
+<p>추가로 다음 기존 테스트 4개를 직접 실행했고 모두 통과했다. 정상 초기 조회/새로고침, 지연된 초기 세션 복구, 이전 계정 응답 배제, 세션 복구 대기 중 컨테이너 폐기를 다룬다. 새 회귀 테스트나 제품 변경을 추가한 것은 아니다.</p>
+<pre><code>cd picnic_lib
+flutter test --no-pub --timeout 120s -r failures-only \
+  test/presentation/providers/wallet_provider_test.dart \
+  --name 'wallet summary builds once and refresh replaces the snapshot|a session restored after the wait still gets read|a read started for the previous account cannot land on the new one|a dispose during the session wait ends the build quietly'
+# 결과: +4: All tests passed! / exit 0</code></pre>
+<p>기존 기능의 실패 경계를 유지하는 데 필요한 서버 변경은 이번 조사에서 확정하지 않았다. 만료된 미사용 참조의 보관·정리 정책이나 과거 영수증 재생을 바꾸려면 영향과 손실을 정한 별도 설계·승인이 필요하다. 일반 실기기 콜드 재시작은 아래에서 확인했다. 실제 저장 실패 후 재시작과 외부 콜백 타이밍은 운영 QA 항목으로 남긴다.</p>
+<h2>실기기 정상 재시작 검증 — 1.3.6+130606</h2>
+<p>사용자의 “실제 기기 연결되는지 확인해서 되면 바로 진행” 지시에 따라 연결된 Galaxy S20 FE(SM-G781N), Android 13/API 33에서 실행했다. 사용자 0만 있는 상태와 대상 패키지를 확인했다. 기존 앱은 1.3.6+130605였다. 신규 바이너리의 Build number 증가 정책에 따라 pubspec을 1.3.6+130606으로 올려 로컬 debug QA 빌드를 만들었다. 프로덕션 환경값을 사용했으며 스토어·Codemagic·Shorebird 배포는 하지 않았다.</p>
+<table><thead><tr><th>검증</th><th>관측 결과</th></tr></thead><tbody>
+<tr><td>소스·산출물</td><td>09b16f01c 기준에서 Build number만 바꿔 flutter build apk --debug --no-pub를 실행했다. 릴리스 서명 환경변수는 자식 환경에서 제거했고 key.properties는 없었다. 패키지·130606 버전·공개 서명자를 검사했다. 기존 설치 APK와 새 APK의 서명자는 같았다. 의존성 lock·네이티브 설정·라이브러리 소스 해시는 유지됐다.</td></tr>
+<tr><td>데이터 유지 업데이트</td><td>정확한 실기기 serial과 사용자 0으로 adb install -r --user 0을 실행했다. 설치 성공, 130606 버전과 UID 보존을 확인했다. 설치 APK SHA-256이 검사한 복사본과 같았다. 데이터 삭제·재설치 초기화는 하지 않았다.</td></tr>
+<tr><td>업데이트 후 실행</td><td>홈과 상점 파우치를 직접 확인했다. 별도 로그인 조작 없이 새 푸시 등록 성공 이벤트가 관측됐다. 이는 클라이언트 이벤트이며 이번에 서버 토큰 행을 다시 조회한 것은 아니다.</td></tr>
+<tr><td>새로고침·화면 이동</td><td>상점에서 아래로 당기는 새로고침 제스처 뒤 홈 탭으로 이동했고 홈 표시를 확인했다. 제스처 수행과 화면 이동을 관측했다. 네트워크 완료와 화면 이탈의 정확한 순서는 측정하지 않았으므로 결정적인 비동기 경합 재현으로 보지 않는다.</td></tr>
+<tr><td>콜드 재시작</td><td>앱 force-stop 후 프로세스 부재를 확인하고 명시적으로 다시 실행했다. 새 PID와 홈 표시를 확인한 뒤 상점에 재진입했다. 세 종류의 잔액이 재시작 전과 동일하게 표시됐다. 원시 잔액·계정 정보는 보고서에 싣지 않는다.</td></tr>
+<tr><td>로그·정리</td><td>앱 UID logcat을 기존 승인된 이벤트 필터에 직접 연결했다. 원시 로그는 저장하지 않았다. 재시작 이후 새 registration_succeeded 이벤트가 있었다. 소유한 logcat·필터 프로세스는 종료와 수거를 확인했고 filter exit 0이었다. 앱은 업데이트된 상태로 유지했다.</td></tr>
+<tr><td>Sentry 보조 관측</td><td>검증 중 130606 릴리스의 최근 1시간 이슈 조회는 0개였다. 수집 지연·필터·릴리스 전파 가능성이 있어 오류 부재나 기존 사건 해결의 증거로 삼지 않는다.</td></tr>
+</tbody></table>
+<p class="meta">검사·설치한 APK SHA-256: <code>208674b693fd4845b89b2d831fdfe463817c5cce6cd72465b8e2443a05c2a98b</code>. 실제 기기 저장 실패 강제 주입·기기 저장소 손상·저장공간 채우기는 수행하지 않았다. 광고 시청·구매·실제 보상 지급·외부 광고 콜백도 수행하지 않았다. UI 자동 수집은 애니메이션으로 idle 상태를 얻지 못해 앱 화면을 직접 확인했다.</p>
+<p><strong>확인 범위:</strong> 수정본의 데이터 유지 업데이트와 정상 실행, 화면 이동, 일반 콜드 재시작 후 잔액 재표시다. “저장 실패를 겪은 직후 재시작해 복구했다”는 검증은 아니다. 실패 분기는 기존 189개 호스트 테스트와 독립 소스 리뷰 근거를 유지한다.</p>
+<h2>사건과 릴리스 비교의 한계</h2>
+<p>기존 분석의 5KG는 처리되지 않은 vote 탭 저장 Future와 연결된다. 2026-11-06 로그인 후 <a href="https://icon-casting.sentry.io/issues/7795352200/">5N2</a> 전체 이벤트를 2페이지로 조회했다. 그룹 총 12개와 조회 결과 12개가 일치하고 다음 페이지는 없다. 모두 <code>io.iconcasting.picnic.app@1.3.5+130504</code>이며, UTC 2026-10-16 02:16:06부터 2026-10-31 13:59:01까지다. 기존 분석의 10개는 당시 보고 수치로 보존하고, 이번 전체 조회 12개를 별도로 기록한다.</p>
+<p>12개 모두 <code>PanglePlatform._loadPangleAd:349 → PangleClaimPreflight.execute:70 → PendingAdRewardStore.add:110 → NonWebLocalStorage.saveData:25</code> 경로다. 130504 태그에서 execute:70은 createClaim 결과를 받은 뒤 <code>await persist(...)</code>를 실행하는 줄이다. 폴링 구독과 광고 load는 그 뒤에 있다. 이 사건 표본은 Pangle의 표시 전 로컬 참조 저장 실패로 연결되며, markAckPending·숏폼·AdMob 실패 표본이라는 근거는 없다.</p>
+<p>SharedPreferences가 false를 반환한 기기 측 원인(저장공간·플랫폼 저장소 등)은 이 스택으로 확정할 수 없다. 생성된 서버 claim의 현재 행 상태나 실제 지급 여부도 조회하지 않았다. 이벤트의 사용자별 키·사용자 정보·예외 원문은 보고서와 새 증거에 보관하지 않고, 시각·릴리스·예외 타입·호출 프레임만 추출했다.</p>
+<p><code>picnic-v1.3.5+130504-skip-tests</code>와 수정 전 <code>f12088de7</code>을 비교했다. non_web 저장·pending 저장·navigation·recovery 파일은 같고, Pangle·shortform 파일은 달랐다. 따라서 최신 경로 테스트만으로 과거 광고 경로가 완전히 같았다고 주장하지 않는다.</p>
+<h2>변경 파일과 검증 대상</h2><ul><li><code>picnic_lib/lib/data/storage/non_web_local_storage.dart</code></li><li><code>picnic_lib/lib/presentation/providers/navigation_provider.dart</code></li><li><code>picnic_lib/test/data/storage/non_web_local_storage_failure_test.dart</code></li><li><code>picnic_lib/test/data/storage/pending_ad_reward_store_test.dart</code></li><li><code>picnic_lib/test/presentation/providers/ad_reward_recovery_provider_test.dart</code></li><li><code>picnic_lib/test/presentation/providers/navigation_provider_test.dart</code></li><li><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow_test.dart</code></li><li><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform_test.dart</code></li></ul>
+<details><summary>리뷰 및 조정자 검증 SHA-256</summary><div class="scroll"><table><thead><tr><th>파일</th><th>SHA-256</th></tr></thead><tbody><tr><td><code>picnic_lib/lib/data/storage/non_web_local_storage.dart</code></td><td><code>aa7a05da5f389e476b99e7b39840c7d53ac67fc292cd03843acdf5bfdf33e2b2</code></td></tr><tr><td><code>picnic_lib/lib/presentation/providers/navigation_provider.dart</code></td><td><code>aed5922aadb0bb58ad530482a1043d50e0eeaf8be896a30e60422b9f8fd959f5</code></td></tr><tr><td><code>picnic_lib/test/data/storage/non_web_local_storage_failure_test.dart</code></td><td><code>23afa96352482cf24e602151ce30504740b27aa20ffc6f31f4679d1b8190832b</code></td></tr><tr><td><code>picnic_lib/test/data/storage/pending_ad_reward_store_test.dart</code></td><td><code>890fde657afecc6ca2f31635dc759749947edbe1a567befd306cd99c15d1bbf4</code></td></tr><tr><td><code>picnic_lib/test/presentation/providers/ad_reward_recovery_provider_test.dart</code></td><td><code>1dd565ccb605477d414d43a966ae904ae59205e07dfcba8676dbd9ac06496437</code></td></tr><tr><td><code>picnic_lib/test/presentation/providers/navigation_provider_test.dart</code></td><td><code>3c4f1e8d21ad21e09189508eada336a013ba3b8adac499204d1d01467772ca23</code></td></tr><tr><td><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/internal_shortform_reward_flow_test.dart</code></td><td><code>ff09ececd3ded47fd5a49214738f577858d30f330d9c6ad683a5dc690835d306</code></td></tr><tr><td><code>picnic_lib/test/presentation/widgets/vote/store/free_charge_station/platforms/pangle_platform_test.dart</code></td><td><code>f9f4f827d75a0f21d0ae166c6f0d60f33a3669f955101287408c4652c5da44d3</code></td></tr></tbody></table></div></details>
+<h2>남은 확인</h2>
+<ul><li>5N2 실제 스택·릴리스 확인은 완료했다. 저장 실패의 기기 측 원인과 배포 후 재발 여부는 아직 확인하지 않았다.</li><li>운영 정의에서 확인한 계약과 실제 런타임을 구분한다. 실제 저장 실패 후 프로세스 재시작·외부 콜백 검증은 남아 있다. 미사용 참조의 전체 보관 정책이나 새 로컬 재생 설계를 바꾸는 서버 작업은 별도 승인 범위다.</li><li>AdMob persist 경계는 T6에서 검증한다. 모든 광고 네이티브 표시와 실제 보상 지급은 이번 호스트 검증 범위 밖이다.</li><li>오류 문구 변경으로 Sentry 그룹이 달라질 수 있다. T9 효과 측정에서 기존 그룹 건수만 비교해 해결로 판단하지 않는다.</li></ul>
+<footer class="meta">로컬 실기기 QA 업데이트만 수행. 스토어·OTA 배포와 Sentry·Jira 상태 변경 없음. 원시 로그와 서버 소스는 비공개 QA 증거로 보관한다. 이 보고서는 원문 토큰·사용자별 키·고객 행을 포함하지 않는다.</footer>
+</main></body></html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>T4-C Tapjoy 실패 보고 구조화 · 5FM·5GZ·5JY 조사</title>
+<style>body{font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo",sans-serif;line-height:1.7;color:#172033;background:#f4f6fa;margin:0}main{max-width:1100px;margin:32px auto;background:white;padding:32px;border-radius:14px}h1{font-size:1.8rem}h2{margin-top:32px}table{border-collapse:collapse;width:100%}th,td{border:1px solid #d8dee9;padding:10px;text-align:left;vertical-align:top}th{background:#eef2f8}code{font-family:ui-monospace,monospace;overflow-wrap:anywhere}pre{background:#f0f3f8;padding:16px;overflow:auto;line-height:1.5;white-space:pre-wrap}.note{padding:16px;border-left:4px solid #2b6cb0;background:#edf6ff}.warn{padding:16px;border-left:4px solid #b7791f;background:#fff8e6}.meta{color:#536179;font-size:.92rem}</style></head><body><main>
+<h1>T4-C · Tapjoy 실패 보고 구조화 (5KT·5KN·5KA) · 5FM·5GZ·5JY 조사</h1>
+<p class="meta">2026-11-06 · 기준 커밋 <code>8d818b8e6</code> · 수정 커밋 <code>22bbe7e64</code>, <code>6646c263d</code>, <code>7201f6a08</code> · 작업 브랜치 <code>docs/sentry-release-analysis</code></p>
+<p class="note"><strong>소스 수정·호스트 검증·독립 리뷰 완료.</strong> 무료충전소 테스트 폴더 514개가 통과했다. 독립 리뷰(Codex gpt-6.1-sol/high)는 두 번 CHANGES_REQUIRED였다. 지적 3건 중 2건은 수정했고, 1건은 근거를 제시해 리뷰어가 철회했다. 두 번째 재검증 결과는 <strong>APPROVE</strong>다. 실제 기기·실제 Tapjoy SDK·실제 네트워크 장애는 검증하지 않았다.</p>
+
+<h2>1. Tapjoy 문제와 원인</h2>
+<ul>
+<li>Tapjoy 실패는 SDK 원문 문자열을 그대로 Sentry에 보냈다. 원문에는 단계·종류·재시도 정보가 없고, 내용을 앱이 통제하지 못한다.</li>
+<li>플러그인 <code>tapjoy_offerwall</code> 14.6.0은 실패 콜백에 메시지 문자열만 넘긴다. Android는 <code>TJError.message</code>, iOS는 <code>localizedDescription</code>을 넘긴다. SDK 오류 코드는 버려지므로 보고할 수 없다.</li>
+<li>Sentry MCP 집계(릴리스 <code>1.3.5+130504</code>):
+<ul>
+<li><b>5KT</b>: 22건, 전부 Android, 오퍼 요청 단계. 본문은 Tapjoy 서버 응답이다. <code>{"code":500,...}</code> JSON, HTML 페이지, <code>{"error":"Internal error occured."}</code>, 빈 문자열이 섞여 있다. 즉 대부분 <b>Tapjoy 서버 측 실패</b>다.</li>
+<li><b>5KN</b>: iOS <code>The network connection was lost.</code> — 기기 측 네트워크 끊김.</li>
+<li><b>5KA</b>: 앱 자체의 setUserID 10초 대기 시간 초과 문구.</li>
+<li>참고: <code>SDK not connected -- connect must be called first...</code>(PICNIC-APP-43N, 1건)도 같은 원문 보고 경로다.</li>
+</ul></li>
+</ul>
+
+<h2>2. 변경 결과</h2>
+<table><thead><tr><th>경계</th><th>변경 결과</th></tr></thead><tbody>
+<tr><td>보고 형식</td><td>새 <code>tapjoy_failure.dart</code>의 <code>TapjoyFailure</code>로 닫힌 값만 보낸다. 단계(setUserId·placementRequest·placementCreate), 종류(noUser·busy·otherAccountPending·timeout·sdkFailure·channelFailure·missingPlacement), SDK 메시지 유무, 원인, 서버 코드, 채널 코드, 재시도 여부, 망 종류.</td></tr>
+<tr><td>원인 (리뷰 반영)</td><td>SDK 원문에서 앱 안에서만 원인을 계산한다: <code>network</code>(연결 끊김·오프라인·시간 초과 등), <code>server</code>(JSON·HTML 본문, internal error), <code>sdkNotReady</code>(SDK 미연결), <code>unknown</code>, <code>none</code>. 원문은 보내지 않는다. Tapjoy 서버 JSON의 <code>"code"</code>가 100–599이면 3자리 숫자만 <code>tapjoy_server_code</code>로 남긴다.</td></tr>
+<tr><td>오프라인·설정 오류·10초 지연 구분</td><td>오프라인 → <code>sdkFailure/network</code>(재시도 yes), 설정 오류 → <code>sdkFailure/sdkNotReady</code> 또는 <code>channelFailure</code>(채널 코드), 10초 지연 → <code>timeout/none</code>(재시도 yes). fingerprint는 <code>['tapjoy-failure', stage, kind, cause]</code>다.</td></tr>
+<tr><td>다이얼로그·보고 제외</td><td>기존 다이얼로그와 no-fill 키워드 제외 판단을 그대로 쓴다. <code>AdPlatform</code>에 원문 Sentry 보고 없이 같은 판단만 하는 <code>showAdLoadFailureDialog</code>를 추가했다. 다른 플랫폼은 바뀌지 않는다.</td></tr>
+<tr><td>앱 공통 필터 (리뷰 반영)</td><td>예전 원문 보고는 앱 공통 <code>beforeSend</code>의 String 필터를 거쳤다. 거기서 버려지던 전송 계층 문구(<code>Failed host lookup</code>, <code>Connection reset</code> 등)는 지금도 보내지 않는다. 판단 입력은 예전 코드가 보고하던 값과 같다. setUserID 단계는 채널 예외도 <code>reason</code> 문자열을 쓴다.</td></tr>
+<tr><td>PICNIC-2682 소유권</td><td>setUserID 소유권·타임아웃·계정 전환·연타 로직은 그대로다. <code>settle</code>이 종류와 오류 객체를 함께 기록하도록만 바꿨다.</td></tr>
+<tr><td>지급·기기 차단</td><td>변경 없음.</td></tr>
+</tbody></table>
+<p class="warn">새 fingerprint를 쓰므로 배포 뒤 5KT·5KN·5KA에는 새 이벤트가 쌓이지 않는다. T9에서 새 이슈와 함께 비교한다. 사용자 id는 앱 전체 Sentry 사용자 바인딩(PICNIC-2743)에 따라 이전과 같이 붙는다. 이번 변경 범위가 아니다.</p>
+
+<h2>3. 검증</h2>
+<table><thead><tr><th>단계</th><th>결과</th></tr></thead><tbody>
+<tr><td>RED 1 (<code>22bbe7e64</code> 전)</td><td>새 모듈이 없어 컴파일 실패. API만 추가하고 배선 전에는 setUserID 대기 테스트 7개가 원문 보고 경로를 써서 실패.</td></tr>
+<tr><td>GREEN 1</td><td>Tapjoy 테스트 17/17, 무료충전소 폴더 503/503.</td></tr>
+<tr><td>리뷰 1</td><td>CHANGES_REQUIRED: P1 사용자 id·breadcrumb, P2 원인 손실, P2 공통 필터 우회.</td></tr>
+<tr><td>RED 2 (<code>6646c263d</code> 전)</td><td>원인 API가 없어 컴파일 실패. 모델만 추가한 상태에서 공통 필터 동등성 테스트 2개 실패.</td></tr>
+<tr><td>GREEN 2</td><td>무료충전소 폴더 513/513.</td></tr>
+<tr><td>재검증 1</td><td>P1 철회(앱 전체 정책이며 이번 diff가 만든 회귀가 아님, 로그는 콘솔 출력만). 원인 P2 해결. 공통 필터 P2는 setUserID 채널 예외의 입력 타입 차이로 남음.</td></tr>
+<tr><td>RED 3 (<code>7201f6a08</code> 전)</td><td><code>PlatformException(message: 'Connection reset by peer')</code> setUserID 테스트가 보고 1건으로 실패.</td></tr>
+<tr><td>GREEN 3</td><td>무료충전소 폴더 514/514, Tapjoy 파일 28/28, 변경 파일 analyze 이슈 없음. 폴더의 기존 dead_code 경고 3개(<code>shortform_internal_platform_test.dart</code>, 미변경)는 남아 있다.</td></tr>
+<tr><td>재검증 2</td><td><strong>APPROVE</strong>, 새 지적 없음. 시작·종료 SHA-256 일치.</td></tr>
+</tbody></table>
+<pre>cd picnic_lib
+flutter test test/presentation/widgets/vote/store/free_charge_station/
+flutter analyze lib/presentation/widgets/vote/store/free_charge_station/platforms/</pre>
+
+<h2>4. 5FM·5GZ·5JY·50W 조사 (Sentry·운영 DB 읽기 전용 집계)</h2>
+<p class="meta">집계 수치만 기록한다. 사용자 id·기기 id·이벤트 원문은 이 문서에 넣지 않는다.</p>
+<table><thead><tr><th>이슈</th><th>집계</th><th>판단</th></tr></thead><tbody>
+<tr><td>5FM <code>vote_failed</code></td><td>릴리스 130504: <code>WALLET_INSUFFICIENT_BALANCE</code>/409 47건(35명), <code>VOTE_ENDED</code>/403 17건(13명), 서버 5xx 0건. 전체 기간 221건 중 500 계열 36건은 마지막이 2026-09-20이다. phase는 전부 <code>invoke</code>.</td><td>130504의 5FM은 전부 사용자 상태(잔액 부족·마감)다. 시스템 결함이 아니다. Sentry 보고 제외 여부는 보고 정책 변경이므로 <b>사용자 결정 대기</b>. 이번 빌드에서 코드 변경 없음.</td></tr>
+<tr><td>5GZ <code>Device banned detected</code></td><td>368건, <code>ban.virtual_device=true</code> 100%. 운영 <code>device_bans</code> 테이블은 2025년 1행뿐이다.</td><td>5GZ는 DB 차단이 아니라 앱 내 가상 머신 탐지 결과다. 탐지 1회마다 5JY와 5GZ가 함께 기록된다. 5GZ는 <code>ban.device_id</code> 태그로 기기 식별자를 원문 전송한다(<code>app_initializer.dart:792-793</code>) — 제거 여부 <b>사용자 결정 대기</b>.</td></tr>
+<tr><td>5JY <code>가상 머신 감지</code></td><td>236건·57명. OnePlus8Pro 110건/36명, <code>sdk_gphone_arm64</code> 98건/7명, SM-S908E 10건/6명, Pixel 7 Pro 5건/1명, SM-S918B·SM-S938B 등 소수. 표본 1건은 Chromebook(ARC)이 "센서 없음·가상화 CPU"로 탐지됐다.</td><td>에뮬레이터는 정상 탐지다. 단일 기종에 36명이 몰린 OnePlus8Pro는 에뮬레이터 기종 위장 또는 기기 농장 패턴으로 보인다. 실제 플래그십·Chromebook 탐지는 오탐 가능성이 있다. 기기명만으로 단정하지 않으며, 차단 정책은 바꾸지 않는다. 탐지 기준 검토는 anti-abuse 담당 결정이 필요하다.</td></tr>
+<tr><td>50W 영상 중복 initialized</td><td>197건 전부 iOS. 화면은 StorePage 175건.</td><td>iOS 네이티브 플래그 경합 가설과 일치한다. 재현되지 않았으므로 T5 결정대로 이번 빌드에서 제외한다.</td></tr>
+</tbody></table>
+
+<h2>5. 남은 일</h2>
+<ul>
+<li>실제 기기에서 오프라인·Tapjoy 서버 오류·10초 지연 시 다이얼로그와 Sentry 보고를 확인한다(테스트 빌드 QA 범위).</li>
+<li>2026-11-06 사용자 승인 권장안: 5FM 정상 결과 2종 미보고(<code>be5908732</code>), 5GZ 기기 id 태그 제거(<code>e412ecbc1</code>). 독립 리뷰 APPROVE. 5JY 탐지 기준은 변경 없이 anti-abuse 담당 검토.</li>
+<li>Jira·Sentry 상태는 바꾸지 않았다.</li>
+</ul>
+</main></body></html>

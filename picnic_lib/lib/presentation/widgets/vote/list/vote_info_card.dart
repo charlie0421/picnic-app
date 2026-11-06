@@ -192,7 +192,7 @@ class _VoteInfoCardState extends ConsumerState<VoteInfoCard>
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(_voteData.title, navigatorKey.currentContext!).replaceAll(' ', '')}',
       onStart: _showOverlay,
-      downloadLink: await createBranchLink(
+      downloadLink: await createShareLink(
         getLocaleTextFromJson(_voteData.title, context),
         '${Environment.appLinkPrefix}/vote/detail/${widget.vote.id}',
       ),

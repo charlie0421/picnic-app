@@ -8,6 +8,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:picnic_lib/core/analytics/auth_analytics_reporter.dart';
 import 'package:picnic_lib/core/config/environment.dart';
 import 'package:picnic_lib/core/services/account_deletion_handler.dart';
+import 'package:picnic_lib/core/services/profile_image_diagnostics.dart';
 import 'package:picnic_lib/core/services/purchase_diagnostics.dart';
 import 'package:picnic_lib/core/services/auth/auth_service.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
@@ -137,6 +138,9 @@ class AppInitializer {
         // 계약(브레드크럼 없음·보고 시점 계정)을 다시 적용한다. 다른 이벤트는
         // 그대로 통과한다.
         event = PurchaseDiagnostics.sanitizeForSend(event, hint);
+        // 프로필 사진 변경 보고는 같은 위치에서 닫힌 필드 목록으로 다시 만들고
+        // 첨부를 뺀다. 다른 이벤트는 그대로 통과한다.
+        event = ProfileImageDiagnostics.sanitizeForSend(event, hint);
         final exception = event.exceptions?.firstOrNull;
         final exceptionValue = exception?.value ?? '';
         final exceptionType = exception?.type ?? '';
@@ -781,12 +785,13 @@ class AppInitializer {
   static void _logBanToSentry(bool isVirtualDevice) {
     Future.microtask(() async {
       try {
-        final deviceId = await DeviceManager.getDeviceId();
         await Sentry.captureMessage(
           'Device banned detected',
           withScope: (scope) async {
-            scope.setTag('ban.virtual_device', isVirtualDevice.toString());
-            scope.setTag('ban.device_id', deviceId);
+            // 기기 id 원문은 보내지 않는다 (PICNIC-APP-5GZ).
+            AppInitializerHelper.banReportTags(
+              isVirtualDevice: isVirtualDevice,
+            ).forEach(scope.setTag);
             try {
               final info = await DeviceInfoPlugin().androidInfo;
               scope.setContexts('device', {

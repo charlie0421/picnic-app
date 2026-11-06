@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -41,14 +42,14 @@ class PushTokenService {
     // Destinations that arrived before the callbacks existed are replayed
     // first, so a tap consumed during a cold start is never lost.
     _flushPendingTaps();
-    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
     // Started side by side, never chained: the coordinator's permission step
     // is an OS sheet and can wait on the user indefinitely, and the launch
     // destination must not queue behind it. The platform answers the launch
     // read from state captured before Dart ran - the Android launch Intent
     // and the iOS pre-`initialized` response - so it needs nothing from the
     // coordinator to be correct (PICNIC-2693).
-    final coordinatorReady = _coordinator!.initialize();
+    final coordinatorReady =
+        _ensureCoordinator()?.initialize() ?? Future<void>.value();
     final launchNotification = _consumeLaunchNotification();
     await Future.wait([coordinatorReady, launchNotification]);
   }
@@ -116,8 +117,41 @@ class PushTokenService {
   /// (PICNIC-2693).
   static Future<void> resume() async {
     if (kIsWeb) return;
-    _coordinator ??= (_debugCoordinatorFactory ?? _createCoordinator)();
-    await _coordinator!.resume();
+    await _ensureCoordinator()?.resume();
+  }
+
+  /// Returns the coordinator, creating it only once its dependencies exist.
+  ///
+  /// `FirebaseMessaging.instance` throws `[core/no-app]` until
+  /// `Firebase.initializeApp()` creates the `[DEFAULT]` app, and the
+  /// production coordinator also subscribes to the Supabase auth stream,
+  /// which needs the client that `initializeSupabase()` creates. A resume or
+  /// a failed SDK start can arrive before either. Nothing is latched while a
+  /// dependency is missing, so the next [initialize] or [resume] starts push
+  /// setup. Sign-in state is not a dependency: a logged-out client is ready.
+  static PushTokenInitializationCoordinator? _ensureCoordinator() {
+    final existing = _coordinator;
+    if (existing != null) return existing;
+    if (!_hasDefaultFirebaseApp()) return null;
+    final factory = _debugCoordinatorFactory;
+    if (factory != null) return _coordinator = factory();
+    final client = _supabaseClientIfReady();
+    if (client == null) return null;
+    return _coordinator = _createCoordinator(client);
+  }
+
+  /// A secondary app alone does not count: Messaging uses the default app.
+  static bool _hasDefaultFirebaseApp() =>
+      Firebase.apps.any((app) => app.name == defaultFirebaseAppName);
+
+  /// The Supabase client, or null while it does not exist yet. The
+  /// `supabase` getter reports a missing client only as a StateError.
+  static SupabaseClient? _supabaseClientIfReady() {
+    try {
+      return supabase;
+    } on StateError {
+      return null;
+    }
   }
 
   static Future<void> dispose() async {
@@ -130,7 +164,9 @@ class PushTokenService {
     if (coordinator != null) await coordinator.dispose();
   }
 
-  static PushTokenInitializationCoordinator _createCoordinator() {
+  static PushTokenInitializationCoordinator _createCoordinator(
+    SupabaseClient client,
+  ) {
     final owner = _ownerGeneration;
     return PushTokenInitializationCoordinator(
       PushInitializationDependencies(
@@ -190,7 +226,7 @@ class PushTokenService {
             FirebaseMessaging.onMessage.cast<Object>(),
         openedMessages: _debugMessageSources?.openedMessages ??
             FirebaseMessaging.onMessageOpenedApp.cast<Object>(),
-        authChanges: supabase.auth.onAuthStateChange.cast<Object>(),
+        authChanges: client.auth.onAuthStateChange.cast<Object>(),
         isSignedIn: () =>
             supabase.auth.currentSession?.accessToken.isNotEmpty == true,
         isSignedInEvent: (event) =>

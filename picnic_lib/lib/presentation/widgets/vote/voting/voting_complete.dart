@@ -408,7 +408,7 @@ class _VotingCompleteDialogState extends ConsumerState<VotingCompleteDialog> {
                                 '$artist - $voteTitle ${AppLocalizations.of(navigatorKey.currentContext!).vote_share_message} 🎉',
                             hashtag:
                                 '#Picnic #Vote #PicnicApp #${voteTitle.replaceAll(' ', '')}',
-                            downloadLink: await createBranchLink(
+                            downloadLink: await createShareLink(
                               getLocaleTextFromJson(widget.voteModel.title),
                               '${Environment.appLinkPrefix}/vote/detail/${widget.voteModel.id}',
                             ),

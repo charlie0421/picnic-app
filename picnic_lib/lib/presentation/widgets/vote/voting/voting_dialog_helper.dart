@@ -115,6 +115,40 @@ class VotingDialogHelper {
     'status': event.status.toString(),
   };
 
+  /// 투표 실패를 Sentry 태그용 닫힌 값으로 줄인다. 원래 `_reportVoteFailure`
+  /// 안에 있던 분류를 그대로 옮겼다.
+  static ({String status, String reason}) describeVoteFailure(Object? error) {
+    var status = 'unknown';
+    var reason = 'none';
+    if (error is FunctionException) {
+      status = error.status.toString();
+      final details = error.details;
+      if (details is Map) {
+        reason = (details['reason'] ?? details['error'] ?? 'none').toString();
+      } else if (details is String && details.trim().isNotEmpty) {
+        reason = details.trim(); // gateway/HTML/plaintext 등 비-JSON 본문
+      }
+    } else if (error != null) {
+      status = 'exception';
+      reason = 'type:${error.runtimeType}';
+    }
+    // Sentry tag 길이/카디널리티 가드(~200자 제한)
+    if (reason.length > 80) reason = reason.substring(0, 80);
+    return (status: status, reason: reason);
+  }
+
+  /// 사용자 상태에 따른 정상 결과인가 — Sentry 로 보고하지 않는다.
+  ///
+  /// PICNIC-APP-5FM: 1.3.5+130504 의 vote_failed 는 전부 잔액 부족(409)과
+  /// 마감(403)이었고 서버 오류는 0건이었다. UI 가 이미 안내하는 상태라 결함
+  /// 신호가 아니다. 상태 코드와 reason 이 짝으로 맞을 때만 제외한다.
+  static bool isExpectedVoteOutcome({
+    required String status,
+    required String reason,
+  }) =>
+      (status == '409' && reason == 'WALLET_INSUFFICIENT_BALANCE') ||
+      (status == '403' && reason == 'VOTE_ENDED');
+
   static String resolveVoteFailureMessage({
     required Object? error,
     required String reLoginMessage,

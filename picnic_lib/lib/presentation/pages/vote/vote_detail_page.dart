@@ -550,7 +550,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       ),
       hashtag:
           '#Picnic #Vote #PicnicApp #${getLocaleTextFromJson(ref.read(asyncVoteDetailProvider(voteId: widget.voteId, votePortal: widget.votePortal)).value!.title).replaceAll(' ', '')}',
-      downloadLink: await createBranchLink(
+      downloadLink: await createShareLink(
         getLocaleTextFromJson(
           ref
               .read(

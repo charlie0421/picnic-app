@@ -1,7 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
+import 'package:picnic_lib/data/storage/non_web_local_storage.dart';
 import 'package:picnic_lib/data/storage/pending_ad_reward_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+// ignore: depend_on_referenced_packages
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+
+/// setString 이 false 를 돌려주는 플랫폼 — 실제 디스크 쓰기 실패와 같은 신호.
+class _RejectingPreferencesStore extends SharedPreferencesStorePlatform {
+  final values = <String, Object>{};
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async =>
+      false;
+
+  @override
+  Future<Map<String, Object>> getAll() async => Map.of(values);
+
+  @override
+  Future<bool> remove(String key) async => values.remove(key) != null;
+
+  @override
+  Future<bool> clear() async {
+    values.clear();
+    return true;
+  }
+}
 
 class MemoryStorage implements LocalStorage {
   final values = <String, String>{};
@@ -168,6 +193,43 @@ void main() {
           kept.firstWhere((e) => e.reference == ref(1)).state,
           PendingAdRewardLocalState.ackPending,
         );
+      },
+    );
+  });
+
+  group('실제 저장소 쓰기 실패', () {
+    // 합성 사용자 식별자. 영숫자만으로 된 ID 도 오류 문구에 남으면 그대로 노출된다.
+    const owners = <String>[
+      '7a6b5c4d-3e2f-4a1b-8c9d-0e1f2a3b4c5d',
+      'SyntheticOwner0042',
+    ];
+
+    test(
+      'add and markAckPending propagate the failure without the owner id',
+      () async {
+        SharedPreferences.resetStatic();
+        SharedPreferencesStorePlatform.instance = _RejectingPreferencesStore();
+        final store = PendingAdRewardStore(NonWebLocalStorage());
+
+        for (final owner in owners) {
+          for (final write in <Future<void> Function()>[
+            () => store.add(owner, ref(1)),
+            () => store.markAckPending(owner, ref(1)),
+          ]) {
+            Object? caught;
+            try {
+              await write();
+            } catch (error) {
+              caught = error;
+            }
+            // 실패 신호는 그대로 호출자에게 간다 — 광고 표시를 멈추는 근거다.
+            expect(caught, isStateError);
+            expect(caught.toString(), isNot(contains(owner)));
+            expect(caught.toString(), isNot(contains(ref(1).id)));
+          }
+          // 실패한 쓰기가 캐시에 남아 다음 읽기에서 성공처럼 보이면 안 된다.
+          expect(await store.readAll(owner), isEmpty);
+        }
       },
     );
   });

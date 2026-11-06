@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/dialogs/simple_dialog.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/ad_platform.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/tapjoy_failure.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:tapjoy_offerwall/tapjoy_offerwall.dart';
 
@@ -91,18 +92,21 @@ class TapjoyPlatform extends AdPlatform {
   Future<bool> _setupTapjoyUser() async {
     final userId = supabase.auth.currentUser?.id;
     if (userId == null || userId.isEmpty) {
-      _reportUserSetupFailure('로그인 사용자 없음');
+      _reportUserSetupFailure(TapjoyFailureKind.noUser, '로그인 사용자 없음');
       return false;
     }
 
     if (_awaitingUserId) {
-      _reportUserSetupFailure('setUserID 가 이미 진행 중');
+      _reportUserSetupFailure(TapjoyFailureKind.busy, 'setUserID 가 이미 진행 중');
       return false;
     }
     // 다른 계정의 시도가 종료되지 않았다면 새 요청을 보내지 않는다. 보내면
     // 늦은 그 결과가 이 시도의 결과로 둔갑해 적립이 엉킨다.
     if (_unresolvedUserId != null && _unresolvedUserId != userId) {
-      _reportUserSetupFailure('다른 계정의 setUserID 가 아직 종료되지 않음');
+      _reportUserSetupFailure(
+        TapjoyFailureKind.otherAccountPending,
+        '다른 계정의 setUserID 가 아직 종료되지 않음',
+      );
       return false;
     }
     _unresolvedUserId = userId;
@@ -110,14 +114,24 @@ class TapjoyPlatform extends AdPlatform {
 
     startPerformanceLog('사용자 설정');
     final settled = Completer<bool>();
+    var failureKind = TapjoyFailureKind.timeout;
     var failureReason = '${_userIdTimeout.inSeconds}s 안에 응답이 오지 않음';
+    Object? failureError;
 
     // terminal 이벤트가 왔다는 것이 소유권 해제 조건이다. timeout 은 해제하지
     // 않는다 — 해제하면 다른 계정으로 바뀐 뒤의 시도가 늦은 결과를 물려받는다.
-    void settle(bool ok, [String? reason]) {
+    void settle(
+      bool ok, {
+      TapjoyFailureKind? kind,
+      String? reason,
+      Object? error,
+    }) {
       _unresolvedUserId = null;
+      if (settled.isCompleted) return;
+      if (kind != null) failureKind = kind;
       if (reason != null) failureReason = reason;
-      if (!settled.isCompleted) settled.complete(ok);
+      failureError = error;
+      settled.complete(ok);
     }
 
     try {
@@ -128,13 +142,22 @@ class TapjoyPlatform extends AdPlatform {
           endPerformanceLog('사용자 설정');
           settle(true);
         },
-        onSetUserIDFailure: (error) =>
-            settle(false, error?.toString() ?? 'setUserID 실패'),
+        onSetUserIDFailure: (error) => settle(
+          false,
+          kind: TapjoyFailureKind.sdkFailure,
+          reason: error?.toString() ?? 'setUserID 실패',
+          error: error,
+        ),
       );
     } catch (error) {
       // 채널 호출 자체가 실패했다 — 네이티브가 실행되지 않았다고 보고 소유권을
       // 놓는다. 여기서 붙잡으면 올 수 없는 이벤트를 기다리며 영구히 잠긴다.
-      settle(false, error.toString());
+      settle(
+        false,
+        kind: TapjoyFailureKind.channelFailure,
+        reason: error.toString(),
+        error: error,
+      );
     }
 
     final ok = await settled.future.timeout(
@@ -142,19 +165,61 @@ class TapjoyPlatform extends AdPlatform {
       onTimeout: () => false,
     );
     _awaitingUserId = false;
-    if (!ok) _reportUserSetupFailure(failureReason);
+    if (!ok) {
+      _reportUserSetupFailure(failureKind, failureReason, error: failureError);
+    }
     return ok;
   }
 
   /// 사용자 ID 확정 실패를 한 번만 알린다.
   ///
-  /// `logAdLoadFailure` 가 이미 다이얼로그를 띄운다(ad_platform.dart:459,478).
-  /// 그래서 여기서 다이얼로그를 또 띄우지 않는다 — 같은 실패에 두 개가 쌓인다.
-  /// 애니메이션 정리만 직접 한다.
-  void _reportUserSetupFailure(String reason) {
-    logAdLoadFailure('Tapjoy', reason, 'mission', reason, StackTrace.current);
+  /// [_reportFailure] 가 이미 다이얼로그를 띄운다. 그래서 여기서 다이얼로그를
+  /// 또 띄우지 않는다 — 같은 실패에 두 개가 쌓인다. 애니메이션 정리만 직접 한다.
+  void _reportUserSetupFailure(
+    TapjoyFailureKind kind,
+    String reason, {
+    Object? error,
+  }) {
+    _reportFailure(
+      TapjoyFailure.classify(
+        stage: TapjoyFailureStage.setUserId,
+        kind: kind,
+        sdkError: error,
+        stackTrace: StackTrace.current,
+      ),
+      reason,
+      // 예전 이 단계는 채널 예외도 reason 문자열로 보고했다.
+      legacyInput: reason,
+      error: error,
+    );
     if (context.mounted && !isDisposed) {
       stopAllAnimations();
+    }
+  }
+
+  /// 실패 다이얼로그를 띄우고, 보고할 실패면 분류한 보고를 보낸다.
+  ///
+  /// PICNIC-APP-5KT/5KN/5KA: 예전에는 SDK 원문 문자열을 그대로 Sentry 로
+  /// 보냈다. 다이얼로그와 보고 제외 판단은 그대로 두고, Sentry 에는 닫힌 값만
+  /// 담은 [TapjoyFailure] 를 보낸다. [reason] 원문은 로컬 로그와 판단에만 쓴다.
+  ///
+  /// 예전 원문 보고는 앱 공통 beforeSend 필터도 거쳤다. 분류 보고는 타입이
+  /// 달라 그 필터가 원문을 보지 못하므로, 같은 판단을 여기서 먼저 한다.
+  /// [legacyInput] 은 예전 코드가 `logAdLoadFailure` 에 넘기던 값 그대로다 —
+  /// 다이얼로그 판단과 공통 필터를 예전과 같은 입력으로 돌리기 위해서다.
+  void _reportFailure(
+    TapjoyFailure failure,
+    String reason, {
+    required Object legacyInput,
+    Object? error,
+  }) {
+    logError(
+      '${failure.stage.name}/${failure.kind.name}: $reason',
+      error: error,
+    );
+    if (showAdLoadFailureDialog('Tapjoy', legacyInput, reason) &&
+        !TapjoyFailure.droppedByGlobalFilter(legacyInput)) {
+      reportTapjoyFailure(failure);
     }
   }
 
@@ -169,10 +234,19 @@ class TapjoyPlatform extends AdPlatform {
         logInfo('플레이스먼트 요청 성공');
       },
       onRequestFailure: (placement, error) {
-        // `logAdLoadFailure` 가 이미 다이얼로그를 띄운다. 여기서 또 띄우면 두
+        // `_reportFailure` 가 이미 다이얼로그를 띄운다. 여기서 또 띄우면 두
         // 개가 쌓인다 — main 에 있던 기존 결함이다. 애니메이션 정리만 한다.
-        logAdLoadFailure(
-            'Tapjoy', error, 'mission', error.toString(), StackTrace.current);
+        _reportFailure(
+          TapjoyFailure.classify(
+            stage: TapjoyFailureStage.placementRequest,
+            kind: TapjoyFailureKind.sdkFailure,
+            sdkError: error,
+            stackTrace: StackTrace.current,
+          ),
+          error.toString(),
+          legacyInput: error ?? error.toString(),
+          error: error,
+        );
         if (context.mounted && !isDisposed) {
           stopAllAnimations();
         }
@@ -199,10 +273,23 @@ class TapjoyPlatform extends AdPlatform {
       _currentPlacement!.setEntryPoint(TJEntryPoint.entryPointStore);
       await _currentPlacement!.requestContent();
     } else {
-      logAdLoadFailure('Tapjoy', '플레이스먼트 생성 실패', 'mission', '플레이스먼트 생성 실패',
-          StackTrace.current);
+      _reportFailure(
+        TapjoyFailure.classify(
+          stage: TapjoyFailureStage.placementCreate,
+          kind: TapjoyFailureKind.missingPlacement,
+          stackTrace: StackTrace.current,
+        ),
+        '플레이스먼트 생성 실패',
+        legacyInput: '플레이스먼트 생성 실패',
+      );
     }
   }
+
+  /// Sends one classified failure to Sentry. Tests override it to record the
+  /// report.
+  @visibleForTesting
+  void reportTapjoyFailure(TapjoyFailure failure) =>
+      unawaited(sendTapjoyFailureReport(failure));
 
   @override
   Future<void> handleError(error, StackTrace? stackTrace) async {

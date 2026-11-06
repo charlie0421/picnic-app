@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:picnic_lib/core/utils/store_launcher.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/overlay_notifier.dart';
 import 'package:picnic_lib/presentation/widgets/ui/smooth_circular_countdown.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
 class UpdateDialog extends ConsumerStatefulWidget {
   final Widget child;
@@ -91,10 +91,7 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
                     AppColors.grey900,
                   ).copyWith(decoration: TextDecoration.underline),
                 ),
-                onPressed: () => _launchAppStore(
-                  latestInfo.url ?? '',
-                  AppLocalizations.of(context).update_cannot_open_appstore,
-                ),
+                onPressed: () => _launchAppStore(latestInfo.url ?? ''),
               ),
               SizedBox(width: 8.w),
               SmoothCircularCountdown(
@@ -120,13 +117,12 @@ class _UpdateDialogState extends ConsumerState<UpdateDialog> {
     return widget.child;
   }
 
-  void _launchAppStore(String url, message) async {
-    if (await canLaunchUrlString(url)) {
-      // App Store / Play Store URL 은 externalApplication 으로 열어야 OS 가
-      // 외부 스토어 앱으로 deep-link 함 (PICNIC-APP-4ED 참고).
-      await launchUrlString(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw message;
+  /// 권장 업데이트는 닫을 수 있는 안내라 실패해도 앱 사용을 막지 않는다.
+  /// 예전처럼 문구를 던지지 않고 닫힌 값으로만 보고한다 (PICNIC-APP-45D).
+  Future<void> _launchAppStore(String url) async {
+    final result = await StoreLauncher.open(url);
+    if (result != StoreLaunchResult.opened) {
+      StoreLauncher.reportFailure(result, 'update_recommend');
     }
   }
 }

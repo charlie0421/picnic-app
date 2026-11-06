@@ -1496,26 +1496,19 @@ class _VotingDialogState extends ConsumerState<VotingDialog> {
   void _reportVoteFailure(Object? error, {required bool afterInvoke}) {
     // 텔레메트리는 best-effort — 어떤 경우에도 복구 경로를 깨지 않는다.
     try {
+      final (:status, :reason) = VotingDialogHelper.describeVoteFailure(error);
+      // 잔액 부족·마감은 UI 가 안내하는 정상 결과다 (PICNIC-APP-5FM). 세션
+      // 상한도 소모하지 않는다.
+      if (VotingDialogHelper.isExpectedVoteOutcome(
+        status: status,
+        reason: reason,
+      )) {
+        return;
+      }
       // 세션당 상한. 교차 사용자 스파이크는 Sentry inbound spike-protection 위임.
       if (_voteFailReportCount >= 50) return;
       _voteFailReportCount++;
 
-      String status = 'unknown';
-      String reason = 'none';
-      if (error is FunctionException) {
-        status = error.status.toString();
-        final details = error.details;
-        if (details is Map) {
-          reason = (details['reason'] ?? details['error'] ?? 'none').toString();
-        } else if (details is String && details.trim().isNotEmpty) {
-          reason = details.trim(); // gateway/HTML/plaintext 등 비-JSON 본문
-        }
-      } else if (error != null) {
-        status = 'exception';
-        reason = 'type:${error.runtimeType}';
-      }
-      // Sentry tag 길이/카디널리티 가드(~200자 제한)
-      if (reason.length > 80) reason = reason.substring(0, 80);
       final phase = afterInvoke ? 'post_invoke' : 'invoke';
 
       unawaited(

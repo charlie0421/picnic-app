@@ -1,13 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/utils/store_launcher.dart';
 import 'package:picnic_lib/l10n/app_localizations.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
 import 'package:picnic_lib/ui/style.dart';
-import 'package:url_launcher/url_launcher_string.dart';
 
-class ForceUpdateOverlay extends StatelessWidget {
+class ForceUpdateOverlay extends StatefulWidget {
   final UpdateInfo updateInfo;
 
   const ForceUpdateOverlay({super.key, required this.updateInfo});
+
+  @override
+  State<ForceUpdateOverlay> createState() => _ForceUpdateOverlayState();
+}
+
+class _ForceUpdateOverlayState extends State<ForceUpdateOverlay> {
+  /// 마지막 시도가 실패했는가. 실패하면 안내 문구를 보이고 버튼은 그대로
+  /// 두어 다시 시도할 수 있게 한다 — 이 화면은 떠날 수 없다 (PICNIC-APP-45D).
+  bool _launchFailed = false;
+
+  /// 시도 번호. 늦게 끝난 이전 시도가 더 새 시도의 결과를 덮지 않게 한다.
+  int _attempt = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -30,12 +42,16 @@ class ForceUpdateOverlay extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
+                  onPressed: _launchAppStore,
                   child: Text(AppLocalizations.of(context).update_button),
-                  onPressed: () => _launchAppStore(
-                    url ?? '',
-                    AppLocalizations.of(context).update_cannot_open_appstore,
-                  ),
                 ),
+                if (_launchFailed) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    AppLocalizations.of(context).update_cannot_open_appstore,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ],
             ),
           ),
@@ -44,19 +60,17 @@ class ForceUpdateOverlay extends StatelessWidget {
     );
   }
 
-  String get forceVersion => updateInfo.forceVersion;
+  String get forceVersion => widget.updateInfo.forceVersion;
 
-  String? get url => updateInfo.url;
+  String? get url => widget.updateInfo.url;
 
-  void _launchAppStore(String url, String message) async {
-    if (await canLaunchUrlString(url)) {
-      // App Store / Play Store URL 은 externalApplication 으로 열어야 OS 가
-      // 외부 스토어 앱으로 deep-link 함. platformDefault(iOS = SFSafariView
-      // Controller) 는 store URL 인텐트 미스매치로 _failedSafariViewController
-      // LoadException 을 던짐 (PICNIC-APP-4ED: 169u/330e).
-      await launchUrlString(url, mode: LaunchMode.externalApplication);
-    } else {
-      throw message;
-    }
+  Future<void> _launchAppStore() async {
+    final attempt = ++_attempt;
+    final result = await StoreLauncher.open(url ?? '');
+    if (attempt != _attempt) return; // 더 새 시도가 있다
+    final failed = result != StoreLaunchResult.opened;
+    if (failed) StoreLauncher.reportFailure(result, 'force_update');
+    if (!mounted) return;
+    setState(() => _launchFailed = failed);
   }
 }

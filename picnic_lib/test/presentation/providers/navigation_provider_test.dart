@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:logger/logger.dart';
 import 'package:picnic_lib/core/constatns/constants.dart';
 import 'package:picnic_lib/data/models/common/navigation.dart';
 import 'package:picnic_lib/data/storage/local_storage.dart';
@@ -49,6 +50,36 @@ class FakeLocalStorage implements LocalStorage {
 
   /// Retrieve what was stored (for assertions).
   String? operator [](String key) => _store[key];
+}
+
+/// 탭/포털 선호 저장이 실패하는 저장소. [synchronous] 면 Future 를 만들기
+/// 전에 던지고, 아니면 실패한 Future 를 돌려준다. 오류 문구에는 노출되면 안
+/// 되는 합성 비밀값을 싣는다.
+class FailingLocalStorage implements LocalStorage {
+  FailingLocalStorage({required this.synchronous});
+
+  final bool synchronous;
+  final attemptedKeys = <String>[];
+
+  static const secret = 'fake-secret-storage-detail';
+
+  @override
+  Future<void> saveData(String key, String value) {
+    attemptedKeys.add(key);
+    final error = StateError('$secret:$key:$value');
+    if (synchronous) throw error;
+    return Future<void>.error(error, StackTrace.fromString('$secret-stack'));
+  }
+
+  @override
+  Future<String?> loadData(String key, dynamic defaultValue) async =>
+      defaultValue?.toString();
+
+  @override
+  Future<void> removeData(String key) async {}
+
+  @override
+  Future<void> clearStorage() async {}
 }
 
 void main() {
@@ -1001,6 +1032,132 @@ void main() {
       expect(state().voteNavigationStack!.length, 2);
       expect(state().drawerNavigationStack!.length, 2);
       expect(state().signUpNavigationStack!.length, 2);
+    });
+  });
+
+  // ========================================================================
+  // 선호 저장 실패 (PICNIC-APP-5N2 계열)
+  // ========================================================================
+  group('preference persistence failure', () {
+    // 탭/포털 선호 저장은 다음 실행의 편의일 뿐이다. 저장이 실패해도 화면 전환은
+    // 끝나야 하고, 실패가 미처리 Future/zone 오류로 새거나 오류 객체·스택·키·값이
+    // 로그로 나가면 안 된다.
+    final scenarios =
+        <
+          ({
+            String name,
+            String key,
+            void Function() arrange,
+            void Function() act,
+            void Function() verify,
+          })
+        >[
+          (
+            name: 'setPortal',
+            key: 'portalString',
+            arrange: () {},
+            act: () => notifier().setPortal(PortalType.pic),
+            verify: () {
+              expect(state().portalType, PortalType.pic);
+              expect(state().currentScreen, isA<PicHomeScreen>());
+              expect(state().voteNavigationStack!.peek(), isA<PicHomePage>());
+            },
+          ),
+          (
+            name: 'vote index',
+            key: 'voteBottomNavigationIndex',
+            arrange: () {},
+            act: () => notifier().setBottomNavigationIndex(1),
+            verify: () {
+              expect(state().voteBottomNavigationIndex, 1);
+              expect(state().voteNavigationStack!.length, 1);
+            },
+          ),
+          (
+            name: 'pic index',
+            key: 'picBottomNavigationIndex',
+            arrange: () => notifier().setPortal(PortalType.pic),
+            act: () => notifier().setBottomNavigationIndex(1),
+            verify: () {
+              expect(state().picBottomNavigationIndex, 1);
+              expect(state().currentScreen, isA<PicHomeScreen>());
+            },
+          ),
+          (
+            name: 'community index',
+            key: 'communityBottomNavigationIndex',
+            arrange: () => notifier().setPortal(PortalType.community),
+            act: () => notifier().setBottomNavigationIndex(1),
+            verify: () {
+              expect(state().communityBottomNavigationIndex, 1);
+              expect(state().voteNavigationStack!.length, 1);
+            },
+          ),
+          (
+            name: 'novel index',
+            key: 'novelBottomNavigationIndex',
+            arrange: () {
+              notifier().setPortal(PortalType.novel);
+              notifier().setNovelCurrentPage(const Text('Novel Detail'));
+            },
+            act: () => notifier().setBottomNavigationIndex(0),
+            verify: () {
+              expect(state().novelBottomNavigationIndex, 0);
+              expect(state().currentScreen, isA<NovelHomeScreen>());
+              // 상세 페이지가 쌓여 있던 스택이 탭 루트로 초기화됐다.
+              expect(state().voteNavigationStack!.length, 1);
+            },
+          ),
+        ];
+
+    for (final synchronous in [false, true]) {
+      final mode = synchronous ? 'synchronously' : 'asynchronously';
+      for (final scenario in scenarios) {
+        test('${scenario.name} completes when saving fails $mode', () async {
+          scenario.arrange();
+          final failing = FailingLocalStorage(synchronous: synchronous);
+          globalStorage = failing;
+          final warnings = <LogEvent>[];
+          void listener(LogEvent event) {
+            if (event.level == Level.warning) warnings.add(event);
+          }
+
+          Logger.addLogListener(listener);
+          addTearDown(() => Logger.removeLogListener(listener));
+
+          scenario.act();
+          // 실패한 Future 가 처리되지 않았다면 이 대기 중에 zone 오류로 터진다.
+          await pumpEventQueue();
+
+          expect(failing.attemptedKeys, [scenario.key]);
+          scenario.verify();
+          expect(warnings, hasLength(1));
+          final warning = warnings.single;
+          expect(warning.error, isNull);
+          expect(warning.stackTrace, isNull);
+          final message = warning.message.toString();
+          expect(message, isNot(contains(FailingLocalStorage.secret)));
+          expect(message, isNot(contains(scenario.key)));
+        });
+      }
+    }
+
+    test('a successful save logs no warning', () async {
+      final warnings = <LogEvent>[];
+      void listener(LogEvent event) {
+        if (event.level == Level.warning) warnings.add(event);
+      }
+
+      Logger.addLogListener(listener);
+      addTearDown(() => Logger.removeLogListener(listener));
+
+      notifier().setPortal(PortalType.community);
+      notifier().setBottomNavigationIndex(1);
+      await pumpEventQueue();
+
+      expect(fakeStorage['portalString'], 'community');
+      expect(fakeStorage['communityBottomNavigationIndex'], '1');
+      expect(warnings, isEmpty);
     });
   });
 }
