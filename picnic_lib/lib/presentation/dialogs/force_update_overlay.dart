@@ -18,6 +18,9 @@ class _ForceUpdateOverlayState extends State<ForceUpdateOverlay> {
   /// 두어 다시 시도할 수 있게 한다 — 이 화면은 떠날 수 없다 (PICNIC-APP-45D).
   bool _launchFailed = false;
 
+  /// 시도 번호. 늦게 끝난 이전 시도가 더 새 시도의 결과를 덮지 않게 한다.
+  int _attempt = 0;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -62,7 +65,9 @@ class _ForceUpdateOverlayState extends State<ForceUpdateOverlay> {
   String? get url => widget.updateInfo.url;
 
   Future<void> _launchAppStore() async {
+    final attempt = ++_attempt;
     final result = await StoreLauncher.open(url ?? '');
+    if (attempt != _attempt) return; // 더 새 시도가 있다
     final failed = result != StoreLaunchResult.opened;
     if (failed) StoreLauncher.reportFailure(result, 'force_update');
     if (!mounted) return;

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,6 +114,29 @@ void main() {
     expect(find.text(message), findsOneWidget);
     expect(reports, [(StoreLaunchResult.failed, 'force_update')]);
   });
+
+  testWidgets(
+    'an older attempt that fails late does not hide a newer success',
+    (tester) async {
+      final first = Completer<bool>();
+      var calls = 0;
+      StoreLauncher.debugLauncher = (url) {
+        calls++;
+        return calls == 1 ? first.future : Future.value(true);
+      };
+      await pumpOverlay(tester);
+
+      await tester.tap(find.byType(ElevatedButton)); // A: pending
+      await tester.pump();
+      await tapUpdate(tester); // B: opened
+      first.complete(false); // A finishes late with a refusal
+      await tester.pumpAndSettle();
+
+      expect(calls, 2);
+      expect(find.text(message), findsNothing);
+      expect(reports, isEmpty, reason: 'a superseded attempt is not reported');
+    },
+  );
 
   testWidgets('an empty URL does not call the launcher', (tester) async {
     StoreLauncher.debugLauncher = (url) async {
