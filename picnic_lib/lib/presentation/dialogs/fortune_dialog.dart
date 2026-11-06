@@ -219,7 +219,7 @@ class _FortunePageState extends ConsumerState<FortunePage> {
                               hashtag: AppLocalizations.of(
                                       navigatorKey.currentContext!)
                                   .goonghap_share_hashtag,
-                              downloadLink: await createBranchLink(
+                              downloadLink: await createShareLink(
                                   getLocaleTextFromJson(fortune.artist.name),
                                   '${Environment.appLinkPrefix}/community/fortune/${widget.artistId}'),
                               onStart: () {

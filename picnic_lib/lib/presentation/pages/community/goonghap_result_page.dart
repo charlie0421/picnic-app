@@ -629,7 +629,7 @@ class _GoonghapResultPageState
       _shareKey,
       message: _shareMessage,
       hashtag: hashtag,
-      downloadLink: await createBranchLink(
+      downloadLink: await createShareLink(
         getLocaleTextFromJson(goonghap.artist.name, context),
         '${Environment.appLinkPrefix}/community/goonghap/${goonghap.artist.id}',
       ),
