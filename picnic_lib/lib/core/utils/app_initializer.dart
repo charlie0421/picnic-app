@@ -785,12 +785,13 @@ class AppInitializer {
   static void _logBanToSentry(bool isVirtualDevice) {
     Future.microtask(() async {
       try {
-        final deviceId = await DeviceManager.getDeviceId();
         await Sentry.captureMessage(
           'Device banned detected',
           withScope: (scope) async {
-            scope.setTag('ban.virtual_device', isVirtualDevice.toString());
-            scope.setTag('ban.device_id', deviceId);
+            // 기기 id 원문은 보내지 않는다 (PICNIC-APP-5GZ).
+            AppInitializerHelper.banReportTags(
+              isVirtualDevice: isVirtualDevice,
+            ).forEach(scope.setTag);
             try {
               final info = await DeviceInfoPlugin().androidInfo;
               scope.setContexts('device', {
