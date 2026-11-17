@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>피크닉 1.3.6 (130607) 테스트 항목</title>
+<style>
+  body { font-family: -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; max-width: 960px; margin: 2rem auto; padding: 0 1rem; line-height: 1.6; color: #1f2328; }
+  h1 { font-size: 1.6rem; margin-bottom: .2rem; }
+  h2 { font-size: 1.2rem; margin-top: 2.2rem; border-bottom: 2px solid #d0d7de; padding-bottom: .3rem; }
+  .meta { color: #57606a; font-size: .9rem; }
+  table { border-collapse: collapse; width: 100%; margin: .8rem 0; font-size: .93rem; }
+  th, td { border: 1px solid #d0d7de; padding: .5rem .6rem; vertical-align: top; text-align: left; }
+  th { background: #f6f8fa; }
+  td.no { width: 3rem; text-align: center; font-weight: 600; }
+  td.result { width: 7.5rem; }
+  ol, ul { margin: .3rem 0; padding-left: 1.3rem; }
+  .warn { background: #fff8c5; border-left: 4px solid #d4a72c; padding: .7rem 1rem; margin: 1rem 0; }
+  .note { background: #ddf4ff; border-left: 4px solid #54aeff; padding: .7rem 1rem; margin: 1rem 0; }
+  .prio { display: inline-block; font-size: .78rem; font-weight: 600; padding: 0 .4rem; border-radius: 4px; background: #ffebe9; color: #a40e26; }
+  code { background: #f6f8fa; padding: .1rem .3rem; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<h1>피크닉 1.3.6 (130607) 테스트 항목</h1>
+<p class="meta">2026-11-06 · 대상: TestFlight(iOS) · Google Play 내부 테스트(Android)</p>
+
+<h2>시작 전에 확인하세요</h2>
+<ul>
+  <li>설치한 앱의 버전이 <b>1.3.6 (130607)</b>인지 확인하세요.</li>
+  <li>iOS와 Android를 모두 테스트하세요. 가능하면 각 플랫폼에서 기기 2대 이상을 사용하세요.</li>
+  <li>각 항목의 결과 칸에 <b>통과 / 실패 / 확인 불가</b> 중 하나를 적으세요.</li>
+</ul>
+
+<div class="warn">
+  <b>주의</b>
+  <ul>
+    <li>결제는 <b>테스트 계정과 샌드박스 결제</b>로만 하세요. 실제 카드로 결제하지 마세요.</li>
+    <li>프로필 사진 업로드와 계정 전환은 <b>QA 계정</b>으로만 하세요.</li>
+    <li>회원 탈퇴는 이번 테스트 범위가 아닙니다. 실행하지 마세요.</li>
+  </ul>
+</div>
+
+<h2>1. 앱 실행과 알림 <span class="prio">최우선</span></h2>
+<p>이번 버전에서 알림·앱 실행과 관련된 내부 구성 요소를 업데이트했습니다. 모든 기기에서 먼저 확인하세요.</p>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">1-1</td><td><ol><li>앱을 삭제한 뒤 새로 설치하세요.</li><li>앱을 처음 실행하세요.</li></ol></td><td>앱이 멈추거나 꺼지지 않고 홈 화면까지 열립니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-2</td><td>첫 실행 중에 알림 권한 요청이 나오면 <b>허용</b>을 누르세요.</td><td>권한 요청 창이 한 번 나옵니다. 허용 후 앱이 정상으로 동작합니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-3</td><td>개발팀에 테스트 알림 발송을 요청하세요. 앱은 <b>백그라운드</b>(홈 화면으로 나간 상태)에 두세요.</td><td>알림이 도착합니다. 알림을 누르면 알림 내용에 맞는 화면이 열립니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-4</td><td>앱을 <b>완전히 종료</b>(최근 앱 목록에서 닫기)한 뒤 테스트 알림을 받으세요.</td><td>알림이 도착합니다. 알림을 누르면 앱이 실행되고 알림 내용에 맞는 화면이 열립니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-5</td><td><ol><li>앱을 사용하는 중에 홈 화면으로 나가세요.</li><li>5분 이상 기다리세요.</li><li>앱으로 돌아오세요.</li></ol></td><td>로그인 상태와 보던 화면이 유지됩니다. 앱이 멈추지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-6</td><td>앱을 완전히 종료한 뒤 다른 사람이 보낸 피크닉 공유 링크를 여세요.</td><td>앱이 실행되고 링크에 해당하는 화면이 열립니다.</td><td class="result"></td></tr>
+    <tr><td class="no">1-7</td><td><b>폴더블 기기가 있는 경우에만</b> 화면을 접고 펴면서, 그리고 화면 분할 상태에서 홈·투표·상점 화면을 여세요.</td><td>화면이 잘리거나 겹치지 않습니다. 투표 버튼을 누를 수 있습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>2. 공유</h2>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">2-1</td><td>정상 네트워크에서 투표 또는 콘텐츠의 공유 버튼을 누르세요.</td><td>공유 창이 열리고 링크가 포함됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">2-2</td><td><b>비행기 모드</b>를 켠 상태에서 같은 공유 버튼을 누르세요.</td><td><b>10초 안에</b> 공유 창이 열립니다. 이 경우 앱 다운로드 링크가 들어 있습니다. 화면이 계속 기다리는 상태로 멈추지 않습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>3. 무료충전소 · 광고</h2>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">3-1</td><td>무료충전소에서 광고 보상 항목을 하나씩 열고 광고를 끝까지 보세요. 볼 수 있는 광고 항목을 모두 확인하세요.</td><td>광고가 끝나면 보상이 <b>한 번만</b> 들어옵니다. 잔액이 바로 또는 잠시 후 갱신됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">3-2</td><td>광고를 보는 중에 홈 화면으로 나갔다가 앱으로 돌아오세요.</td><td>앱이 멈추지 않습니다. 보상이 두 번 들어오지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">3-3</td><td>광고 버튼을 빠르게 여러 번 누르세요.</td><td>광고가 하나만 열립니다. 보상이 중복으로 들어오지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">3-4</td><td>"보여줄 광고가 없다"는 안내가 나오면 그 화면을 캡처하세요.</td><td>안내 문구가 자연스럽게 표시되고 앱이 계속 동작합니다. (이 안내는 광고 재고에 따라 나오므로 나오지 않아도 실패가 아닙니다.)</td><td class="result"></td></tr>
+    <tr><td class="no">3-5</td><td>정상 네트워크에서 무료충전소의 오퍼월(미션형 충전) 항목을 여세요.</td><td>오퍼월 목록이 표시됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">3-6</td><td>비행기 모드를 켠 상태에서 같은 오퍼월 항목을 여세요.</td><td>실패 안내가 <b>한 번만</b> 나옵니다. 안내가 여러 번 겹쳐 나오지 않습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>4. 상점 · 별사탕 구매</h2>
+<p>테스트 계정과 샌드박스 결제로만 진행하세요.</p>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">4-1</td><td>상점에서 별사탕 상품 하나를 샌드박스 결제로 구매하세요.</td><td>결제가 끝나면 별사탕이 지급되고 잔액에 반영됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">4-2</td><td>결제 창에서 <b>취소</b>를 누르세요.</td><td>결제가 취소되고 별사탕이 지급되지 않습니다. 오류 화면이 나오지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">4-3</td><td>상점 화면을 새로고침한 직후 바로 다른 화면으로 이동하세요.</td><td>앱이 멈추거나 꺼지지 않습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>5. 투표</h2>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">5-1</td><td>진행 중인 투표에 정상으로 투표하세요.</td><td>투표가 완료되고 결과가 반영됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">5-2</td><td>별사탕이 부족한 계정으로 투표하세요.</td><td>잔액 부족 안내가 나옵니다. 앱이 멈추지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">5-3</td><td><b>마감 직전 투표가 있는 경우에만</b> 마감 시각이 지난 뒤 투표를 시도하세요.</td><td>투표 마감 안내가 나옵니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>6. 프로필 · 계정</h2>
+<p>QA 계정으로만 진행하세요.</p>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">6-1</td><td>프로필 사진 변경에서 사진을 고르고, 자르고, 저장하세요.</td><td>새 사진이 프로필에 반영됩니다.</td><td class="result"></td></tr>
+    <tr><td class="no">6-2</td><td>사진을 고르는 중에 <b>취소</b>를 누르세요.</td><td>기존 사진이 유지됩니다. 오류가 나오지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">6-3</td><td>기기 설정에서 사진 접근 권한을 거부한 뒤 프로필 사진 변경을 시도하세요.</td><td>권한 안내가 나옵니다. 앱이 멈추지 않습니다.</td><td class="result"></td></tr>
+    <tr><td class="no">6-4</td><td><ol><li>계정 A로 로그인하세요.</li><li>로그아웃하세요.</li><li>계정 B로 로그인하세요.</li></ol></td><td>계정 B의 프로필 사진·이름·별사탕 잔액만 보입니다. 계정 A의 정보가 섞여 보이지 않습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>7. 업데이트 안내 화면 (개발팀이 준비한 경우에만)</h2>
+<p>이 항목은 개발팀이 테스트 환경에서 업데이트 안내 조건을 만들어 준 경우에만 진행하세요. 조건이 없으면 "확인 불가"로 적으세요.</p>
+<table>
+  <thead><tr><th>번호</th><th>절차</th><th>기대 결과</th><th>결과</th></tr></thead>
+  <tbody>
+    <tr><td class="no">7-1</td><td>업데이트 안내 화면에서 업데이트 버튼을 누르세요.</td><td>App Store 또는 Play 스토어의 피크닉 페이지가 열립니다.</td><td class="result"></td></tr>
+    <tr><td class="no">7-2</td><td>스토어가 열리지 않는 경우 화면을 확인하세요.</td><td>"앱 스토어를 열 수 없습니다." 문구가 나오고, 버튼을 다시 누를 수 있습니다.</td><td class="result"></td></tr>
+  </tbody>
+</table>
+
+<h2>문제를 발견하면</h2>
+<p>아래 내용을 함께 전달하세요. 시각이 정확하면 개발팀이 오류 기록을 빨리 찾을 수 있습니다.</p>
+<ul>
+  <li>항목 번호 (예: 3-2)</li>
+  <li>기기 모델과 OS 버전 (예: iPhone 15, iOS 27.1)</li>
+  <li>문제가 생긴 <b>시각</b> (분 단위)</li>
+  <li>재현 절차와 재현 여부 (매번 / 가끔 / 한 번)</li>
+  <li>스크린샷 또는 화면 녹화</li>
+</ul>
+<div class="note">계정 비밀번호, 결제 정보, 다른 사람의 개인 정보는 보고에 넣지 마세요.</div>
+
+</body>
+</html>
