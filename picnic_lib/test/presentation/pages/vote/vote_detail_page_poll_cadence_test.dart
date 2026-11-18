@@ -1,5 +1,7 @@
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:picnic_lib/presentation/pages/vote/vote_deadline_refresh.dart';
 import 'package:picnic_lib/presentation/pages/vote/vote_detail_page.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 
@@ -54,9 +56,13 @@ Map<String, dynamic> _voteItemRow({required int id, required int voteTotal}) =>
     };
 
 void main() {
+  /// 화면이 마감 여부와 유예 창을 판정할 때 읽는 시계. 테스트가 직접 옮긴다 —
+  /// `tester.pump` 는 타이머만 흘려보내고 이 시각은 그대로 둔다.
+  late DateTime now;
   late void Function() restore;
 
   setUp(() {
+    now = DateTime.now().toUtc();
     initTestColors();
     VisibilityDetectorController.instance.updateInterval = Duration.zero;
     restore = suppressImageErrors();
@@ -70,7 +76,12 @@ void main() {
   Future<void> pumpPage(WidgetTester tester) async {
     await pumpWidgetAndIgnoreErrors(
       tester,
-      buildTestAppPage(const VoteDetailPage(voteId: 1)),
+      buildTestAppPage(
+        const VoteDetailPage(voteId: 1),
+        extraOverrides: [
+          voteDeadlineClockProvider.overrideWithValue(Clock(() => now)),
+        ],
+      ),
     );
     // 상세 → 아이템 목록 순차 해결 + 첫 렌더까지.
     for (var i = 0; i < 4; i++) {
@@ -78,6 +89,10 @@ void main() {
       drainExpectedImageErrors(tester);
     }
   }
+
+  bool isTotalsPoll(Uri u) =>
+      u.path.endsWith('/vote_item') &&
+      u.queryParameters['select'] == 'id,vote_total';
 
   /// 이후 [seconds]초 동안의 폴링 **tick 수**.
   ///
@@ -90,22 +105,45 @@ void main() {
       await tester.pump(const Duration(seconds: 1));
       drainExpectedImageErrors(tester);
     }
-    return capturedMockRequests
-        .where((u) =>
-            u.path.endsWith('/vote_item') &&
-            u.queryParameters['select'] == 'id,vote_total')
-        .length;
+    return capturedMockRequests.where(isTotalsPoll).length;
+  }
+
+  /// 스크롤이 멎은 직후 0.5초 동안 나간 득표 조회 수. 1초 폴링 tick 이 끼지
+  /// 않도록 [pumpPage] 직후(0.4초 시점)에만 부른다.
+  Future<int> totalsFetchesOnScrollSettle(WidgetTester tester) async {
+    capturedMockRequests.clear();
+    final context = tester.element(find.byType(CustomScrollView));
+    final metrics = FixedScrollMetrics(
+      minScrollExtent: 0,
+      maxScrollExtent: 1000,
+      pixels: 200,
+      viewportDimension: 400,
+      axisDirection: AxisDirection.down,
+      devicePixelRatio: 1,
+    );
+    ScrollStartNotification(
+      metrics: metrics,
+      context: context,
+    ).dispatch(context);
+    ScrollEndNotification(metrics: metrics, context: context).dispatch(context);
+    await tester.pump(const Duration(milliseconds: 500));
+    drainExpectedImageErrors(tester);
+    return capturedMockRequests.where(isTotalsPoll).length;
+  }
+
+  void setupVote({DateTime? stopAt}) {
+    setupMockSupabase({
+      'vote': [_voteRow(stopAt: stopAt)],
+      'vote_item': [
+        _voteItemRow(id: 1, voteTotal: 5000),
+        _voteItemRow(id: 2, voteTotal: 3000),
+      ],
+    });
   }
 
   group('VoteDetailPage poll cadence', () {
     testWidgets('live vote polls every second', (tester) async {
-      setupMockSupabase({
-        'vote': [_voteRow()],
-        'vote_item': [
-          _voteItemRow(id: 1, voteTotal: 5000),
-          _voteItemRow(id: 2, voteTotal: 3000),
-        ],
-      });
+      setupVote();
       await pumpPage(tester);
 
       final polls = await pollTicksOver(tester, 5);
@@ -116,31 +154,81 @@ void main() {
       );
     });
 
-    testWidgets('ended vote polls every 5th tick, decided per tick', (
+    testWidgets(
+      'ended vote polls every 5th tick inside the grace window, decided per tick',
+      (tester) async {
+        // 케이던스 판정이 initState 의 1회 평가면 이 테스트가 잡는다: 그 시점엔
+        // isEnded 가 아직 false 라 종료 투표도 1초 주기로 돌았다 (리뷰에서
+        // 런타임 실측 — 3.5초에 3회). 판정은 tick 마다 이뤄져야 한다.
+        setupVote(stopAt: now.subtract(const Duration(seconds: 10)));
+        await pumpPage(tester);
+
+        final polls = await pollTicksOver(tester, 10);
+        expect(
+          polls,
+          inInclusiveRange(1, 2),
+          reason:
+              '마감 직후에는 늦게 반영되는 득표를 받아야 하므로 폴링을 끊지 않되, '
+              '5번째 tick 에만 폴링한다 (10초에 2회)',
+        );
+      },
+    );
+
+    testWidgets('ended vote stops polling when the grace window closes', (
       tester,
     ) async {
-      // 케이던스 판정이 initState 의 1회 평가면 이 테스트가 잡는다: 그 시점엔
-      // isEnded 가 아직 false 라 종료 투표도 1초 주기로 돌았다 (리뷰에서
-      // 런타임 실측 — 3.5초에 3회). 판정은 tick 마다 이뤄져야 한다.
-      setupMockSupabase({
-        'vote': [
-          _voteRow(
-            stopAt: DateTime.now().toUtc().subtract(const Duration(days: 1)),
-          ),
-        ],
-        'vote_item': [
-          _voteItemRow(id: 1, voteTotal: 5000),
-          _voteItemRow(id: 2, voteTotal: 3000),
-        ],
-      });
+      final stopAt = now.subtract(const Duration(seconds: 10));
+      setupVote(stopAt: stopAt);
       await pumpPage(tester);
 
-      final polls = await pollTicksOver(tester, 5);
+      now = stopAt
+          .add(voteEndedPollGrace)
+          .subtract(const Duration(milliseconds: 1));
       expect(
-        polls,
-        lessThanOrEqualTo(1),
-        reason: '종료된 투표는 5번째 tick 에만 폴링해야 한다 (5초에 ≤1회)',
+        await pollTicksOver(tester, 10),
+        greaterThanOrEqualTo(1),
+        reason: '유예 창이 닫히기 직전까지는 폴링한다',
       );
+
+      now = stopAt.add(voteEndedPollGrace);
+      expect(
+        await pollTicksOver(tester, 10),
+        0,
+        reason: '유예 창이 지나면 득표는 더 바뀌지 않는다 — 조회할 것이 없다',
+      );
+    });
+
+    testWidgets('vote that ended before the grace window never polls', (
+      tester,
+    ) async {
+      setupVote(stopAt: now.subtract(const Duration(days: 1)));
+      await pumpPage(tester);
+
+      expect(
+        await pollTicksOver(tester, 10),
+        0,
+        reason: '오래전에 끝난 투표는 화면을 열어 둬도 득표를 다시 묻지 않는다',
+      );
+    });
+  });
+
+  group('VoteDetailPage scroll-settle refresh', () {
+    testWidgets('live vote fetches totals once when scrolling settles', (
+      tester,
+    ) async {
+      setupVote();
+      await pumpPage(tester);
+
+      expect(await totalsFetchesOnScrollSettle(tester), 1);
+    });
+
+    testWidgets('vote past the grace window fetches nothing on scroll settle', (
+      tester,
+    ) async {
+      setupVote(stopAt: now.subtract(const Duration(days: 1)));
+      await pumpPage(tester);
+
+      expect(await totalsFetchesOnScrollSettle(tester), 0);
     });
   });
 }
