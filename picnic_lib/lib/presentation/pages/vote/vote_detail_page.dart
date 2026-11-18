@@ -123,6 +123,17 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     }
   }
 
+  /// Whether the totals can no longer change, so an automatic refresh has
+  /// nothing to fetch. An unknown deadline keeps the refresh running.
+  bool get _areTotalsFinal {
+    final stopAt = _currentVote?.stopAt;
+    return stopAt != null &&
+        !ref
+            .read(voteDeadlineClockProvider)
+            .now()
+            .isBefore(stopAt.add(voteEndedPollGrace));
+  }
+
   @override
   void didUpdateWidget(covariant VoteDetailPage oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -242,6 +253,9 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
       if (!mounted) return;
       _checkDeadline();
       if (_isBoundaryRefreshPending) return;
+      // Checked after the deadline so a page that notices it late still gets
+      // its final refresh before polling stops.
+      if (_areTotalsFinal) return;
       // Refresh cadence: live votes poll every tick, ended/upcoming every
       // 5th — decided PER TICK. isEnded/isUpcoming are only known after the
       // first build, so choosing the Timer.periodic interval up front always
@@ -294,6 +308,7 @@ class VoteDetailPageState extends ConsumerState<VoteDetailPage>
     if (!mounted) return;
     _checkDeadline();
     if (_isBoundaryRefreshPending) return;
+    if (_areTotalsFinal) return;
     if (_isRefreshingItems || _isSaving) return;
     _isRefreshingItems = true;
     try {

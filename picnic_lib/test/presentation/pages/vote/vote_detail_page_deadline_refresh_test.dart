@@ -120,6 +120,12 @@ void main() {
 
   List<Uri> getRequests(String table) =>
       capturedMockRequests.where((u) => u.path.endsWith('/$table')).toList();
+  Future<void> pumpSeconds(WidgetTester tester, int seconds) async {
+    for (var i = 0; i < seconds; i++) {
+      await pump(tester, const Duration(seconds: 1));
+    }
+  }
+
   VoidCallback expire(WidgetTester tester) {
     final callback = tester
         .widget<CountdownTimer>(find.byType(CountdownTimer))
@@ -360,6 +366,64 @@ void main() {
       expect(getRequests('vote'), hasLength(2));
       await pump(tester, const Duration(seconds: 6));
       await Future.wait([before, after]);
+      await dispose(tester);
+    },
+  );
+
+  testWidgets(
+    'totals keep polling through the grace window after the final refresh, then stop',
+    (tester) async {
+      await pumpPage(tester);
+      expire(tester);
+      await pump(tester, const Duration(seconds: 3));
+      expect(getRequests('vote'), hasLength(1));
+
+      // 마감 직전 표는 서버에서 늦게 합산된다 — 최종 재조회보다 뒤에 올 수 있다.
+      now = now
+          .add(voteEndedPollGrace)
+          .subtract(const Duration(milliseconds: 1));
+      capturedMockRequests.clear();
+      await pumpSeconds(tester, 10);
+      expect(
+        getRequests('vote_item'),
+        isNotEmpty,
+        reason: 'totals that land after the final refresh must still arrive',
+      );
+
+      now = now.add(const Duration(milliseconds: 1));
+      capturedMockRequests.clear();
+      await pumpSeconds(tester, 10);
+      expect(getRequests('vote_item'), isEmpty);
+      expect(getRequests('vote'), isEmpty);
+      await dispose(tester);
+    },
+  );
+
+  testWidgets(
+    'deadline noticed after the grace window still gets one final refresh, then no polling',
+    (tester) async {
+      await pumpPage(tester);
+      // 앱이 마감을 넘겨 한참 멈춰 있다 돌아온 경우: 마감도, 유예 창도 지났다.
+      now = now
+          .add(const Duration(seconds: 20))
+          .add(voteEndedPollGrace)
+          .add(const Duration(seconds: 1));
+      await pump(tester, const Duration(seconds: 1));
+      expect(
+        tester.widget<CountdownTimer>(find.byType(CountdownTimer)).status,
+        VoteStatus.end,
+      );
+      await pump(tester, const Duration(seconds: 3));
+      expect(
+        getRequests('vote'),
+        hasLength(1),
+        reason: 'the page still holds pre-deadline totals',
+      );
+
+      capturedMockRequests.clear();
+      await pumpSeconds(tester, 10);
+      expect(getRequests('vote_item'), isEmpty);
+      expect(getRequests('vote'), isEmpty);
       await dispose(tester);
     },
   );
