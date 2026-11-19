@@ -22,6 +22,8 @@ import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+enum PangleAvailabilityFailure { regionUnsupported, lowCpr }
+
 /// 광고 플랫폼 추상 클래스
 abstract class AdPlatform {
   final WidgetRef ref;
@@ -478,6 +480,13 @@ abstract class AdPlatform {
   ) {
     logger.e(message, error: error);
 
+    if (classifyPangleAvailabilityFailure(platform, error) != null) {
+      if (context.mounted && !isDisposed) {
+        _showTemporarilyUnavailableDialog();
+      }
+      return;
+    }
+
     // 일시적/외부 요인 에러는 Sentry 보고에서 제외
     if (isNonReportableAdError(platform, error, message)) {
       logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
@@ -515,9 +524,15 @@ abstract class AdPlatform {
   /// Sentry 에는 보내지 않는다 — 원문 대신 분류한 보고를 보내는 플랫폼
   /// (Tapjoy)이 이 결과를 보고 직접 보낸다.
   ///
-  /// 보고할 실패면 true, no-fill·네트워크 키워드 등 보고 제외 대상이면 false.
+  /// 보고할 실패면 true, 가용성·no-fill·네트워크 등 보고 제외 대상이면 false.
   @protected
   bool showAdLoadFailureDialog(String platform, dynamic error, String message) {
+    if (classifyPangleAvailabilityFailure(platform, error) != null) {
+      if (context.mounted && !isDisposed) {
+        _showTemporarilyUnavailableDialog();
+      }
+      return false;
+    }
     if (isNonReportableAdError(platform, error, message)) {
       logger.i('$platform 광고 에러 Sentry 보고 제외: $message');
       if (context.mounted && !isDisposed) {
@@ -534,11 +549,37 @@ abstract class AdPlatform {
     return true;
   }
 
+  /// Pangle SDK의 등록된 가용성 사유만 실제 예외 메시지로 분류한다.
+  static PangleAvailabilityFailure? classifyPangleAvailabilityFailure(
+    String platform,
+    dynamic error,
+  ) {
+    if (platform != 'Pangle' ||
+        error is! PlatformException ||
+        error.code != 'LoadFailed') {
+      return null;
+    }
+    final message = error.message?.trim().toLowerCase().replaceAll(
+      RegExp(r'\s+'),
+      ' ',
+    );
+    final normalized = message != null && message.endsWith('.')
+        ? message.substring(0, message.length - 1)
+        : message;
+    return switch (normalized) {
+      'the country/region is currently not supported by pangle' =>
+        PangleAvailabilityFailure.regionUnsupported,
+      'the fill rate for this placement was restricted temporarily due to the low cpr' =>
+        PangleAvailabilityFailure.lowCpr,
+      _ => null,
+    };
+  }
+
   /// Sentry 에 보내지 않아도 되는 광고 에러 감지.
   ///
-  /// 판정은 전적으로 [message] 문자열에 달려 있다(AdMob 의 [LoadAdError] 코드,
-  /// Pangle 의 `LoadFailed` 코드+문구 조합만 예외). 따라서 호출부는 **실제 에러
-  /// 텍스트**를 넘겨야 한다 — 하드코딩한 일반 라벨('… 광고 로드 실패' 등)을
+  /// [message] 문자열과 SDK별 예외 규칙으로 판정한다. Pangle 가용성 사유는
+  /// 예외의 message만 사용한다. 호출부는 **실제 에러 텍스트**를 넘겨야 한다.
+  /// 하드코딩한 일반 라벨('… 광고 로드 실패' 등)을
   /// 넘기면 SDK 초기화 실패·설정 오류 같은 진짜 버그까지 no-fill 로 분류되어
   /// 사용자에겐 "모든 광고 소진"으로 보이고 Sentry 보고까지 막힌다.
   ///
@@ -550,6 +591,9 @@ abstract class AdPlatform {
     dynamic error,
     String message,
   ) {
+    if (classifyPangleAvailabilityFailure(platform, error) != null) {
+      return true;
+    }
     final lowercaseMessage = message.toLowerCase();
 
     if (platform == 'AdMob' && error is LoadAdError) {
@@ -602,6 +646,12 @@ abstract class AdPlatform {
 
     return nonReportableKeywords.any(
       (keyword) => lowercaseMessage.contains(keyword),
+    );
+  }
+
+  void _showTemporarilyUnavailableDialog() {
+    showSimpleDialog(
+      content: AppLocalizations.of(context).label_ads_temporarily_unavailable,
     );
   }
 

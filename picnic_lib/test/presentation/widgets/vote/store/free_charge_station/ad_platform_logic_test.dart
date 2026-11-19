@@ -15,6 +15,107 @@ bool classify(String platform, dynamic error, String message) =>
     AdPlatform.isNonReportableAdError(platform, error, message);
 
 void main() {
+  group('Pangle 가용성 오류 비보고', () {
+    for (final message in [
+      'The country/region is currently not supported by Pangle.',
+      'the fill rate for this placement was restricted temporarily due to the low CPR.',
+    ]) {
+      test(message, () {
+        final error = PlatformException(code: 'LoadFailed', message: message);
+        expect(classify('Pangle', error, error.toString()), isTrue);
+      });
+    }
+  });
+
+  group('classifyPangleAvailabilityFailure 실제 메시지 분류', () {
+    const region = 'the country/region is currently not supported by pangle';
+    const lowCpr =
+        'the fill rate for this placement was restricted temporarily due to the low CPR';
+    final recognized = <String, PangleAvailabilityFailure>{
+      region: PangleAvailabilityFailure.regionUnsupported,
+      '$region.': PangleAvailabilityFailure.regionUnsupported,
+      '  THE Country/Region  is\tcurrently\nnot supported BY PANGLE.  ':
+          PangleAvailabilityFailure.regionUnsupported,
+      lowCpr: PangleAvailabilityFailure.lowCpr,
+      '$lowCpr.': PangleAvailabilityFailure.lowCpr,
+      '  THE fill RATE for this placement was  restricted\nTEMPORARILY due to the low cpr.  ':
+          PangleAvailabilityFailure.lowCpr,
+    };
+    recognized.forEach((message, reason) {
+      test('대소문자·공백·끝 마침표 정규화: $message', () {
+        final error = PlatformException(code: 'LoadFailed', message: message);
+        expect(
+          AdPlatform.classifyPangleAvailabilityFailure('Pangle', error),
+          reason,
+        );
+        expect(classify('Pangle', error, 'unmapped failure'), isTrue);
+      });
+    });
+
+    final rejected = <String, (String, dynamic, String)>{
+      '다른 플랫폼': (
+        'AdMob',
+        PlatformException(code: 'LoadFailed', message: region),
+        region,
+      ),
+      '다른 code': (
+        'Pangle',
+        PlatformException(code: 'InitFailed', message: region),
+        region,
+      ),
+      '일반 Exception': ('Pangle', Exception(region), region),
+      'null message': ('Pangle', PlatformException(code: 'LoadFailed'), ''),
+      'details에만 문구': (
+        'Pangle',
+        PlatformException(code: 'LoadFailed', details: lowCpr),
+        lowCpr,
+      ),
+      '호출부 라벨에만 문구': (
+        'Pangle',
+        PlatformException(code: 'LoadFailed', message: 'invalid slot id'),
+        region,
+      ),
+    };
+    rejected.forEach((label, input) {
+      test('$label 는 분류하지 않고 보고한다', () {
+        final (platform, error, labelMessage) = input;
+        expect(
+          AdPlatform.classifyPangleAvailabilityFailure(platform, error),
+          isNull,
+        );
+        expect(classify(platform, error, labelMessage), isFalse);
+      });
+    });
+
+    for (final message in [
+      'country',
+      'region',
+      'not supported',
+      'restricted',
+      'compliance',
+      'LoadFailed',
+      'This SDK operation is not supported',
+      'This placement is restricted',
+      'Prohibit request ads by compliance. Please check the GDPR consent status.',
+      'internal service error',
+      'Invalid app id configuration',
+      'invalid slot id',
+      '$region. More details',
+      '$region..',
+      '$lowCpr!',
+      'prefix $lowCpr',
+    ]) {
+      test('등록되지 않은 오류는 보고 유지: $message', () {
+        final error = PlatformException(code: 'LoadFailed', message: message);
+        expect(
+          AdPlatform.classifyPangleAvailabilityFailure('Pangle', error),
+          isNull,
+        );
+        expect(classify('Pangle', error, error.toString()), isFalse);
+      });
+    }
+  });
+
   group('no-fill 로 분류되어 Sentry 보고를 생략하는 메시지', () {
     const nonReportable = <String, String>{
       '영문 no fill': 'Ad no fill available',
@@ -103,7 +204,8 @@ void main() {
     test('실제 no-fill 문구는 비보고', () {
       final error = PlatformException(
         code: 'LoadFailed',
-        message: 'request was not filled because of the lack of suitable '
+        message:
+            'request was not filled because of the lack of suitable '
             'ads. Sporadic occurrences of this error are normal. …',
       );
       expect(classify('Pangle', error, error.toString()), isTrue);
@@ -120,7 +222,8 @@ void main() {
     test('Pangle 이 아니면 이 규칙은 적용되지 않는다', () {
       final error = PlatformException(
         code: 'LoadFailed',
-        message: 'request was not filled because of the lack of suitable '
+        message:
+            'request was not filled because of the lack of suitable '
             'ads.',
       );
       expect(classify('AdMob', error, error.toString()), isFalse);
@@ -158,7 +261,10 @@ void main() {
     test('설정 오류 텍스트는 보고 대상', () {
       expect(
         AdPlatform.isNonReportableAdError(
-            'AdMob', StateError('x'), 'Invalid ad unit ID'),
+          'AdMob',
+          StateError('x'),
+          'Invalid ad unit ID',
+        ),
         isFalse,
       );
     });
@@ -168,7 +274,10 @@ void main() {
     test('광고 로드 시간 초과 는 비보고', () {
       expect(
         AdPlatform.isNonReportableAdError(
-            'AdMob', TimeoutException('t'), '광고 로드 시간 초과'),
+          'AdMob',
+          TimeoutException('t'),
+          '광고 로드 시간 초과',
+        ),
         isTrue,
       );
     });
