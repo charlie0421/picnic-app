@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 자체숏폼 로드 실패 리포트의 분류 규칙.
 ///
@@ -25,6 +28,26 @@ void main() {
   );
 
   group('reason', () {
+    for (final status in [401, 403, 429, 500, 503]) {
+      test('FunctionException $status is reported with its status', () {
+        final f = classify(
+          FunctionException(status: status),
+          stage: AdShortformLoadStage.loadAd,
+        );
+        expect(f.reason, 'function:$status');
+      });
+    }
+
+    for (final error in <Object>[
+      const SocketException('synthetic socket error'),
+      const HandshakeException('synthetic TLS error'),
+      http.ClientException('synthetic HTTP client error'),
+    ]) {
+      test('${error.runtimeType} is reported as network', () {
+        expect(classify(error).reason, 'network');
+      });
+    }
+
     test('TimeoutException is reported as timeout', () {
       final f = classify(TimeoutException('initialize'));
       expect(f.reason, 'timeout');
@@ -164,6 +187,56 @@ void main() {
   });
 
   group('sentry payload', () {
+    const sensitiveDetails = 'synthetic-private-response-body';
+    const sensitiveReasonPhrase = 'synthetic-private-reason-phrase';
+    const sensitiveMessage = 'synthetic-private-network-message';
+    const sensitiveUrl = 'https://private.example.test/path?token=synthetic';
+
+    for (final details in <Object>[
+      {'message': sensitiveDetails, 'url': sensitiveUrl},
+      sensitiveDetails,
+    ]) {
+      test(
+        'function response details are absent from the Sentry payload ($details)',
+        () {
+          final f = classify(
+            FunctionException(
+              status: 503,
+              details: details,
+              reasonPhrase: sensitiveReasonPhrase,
+            ),
+            stage: AdShortformLoadStage.loadAd,
+          );
+          final payload = '${f.tags} ${f.extras} ${f.toSentryException()}';
+          expect(f.tags['ad_reason'], 'function:503');
+          for (final sensitive in [
+            sensitiveDetails,
+            sensitiveReasonPhrase,
+            sensitiveUrl,
+          ]) {
+            expect(payload, isNot(contains(sensitive)));
+          }
+        },
+      );
+    }
+
+    for (final error in <Object>[
+      const SocketException(sensitiveMessage),
+      const HandshakeException(sensitiveMessage),
+      http.ClientException(sensitiveMessage, Uri.parse(sensitiveUrl)),
+    ]) {
+      test(
+        '${error.runtimeType} message and URL are absent from the Sentry payload',
+        () {
+          final f = classify(error, stage: AdShortformLoadStage.loadAd);
+          final payload = '${f.tags} ${f.extras} ${f.toSentryException()}';
+          expect(f.tags['ad_reason'], 'network');
+          expect(payload, isNot(contains(sensitiveMessage)));
+          expect(payload, isNot(contains(sensitiveUrl)));
+        },
+      );
+    }
+
     test(
       'tags carry stage, reason and network; extras carry elapsed and url',
       () {

@@ -1,7 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 자체숏폼 광고가 "광고 로드에 실패했습니다" 로 끝난 지점.
 enum AdShortformLoadStage {
@@ -58,7 +61,7 @@ class AdShortformLoadFailure {
 
   final AdShortformLoadStage stage;
 
-  /// `timeout` · `platform:<code>` · `state` · `other`.
+  /// `timeout` · `platform:<code>` · `state` · `function:<status>` · `network` · `other`.
   final String reason;
   final Duration elapsed;
 
@@ -122,6 +125,12 @@ class AdShortformLoadFailure {
       return 'platform:$code';
     }
     if (error is StateError) return 'state';
+    if (error is FunctionException) return 'function:${error.status}';
+    if (error is SocketException ||
+        error is HandshakeException ||
+        error is http.ClientException) {
+      return 'network';
+    }
     return 'other';
   }
 
