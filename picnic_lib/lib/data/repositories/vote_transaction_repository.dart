@@ -31,8 +31,24 @@ class VoteTransactionRepository {
   ///
   /// Deliberately short: each attempt blocks server-side on the per-user wallet
   /// advisory lock until the in-flight transaction finishes, so the wait that
-  /// matters is the invoke itself, not this delay.
+  /// matters is the invoke itself, not this delay. That holds only while the
+  /// vote is open — see [_settleDelay].
   static const _reconcileDelays = [Duration(seconds: 1), Duration(seconds: 3)];
+
+  /// How long a vote that began before the deadline can still commit.
+  ///
+  /// Once the vote has ended, the server rejects a request id it has not seen
+  /// committed straight away, without waiting for an earlier attempt that is
+  /// still running. That attempt started before the deadline and has the
+  /// server's 8s statement timeout to finish, so an invoke after this delay
+  /// gets the settled answer: the stored result if it committed, or ended.
+  static const _settleDelay = Duration(seconds: 10);
+
+  /// Request ids with an attempt whose outcome is unknown and not yet settled.
+  ///
+  /// Kept on the repository, not in the call: auth recovery calls
+  /// [performGeneralVote] again with the same request after a 401.
+  final _inDoubt = <String>{};
 
   Map<String, dynamic>? _errorEnvelope(Object? details) {
     if (details is Map) return Map<String, dynamic>.from(details);
@@ -70,11 +86,17 @@ class VoteTransactionRepository {
         error is SocketException;
   }
 
+  bool _isVoteEnded(Object error) =>
+      error is FunctionException &&
+      error.status == 403 &&
+      '${error.details}'.contains('VOTE_ENDED');
+
   Future<VoteTransactionResultModel> performGeneralVote(
     VoteTransactionRequest request,
   ) async {
     var retries = 0;
     var reconciles = 0;
+    var settled = false;
     while (true) {
       try {
         final response = await client.functions.invoke(
@@ -86,6 +108,7 @@ class VoteTransactionRepository {
             'request_id': request.requestId,
           },
         );
+        _inDoubt.remove(request.requestId);
         return VoteTransactionResultModel.fromJson(
           Map<String, dynamic>.from(response.data as Map),
         );
@@ -97,8 +120,17 @@ class VoteTransactionRepository {
           await delay(Duration(milliseconds: nextJitter(cap + 1)));
           continue;
         }
-        if (!_isOutcomeUnknown(error) ||
-            reconciles >= _reconcileDelays.length) {
+        // "Ended" is not final while an attempt with an unknown outcome may
+        // still commit. Wait it out once; the next answer is the settled one.
+        if (_isVoteEnded(error) && _inDoubt.remove(request.requestId)) {
+          settled = true;
+          await delay(_settleDelay);
+          continue;
+        }
+        final unknown = _isOutcomeUnknown(error);
+        // After the settle wait nothing sent before the deadline is running.
+        if (unknown && !settled) _inDoubt.add(request.requestId);
+        if (!unknown || reconciles >= _reconcileDelays.length) {
           Error.throwWithStackTrace(error, stackTrace);
         }
         await delay(_reconcileDelays[reconciles]);
