@@ -16,6 +16,7 @@ import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/a
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/free_charge_analytics.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart';
 import 'package:picnic_lib/supabase_options.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yet_another_json_isolate/yet_another_json_isolate.dart';
 
@@ -453,13 +454,38 @@ const _ga4B = FreeChargeAdGa4Context(
 
 void main() {
   late RestoreCallback restore;
+  late List<SentryEvent> sentryEvents;
 
-  setUp(() {
+  setUp(() async {
     restore = suppressImageErrors();
     initTestEnvironment();
+    sentryEvents = [];
+    await Sentry.init((options) {
+      options.dsn = 'https://public@o0.ingest.sentry.io/0';
+      options.debug = false;
+      options.enableDartSymbolication = false;
+      options.enableDeduplication = false;
+      options.beforeSend = (event, hint) {
+        sentryEvents.add(event);
+        return null;
+      };
+    });
+    // OS 정보 수집을 위젯의 가짜 시계 밖에서 끝낸다. 이후 이벤트는 pump 의
+    // microtask 처리만으로 beforeSend 에 도착한다(실제 전송은 하지 않는다).
+    await Sentry.captureMessage('test initialization');
+    sentryEvents.clear();
   });
 
-  tearDown(() => restore());
+  tearDown(() async {
+    restore();
+    await Sentry.close();
+  });
+
+  Iterable<SentryEvent> showTimeoutWarnings() => sentryEvents.where(
+    (event) =>
+        event.level == SentryLevel.warning &&
+        event.tags?['admob.stage'] == 'show_submitted',
+  );
 
   late BuildContext hostContext;
 
@@ -606,24 +632,24 @@ void main() {
     expect(ad.showCalls, 1);
 
     await tester.pump(const Duration(seconds: 10));
-    expect(platform.showFailures, hasLength(1));
-    final failure = platform.showFailures.single;
-    expect(failure.error, isA<TimeoutException>());
-    expect(
-      AdPlatform.isNonReportableAdError(
-        'AdMob',
-        failure.error,
-        failure.message,
-      ),
-      isFalse,
-      reason: '표시 콜백 유실은 Sentry 로 보고돼야 한다',
-    );
-    expect(platform.dialogs, [l10n().label_ads_show_fail]);
+    expect(platform.showFailures, isEmpty);
+    expect(platform.dialogs, isEmpty);
+    expect(showTimeoutWarnings(), hasLength(1));
+    final warning = showTimeoutWarnings().single;
+    expect(warning.exceptions ?? [], isEmpty);
+    expect(warning.message, isNotNull);
+    expect(warning.fingerprint, ['admob-show', 'show_submitted']);
+    expect(warning.contexts['admob_show'], {
+      'stage': 'show_submitted',
+      'loaded_elapsed_ms': 10000,
+      'submitted_elapsed_ms': 10000,
+    });
     expect(platform.spinnerStops, 1);
     expect(ad.disposeCalls, 0);
 
     await tester.pump(const Duration(minutes: 1));
-    expect(platform.showFailures, hasLength(1));
+    expect(platform.showFailures, isEmpty);
+    expect(showTimeoutWarnings(), hasLength(1));
 
     // 예전 기대값(화면 dispose → disposeCalls 1)은 틀렸다. ad.show() 를 이미
     // 요청했으므로 onShowed 가 유실됐을 뿐 광고가 떠 있을 수 있다. 여기서
@@ -639,6 +665,81 @@ void main() {
     expect(ad.droppedEvents, isEmpty);
   });
 
+  testWidgets(
+    '제출 타임아웃 뒤 늦은 showed·earned·dismissed 는 원래 보상을 유지하고 UI 를 다시 끝내지 않는다',
+    (tester) async {
+      final platform = await buildPlatform(tester);
+      final ad = await startAndLoad(tester, platform);
+      await tester.pump(const Duration(seconds: 9));
+      expect(platform.spinnerStops, 0);
+      expect(sentryEvents, isEmpty);
+      await tester.pump(const Duration(seconds: 1));
+      expect(platform.spinnerStops, 1);
+      expect(showTimeoutWarnings(), hasLength(1));
+      expect(platform.dialogs, isEmpty);
+      expect(ad.disposeCalls, 0);
+
+      await tester.pump(const Duration(seconds: 2));
+      ad.sdkShowed();
+      ad.sdkShowed();
+      ad.sdkEarn();
+      await tester.pump();
+      expect(platform.polls, ['user-a:claim-1']);
+      ad.sdkDismissed();
+      expect(ad.disposeCalls, 1);
+      expect(platform.spinnerStops, 1);
+      expect(platform.profileRefreshes, 1);
+      expect(platform.showFailures, isEmpty);
+      expect(platform.dialogs, isEmpty);
+      final lateShowed = sentryEvents.where(
+        (event) =>
+            event.level == SentryLevel.info &&
+            event.tags?['admob.stage'] == 'late_showed',
+      );
+      expect(lateShowed, hasLength(1));
+      expect(lateShowed.single.contexts['admob_show'], {
+        'stage': 'late_showed',
+        'loaded_elapsed_ms': 12000,
+        'submitted_elapsed_ms': 12000,
+      });
+      expect(
+        lateShowed.single.breadcrumbs!.where(
+          (breadcrumb) =>
+              breadcrumb.category == 'ad.admob' &&
+              breadcrumb.message == 'late_showed',
+        ),
+        hasLength(1),
+      );
+      expect(showTimeoutWarnings(), hasLength(1));
+      platform.dispose();
+      expect(ad.disposeCalls, 1);
+    },
+  );
+
+  testWidgets('제출 타임아웃 진단에는 사용자·기기 식별자와 기존 원문 breadcrumb 를 추가하지 않는다', (
+    tester,
+  ) async {
+    final platform = await buildPlatform(tester);
+    await Sentry.configureScope((scope) async {
+      await scope.setUser(SentryUser(id: 'private-user-id'));
+      await scope.addBreadcrumb(Breadcrumb(message: 'private raw error'));
+    });
+    final ad = await startAndLoad(tester, platform);
+    await tester.pump(const Duration(seconds: 10));
+    final warning = showTimeoutWarnings().single;
+    expect(warning.user, isNull);
+    expect(warning.breadcrumbs ?? [], isEmpty);
+    expect(warning.toJson().toString(), isNot(contains('private-user-id')));
+    expect(warning.toJson().toString(), isNot(contains('private raw error')));
+    expect(warning.contexts['admob_show'], {
+      'stage': 'show_submitted',
+      'loaded_elapsed_ms': 10000,
+      'submitted_elapsed_ms': 10000,
+    });
+    ad.sdkDismissed();
+    platform.dispose();
+  });
+
   group('R1: 표시 요청 뒤 onShowed 가 유실된 광고', () {
     testWidgets('표시 타임아웃 뒤 새 요청이 와도 earned 가 원 owner·claim 으로 폴링되고 '
         'dismissed 가 한 번 정리한다', (tester) async {
@@ -646,11 +747,15 @@ void main() {
       final adA = await startAndLoad(tester, platform, name: 'A');
       expect(adA.showCalls, 1); // show 요청 제출 — onShowed 는 오지 않는다
       await tester.pump(const Duration(seconds: 10));
-      expect(platform.dialogs, [l10n().label_ads_show_fail]);
+      expect(platform.dialogs, isEmpty);
+      expect(showTimeoutWarnings(), hasLength(1));
 
       final adB = await startAndLoad(tester, platform, name: 'B');
       expect(adA.disposeCalls, 0, reason: '떠 있을 수 있는 A 를 새 요청이 폐기하면 안 된다');
 
+      adA.sdkShowed(); // 옛 showed 는 B 의 스피너를 해제하지 않는다.
+      adA.sdkShowed();
+      expect(platform.spinnerStops, 1);
       adA.sdkEarn();
       await tester.pump();
       expect(platform.polls, ['user-a:claim-1']);
@@ -661,7 +766,9 @@ void main() {
       // B 는 A 의 늦은 이벤트에 영향받지 않는다.
       expect(adB.disposeCalls, 0);
       expect(adB.showCalls, 1);
-      expect(platform.dialogs, hasLength(1));
+      expect(platform.dialogs, isEmpty);
+      expect(platform.showFailures, isEmpty);
+      expect(showTimeoutWarnings(), hasLength(1));
       adB.sdkShowed();
       adB.sdkDismissed();
       expect(adB.disposeCalls, 1);
@@ -678,6 +785,8 @@ void main() {
       platform.dispose();
       expect(ad.disposeCalls, 0);
 
+      ad.sdkShowed();
+      expect(platform.spinnerStops, 1);
       ad.sdkEarn();
       await tester.pump();
       expect(platform.polls, ['user-a:claim-1']);
@@ -787,6 +896,9 @@ void main() {
     final ad = await startAndLoad(tester, platform);
     await tester.pump(const Duration(seconds: 10));
     expect(platform.dialogs, [l10n().label_ads_show_fail]);
+    expect(platform.showFailures, hasLength(1));
+    expect(platform.showFailures.single.error, isA<TimeoutException>());
+    expect(showTimeoutWarnings(), isEmpty);
     expect(platform.spinnerStops, 1);
 
     claim.complete(_TestAdmobPlatform.claimFor('late-claim'));
@@ -813,6 +925,9 @@ void main() {
 
     await tester.pump(const Duration(seconds: 10));
     expect(platform.dialogs, [l10n().label_ads_show_fail]);
+    expect(platform.showFailures, hasLength(1));
+    expect(platform.showFailures.single.error, isA<TimeoutException>());
+    expect(showTimeoutWarnings(), isEmpty);
 
     ad.ssvGate!.complete();
     await tester.pump();

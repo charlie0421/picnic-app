@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:clock/clock.dart';
 import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
 import 'package:picnic_lib/presentation/widgets/anti_abuse/rate_limited_dialog.dart';
@@ -298,7 +299,14 @@ class AdmobShowFlow<T> {
     required void Function() onLoadTimeout,
     required void Function(Object error) onLoadFailed,
     required void Function() onShowStarted,
-    required void Function() onShowTimeout,
+    required void Function(
+      bool submitted,
+      Duration loadedElapsed,
+      Duration? submittedElapsed,
+    )
+    onShowTimeout,
+    void Function(Duration loadedElapsed, Duration? submittedElapsed)?
+    onLateShowed,
     required void Function(Object error) onShowFailed,
     required void Function() onDismissed,
   }) {
@@ -351,12 +359,24 @@ class AdmobShowFlow<T> {
         final loaded = _LoadedAd<T>(ad, disposeAd);
         _pending = loaded;
         var showedFired = false;
+        var submitted = false;
+        var timedOut = false;
+        var lateShowedReported = false;
+        final loadedAt = clock.now();
+        DateTime? submittedAt;
+        Duration loadedElapsed() => clock.now().difference(loadedAt);
+        Duration? submittedElapsed() {
+          final at = submittedAt;
+          return at == null ? null : clock.now().difference(at);
+        }
+
         _watchdog = Timer(showTimeout, () {
           if (!_isCurrent(g)) return;
           _finish(g);
           // 광고가 실제로 떠 있는데 콜백만 유실된 경우일 수 있으므로 여기서
           // ad 를 dispose 하지 않는다.
-          onShowTimeout();
+          timedOut = true;
+          onShowTimeout(submitted, loadedElapsed(), submittedElapsed());
         });
 
         void releaseLoaded() {
@@ -380,6 +400,8 @@ class AdmobShowFlow<T> {
             return true;
           },
           showSubmitted: () {
+            submitted = true;
+            submittedAt ??= clock.now();
             if (identical(_pending, loaded)) _pending = null;
           },
         );
@@ -392,7 +414,13 @@ class AdmobShowFlow<T> {
               // failedToShow 로 넘긴다. 표시 타임아웃 뒤에 늦게 떠도 사용자는
               // 그 광고를 보고 있으므로 세대와 무관하게 수행한다.
               if (identical(_pending, loaded)) _pending = null;
-              if (!_isCurrent(g)) return;
+              if (!_isCurrent(g)) {
+                if (timedOut && !lateShowedReported) {
+                  lateShowedReported = true;
+                  onLateShowed?.call(loadedElapsed(), submittedElapsed());
+                }
+                return;
+              }
               showedFired = true;
               _finish(g);
               onShowStarted();
@@ -729,7 +757,17 @@ class AdmobPlatform extends AdPlatform {
         logger.i('[$id] 광고가 전체 화면으로 표시됨');
         stopAllAnimations();
       },
-      onShowTimeout: () {
+      onShowTimeout: (submitted, loadedElapsed, submittedElapsed) {
+        stopAllAnimations();
+        if (submitted) {
+          _recordShowDiagnostic(
+            stage: 'show_submitted',
+            level: SentryLevel.warning,
+            loadedElapsed: loadedElapsed,
+            submittedElapsed: submittedElapsed,
+          );
+          return;
+        }
         logger.e(
           '[$id] 광고 표시 타임아웃 (${flow.showTimeout.inSeconds}s) — '
           'FullScreenContentCallback 미수신',
@@ -741,10 +779,17 @@ class AdmobPlatform extends AdPlatform {
           'AdMob show callback timeout', // no-fill 키워드에 안 걸리는 문구 → Sentry 보고됨
           StackTrace.current,
         );
-        stopAllAnimations();
         if (context.mounted && !isDisposed) {
           showErrorDialog(AppLocalizations.of(context).label_ads_show_fail);
         }
+      },
+      onLateShowed: (loadedElapsed, submittedElapsed) {
+        _recordShowDiagnostic(
+          stage: 'late_showed',
+          level: SentryLevel.info,
+          loadedElapsed: loadedElapsed,
+          submittedElapsed: submittedElapsed,
+        );
       },
       onShowFailed: (error) {
         logAdShowFailure('AdMob', error, _adUnitId, error.toString(), null);
@@ -759,6 +804,45 @@ class AdmobPlatform extends AdPlatform {
         logger.i('[$id] 광고가 닫힘');
         request.refreshUserProfileOnce();
       },
+    );
+  }
+
+  // 진단에는 단계와 경과 시간만 담는다. 기존 사용자·로그 breadcrumb 는
+  // 캡처 전용 scope 에서 제거해 원문 오류나 식별자를 추가하지 않는다.
+  void _recordShowDiagnostic({
+    required String stage,
+    required SentryLevel level,
+    required Duration loadedElapsed,
+    required Duration? submittedElapsed,
+  }) {
+    final data = <String, dynamic>{
+      'stage': stage,
+      'loaded_elapsed_ms': loadedElapsed.inMilliseconds,
+      'submitted_elapsed_ms': submittedElapsed?.inMilliseconds,
+    };
+    unawaited(
+      Sentry.captureMessage(
+        'AdMob $stage',
+        level: level,
+        withScope: (scope) async {
+          await scope.clearBreadcrumbs();
+          await scope.setUser(null);
+          scope.setTag('ad_platform', 'AdMob');
+          scope.setTag('admob.stage', stage);
+          scope.fingerprint = ['admob-show', stage];
+          scope.setContexts('admob_show', data);
+          if (stage == 'late_showed') {
+            await scope.addBreadcrumb(
+              Breadcrumb(
+                category: 'ad.admob',
+                message: stage,
+                level: SentryLevel.info,
+                data: data,
+              ),
+            );
+          }
+        },
+      ).then<void>((_) {}, onError: (Object _, StackTrace _) {}),
     );
   }
 
