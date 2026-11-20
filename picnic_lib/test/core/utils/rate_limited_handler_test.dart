@@ -132,6 +132,25 @@ void main() {
       expect(mapToAntiAbuseException(ex), isNull);
     });
 
+    for (final details in <Object>[
+      {'code': 'TOO_MANY_REQUESTS', 'reason': 'ad_watch_ip_quota'},
+      {
+        'error': {
+          'code': 'TOO_MANY_REQUESTS',
+          'details': {'reason': 'ad_watch_ip_quota'},
+        },
+      },
+      '{"code":"RATE_LIMITED","reason":"ad_watch_ip_quota"}',
+    ]) {
+      test(
+        'FunctionException 429 with unmatched body $details returns null',
+        () {
+          final ex = FunctionException(status: 429, details: details);
+          expect(mapToAntiAbuseException(ex), isNull);
+        },
+      );
+    }
+
     test('FunctionException with non-429 status returns null', () {
       const ex = FunctionException(
         status: 500,

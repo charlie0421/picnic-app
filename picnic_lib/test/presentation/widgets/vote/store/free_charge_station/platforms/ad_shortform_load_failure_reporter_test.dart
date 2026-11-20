@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure.dart';
 import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/ad_shortform_load_failure_reporter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// 기본 리포터: 연결 종류를 붙여 전송하되, 어떤 실패도 호출자에게 던지지 않는다.
 /// 이 리포터는 에러 다이얼로그 표시 경로에서 `unawaited` 로 불리므로,
@@ -65,4 +68,43 @@ void main() {
       completes,
     );
   });
+
+  for (final scenario in <(String, Object)>[
+    ('function:429', const FunctionException(status: 429)),
+    ('function:503', const FunctionException(status: 503)),
+    ('network', const SocketException('synthetic connection failure')),
+  ]) {
+    test('${scenario.$1} keeps the loadAd fingerprint even offline', () async {
+      final events = <SentryEvent>[];
+      await Sentry.init((options) {
+        options
+          ..dsn = 'https://public@o0.ingest.sentry.io/0'
+          ..debug = false
+          ..enableDartSymbolication = false
+          ..enableDeduplication = false
+          ..beforeSend = (event, hint) {
+            events.add(event);
+            return null;
+          };
+      });
+      addTearDown(Sentry.close);
+
+      await reportAdShortformLoadFailure(
+        AdShortformLoadFailure.classify(
+          error: scenario.$2,
+          stage: AdShortformLoadStage.loadAd,
+          elapsed: const Duration(seconds: 1),
+        ),
+        checkConnectivity: () async => [ConnectivityResult.none],
+      );
+
+      expect(events, hasLength(1));
+      expect(events.single.fingerprint, [
+        'ad-shortform-load-failure',
+        'loadAd',
+      ]);
+      expect(events.single.tags?['ad_reason'], scenario.$1);
+      expect(events.single.tags?['network'], 'none');
+    });
+  }
 }
