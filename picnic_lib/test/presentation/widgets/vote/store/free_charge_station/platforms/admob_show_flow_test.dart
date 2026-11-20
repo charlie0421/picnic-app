@@ -21,6 +21,7 @@ void main() {
   late List<bool> timeoutSubmissions;
   late List<(Duration, Duration?)> timeoutTimings;
   late List<(Duration, Duration?)> lateShowedTimings;
+  late List<Object> lateShowFailures;
 
   AdmobShowFlow<String> buildFlow({
     void Function(
@@ -42,6 +43,7 @@ void main() {
     timeoutSubmissions = [];
     timeoutTimings = [];
     lateShowedTimings = [];
+    lateShowFailures = [];
     sdkOnShowed = null;
     sdkOnDismissed = null;
     sdkOnFailedToShow = null;
@@ -82,6 +84,9 @@ void main() {
       },
       onLateShowed: (loadedElapsed, submittedElapsed) {
         lateShowedTimings.add((loadedElapsed, submittedElapsed));
+      },
+      onLateShowFailed: (error, loadedElapsed, submittedElapsed) {
+        lateShowFailures.add(error);
       },
       onShowFailed: (e) => events.add('showFailed'),
       onDismissed: () => events.add('dismissed'),
@@ -151,6 +156,54 @@ void main() {
       expect(disposed, isEmpty);
       sdkOnDismissed!();
       expect(disposed, ['ad-1']);
+    });
+  });
+
+  test('미제출 타임아웃 뒤 실패는 늦은 제출 실패 진단을 만들지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      async.elapse(const Duration(seconds: 10));
+      sdkOnFailedToShow!(StateError('not submitted'));
+      expect(lateShowFailures, isEmpty);
+      expect(events, ['showTimeout']);
+      expect(disposed, ['ad-1']);
+    });
+  });
+
+  test('새 attempt 로 무효화된 제출 광고는 타임아웃 실패 진단을 만들지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      sdkAttempt.showSubmitted();
+      final oldFailed = sdkOnFailedToShow!;
+      run(flow);
+      oldFailed(StateError('old attempt'));
+      expect(lateShowFailures, isEmpty);
+      expect(events, isEmpty);
+      expect(disposed, ['ad-1']);
+      flow.dispose();
+    });
+  });
+
+  test('제출 타임아웃의 실패 진단은 attempt 마다 한 번씩 전달한다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      final failures = [StateError('first'), StateError('second')];
+      for (var index = 0; index < failures.length; index++) {
+        run(flow);
+        sdkOnLoaded('ad-$index');
+        sdkAttempt.showSubmitted();
+        async.elapse(const Duration(seconds: 10));
+        sdkOnFailedToShow!(failures[index]);
+        sdkOnFailedToShow!(failures[index]);
+      }
+      expect(lateShowFailures, failures);
+      expect(events, ['showTimeout', 'showTimeout']);
+      expect(disposed, ['ad-0', 'ad-1']);
+      flow.dispose();
     });
   });
 

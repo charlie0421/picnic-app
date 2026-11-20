@@ -29,6 +29,7 @@ import 'package:picnic_lib/core/utils/token_refresh_manager.dart';
 import 'package:picnic_lib/core/utils/ui.dart';
 import 'package:picnic_lib/core/utils/virtual_machine_detector.dart';
 import 'package:picnic_lib/presentation/common/navigator_key.dart';
+import 'package:picnic_lib/presentation/widgets/vote/store/free_charge_station/platforms/admob_platform.dart';
 import 'package:picnic_lib/presentation/providers/app_initialization_provider.dart';
 import 'package:picnic_lib/presentation/providers/app_setting_provider.dart';
 import 'package:picnic_lib/presentation/providers/check_update_provider.dart';
@@ -141,6 +142,8 @@ class AppInitializer {
         // 프로필 사진 변경 보고는 같은 위치에서 닫힌 필드 목록으로 다시 만들고
         // 첨부를 뺀다. 다른 이벤트는 그대로 통과한다.
         event = ProfileImageDiagnostics.sanitizeForSend(event, hint);
+        // AdMob 표시 진단도 네이티브 식별자·원문 breadcrumb 를 제거한다.
+        event = AdmobPlatform.sanitizeForSend(event, hint);
         final exception = event.exceptions?.firstOrNull;
         final exceptionValue = exception?.value ?? '';
         final exceptionType = exception?.type ?? '';
