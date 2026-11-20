@@ -3,9 +3,32 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
+    id "io.sentry.android.gradle"
 }
 
 // Firebase Analytics를 위해 google-services 플러그인 적용
+
+sentry {
+    // 매핑 UUID를 앱에 포함하고, CI 토큰이 있을 때만 매핑을 업로드한다.
+    includeProguardMapping = true
+    autoUploadProguardMapping = (System.getenv("SENTRY_AUTH_TOKEN") ?: "").trim() != ""
+    org = System.getenv("SENTRY_ORG")
+    projectName = System.getenv("SENTRY_PROJECT")
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+
+    // sentry_flutter가 제공하는 Android SDK와 기존 심볼 업로드를 유지한다.
+    autoInstallation {
+        enabled = false
+    }
+    tracingInstrumentation {
+        enabled = false
+    }
+    includeSourceContext = false
+    includeNativeSources = false
+    uploadNativeSymbols = false
+    includeDependenciesReport = false
+    telemetry = false
+}
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
