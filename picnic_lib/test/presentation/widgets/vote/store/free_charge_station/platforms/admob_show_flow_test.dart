@@ -17,6 +17,11 @@ void main() {
   ShowFailedCb? sdkOnFailedToShow;
   late List<String> disposed;
   late List<String> events;
+  late AdmobShowAttempt sdkAttempt;
+  late List<bool> timeoutSubmissions;
+  late List<(Duration, Duration?)> timeoutTimings;
+  late List<(Duration, Duration?)> lateShowedTimings;
+  late List<Object> lateShowFailures;
 
   AdmobShowFlow<String> buildFlow({
     void Function(
@@ -35,6 +40,10 @@ void main() {
   }) {
     disposed = [];
     events = [];
+    timeoutSubmissions = [];
+    timeoutTimings = [];
+    lateShowedTimings = [];
+    lateShowFailures = [];
     sdkOnShowed = null;
     sdkOnDismissed = null;
     sdkOnFailedToShow = null;
@@ -54,6 +63,7 @@ void main() {
             required onFailedToShow,
             required attempt,
           }) {
+            sdkAttempt = attempt;
             sdkOnShowed = onShowed;
             sdkOnDismissed = onDismissed;
             sdkOnFailedToShow = onFailedToShow;
@@ -67,7 +77,17 @@ void main() {
       onLoadTimeout: () => events.add('loadTimeout'),
       onLoadFailed: (e) => events.add('loadFailed'),
       onShowStarted: () => events.add('showStarted'),
-      onShowTimeout: () => events.add('showTimeout'),
+      onShowTimeout: (submitted, loadedElapsed, submittedElapsed) {
+        events.add('showTimeout');
+        timeoutSubmissions.add(submitted);
+        timeoutTimings.add((loadedElapsed, submittedElapsed));
+      },
+      onLateShowed: (loadedElapsed, submittedElapsed) {
+        lateShowedTimings.add((loadedElapsed, submittedElapsed));
+      },
+      onLateShowFailed: (error, loadedElapsed, submittedElapsed) {
+        lateShowFailures.add(error);
+      },
       onShowFailed: (e) => events.add('showFailed'),
       onDismissed: () => events.add('dismissed'),
     );
@@ -101,9 +121,95 @@ void main() {
     });
   });
 
+  test('미제출 준비 단계는 9초에는 활성이고 10초에 미제출 타임아웃으로 끝난다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      async.elapse(const Duration(seconds: 9));
+      expect(events, isEmpty);
+      expect(sdkAttempt.isActive, isTrue);
+      async.elapse(const Duration(seconds: 1));
+      expect(timeoutSubmissions, [false]);
+      expect(timeoutTimings, [(const Duration(seconds: 10), null)]);
+      expect(sdkAttempt.isActive, isFalse);
+      flow.dispose();
+      expect(disposed, ['ad-1']);
+    });
+  });
+
+  test('제출 시점이 늦어도 로드 후 10초에 제출 상태와 각각의 경과 시간을 전달한다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      async.elapse(const Duration(seconds: 3));
+      sdkAttempt.showSubmitted();
+      async.elapse(const Duration(seconds: 6));
+      expect(events, isEmpty);
+      async.elapse(const Duration(seconds: 1));
+      expect(timeoutSubmissions, [true]);
+      expect(timeoutTimings, [
+        (const Duration(seconds: 10), const Duration(seconds: 7)),
+      ]);
+      flow.dispose();
+      expect(disposed, isEmpty);
+      sdkOnDismissed!();
+      expect(disposed, ['ad-1']);
+    });
+  });
+
+  test('미제출 타임아웃 뒤 실패는 늦은 제출 실패 진단을 만들지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      async.elapse(const Duration(seconds: 10));
+      sdkOnFailedToShow!(StateError('not submitted'));
+      expect(lateShowFailures, isEmpty);
+      expect(events, ['showTimeout']);
+      expect(disposed, ['ad-1']);
+    });
+  });
+
+  test('새 attempt 로 무효화된 제출 광고는 타임아웃 실패 진단을 만들지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      sdkAttempt.showSubmitted();
+      final oldFailed = sdkOnFailedToShow!;
+      run(flow);
+      oldFailed(StateError('old attempt'));
+      expect(lateShowFailures, isEmpty);
+      expect(events, isEmpty);
+      expect(disposed, ['ad-1']);
+      flow.dispose();
+    });
+  });
+
+  test('제출 타임아웃의 실패 진단은 attempt 마다 한 번씩 전달한다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      final failures = [StateError('first'), StateError('second')];
+      for (var index = 0; index < failures.length; index++) {
+        run(flow);
+        sdkOnLoaded('ad-$index');
+        sdkAttempt.showSubmitted();
+        async.elapse(const Duration(seconds: 10));
+        sdkOnFailedToShow!(failures[index]);
+        sdkOnFailedToShow!(failures[index]);
+      }
+      expect(lateShowFailures, failures);
+      expect(events, ['showTimeout', 'showTimeout']);
+      expect(disposed, ['ad-0', 'ad-1']);
+      flow.dispose();
+    });
+  });
+
   // 시나리오 8: showTimeout 뒤 늦게 도착한 dismissed — UI 이벤트는 무시하되
   // 리소스 정리는 수행한다. showTimeout 이 이미 이 attempt 의 UI terminal
-  // 이었으므로(onShowed 없이 실패 다이얼로그가 이미 떴다), 늦은 dismissed 는
+  // 이었으므로, 늦은 dismissed 는
   // "정상적인 후속 이벤트"가 아니다.
   test('타임아웃 후 늦은 dismissed 는 dispose 만 수행한다', () {
     fakeAsync((async) {
@@ -356,6 +462,102 @@ void main() {
       sdkOnDismissed!();
       expect(disposed, ['ad-1']);
       expect(events, ['showTimeout']);
+    });
+  });
+
+  test('타임아웃 뒤 중복 showed 는 attempt 당 진단 한 번만 남기고 UI 를 복구하지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('ad-1');
+      sdkAttempt.showSubmitted();
+      async.elapse(const Duration(seconds: 10));
+      async.elapse(const Duration(seconds: 2));
+      sdkOnShowed!();
+      sdkOnShowed!();
+      expect(lateShowedTimings, [
+        (const Duration(seconds: 12), const Duration(seconds: 12)),
+      ]);
+      expect(events, ['showTimeout']);
+      expect(sdkAttempt.isActive, isFalse);
+      sdkOnDismissed!();
+      sdkOnDismissed!();
+      expect(disposed, ['ad-1']);
+      expect(events, ['showTimeout']);
+    });
+  });
+
+  test('서로 다른 attempt 의 타임아웃과 늦은 showed 진단은 각각 한 번씩 전달한다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      for (final ad in ['A', 'B']) {
+        run(flow);
+        sdkOnLoaded(ad);
+        sdkAttempt.showSubmitted();
+        async.elapse(const Duration(seconds: 10));
+        sdkOnShowed!();
+        sdkOnShowed!();
+        sdkOnDismissed!();
+      }
+      expect(events, ['showTimeout', 'showTimeout']);
+      expect(timeoutSubmissions, [true, true]);
+      expect(lateShowedTimings, hasLength(2));
+      expect(disposed, ['A', 'B']);
+    });
+  });
+
+  for (final dispose in [false, true]) {
+    test(
+      '타임아웃 뒤 ${dispose ? 'dispose' : '새 attempt'} 후 옛 showed 는 UI 에 영향 없다',
+      () {
+        fakeAsync((async) {
+          final flow = buildFlow();
+          run(flow);
+          sdkOnLoaded('A');
+          sdkAttempt.showSubmitted();
+          final staleShowed = sdkOnShowed!;
+          final staleDismissed = sdkOnDismissed!;
+          async.elapse(const Duration(seconds: 10));
+          if (dispose) {
+            flow.dispose();
+          } else {
+            run(flow);
+            sdkOnLoaded('B');
+          }
+          staleShowed();
+          staleShowed();
+          staleDismissed();
+          expect(events, ['showTimeout']);
+          expect(lateShowedTimings, hasLength(1));
+          expect(disposed, ['A']);
+          if (!dispose) {
+            sdkOnShowed!();
+            sdkOnDismissed!();
+            expect(events, ['showTimeout', 'showStarted', 'dismissed']);
+            expect(disposed, ['A', 'B']);
+          }
+        });
+      },
+    );
+  }
+
+  test('정상 showed 중복과 타임아웃 없는 옛 showed 는 늦은 표시 진단을 남기지 않는다', () {
+    fakeAsync((async) {
+      final flow = buildFlow();
+      run(flow);
+      sdkOnLoaded('A');
+      final staleShowed = sdkOnShowed!;
+      final staleDismissed = sdkOnDismissed!;
+      staleShowed();
+      staleShowed();
+      run(flow);
+      sdkOnLoaded('B');
+      staleShowed();
+      staleDismissed();
+      expect(lateShowedTimings, isEmpty);
+      sdkOnShowed!();
+      sdkOnDismissed!();
+      expect(events, ['showStarted', 'showStarted', 'dismissed']);
     });
   });
 
