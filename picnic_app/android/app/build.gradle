@@ -3,9 +3,35 @@ plugins {
     id "kotlin-android"
     id "dev.flutter.flutter-gradle-plugin"
     id "com.google.gms.google-services"
+    id "io.sentry.android.gradle"
 }
 
 // Firebase Analytics를 위해 google-services 플러그인 적용
+
+sentry {
+    // 업로드를 꺼도 매핑 UUID를 앱에 포함하여 나중에 수동 업로드할 수 있다.
+    includeProguardMapping = true
+    // 장애 시 Codemagic 환경 변수 SENTRY_UPLOAD_PROGUARD_MAPPING=false로 업로드를 끈다.
+    autoUploadProguardMapping = ["SENTRY_AUTH_TOKEN", "SENTRY_ORG", "SENTRY_PROJECT"].every {
+        (System.getenv(it) ?: "").trim() != ""
+    } && !"false".equalsIgnoreCase(System.getenv("SENTRY_UPLOAD_PROGUARD_MAPPING"))
+    org = System.getenv("SENTRY_ORG")
+    projectName = System.getenv("SENTRY_PROJECT")
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+
+    // sentry_flutter가 제공하는 Android SDK와 기존 심볼 업로드를 유지한다.
+    autoInstallation {
+        enabled = false
+    }
+    tracingInstrumentation {
+        enabled = false
+    }
+    includeSourceContext = false
+    includeNativeSources = false
+    uploadNativeSymbols = false
+    includeDependenciesReport = false
+    telemetry = false
+}
 
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
