@@ -9,9 +9,12 @@ plugins {
 // Firebase Analytics를 위해 google-services 플러그인 적용
 
 sentry {
-    // 매핑 UUID를 앱에 포함하고, CI 토큰이 있을 때만 매핑을 업로드한다.
+    // 업로드를 꺼도 매핑 UUID를 앱에 포함하여 나중에 수동 업로드할 수 있다.
     includeProguardMapping = true
-    autoUploadProguardMapping = (System.getenv("SENTRY_AUTH_TOKEN") ?: "").trim() != ""
+    // 장애 시 Codemagic 환경 변수 SENTRY_UPLOAD_PROGUARD_MAPPING=false로 업로드를 끈다.
+    autoUploadProguardMapping = ["SENTRY_AUTH_TOKEN", "SENTRY_ORG", "SENTRY_PROJECT"].every {
+        (System.getenv(it) ?: "").trim() != ""
+    } && !"false".equalsIgnoreCase(System.getenv("SENTRY_UPLOAD_PROGUARD_MAPPING"))
     org = System.getenv("SENTRY_ORG")
     projectName = System.getenv("SENTRY_PROJECT")
     authToken = System.getenv("SENTRY_AUTH_TOKEN")

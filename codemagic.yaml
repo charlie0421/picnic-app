@@ -1088,6 +1088,7 @@ workflows:
       - picnic_app/build/**/outputs/**/*.apk
       - picnic_app/flutter_drive.log
       - picnic_app/build/app/outputs/**/mapping.txt
+      - picnic_app/android/app/build/outputs/mapping/**/mapping.txt
       # Sentry 업로드 실패 시 수동 재업로드용 Dart AOT DWARF 보존
       - picnic_app/build/symbols/*.symbols
 
@@ -1301,6 +1302,7 @@ workflows:
       java: 17
       vars:
         APP_NAME: "picnic_app"
+        SENTRY_UPLOAD_PROGUARD_MAPPING: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
@@ -1670,6 +1672,7 @@ workflows:
       java: 17
       vars:
         APP_NAME: "picnic_app"
+        SENTRY_UPLOAD_PROGUARD_MAPPING: "false"
     cache:
       cache_paths:
         - $FLUTTER_ROOT/.pub-cache
