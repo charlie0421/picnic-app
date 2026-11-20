@@ -550,6 +550,7 @@ class _AdShortformFullscreenPageState
         AdShortformFullscreenPage.initializeTimeout,
       );
     } catch (e, s) {
+      unawaited(ctrl.dispose().catchError((_) {}));
       _showVideoLoadErrorDialog(
         e,
         stage: AdShortformLoadStage.initialize,
