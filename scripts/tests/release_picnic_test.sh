@@ -168,6 +168,7 @@ tagged 1.3.7+130701 picnic-v1.3.7+130701-skip-tests
 promote 1.3.7+130701
 check "check starts" '[ $rc -eq 0 ] && started'
 check "body: workflow, branch, check mode" '[ "$(jq -r "[.workflowId, .branch, .environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_VERSION, .environment.variables.PROMOTE_PLATFORMS] | join(\" \")" "$CM/body.json")" = "picnic-app-promote main check 1.3.7+130701 both" ]'
+check "no empty fraction variable is sent" '[ "$(jq -c ".environment.variables | has(\"PROMOTE_ANDROID_FRACTION\")" "$CM/body.json")" = false ]'
 check "shows promote log without colors" 'grep -qx "PROMOTE LOG" <<<"$out"'
 check "token not printed" '! grep -q tok <<<"$out"'
 check "build start is not retried, polling is" 'grep -q "^POST .* retry=no$" "$CM/requests.log" && grep -q "^GET .*/builds/b1 retry=yes$" "$CM/requests.log"'
@@ -189,6 +190,16 @@ promote 1.3.7+130701 --platform web
 check "bad platform refused" '[ $rc -ne 0 ] && ! started'
 FAKE_CM_STATUS=failed promote 1.3.7+130701
 check "failed build exits non-zero and still shows log" '[ $rc -ne 0 ] && grep -qx "PROMOTE LOG" <<<"$out"'
+
+echo "15. codemagic.yaml 에 빈 문자열 변수가 없다(Codemagic 은 파일 전체를 무효로 본다)"
+empty=$(python3 -c '
+import sys, yaml
+d = yaml.safe_load(open(sys.argv[1]))
+for w, c in d["workflows"].items():
+    for k, v in ((c.get("environment") or {}).get("vars") or {}).items():
+        if v in ("", None): print(w, k)
+' "$SRC/../codemagic.yaml" 2>&1); rc=$?
+check "no empty vars" '[ $rc -eq 0 ] && [ -z "$empty" ]'
 
 echo; echo "pass=$pass fail=$fail"
 [ "$fail" -eq 0 ]

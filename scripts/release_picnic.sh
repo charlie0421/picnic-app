@@ -235,8 +235,8 @@ cmd_promote() {
   body=$(jq -n --arg app "$CODEMAGIC_APP_ID" --arg ver "$ver" --arg mode "$mode" \
     --arg platform "$platform" --arg fraction "$fraction" \
     '{appId: $app, workflowId: "picnic-app-promote", branch: "main",
-      environment: {variables: {PROMOTE_VERSION: $ver, PROMOTE_MODE: $mode,
-                                PROMOTE_PLATFORMS: $platform, PROMOTE_ANDROID_FRACTION: $fraction}}}')
+      environment: {variables: ({PROMOTE_VERSION: $ver, PROMOTE_MODE: $mode, PROMOTE_PLATFORMS: $platform}
+                                + (if $fraction == "" then {} else {PROMOTE_ANDROID_FRACTION: $fraction} end))}}')
   build_id=$(cm_start "$body" | jq -r '.buildId // empty') || build_id=""
   # 다시 실행하기 전에 확인한다. 같은 submit 이 두 번 돌면 스토어에 두 번 쓴다.
   [ -n "$build_id" ] || die "Codemagic 빌드 시작 응답을 받지 못했다 — 다시 실행하기 전에 Codemagic 에서 picnic-app-promote 실행이 생겼는지 확인한다"
@@ -254,7 +254,8 @@ cmd_promote() {
     sleep "$interval"; waited=$((waited + interval))
   done
   local log_url
-  log_url=$(jq -r '.build.buildActions[] | select(.name == "Promote release") | .logUrl // empty' <<<"$json")
+  # 스크립트 단계의 로그는 단계 자신이 아니라 subactions 에 있다(실측). 둘 다 본다.
+  log_url=$(jq -r '[.build.buildActions[] | select(.name == "Promote release") | (.logUrl, .subactions[]?.logUrl)] | map(select(. != null)) | first // empty' <<<"$json")
   if [ -n "$log_url" ]; then
     echo "----- Promote release 로그"
     cm_api "$log_url" | sed $'s/\x1b\\[[0-9;]*m//g'

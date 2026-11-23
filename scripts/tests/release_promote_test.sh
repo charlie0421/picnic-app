@@ -177,6 +177,17 @@ jset versions.json 'map(.attributes |= (.appStoreState //= .appVersionState | de
 out=$(run --mode check); rc=$?
 check "legacy appStoreState-only response finds the live version" '[ $rc -eq 0 ]'
 
+fresh
+cat > "$D/versions.json" <<'J'
+[{"id": "ver-136", "attributes": {"versionString": "1.3.6", "appVersionState": "READY_FOR_DISTRIBUTION"}},
+ {"id": "ver-1310", "attributes": {"versionString": "1.3.10", "appVersionState": "READY_FOR_DISTRIBUTION"}},
+ {"id": "ver-10", "attributes": {"versionString": "1.0", "appVersionState": "READY_FOR_DISTRIBUTION"}}]
+J
+echo '[{"attributes": {"locale": "ko", "whatsNew": "1.3.10 노트"}}]' > "$D/loc-ver-1310.json"
+echo '[{"attributes": {"locale": "ko", "whatsNew": ""}}]' > "$D/loc-ver-10.json"
+out=$(run --mode check); rc=$?
+check "all past releases are READY_FOR_DISTRIBUTION: the highest version (numeric) is live" '[ $rc -eq 0 ] && grep -q "출시 중 1.3.10" <<<"$out" && grep -q "\[ko\] 1.3.10 노트" <<<"$out"'
+
 echo "8. 편집 가능한 초안: 다른 버전 초안은 막고, 같은 버전 초안은 언어까지 확인한다"
 fresh
 jset versions.json '. + [{"id": "ver-140", "attributes": {"versionString": "1.4.0", "appVersionState": "PREPARE_FOR_SUBMISSION"}}]'

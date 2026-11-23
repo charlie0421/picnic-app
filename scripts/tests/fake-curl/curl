@@ -24,7 +24,7 @@ case "$method $url" in
   "GET https://api.codemagic.io/builds/b1")
     jq -n --arg s "${FAKE_CM_STATUS:-finished}" \
       '{build: {status: $s, buildActions: [{name: "Install store CLI", logUrl: "https://api.codemagic.io/logs/install"},
-                                           {name: "Promote release", logUrl: "https://api.codemagic.io/logs/promote"}]}}' ;;
+                                           {name: "Promote release", logUrl: null, subactions: [{logUrl: "https://api.codemagic.io/logs/promote"}]}]}}' ;;
   "GET https://api.codemagic.io/logs/promote") printf '\033[32mPROMOTE LOG\033[0m\n' ;;
   *) echo "fake curl: unsupported: $method $url" >&2; exit 22 ;;
 esac
