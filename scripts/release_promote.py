@@ -4,10 +4,15 @@
 Codemagic 워크플로 `picnic-app-promote` 가 실행한다. 로컬에서는 `scripts/release_picnic.sh promote` 로 시작한다.
 절차와 승인 게이트는 .claude/skills/picnic-release/SKILL.md 가 소유한다.
 
-  --mode check   읽기 전용. 대상 빌드·스토어 언어·현재 production 상태를 확인하고 출시 노트를 검증한다
+  --mode check   읽기 전용. 빌드 출처·대상 빌드·스토어 상태·복사할 출시 노트를 확인한다
   --mode submit  check 를 모두 통과한 뒤에만 쓴다
                  iOS: App Store 심사 제출(승인 즉시 출시, 7일 단계적 출시)
                  Android: production 트랙에 release 설정(기본 100%, --android-fraction 으로 단계적 배포)
+
+출시 노트는 매번 같은 내용을 쓴다. 직전 출시본의 노트를 그대로 복사한다.
+  iOS      출시 중 App Store 버전의 언어별 '새로운 기능'
+  Android  production 트랙 release 의 언어별 출시 노트
+문구를 바꾸려면 스토어 콘솔에서 한 번 고친다. 다음 출시부터 그 문구가 이어진다.
 
 스토어 인증은 Codemagic 이 주는 환경 변수를 codemagic-cli-tools 가 직접 읽는다. 이 스크립트는 비밀 값을 다루지 않는다.
 """
@@ -26,18 +31,37 @@ from pathlib import Path
 from typing import Any, Optional
 
 APP_ID = "io.iconcasting.picnic.app"  # iOS 번들 ID 이자 Android 패키지 이름
-NOTES_DIR = Path("docs/operations/release-notes")
+PUBSPEC = "picnic_app/pubspec.yaml"
 IOS_RELEASE_TYPE = "AFTER_APPROVAL"
 IOS_WHATS_NEW_MAX = 4000
 ANDROID_NOTES_MAX = 500
-# 다른 버전이 이 상태에 있으면 Apple 이 새 심사 제출을 받지 않거나, 받더라도 그 버전을 대체한다.
-IOS_BLOCKING_STATES = {
+
+# Apple 버전 상태. API 3.7 부터 appStoreState 는 폐기 예정이고 appVersionState 가 기준이다.
+# 두 체계를 appVersionState 이름으로 맞춘다.
+LEGACY_STATE = {
+    "READY_FOR_SALE": "READY_FOR_DISTRIBUTION",
+    "PROCESSING_FOR_APP_STORE": "PROCESSING_FOR_DISTRIBUTION",
+    "PENDING_CONTRACT": "PENDING_DEVELOPER_RELEASE",
+}
+IOS_LIVE = "READY_FOR_DISTRIBUTION"
+# 이 상태의 버전이 있으면 새 제출이 그 버전을 건드리거나 Apple 이 받지 않는다.
+IOS_BLOCKING = {
     "WAITING_FOR_REVIEW",
     "IN_REVIEW",
+    "ACCEPTED",
     "PENDING_APPLE_RELEASE",
     "PENDING_DEVELOPER_RELEASE",
-    "PROCESSING_FOR_APP_STORE",
+    "PROCESSING_FOR_DISTRIBUTION",
     "WAITING_FOR_EXPORT_COMPLIANCE",
+}
+# 편집 가능한 초안. CLI 는 이 중 가장 높은 버전을 골라 빌드·버전 문자열을 덮어쓴다.
+IOS_EDITABLE = {
+    "PREPARE_FOR_SUBMISSION",
+    "READY_FOR_REVIEW",
+    "DEVELOPER_REJECTED",
+    "REJECTED",
+    "METADATA_REJECTED",
+    "INVALID_BINARY",
 }
 
 
@@ -93,48 +117,17 @@ def platforms_of(value: str) -> set[str]:
     return table[value]
 
 
-def load_notes(path: Path, version: Version, platforms: set[str]) -> dict[str, dict[str, str]]:
-    """출시 노트 파일을 읽고 선택한 플랫폼의 항목을 검증한다. 파일 형식:
-
-    {"version": "1.3.7+130701",
-     "ios": {"ko": "...", "en-US": "..."},          App Store Connect 로케일 → 새로운 기능
-     "android": {"ko-KR": "...", "en-US": "..."}}  Google Play 언어 → 출시 노트
-    """
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        raise PromoteError(f"출시 노트 파일이 없다: {path}") from None
-    except json.JSONDecodeError as e:
-        raise PromoteError(f"출시 노트 JSON 오류: {path}: {e}") from None
-    if not isinstance(data, dict):
-        raise PromoteError(f"출시 노트 최상위는 객체여야 한다: {path}")
-    if data.get("version") != version.full:
-        raise PromoteError(f"출시 노트 버전 {data.get('version')!r} 이 대상 {version.full} 과 다르다")
-    limits = {"ios": IOS_WHATS_NEW_MAX, "android": ANDROID_NOTES_MAX}
-    notes: dict[str, dict[str, str]] = {}
-    for platform in sorted(platforms):
-        entries = data.get(platform)
-        if not isinstance(entries, dict) or not entries:
-            raise PromoteError(f"출시 노트에 {platform} 항목이 없다")
-        for locale, text in entries.items():
-            if not isinstance(text, str) or not text.strip():
-                raise PromoteError(f"{platform} {locale} 출시 노트가 비었다")
-            if len(text) > limits[platform]:
-                raise PromoteError(f"{platform} {locale} 출시 노트가 {limits[platform]}자를 넘는다 ({len(text)}자)")
-        notes[platform] = {k: v.strip() for k, v in entries.items()}
-    return notes
-
-
 # ---------------------------------------------------------------- 외부 명령
 
 
-def run(cmd: list[str]) -> str:
-    log("$ " + " ".join(cmd))
+def run(cmd: list[str], quiet: bool = False) -> str:
+    if not quiet:
+        log("$ " + " ".join(cmd))
     proc = subprocess.run(cmd, capture_output=True, text=True)
-    if proc.stderr.strip():
+    if proc.stderr.strip() and not quiet:
         sys.stderr.write(proc.stderr)
     if proc.returncode != 0:
-        raise PromoteError(f"명령 실패({proc.returncode}): {' '.join(cmd[:3])} …\n{proc.stdout[-2000:]}")
+        raise PromoteError(f"명령 실패({proc.returncode}): {' '.join(cmd[:3])} …\n{proc.stdout[-2000:]}{proc.stderr[-1000:]}")
     return proc.stdout
 
 
@@ -153,31 +146,76 @@ def attrs(resource: dict) -> dict:
 # ---------------------------------------------------------------- 빌드 출처 확인
 
 
+def tag_version(tag: str) -> Optional[str]:
+    try:
+        text = run(["git", "show", f"refs/tags/{tag}:{PUBSPEC}"], quiet=True)
+    except PromoteError:
+        return None
+    m = re.search(r"^version:\s*(\S+)", text, re.MULTILINE)
+    return m[1] if m else None
+
+
 def check_release_tag(version: Version) -> None:
-    """프로덕션 태그로 빌드된 번호인지 본다. 스테이징 빌드도 같은 앱으로 업로드되므로 번호만으로는 구별되지 않는다."""
-    out = run(["git", "ls-remote", "--tags", "origin", "refs/tags/picnic-v*", "refs/tags/picnic-staging-v*"])
-    tags = {line.split("refs/tags/", 1)[1].removesuffix("^{}") for line in out.splitlines() if "refs/tags/" in line}
-    production = {f"picnic-v{version.full}", f"picnic-v{version.full}-skip-tests"} & tags
-    staging = {t for t in tags if t.startswith(f"picnic-staging-v{version.full}")}
+    """프로덕션 태그로 빌드된 번호인지 태그 커밋의 pubspec 으로 확인한다.
+
+    스테이징 빌드도 같은 앱으로 업로드되고, 태그 이름에 빌드 번호가 없거나 pubspec 과 다른 태그가 있다
+    (예: picnic-staging-v1.2.39 → 1.2.39+123901). 그래서 이름이 아니라 커밋 내용으로 대조한다.
+    """
+    # 태그 커밋의 pubspec 만 필요하다. 전체 이력은 받지 않는다.
+    run(["git", "fetch", "--quiet", "--force", "--depth=1", "origin",
+         "+refs/tags/picnic-v*:refs/tags/picnic-v*",
+         "+refs/tags/picnic-staging-v*:refs/tags/picnic-staging-v*"])
+    tags = run(["git", "for-each-ref", "--format=%(refname:short)",
+                "refs/tags/picnic-v*", "refs/tags/picnic-staging-v*"], quiet=True).split()
+    names = {f"picnic-v{version.full}", f"picnic-v{version.full}-skip-tests"}
+    production, staging = [], []
+    for tag in tags:
+        if tag.startswith("picnic-staging-v"):
+            v = tag_version(tag)
+            if v is None or v.endswith(f"+{version.build}") or version.build in tag:
+                staging.append(f"{tag}({v or 'pubspec 없음'})")
+        elif tag in names:
+            v = tag_version(tag)
+            if v != version.full:
+                raise PromoteError(f"{tag} 커밋의 pubspec 버전({v})이 {version.full} 과 다르다")
+            production.append(tag)
     if staging:
-        raise PromoteError(f"{version.full} 은 스테이징 태그로 빌드됐다 — 출시할 수 없다: {', '.join(sorted(staging))}")
+        raise PromoteError(f"빌드 번호 {version.build} 를 쓴 스테이징 태그가 있다 — 출시할 수 없다: {', '.join(staging)}")
     if not production:
         raise PromoteError(f"{version.full} 의 프로덕션 릴리스 태그(picnic-v{version.full}[-skip-tests])가 원격에 없다")
-    log(f"릴리스 태그: {', '.join(sorted(production))}")
+    log(f"릴리스 태그: {', '.join(production)} (pubspec {version.full})")
 
 
 # ---------------------------------------------------------------- iOS
 
 
+def ios_state(version_resource: dict) -> str:
+    a = attrs(version_resource)
+    state = a.get("appVersionState") or a.get("appStoreState")
+    if not state:
+        raise PromoteError(f"App Store 버전 {a.get('versionString')} 의 상태를 읽지 못했다 — CLI 응답 형식이 바뀌었다")
+    return LEGACY_STATE.get(state, state)
+
+
+def localizations_of(version_id: str) -> dict[str, str]:
+    """로케일 → 새로운 기능. 값이 없으면 빈 문자열."""
+    items = run_json(["app-store-connect", "app-store-versions", "localizations", version_id])
+    out = {}
+    for loc in items:
+        a = attrs(loc)
+        if a.get("locale"):
+            out[a["locale"]] = (a.get("whatsNew") or "").strip()
+    return out
+
+
 @dataclass
 class IosPlan:
     build_id: str = ""
-    live_version: str = ""
-    locales: list[str] = field(default_factory=list)
+    notes: dict[str, str] = field(default_factory=dict)
     problems: list[str] = field(default_factory=list)
 
 
-def ios_preflight(version: Version, notes: Optional[dict[str, str]]) -> IosPlan:
+def ios_preflight(version: Version) -> IosPlan:
     plan = IosPlan()
     log("\n== iOS 확인")
     apps = run_json(["app-store-connect", "apps", "list", "--bundle-id-identifier", APP_ID, "--strict-match-identifier"])
@@ -199,44 +237,57 @@ def ios_preflight(version: Version, notes: Optional[dict[str, str]]) -> IosPlan:
         plan.build_id = usable[0]["id"]
 
     versions = run_json(["app-store-connect", "apps", "app-store-versions", app_id, "--platform", "IOS"])
-    live = None
+    live, drafts = None, []
     for v in versions:
-        a = attrs(v)
-        state = a.get("appStoreState") or a.get("appVersionState")
-        if not state:
-            raise PromoteError(f"App Store 버전 {a.get('versionString')} 의 상태를 읽지 못했다 — CLI 응답 형식이 바뀌었다")
-        if state in IOS_BLOCKING_STATES:
-            plan.problems.append(f"App Store 버전 {a.get('versionString')} 이 {state} 상태다 — 먼저 정리한다")
-        if state == "READY_FOR_SALE":
+        state, name = ios_state(v), attrs(v).get("versionString")
+        log(f"App Store 버전 {name}: {state}")
+        if state in IOS_BLOCKING:
+            plan.problems.append(f"App Store 버전 {name} 이 {state} 상태다 — 먼저 정리한다")
+        elif state in IOS_EDITABLE:
+            drafts.append(v)
+        elif state == IOS_LIVE:
             live = v
-        if a.get("versionString") == version.marketing:
-            log(f"App Store 버전 {version.marketing} 이 이미 있다: {state}")
-            if state == "READY_FOR_SALE":
+            if name == version.marketing:
                 plan.problems.append(f"{version.marketing} 은 이미 출시됐다")
     if live is None:
-        raise PromoteError("출시 중인(READY_FOR_SALE) App Store 버전이 없어 언어 목록을 정할 수 없다")
-    plan.live_version = attrs(live).get("versionString", "")
-    localizations = run_json(["app-store-connect", "app-store-versions", "localizations", live["id"]])
-    plan.locales = sorted(attrs(loc).get("locale") for loc in localizations if attrs(loc).get("locale"))
-    log(f"출시 중 버전 {plan.live_version} 의 언어 {len(plan.locales)}개: {', '.join(plan.locales)}")
+        raise PromoteError("출시 중인(READY_FOR_DISTRIBUTION) App Store 버전이 없어 출시 노트를 복사할 수 없다")
 
-    # 새 버전은 출시 중 버전의 언어를 물려받고, Apple 은 그 모든 언어에 '새로운 기능' 을 요구한다.
-    # 없는 언어를 넣으면 CLI 가 새 현지화를 만들어 스토어 페이지에 언어가 늘어난다.
-    if notes is not None:
-        missing = sorted(set(plan.locales) - set(notes))
-        extra = sorted(set(notes) - set(plan.locales))
-        if missing:
-            plan.problems.append(f"iOS 출시 노트에 없는 스토어 언어: {', '.join(missing)}")
+    # 출시 노트: 출시 중 버전의 '새로운 기능' 을 그대로 쓴다. 새 버전은 이 언어들을 물려받고,
+    # Apple 은 업데이트의 모든 언어에 '새로운 기능' 을 요구한다.
+    live_name = attrs(live).get("versionString")
+    plan.notes = localizations_of(live["id"])
+    log(f"출시 중 버전 {live_name} 의 언어 {len(plan.notes)}개: {', '.join(sorted(plan.notes))}")
+    empty = sorted(k for k, t in plan.notes.items() if not t)
+    if not plan.notes:
+        plan.problems.append(f"출시 중 버전 {live_name} 에 현지화가 없다")
+    if empty:
+        plan.problems.append(f"출시 중 버전 {live_name} 의 '새로운 기능' 이 빈 언어: {', '.join(empty)}")
+    long = sorted(k for k, t in plan.notes.items() if len(t) > IOS_WHATS_NEW_MAX)
+    if long:
+        plan.problems.append(f"'새로운 기능' 이 {IOS_WHATS_NEW_MAX}자를 넘는 언어: {', '.join(long)}")
+
+    # 초안: CLI 는 편집 가능한 버전 중 가장 높은 것을 재사용하고 기존 현지화를 남긴다.
+    # 다른 버전의 초안을 이번 버전으로 바꾸거나, 초안에만 있는 언어의 미확인 문구를 제출하지 않게 막는다.
+    for d in drafts:
+        name = attrs(d).get("versionString")
+        if name != version.marketing:
+            plan.problems.append(f"다른 버전의 초안 {name}({ios_state(d)})이 있다 — CLI 가 그 초안을 덮어쓴다. App Store Connect 에서 정리한다")
+            continue
+        draft_locales = set(localizations_of(d["id"]))
+        extra = sorted(draft_locales - set(plan.notes))
         if extra:
-            plan.problems.append(f"스토어에 없는 iOS 출시 노트 언어: {', '.join(extra)}")
+            plan.problems.append(f"{name} 초안에 출시 중 버전에 없는 언어가 있다: {', '.join(extra)}")
+        log(f"{name} 초안({ios_state(d)})을 재사용한다")
+    for locale, text in sorted(plan.notes.items()):
+        log(f"  [{locale}] {text[:80]}{'…' if len(text) > 80 else ''}")
     return plan
 
 
-def ios_submit(version: Version, plan: IosPlan, notes: dict[str, str], workdir: Path) -> None:
+def ios_submit(version: Version, plan: IosPlan, workdir: Path) -> None:
     log("\n== iOS 심사 제출")
     path = workdir / "ios_localizations.json"
     path.write_text(
-        json.dumps([{"locale": k, "whats_new": v} for k, v in sorted(notes.items())], ensure_ascii=False),
+        json.dumps([{"locale": k, "whats_new": v} for k, v in sorted(plan.notes.items())], ensure_ascii=False),
         encoding="utf-8",
     )
     run([
@@ -256,8 +307,8 @@ def ios_submit(version: Version, plan: IosPlan, notes: dict[str, str], workdir: 
 
 @dataclass
 class AndroidPlan:
+    notes: list[dict[str, str]] = field(default_factory=list)  # [{"language", "text"}]
     problems: list[str] = field(default_factory=list)
-    note_languages: list[str] = field(default_factory=list)  # 직전 production 출시 노트의 언어. 템플릿 참고용
 
 
 def describe_releases(track: dict) -> list[str]:
@@ -269,6 +320,30 @@ def describe_releases(track: dict) -> list[str]:
             f"userFraction={r.get('userFraction', '-')} notes={langs}"
         )
     return lines or ["  (release 없음)"]
+
+
+def android_language_problems(notes: list[dict[str, str]]) -> list[str]:
+    """google-play CLI 가 --release-notes 를 해석할 때 거부할 값을 쓰기 전에 잡는다.
+
+    CLI 는 인자 해석 단계에서 언어를 자체 목록과 대조한다. 여기서 놓치면 iOS 만 제출된 채 멈춘다.
+    """
+    problems = [f"Android {n['language']} 출시 노트가 {ANDROID_NOTES_MAX}자를 넘는다" for n in notes if len(n["text"]) > ANDROID_NOTES_MAX]
+    try:
+        from codemagic.google.resources.google_play import Language  # type: ignore
+        from codemagic.models.enums import ResourceEnumMeta  # type: ignore
+    except ImportError:
+        if os.environ.get("CM_BUILD_ID"):
+            return problems + ["codemagic-cli-tools 를 불러오지 못해 Android 언어를 검증하지 못했다"]
+        log("(codemagic-cli-tools 가 없어 Android 언어 코드 검증을 건너뛴다 — Codemagic 에서는 필수)")
+        return problems
+    # 평소 CLI 열거형은 모르는 값도 받아 주지만, 인자 해석 중에는 그 대체를 끄고 거부한다. 같은 조건으로 본다.
+    with ResourceEnumMeta.without_graceful_fallback():
+        for n in notes:
+            try:
+                Language(n["language"])
+            except ValueError:
+                problems.append(f"google-play CLI 가 받지 않는 Android 언어: {n['language']}")
+    return problems
 
 
 def android_preflight(version: Version) -> AndroidPlan:
@@ -285,25 +360,39 @@ def android_preflight(version: Version) -> AndroidPlan:
     log("production:")
     for line in describe_releases(production):
         log(line)
+    with_notes = []
     for r in production.get("releases") or []:
-        for n in r.get("releaseNotes") or []:
-            if n.get("language") and n["language"] not in plan.note_languages:
-                plan.note_languages.append(n["language"])
         codes = r.get("versionCodes") or []
         if version.build in codes and r.get("status") == "completed":
             plan.problems.append(f"production 에 {version.build} 가 이미 100% 출시됐다")
         if codes and max(int(c) for c in codes) > int(version.build):
             plan.problems.append(f"production 에 더 높은 버전 코드({','.join(codes)})가 있다")
+        if codes and r.get("releaseNotes"):
+            with_notes.append((max(int(c) for c in codes), r))
+
+    # 출시 노트: production 의 가장 높은 버전 release 의 노트를 그대로 쓴다.
+    if not with_notes:
+        plan.problems.append("production 트랙에 복사할 출시 노트가 없다 — Play Console 에서 직전 release 의 노트를 확인한다")
+        return plan
+    _, source = max(with_notes, key=lambda x: x[0])
+    plan.notes = [
+        {"language": n.get("language", ""), "text": (n.get("text") or "").strip()}
+        for n in source.get("releaseNotes") or []
+    ]
+    empty = sorted(n["language"] for n in plan.notes if not n["text"] or not n["language"])
+    if empty:
+        plan.problems.append(f"직전 production 출시 노트가 빈 언어: {', '.join(empty)}")
+    plan.problems += android_language_problems(plan.notes)
+    log(f"복사할 출시 노트: 버전 {','.join(source.get('versionCodes') or [])} 의 {len(plan.notes)}개 언어")
+    for n in plan.notes:
+        log(f"  [{n['language']}] {n['text'][:80]}{'…' if len(n['text']) > 80 else ''}")
     return plan
 
 
-def android_submit(version: Version, notes: dict[str, str], fraction: Optional[str], workdir: Path) -> None:
+def android_submit(version: Version, plan: AndroidPlan, fraction: Optional[str], workdir: Path) -> None:
     log("\n== Android production 설정")
     path = workdir / "android_release_notes.json"
-    path.write_text(
-        json.dumps([{"language": k, "text": v} for k, v in sorted(notes.items())], ensure_ascii=False),
-        encoding="utf-8",
-    )
+    path.write_text(json.dumps(plan.notes, ensure_ascii=False), encoding="utf-8")
     cmd = [
         "google-play", "tracks", "set-release",
         "-p", APP_ID, "-t", "production", "-c", version.build,
@@ -319,25 +408,12 @@ def android_submit(version: Version, notes: dict[str, str], fraction: Optional[s
 # ---------------------------------------------------------------- 진입점
 
 
-def notes_template(version: Version, ios: Optional[IosPlan], android: Optional[AndroidPlan]) -> str:
-    return json.dumps(
-        {
-            "version": version.full,
-            "ios": {loc: "" for loc in (ios.locales if ios else [])},
-            "android": {lang: "" for lang in (android.note_languages if android else [])},
-        },
-        ensure_ascii=False,
-        indent=2,
-    )
-
-
 def main(argv: Optional[list[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", required=True, help="M.m.P+MmPPBB")
     p.add_argument("--mode", choices=["check", "submit"], default="check")
     p.add_argument("--platforms", default="both", help="both|ios|android")
     p.add_argument("--android-fraction", default=None, help="0 과 1 사이. 생략하면 100%%")
-    p.add_argument("--notes", default=None, help=f"출시 노트 JSON (기본: {NOTES_DIR}/<버전>.json)")
     args = p.parse_args(argv)
 
     done: list[str] = []  # 이미 스토어에 쓴 플랫폼. 중간 실패 때 다시 실행할 범위를 알려 준다
@@ -345,56 +421,39 @@ def main(argv: Optional[list[str]] = None) -> int:
         version = parse_version(args.version)
         platforms = platforms_of(args.platforms)
         fraction = parse_fraction(args.android_fraction, platforms)
-        notes_path = Path(args.notes) if args.notes else NOTES_DIR / f"{version.full}.json"
         submit = args.mode == "submit"
         log(f"대상 {version.full}  플랫폼 {','.join(sorted(platforms))}  모드 {args.mode}"
             + (f"  Android 비율 {fraction}" if fraction else ""))
 
-        notes: Optional[dict[str, dict[str, str]]] = None
-        if notes_path.exists() or submit:
-            notes = load_notes(notes_path, version, platforms)
-            log(f"출시 노트 {notes_path}: " + "  ".join(f"{k} {len(v)}개 언어" for k, v in notes.items()))
-        else:
-            log(f"출시 노트 {notes_path} 없음 — check 는 계속하고 아래에 템플릿을 출력한다")
-
         check_release_tag(version)
-        ios_plan = ios_preflight(version, notes["ios"] if notes else None) if "ios" in platforms else None
+        ios_plan = ios_preflight(version) if "ios" in platforms else None
         android_plan = android_preflight(version) if "android" in platforms else None
 
+        # 빌드 ID 가 없으면 ios_preflight 가 이미 problems 에 넣었다.
         problems = (ios_plan.problems if ios_plan else []) + (android_plan.problems if android_plan else [])
-        if ios_plan and submit and not ios_plan.build_id:
-            problems.append("제출할 iOS 빌드 ID 가 없다")
         if problems:
             log("\n== 출시 불가")
             for msg in problems:
                 log(f"- {msg}")
-            if not submit and notes is None:
-                log("\n출시 노트 템플릿 (Android 언어는 직전 production 출시 노트 기준이다. Play Console 스토어 등록정보와 대조한다):")
-                log(notes_template(version, ios_plan, android_plan))
             return 1
-
         if not submit:
             log("\n== check 통과 — 스토어에는 아무것도 쓰지 않았다")
-            if notes is None:
-                log("출시 노트 템플릿 (Android 언어는 직전 production 출시 노트 기준이다. Play Console 스토어 등록정보와 대조한다):")
-                log(notes_template(version, ios_plan, android_plan))
             return 0
 
-        assert notes is not None
         with tempfile.TemporaryDirectory() as tmp:
             workdir = Path(tmp)
             if ios_plan:
-                ios_submit(version, ios_plan, notes["ios"], workdir)
+                ios_submit(version, ios_plan, workdir)
                 done.append("ios")
             if android_plan:
-                android_submit(version, notes["android"], fraction, workdir)
+                android_submit(version, android_plan, fraction, workdir)
                 done.append("android")
         log("\n== 출시 명령 완료")
         return 0
     except PromoteError as e:
         log(f"\n출시 중단: {e}")
         if done:
-            rest = sorted({"ios", "android"} & platforms_of(args.platforms) - set(done))
+            rest = sorted(platforms_of(args.platforms) - set(done))
             log(f"이미 완료한 플랫폼: {', '.join(done)} — 다시 실행할 때는 남은 플랫폼({', '.join(rest)})만 지정한다")
         return 1
 

@@ -3,19 +3,22 @@
 #   POST /builds        → {"buildId": "b1"} (본문은 $FAKE_CM_DIR/body.json)
 #   GET  /builds/b1     → $FAKE_CM_STATUS(기본 finished) 와 Promote release 로그 URL
 #   GET  /logs/promote  → "PROMOTE LOG"
+#   FAKE_CM_POST_FAIL=1 이면 POST 가 502 로 실패한다
 set -euo pipefail
 : "${FAKE_CM_DIR:?}"
-url="" data="" method=GET
+url="" data="" method=GET retry=no
 while [ $# -gt 0 ]; do
   case "$1" in
     -X) method="$2"; shift ;;
     -d) data="$2"; shift ;;
-    -H|--retry) shift ;;
+    -H) shift ;;
+    --retry) retry=yes; shift ;;
     https://*) url="$1" ;;
   esac
   shift
 done
-echo "$method $url" >> "$FAKE_CM_DIR/requests.log"
+echo "$method $url retry=$retry" >> "$FAKE_CM_DIR/requests.log"
+if [ "$method" = POST ] && [ -n "${FAKE_CM_POST_FAIL:-}" ]; then echo "curl: (22) 502" >&2; exit 22; fi
 case "$method $url" in
   "POST https://api.codemagic.io/builds") printf '%s' "$data" > "$FAKE_CM_DIR/body.json"; echo '{"buildId":"b1"}' ;;
   "GET https://api.codemagic.io/builds/b1")

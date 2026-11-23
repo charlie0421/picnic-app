@@ -9,7 +9,8 @@
 #   status <tag>                     태그 커밋의 Codemagic 체크 상태
 #   promote <M.m.P+MmPPBB> [--platform both|ios|android] [--fraction F] [--submit]
 #                                    업로드된 빌드를 스토어에 내보낸다(Codemagic picnic-app-promote).
-#                                    --submit 이 없으면 쓰기 없는 check. 있으면 iOS 심사 제출·Android production 설정
+#                                    --submit 이 없으면 쓰기 없는 check. 있으면 iOS 심사 제출·Android production 설정.
+#                                    출시 노트는 직전 출시본의 것을 복사한다
 
 set -euo pipefail
 
@@ -177,10 +178,19 @@ cm_load() {
   [ -n "${CODEMAGIC_API_TOKEN:-}" ] && [ -n "${CODEMAGIC_APP_ID:-}" ] || die "$cfg 에 CODEMAGIC_API_TOKEN·CODEMAGIC_APP_ID 가 없다"
 }
 
-cm_api() { # cm_api <경로|URL> [curl 인자...] — 토큰은 헤더로만 보내고 출력하지 않는다
+cm_api() { # cm_api <경로|URL> [curl 인자...] — 조회 전용(재시도). 토큰은 헤더로만 보내고 출력하지 않는다
   local url="$1"; shift
   [[ "$url" == https://* ]] || url="https://api.codemagic.io$url"
   curl -fsS --retry 3 -H "x-auth-token: $CODEMAGIC_API_TOKEN" "$@" "$url"
+}
+
+cm_start() { # cm_start <JSON 본문> — 빌드 생성은 재시도하지 않는다. 응답을 못 받아도 서버에 생성됐을 수 있다
+  curl -fsS -X POST -H "x-auth-token: $CODEMAGIC_API_TOKEN" -H "Content-Type: application/json" \
+    -d "$1" "https://api.codemagic.io/builds"
+}
+
+pubspec_at() { # pubspec_at <태그> → 그 커밋의 picnic_app pubspec 버전(없으면 빈 값)
+  { git show "refs/tags/$1:$PUBSPEC" 2>/dev/null || true; } | sed -n 's/^version:[[:space:]]*//p'
 }
 
 # 이미 업로드된 빌드를 스토어에 내보낸다(Codemagic picnic-app-promote). 기본은 쓰기 없는 check 다.
@@ -201,17 +211,24 @@ cmd_promote() {
   case "$platform" in both|ios|android) ;; *) die "플랫폼 오류: $platform (both|ios|android)" ;; esac
 
   # Codemagic 이 같은 검사를 다시 하지만, 머신을 띄우기 전에 흔한 실수를 막는다.
+  # 태그 이름은 빌드 번호를 빠뜨리거나 pubspec 과 다를 수 있어(picnic-staging-v1.2.39 → 1.2.39+123901) 커밋의 pubspec 으로 대조한다.
   git fetch -q origin main --tags || die "origin main 을 가져오지 못했다"
-  local tags production staging notes="docs/operations/release-notes/$ver.json"
+  local tags t v production="" staging=""
   tags=$(release_tags)
-  production=$(grep -Fx -e "picnic-v$ver" -e "picnic-v$ver-skip-tests" <<<"$tags" || true)
-  staging=$(tags_for_version "$tags" "$ver" | grep '^picnic-staging-v' || true)
-  [ -z "$staging" ] || die "$ver 은 스테이징 태그로 빌드됐다 — 출시할 수 없다: ${staging//$'\n'/ }"
+  while IFS= read -r t; do
+    [ -n "$t" ] || continue
+    case "$t" in
+      picnic-staging-v*)
+        v=$(pubspec_at "$t")
+        if [ -z "$v" ] || [ "${v#*+}" = "${ver#*+}" ] || [[ "$t" == *"${ver#*+}"* ]]; then staging+=" $t(${v:-pubspec 없음})"; fi ;;
+      "picnic-v$ver"|"picnic-v$ver-skip-tests")
+        v=$(pubspec_at "$t")
+        [ "$v" = "$ver" ] || die "$t 커밋의 pubspec 버전($v)이 $ver 과 다르다"
+        production+=" $t" ;;
+    esac
+  done <<<"$tags"
+  [ -z "$staging" ] || die "빌드 번호 ${ver#*+} 를 쓴 스테이징 태그가 있다 — 출시할 수 없다:$staging"
   [ -n "$production" ] || die "$ver 의 프로덕션 릴리스 태그(picnic-v$ver[-skip-tests])가 원격에 없다"
-  if ! git cat-file -e "origin/main:$notes" 2>/dev/null; then
-    [ "$mode" = check ] || die "출시 노트 $notes 가 origin/main 에 없다 — 먼저 머지한다"
-    echo "출시 노트 $notes 가 origin/main 에 없다 — check 가 언어 목록과 템플릿을 출력한다"
-  fi
 
   cm_load
   local body build_id
@@ -220,8 +237,9 @@ cmd_promote() {
     '{appId: $app, workflowId: "picnic-app-promote", branch: "main",
       environment: {variables: {PROMOTE_VERSION: $ver, PROMOTE_MODE: $mode,
                                 PROMOTE_PLATFORMS: $platform, PROMOTE_ANDROID_FRACTION: $fraction}}}')
-  build_id=$(cm_api /builds -X POST -H "Content-Type: application/json" -d "$body" | jq -r '.buildId // empty')
-  [ -n "$build_id" ] || die "Codemagic 빌드를 시작하지 못했다"
+  build_id=$(cm_start "$body" | jq -r '.buildId // empty') || build_id=""
+  # 다시 실행하기 전에 확인한다. 같은 submit 이 두 번 돌면 스토어에 두 번 쓴다.
+  [ -n "$build_id" ] || die "Codemagic 빌드 시작 응답을 받지 못했다 — 다시 실행하기 전에 Codemagic 에서 picnic-app-promote 실행이 생겼는지 확인한다"
   echo "promote $mode: $ver ($platform${fraction:+, Android $fraction})"
   echo "build:   https://codemagic.io/app/$CODEMAGIC_APP_ID/build/$build_id"
 

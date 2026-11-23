@@ -146,35 +146,45 @@ check "running Android row is in_progress" '[ "$(latest picnic-app-android)" = i
 check "patch workflow keeps its name" '[ "$(latest "Picnic App - iOS Patch (Shorebird)")" = finished ]'
 check "other checks dropped" '! grep -q "Supabase" <<<"$out"'
 
-echo "14. promote 는 프로덕션 태그·출시 노트를 확인한 뒤 Codemagic picnic-app-promote 를 시작한다(fake-curl)"
+echo "14. promote 는 태그 커밋의 pubspec 으로 프로덕션 빌드를 확인한 뒤 Codemagic picnic-app-promote 를 시작한다(fake-curl)"
 cmhome=$(mktemp -d "$ROOT/h.XXXX"); mkdir -p "$cmhome/.config/picnic"
 printf 'CODEMAGIC_API_TOKEN=tok\nCODEMAGIC_APP_ID=app1\n' > "$cmhome/.config/picnic/codemagic.env"
 promote() { # promote <args...> → 전역 out, rc. 요청 기록은 $CM/requests.log
   CM=$(mktemp -d "$ROOT/cm.XXXX")
   out=$(cd "$W" && env HOME="$cmhome" PATH="$HERE/fake-curl:$PATH" FAKE_CM_DIR="$CM" PROMOTE_POLL_SECONDS=0 \
-        ${FAKE_CM_STATUS:+FAKE_CM_STATUS=$FAKE_CM_STATUS} bash scripts/release_picnic.sh promote "$@" 2>&1); rc=$?
+        ${FAKE_CM_STATUS:+FAKE_CM_STATUS=$FAKE_CM_STATUS} ${FAKE_CM_POST_FAIL:+FAKE_CM_POST_FAIL=1} \
+        bash scripts/release_picnic.sh promote "$@" 2>&1); rc=$?
 }
 started() { [ -s "$CM/body.json" ]; }
-fresh 1.3.8+130801 picnic-v1.3.7+130701-skip-tests
+fresh 1.3.7+130701 picnic-v1.3.7+130701-skip-tests   # fresh 는 태그를 main 직전 커밋(pubspec 0.0.0)에 붙인다
 promote 1.3.7+130701
-check "check starts without notes" '[ $rc -eq 0 ] && started && grep -q "출시 노트" <<<"$out"'
+check "production tag whose pubspec differs refused" '[ $rc -ne 0 ] && ! started && grep -q "pubspec 버전(0.0.0+000001)" <<<"$out"'
+tagged() { # tagged <main 버전> <태그...> → 태그를 main 커밋(그 pubspec)에 붙인 원격
+  fresh "$1"; local v="$1"; shift
+  for t in "$@"; do git -C "$W" tag -a "$t" -m "$t"; done
+  git -C "$W" push -q origin --tags
+}
+tagged 1.3.7+130701 picnic-v1.3.7+130701-skip-tests
+promote 1.3.7+130701
+check "check starts" '[ $rc -eq 0 ] && started'
 check "body: workflow, branch, check mode" '[ "$(jq -r "[.workflowId, .branch, .environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_VERSION, .environment.variables.PROMOTE_PLATFORMS] | join(\" \")" "$CM/body.json")" = "picnic-app-promote main check 1.3.7+130701 both" ]'
 check "shows promote log without colors" 'grep -qx "PROMOTE LOG" <<<"$out"'
 check "token not printed" '! grep -q tok <<<"$out"'
-promote 1.3.7+130701 --submit
-check "submit refused without notes on origin/main" '[ $rc -ne 0 ] && ! started'
-mkdir -p "$W/docs/operations/release-notes"
-echo '{}' > "$W/docs/operations/release-notes/1.3.7+130701.json"
-git -C "$W" add -A && git -C "$W" commit -qm notes && git -C "$W" push -q origin main
+check "build start is not retried, polling is" 'grep -q "^POST .* retry=no$" "$CM/requests.log" && grep -q "^GET .*/builds/b1 retry=yes$" "$CM/requests.log"'
 promote 1.3.7+130701 --submit --platform android --fraction 0.2
-check "submit starts with notes" '[ $rc -eq 0 ] && started'
+check "submit starts" '[ $rc -eq 0 ] && started'
 check "body: submit, android, fraction" '[ "$(jq -r "[.environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_PLATFORMS, .environment.variables.PROMOTE_ANDROID_FRACTION] | join(\" \")" "$CM/body.json")" = "submit android 0.2" ]'
+FAKE_CM_POST_FAIL=1 promote 1.3.7+130701 --submit
+check "failed start: one POST, asks to check Codemagic before rerunning" '[ $rc -ne 0 ] && [ "$(grep -c "^POST" "$CM/requests.log")" = 1 ] && grep -q "확인한다" <<<"$out"'
 promote 1.3.8+130801
 check "untagged version refused" '[ $rc -ne 0 ] && ! started'
-fresh 1.3.8+130801 picnic-staging-v1.3.7+130701
+tagged 1.3.7+130701 picnic-v1.3.7+130701 picnic-staging-v1.3.7
+promote 1.3.7+130701
+check "staging tag without build number in its name refused" '[ $rc -ne 0 ] && ! started && grep -q "picnic-staging-v1.3.7(1.3.7+130701)" <<<"$out"'
+tagged 1.3.7+130701 picnic-staging-v1.3.7+130701
 promote 1.3.7+130701
 check "staging-built version refused" '[ $rc -ne 0 ] && ! started && grep -q "스테이징" <<<"$out"'
-fresh 1.3.8+130801 picnic-v1.3.7+130701
+tagged 1.3.7+130701 picnic-v1.3.7+130701
 promote 1.3.7+130701 --platform web
 check "bad platform refused" '[ $rc -ne 0 ] && ! started'
 FAKE_CM_STATUS=failed promote 1.3.7+130701

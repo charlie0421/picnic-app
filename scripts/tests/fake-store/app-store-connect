@@ -8,7 +8,7 @@ case "$1 $2" in
   "apps list") cat "$FAKE_STORE_DIR/apps.json" ;;
   "builds list") cat "$FAKE_STORE_DIR/builds.json" ;;
   "apps app-store-versions") cat "$FAKE_STORE_DIR/versions.json" ;;
-  "app-store-versions localizations") cat "$FAKE_STORE_DIR/localizations.json" ;;
+  "app-store-versions localizations") cat "$FAKE_STORE_DIR/loc-$3.json" ;;
   "builds submit-to-app-store")
     [ -z "${FAKE_IOS_SUBMIT_FAIL:-}" ] || { echo "submission failed" >&2; exit 1; }
     cp "$(file_arg --app-store-version-localizations "$@")" "$FAKE_STORE_DIR/submitted_ios.json" ;;
