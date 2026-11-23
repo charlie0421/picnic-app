@@ -1152,10 +1152,10 @@ workflows:
         - google_play
       vars:
         # API 호출의 environment.variables 가 덮어쓴다. 기본값은 쓰기 없는 check 다.
-        PROMOTE_VERSION: ""
+        # Codemagic 은 빈 문자열 값을 거부하고 파일 전체를 무효로 본다(모든 워크플로가 막힌다).
+        # 그래서 PROMOTE_VERSION·PROMOTE_ANDROID_FRACTION 은 여기 두지 않고 API 로만 받는다.
         PROMOTE_MODE: "check"
         PROMOTE_PLATFORMS: "both"
-        PROMOTE_ANDROID_FRACTION: ""
         CODEMAGIC_CLI_TOOLS_VERSION: "0.71.0"
     scripts:
       - name: Install store CLI
@@ -1173,7 +1173,7 @@ workflows:
           export GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS="$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
           app-store-connect --version
           python3 scripts/release_promote.py \
-            --version "$PROMOTE_VERSION" \
+            --version "${PROMOTE_VERSION:?PROMOTE_VERSION 은 API 로 넘겨야 한다}" \
             --mode "$PROMOTE_MODE" \
             --platforms "$PROMOTE_PLATFORMS" \
             ${PROMOTE_ANDROID_FRACTION:+--android-fraction "$PROMOTE_ANDROID_FRACTION"}
