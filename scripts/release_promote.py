@@ -6,8 +6,10 @@ Codemagic 워크플로 `picnic-app-promote` 가 실행한다. 로컬에서는 `s
 
   --mode check   읽기 전용. 빌드 출처·대상 빌드·스토어 상태·복사할 출시 노트를 확인한다
   --mode submit  check 를 모두 통과한 뒤에만 쓴다
-                 iOS: App Store 심사 제출(승인 즉시 출시, 7일 단계적 출시)
-                 Android: production 트랙에 release 설정(기본 100%, --android-fraction 으로 단계적 배포)
+                 iOS: App Store 심사 제출(승인되면 모든 사용자에게 즉시 출시, 단계적 출시 없음)
+                 Android: production 트랙에 release 설정(100% 즉시. --android-fraction 은 요청이 있을 때만)
+  --mode ios-release-now
+                 이미 제출한 iOS 버전에 걸린 단계적 출시(아직 시작 전)를 해제해 즉시 출시로 바꾼다
 
 출시 노트는 매번 같은 내용을 쓴다. 직전 출시본의 노트를 그대로 복사한다.
   iOS      출시 중 App Store 버전의 언어별 '새로운 기능'
@@ -213,6 +215,13 @@ def localizations_of(version_id: str) -> dict[str, str]:
     return out
 
 
+def ios_app_id() -> str:
+    apps = run_json(["app-store-connect", "apps", "list", "--bundle-id-identifier", APP_ID, "--strict-match-identifier"])
+    if len(apps) != 1:
+        raise PromoteError(f"번들 ID {APP_ID} 의 앱이 {len(apps)}개다")
+    return apps[0]["id"]
+
+
 @dataclass
 class IosPlan:
     build_id: str = ""
@@ -223,10 +232,7 @@ class IosPlan:
 def ios_preflight(version: Version) -> IosPlan:
     plan = IosPlan()
     log("\n== iOS 확인")
-    apps = run_json(["app-store-connect", "apps", "list", "--bundle-id-identifier", APP_ID, "--strict-match-identifier"])
-    if len(apps) != 1:
-        raise PromoteError(f"번들 ID {APP_ID} 의 앱이 {len(apps)}개다")
-    app_id = apps[0]["id"]
+    app_id = ios_app_id()
 
     builds = run_json([
         "app-store-connect", "builds", "list", "--app-id", app_id,
@@ -304,11 +310,49 @@ def ios_submit(version: Version, plan: IosPlan, workdir: Path) -> None:
         "--platform", "IOS",
         "--version-string", version.marketing,
         "--release-type", IOS_RELEASE_TYPE,
-        "--phased-release",
+        "--no-phased-release",
         "--app-store-version-localizations", f"@file:{path}",
         "--max-build-processing-wait", "0",
     ])
-    log(f"iOS {version.full} 심사 제출 완료 — 승인되면 7일 단계적 출시가 자동으로 시작된다")
+    log(f"iOS {version.full} 심사 제출 완료 — 승인되면 모든 사용자에게 즉시 출시된다")
+
+
+def ios_release_now(version: Version, submit: bool) -> None:
+    """이미 제출한 버전의 단계적 출시를 해제한다. 시작 전(INACTIVE)일 때만 쓴다. check 모드는 상태만 본다."""
+    log("\n== iOS 단계적 출시 해제")
+    app_id = ios_app_id()
+    versions = run_json(["app-store-connect", "apps", "app-store-versions", app_id, "--platform", "IOS"])
+    targets = [v for v in versions if attrs(v).get("versionString") == version.marketing]
+    if len(targets) != 1:
+        raise PromoteError(f"App Store 버전 {version.marketing} 이 {len(targets)}개다")
+    target = targets[0]
+    state = ios_state(target)
+    log(f"App Store 버전 {version.marketing}: {state}")
+    if state == IOS_LIVE:
+        raise PromoteError(f"{version.marketing} 은 이미 출시됐다 — 진행 중인 단계적 출시는 App Store Connect 에서 '모든 사용자에게 출시' 로 끝낸다")
+
+    cmd = ["app-store-connect", "app-store-versions", "phased-release", target["id"], "--json"]
+    log("$ " + " ".join(cmd))
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        if "was not found" in proc.stdout + proc.stderr:
+            log("단계적 출시가 설정돼 있지 않다 — 이미 즉시 출시다")
+            return
+        raise PromoteError(f"단계적 출시 상태를 읽지 못했다\n{proc.stdout[-1000:]}{proc.stderr[-1000:]}")
+    try:
+        phased = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        raise PromoteError(f"JSON 이 아닌 출력: {proc.stdout[-500:]}") from None
+    phased_state = attrs(phased).get("phasedReleaseState")
+    log(f"단계적 출시 {phased.get('id')}: {phased_state}")
+    if phased_state != "INACTIVE":
+        # 시작된 단계적 출시를 끝내는 것은 즉시 전체 배포다. 이 스크립트는 하지 않는다.
+        raise PromoteError(f"단계적 출시가 이미 {phased_state} 상태다 — App Store Connect 에서 처리한다")
+    if not submit:
+        log("check — 해제할 수 있다. 스토어에는 아무것도 쓰지 않았다")
+        return
+    run(["app-store-connect", "app-store-version-phased-releases", "cancel", phased["id"]])
+    log(f"iOS {version.marketing} 단계적 출시 해제 완료 — 승인되면 모든 사용자에게 즉시 출시된다")
 
 
 # ---------------------------------------------------------------- Android
@@ -422,7 +466,7 @@ def android_submit(version: Version, plan: AndroidPlan, fraction: Optional[str],
 def main(argv: Optional[list[str]] = None) -> int:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--version", required=True, help="M.m.P+MmPPBB")
-    p.add_argument("--mode", choices=["check", "submit"], default="check")
+    p.add_argument("--mode", choices=["check", "submit", "ios-release-now", "ios-release-now-check"], default="check")
     p.add_argument("--platforms", default="both", help="both|ios|android")
     p.add_argument("--android-fraction", default=None, help="0 과 1 사이. 생략하면 100%%")
     args = p.parse_args(argv)
@@ -435,6 +479,11 @@ def main(argv: Optional[list[str]] = None) -> int:
         submit = args.mode == "submit"
         log(f"대상 {version.full}  플랫폼 {','.join(sorted(platforms))}  모드 {args.mode}"
             + (f"  Android 비율 {fraction}" if fraction else ""))
+        if args.mode.startswith("ios-release-now"):
+            if platforms != {"ios"} or fraction:
+                raise PromoteError("ios-release-now 는 --platforms ios 로만 쓴다")
+            ios_release_now(version, submit=args.mode == "ios-release-now")
+            return 0
 
         check_release_tag(version)
         ios_plan = ios_preflight(version) if "ios" in platforms else None

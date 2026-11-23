@@ -83,8 +83,8 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 
 | 플랫폼 | `--submit` 이 하는 일 |
 |---|---|
-| iOS | 빌드를 App Store 심사에 제출한다. 승인되면 바로 출시되고 7일 단계적 출시가 켜진다 |
-| Android | internal 의 같은 버전 코드를 production 트랙에 설정한다. 기본 100%, `--fraction 0.1` 이면 단계적 배포 |
+| iOS | 빌드를 App Store 심사에 제출한다. 승인되면 모든 사용자에게 바로 출시된다(단계적 출시 없음) |
+| Android | internal 의 같은 버전 코드를 production 트랙에 100% 로 설정한다. `--fraction` 은 사용자가 단계적 배포를 따로 요청할 때만 |
 
 **출시 노트는 매번 같은 내용이다.** 스크립트가 직전 출시본의 노트를 그대로 복사한다 — iOS 는 출시 중 버전의 언어별
 '새로운 기능', Android 는 production release 의 언어별 노트. 노트 파일이나 PR 은 없다. 문구를 바꾸려면 사용자가
@@ -99,7 +99,7 @@ App Store Connect·Play Console 에서 직전 출시본의 노트를 한 번 고
    - 복사할 출시 노트(`[언어] 문구` 줄). 빈 언어가 있거나 노트가 없으면 거부된다
    - Android internal 에 같은 버전 코드가 있고, production 에 더 높은 코드가 없다
    - 마지막 줄이 `check 통과` 다. `출시 불가` 면 그 아래 사유를 사용자에게 전하고 멈춘다
-3. **사용자 승인** — 2의 결과(복사할 노트 포함)와 함께 *버전 · 플랫폼 · iOS 승인 즉시 출시+7일 단계적 · Android 비율(기본 100%)* 을
+3. **사용자 승인** — 2의 결과(복사할 노트 포함)와 함께 *버전 · 플랫폼 · iOS 승인 즉시 전체 출시 · Android production 100%* 을
    보여주고 명시적 승인을 받는다. **"출시해줘" 는 이 승인이 아니다.** 강업은 이 승인에 포함되지 않는다
 4. **submit** — 승인된 범위 그대로 `scripts/release_picnic.sh promote <버전> --submit [--platform ios|android] [--fraction <0~1>]`.
    시작 응답을 못 받았다는 오류면 다시 실행하기 전에 Codemagic 에서 실행이 생겼는지 먼저 본다(두 번 돌면 스토어에 두 번 쓴다)
@@ -109,7 +109,9 @@ App Store Connect·Play Console 에서 직전 출시본의 노트를 한 번 고
 ### 출시 뒤
 
 - Android 비율 올리기: `promote <버전> --submit --platform android --fraction 0.5`. `--fraction` 을 빼면 100% 로 완료한다. 매번 3의 승인을 받는다
-- iOS 단계적 출시 일시정지·즉시 전체 출시는 App Store Connect 에서 한다
+- 이미 제출한 iOS 버전에 단계적 출시가 걸려 있으면(예: 1.3.7 은 단계적으로 제출됐다) `promote <버전> --ios-release-now` 로 상태를 보고,
+  승인을 받아 `--submit` 을 붙여 해제한다. 시작 전(INACTIVE)일 때만 해제한다. 이미 시작된 단계적 출시는 App Store Connect 에서 처리한다
+- Google Play 서비스 계정에는 Play Console 의 production 출시 권한이 필요하다. 없으면 check 는 통과하고 submit 에서 `The caller does not have permission` 으로 실패한다
 - iOS 가 거절되면 원인을 고친 뒤 같은 명령을 `--platform ios` 로 다시 실행한다. 편집 가능한 버전을 재사용한다
 - 중간 실패는 로그 끝의 "이미 완료한 플랫폼 / 남은 플랫폼" 을 보고 남은 플랫폼만 다시 실행한다. 끝난 플랫폼을 다시 보내지 않는다
 - 강업은 `picnic-force-update` 로 따로 결정한다. Jira 이슈를 `검토중` 으로 넘기지 않는다

@@ -75,7 +75,7 @@ echo "2. submit 은 직전 출시 노트를 복사해 iOS 를 승인 즉시·단
 fresh
 out=$(run --mode submit); rc=$?
 check "exit 0" '[ $rc -eq 0 ]'
-check "iOS submit flags" 'grep -q "submit-to-app-store build-130701 --platform IOS --version-string 1.3.7 --release-type AFTER_APPROVAL --phased-release" <<<"$(calls)"'
+check "iOS submit: release after approval, no phased release" 'grep -q "submit-to-app-store build-130701 --platform IOS --version-string 1.3.7 --release-type AFTER_APPROVAL --no-phased-release" <<<"$(calls)"'
 check "iOS whats_new copied from live version" '[ "$(jq -c "map([.locale, .whats_new])" "$D/submitted_ios.json")" = "[[\"en-US\",\"Bug fixes\"],[\"ja\",\"不具合修正\"],[\"ko\",\"버그 수정 및 성능 개선\"]]" ]'
 check "Android production 130701 without fraction" 'grep -q "set-release -p io.iconcasting.picnic.app -t production -c 130701" <<<"$(calls)" && ! grep -q -- "--rollout-fraction" <<<"$(calls)"'
 check "Android notes copied from production" '[ "$(jq -c "map([.language, .text])" "$D/submitted_android.json")" = "[[\"ko-KR\",\"버그 수정 및 성능 개선\"],[\"en-US\",\"Bug fixes\"]]" ]'
@@ -222,6 +222,34 @@ fresh
 jset production.json '.releases[0].versionCodes = ["130801"]'
 out=$(run --mode submit --platforms android); rc=$?
 check "higher version on production refused" '[ $rc -ne 0 ] && ! wrote'
+
+echo "9b. ios-release-now: 제출한 버전의 시작 전 단계적 출시만 해제한다"
+rn() { (cd "$W" && python3 "$SCRIPT" --version 1.3.7+130701 --platforms ios "$@") 2>&1; }
+fresh
+jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
+echo '{"id": "pr-137", "attributes": {"phasedReleaseState": "INACTIVE"}}' > "$D/phased-ver-137.json"
+out=$(rn --mode ios-release-now-check); rc=$?
+check "check mode reads but does not cancel" '[ $rc -eq 0 ] && ! grep -q "phased-releases cancel" <<<"$(calls)"'
+out=$(rn --mode ios-release-now); rc=$?
+check "inactive phased release is cancelled" '[ $rc -eq 0 ] && grep -q "app-store-version-phased-releases cancel pr-137" <<<"$(calls)"'
+fresh
+jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
+out=$(rn --mode ios-release-now); rc=$?
+check "no phased release: nothing to do" '[ $rc -eq 0 ] && grep -q "이미 즉시 출시" <<<"$out" && ! grep -q "phased-releases cancel" <<<"$(calls)"'
+fresh
+jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
+echo '{"id": "pr-137", "attributes": {"phasedReleaseState": "ACTIVE"}}' > "$D/phased-ver-137.json"
+out=$(rn --mode ios-release-now); rc=$?
+check "started phased release is left to App Store Connect" '[ $rc -ne 0 ] && ! grep -q "phased-releases cancel" <<<"$(calls)"'
+fresh
+jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "READY_FOR_DISTRIBUTION"}}]'
+out=$(rn --mode ios-release-now); rc=$?
+check "released version refused" '[ $rc -ne 0 ] && ! grep -q "phased-releases cancel" <<<"$(calls)"'
+fresh
+out=$(rn --mode ios-release-now); rc=$?
+check "missing version refused" '[ $rc -ne 0 ] && grep -q "0개" <<<"$out"'
+out=$(cd "$W" && python3 "$SCRIPT" --version 1.3.7+130701 --platforms both --mode ios-release-now 2>&1); rc=$?
+check "ios-release-now needs --platforms ios" '[ $rc -ne 0 ] && ! grep -q "phased-releases cancel" <<<"$(calls)"'
 
 echo "10. 중간 실패는 이미 끝난 플랫폼과 남은 플랫폼을 알려 준다"
 fresh
