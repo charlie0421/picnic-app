@@ -335,7 +335,10 @@ def ios_release_now(version: Version, submit: bool) -> None:
     log("$ " + " ".join(cmd))
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
-        if "was not found" in proc.stdout + proc.stderr:
+        # 설정이 없을 때 CLI 가 내는 정확한 문구만 '없음' 으로 본다. 다른 API·인증·통신 오류는 실패다.
+        not_found = f"App Store Version Phased Release was not found for App Store Version {target['id']}"
+        lines = [re.sub(r"\x1b\[[0-9;]*m", "", ln).strip() for ln in (proc.stdout + "\n" + proc.stderr).splitlines()]
+        if not_found in lines:
             log("단계적 출시가 설정돼 있지 않다 — 이미 즉시 출시다")
             return
         raise PromoteError(f"단계적 출시 상태를 읽지 못했다\n{proc.stdout[-1000:]}{proc.stderr[-1000:]}")

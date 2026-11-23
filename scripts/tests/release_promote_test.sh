@@ -236,6 +236,12 @@ fresh
 jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
 out=$(rn --mode ios-release-now); rc=$?
 check "no phased release: nothing to do" '[ $rc -eq 0 ] && grep -q "이미 즉시 출시" <<<"$out" && ! grep -q "phased-releases cancel" <<<"$(calls)"'
+for err in "GET https://api.appstoreconnect.apple.com/... returned 404: App Store Version Phased Release was not found for App Store Version ver-999" "401 Unauthorized" "App Store Version Phased Release was not found for App Store Version ver-137 (timeout)"; do
+  fresh
+  jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
+  out=$(FAKE_PHASED_ERROR="$err" rn --mode ios-release-now); rc=$?
+  check "other lookup error is a failure, not 'nothing to do': ${err:0:40}" '[ $rc -ne 0 ] && ! grep -q "이미 즉시 출시" <<<"$out"'
+done
 fresh
 jset versions.json '. + [{"id": "ver-137", "attributes": {"versionString": "1.3.7", "appVersionState": "WAITING_FOR_REVIEW"}}]'
 echo '{"id": "pr-137", "attributes": {"phasedReleaseState": "ACTIVE"}}' > "$D/phased-ver-137.json"
