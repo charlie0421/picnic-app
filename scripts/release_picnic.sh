@@ -254,7 +254,8 @@ cmd_promote() {
     sleep "$interval"; waited=$((waited + interval))
   done
   local log_url
-  log_url=$(jq -r '.build.buildActions[] | select(.name == "Promote release") | .logUrl // empty' <<<"$json")
+  # 스크립트 단계의 로그는 단계 자신이 아니라 subactions 에 있다(실측). 둘 다 본다.
+  log_url=$(jq -r '[.build.buildActions[] | select(.name == "Promote release") | (.logUrl, .subactions[]?.logUrl)] | map(select(. != null)) | first // empty' <<<"$json")
   if [ -n "$log_url" ]; then
     echo "----- Promote release 로그"
     cm_api "$log_url" | sed $'s/\x1b\\[[0-9;]*m//g'

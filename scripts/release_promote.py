@@ -197,6 +197,11 @@ def ios_state(version_resource: dict) -> str:
     return LEGACY_STATE.get(state, state)
 
 
+def version_key(value: str) -> tuple[int, ...]:
+    """"1.3.6" → (1, 3, 6). 숫자가 아닌 조각은 0 으로 본다."""
+    return tuple(int(x) if x.isdigit() else 0 for x in value.split("."))
+
+
 def localizations_of(version_id: str) -> dict[str, str]:
     """로케일 → 새로운 기능. 값이 없으면 빈 문자열."""
     items = run_json(["app-store-connect", "app-store-versions", "localizations", version_id])
@@ -237,20 +242,24 @@ def ios_preflight(version: Version) -> IosPlan:
         plan.build_id = usable[0]["id"]
 
     versions = run_json(["app-store-connect", "apps", "app-store-versions", app_id, "--platform", "IOS"])
-    live, drafts = None, []
+    # appVersionState 는 지난 출시본도 모두 READY_FOR_DISTRIBUTION 이다(실측: 96개 전부). 그중 가장 높은 버전이 출시 중이다.
+    released, drafts = [], []
     for v in versions:
         state, name = ios_state(v), attrs(v).get("versionString")
-        log(f"App Store 버전 {name}: {state}")
         if state in IOS_BLOCKING:
+            log(f"App Store 버전 {name}: {state}")
             plan.problems.append(f"App Store 버전 {name} 이 {state} 상태다 — 먼저 정리한다")
         elif state in IOS_EDITABLE:
+            log(f"App Store 버전 {name}: {state}")
             drafts.append(v)
         elif state == IOS_LIVE:
-            live = v
+            released.append(v)
             if name == version.marketing:
                 plan.problems.append(f"{version.marketing} 은 이미 출시됐다")
-    if live is None:
-        raise PromoteError("출시 중인(READY_FOR_DISTRIBUTION) App Store 버전이 없어 출시 노트를 복사할 수 없다")
+    if not released:
+        raise PromoteError("출시된(READY_FOR_DISTRIBUTION) App Store 버전이 없어 출시 노트를 복사할 수 없다")
+    live = max(released, key=lambda v: version_key(attrs(v).get("versionString", "")))
+    log(f"App Store 버전 {len(versions)}개 중 출시본 {len(released)}개, 출시 중 {attrs(live).get('versionString')}")
 
     # 출시 노트: 출시 중 버전의 '새로운 기능' 을 그대로 쓴다. 새 버전은 이 언어들을 물려받고,
     # Apple 은 업데이트의 모든 언어에 '새로운 기능' 을 요구한다.
