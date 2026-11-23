@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# release_promote_test.sh 용 가짜 google-play. $FAKE_STORE_DIR 의 JSON 을 돌려주고 호출을 calls.log 에 남긴다.
+set -euo pipefail
+: "${FAKE_STORE_DIR:?}"
+echo "google-play $*" >> "$FAKE_STORE_DIR/calls.log"
+arg() { local key="$1" prev=""; shift; for a in "$@"; do [ "$prev" = "$key" ] && { echo "$a"; return; }; prev="$a"; done; }
+case "$1 $2" in
+  "tracks get") cat "$FAKE_STORE_DIR/$(arg -t "$@").json" ;;
+  "tracks set-release")
+    [ -z "${FAKE_ANDROID_FAIL:-}" ] || { echo "edit failed" >&2; exit 1; }
+    notes=$(arg --release-notes "$@"); cp "${notes#@file:}" "$FAKE_STORE_DIR/submitted_android.json" ;;
+  *) echo "fake google-play: unsupported: $*" >&2; exit 2 ;;
+esac
