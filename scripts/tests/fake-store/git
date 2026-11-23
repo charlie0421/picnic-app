@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# release_promote_test.sh 용 가짜 git. ls-remote 만 받아 $FAKE_STORE_DIR/tags.txt 를 돌려준다.
+set -euo pipefail
+: "${FAKE_STORE_DIR:?}"
+[ "${1:-}" = ls-remote ] || { echo "fake git: unsupported: $*" >&2; exit 2; }
+cat "$FAKE_STORE_DIR/tags.txt"

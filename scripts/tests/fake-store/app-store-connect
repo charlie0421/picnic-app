@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# release_promote_test.sh 용 가짜 app-store-connect. $FAKE_STORE_DIR 의 JSON 을 돌려주고 호출을 calls.log 에 남긴다.
+set -euo pipefail
+: "${FAKE_STORE_DIR:?}"
+echo "app-store-connect $*" >> "$FAKE_STORE_DIR/calls.log"
+file_arg() { local key="$1" prev=""; shift; for a in "$@"; do [ "$prev" = "$key" ] && { echo "${a#@file:}"; return; }; prev="$a"; done; }
+case "$1 $2" in
+  "apps list") cat "$FAKE_STORE_DIR/apps.json" ;;
+  "builds list") cat "$FAKE_STORE_DIR/builds.json" ;;
+  "apps app-store-versions") cat "$FAKE_STORE_DIR/versions.json" ;;
+  "app-store-versions localizations") cat "$FAKE_STORE_DIR/localizations.json" ;;
+  "builds submit-to-app-store")
+    [ -z "${FAKE_IOS_SUBMIT_FAIL:-}" ] || { echo "submission failed" >&2; exit 1; }
+    cp "$(file_arg --app-store-version-localizations "$@")" "$FAKE_STORE_DIR/submitted_ios.json" ;;
+  *) echo "fake app-store-connect: unsupported: $*" >&2; exit 2 ;;
+esac

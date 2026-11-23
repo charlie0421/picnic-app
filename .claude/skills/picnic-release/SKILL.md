@@ -1,7 +1,7 @@
 ---
 name: picnic-release
-description: picnic_app 스토어 신규 바이너리를 릴리스할 때 사용한다 — "릴리즈 해줘", "새 버전 업로드", "빌드넘버만 올려서 다시 빌드", "실패한 Codemagic 빌드 재시도", "picnic-v 태그 푸시". 인자는 patch(새 버전) · build(현재 버전의 새 바이너리) · M.m.P+MmPPBB(직접 지정). Shorebird OTA 패치, 스테이징 빌드, ttja_app 에는 쓰지 않는다.
-argument-hint: "[patch | build | <M.m.P+MmPPBB>]"
+description: picnic_app 스토어 신규 바이너리를 릴리스할 때 사용한다 — "릴리즈 해줘", "새 버전 업로드", "빌드넘버만 올려서 다시 빌드", "실패한 Codemagic 빌드 재시도", "picnic-v 태그 푸시". 인자는 patch(새 버전) · build(현재 버전의 새 바이너리) · M.m.P+MmPPBB(직접 지정). 업로드된 빌드를 스토어에 내보내는 출시("출시해줘", "심사 올려줘", "production 으로 올려줘", "배포 비율 올려줘")도 맡는다. Shorebird OTA 패치, 스테이징 빌드, ttja_app 에는 쓰지 않는다.
+argument-hint: "[patch | build | <M.m.P+MmPPBB> | promote <M.m.P+MmPPBB>]"
 ---
 
 # picnic_app 신규 바이너리 릴리스
@@ -75,6 +75,46 @@ Codemagic iOS/Android 프로덕션 빌드를 시작한다. 기계적 단계는 `
 - 빌드가 도는 동안 세션을 붙잡고 기다리지 않는다. 시작 확인까지 보고하고, 나머지는 미확인으로 남긴다
 - Jira 이슈를 `검토중` 으로 넘기지 않는다
 
+## 출시 — 스토어 심사 제출·production
+
+빌드(위 절차)와 출시는 분리돼 있다. 빌드는 TestFlight·Play internal 까지만 올린다. 사용자가 테스트 빌드를 확인한 뒤
+출시를 요청하면 `scripts/release_picnic.sh promote` 가 Codemagic `picnic-app-promote` 를 API 로 시작한다.
+스토어 인증은 Codemagic 이 가진 것을 쓴다. 로컬에는 `~/.config/picnic/codemagic.env` 만 있으면 된다.
+
+| 플랫폼 | `--submit` 이 하는 일 |
+|---|---|
+| iOS | 빌드를 App Store 심사에 제출한다. 승인되면 바로 출시되고 7일 단계적 출시가 켜진다 |
+| Android | internal 의 같은 버전 코드를 production 트랙에 설정한다. 기본 100%, `--fraction 0.1` 이면 단계적 배포 |
+
+1. **대상 확인** — 대상 버전은 `picnic-v<버전>[-skip-tests]` 태그로 빌드가 끝난 것이어야 한다. 스테이징 태그로 나간 번호는
+   두 스크립트 모두 거부한다. 사용자가 확인한 빌드가 이 버전인지 묻는다(TestFlight·internal 에 이전 빌드가 함께 있다)
+2. **check** — `scripts/release_picnic.sh promote <버전>`. 읽기 전용이며 머신 준비를 포함해 수 분 걸린다. 끝나면
+   `Promote release` 로그를 출력한다. 로그에서 다음을 본다:
+   - iOS 빌드가 `VALID` 이고 만료되지 않았다. 심사 중·출시 대기 중인 다른 버전이 없다
+   - 출시 중 App Store 버전의 언어 목록. 출시 노트 파일이 없으면 이 언어로 채운 템플릿이 나온다
+   - Android internal 에 같은 버전 코드가 있고, production 에 더 높은 코드가 없다
+3. **출시 노트** — `docs/operations/release-notes/<버전>.json` 을 쓴다. 형식은 `scripts/release_promote.py` 의 `load_notes` 문서를 따른다.
+   - 내용은 0단계 커밋 목록 중 사용자가 느끼는 변경만 쓴다. 내부 구현·이슈 번호·사용자 정보는 쓰지 않는다(공개 저장소이고, 스토어에 그대로 나간다)
+   - 한국어 원문을 먼저 사용자에게 확인받고, 그다음 각 언어로 옮긴다
+   - `ios` 키는 2의 App Store 언어 전부와 정확히 같아야 한다. 빠지면 Apple 이 제출을 거부하고, 남으면 스토어 페이지에 새 언어가 생기므로 스크립트가 둘 다 거부한다
+   - `android` 키는 Play Console 스토어 등록정보 언어 코드(`ko-KR`, `en-US` …)다. check 템플릿은 직전 production 출시 노트의 언어로 채워지니
+     스토어 등록정보와 대조한다. 한도는 iOS 4000자, Android 500자
+   - `docs(release): add release notes for <버전>` 으로 PR 을 만들어 머지한다. `--submit` 은 origin/main 의 파일만 읽는다
+4. **check 재실행** — 출시 노트까지 넣고 다시 돌려 `check 통과` 를 확인한다
+5. **사용자 승인** — 4의 결과와 함께 *버전 · 플랫폼 · iOS 승인 즉시 출시+7일 단계적 · Android 비율(기본 100%)* 을 보여주고
+   명시적 승인을 받는다. **"출시해줘" 는 이 승인이 아니다.** 강업은 이 승인에 포함되지 않는다
+6. **submit** — 승인된 범위 그대로 `scripts/release_picnic.sh promote <버전> --submit [--platform ios|android] [--fraction <0~1>]`
+7. **보고** — 확인한 것과 확인하지 않은 것을 나눈다. iOS 는 심사 제출까지가 확인이고, 승인·출시는 미확인이다.
+   Android 는 production 설정 완료까지다. 이후 상태는 App Store Connect·Play Console 에서 본다
+
+### 출시 뒤
+
+- Android 비율 올리기: `promote <버전> --submit --platform android --fraction 0.5`. `--fraction` 을 빼면 100% 로 완료한다. 매번 5의 승인을 받는다
+- iOS 단계적 출시 일시정지·즉시 전체 출시는 App Store Connect 에서 한다
+- iOS 가 거절되면 원인을 고친 뒤 같은 명령을 `--platform ios` 로 다시 실행한다. 편집 가능한 버전을 재사용한다
+- 중간 실패는 로그 끝의 "이미 완료한 플랫폼 / 남은 플랫폼" 을 보고 남은 플랫폼만 다시 실행한다. 끝난 플랫폼을 다시 보내지 않는다
+- 강업은 `picnic-force-update` 로 따로 결정한다. Jira 이슈를 `검토중` 으로 넘기지 않는다
+
 ## 빌드 실패 시
 
 기존 태그를 삭제·이동·재푸시하지 않는다. 같은 커밋에 접미사만 바꾼 태그를 하나 더 붙이지도 않는다
@@ -94,3 +134,6 @@ Codemagic 에서 고친다. 그 사이 `patch` 범프가 main 에 머지됐고 �
 | 스테이징 빌드에 이 스킬 사용 | 스테이징은 `picnic-staging-v*` 태그라 범위 밖이다. 사용자에게 확인한다 |
 | 직전 빌드가 실패했는데 `patch` 로 새 버전을 범프함 | 실패한 버전은 같은 버전의 빌드 순번만 올린다. 0의 `status` 로 확인하고 1의 표를 따른다 |
 | main 의 태그되지 않은 버전을 다시 범프함 | 그 번호를 건너뛰게 된다. `next` 가 멈추면 범프 없이 7부터 한다 |
+| "출시해줘" 를 submit 승인으로 봄 | check 결과와 출시 범위를 보여주고 따로 승인받는다 |
+| 출시 노트를 로컬 브랜치에만 둠 | `--submit` 은 origin/main 의 파일만 읽는다. 먼저 머지한다 |
+| 스테이징 빌드 번호를 출시 대상으로 지정 | 같은 앱에 올라가지만 스테이징 환경 빌드다. 스크립트가 거부한다 — 프로덕션 태그 버전만 쓴다 |

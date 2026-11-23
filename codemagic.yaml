@@ -1136,6 +1136,61 @@ workflows:
           success: true
           failure: true
 
+  # =================== PICNIC APP 출시 (스토어 심사 제출·production 승격) ===================
+  # 빌드와 분리된 출시 단계. 위 두 워크플로가 TestFlight·internal 에 올린 빌드를 내보낸다.
+  # 태그·푸시로는 시작되지 않는다(triggering 없음). scripts/release_picnic.sh promote 가 API 로만 시작하고,
+  # 실제 쓰기(PROMOTE_MODE=submit)는 picnic-release 스킬의 사용자 승인 뒤에만 한다.
+  picnic-app-promote:
+    name: Picnic App - Promote
+    instance_type: mac_mini_m2
+    max_build_duration: 30
+    integrations:
+      app_store_connect: codemagic-picnic
+    environment:
+      groups:
+        - app_store_connect
+        - google_play
+      vars:
+        # API 호출의 environment.variables 가 덮어쓴다. 기본값은 쓰기 없는 check 다.
+        PROMOTE_VERSION: ""
+        PROMOTE_MODE: "check"
+        PROMOTE_PLATFORMS: "both"
+        PROMOTE_ANDROID_FRACTION: ""
+        CODEMAGIC_CLI_TOOLS_VERSION: "0.71.0"
+    scripts:
+      - name: Install store CLI
+        script: |
+          set -euo pipefail
+          # 머신 기본 버전에 기대지 않는다. 검증한 버전을 별도 가상환경에 고정 설치한다.
+          python3 -m venv "$CM_BUILD_DIR/.promote-venv"
+          "$CM_BUILD_DIR/.promote-venv/bin/pip" install --quiet "codemagic-cli-tools==$CODEMAGIC_CLI_TOOLS_VERSION"
+      - name: Promote release
+        script: |
+          set -euo pipefail
+          export PATH="$CM_BUILD_DIR/.promote-venv/bin:$PATH"
+          # google_play 그룹의 변수 이름(GCLOUD_…)과 google-play CLI 가 읽는 이름(GOOGLE_PLAY_…)이 다르다.
+          # App Store Connect 키는 integration 이 CLI 가 읽는 이름(APP_STORE_CONNECT_*)으로 준다.
+          export GOOGLE_PLAY_SERVICE_ACCOUNT_CREDENTIALS="$GCLOUD_SERVICE_ACCOUNT_CREDENTIALS"
+          app-store-connect --version
+          python3 scripts/release_promote.py \
+            --version "$PROMOTE_VERSION" \
+            --mode "$PROMOTE_MODE" \
+            --platforms "$PROMOTE_PLATFORMS" \
+            ${PROMOTE_ANDROID_FRACTION:+--android-fraction "$PROMOTE_ANDROID_FRACTION"}
+    publishing:
+      slack:
+        channel: '#codemagic-picnic'
+        notify_on_build_start: true
+        notify:
+          success: true
+          failure: true
+      email:
+        recipients:
+          - ironlove77@gmail.com
+        notify:
+          success: true
+          failure: true
+
   # =================== PICNIC APP iOS Patch (Shorebird) ===================
   picnic-app-patch-ios:
     name: Picnic App - iOS Patch (Shorebird)

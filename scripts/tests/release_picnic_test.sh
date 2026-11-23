@@ -146,5 +146,39 @@ check "running Android row is in_progress" '[ "$(latest picnic-app-android)" = i
 check "patch workflow keeps its name" '[ "$(latest "Picnic App - iOS Patch (Shorebird)")" = finished ]'
 check "other checks dropped" '! grep -q "Supabase" <<<"$out"'
 
+echo "14. promote 는 프로덕션 태그·출시 노트를 확인한 뒤 Codemagic picnic-app-promote 를 시작한다(fake-curl)"
+cmhome=$(mktemp -d "$ROOT/h.XXXX"); mkdir -p "$cmhome/.config/picnic"
+printf 'CODEMAGIC_API_TOKEN=tok\nCODEMAGIC_APP_ID=app1\n' > "$cmhome/.config/picnic/codemagic.env"
+promote() { # promote <args...> → 전역 out, rc. 요청 기록은 $CM/requests.log
+  CM=$(mktemp -d "$ROOT/cm.XXXX")
+  out=$(cd "$W" && env HOME="$cmhome" PATH="$HERE/fake-curl:$PATH" FAKE_CM_DIR="$CM" PROMOTE_POLL_SECONDS=0 \
+        ${FAKE_CM_STATUS:+FAKE_CM_STATUS=$FAKE_CM_STATUS} bash scripts/release_picnic.sh promote "$@" 2>&1); rc=$?
+}
+started() { [ -s "$CM/body.json" ]; }
+fresh 1.3.8+130801 picnic-v1.3.7+130701-skip-tests
+promote 1.3.7+130701
+check "check starts without notes" '[ $rc -eq 0 ] && started && grep -q "출시 노트" <<<"$out"'
+check "body: workflow, branch, check mode" '[ "$(jq -r "[.workflowId, .branch, .environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_VERSION, .environment.variables.PROMOTE_PLATFORMS] | join(\" \")" "$CM/body.json")" = "picnic-app-promote main check 1.3.7+130701 both" ]'
+check "shows promote log without colors" 'grep -qx "PROMOTE LOG" <<<"$out"'
+check "token not printed" '! grep -q tok <<<"$out"'
+promote 1.3.7+130701 --submit
+check "submit refused without notes on origin/main" '[ $rc -ne 0 ] && ! started'
+mkdir -p "$W/docs/operations/release-notes"
+echo '{}' > "$W/docs/operations/release-notes/1.3.7+130701.json"
+git -C "$W" add -A && git -C "$W" commit -qm notes && git -C "$W" push -q origin main
+promote 1.3.7+130701 --submit --platform android --fraction 0.2
+check "submit starts with notes" '[ $rc -eq 0 ] && started'
+check "body: submit, android, fraction" '[ "$(jq -r "[.environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_PLATFORMS, .environment.variables.PROMOTE_ANDROID_FRACTION] | join(\" \")" "$CM/body.json")" = "submit android 0.2" ]'
+promote 1.3.8+130801
+check "untagged version refused" '[ $rc -ne 0 ] && ! started'
+fresh 1.3.8+130801 picnic-staging-v1.3.7+130701
+promote 1.3.7+130701
+check "staging-built version refused" '[ $rc -ne 0 ] && ! started && grep -q "스테이징" <<<"$out"'
+fresh 1.3.8+130801 picnic-v1.3.7+130701
+promote 1.3.7+130701 --platform web
+check "bad platform refused" '[ $rc -ne 0 ] && ! started'
+FAKE_CM_STATUS=failed promote 1.3.7+130701
+check "failed build exits non-zero and still shows log" '[ $rc -ne 0 ] && grep -qx "PROMOTE LOG" <<<"$out"'
+
 echo; echo "pass=$pass fail=$fail"
 [ "$fail" -eq 0 ]
