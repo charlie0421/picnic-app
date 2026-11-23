@@ -11,6 +11,8 @@
 #                                    업로드된 빌드를 스토어에 내보낸다(Codemagic picnic-app-promote).
 #                                    --submit 이 없으면 쓰기 없는 check. 있으면 iOS 심사 제출·Android production 설정.
 #                                    출시 노트는 직전 출시본의 것을 복사한다
+#   promote <M.m.P+MmPPBB> --ios-release-now [--submit]
+#                                    이미 제출한 iOS 버전의 단계적 출시(시작 전)를 해제한다
 
 set -euo pipefail
 
@@ -195,18 +197,25 @@ pubspec_at() { # pubspec_at <태그> → 그 커밋의 picnic_app pubspec 버전
 
 # 이미 업로드된 빌드를 스토어에 내보낸다(Codemagic picnic-app-promote). 기본은 쓰기 없는 check 다.
 cmd_promote() {
-  local ver="" platform=both fraction="" mode=check
+  local ver="" platform=both fraction="" mode=check release_now=0
   while [ $# -gt 0 ]; do
     case "$1" in
       --platform) platform="${2:?--platform both|ios|android}"; shift ;;
       --fraction) fraction="${2:?--fraction 0~1}"; shift ;;
       --submit) mode=submit ;;
+      --ios-release-now) release_now=1 ;;
       -*) die "알 수 없는 옵션: $1" ;;
       *) [ -z "$ver" ] || die "버전은 하나만: $1"; ver="$1" ;;
     esac
     shift
   done
-  [ -n "$ver" ] || die "사용법: promote <M.m.P+MmPPBB> [--platform both|ios|android] [--fraction 0.1] [--submit]"
+  [ -n "$ver" ] || die "사용법: promote <M.m.P+MmPPBB> [--platform both|ios|android] [--fraction 0.1] [--submit] | promote <버전> --ios-release-now [--submit]"
+  if [ "$release_now" = 1 ]; then
+    # 이미 제출한 iOS 버전의 단계적 출시 해제. --submit 이 없으면 상태만 본다.
+    [ -z "$fraction" ] || die "--ios-release-now 에는 --fraction 을 쓰지 않는다"
+    platform=ios
+    if [ "$mode" = submit ]; then mode=ios-release-now; else mode=ios-release-now-check; fi
+  fi
   parse "$ver" >/dev/null
   case "$platform" in both|ios|android) ;; *) die "플랫폼 오류: $platform (both|ios|android)" ;; esac
 

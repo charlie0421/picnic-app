@@ -188,6 +188,12 @@ check "staging-built version refused" '[ $rc -ne 0 ] && ! started && grep -q "ìŠ
 tagged 1.3.7+130701 picnic-v1.3.7+130701
 promote 1.3.7+130701 --platform web
 check "bad platform refused" '[ $rc -ne 0 ] && ! started'
+promote 1.3.7+130701 --ios-release-now
+check "--ios-release-now without --submit is a check on iOS" '[ $rc -eq 0 ] && [ "$(jq -r "[.environment.variables.PROMOTE_MODE, .environment.variables.PROMOTE_PLATFORMS] | join(\" \")" "$CM/body.json")" = "ios-release-now-check ios" ]'
+promote 1.3.7+130701 --ios-release-now --submit
+check "--ios-release-now --submit writes" '[ $rc -eq 0 ] && [ "$(jq -r .environment.variables.PROMOTE_MODE "$CM/body.json")" = ios-release-now ]'
+promote 1.3.7+130701 --ios-release-now --fraction 0.1
+check "--ios-release-now with --fraction refused" '[ $rc -ne 0 ] && ! started'
 FAKE_CM_STATUS=failed promote 1.3.7+130701
 check "failed build exits non-zero and still shows log" '[ $rc -ne 0 ] && grep -qx "PROMOTE LOG" <<<"$out"'
 

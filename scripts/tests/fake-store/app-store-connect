@@ -9,6 +9,11 @@ case "$1 $2" in
   "builds list") cat "$FAKE_STORE_DIR/builds.json" ;;
   "apps app-store-versions") cat "$FAKE_STORE_DIR/versions.json" ;;
   "app-store-versions localizations") cat "$FAKE_STORE_DIR/loc-$3.json" ;;
+  "app-store-versions phased-release")
+    if [ -f "$FAKE_STORE_DIR/phased-$3.json" ]; then cat "$FAKE_STORE_DIR/phased-$3.json"
+    elif [ -n "${FAKE_PHASED_ERROR:-}" ]; then echo "$FAKE_PHASED_ERROR" >&2; exit 1
+    else printf '\033[31mApp Store Version Phased Release was not found for App Store Version %s\033[0m\n' "$3" >&2; exit 1; fi ;;
+  "app-store-version-phased-releases cancel") : ;;
   "builds submit-to-app-store")
     [ -z "${FAKE_IOS_SUBMIT_FAIL:-}" ] || { echo "submission failed" >&2; exit 1; }
     cp "$(file_arg --app-store-version-localizations "$@")" "$FAKE_STORE_DIR/submitted_ios.json" ;;
