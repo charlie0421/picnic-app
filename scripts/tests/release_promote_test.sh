@@ -117,6 +117,18 @@ fresh
 out=$(PYTHONPATH= CM_BUILD_ID=x run --mode submit); rc=$?
 check "on Codemagic, missing CLI package blocks the release" '[ $rc -ne 0 ] && ! wrote'
 
+fresh
+echo '{"track": "production", "releases": [{"status": "inProgress", "userFraction": 0.5, "versionCodes": ["130607"], "releaseNotes": [{"language": "ko-KR", "text": "최신 노트"}]}, {"status": "completed", "versionCodes": ["130501"], "releaseNotes": [{"language": "ko-KR", "text": "옛 노트"}]}]}' > "$D/production.json"
+out=$(run --mode submit); rc=$?
+check "notes come from the highest version code release" '[ $rc -eq 0 ] && [ "$(jq -r ".[0].text" "$D/submitted_android.json")" = "최신 노트" ]'
+for missing in 'del(.releaseNotes)' '.releaseNotes = []'; do
+  fresh
+  echo '{"track": "production", "releases": [{"status": "inProgress", "userFraction": 0.5, "versionCodes": ["130607"]}, {"status": "completed", "versionCodes": ["130501"], "releaseNotes": [{"language": "ko-KR", "text": "옛 노트"}]}]}' > "$D/production.json"
+  jset production.json ".releases[0] |= ($missing)"
+  out=$(run --mode submit); rc=$?
+  check "highest release without notes ($missing) refused, no fallback to older notes" '[ $rc -ne 0 ] && ! wrote && grep -q "버전 130607 에 복사할 출시 노트가 없다" <<<"$out"'
+done
+
 echo "6. 빌드 출처: 태그 커밋의 pubspec 으로 프로덕션 빌드만 받는다"
 fresh
 tags 1.3.6+130607 picnic-v1.3.6+130607-skip-tests

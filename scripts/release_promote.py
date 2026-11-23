@@ -360,21 +360,23 @@ def android_preflight(version: Version) -> AndroidPlan:
     log("production:")
     for line in describe_releases(production):
         log(line)
-    with_notes = []
+    latest = None  # 가장 높은 버전 코드의 release. 노트 유무와 관계없이 먼저 고른다
     for r in production.get("releases") or []:
         codes = r.get("versionCodes") or []
         if version.build in codes and r.get("status") == "completed":
             plan.problems.append(f"production 에 {version.build} 가 이미 100% 출시됐다")
         if codes and max(int(c) for c in codes) > int(version.build):
             plan.problems.append(f"production 에 더 높은 버전 코드({','.join(codes)})가 있다")
-        if codes and r.get("releaseNotes"):
-            with_notes.append((max(int(c) for c in codes), r))
+        if codes and (latest is None or max(int(c) for c in codes) > max(int(c) for c in latest["versionCodes"])):
+            latest = r
 
     # 출시 노트: production 의 가장 높은 버전 release 의 노트를 그대로 쓴다.
-    if not with_notes:
-        plan.problems.append("production 트랙에 복사할 출시 노트가 없다 — Play Console 에서 직전 release 의 노트를 확인한다")
+    # 그 release 에 노트가 없으면 더 낮은 버전의 오래된 노트로 내려가지 않고 멈춘다.
+    if latest is None or not latest.get("releaseNotes"):
+        where = f"버전 {','.join(latest['versionCodes'])}" if latest else "production 트랙"
+        plan.problems.append(f"{where} 에 복사할 출시 노트가 없다 — Play Console 에서 직전 release 의 노트를 확인한다")
         return plan
-    _, source = max(with_notes, key=lambda x: x[0])
+    source = latest
     plan.notes = [
         {"language": n.get("language", ""), "text": (n.get("text") or "").strip()}
         for n in source.get("releaseNotes") or []
