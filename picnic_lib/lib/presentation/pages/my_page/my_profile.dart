@@ -30,6 +30,7 @@ import 'package:picnic_lib/presentation/providers/navigation_provider.dart';
 import 'package:picnic_lib/presentation/providers/user_info_provider.dart';
 import 'package:picnic_lib/presentation/widgets/ui/pulse_loading_indicator.dart';
 import 'package:picnic_lib/presentation/widgets/star_candy_info_text.dart';
+import 'package:picnic_lib/presentation/widgets/shortform_playback_consent_tile.dart';
 import 'package:picnic_lib/supabase_options.dart';
 import 'package:picnic_lib/ui/style.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -129,6 +130,13 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     .setCurrentMyPage(const PrivacyPage());
               },
             ),
+            if (isSupabaseLoggedSafely)
+              ShortformPlaybackConsentTile(
+                key: ValueKey(
+                  'shortform-consent:${supabase.auth.currentUser!.id}',
+                ),
+                ownerUserId: supabase.auth.currentUser!.id,
+              ),
             PicnicListItem(
               leading: AppLocalizations.of(context).label_mypage_logout,
               assetPath: 'assets/icons/arrow_right_style=line.svg',
