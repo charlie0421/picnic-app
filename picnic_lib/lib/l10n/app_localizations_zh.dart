@@ -2000,6 +2000,17 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get profile_photo_change => '更换头像';
+
+  @override
+  String get shortform_playback_consent_title => '短视频观看分析（可选）';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC会将应用内短视频广告的展示信息和实际播放时长关联到您的账户，用于按艺人、粉丝群体和地区统计观看情况。此选项仅适用于此设备上的当前账户，在应用重启或24小时后到期，以先发生者为准。关闭后将停止后续数据收集。广告奖励不受影响。';
+
+  @override
+  String get shortform_playback_consent_error =>
+      '无法保存设置。分析已关闭，重启应用后也会保持关闭。请重试。';
 }
 
 /// The translations for Chinese, as used in China (`zh_CN`).
@@ -3998,6 +4009,17 @@ class AppLocalizationsZhCn extends AppLocalizationsZh {
 
   @override
   String get profile_photo_change => '更换头像';
+
+  @override
+  String get shortform_playback_consent_title => '短视频观看分析（可选）';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC会将应用内短视频广告的展示信息和实际播放时长关联到您的账户，用于按艺人、粉丝群体和地区统计观看情况。此选项仅适用于此设备上的当前账户，在应用重启或24小时后到期，以先发生者为准。关闭后将停止后续数据收集。广告奖励不受影响。';
+
+  @override
+  String get shortform_playback_consent_error =>
+      '无法保存设置。分析已关闭，重启应用后也会保持关闭。请重试。';
 }
 
 /// The translations for Chinese, as used in Taiwan (`zh_TW`).
@@ -5997,4 +6019,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get profile_photo_change => '更換頭像';
+
+  @override
+  String get shortform_playback_consent_title => '短影音觀看分析（選填）';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC會將應用程式內短影音廣告的曝光資訊及實際播放時間連結至您的帳戶，用於依藝人、粉絲群體及地區統計觀看情況。此選項僅適用於此裝置上的目前帳戶，並在重新啟動應用程式或24小時後到期，以先發生者為準。關閉後將停止後續資料收集。廣告獎勵不受影響。';
+
+  @override
+  String get shortform_playback_consent_error =>
+      '無法儲存設定。分析已關閉，重新啟動應用程式後也會保持關閉。請重試。';
 }

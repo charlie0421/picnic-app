@@ -2133,4 +2133,16 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'Cambiar foto de perfil';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'Análisis de videos cortos (opcional)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC vincula las impresiones de anuncios de videos cortos internos y el tiempo real de reproducción a tu cuenta para estadísticas de visualización por artista, fandom y región. Esta opción solo se aplica a esta cuenta en este dispositivo hasta que reinicies la app o transcurran 24 horas, lo que ocurra primero. Al desactivarla se detiene la recopilación futura. No afecta a las recompensas de anuncios.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'No se pudo guardar la opción. El análisis está desactivado y seguirá así al reiniciar la app. Inténtalo de nuevo.';
 }

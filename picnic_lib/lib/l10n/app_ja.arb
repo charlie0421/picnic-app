@@ -2615,5 +2615,8 @@
   "bonus_expiry_policy_summary": "1〜14日に獲得した分は翌月15日、15日〜月末に獲得した分は翌々月15日00:00（KST）に失効します。",
   "expiry_tonight_at_midnight": "今夜0時",
   "error_ad_device_account_restricted_message": "この端末での現在のアカウントによる広告の利用は、一時的に制限されています。",
-  "profile_photo_change": "プロフィール写真を変更"
+  "profile_photo_change": "プロフィール写真を変更",
+  "shortform_playback_consent_title": "ショート動画の視聴分析（任意）",
+  "shortform_playback_consent_description": "PICNICはアプリ内ショート動画広告の表示情報と実際の再生時間をアカウントに関連付け、アーティスト・ファンダム・地域別の視聴統計に使用します。この設定はこの端末の現在のアカウントにのみ適用され、アプリの再起動または24時間の経過のいずれか早い時点で同意が失効します。オフにすると以後の収集を停止します。広告報酬には影響しません。",
+  "shortform_playback_consent_error": "設定を保存できませんでした。分析はオフで、アプリを再起動してもオフのままです。もう一度お試しください。"
 }

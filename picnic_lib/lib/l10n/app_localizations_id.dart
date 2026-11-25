@@ -2117,4 +2117,16 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'Ubah foto profil';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'Analisis tontonan video pendek (opsional)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC menghubungkan tayangan iklan video pendek internal dan waktu pemutaran sebenarnya ke akun Anda untuk statistik tontonan berdasarkan artis, fandom, dan wilayah. Pilihan ini hanya berlaku untuk akun ini di perangkat ini sampai aplikasi dimulai ulang atau selama 24 jam, mana yang lebih dulu. Menonaktifkannya menghentikan pengumpulan berikutnya. Hadiah iklan tidak terpengaruh.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'Pengaturan tidak dapat disimpan. Analisis nonaktif dan tetap nonaktif setelah aplikasi dimulai ulang. Silakan coba lagi.';
 }

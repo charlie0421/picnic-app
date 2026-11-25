@@ -1,6 +1,9 @@
 // import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:picnic_lib/core/analytics/shortform_playback_consent.dart';
+import 'package:picnic_lib/core/analytics/shortform_playback_measurement.dart';
+import 'package:picnic_lib/core/analytics/shortform_playback_reporter.dart';
 import 'package:picnic_lib/core/errors/anti_abuse_exception.dart';
 import 'package:picnic_lib/core/services/device_manager.dart';
 import 'package:picnic_lib/core/utils/rate_limited_handler.dart';
@@ -180,6 +183,7 @@ class ShortformInternalPlatform extends AdPlatform {
             onViewComplete: _callView,
             onCtaClick: _reportMoreClick,
             onWalletRewardPresented: _acknowledgeWalletRewardPresented,
+            createPlaybackMeasurement: _createPlaybackMeasurement,
             loadAd: () async {
               // 라우트 진입 시점에 최신 광고/토큰 발급 (만료 최소화)
               logInfo('loadAd: issuing new tokens');
@@ -193,6 +197,33 @@ class ShortformInternalPlatform extends AdPlatform {
     } catch (e, s) {
       logError('play failed', error: e, stackTrace: s);
       rethrow;
+    }
+  }
+
+  Future<ShortformPlaybackMeasurement?> _createPlaybackMeasurement() async {
+    try {
+      final owner = _rewardSession.ownerUserId;
+      final impression = _rewardSession.reference?.id;
+      if (owner == null || impression == null) return null;
+      final client = supabase;
+      final consent = ShortformPlaybackConsent.instance;
+      await consent.load(owner);
+      if (!consent.isAllowed(owner) || client.auth.currentUser?.id != owner) {
+        return null;
+      }
+      return ShortformPlaybackMeasurement(
+        reporter: ShortformPlaybackReporter.forImpression(
+          impressionId: impression,
+          ownerUserId: owner,
+          currentOwner: () => client.auth.currentUser?.id,
+          hasConsent: () => consent.isAllowed(owner),
+          invoke: (name, params) async {
+            await client.rpc(name, params: params);
+          },
+        ),
+      );
+    } catch (_) {
+      return null;
     }
   }
 

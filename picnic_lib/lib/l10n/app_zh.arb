@@ -2555,5 +2555,8 @@
   "bonus_expiry_policy_summary": "1～14日獲得的部分於下月15日到期；15日至月底獲得的部分於下下月15日00:00（KST）到期。",
   "expiry_tonight_at_midnight": "今晚午夜",
   "error_ad_device_account_restricted_message": "此账号在此设备上的广告使用权限暂时受到限制。",
-  "profile_photo_change": "更换头像"
+  "profile_photo_change": "更换头像",
+  "shortform_playback_consent_title": "短视频观看分析（可选）",
+  "shortform_playback_consent_description": "PICNIC会将应用内短视频广告的展示信息和实际播放时长关联到您的账户，用于按艺人、粉丝群体和地区统计观看情况。此选项仅适用于此设备上的当前账户，在应用重启或24小时后到期，以先发生者为准。关闭后将停止后续数据收集。广告奖励不受影响。",
+  "shortform_playback_consent_error": "无法保存设置。分析已关闭，重启应用后也会保持关闭。请重试。"
 }

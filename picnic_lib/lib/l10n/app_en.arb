@@ -2584,5 +2584,8 @@
   "expiry_policy_description": "Expiration rules by currency.",
   "bonus_expiry_policy_summary": "Candy earned from the 1st–14th expires on the 15th of the next month. Candy earned from the 15th–end of month expires at 00:00 (KST) on the 15th of the month after next.",
   "error_ad_device_account_restricted_message": "Ad access for this account on this device is temporarily restricted.",
-  "profile_photo_change": "Change profile photo"
+  "profile_photo_change": "Change profile photo",
+  "shortform_playback_consent_title": "Shortform viewing analysis (optional)",
+  "shortform_playback_consent_description": "PICNIC links internal shortform ad impressions and actual playback time to your account for artist, fandom and regional viewing statistics. This choice applies to this account on this device until the app restarts or for 24 hours, whichever comes first. Turning it off stops future collection. Ad rewards are unaffected.",
+  "shortform_playback_consent_error": "Could not save the setting. Analysis is off and will stay off after restarting the app. Please try again."
 }

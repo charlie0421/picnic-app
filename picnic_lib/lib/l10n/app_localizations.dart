@@ -3878,6 +3878,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Change profile photo'**
   String get profile_photo_change;
+
+  /// No description provided for @shortform_playback_consent_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Shortform viewing analysis (optional)'**
+  String get shortform_playback_consent_title;
+
+  /// No description provided for @shortform_playback_consent_description.
+  ///
+  /// In en, this message translates to:
+  /// **'PICNIC links internal shortform ad impressions and actual playback time to your account for artist, fandom and regional viewing statistics. This choice applies to this account on this device until the app restarts or for 24 hours, whichever comes first. Turning it off stops future collection. Ad rewards are unaffected.'**
+  String get shortform_playback_consent_description;
+
+  /// No description provided for @shortform_playback_consent_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save the setting. Analysis is off and will stay off after restarting the app. Please try again.'**
+  String get shortform_playback_consent_error;
 }
 
 class _AppLocalizationsDelegate

@@ -14,6 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:picnic_lib/data/models/ad/ad_reward_status.dart';
 import 'package:picnic_lib/core/analytics/picnic_analytics.dart';
 import 'package:picnic_lib/core/analytics/earn_analytics_store.dart';
+import 'package:picnic_lib/core/analytics/shortform_playback_measurement.dart';
 import 'package:picnic_lib/data/models/wallet/candy_reward_receipt.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_amount.dart';
 import 'package:picnic_lib/data/models/wallet/wallet_summary.dart';
@@ -362,6 +363,11 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
   /// 그대로 뜬다 — 통계가 광고 흐름을 막아선 안 된다.
   final void Function(AdShortformLoadFailure failure)? onLoadFailure;
 
+  /// Optional measurement attaches after issue, without delaying playback.
+  /// Missing consent, impression or API cannot affect the reward callback.
+  final Future<ShortformPlaybackMeasurement?> Function()?
+  createPlaybackMeasurement;
+
   /// [VideoPlayerController.initialize] 의 타임아웃. initialize 자체엔 타임아웃이
   /// 없어 네트워크 stall 시 영구 hang 이다. 15초였을 때 19초 광고의 1080p 첫
   /// 세그먼트(2.6MB)가 1Mbps 이하 망에서 이 안에 못 들어와 저속망 사용자가
@@ -383,6 +389,7 @@ class AdShortformFullscreenPage extends ConsumerStatefulWidget {
     this.onWalletRewardPresented,
     this.onCtaClick,
     this.onLoadFailure,
+    this.createPlaybackMeasurement,
   });
 
   @override
@@ -394,6 +401,9 @@ class _AdShortformFullscreenPageState
     extends ConsumerState<AdShortformFullscreenPage>
     with WidgetsBindingObserver {
   VideoPlayerController? _controller;
+  ShortformPlaybackMeasurement? _playbackMeasurement;
+  int _measurementGeneration = 0;
+  bool _measurementForeground = false;
   bool _viewReported = false;
   bool _loading = true;
   bool _rewarding = false;
@@ -437,6 +447,8 @@ class _AdShortformFullscreenPageState
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _measurementForeground =
+        WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     _applyWallet = ContainerWalletSummaryApplier.of(context);
     _refreshWallet = ContainerWalletSummaryRefresher.of(context);
     _enterImmersive();
@@ -474,6 +486,7 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _initializeFlow() async {
+    final generation = _clearPlaybackMeasurement();
     try {
       // anti-abuse rate-limit 등으로 loadAd 가 빈 url 을 sentinel 로 반환한 경우,
       // platform 측이 route pop + rate-limited dialog 를 이미 예약했음을 blocked=true
@@ -483,6 +496,7 @@ class _AdShortformFullscreenPageState
       if (widget.loadAd != null) {
         try {
           final result = await widget.loadAd!();
+          if (!mounted || generation != _measurementGeneration) return;
           _resolvedVideoUrl = result.videoUrl;
           _resolvedCtaUrl = result.ctaUrl;
           blocked = result.blocked;
@@ -516,6 +530,7 @@ class _AdShortformFullscreenPageState
         return;
       }
       if (!mounted) return;
+      unawaited(_attachPlaybackMeasurement(generation));
       try {
         await _initPlayer(resolvedUrl);
       } catch (e, s) {
@@ -532,6 +547,46 @@ class _AdShortformFullscreenPageState
           _loading = false;
         });
       }
+    }
+  }
+
+  @override
+  void didUpdateWidget(AdShortformFullscreenPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.createPlaybackMeasurement !=
+            widget.createPlaybackMeasurement &&
+        _resolvedVideoUrl?.isNotEmpty == true &&
+        !_errorDialogShown) {
+      final generation = _clearPlaybackMeasurement();
+      unawaited(_attachPlaybackMeasurement(generation));
+    }
+  }
+
+  int _clearPlaybackMeasurement() {
+    _measurementGeneration++;
+    final previous = _playbackMeasurement;
+    _playbackMeasurement = null;
+    try {
+      previous?.dispose();
+    } catch (_) {}
+    return _measurementGeneration;
+  }
+
+  Future<void> _attachPlaybackMeasurement(int generation) async {
+    try {
+      final measurement = await widget.createPlaybackMeasurement?.call();
+      if (!mounted ||
+          generation != _measurementGeneration ||
+          _errorDialogShown) {
+        measurement?.dispose();
+        return;
+      }
+      _playbackMeasurement = measurement;
+      measurement?.setForeground(_measurementForeground);
+      final value = _controller?.value;
+      if (value != null) measurement?.sample(value);
+    } catch (_) {
+      // Optional analysis must not enter the load-error or reward paths.
     }
   }
 
@@ -628,6 +683,7 @@ class _AdShortformFullscreenPageState
     // 중복 다이얼로그를 막는다.
     if (_errorDialogShown) return;
     _errorDialogShown = true;
+    _clearPlaybackMeasurement();
     _cancelWatchdog();
     _reportLoadFailure(error, stage: stage, stackTrace: stackTrace);
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
@@ -676,6 +732,9 @@ class _AdShortformFullscreenPageState
     final v = _controller;
     if (v == null) return;
     final value = v.value;
+    try {
+      _playbackMeasurement?.sample(value);
+    } catch (_) {}
     // Mark countdown start (<= 5s remaining) to keep More button visible without flicker
     if (AdShortformLogic.shouldStartCountdown(
       ctaRevealStarted: _ctaRevealStarted,
@@ -936,6 +995,10 @@ class _AdShortformFullscreenPageState
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
+    _measurementForeground = state == AppLifecycleState.resumed;
+    try {
+      _playbackMeasurement?.setForeground(_measurementForeground);
+    } catch (_) {}
     final controller = _controller;
     if (controller == null || !controller.value.isInitialized) return;
     if (_viewReported || _rewarding) return;
@@ -951,6 +1014,7 @@ class _AdShortformFullscreenPageState
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cancelWatchdog();
+    _clearPlaybackMeasurement();
     try {
       _controller?.removeListener(_onProgress);
     } catch (_) {}

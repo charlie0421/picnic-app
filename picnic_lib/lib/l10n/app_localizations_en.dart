@@ -2110,4 +2110,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'Change profile photo';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'Shortform viewing analysis (optional)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC links internal shortform ad impressions and actual playback time to your account for artist, fandom and regional viewing statistics. This choice applies to this account on this device until the app restarts or for 24 hours, whichever comes first. Turning it off stops future collection. Ad rewards are unaffected.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'Could not save the setting. Analysis is off and will stay off after restarting the app. Please try again.';
 }

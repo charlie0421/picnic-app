@@ -2108,6 +2108,18 @@ class AppLocalizationsBn extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'ছোট ভিডিও দেখার বিশ্লেষণ (ঐচ্ছিক)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'শিল্পী, ফ্যানডম ও অঞ্চলভিত্তিক দেখার পরিসংখ্যানের জন্য PICNIC অ্যাপের নিজস্ব ছোট ভিডিও বিজ্ঞাপনের প্রদর্শন ও প্রকৃত প্লেব্যাকের সময় আপনার অ্যাকাউন্টের সঙ্গে যুক্ত করে। এই পছন্দ শুধু এই ডিভাইসের এই অ্যাকাউন্টে অ্যাপ পুনরায় চালু করা বা ২৪ ঘণ্টা পার হওয়া পর্যন্ত প্রযোজ্য, যেটি আগে ঘটে। বন্ধ করলে পরবর্তী তথ্য সংগ্রহ বন্ধ হয়। বিজ্ঞাপনের পুরস্কারে কোনো প্রভাব পড়ে না।';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'সেটিং সংরক্ষণ করা যায়নি। বিশ্লেষণ বন্ধ আছে এবং অ্যাপ পুনরায় চালু করলেও বন্ধ থাকবে। আবার চেষ্টা করুন।';
 }
 
 /// The translations for Bengali Bangla, as used in Bangladesh (`bn_BD`).
@@ -4215,4 +4227,16 @@ class AppLocalizationsBnBd extends AppLocalizationsBn {
 
   @override
   String get profile_photo_change => 'প্রোফাইলের ছবি পরিবর্তন করুন';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'ছোট ভিডিও দেখার বিশ্লেষণ (ঐচ্ছিক)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'শিল্পী, ফ্যানডম ও অঞ্চলভিত্তিক দেখার পরিসংখ্যানের জন্য PICNIC অ্যাপের নিজস্ব ছোট ভিডিও বিজ্ঞাপনের প্রদর্শন ও প্রকৃত প্লেব্যাকের সময় আপনার অ্যাকাউন্টের সঙ্গে যুক্ত করে। এই পছন্দ শুধু এই ডিভাইসের এই অ্যাকাউন্টে অ্যাপ পুনরায় চালু করা বা ২৪ ঘণ্টা পার হওয়া পর্যন্ত প্রযোজ্য, যেটি আগে ঘটে। বন্ধ করলে পরবর্তী তথ্য সংগ্রহ বন্ধ হয়। বিজ্ঞাপনের পুরস্কারে কোনো প্রভাব পড়ে না।';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'সেটিং সংরক্ষণ করা যায়নি। বিশ্লেষণ বন্ধ আছে এবং অ্যাপ পুনরায় চালু করলেও বন্ধ থাকবে। আবার চেষ্টা করুন।';
 }

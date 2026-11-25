@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:picnic_lib/presentation/pages/my_page/my_profile.dart';
+import 'package:picnic_lib/presentation/widgets/shortform_playback_consent_tile.dart';
 
 import '../../../helpers/ignore_image_errors.dart';
 import '../../../helpers/mock_data.dart';
@@ -23,11 +24,45 @@ void main() {
   });
 
   group('MyProfilePage widget test', () {
+    testWidgets('optional measurement control uses the authenticated owner', (
+      tester,
+    ) async {
+      await setupMockSupabaseWithAuth({}, userId: 'profile-owner');
+      await tester.pumpWidget(buildTestAppPage(const MyProfilePage()));
+      await pumpAndIgnoreErrors(tester);
+      await tester.scrollUntilVisible(
+        find.byType(ShortformPlaybackConsentTile),
+        300,
+        scrollable: find
+            .descendant(
+              of: find.byType(ListView),
+              matching: find.byType(Scrollable),
+            )
+            .first,
+      );
+      final tile = tester.widget<ShortformPlaybackConsentTile>(
+        find.byType(ShortformPlaybackConsentTile),
+      );
+      expect(tile.ownerUserId, 'profile-owner');
+      expect(tile.key, const ValueKey('shortform-consent:profile-owner'));
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('signed-out profile has no optional measurement control', (
+      tester,
+    ) async {
+      await tester.pumpWidget(buildTestAppPage(const MyProfilePage()));
+      await pumpAndIgnoreErrors(tester);
+      await tester.drag(find.byType(ListView), const Offset(0, -800));
+      await tester.pump();
+      expect(find.byType(ShortformPlaybackConsentTile), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
     testWidgets('renders without crashing', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildTestAppPage(
-          const Scaffold(body: MyProfilePage()),
-        ),
+        buildTestAppPage(const Scaffold(body: MyProfilePage())),
       );
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
@@ -37,9 +72,7 @@ void main() {
 
     testWidgets('contains ListView', (WidgetTester tester) async {
       await tester.pumpWidget(
-        buildTestAppPage(
-          const Scaffold(body: MyProfilePage()),
-        ),
+        buildTestAppPage(const Scaffold(body: MyProfilePage())),
       );
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
@@ -47,12 +80,11 @@ void main() {
       expect(find.byType(ListView), findsOneWidget);
     });
 
-    testWidgets('contains TextFormField for nickname input',
-        (WidgetTester tester) async {
+    testWidgets('contains TextFormField for nickname input', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
-        buildTestAppPage(
-          const Scaffold(body: MyProfilePage()),
-        ),
+        buildTestAppPage(const Scaffold(body: MyProfilePage())),
       );
       await pumpAndIgnoreErrors(tester);
       await pumpAndIgnoreErrors(tester, const Duration(milliseconds: 100));
@@ -60,7 +92,9 @@ void main() {
       expect(find.byType(TextFormField), findsOneWidget);
     });
 
-    testWidgets('renders with custom user profile', (WidgetTester tester) async {
+    testWidgets('renders with custom user profile', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         buildTestAppPage(
           const Scaffold(body: MyProfilePage()),
