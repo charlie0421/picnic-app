@@ -38,6 +38,7 @@ class ShortformPlaybackReporter {
       send: (ms) => invoke('record_kpop_playback', {
         'p_impression': impressionId,
         'p_watched_ms': ms,
+        'p_opt_in': true,
       }),
     );
   }

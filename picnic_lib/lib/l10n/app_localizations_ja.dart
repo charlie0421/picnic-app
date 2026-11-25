@@ -2029,4 +2029,15 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'プロフィール写真を変更';
+
+  @override
+  String get shortform_playback_consent_title => 'ショート動画の視聴分析（任意）';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNICはアプリ内ショート動画広告の表示情報と実際の再生時間をアカウントに関連付け、アーティスト・ファンダム・地域別の視聴統計に使用します。この設定はこの端末の現在のアカウントにのみ適用され、アプリの再起動または24時間の経過のいずれか早い時点で同意が失効します。オフにすると以後の収集を停止します。広告報酬には影響しません。';
+
+  @override
+  String get shortform_playback_consent_error =>
+      '設定を保存できませんでした。分析はオフで、アプリを再起動してもオフのままです。もう一度お試しください。';
 }

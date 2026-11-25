@@ -2029,4 +2029,15 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get profile_photo_change => '프로필 사진 변경';
+
+  @override
+  String get shortform_playback_consent_title => '숏폼 시청 분석 (선택)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC 내부 숏폼 광고의 노출 정보와 실제 재생 시간을 계정에 연결하여 아티스트·팬덤·지역별 시청 통계에 사용합니다. 이 기기의 현재 계정에만 적용하며, 앱을 다시 시작하거나 24시간이 지나면 동의가 만료됩니다. 끄면 이후 수집을 중단합니다. 광고 보상에는 영향을 주지 않습니다.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      '설정을 저장하지 못했습니다. 분석은 꺼져 있으며 앱을 다시 시작해도 꺼진 상태로 유지됩니다. 다시 시도해 주세요.';
 }

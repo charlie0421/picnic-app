@@ -127,7 +127,7 @@ void main() {
     });
   });
   test(
-    'RPC payload contains only the impression and cumulative milliseconds',
+    'RPC payload contains impression, milliseconds and explicit opt-in receipt',
     () async {
       final calls = <Map<String, dynamic>>[];
       final reporter = ShortformPlaybackReporter.forImpression(
@@ -143,7 +143,7 @@ void main() {
       reporter.update(1234);
       await reporter.close();
       expect(calls, [
-        {'p_impression': impression, 'p_watched_ms': 1234},
+        {'p_impression': impression, 'p_watched_ms': 1234, 'p_opt_in': true},
       ]);
     },
   );

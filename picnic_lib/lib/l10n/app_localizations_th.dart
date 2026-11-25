@@ -2083,4 +2083,16 @@ class AppLocalizationsTh extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'เปลี่ยนรูปโปรไฟล์';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'การวิเคราะห์การรับชมวิดีโอสั้น (ไม่บังคับ)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC เชื่อมโยงข้อมูลการแสดงโฆษณาวิดีโอสั้นภายในแอปและเวลาเล่นจริงกับบัญชีของคุณ เพื่อจัดทำสถิติการรับชมตามศิลปิน แฟนด้อม และภูมิภาค ตัวเลือกนี้ใช้กับบัญชีนี้บนอุปกรณ์นี้เท่านั้น จนกว่าจะเริ่มแอปใหม่หรือครบ 24 ชั่วโมง แล้วแต่ว่าอย่างใดถึงก่อน เมื่อปิดจะหยุดการเก็บข้อมูลครั้งต่อไป โดยไม่กระทบต่อรางวัลโฆษณา';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'บันทึกการตั้งค่าไม่สำเร็จ การวิเคราะห์ปิดอยู่และจะยังปิดหลังเริ่มแอปใหม่ โปรดลองอีกครั้ง';
 }

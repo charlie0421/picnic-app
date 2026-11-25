@@ -2113,4 +2113,16 @@ class AppLocalizationsVi extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'Thay đổi ảnh hồ sơ';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'Phân tích lượt xem video ngắn (tùy chọn)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'PICNIC liên kết lượt hiển thị quảng cáo video ngắn nội bộ và thời gian phát thực tế với tài khoản của bạn để thống kê lượt xem theo nghệ sĩ, cộng đồng người hâm mộ và khu vực. Lựa chọn này chỉ áp dụng cho tài khoản này trên thiết bị này cho đến khi khởi động lại ứng dụng hoặc sau 24 giờ, tùy thời điểm nào đến trước. Tắt sẽ ngừng thu thập dữ liệu tiếp theo. Phần thưởng quảng cáo không bị ảnh hưởng.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'Không thể lưu cài đặt. Tính năng phân tích đang tắt và vẫn tắt sau khi khởi động lại ứng dụng. Vui lòng thử lại.';
 }

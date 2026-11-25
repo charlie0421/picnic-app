@@ -76,6 +76,7 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final ownerUserId = _currentAuthClient()?.auth.currentUser?.id;
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -130,12 +131,10 @@ class _SettingPageState extends ConsumerState<MyProfilePage> {
                     .setCurrentMyPage(const PrivacyPage());
               },
             ),
-            if (isSupabaseLoggedSafely)
+            if (ownerUserId != null)
               ShortformPlaybackConsentTile(
-                key: ValueKey(
-                  'shortform-consent:${supabase.auth.currentUser!.id}',
-                ),
-                ownerUserId: supabase.auth.currentUser!.id,
+                key: ValueKey('shortform-consent:$ownerUserId'),
+                ownerUserId: ownerUserId,
               ),
             PicnicListItem(
               leading: AppLocalizations.of(context).label_mypage_logout,

@@ -252,6 +252,121 @@ void main() {
       expect(rewards, 1);
     },
   );
+
+  testWidgets(
+    'route replaces measurements and discards overlapping late attachments',
+    (tester) async {
+      VideoPlayerPlatform.instance = _PlaybackPlatform();
+      final initial = _TrackedMeasurement();
+      final oldPending = Completer<ShortformPlaybackMeasurement?>();
+      final newestPending = Completer<ShortformPlaybackMeasurement?>();
+      final afterClose = Completer<ShortformPlaybackMeasurement?>();
+      AdShortformFullscreenPage page(
+        Future<ShortformPlaybackMeasurement?> Function() create,
+      ) => AdShortformFullscreenPage(
+        videoUrl: 'https://example.com/ad.mp4',
+        onViewComplete: _response,
+        createPlaybackMeasurement: create,
+      );
+      await mount(tester, page(() async => initial));
+      expect(initial.disposals, 0);
+      await tester.pumpWidget(buildTestAppPage(page(() => oldPending.future)));
+      await tester.pump();
+      expect(initial.disposals, 1);
+      await tester.pumpWidget(
+        buildTestAppPage(page(() => newestPending.future)),
+      );
+      await tester.pump();
+      final newest = _TrackedMeasurement();
+      newestPending.complete(newest);
+      await tester.pump();
+      final stale = _TrackedMeasurement();
+      oldPending.complete(stale);
+      await tester.pump();
+      expect(stale.disposals, 1);
+      expect(newest.disposals, 0);
+      await tester.pumpWidget(buildTestAppPage(page(() => afterClose.future)));
+      await tester.pump();
+      expect(newest.disposals, 1);
+      await tester.pumpWidget(const SizedBox.shrink());
+      final late = _TrackedMeasurement();
+      afterClose.complete(late);
+      await tester.pump();
+      expect(late.disposals, 1);
+    },
+  );
+
+  for (final revokeConsent in [true, false]) {
+    testWidgets(
+      'real route stops on ${revokeConsent ? 'consent withdrawal' : 'account switch'}',
+      (tester) async {
+        VideoPlayerPlatform.instance = _PlaybackPlatform();
+        var owner = 'owner-a';
+        var allowed = true;
+        var now = Duration.zero;
+        final sent = <Map<String, dynamic>>[];
+        await mount(
+          tester,
+          AdShortformFullscreenPage(
+            videoUrl: 'https://example.com/ad.mp4',
+            onViewComplete: _response,
+            createPlaybackMeasurement: () async => ShortformPlaybackMeasurement(
+              elapsed: () => now,
+              reporter: ShortformPlaybackReporter.forImpression(
+                impressionId: '00000000-0000-4000-8000-000000000402',
+                ownerUserId: 'owner-a',
+                currentOwner: () => owner,
+                hasConsent: () => allowed,
+                invoke: (_, params) async {
+                  sent.add(params);
+                },
+              ),
+            ),
+          ),
+        );
+        final controller = tester
+            .widget<VideoPlayer>(find.byType(VideoPlayer))
+            .controller;
+        now = const Duration(milliseconds: 500);
+        controller.value = frame(500);
+        now = const Duration(milliseconds: 1000);
+        controller.value = frame(1000);
+        if (revokeConsent) {
+          allowed = false;
+        } else {
+          owner = 'owner-b';
+        }
+        now = const Duration(milliseconds: 1500);
+        controller.value = frame(1500);
+        await tester.pump(const Duration(seconds: 6));
+        // Returning to the old account or re-enabling consent must not revive
+        // the stopped measurement for this impression.
+        allowed = true;
+        owner = 'owner-a';
+        now = const Duration(milliseconds: 2000);
+        controller.value = frame(2000);
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 6));
+        expect(sent, isEmpty);
+      },
+    );
+  }
+}
+
+class _TrackedMeasurement extends ShortformPlaybackMeasurement {
+  _TrackedMeasurement()
+    : super(
+        reporter: ShortformPlaybackReporter(
+          eligible: () => true,
+          send: (_) async {},
+        ),
+      );
+  int disposals = 0;
+  @override
+  void dispose() {
+    disposals++;
+    super.dispose();
+  }
 }
 
 Future<InternalShortformViewResponse> _response() async =>
@@ -263,21 +378,22 @@ Future<InternalShortformViewResponse> _response() async =>
     );
 
 class _PlaybackPlatform extends VideoPlayerPlatform {
-  late final StreamController<VideoEvent> _events = StreamController<VideoEvent>(
-    onListen: () {
-      scheduleMicrotask(() {
-        _events.add(
-          VideoEvent(
-            eventType: VideoEventType.initialized,
-            duration: const Duration(seconds: 20),
-            size: const Size(1080, 1920),
-            rotationCorrection: 0,
-          ),
-        );
-      });
-    },
-    onCancel: () async {},
-  );
+  late final StreamController<VideoEvent> _events =
+      StreamController<VideoEvent>(
+        onListen: () {
+          scheduleMicrotask(() {
+            _events.add(
+              VideoEvent(
+                eventType: VideoEventType.initialized,
+                duration: const Duration(seconds: 20),
+                size: const Size(1080, 1920),
+                rotationCorrection: 0,
+              ),
+            );
+          });
+        },
+        onCancel: () async {},
+      );
   @override
   Future<void> init() async {}
   @override

@@ -2146,4 +2146,16 @@ class AppLocalizationsFil extends AppLocalizations {
 
   @override
   String get profile_photo_change => 'Palitan ang larawan sa profile';
+
+  @override
+  String get shortform_playback_consent_title =>
+      'Pagsusuri ng panonood ng maiikling video (opsyonal)';
+
+  @override
+  String get shortform_playback_consent_description =>
+      'Iniuugnay ng PICNIC ang mga impression ng mga internal na shortform ad at aktuwal na oras ng pag-play sa iyong account para sa mga istatistika ng panonood ayon sa artist, fandom at rehiyon. Para lang ito sa account na ito sa device na ito hanggang i-restart ang app o lumipas ang 24 na oras, alinman ang mauna. Kapag in-off, hihinto ang susunod na pangongolekta. Hindi maaapektuhan ang mga reward sa ad.';
+
+  @override
+  String get shortform_playback_consent_error =>
+      'Hindi na-save ang setting. Naka-off ang pagsusuri at mananatiling naka-off pagkarestart ng app. Pakisubukan muli.';
 }

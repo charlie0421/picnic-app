@@ -402,6 +402,7 @@ class _AdShortformFullscreenPageState
     with WidgetsBindingObserver {
   VideoPlayerController? _controller;
   ShortformPlaybackMeasurement? _playbackMeasurement;
+  int _measurementGeneration = 0;
   bool _measurementForeground = false;
   bool _viewReported = false;
   bool _loading = true;
@@ -485,6 +486,7 @@ class _AdShortformFullscreenPageState
   }
 
   Future<void> _initializeFlow() async {
+    final generation = _clearPlaybackMeasurement();
     try {
       // anti-abuse rate-limit 등으로 loadAd 가 빈 url 을 sentinel 로 반환한 경우,
       // platform 측이 route pop + rate-limited dialog 를 이미 예약했음을 blocked=true
@@ -494,6 +496,7 @@ class _AdShortformFullscreenPageState
       if (widget.loadAd != null) {
         try {
           final result = await widget.loadAd!();
+          if (!mounted || generation != _measurementGeneration) return;
           _resolvedVideoUrl = result.videoUrl;
           _resolvedCtaUrl = result.ctaUrl;
           blocked = result.blocked;
@@ -527,7 +530,7 @@ class _AdShortformFullscreenPageState
         return;
       }
       if (!mounted) return;
-      unawaited(_attachPlaybackMeasurement());
+      unawaited(_attachPlaybackMeasurement(generation));
       try {
         await _initPlayer(resolvedUrl);
       } catch (e, s) {
@@ -547,10 +550,34 @@ class _AdShortformFullscreenPageState
     }
   }
 
-  Future<void> _attachPlaybackMeasurement() async {
+  @override
+  void didUpdateWidget(AdShortformFullscreenPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.createPlaybackMeasurement !=
+            widget.createPlaybackMeasurement &&
+        _resolvedVideoUrl?.isNotEmpty == true &&
+        !_errorDialogShown) {
+      final generation = _clearPlaybackMeasurement();
+      unawaited(_attachPlaybackMeasurement(generation));
+    }
+  }
+
+  int _clearPlaybackMeasurement() {
+    _measurementGeneration++;
+    final previous = _playbackMeasurement;
+    _playbackMeasurement = null;
+    try {
+      previous?.dispose();
+    } catch (_) {}
+    return _measurementGeneration;
+  }
+
+  Future<void> _attachPlaybackMeasurement(int generation) async {
     try {
       final measurement = await widget.createPlaybackMeasurement?.call();
-      if (!mounted) {
+      if (!mounted ||
+          generation != _measurementGeneration ||
+          _errorDialogShown) {
         measurement?.dispose();
         return;
       }
@@ -656,6 +683,7 @@ class _AdShortformFullscreenPageState
     // 중복 다이얼로그를 막는다.
     if (_errorDialogShown) return;
     _errorDialogShown = true;
+    _clearPlaybackMeasurement();
     _cancelWatchdog();
     _reportLoadFailure(error, stage: stage, stackTrace: stackTrace);
     // 권한/보호된 리소스 등으로 재생 실패 시 공통 에러 다이얼로그 표시 후 화면 종료
@@ -986,10 +1014,7 @@ class _AdShortformFullscreenPageState
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _cancelWatchdog();
-    try {
-      _playbackMeasurement?.dispose();
-    } catch (_) {}
-    _playbackMeasurement = null;
+    _clearPlaybackMeasurement();
     try {
       _controller?.removeListener(_onProgress);
     } catch (_) {}
